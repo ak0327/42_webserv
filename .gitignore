@@ -1,0 +1,13 @@
+*
+**/**
+
+!.gitignore
+!.github/**/
+
+!.cpp
+!.hpp
+!.yml
+
+!Readme.md
+
+/.idea/**/
