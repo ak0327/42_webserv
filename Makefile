@@ -18,7 +18,7 @@ SRCS_HandleString = $(UTILS_DIR)/HandlingString.cpp
 #SRCS_Http = 
 
 #test
-SRCS_TestMain_HandlingString = srcs/TestMain/main.cpp
+SRCS_TestMain_HandlingString = srcs/TestMain/test_handlestring_main.cpp
 
 #main
 #SRCS_main += webserve_tentative/srcs/main.cpp
