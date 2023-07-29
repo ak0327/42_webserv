@@ -6,13 +6,13 @@
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/29 19:47:10 by user              #+#    #+#             */
-/*   Updated: 2023/07/29 20:06:36 by user             ###   ########.fr       */
+/*   Updated: 2023/07/29 22:16:19 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/HandlingString.hpp"
 
-std::vector<std::string> HandlingString::inputargtomap_withoutfirst(std::string const &words)
+std::vector<std::string> HandlingString::inputarg_tomap_without_firstword(std::string const &words)
 {
 	std::string					replaced_words = HandlingString::skip_lastsemicoron(words);
 	std::string					word;
@@ -25,16 +25,16 @@ std::vector<std::string> HandlingString::inputargtomap_withoutfirst(std::string 
 	return (ans);
 }
 
-bool HandlingString::return_matchpattern(std::string True_wd, std::string False_wd, std::string sub_wd)
+bool HandlingString::return_matchpattern(std::string true_word, std::string false_word, std::string tgt_word)
 {
-	if (True_wd == sub_wd)
+	if (true_word == tgt_word)
 		return (true);
-	else if (False_wd == sub_wd)
+	else if (false_word == tgt_word)
 		return (false);
 	return (false);
 }
 
-std::string HandlingString::skipping_emptywd(std::string const &word)
+std::string HandlingString::skipping_emptyword(std::string const &word)
 {
 	std::istringstream	splited_words(word);
 	std::string			src;
@@ -45,14 +45,14 @@ std::string HandlingString::skipping_emptywd(std::string const &word)
 	return (all_src);
 }
 
-bool	HandlingString::ch_under_intmax(std::string const &word)
+bool	HandlingString::check_under_intmax(std::string const &word)
 {
 	size_t	pos = 0;
 	size_t	sum = 0;
 
 	while (word[pos] != '\0')
 	{
-		if (!('0' <= word[pos] && word[pos] <= '9') && word[pos] != ';')
+		if (std::isdigit(word[pos]) == false && word[pos] != ';')
 			return (false);
 		pos++;
 	}
@@ -83,7 +83,7 @@ int	HandlingString::str_to_int(std::string const &word)
 	return (sum);
 }
 
-bool	HandlingString::ch_lastword_semicoron(std::string const &word)
+bool	HandlingString::check_lastword_semicoron(std::string const &word)
 {
 	size_t	pos = 0;
 	size_t	semicoron_count = 0;
