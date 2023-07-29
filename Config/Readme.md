@@ -6,7 +6,8 @@
   
 ## server内   
 * listen \[数字\]  
-* servername \[("or')名前("or')\]  
+* servername \[("or')名前("or')\] \[("or')名前("or')\]  
+複数あることを許容する必要がある  
 * root \[nanka]  
 * index [codeA codeB codeC ...]   
 * allow_methods [methodA methodB ...]  
