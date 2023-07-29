@@ -1,14 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Config.cpp                                         :+:      :+:    :+:   */
+/*   LocationConfig.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/07/30 02:04:06 by user              #+#    #+#             */
-/*   Updated: 2023/07/30 02:04:21 by user             ###   ########.fr       */
+/*   Created: 2023/07/30 02:37:21 by user              #+#    #+#             */
+/*   Updated: 2023/07/30 03:13:39 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/Config.hpp"
+#ifndef LocationConf_HPP
+#define LocationConf_HPP
 
+class LocationConfig
+{
+	private:
+
+	public:
+		LocationConfig();
+		~LocationConfig();
+};
+
+#endif
