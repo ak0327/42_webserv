@@ -1,0 +1,15 @@
+*
+**/**
+
+!.gitignore
+!.github/**/
+
+!.cpp
+!.hpp
+!.yml
+
+!Readme.md
+
+/.idea/**/
+/.vscode/**/
+**/.DS_Store
