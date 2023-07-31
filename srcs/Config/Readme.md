@@ -15,6 +15,14 @@
 * chunked_transfer_encoding [on off];  
 * access_log \[nanka];  
 * error_log \[nanka];  
+error_page error_code [URI | =response]; 
+error_page code ... \[=\[response\]\] uri;   
+errorpageの書式は上記 URIを指定すれば自分の設定したページを、defaultなら元からあるエラーページを表示する  
+以下のような使用方法もある  
+error_page 404 =200 /empty.gif;  
+つまり書式としては  
+status_code ... (=status_code_return) (file_path or =response)  
+のようになっている  
 * keepalive_requests \[数字のみ];一度の接続で受け付けることのできるリクエスト数の上限   
 * server_tokens 1;バージョン番号の表示?  
 こっちが決めたものを指定して良いから1にしたい  
