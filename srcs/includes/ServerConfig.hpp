@@ -6,7 +6,7 @@
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/30 02:40:08 by user              #+#    #+#             */
-/*   Updated: 2023/07/31 21:00:15 by user             ###   ########.fr       */
+/*   Updated: 2023/07/31 23:13:26 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include <sstream>
 
 #include "LocationConfig.hpp"
+#include "HandlingString.hpp"
 
 class LocationConf;
 
@@ -59,8 +60,13 @@ class ServerConfig
 
 	public:
 		ServerConfig();
-		ServerConfig(std::string const &conf);
 		~ServerConfig();
+
+		void									config_linecheck(std::string &line, bool &in_server, bool &in_location, ServerConfig &server_config);
+
+		void									handle_serverinfs(std::string &line, bool &in_server, bool &in_location, ServerConfig &server_config);
+		void									ready_serverconfig();
+		void									insert_severconfig_value();
 
 		// void									reset_contents();
 		void									confcheck(std::string const &conf);

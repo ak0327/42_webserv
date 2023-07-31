@@ -6,7 +6,7 @@
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/29 19:48:07 by user              #+#    #+#             */
-/*   Updated: 2023/07/29 22:16:27 by user             ###   ########.fr       */
+/*   Updated: 2023/07/31 21:50:03 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ class HandlingString
 
 	public:
 		static	bool						check_lastword_semicoron(std::string const &word);
+		static	bool						compare_word(std::string const &tgt_string, std::string const &key);
 		static	std::string					skip_lastsemicoron(std::string const &word);
 		static	std::vector<std::string> 	inputarg_tomap_without_firstword(std::string const &words);
 		static	bool						return_matchpattern(std::string True_wd, std::string False_wd, std::string sub_wd);

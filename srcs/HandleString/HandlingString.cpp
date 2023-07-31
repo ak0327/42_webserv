@@ -6,7 +6,7 @@
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/29 19:47:10 by user              #+#    #+#             */
-/*   Updated: 2023/07/29 22:16:19 by user             ###   ########.fr       */
+/*   Updated: 2023/07/31 21:50:45 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,4 +129,11 @@ void	HandlingString::error_show(std::string const &word, size_t const &pos)
 	std::cout << error_two << std::endl;
 	std::cout << "line > " << pos << std::endl;
 	std::cout << error_three << std::endl;
+}
+
+bool	HandlingString::compare_word(std::string const &tgt_string, std::string const &key)
+{
+	if (key == tgt_string)
+		return (true);
+	return (false);
 }
