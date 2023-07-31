@@ -6,7 +6,7 @@
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/30 02:04:06 by user              #+#    #+#             */
-/*   Updated: 2023/07/30 15:16:48 by user             ###   ########.fr       */
+/*   Updated: 2023/07/31 20:46:24 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@ Config::Config(std::string const &conf)
 
 	if (conf_file.is_open() == false)
 		throw	Config::ConfigError();
-	if (conf_file)
 }
 
 Config::~Config(){}

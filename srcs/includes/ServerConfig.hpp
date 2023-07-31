@@ -6,7 +6,7 @@
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/30 02:40:08 by user              #+#    #+#             */
-/*   Updated: 2023/07/31 20:40:52 by user             ###   ########.fr       */
+/*   Updated: 2023/07/31 21:00:15 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,10 +59,11 @@ class ServerConfig
 
 	public:
 		ServerConfig();
+		ServerConfig(std::string const &conf);
 		~ServerConfig();
 
-		void									reset_contents();
-		void									tmp_confcheck(std::string const &conf);
+		// void									reset_contents();
+		void									confcheck(std::string const &conf);
 
 		void									set_port(std::string const &port){ this->_port = port; };
 		void									set_servername(std::vector<std::string> const &server_name){ this->_server_name = server_name; };
@@ -107,6 +108,24 @@ class ServerConfig
 		size_t									get_client_maxbody_size(void) const{ return (this->_client_maxbody_size); };
 		std::string								get_default_type(void) const{ return (this->_default_type); };
 		int										get_version(void) const {return (this->_server_tokens); };
+
+		class	ConfigSyntaxError//snakecaseにのっとる？
+		{
+			public:
+				virtual const char* what() const throw(){  };
+		};
+
+		class	ConfigServerdhirecthiveError//snakecaseにのっとる？　クラスここまで必要かな
+		{
+			public:
+				virtual const char* what() const throw(){  };
+		};
+
+		class	ConfigLocationdhirecthiveError//snakecaseにのっとる？
+		{
+			public:
+				virtual const char* what() const throw(){  };
+		};
 };
 
 #endif
