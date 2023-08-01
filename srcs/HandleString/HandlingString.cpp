@@ -6,7 +6,7 @@
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/29 19:47:10 by user              #+#    #+#             */
-/*   Updated: 2023/07/31 21:50:45 by user             ###   ########.fr       */
+/*   Updated: 2023/08/01 23:37:35 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,4 +136,15 @@ bool	HandlingString::compare_word(std::string const &tgt_string, std::string con
 	if (key == tgt_string)
 		return (true);
 	return (false);
+}
+
+std::string HandlingString::obtain_second_word(std::string const &line)
+{
+	std::istringstream	splited_woeds(line);
+	std::string			f_word;
+	std::string			s_word;
+	std::string			t_word;
+
+	splited_woeds >> f_word >> s_word >> t_word;
+	return (s_word);
 }

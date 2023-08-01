@@ -6,7 +6,7 @@
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/30 02:40:08 by user              #+#    #+#             */
-/*   Updated: 2023/08/01 22:59:56 by user             ###   ########.fr       */
+/*   Updated: 2023/08/02 01:42:06 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@
 #include "LocationConfig.hpp"
 #include "HandlingString.hpp"
 
-class LocationConf;
+class LocationConfig;
 
 typedef struct s_error_page
 {
@@ -57,7 +57,7 @@ class ServerConfig
 		size_t									_client_maxbody_size;
 		std::string								_default_type;
 
-		// std::map<std::string, LocationConf>		_locations;//locationディレクティブに関して
+		std::map<std::string, LocationConfig>		_locations;//locationディレクティブに関して
 
 	public:
 		ServerConfig();
@@ -73,7 +73,7 @@ class ServerConfig
 		void									set_root(std::string const &root){ this->_root = root; };
 		void									set_indexpage_set(std::vector<std::string> const &index_page){ this->_indexpage_set = index_page; };
 		void									set_allowmethod_set(std::vector<std::string> const &allowed_methods){ this->_allowmethod_set = allowed_methods; };
-		// void									set_locations(std::string const &key, LocationConf const &locationconf){ this->_locations[key] = locationconf; };
+		void									set_locations(std::string const &key, LocationConfig const &locationconf){ this->_locations[key] = locationconf; };
 		void									set_maxBodySize(size_t const &max_bodysize){ this->_maxBodySize = max_bodysize; };
 		void									set_errorpage_set(error_page const &error_page){ this->_errorpage = error_page; };
 		void									set_chunked_transferencoding_allow(bool const &allow_or_not){ this->_chunked_transferencoding_allow = allow_or_not; };
@@ -94,7 +94,7 @@ class ServerConfig
 		std::string								get_root(void) const{ return (this->_root); };
 		std::vector<std::string>				get_indexpage_set(void) const{ return (this->_indexpage_set); };
 		std::vector<std::string>				get_allowmethod_set(void) const{ return (this->_allowmethod_set); };
-		// std::map<std::string, LocationConf>		get_locations(void) const{  };
+		std::map<std::string, LocationConfig>	get_locations(void) const{ return (this->_locations); };
 		// std::map<int, std::string>				get_location_rank(void) const;
 		size_t									get_maxBodySize(void) const{ return (this->_maxBodySize); };
 		error_page								get_errorpage_set(void) const{ return (this->_errorpage); };

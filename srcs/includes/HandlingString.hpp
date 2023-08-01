@@ -6,7 +6,7 @@
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/29 19:48:07 by user              #+#    #+#             */
-/*   Updated: 2023/07/31 21:50:03 by user             ###   ########.fr       */
+/*   Updated: 2023/08/01 23:36:58 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ class HandlingString
 		static	bool						check_under_intmax(std::string const &word);
 		static	int							str_to_int(std::string const &word);
 		static	void						error_show(std::string const &word, size_t const &pos);
+		static	std::string					obtain_second_word(std::string const &line);//空白文字を分割して二番目を格納する
 };
 
 #endif

@@ -24,20 +24,17 @@ class	Config
 
 		void									config_linecheck(std::string &line, bool &in_server, bool &in_location, ServerConfig &server_config);
 		void									handle_serverinfs(std::string &line, bool &in_server, bool &in_location, ServerConfig &server_config);
-
-		void									ready_serverconfig();
-		void									insert_severconfig_value();
+		bool									handle_locationinfs(std::string &line, bool &in_server, bool &in_location, LocationConfig &server_config, std::map<std::string, ServerConfig>::iterator &it, std::string const &location_path, size_t pos);
 		
 		std::map<std::string, ServerConfig>		get_server_config(){ return (this->server_configs); };
 
 		void									config_linecheck(std::string &line, bool &in_server, bool &in_location, ServerConfig &server_config);
 
 		void									handle_serverinfs(std::string &line, bool &in_server, bool &in_location, ServerConfig &server_config);
-		void									ready_serverconfig();
-		void									insert_severconfig_value();
 
 		// void									reset_contents();
-		void									confcheck(std::string const &conf);
+		void									config_location_check(std::string &line, bool &in_server, bool &in_location, LocationConfig &location_config, std::string &location_path, std::map<std::string, ServerConfig>::iterator	&it, size_t &pos);
+		void									handle_locationinfs(std::string &line, bool &in_server, bool &in_location, LocationConfig &location_config, std::map<std::string, ServerConfig>::iterator	&it);
 
 		class	ConfigError
 		{
