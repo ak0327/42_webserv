@@ -6,7 +6,7 @@
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/30 02:40:08 by user              #+#    #+#             */
-/*   Updated: 2023/08/01 21:07:43 by user             ###   ########.fr       */
+/*   Updated: 2023/08/01 22:26:45 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <set>
 
 #include "LocationConfig.hpp"
 #include "HandlingString.hpp"
@@ -62,7 +63,7 @@ class ServerConfig
 		ServerConfig();
 		~ServerConfig();
 
-		void									server_keyword(std::string const &line);
+		bool									serverkeyword_ch(const std::string& word);
 
 		// void									reset_contents();
 
@@ -114,6 +115,12 @@ class ServerConfig
 		{
 			public:
 				virtual const char* what() const throw(){  };
+		};
+
+		class	ServerKeywordError
+		{
+			public:
+				virtual const char* what() const throw(){};
 		};
 
 		class	ConfigServerdhirecthiveError//snakecaseにのっとる？　クラスここまで必要かな

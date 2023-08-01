@@ -6,7 +6,7 @@
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/30 02:04:06 by user              #+#    #+#             */
-/*   Updated: 2023/08/01 21:07:50 by user             ###   ########.fr       */
+/*   Updated: 2023/08/01 22:28:46 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ void	Config::handle_serverinfs(std::string &line, bool &in_server, bool &in_loca
 		in_server = false;
 	}
 	else
-		server_config.server_keyword(line);
+		server_config.serverkeyword_ch(line);
 }
 
 void	Config::config_linecheck(std::string &line, bool &in_server, bool &in_location, ServerConfig &server_config)
