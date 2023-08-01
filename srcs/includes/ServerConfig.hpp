@@ -6,7 +6,7 @@
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/30 02:40:08 by user              #+#    #+#             */
-/*   Updated: 2023/07/31 23:13:26 by user             ###   ########.fr       */
+/*   Updated: 2023/08/01 21:07:43 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,14 +62,9 @@ class ServerConfig
 		ServerConfig();
 		~ServerConfig();
 
-		void									config_linecheck(std::string &line, bool &in_server, bool &in_location, ServerConfig &server_config);
-
-		void									handle_serverinfs(std::string &line, bool &in_server, bool &in_location, ServerConfig &server_config);
-		void									ready_serverconfig();
-		void									insert_severconfig_value();
+		void									server_keyword(std::string const &line);
 
 		// void									reset_contents();
-		void									confcheck(std::string const &conf);
 
 		void									set_port(std::string const &port){ this->_port = port; };
 		void									set_servername(std::vector<std::string> const &server_name){ this->_server_name = server_name; };
