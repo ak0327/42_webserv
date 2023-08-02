@@ -6,17 +6,17 @@
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/30 02:37:21 by user              #+#    #+#             */
-/*   Updated: 2023/08/02 01:34:18 by user             ###   ########.fr       */
+/*   Updated: 2023/08/03 00:10:07 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef LocationConf_HPP
 #define LocationConf_HPP
 
+#include "errorpage.h"
 #include "ServerConfig.hpp"
 
 class	ServerConfig;
-typedef	struct	s_error_page error_page;
 
 class LocationConfig
 {

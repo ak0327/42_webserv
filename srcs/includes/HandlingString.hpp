@@ -6,7 +6,7 @@
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/29 19:48:07 by user              #+#    #+#             */
-/*   Updated: 2023/08/01 23:36:58 by user             ###   ########.fr       */
+/*   Updated: 2023/08/02 22:40:49 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 class HandlingString
 {
 	private:
+		// うえ〜〜い
 
 	public:
 		static	bool						check_lastword_semicoron(std::string const &word);

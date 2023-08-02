@@ -32,10 +32,6 @@ class	Config
 		
 		std::map<std::string, ServerConfig>		get_server_config(){ return (this->server_configs); };
 
-		void									config_linecheck(std::string &line, bool &in_server, bool &in_location, ServerConfig &server_config);
-
-		void									handle_serverinfs(std::string &line, bool &in_server, bool &in_location, ServerConfig &server_config);
-
 		// void									reset_contents();
 		void									config_location_check(std::string &line, bool &in_server, bool &in_location, LocationConfig &location_config, std::string &location_path, std::map<std::string, ServerConfig>::iterator	&it, size_t &pos);
 		void									handle_locationinfs(std::string &line, bool &in_server, bool &in_location, LocationConfig &location_config, std::map<std::string, ServerConfig>::iterator	&it);
@@ -43,7 +39,7 @@ class	Config
 		class	ConfigError
 		{
 			public:
-				virtual const char* what() const throw(){};
+				virtual const char* what() const throw(){ return "This is Config Error"; };
 		};
 };
 

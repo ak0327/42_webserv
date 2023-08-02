@@ -9,17 +9,11 @@
 #include <sstream>
 #include <set>
 
+#include "errorpage.h"
 #include "LocationConfig.hpp"
 #include "HandlingString.hpp"
 
 class LocationConfig;
-
-typedef struct s_error_page
-{
-	std::vector<std::string>	changed_statuscode;
-	std::string					tgt_statuscode;
-	std::string					redirect_path;
-} error_page;
 
 class ServerConfig
 {
@@ -103,25 +97,25 @@ class ServerConfig
 		class	ConfigSyntaxError//snakecaseにのっとる？
 		{
 			public:
-				virtual const char* what() const throw(){  };
+				virtual const char* what() const throw(){ return "This is Config Syntax Error"; };
 		};
 
 		class	ServerKeywordError
 		{
 			public:
-				virtual const char* what() const throw(){};
+				virtual const char* what() const throw(){ return "This is Server Keyword Error"; };
 		};
 
 		class	ConfigServerdhirecthiveError//snakecaseにのっとる？　クラスここまで必要かな
 		{
 			public:
-				virtual const char* what() const throw(){  };
+				virtual const char* what() const throw(){ return "This is Config Server Dhirecthive Error"; };
 		};
 
 		class	ConfigLocationdhirecthiveError//snakecaseにのっとる？
 		{
 			public:
-				virtual const char* what() const throw(){  };
+				virtual const char* what() const throw(){ return "This is Config Location Dhirecthive Error"; };
 		};
 };
 

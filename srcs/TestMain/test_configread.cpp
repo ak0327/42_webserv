@@ -5,5 +5,12 @@
 
 int main()
 {
-	
+	try
+	{
+		Config config("../../config/testconfig1.conf");
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
 }

@@ -4,13 +4,14 @@
 !.gitignore
 !.github/**/
 !config/*.conf
-!srcs/
+!srcs/*
 
 !.cpp
 !.hpp
 !.yml
 !.conf
 !.txt
+!.h
 
 !Readme.md
 
