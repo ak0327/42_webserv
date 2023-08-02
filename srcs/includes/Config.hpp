@@ -12,6 +12,10 @@
 
 class	ServerConfig;
 class	LocationConfig;
+//config
+//     str1 serverconfig
+//                locationconfig
+//     str2 serverconfig2
 
 class	Config
 {

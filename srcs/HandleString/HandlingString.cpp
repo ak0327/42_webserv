@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   HandlingString.cpp                                 :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/07/29 19:47:10 by user              #+#    #+#             */
-/*   Updated: 2023/08/01 23:37:35 by user             ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "../includes/HandlingString.hpp"
 
 std::vector<std::string> HandlingString::inputarg_tomap_without_firstword(std::string const &words)

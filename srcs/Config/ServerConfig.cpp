@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   ServerConfig.cpp                                   :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/07/30 11:35:54 by user              #+#    #+#             */
-/*   Updated: 2023/08/01 23:03:03 by user             ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "../includes/ServerConfig.hpp"
 
 ServerConfig::ServerConfig():_maxBodySize(1024), _chunked_transferencoding_allow(false),

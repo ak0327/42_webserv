@@ -6,7 +6,7 @@
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/02 00:23:38 by user              #+#    #+#             */
-/*   Updated: 2023/08/02 01:37:25 by user             ###   ########.fr       */
+/*   Updated: 2023/08/02 21:51:05 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -305,3 +305,4 @@ int										LocationConfig::get_version(void) { return (this->_server_tokens); 
 std::string								LocationConfig::get_cgi_path(void) { return (this->_cgi_path); };
 std::string								LocationConfig::get_alias(void) { return (this->_alias); };
 std::string								LocationConfig::get_upload_path(void) { return (this->_upload_path); };
+

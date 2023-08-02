@@ -1,8 +1,10 @@
-!*
-!**/**
+*
+**/**
 
 !.gitignore
 !.github/**/
+!config/*.conf
+!srcs/
 
 !.cpp
 !.hpp
