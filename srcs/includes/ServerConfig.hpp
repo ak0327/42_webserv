@@ -9,9 +9,8 @@
 #include <sstream>
 #include <set>
 
-#include "errorpage.h"
 #include "LocationConfig.hpp"
-#include "HandlingString.hpp"
+// #include "errorpage.hpp"
 
 class LocationConfig;
 
@@ -24,7 +23,7 @@ class ServerConfig
 		std::vector<std::string>				_indexpage_set;
 		std::vector<std::string>				_allowmethod_set;
 		size_t 									_maxBodySize;
-		error_page 								_errorpage;//これめっちゃおかしい使い方できる　error_page 403 404 500 503 =404 /custom_404.html;
+		// error_page 								_errorpage;//これめっちゃおかしい使い方できる　error_page 403 404 500 503 =404 /custom_404.html;
 		bool									_chunked_transferencoding_allow;
 		std::string								_accesslog;
 		std::string								_errorlog;
@@ -39,11 +38,13 @@ class ServerConfig
 		size_t									_client_maxbody_size;
 		std::string								_default_type;
 
-		std::map<std::string, LocationConfig>		_locations;//locationディレクティブに関して
+		std::map<std::string, LocationConfig>	_locations;//locationディレクティブに関して
 
 	public:
 		ServerConfig();
 		~ServerConfig();
+		ServerConfig& operator=(const ServerConfig& other);
+		ServerConfig& operator=(ServerConfig& other);
 
 		bool									serverkeyword_insert(std::string const &line);
 		bool									serverkeyword_ch(const std::string& word);
@@ -55,9 +56,9 @@ class ServerConfig
 		void									set_root(std::string const &root){ this->_root = root; };
 		void									set_indexpage_set(std::vector<std::string> const &index_page){ this->_indexpage_set = index_page; };
 		void									set_allowmethod_set(std::vector<std::string> const &allowed_methods){ this->_allowmethod_set = allowed_methods; };
-		void									set_locations(std::string const &key, LocationConfig const &locationconf){ this->_locations[key] = locationconf; };
+		void									set_locations(std::string &key, LocationConfig &locationconf);
 		void									set_maxBodySize(size_t const &max_bodysize){ this->_maxBodySize = max_bodysize; };
-		void									set_errorpage_set(error_page const &error_page){ this->_errorpage = error_page; };
+		// void									set_errorpage_set(error_page const &error_page){ this->_errorpage = error_page; };
 		void									set_chunked_transferencoding_allow(bool const &allow_or_not){ this->_chunked_transferencoding_allow = allow_or_not; };
 		void									set_accesslog(std::string const &access_log){ this->_accesslog = access_log; };
 		void									set_errorlog(std::string const &error_log){ this->_errorlog = error_log; };
@@ -79,7 +80,7 @@ class ServerConfig
 		std::map<std::string, LocationConfig>	get_locations(void) const{ return (this->_locations); };
 		// std::map<int, std::string>				get_location_rank(void) const;
 		size_t									get_maxBodySize(void) const{ return (this->_maxBodySize); };
-		error_page								get_errorpage_set(void) const{ return (this->_errorpage); };
+		// error_page								get_errorpage_set(void) const{ return (this->_errorpage); };
 		bool									get_chunked_transferencoding_allow(void) const{ return (this->_chunked_transferencoding_allow); };
 		std::string								get_accesslog(void) const{ return (this->_accesslog); };
 		std::string								get_errorlog(void) const{ return (this->_errorlog); };

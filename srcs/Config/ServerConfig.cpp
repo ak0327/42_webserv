@@ -1,9 +1,23 @@
+#include "../includes/LocationConfig.hpp"
 #include "../includes/ServerConfig.hpp"
+#include "../includes/HandlingString.hpp"
 
 ServerConfig::ServerConfig():_maxBodySize(1024), _chunked_transferencoding_allow(false),
 _keepaliverequests(10), _server_tokens(1), _autoindex(false), _default_type("application/octet-stream"){}
 
 ServerConfig::~ServerConfig(){}
+
+ServerConfig& ServerConfig::operator=(const ServerConfig& other)
+{
+	(void)other;
+	return (*this);
+}
+
+ServerConfig& ServerConfig::operator=(ServerConfig& other)
+{
+	(void)other;
+	return (*this);
+}
 
 bool ServerConfig::serverkeyword_ch(const std::string& word)
 {
@@ -121,3 +135,5 @@ bool	ServerConfig::serverkeyword_insert(std::string const &line)
 		return (false);
 	return (true);
 }
+
+void ServerConfig::set_locations(std::string &key, LocationConfig &locationconf){ _locations[key] = locationconf; }

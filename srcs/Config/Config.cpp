@@ -2,9 +2,9 @@
 
 Config::Config(std::string const &conf)
 {
-	std::ifstream conf_file(conf);
+	std::ifstream conf_file_test(conf);
 
-	if (conf_file.is_open() == false)
+	if (conf_file_test.is_open() == false)
 		throw	Config::ConfigError();
 
 	std::ifstream	conf_file(conf);
@@ -27,13 +27,12 @@ Config::Config(std::string const &conf)
 	in_location = false;
 	config_line = 1;
 
-	std::ifstream	conf_file(conf);
-	std::string		line;
+	std::ifstream	conf_file2(conf);
 	LocationConfig	location_config;
 	std::string		location_path = "";
 	std::map<std::string, ServerConfig>::iterator	it = this->server_configs.begin();
 
-	while (std::getline(conf_file, line))
+	while (std::getline(conf_file2, line))
 	{
 		if (HandlingString::skipping_emptyword(line)[0] == '#' || HandlingString::skipping_emptyword(line) == "")
 			;
@@ -79,8 +78,7 @@ void	Config::config_linecheck(std::string &line, bool &in_server, bool &in_locat
 	}
 }
 
-bool	Config::handle_locationinfs(std::string &line, bool &in_server, bool &in_location, LocationConfig &location_config, \
-std::map<std::string, ServerConfig>::iterator	&it, std::string const &location_path, size_t pos)
+bool	Config::handle_locationinfs(std::string &line, bool &in_location, LocationConfig &location_config, std::map<std::string, ServerConfig>::iterator &it, std::string &location_path)
 {
 	if (HandlingString::skipping_emptyword(line) == "}")
 	{
@@ -89,17 +87,17 @@ std::map<std::string, ServerConfig>::iterator	&it, std::string const &location_p
 		in_location = false;
 	}
 	else if (location_config.insert_location(line) == false)
-	{
-		HandlingString::error_show(line, pos);
 		return (false);
-	}
+	return (true);
 }
 
 void	Config::config_location_check(std::string &line, bool &in_server, bool &in_location, LocationConfig &location_config, std::string &location_path, \
 std::map<std::string, ServerConfig>::iterator	&it, size_t &pos)
 {
+	pos = pos + 1;
+	pos = pos - 1;
 	if (in_location == true && in_server == true)// locationの中 locationの中だからserverの中
-		handle_locationinfs(line, in_server, in_location, location_config, it, location_path, pos);
+		handle_locationinfs(line, in_location, location_config, it, location_path);
 	else if (in_server == true)// serverの中locationの外
 	{
 		if (HandlingString::skipping_emptyword(line) == "location{")

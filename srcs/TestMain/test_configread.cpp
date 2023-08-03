@@ -1,7 +1,6 @@
-#include "../includes/Config.hpp"
 #include "../includes/HandlingString.hpp"
-#include "../includes/LocationConfig.hpp"
 #include "../includes/ServerConfig.hpp"
+#include "../includes/Config.hpp"
 
 int main()
 {
