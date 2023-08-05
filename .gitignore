@@ -1,16 +1,14 @@
 *
-**/**
 
 !.gitignore
-!.github/**/
-!config/*.conf
-!srcs/
-!srcs/Config
-!srcs/Config/*
-!srcs/Config/Errorpage.cpp
-!srcs/includes
-!srcs/includes/*
-!srcs/includes/Errorpage.hpp
+!.github
+!.github/*
+!config
+
+!srcs
+!srcs/**
+!TestMain
+!CGI_test
 
 !*.cpp
 !*.hpp
@@ -20,7 +18,8 @@
 !*.h
 
 !Readme.md
+!Makefile
 
-/.idea/**/
-/.vscode/**/
-**/.DS_Store
+.idea
+.vscode
+.DS_Store
