@@ -152,5 +152,6 @@ void	Config::show_configinfos()
 		std::cout << "==============" << std::endl;
 		std::cout << "## SHOW SERVER CONFIG INFS## " << std::endl;
 		it->second.show_serverconfig_allinfo();
+		it++;
 	}
 }

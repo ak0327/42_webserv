@@ -3,6 +3,9 @@
 
 #include <vector>
 #include <string>
+#include <iostream>
+
+#include "HandlingString.hpp"
 
 class ErrorPage
 {

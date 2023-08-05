@@ -7,6 +7,7 @@ int main()
 	try
 	{
 		Config config("config/testconfig1.conf");
+		config.show_configinfos();
 	}
 	catch(Config::ConfigError e)
 	{

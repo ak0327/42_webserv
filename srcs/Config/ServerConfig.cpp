@@ -159,5 +159,24 @@ void ServerConfig::show_serverconfig_allinfo()
 	HandlingString::show_vector_contents(this->_allowmethod_set);
 	std::cout << RESET_COLOR << std::endl;
 	std::cout << "maxbodysize is " << GREEN_COLOR << HandlingString::int_to_str(this->_maxBodySize) << RESET_COLOR << std::endl;
-	
+	std::cout << "## ERROR PAGE SHOW ##" << std::endl;
+	this->_errorpage.show_wrrorpage_infos();
+	if (this->_chunked_transferencoding_allow == true)
+		std::cout << "transfer encoding is " << GREEN_COLOR << "<< ALLOWED!! >>" << RESET_COLOR << std::endl;
+	else
+		std::cout << "transfer encoding is " << GREEN_COLOR << "<< NOT ALLOWED!! >>" << RESET_COLOR << std::endl;
+	std::cout << "access log is " << GREEN_COLOR << this->_accesslog << RESET_COLOR << std::endl;
+	std::cout << "error log is " << GREEN_COLOR << this->_errorlog << RESET_COLOR << std::endl;
+	std::cout << "keepalive request is " << GREEN_COLOR << HandlingString::int_to_str(this->_keepaliverequests) << RESET_COLOR << std::endl;
+	std::cout << "keepalive timeout is " << GREEN_COLOR << HandlingString::int_to_str(this->_keepalive_timeout) << RESET_COLOR << std::endl;
+	if (this->_autoindex == true)
+		std::cout << "autoindex is " << GREEN_COLOR << "<< ON!! >>" << RESET_COLOR << std::endl;
+	else
+		std::cout << "autoindex is " << GREEN_COLOR << "<< OFF!! >>" << RESET_COLOR << std::endl;
+	std::cout << "client body buffersize is " << GREEN_COLOR << HandlingString::int_to_str(this->_client_body_buffer_size) << RESET_COLOR << std::endl;
+	std::cout << "client body timeout " << GREEN_COLOR << HandlingString::int_to_str(this->_client_body_timeout) << RESET_COLOR << std::endl;
+	std::cout << "client header buffersize is " << GREEN_COLOR << HandlingString::int_to_str(this->_client_header_buffer_size) << RESET_COLOR << std::endl;
+	std::cout << "client header timeout " << GREEN_COLOR << HandlingString::int_to_str(this->_client_header_timeout) << RESET_COLOR << std::endl;
+	std::cout << "client max body size " << GREEN_COLOR << HandlingString::int_to_str(this->_client_maxbody_size) << RESET_COLOR << std::endl;
+	std::cout << "default type is " << GREEN_COLOR << this->_default_type << RESET_COLOR << std::endl;
 }

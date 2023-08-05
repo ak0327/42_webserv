@@ -157,6 +157,11 @@ std::string HandlingString::int_to_str(size_t pos)
 
 void HandlingString::show_vector_contents(std::vector<std::string> subject)
 {
+	if (subject.empty())
+	{
+		std::cout << " * NO CONTENTS INSERTED * " << std::endl;
+		return ;
+	}
 	std::vector<std::string>::iterator it = subject.begin();
 	if (it == subject.end())
 		std::cout << *it << std::endl;
