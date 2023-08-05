@@ -6,7 +6,7 @@
 /*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/29 19:48:07 by user              #+#    #+#             */
-/*   Updated: 2023/08/02 22:40:49 by user             ###   ########.fr       */
+/*   Updated: 2023/08/05 16:41:38 by user             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,8 +34,10 @@ class HandlingString
 		static	std::string					skipping_emptyword(std::string const &word);
 		static	bool						check_under_intmax(std::string const &word);
 		static	int							str_to_int(std::string const &word);
+		static	std::string					int_to_str(size_t pos);
 		static	void						error_show(std::string const &word, size_t const &pos);
 		static	std::string					obtain_second_word(std::string const &line);//空白文字を分割して二番目を格納する
+		static	void						show_vector_contents(std::vector<std::string>);
 };
 
 #endif

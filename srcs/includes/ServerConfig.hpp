@@ -9,9 +9,11 @@
 #include <sstream>
 #include <set>
 
+#include "ErrorPage.hpp"
 #include "LocationConfig.hpp"
-// #include "errorpage.hpp"
+#include "HandlingString.hpp"
 
+class ErrorPage;
 class LocationConfig;
 
 class ServerConfig
@@ -23,7 +25,7 @@ class ServerConfig
 		std::vector<std::string>				_indexpage_set;
 		std::vector<std::string>				_allowmethod_set;
 		size_t 									_maxBodySize;
-		// error_page 								_errorpage;//これめっちゃおかしい使い方できる　error_page 403 404 500 503 =404 /custom_404.html;
+		ErrorPage 								_errorpage;//これめっちゃおかしい使い方できる　error_page 403 404 500 503 =404 /custom_404.html;
 		bool									_chunked_transferencoding_allow;
 		std::string								_accesslog;
 		std::string								_errorlog;
@@ -46,8 +48,9 @@ class ServerConfig
 		ServerConfig& operator=(const ServerConfig& other);
 		ServerConfig& operator=(ServerConfig& other);
 
-		bool									serverkeyword_insert(std::string const &line);
+		bool									serverkeyword_insert(std::string const &line, size_t pos);
 		bool									serverkeyword_ch(const std::string& word);
+		void									show_serverconfig_allinfo();
 
 		// void									reset_contents();
 
@@ -98,13 +101,33 @@ class ServerConfig
 		class	ConfigSyntaxError//snakecaseにのっとる？
 		{
 			public:
-				virtual const char* what() const throw(){ return "This is Config Syntax Error"; };
+				ConfigSyntaxError(const std::string& error_keyword, size_t line): _keyword(error_keyword), _line(line) {}
+				virtual const char* what() const throw()
+				{
+					std::string error_message = "This is Config Syntax Error\nerror keyword is -> " + _keyword + "\nline is -> " + HandlingString::int_to_str(_line);
+					char *error_message_ptr = new char[error_message.size() + 1];
+					std::strcpy(error_message_ptr, error_message.c_str());
+					return error_message_ptr;
+				};
+			private:
+				std::string	_keyword;
+				size_t		_line;
 		};
 
 		class	ServerKeywordError
 		{
 			public:
-				virtual const char* what() const throw(){ return "This is Server Keyword Error"; };
+				ServerKeywordError(const std::string& error_keyword, size_t line): _keyword(error_keyword), _line(line) {}
+				virtual const char* what() const throw()
+				{
+					std::string error_message = "This is Keyword Error\nerror keyword is -> " + _keyword + "\nline is -> " + HandlingString::int_to_str(_line);
+					char *error_message_ptr = new char[error_message.size() + 1];
+					std::strcpy(error_message_ptr, error_message.c_str());
+					return error_message_ptr;
+				};
+			private:
+				std::string	_keyword;
+				size_t		_line;
 		};
 
 		class	ConfigServerdhirecthiveError//snakecaseにのっとる？　クラスここまで必要かな

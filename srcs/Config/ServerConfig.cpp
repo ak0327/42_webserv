@@ -40,7 +40,7 @@ bool ServerConfig::serverkeyword_ch(const std::string& word)
     return false;
 }
 
-bool	ServerConfig::serverkeyword_insert(std::string const &line)
+bool	ServerConfig::serverkeyword_insert(std::string const &line, size_t pos)
 {
 	std::istringstream	splited_woeds(line);
 	std::string			key_word;
@@ -50,7 +50,7 @@ bool	ServerConfig::serverkeyword_insert(std::string const &line)
 	splited_woeds >> key_word >> val_two;
 	val = HandlingString::skip_lastsemicoron(val_two);
 	if (this->serverkeyword_ch(key_word) == false)
-		throw ServerConfig::ServerKeywordError();
+		throw ServerConfig::ServerKeywordError(key_word, pos);
 	if (key_word == "listen")
 		this->set_port(val);
 	else if (key_word == "cgi_extension")//何するかわかってない
@@ -137,3 +137,19 @@ bool	ServerConfig::serverkeyword_insert(std::string const &line)
 }
 
 void ServerConfig::set_locations(std::string &key, LocationConfig &locationconf){ _locations[key] = locationconf; }
+
+#define RESET_COLOR "\033[0m"
+#define RED_COLOR "\033[31m"
+#define GREEN_COLOR "\033[32m"
+#define YELLOW_COLOR "\033[33m"
+#define BLUE_COLOR "\033[34m"
+#define MAGENTA_COLOR "\033[35m"
+#define CYAN_COLOR "\033[36m"
+
+void ServerConfig::show_serverconfig_allinfo()
+{
+	std::cout << "server name is " << GREEN_COLOR;
+	HandlingString::show_vector_contents(this->_server_name);
+	std::cout << RESET_COLOR << std::endl;
+	
+}

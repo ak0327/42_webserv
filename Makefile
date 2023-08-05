@@ -11,7 +11,7 @@ OBJ_DIR = objs
 SRCS_HandleString = $(UTILS_DIR)/HandlingString.cpp
 
 # conに関するsrc
-SRCS_Conf =  $(CONF_DIR)/Config.cpp $(CONF_DIR)/ServerConfig.cpp $(CONF_DIR)/LocationConfig.cpp
+SRCS_Conf =  $(CONF_DIR)/Config.cpp $(CONF_DIR)/ServerConfig.cpp $(CONF_DIR)/LocationConfig.cpp $(CONF_DIR)/ErrorPage.cpp
 
 #socketに関する
 #SRCS_Socket = $(SOCKET_DIR)/makeSockets.cpp $(SOCKET_DIR)/Socket.cpp

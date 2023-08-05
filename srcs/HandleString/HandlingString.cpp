@@ -136,3 +136,33 @@ std::string HandlingString::obtain_second_word(std::string const &line)
 	splited_woeds >> f_word >> s_word >> t_word;
 	return (s_word);
 }
+
+std::string HandlingString::int_to_str(size_t pos)
+{
+	std::string result;
+	
+    if (pos == 0)
+        result = "0";
+	else
+	{
+        while (pos > 0)
+		{
+            result =  static_cast<char>('0' + pos % 10) + result;
+            pos /= 10;
+        }
+    }
+
+    return result;
+}
+
+void HandlingString::show_vector_contents(std::vector<std::string> subject)
+{
+	std::vector<std::string>::iterator it = subject.begin();
+	if (it == subject.end())
+		std::cout << *it << std::endl;
+	while (it != subject.end())
+	{
+		std::cout << *it << " ";
+		it++;
+	}
+}

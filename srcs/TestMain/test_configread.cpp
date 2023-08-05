@@ -6,9 +6,17 @@ int main()
 {
 	try
 	{
-		Config config("../../config/testconfig1.conf");
+		Config config("config/testconfig1.conf");
 	}
-	catch(const std::exception& e)
+	catch(Config::ConfigError e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+	catch(ServerConfig::ConfigSyntaxError e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+	catch(ServerConfig::ServerKeywordError e)
 	{
 		std::cerr << e.what() << '\n';
 	}
