@@ -1,18 +1,6 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   LocationConfig.cpp                                 :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/08/02 00:23:38 by user              #+#    #+#             */
-/*   Updated: 2023/08/03 22:31:14 by user             ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#include "../includes/LocationConfig.hpp"
-#include "../includes/ServerConfig.hpp"
-#include "../includes/HandlingString.hpp"
+#include "LocationConfig.hpp"
+#include "ServerConfig.hpp"
+#include "HandlingString.hpp"
 
 LocationConfig::LocationConfig():_maxBodySize(1024), _chunked_transferencoding_allow(false),
 _keepaliverequests(10), _server_tokens(1), _autoindex(false), _default_type("application/octet-stream")

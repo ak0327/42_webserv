@@ -32,6 +32,12 @@ SRCS = $(SRCS_Conf) $(SRCS_HandleString) $(SRCS_TestMain_Config)
 OBJ = $(SRCS:.cpp=.o)
 OBJS = $(addprefix $(OBJ_DIR)/, $(OBJ))
 
+
+# todo: srcs/includes -> includes
+INCLUDES_DIR = srcs/includes
+INCLUDES	= $(addprefix -I, $(INCLUDES_DIR))
+
+
 .PHONY	: all
 all		: $(NAME)
 
@@ -40,7 +46,7 @@ $(NAME)	: $(OBJS)
 
 $(OBJ_DIR)/%.o : %.cpp
 	@mkdir -p $$(dirname $@)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
 .PHONY	: clean
 clean	:

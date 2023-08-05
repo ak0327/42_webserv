@@ -1,6 +1,6 @@
-#include "../includes/HandlingString.hpp"
-#include "../includes/ServerConfig.hpp"
-#include "../includes/Config.hpp"
+#include "HandlingString.hpp"
+#include "ServerConfig.hpp"
+#include "Config.hpp"
 
 int main()
 {

@@ -1,6 +1,6 @@
-#include "../includes/LocationConfig.hpp"
-#include "../includes/ServerConfig.hpp"
-#include "../includes/HandlingString.hpp"
+#include "LocationConfig.hpp"
+#include "ServerConfig.hpp"
+#include "HandlingString.hpp"
 
 ServerConfig::ServerConfig():_maxBodySize(1024), _chunked_transferencoding_allow(false),
 _keepaliverequests(10), _server_tokens(1), _autoindex(false), _default_type("application/octet-stream"){}

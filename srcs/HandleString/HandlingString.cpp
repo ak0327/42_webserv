@@ -1,4 +1,4 @@
-#include "../includes/HandlingString.hpp"
+#include "HandlingString.hpp"
 
 std::vector<std::string> HandlingString::inputarg_tomap_without_firstword(std::string const &words)
 {

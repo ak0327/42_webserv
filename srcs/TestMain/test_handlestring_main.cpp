@@ -1,4 +1,4 @@
-#include "../includes/HandlingString.hpp"
+#include "HandlingString.hpp"
 
 int main()
 {
