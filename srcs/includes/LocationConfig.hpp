@@ -1,5 +1,4 @@
-#ifndef LocationConfig_HPP
-#define LocationConfig_HPP
+#pragma once
 
 #include <map>
 #include <string>
@@ -17,7 +16,7 @@ class LocationConfig
 		std::vector<std::string>				_server_name;
 		std::string								_root;
 		std::string								_alias;
-		std::vector<std::string>				_indexpage_set;	
+		std::vector<std::string>				_indexpage_set;
 		std::vector<std::string>				_allowmethod_set;
 		size_t 									_maxBodySize;
 		// error_page						 		_errorpage_set;//これめっちゃおかしい使い方できる　error_page 403 404 500 503 =404 /custom_404.html;
@@ -102,5 +101,3 @@ class LocationConfig
 		std::string								get_alias(void);
 		std::string								get_upload_path(void);
 };
-
-#endif
