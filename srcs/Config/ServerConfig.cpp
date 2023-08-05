@@ -151,5 +151,13 @@ void ServerConfig::show_serverconfig_allinfo()
 	std::cout << "server name is " << GREEN_COLOR;
 	HandlingString::show_vector_contents(this->_server_name);
 	std::cout << RESET_COLOR << std::endl;
+	std::cout << "root is " << GREEN_COLOR << this->_root << RESET_COLOR << std::endl;
+	std::cout << "index page is " << GREEN_COLOR;
+	HandlingString::show_vector_contents(this->_indexpage_set);
+	std::cout << RESET_COLOR << std::endl;
+	std::cout << "allowmethod is " << GREEN_COLOR;
+	HandlingString::show_vector_contents(this->_allowmethod_set);
+	std::cout << RESET_COLOR << std::endl;
+	std::cout << "maxbodysize is " << GREEN_COLOR << HandlingString::int_to_str(this->_maxBodySize) << RESET_COLOR << std::endl;
 	
 }

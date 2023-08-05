@@ -4,14 +4,20 @@
 !.gitignore
 !.github/**/
 !config/*.conf
-!srcs/*
+!srcs/
+!srcs/Config
+!srcs/Config/*
+!srcs/Config/Errorpage.cpp
+!srcs/includes
+!srcs/includes/*
+!srcs/includes/Errorpage.hpp
 
-# !.cpp
-# !.hpp
-# !.yml
-# !.conf
-# !.txt
-# !.h
+!*.cpp
+!*.hpp
+!*.yml
+!*.conf
+!*.txt
+!*.h
 
 !Readme.md
 
