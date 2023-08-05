@@ -49,4 +49,7 @@ fclean:clean
 
 re: fclean all
 
+lint	:
+	cpplint --recursive srcs
+
 -include $(DEPS)
