@@ -45,17 +45,29 @@ class ServerConfig
 	public:
 		ServerConfig();
 		~ServerConfig();
-		ServerConfig& operator=(const ServerConfig& other);
-		ServerConfig& operator=(ServerConfig& other);
+		// ServerConfig& operator=(const ServerConfig& other);
+		// ServerConfig& operator=(ServerConfig& other);
 
 		bool									serverkeyword_insert(std::string const &line, size_t pos);
 		bool									serverkeyword_ch(const std::string& word);
 		void									show_serverconfig_allinfo();
+		void									value_check();
 
 		// void									reset_contents();
 
 		void									set_port(std::string const &port){ this->_port = port; };
-		void									set_servername(std::vector<std::string> const &server_name){ this->_server_name = server_name; };
+		void									set_servername(std::vector<std::string> const &server_name)
+		{ 
+			if (server_name.empty() == true)
+				std::cout << "this is no contents" << std::endl;
+			else
+				std::cout << "this is contents" << std::endl;
+			this->_server_name = server_name;
+			if (this->_server_name.empty() == true)
+				std::cout << "this is no contents" << std::endl;
+			else
+				std::cout << "this is contents" << std::endl;
+		};
 		void									set_root(std::string const &root){ this->_root = root; };
 		void									set_indexpage_set(std::vector<std::string> const &index_page){ this->_indexpage_set = index_page; };
 		void									set_allowmethod_set(std::vector<std::string> const &allowed_methods){ this->_allowmethod_set = allowed_methods; };

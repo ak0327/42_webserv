@@ -55,6 +55,7 @@ void	Config::handle_serverinfs(std::string &line, bool &in_server, bool &in_loca
 	{
 		if (server_config.get_port() == "")
 			throw ServerConfig::ConfigServerdhirecthiveError();
+		server_config.value_check();
 		this->server_configs[server_config.get_port() + '_' + server_config.get_servername()[0]] = server_config;
 		// server_config.reset_content();
 		in_server = false;

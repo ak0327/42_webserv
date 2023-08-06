@@ -75,9 +75,15 @@ std::string ErrorPage::get_redirect_path() const
 
 void ErrorPage::show_wrrorpage_infos()
 {
-	std::cout << " is " << BLUE_COLOR;
+	std::cout << "changed status code is " << BLUE_COLOR;
 	HandlingString::show_vector_contents(this->changed_statuscode);
 	std::cout << RESET_COLOR << std::endl;
-	std::cout << "root is " << BLUE_COLOR << this->tgt_statuscode << RESET_COLOR << std::endl;
-	std::cout << "root is " << BLUE_COLOR << this->redirect_path << RESET_COLOR << std::endl;
+	if (this->tgt_statuscode != "")
+		std::cout << "target statuscode is " << BLUE_COLOR << this->tgt_statuscode << RESET_COLOR << std::endl;
+	else
+		std::cout << "target statuscode is " << BLUE_COLOR << "<< NO TARGET STATUS CODE >>" << RESET_COLOR << std::endl;
+	if (this->redirect_path != "")
+		std::cout << "redirect path is " << BLUE_COLOR << this->redirect_path << RESET_COLOR << std::endl;
+	else
+		std::cout << "redirect path is " << BLUE_COLOR << "<< NO REDIRECT PATH >>" << RESET_COLOR << std::endl;
 }
