@@ -6,7 +6,7 @@ int main()
 {
 	try
 	{
-		Config config("config/testconfig1.conf");
+		Config config("config/testconfig2.conf");
 		config.show_configinfos();
 	}
 	catch(Config::ConfigError e)
