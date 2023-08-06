@@ -199,8 +199,9 @@ void ServerConfig::show_serverconfig_allinfo()
 	HandlingString::show_vector_contents(this->_allowmethod_set);
 	std::cout << RESET_COLOR << std::endl;
 	std::cout << "maxbodysize is " << GREEN_COLOR << HandlingString::int_to_str(this->_maxBodySize) << RESET_COLOR << std::endl;
-	std::cout << "## ERROR PAGE SHOW ##" << std::endl;
+	std::cout << BLUE_COLOR << "## ERROR PAGE SHOW ##" << RESET_COLOR << std::endl;
 	this->_errorpage.show_wrrorpage_infos();
+	std::cout << BLUE_COLOR << "## ## ## ## ## ## ## ##" << RESET_COLOR << std::endl;
 	if (this->_chunked_transferencoding_allow == true)
 		std::cout << "transfer encoding is " << GREEN_COLOR << "<< ALLOWED!! >>" << RESET_COLOR << std::endl;
 	else
