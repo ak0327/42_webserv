@@ -8,8 +8,12 @@ std::vector<std::string> HandlingString::inputarg_tomap_without_firstword(std::s
 	std::vector<std::string>	ans;
 
 	splited_words >> word;
+	// std::cout << "word is -> " << word << std::endl;
 	while (splited_words >> word)
+	{
+		// std::cout << "word is -> " << word << std::endl;
 		ans.push_back(word);
+	}
 	return (ans);
 }
 
@@ -156,9 +160,9 @@ std::string HandlingString::int_to_str(size_t pos)
 
 void HandlingString::show_vector_contents(std::vector<std::string> subject)
 {
-	if (subject.empty())
+	if (subject.empty() == true)
 	{
-		std::cout << " * NO CONTENTS INSERTED * " << std::endl;
+		std::cout << " * NO CONTENTS INSERTED * ";
 		return;
 	}
 	std::vector<std::string>::iterator it = subject.begin();

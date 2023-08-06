@@ -3,21 +3,26 @@
 #include "HandlingString.hpp"
 
 ServerConfig::ServerConfig():_maxBodySize(1024), _chunked_transferencoding_allow(false),
-_keepaliverequests(10), _server_tokens(1), _autoindex(false), _default_type("application/octet-stream"){}
+_keepaliverequests(0), _keepalive_timeout(0), _server_tokens(1), _autoindex(false), _client_body_buffer_size(8000),
+_client_body_timeout(60), _client_header_buffer_size(1024), _client_header_timeout(60), _client_maxbody_size(1048576),
+_default_type("application/octet-stream")
+{
+
+}
 
 ServerConfig::~ServerConfig(){}
 
-ServerConfig& ServerConfig::operator=(const ServerConfig& other)
-{
-	(void)other;
-	return (*this);
-}
+// ServerConfig& ServerConfig::operator=(const ServerConfig& other)
+// {
+// 	(void)other;
+// 	return (*this);
+// }
 
-ServerConfig& ServerConfig::operator=(ServerConfig& other)
-{
-	(void)other;
-	return (*this);
-}
+// ServerConfig& ServerConfig::operator=(ServerConfig& other)
+// {
+// 	(void)other;
+// 	return (*this);
+// }
 
 bool ServerConfig::serverkeyword_ch(const std::string& word)
 {
@@ -60,7 +65,7 @@ bool	ServerConfig::serverkeyword_insert(std::string const &line, size_t pos)
 	else if (key_word == "root")
 		this->set_root(val);
 	else if (key_word == "index")
-		this->set_root(val);
+		this->set_indexpage_set(HandlingString::inputarg_tomap_without_firstword(line));
 	else if (key_word == "allow_methods")
 		this->set_allowmethod_set(HandlingString::inputarg_tomap_without_firstword(line));
 	else if (key_word == "error_page")
@@ -138,6 +143,41 @@ bool	ServerConfig::serverkeyword_insert(std::string const &line, size_t pos)
 
 void ServerConfig::set_locations(std::string &key, LocationConfig &locationconf){ _locations[key] = locationconf; }
 
+
+// std::string								_port;
+// std::vector<std::string>				_server_name;
+// std::string								_root;
+// std::vector<std::string>				_indexpage_set;
+// std::vector<std::string>				_allowmethod_set;
+// size_t 									_maxBodySize;
+// ErrorPage 								_errorpage;//これめっちゃおかしい使い方できる　error_page 403 404 500 503 =404 /custom_404.html;
+// bool									_chunked_transferencoding_allow;
+// std::string								_accesslog;
+// std::string								_errorlog;
+// size_t									_keepaliverequests;
+// size_t									_keepalive_timeout;
+// int										_server_tokens;
+// bool									_autoindex;
+// size_t									_client_body_buffer_size;
+// size_t									_client_body_timeout;
+// size_t									_client_header_buffer_size;
+// size_t									_client_header_timeout;
+// size_t									_client_maxbody_size;
+// std::string								_default_type;
+
+void ServerConfig::value_check()
+{
+	if (this->_indexpage_set.empty() == true)
+		this->_indexpage_set.push_back("index.html");
+	if (this->_allowmethod_set.empty() == true)
+	{
+		std::cout << "check" << std::endl;
+		this->_allowmethod_set.push_back("GET");
+		// this->_allowmethod_set.push_back("HEAD"); HEADは一旦実装しないはずなので無視
+		this->_allowmethod_set.push_back("POST");
+	}
+}
+
 #define RESET_COLOR "\033[0m"
 #define RED_COLOR "\033[31m"
 #define GREEN_COLOR "\033[32m"
@@ -159,8 +199,9 @@ void ServerConfig::show_serverconfig_allinfo()
 	HandlingString::show_vector_contents(this->_allowmethod_set);
 	std::cout << RESET_COLOR << std::endl;
 	std::cout << "maxbodysize is " << GREEN_COLOR << HandlingString::int_to_str(this->_maxBodySize) << RESET_COLOR << std::endl;
-	std::cout << "## ERROR PAGE SHOW ##" << std::endl;
+	std::cout << BLUE_COLOR << "## ERROR PAGE SHOW ##" << RESET_COLOR << std::endl;
 	this->_errorpage.show_wrrorpage_infos();
+	std::cout << BLUE_COLOR << "## ## ## ## ## ## ## ##" << RESET_COLOR << std::endl;
 	if (this->_chunked_transferencoding_allow == true)
 		std::cout << "transfer encoding is " << GREEN_COLOR << "<< ALLOWED!! >>" << RESET_COLOR << std::endl;
 	else
