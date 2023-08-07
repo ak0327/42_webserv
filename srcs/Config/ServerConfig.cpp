@@ -38,7 +38,7 @@ bool ServerConfig::serverkeyword_ch(const std::string& word)
     (
         server_keyset_arr,
         server_keyset_arr + sizeof(server_keyset_arr) / sizeof(server_keyset_arr[0])
-    );
+    );  // NOLINT
 
     if (server_keyset.count(word) > 0)
         return true;
@@ -58,7 +58,7 @@ bool	ServerConfig::serverkeyword_insert(std::string const &line, size_t pos)
 		throw ServerConfig::ServerKeywordError(key_word, pos);
 	if (key_word == "listen")
 		this->set_port(val);
-	else if (key_word == "cgi_extension")//何するかわかってない
+	else if (key_word == "cgi_extension")  // 何するかわかってない
 		;
 	else if (key_word == "server_name")
 		this->set_servername(HandlingString::inputarg_tomap_without_firstword(line));
@@ -86,7 +86,7 @@ bool	ServerConfig::serverkeyword_insert(std::string const &line, size_t pos)
 			return (false);
 		this->set_keepaliverequests(HandlingString::str_to_int(HandlingString::skip_lastsemicoron(val)));
 	}
-	else if (key_word == "keepalive_timeout")//timeoutの実装がC++98のみでは難しい、Cでも許可された関数にない
+	else if (key_word == "keepalive_timeout")  // timeoutの実装がC++98のみでは難しい、Cでも許可された関数にない
 	{
 		if (HandlingString::check_under_intmax(val) == false)
 			return (false);
@@ -100,11 +100,11 @@ bool	ServerConfig::serverkeyword_insert(std::string const &line, size_t pos)
 			return (false);
 		this->set_autoindex(HandlingString::return_matchpattern("on", "off", val));
 	}
-	else if (key_word == "rewrite")//何するのかわからん
+	else if (key_word == "rewrite")  // 何するのかわからん
 		;
-	else if (key_word == "return")//何するのかわからん
+	else if (key_word == "return")  // 何するのかわからん
 		;
-	else if (key_word == "client_body_buffer_size")//単位付きで入ってくる場合に対応する必要性、簡単のために単位なしに一旦する
+	else if (key_word == "client_body_buffer_size")  // 単位付きで入ってくる場合に対応する必要性、簡単のために単位なしに一旦する
 	{
 		if (HandlingString::check_under_intmax(val) == false)
 			return (false);

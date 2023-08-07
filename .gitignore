@@ -19,6 +19,7 @@
 
 !Readme.md
 !Makefile
+!CPPLINT.cfg
 
 .idea
 .vscode

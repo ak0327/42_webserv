@@ -10,7 +10,7 @@ Config::Config(std::string const &conf)
 
 	std::ifstream	conf_file(conf);
 	std::string		line;
-	bool			in_server= false;
+	bool			in_server = false;
 	bool			in_location = false;
 	size_t			config_line = 1;
 	ServerConfig	server_config;
@@ -98,9 +98,9 @@ bool	Config::handle_locationinfs(std::string &line, bool &in_location, LocationC
 void	Config::config_location_check(std::string &line, bool &in_server, bool &in_location, LocationConfig &location_config, std::string &location_path, \
 std::map<std::string, ServerConfig>::iterator	&it, size_t &pos)
 {
-	if (in_location == true && in_server == true)// locationの中 locationの中だからserverの中
+	if (in_location == true && in_server == true)  // locationの中 locationの中だからserverの中
 		handle_locationinfs(line, in_location, location_config, it, location_path);
-	else if (in_server == true)// serverの中locationの外
+	else if (in_server == true)  // serverの中locationの外
 	{
 		if (HandlingString::skipping_emptyword(line).find("location") != std::string::npos)
 		{

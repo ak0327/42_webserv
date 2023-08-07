@@ -1,17 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   HandlingString.hpp                                 :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/07/29 19:48:07 by user              #+#    #+#             */
-/*   Updated: 2023/08/05 16:41:38 by user             ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#ifndef HandlingString_HPP
-#define HandlingString_HPP
+#pragma once
 
 #include <string>
 #include <iostream>
@@ -22,10 +9,10 @@
 
 class HandlingString
 {
-	private:
+ private:
 		// うえ〜〜い
 
-	public:
+ public:
 		static	bool						check_lastword_semicoron(std::string const &word);
 		static	bool						compare_word(std::string const &tgt_string, std::string const &key);
 		static	std::string					skip_lastsemicoron(std::string const &word);
@@ -36,8 +23,6 @@ class HandlingString
 		static	int							str_to_int(std::string const &word);
 		static	std::string					int_to_str(size_t pos);
 		static	void						error_show(std::string const &word, size_t const &pos);
-		static	std::string					obtain_second_word(std::string const &line);//空白文字を分割して二番目を格納する
+		static	std::string					obtain_second_word(std::string const &line);  // 空白文字を分割して二番目を格納する
 		static	void						show_vector_contents(std::vector<std::string>);
 };
-
-#endif

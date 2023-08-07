@@ -1,5 +1,4 @@
-#ifndef ErrorPage_H
-#define ErrorPage_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -9,12 +8,12 @@
 
 class ErrorPage
 {
-	private:
+ private:
 		std::vector<std::string>	changed_statuscode;
 		std::string					tgt_statuscode;
 		std::string					redirect_path;
 
-	public:
+ public:
 		ErrorPage();
 		~ErrorPage();
 		ErrorPage(ErrorPage const &other);
@@ -31,8 +30,6 @@ class ErrorPage
 
 		void						show_wrrorpage_infos();
 };
-
-#endif
 
 // 　　　　　　　　　　　　　　　　　 　　　　　_
 // 　　　　　　　　　　　　　　　　　　　　　／ ）

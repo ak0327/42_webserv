@@ -48,7 +48,7 @@ bool	HandlingString::check_under_intmax(std::string const &word)
 			return (false);
 		pos++;
 	}
-	if (pos > 12)//INT_MAXの桁数を明らかに超えるなら計算の必要はない
+	if (pos > 12)  // INT_MAXの桁数を明らかに超えるなら計算の必要はない
 		return (false);
 	pos = 0;
 	while (word[pos] != '\0')
@@ -144,18 +144,17 @@ std::string HandlingString::obtain_second_word(std::string const &line)
 std::string HandlingString::int_to_str(size_t pos)
 {
 	std::string result;
-	
-    if (pos == 0)
-        result = "0";
-	else
-	{
-        while (pos > 0)
-		{
-            result =  static_cast<char>('0' + pos % 10) + result;
-            pos /= 10;
-        }
-    }
 
+    if (pos == 0)
+	{
+        result = "0";
+		return result;
+	}
+	while (pos > 0)
+	{
+		result =  static_cast<char>('0' + pos % 10) + result;
+		pos /= 10;
+	}
     return result;
 }
 
