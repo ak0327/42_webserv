@@ -10,5 +10,5 @@ jobs:
         run: |
           make
           ./webserv config/testconfig1.conf
-          echo hello
+          echo hello > test
   #aa
