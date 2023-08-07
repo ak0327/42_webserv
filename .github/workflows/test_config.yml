@@ -9,6 +9,6 @@ jobs:
       - name: run_test
         run: |
           make
-          ./webserv confug/testconfig1.conf
+          ./webserv config/testconfig1.conf
           echo hello
   #aa
