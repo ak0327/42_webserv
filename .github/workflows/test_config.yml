@@ -1,0 +1,12 @@
+name: TEST_CONFIG_INTERPRET
+on: [push]
+jobs:
+  run-test_config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: run_test
+        run: make
+        run: ./webserv confug/testconfig1.conf
+        run: "echo hello"
