@@ -8,9 +8,9 @@ jobs:
 
       - name: run_test
         run: |
-          echo hello > test
+          echo hello
           make
-          echo hello > test
+          echo hello
           ./webserv config/testconfig1.conf
-          echo hello > test
+          echo hello
   #aa
