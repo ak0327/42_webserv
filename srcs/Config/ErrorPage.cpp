@@ -1,4 +1,4 @@
-#include "../includes/ErrorPage.hpp"
+#include "ErrorPage.hpp"
 
 ErrorPage::ErrorPage()
 {

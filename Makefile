@@ -1,4 +1,5 @@
 NAME = webserv
+
 CXX = c++
 CXXFLAGS = -std=c++98 -Wall -Wextra -Werror -MMD -MP
 
@@ -32,21 +33,34 @@ OBJ = $(SRCS:.cpp=.o)
 OBJS = $(addprefix $(OBJ_DIR)/, $(OBJ))
 
 
-all: $(NAME)
+# todo: srcs/includes -> includes
+INCLUDES_DIR = srcs/includes
+INCLUDES	= $(addprefix -I, $(INCLUDES_DIR))
 
-$(NAME):$(OBJS)
+
+.PHONY	: all
+all		: $(NAME)
+
+$(NAME)	: $(OBJS)
 	$(CXX) $(OBJS) $(CXXFLAGS) -o $(NAME)
 
 $(OBJ_DIR)/%.o : %.cpp
 	@mkdir -p $$(dirname $@)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
-clean:
+.PHONY	: clean
+clean	:
 	rm -rf $(OBJ_DIR)
 
-fclean:clean
+.PHONY	: fclean
+fclean	: clean
 	$(RM) $(NAME)
 
-re: fclean all
+.PHONY	: re
+re		: fclean all
+
+.PHONY	: lint
+lint	:
+	cpplint --recursive srcs
 
 -include $(DEPS)

@@ -1,18 +1,6 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   LocationConfig.cpp                                 :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: user <user@student.42.fr>                  +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/08/02 00:23:38 by user              #+#    #+#             */
-/*   Updated: 2023/08/03 22:31:14 by user             ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#include "../includes/LocationConfig.hpp"
-#include "../includes/ServerConfig.hpp"
-#include "../includes/HandlingString.hpp"
+#include "LocationConfig.hpp"
+#include "ServerConfig.hpp"
+#include "HandlingString.hpp"
 
 LocationConfig::LocationConfig():_maxBodySize(1024), _chunked_transferencoding_allow(false),
 _keepaliverequests(10), _server_tokens(1), _autoindex(false), _default_type("application/octet-stream")
@@ -45,7 +33,7 @@ _keepaliverequests(10), _server_tokens(1), _autoindex(false), _default_type("app
 }
 
 LocationConfig& LocationConfig::operator=(const LocationConfig& some) {
-    if (this != &some) 
+    if (this != &some)
 	{
         this->_port = some.get_port();
 		this->_server_name = some.get_servername();
@@ -71,7 +59,7 @@ LocationConfig& LocationConfig::operator=(const LocationConfig& some) {
 }
 
 LocationConfig& LocationConfig::operator=(LocationConfig& some) {
-    if (this != &some) 
+    if (this != &some)
 	{
         this->_port = some.get_port();
 		this->_server_name = some.get_servername();
@@ -209,7 +197,7 @@ bool	LocationConfig::insert_location(std::string const &line)
 		return (false);
 	if (key_word == "listen")
 		this->set_port(val);
-	else if (key_word == "cgi_extension")//何するかわかってない
+	else if (key_word == "cgi_extension")  // 何するかわかってない
 		;
 	else if (key_word == "server_name")
 		this->set_servername(HandlingString::inputarg_tomap_without_firstword(line));
@@ -239,7 +227,7 @@ bool	LocationConfig::insert_location(std::string const &line)
 			return (false);
 		this->set_keepaliverequests(HandlingString::str_to_int(HandlingString::skip_lastsemicoron(val)));
 	}
-	else if (key_word == "keepalive_timeout")//timeoutの実装がC++98のみでは難しい、Cでも許可された関数にない
+	else if (key_word == "keepalive_timeout")  // timeoutの実装がC++98のみでは難しい、Cでも許可された関数にない
 	{
 		if (HandlingString::check_under_intmax(val) == false)
 			return (false);
@@ -255,11 +243,11 @@ bool	LocationConfig::insert_location(std::string const &line)
 	}
 	else if (key_word == "upload_path")
 		this->set_upload_path(val);
-	else if (key_word == "rewrite")//何するのかわからん
+	else if (key_word == "rewrite")  // 何するのかわからん
 		;
-	else if (key_word == "return")//何するのかわからん
+	else if (key_word == "return")  // 何するのかわからん
 		;
-	else if (key_word == "client_body_buffer_size")//単位付きで入ってくる場合に対応する必要性、簡単のために単位なしに一旦する
+	else if (key_word == "client_body_buffer_size")  // 単位付きで入ってくる場合に対応する必要性、簡単のために単位なしに一旦する
 	{
 		if (HandlingString::check_under_intmax(val) == false)
 			return (false);
@@ -306,56 +294,55 @@ bool	LocationConfig::insert_location(std::string const &line)
 // 　-＝/ と_ノ			     と_ノヾ ＝-
 // -＝_/／⌒ｿ				   (_＞､＼ ＝-
 
-void	LocationConfig::set_port(std::string const &port){ this->_port = port; };
-void	LocationConfig::set_servername(std::vector<std::string> const &server_name){ this->_server_name = server_name; };
-void	LocationConfig::set_root(std::string const &root){ this->_root = root; };
-void	LocationConfig::set_indexpage_set(std::vector<std::string> const &_indexpage_set){ this->_indexpage_set = _indexpage_set; };
-void	LocationConfig::set_allowmethod_set(std::vector<std::string> const &_allowed_method){ this->_allowmethod_set = _allowed_method; };
-void	LocationConfig::set_maxBodySize(size_t const &maxBodySize){ this->_maxBodySize = maxBodySize; };
-// void	LocationConfig::set_errorpage_set(error_page const &errorpage_set){ this->_errorpage_set = errorpage_set; };
-void	LocationConfig::set_chunked_transferencoding_allow(bool const &allow_or_not){ this->_chunked_transferencoding_allow = allow_or_not; };
-void	LocationConfig::set_accesslog(std::string const &access_log){ this->_accesslog = access_log; };
-void	LocationConfig::set_errorlog(std::string const &error_log){ this->_errorlog = error_log; };
-void	LocationConfig::set_keepaliverequests(size_t const &max_requests){ this->_keepaliverequests = max_requests; };
-void	LocationConfig::set_keepalive_timeout(size_t const &timeout){ this->_keepalive_timeout = timeout; };
-void	LocationConfig::set_autoindex(bool const &on_off){ this->_autoindex = on_off; };
-void	LocationConfig::set_client_body_buffer_size(size_t const &buffersize){ this->_client_body_buffer_size = buffersize; };
-void	LocationConfig::set_client_body_timeout(size_t const &timeout){ this->_client_body_timeout = timeout; };
-void	LocationConfig::set_client_header_buffer_size(size_t const &buffersize){ this->_client_header_buffer_size = buffersize; };
-void	LocationConfig::set_client_header_timeout(size_t const &timeout){ this->_client_header_timeout = timeout; };
-void	LocationConfig::set_client_maxbody_size(size_t const &buffersize){ this->_client_maxbody_size = buffersize; };
-void	LocationConfig::set_default_type(std::string const &default_type){ this->_default_type = default_type; };
-void	LocationConfig::set_cgi_path(std::string const &cgi_path){ this->_cgi_path = cgi_path; };
-void	LocationConfig::set_alias(std::string const &alias){ this->_alias = alias; };
-void	LocationConfig::set_upload_path(std::string const &upload_path){ this->_upload_path = upload_path; };
+void	LocationConfig::set_port(std::string const &port){ this->_port = port; }
+void	LocationConfig::set_servername(std::vector<std::string> const &server_name){ this->_server_name = server_name; }
+void	LocationConfig::set_root(std::string const &root){ this->_root = root; }
+void	LocationConfig::set_indexpage_set(std::vector<std::string> const &_indexpage_set){ this->_indexpage_set = _indexpage_set; }
+void	LocationConfig::set_allowmethod_set(std::vector<std::string> const &_allowed_method){ this->_allowmethod_set = _allowed_method; }
+void	LocationConfig::set_maxBodySize(size_t const &maxBodySize){ this->_maxBodySize = maxBodySize; }
+// void	LocationConfig::set_errorpage_set(error_page const &errorpage_set){ this->_errorpage_set = errorpage_set; }
+void	LocationConfig::set_chunked_transferencoding_allow(bool const &allow_or_not){ this->_chunked_transferencoding_allow = allow_or_not; }
+void	LocationConfig::set_accesslog(std::string const &access_log){ this->_accesslog = access_log; }
+void	LocationConfig::set_errorlog(std::string const &error_log){ this->_errorlog = error_log; }
+void	LocationConfig::set_keepaliverequests(size_t const &max_requests){ this->_keepaliverequests = max_requests; }
+void	LocationConfig::set_keepalive_timeout(size_t const &timeout){ this->_keepalive_timeout = timeout; }
+void	LocationConfig::set_autoindex(bool const &on_off){ this->_autoindex = on_off; }
+void	LocationConfig::set_client_body_buffer_size(size_t const &buffersize){ this->_client_body_buffer_size = buffersize; }
+void	LocationConfig::set_client_body_timeout(size_t const &timeout){ this->_client_body_timeout = timeout; }
+void	LocationConfig::set_client_header_buffer_size(size_t const &buffersize){ this->_client_header_buffer_size = buffersize; }
+void	LocationConfig::set_client_header_timeout(size_t const &timeout){ this->_client_header_timeout = timeout; }
+void	LocationConfig::set_client_maxbody_size(size_t const &buffersize){ this->_client_maxbody_size = buffersize; }
+void	LocationConfig::set_default_type(std::string const &default_type){ this->_default_type = default_type; }
+void	LocationConfig::set_cgi_path(std::string const &cgi_path){ this->_cgi_path = cgi_path; }
+void	LocationConfig::set_alias(std::string const &alias){ this->_alias = alias; }
+void	LocationConfig::set_upload_path(std::string const &upload_path){ this->_upload_path = upload_path; }
 
 //     ∩∩     getterだよ
 //   （´･ω･）
 //   ＿| ⊃／(＿＿_
-//  ／ └-(＿＿＿_／ 
+//  ／ └-(＿＿＿_／
 //  ￣￣￣￣￣￣￣
 
-std::string								LocationConfig::get_port(void) const { return (this->_port); };
-std::vector<std::string>				LocationConfig::get_servername(void) const { return (this->_server_name); };
-std::string								LocationConfig::get_root(void) const {return (this->_root); };
-std::vector<std::string>				LocationConfig::get_indexpage_set(void) const { return (this->_indexpage_set); };
-std::vector<std::string>				LocationConfig::get_allowmethod_set(void) const { return (this->_allowmethod_set); };
-size_t									LocationConfig::get_maxBodySize(void) const { return (this->_maxBodySize); };
-// error_page								LocationConfig::get_errorpage_set(void) const { return (this->_errorpage_set); };
-bool									LocationConfig::get_chunked_transferencoding_allow(void) { return (this->_chunked_transferencoding_allow); };
-std::string								LocationConfig::get_accesslog(void) { return (this->_accesslog); };
-std::string								LocationConfig::get_errorlog(void) {return (this->_errorlog); };
-size_t									LocationConfig::get_keepaliverequests(void) { return (this->_keepaliverequests); };
-size_t									LocationConfig::get_keepalive_timeout(void) { return (this->_keepalive_timeout); };
-bool									LocationConfig::get_autoindex(void) { return (this->_autoindex); };
-size_t									LocationConfig::get_client_body_buffer_size(void) { return (this->_client_body_buffer_size); };
-size_t									LocationConfig::get_client_body_timeout(void) { return (this->_client_body_timeout); };
-size_t									LocationConfig::get_client_header_buffer_size(void) { return (this->_client_header_buffer_size); };
-size_t									LocationConfig::get_client_header_timeout(void) { return (this->_client_header_timeout); };
-size_t									LocationConfig::get_client_maxbody_size(void) { return (this->_maxBodySize); };
-std::string								LocationConfig::get_default_type(void) { return (this->_default_type); };
-int										LocationConfig::get_version(void) { return (this->_server_tokens); };
-std::string								LocationConfig::get_cgi_path(void) { return (this->_cgi_path); };
-std::string								LocationConfig::get_alias(void) { return (this->_alias); };
-std::string								LocationConfig::get_upload_path(void) { return (this->_upload_path); };
-
+std::string								LocationConfig::get_port(void) const { return (this->_port); }
+std::vector<std::string>				LocationConfig::get_servername(void) const { return (this->_server_name); }
+std::string								LocationConfig::get_root(void) const {return (this->_root); }
+std::vector<std::string>				LocationConfig::get_indexpage_set(void) const { return (this->_indexpage_set); }
+std::vector<std::string>				LocationConfig::get_allowmethod_set(void) const { return (this->_allowmethod_set); }
+size_t									LocationConfig::get_maxBodySize(void) const { return (this->_maxBodySize); }
+// error_page								LocationConfig::get_errorpage_set(void) const { return (this->_errorpage_set); }
+bool									LocationConfig::get_chunked_transferencoding_allow(void) { return (this->_chunked_transferencoding_allow); }
+std::string								LocationConfig::get_accesslog(void) { return (this->_accesslog); }
+std::string								LocationConfig::get_errorlog(void) {return (this->_errorlog); }
+size_t									LocationConfig::get_keepaliverequests(void) { return (this->_keepaliverequests); }
+size_t									LocationConfig::get_keepalive_timeout(void) { return (this->_keepalive_timeout); }
+bool									LocationConfig::get_autoindex(void) { return (this->_autoindex); }
+size_t									LocationConfig::get_client_body_buffer_size(void) { return (this->_client_body_buffer_size); }
+size_t									LocationConfig::get_client_body_timeout(void) { return (this->_client_body_timeout); }
+size_t									LocationConfig::get_client_header_buffer_size(void) { return (this->_client_header_buffer_size); }
+size_t									LocationConfig::get_client_header_timeout(void) { return (this->_client_header_timeout); }
+size_t									LocationConfig::get_client_maxbody_size(void) { return (this->_maxBodySize); }
+std::string								LocationConfig::get_default_type(void) { return (this->_default_type); }
+int										LocationConfig::get_version(void) { return (this->_server_tokens); }
+std::string								LocationConfig::get_cgi_path(void) { return (this->_cgi_path); }
+std::string								LocationConfig::get_alias(void) { return (this->_alias); }
+std::string								LocationConfig::get_upload_path(void) { return (this->_upload_path); }
