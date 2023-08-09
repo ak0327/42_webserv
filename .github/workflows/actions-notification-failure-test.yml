@@ -1,0 +1,15 @@
+name: GitHub Actions Demo
+run-name: this is run name
+on: [push]
+jobs:
+  NOTIFICATION-TEST-FAILURE:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: ./test_failure.sh
+
+      - uses: sarisia/actions-status-discord@v1
+        if: always()
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          status: ${{ job.status }}

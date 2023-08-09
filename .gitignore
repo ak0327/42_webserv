@@ -1,13 +1,16 @@
 *
-**/**
 
 !.gitignore
-!.github/**/
+!.github
+!.github/**
 
-!.cpp
-!.hpp
-!.yml
+!*.cpp
+!*.hpp
+!*.yml
+!*.sh
 
 !Readme.md
 
-/.idea/**/
+.idea
+.vscode
+.DS_Store
