@@ -13,4 +13,10 @@ jobs:
           echo hello
           ./webserv config/testconfig1.conf
           echo hello
+      
+      - name: Post to Discord
+        env:
+          DISCORD_WEBHOOK: ${{ https://discord.com/api/webhooks/1134689915414782002/xTcFZljrN3fdlwUbOrn6d--z-UIEYXpvKHu6VAMjtMoNAkM7DxKoMThn4TwsxAUTZBlS }}
+        run: |
+          curl -H "Content-Type: application/json" -X POST -d '{"content":"GitHub Actions completed!"}' $DISCORD_WEBHOOK
   #aa
