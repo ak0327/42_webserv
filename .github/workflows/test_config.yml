@@ -13,7 +13,7 @@ jobs:
           echo hello
           ./webserv config/testconfig1.conf
           echo hello
-      
+
       - name: Post to Discord
         env:
           DISCORD_WEBHOOK: ${{ https://discord.com/api/webhooks/1138821040265515080/VLOYNevlh8h_c_DhJga1fhvEL8NS6XcCnltFICaGFvmJaU5Dokv82YLF2zrffU_EUCYg }}
