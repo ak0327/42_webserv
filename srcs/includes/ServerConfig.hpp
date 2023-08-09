@@ -106,7 +106,7 @@ class ServerConfig
 				{
 					std::string error_message = "This is Config Syntax Error\nerror keyword is -> " + _keyword + "\nline is -> " + HandlingString::int_to_str(_line);
 					char *error_message_ptr = new char[error_message.size() + 1];
-					std::strcpy(error_message_ptr, error_message.c_str());
+					HandlingString::ft_strcpy(error_message_ptr, error_message);
 					return error_message_ptr;
 				};
 			private:  // NOLINT
@@ -122,7 +122,7 @@ class ServerConfig
 				{
 					std::string error_message = "This is Keyword Error\nerror keyword is -> " + _keyword + "\nline is -> " + HandlingString::int_to_str(_line);
 					char *error_message_ptr = new char[error_message.size() + 1];
-					std::strcpy(error_message_ptr, error_message.c_str());
+					HandlingString::ft_strcpy(error_message_ptr, error_message);
 					return error_message_ptr;
 				};
 			private:  // NOLINT

@@ -174,3 +174,14 @@ void HandlingString::show_vector_contents(std::vector<std::string> subject)
 		it++;
 	}
 }
+
+void HandlingString::ft_strcpy(char *input_memory, std::string const &sub)
+{
+	size_t	error_message_len = 0;
+	while (error_message_len != sub.length())
+	{
+		input_memory[error_message_len] = sub[error_message_len];
+		error_message_len++;
+	}
+	input_memory[error_message_len] = '\0';
+}

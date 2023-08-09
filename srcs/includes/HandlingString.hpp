@@ -25,4 +25,5 @@ class HandlingString
 		static	void						error_show(std::string const &word, size_t const &pos);
 		static	std::string					obtain_second_word(std::string const &line);  // 空白文字を分割して二番目を格納する
 		static	void						show_vector_contents(std::vector<std::string>);
+		static	void						ft_strcpy(char *input_memory, std::string const &sub);
 };
