@@ -16,5 +16,5 @@ jobs:
 
       - name: Post to Discord
         run: |
-          curl -H "Content-Type: application/json" -X POST -d '{"content":"GitHub Actions completed!"}' https://discord.com/api/webhooks/1138821040265515080/VLOYNevlh8h_c_DhJga1fhvEL8NS6XcCnltFICaGFvmJaU5Dokv82YLF2zrffU_EUCYg
+          curl -H "Content-Type: application/json" -X POST -d '{"content":"GitHub Actions completed!"}' ${{ vars.WORKFLOW_URL }}
   #aa
