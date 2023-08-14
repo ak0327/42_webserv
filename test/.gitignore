@@ -1,0 +1,12 @@
+*
+
+!.gitignore
+
+!unit_test
+!unit_test/**/
+
+!*.cpp
+!*.hpp
+!*.sh
+
+!Makefile
