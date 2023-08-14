@@ -1,15 +1,24 @@
 *
-**/**
 
 !.gitignore
-!.github/**/
+!.github
+!.github/*
+!config
 
-!.cpp
-!.hpp
-!.yml
+!srcs
+!srcs/**
+
+!*.cpp
+!*.hpp
+!*.yml
+!*.conf
+!*.txt
+!*.h
 
 !Readme.md
+!Makefile
+!webserv.drawio
 
-/.idea/**/
-/.vscode/**/
-**/.DS_Store
+.idea
+.vscode
+.DS_Store
