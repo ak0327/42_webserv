@@ -1,0 +1,16 @@
+name: UNIT_TEST
+on: [push]
+jobs:
+  run-unit-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run all unit tests.
+        run: ./test/unit_test/run_unit_test.sh
+
+      - uses: sarisia/actions-status-discord@v1
+        if: always()
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          status: ${{ job.status }}
