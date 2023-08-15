@@ -21,9 +21,12 @@ class HandlingString
 		static	std::string					skipping_emptyword(std::string const &word);
 		static	bool						check_under_intmax(std::string const &word);
 		static	int							str_to_int(std::string const &word);
+		static	double						str_to_double(std::string word);
 		static	std::string					int_to_str(size_t pos);
 		static	void						error_show(std::string const &word, size_t const &pos);
 		static	std::string					obtain_second_word(std::string const &line);  // 空白文字を分割して二番目を格納する
 		static	void						show_vector_contents(std::vector<std::string>);
 		static	void						ft_strcpy(char *input_memory, std::string const &sub);
+		static	std::string					obtain_beforeword(const std::string other, char delimiter);
+		static	std::string					obtain_afterword(const std::string other, char delimiter);
 };

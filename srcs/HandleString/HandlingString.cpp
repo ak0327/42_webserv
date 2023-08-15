@@ -75,6 +75,15 @@ int	HandlingString::str_to_int(std::string const &word)
 	return (sum);
 }
 
+double HandlingString::str_to_double(std::string word)
+{
+	std::istringstream iss(word);
+    double result;
+	
+    iss >> result;
+    return result;
+}
+
 bool	HandlingString::check_lastword_semicoron(std::string const &word)
 {
 	size_t	pos = 0;
@@ -184,4 +193,14 @@ void HandlingString::ft_strcpy(char *input_memory, std::string const &sub)
 		error_message_len++;
 	}
 	input_memory[error_message_len] = '\0';
+}
+
+std::string HandlingString::obtain_beforeword(const std::string other, char delimiter)
+{
+	return other.substr(0, other.find(delimiter));
+}
+
+std::string HandlingString::obtain_afterword(const std::string other, char delimiter)
+{
+	return other.substr(other.find(delimiter) + 1);
 }
