@@ -5,16 +5,16 @@ CXXFLAGS	=	-std=c++98 -Wall -Wextra -Werror -MMD -MP
 
 
 # SRCS -------------------------------------------------------------------------
-SRC_DIR		=	srcs
+SRCS_DIR	=	srcs
 
 #main
-SRCS		=	$(SRC_DIR)/main.cpp
+SRCS		=	$(SRCS_DIR)/main.cpp
 
 
 # OBJS -------------------------------------------------------------------------
-OBJ_DIR		=	objs
+OBJS_DIR	=	objs
 OBJ			=	$(SRCS:%.cpp=%.o)
-OBJS		=	$(addprefix $(OBJ_DIR)/, $(OBJ))
+OBJS		=	$(addprefix $(OBJS_DIR)/, $(OBJ))
 
 
 # DEPS -------------------------------------------------------------------------
@@ -28,14 +28,16 @@ INCLUDES	 =	$(addprefix -I, $(INCLUDES_DIR))
 
 # RULES ------------------------------------------------------------------------
 .PHONY	: all
-all		: $(NAME)
+all		: $(OBJS_DIR) $(NAME)
 
 $(NAME)	: $(OBJS)
-	$(CXX) $(OBJS) $(CXXFLAGS) -o $(NAME)
+	$(CXX) $(CXXFLAGS) -o $@ $^
 
-$(OBJ_DIR)/%.o : %.cpp
-	@mkdir -p $$(dirname $@)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+$(OBJS_DIR)		:
+	@mkdir -p $@
+
+$(OBJS_DIR)/%.o	: %.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
 .PHONY	: clean
 clean	:
@@ -51,5 +53,10 @@ re		: fclean all
 .PHONY	: lint
 lint	:
 	cpplint --recursive srcs
+
+.PHONY	: unit
+unit	:
+	./test/unit_test/run_unit_test.sh
+
 
 -include $(DEPS)

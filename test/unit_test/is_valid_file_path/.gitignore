@@ -1,0 +1,12 @@
+*
+
+!.gitignore
+
+!files
+!files/**
+
+!*.cpp
+!*.hpp
+!*.sh
+
+!Makefile

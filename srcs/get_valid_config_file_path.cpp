@@ -5,7 +5,7 @@
 // can't operate nginx
 //   o-r nginx.conf
 //   o-x nginx/
-static bool has_file_read_permission(const char *path) {
+static bool has_file_owners_read_permission(const char *path) {
 	struct stat	stat_buf = {};
 
 	if (stat(path, &stat_buf) == STAT_ERROR) {
@@ -27,6 +27,12 @@ static bool is_filename_only_extension(const std::string &path, size_t dot_pos) 
 	return false;
 }
 
+static void tolower_extension(std::string *file_extension) {
+	for (size_t i = 0; i < file_extension->size(); ++i) {
+		(*file_extension)[i] = static_cast<char>(std::tolower((*file_extension)[i]));
+	}
+}
+
 static bool is_valid_extension(const std::string &path,
 							   const std::string &expected_extension) {
 	size_t		dot_pos;
@@ -40,6 +46,7 @@ static bool is_valid_extension(const std::string &path,
 		return false;
 	}
 	file_extension =  path.substr(dot_pos + 1);
+	tolower_extension(&file_extension);
 	return file_extension == expected_extension;
 }
 
@@ -48,7 +55,7 @@ bool is_valid_config_file_path(const char *path) {
 	if (!is_valid_extension(path, CONFIG_FILE_EXTENSION)) {
 		return false;
 	}
-	if (!has_file_read_permission(path)) {
+	if (!has_file_owners_read_permission(path)) {
 		return false;
 	}
 	return true;
