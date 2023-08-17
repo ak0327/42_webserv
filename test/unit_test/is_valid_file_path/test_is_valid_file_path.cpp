@@ -1,17 +1,24 @@
 #include <cstdio>
 #include <iostream>
+#include <fstream>
 #include "webserv.hpp"
 #include "Color.hpp"
 
 // return 1 if test PASS, else 0
 int	test_is_invalid_config_file_path(int test_no, const char *path, bool expected) {
 	bool ret = is_valid_config_file_path(path);
+	std::ifstream ifs;
+
+	ifs.open(path, std::ifstream::in);
 
 	printf("[TEST %02d] path:%s\n", test_no, path);
-	printf("             ret_value :%s\n", ret ? "true" : "false");
-	printf("             expected  :%s\n", expected ? "true" : "false");
+	printf("             ret_value :%s (ifs.open:%s)\n", ret ? GREEN "true" RESET : RED "false" RESET, ifs.is_open() ? GREEN "o" RESET : RED "x" RESET);
+	printf("             expected  :%s\n", expected ? GREEN "true" RESET : RED "false" RESET);
 	printf("             RESULT    :%s\n\n", ret == expected ? GREEN "OK" RESET : RED "KO" RESET);
 
+	if (ifs.is_open()) {
+		ifs.close();
+	}
 	return ret == expected ? 1 : 0;
 }
 
@@ -75,7 +82,7 @@ int	main() {
 //	ok_cnt += test_is_invalid_config_file_path(++test_no, "files/no_r_dir/file_--r.conf", false);
 //	ok_cnt += test_is_invalid_config_file_path(++test_no, "files/no_r_dir/file_---.conf", false);
 //	ok_cnt += test_is_invalid_config_file_path(++test_no, "files/this_is_dir.conf", false);
-
+//
 //	ok_cnt += test_is_invalid_config_file_path(++test_no, "files/no_r_dir/file_rrr", false);
 //	ok_cnt += test_is_invalid_config_file_path(++test_no, "files/no_r_dir/file_rr-", false);
 //	ok_cnt += test_is_invalid_config_file_path(++test_no, "files/no_r_dir/file_r-r", false);
