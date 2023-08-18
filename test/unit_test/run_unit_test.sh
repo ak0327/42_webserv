@@ -18,16 +18,17 @@ RESET='\033[0m'
 
 # func
 exec_make() {
-    if "${MAKE_OUTPUT}"; then
-        make -C $1
-    else
-        make -C $1 >/dev/null 2>&1
-    fi
+    make_log=$(make -C $1 2>&1)
 
     if [ $? -eq $MAKE_FAILURE ]; then
         make_res=$EXIT_FAILURE
     else
         make_res=$EXIT_SUCCESS
+    fi
+
+    # if make failure, output log
+    if "${MAKE_OUTPUT}" || [ $make_res -eq $EXIT_FAILURE ]; then
+        echo "$make_log"
     fi
 
     put_result $make_res " Make : "
