@@ -8,13 +8,13 @@ CXXFLAGS	=	-std=c++98 -Wall -Wextra -Werror -MMD -MP
 SRCS_DIR	=	srcs
 
 #main
-SRCS		=	$(SRCS_DIR)/main.cpp
+SRCS		=	main.cpp \
+				get_valid_config_file_path.cpp
 
 
 # OBJS -------------------------------------------------------------------------
 OBJS_DIR	=	objs
-OBJ			=	$(SRCS:%.cpp=%.o)
-OBJS		=	$(addprefix $(OBJS_DIR)/, $(OBJ))
+OBJS		=	$(SRCS:%.cpp=$(OBJS_DIR)/%.o)
 
 
 # DEPS -------------------------------------------------------------------------
@@ -36,16 +36,16 @@ $(NAME)	: $(OBJS)
 $(OBJS_DIR)		:
 	@mkdir -p $@
 
-$(OBJS_DIR)/%.o	: %.cpp
+$(OBJS_DIR)/%.o	: $(SRCS_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
 .PHONY	: clean
 clean	:
-	rm -rf $(OBJ_DIR)
+	rm -rf $(OBJS_DIR)
 
 .PHONY	: fclean
 fclean	: clean
-	$(RM) $(NAME)
+	rm -f $(NAME)
 
 .PHONY	: re
 re		: fclean all
