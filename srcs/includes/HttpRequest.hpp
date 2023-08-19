@@ -16,6 +16,8 @@ class ValueWeightArraySet;
 class ValueArraySet;
 class ValueSet;
 
+//日付に関するクラスを作成すること
+
 class HttpRequest
 {
 	private:
@@ -95,14 +97,14 @@ class HttpRequest
 		ValueSet			_x_content_type_options;
 		ValueSet			_x_frame_options;
 		//x-xss-protectionはなんか特殊な機能っぽいので不対応でいきたい
-		
-	
-	public:
+
 		HttpRequest();
-		HttpRequest(const std::string&);
-		~HttpRequest();
 		HttpRequest(const HttpRequest &other);
 		HttpRequest &operator=(const HttpRequest &other);
+	
+	public:
+		HttpRequest(const std::string &value);
+		~HttpRequest();
 
 		//debug関数
 		void show_requestinfs(void);
