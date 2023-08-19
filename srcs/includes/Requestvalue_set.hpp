@@ -2,6 +2,7 @@
 #define REQUESTVALUE_SET_HPP
 
 #include <string>
+#include "HandlingString.hpp"
 
 class Requestvalue_set
 {
