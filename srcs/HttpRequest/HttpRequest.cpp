@@ -240,9 +240,30 @@ void	HttpRequest::set_allow(const sts::string &value)
 	this->_allow.set_value_array(value_array);
 }
 
-//Alt-Svc値どう使うのか全くわからない
+void	HttpRequest::set_alt_svc(const std::string &value)
+{
+	std::map<std::string, std::string> value_map;
+	std::stringstream	ss(value);
+	std::string			line;
 
-void	HttpRequest::set_authorization(const std::string &value)
+	if (value.find(';') == std::string::npos)
+	{
+		while(std::getline(ss, line, ';'))
+			value_map[HandlingString::obtain_beforeword(HandlingString::skipping_emptyword(line), '=')] = HandlingString::obtain_afterword(HandlingString::skipping_emptyword(line), '=');
+		this->_alt_svc.set_value(value_map);
+	}
+	else
+	{
+		this->_alt_svc.set_value(HandlingString::skipping_emptyword(line));
+	}
+}
+
+void	HttpRequest:: set_alt_used(const std::string &value)
+{
+
+}
+
+void	HttpRequest:: set_authorization(const std::string &value)
 {
 
 }
@@ -254,9 +275,15 @@ void	HttpRequest::set_clear_site_data(const std::string &value)
 
 }
 
-//connectionは危険っぽいので無視していいっすか？
+void	HttpRequest::set_connection(const std::string &value)
+{
 
-//content_disponesitionは特殊なクラスを与えた方が良さそう
+}
+
+void	HttpRequest::set_content_disponesition(const std::string &value)
+{
+
+}
 
 void	HttpRequest::set_content_encoding(const std::string &value)
 {
@@ -278,27 +305,45 @@ void	HttpRequest::set_content_location(const std::string &value)
 
 }
 
-//content-rangeは特殊なクラスを与えた方が良さそう
+void	HttpRequest::set_content_range(const std::string &value)
+{
 
-//content-security-policyよくわからん
+}
 
-//content-security-policy-report-onlyよくわからん
+void	HttpRequest::set_content_security_policy(const std::string &value)
+{
 
-//content-typeは特殊なクラスを与えた方が良さそう
+}
 
-//cookieは特殊なクラスを与えた方が良さそう
+void	HttpRequest::set_content_security_policy_report_only(const std::string &value)
+{
+
+}
+
+void	HttpRequest::set_content_type(const std::string &value)
+{
+
+}
+
+void	HttpRequest::set_cookie(const std::string &value)
+{
+
+}
 
 void	HttpRequest::set_cross_origin_embedder_policy(const std::string &value)
 {
 
 }
 
-void	HttpRequest::set_cross_origin_opener_policy(const std::string &value)
+void	HttpReques::set_cross_origin_opener_policy(const std::string &value)
 {
 
 }
 
-//Cross-Origin=Resource-Policyはバグあるっぽくて対応したくない
+void	HttpRequest::set_cross_origin_resource_policy(const std::string &value)
+{
+
+}
 
 void	HttpRequest::set_date(const std:string &value)
 {
@@ -310,33 +355,43 @@ void	HttpRequest::set_etag(const std::string &value)
 
 }
 
-void	HttpRequest::set_expect(const std::string &value)
+void	Httprequest::set_expect(const std::string &value)
 {
 
 }
 
 //expect-ctは現状廃止されているっぽくて対応したくない
-
 void	HttpRequest::set_expires(const std::string &value)
 {
 
 }
 
-//Forwardedは特殊なクラスを与えた方がいいかも
+void	HttpRequest::set_forwarded(const std::string &value)
+{
+
+}
 
 void	HttpRequest::set_email(const std::string &value)
 {
 
 }
 
-//Hostは特殊なクラスを与えた方がいいかも
+void	HttpRequest::set_from(const std::string &value)
+{
+
+}
+
+void	HttpRequest::set_host(const std::string &value)
+{
+
+}
 
 void	HttpRequest::set_if_match(const std::string &value)
 {
 
 }
 
-void	HttpRequest::set_if_modified_since(const std::string &value)
+void	Httprequest::set_if_modified_since(const std::string &value)
 {
 
 }
@@ -346,41 +401,67 @@ void	HttpRequest::set_if_none_match(const std::string &value)
 
 }
 
-void	HttpRequest::set_if_range(const std::string &value)
+void	Httprequest::set_if_range(const std::string &value)
 {
 
 }
 
-void	HttpRequest::set_if_unmodified_since(const std::string &value)
+void	Httprequest::set_if_unmodified_since(const std::string &value)
 {
 
 }
 
-//keepaliveは危険らしく対応したくない
+void	HttpRequest::set_keepalive(const std::string &value)
+{
+
+}
 
 void	HttpRequest::set_last_modified(const std::string &value)
 {
 
 }
 
-//Linkは特殊なクラスを持たせたほうがいいかも
+void	HttpRequest::set_link(const std::string &value)
+{
+
+}
 
 void	HttpRequest::set_location(const std::string &value)
 {
 
 }
 
-//Originは特殊なクラスを持たせたほうがいいかも
+void	HttpRequest::set_max_forwards(const std::string &value)
+{
 
-//permission-policy何してるのかよくわからん
+}
 
-//proxy-authenticateは特殊なクラスを持たせたほうがいいかも
+void	HttpRequest::set_origin(const std::string &value)
+{
 
-//proxy-authorizationは特殊なクラスを持たせたほうがいいかも
+}
+
+void	HttpRequest::set_permission_policy(const std::string &value)
+{
+
+}
+
+void	Httprequest::set_proxy_authenticate(const std::string &value)
+{
+
+}
+
+void	HttpRequest::set_proxy_authorization(const std::string &value)
+{
+
+}
 
 //range何かよくわからん
 
-//refererに関しては危険っぽいので対応したくない
+void	HttpRequest::set_referer(const std::string &value)
+{
+
+}
 
 void	HttpRequest::set_referrer_policy(const std::string &value)
 {
@@ -392,16 +473,67 @@ void	HttpRequest::set_retry_after(const std::string &value)
 
 }
 
+void	HttpRequest::set_sec_fetch_dest(const std::string &value)
+{
+
+}
+
+void	HttpRequest::set_sec_fetch_mode(const std::string &value)
+{
+
+}
+
+void	HttpRequest::set_sec_fetch_site(const std::string &value)
+{
+
+}
+
+void	HttpRequest::set_sec_fetch_user(const std::string &value)
+{
+
+}
+
+void	HttpRequest::set_sec_purpose(const std::string &value)
+{
+
+}
+
+void	HttpRequest::set_sec_websocket_accept(const std::string &value)
+{
+
+}
+
 void	HttpRequest::set_server(const std::string &value)
 {
 
 }
 
-//servertimingよくわからん
+void	HttpRequest::set_servertiming(const std::string &value)
+{
 
-//set-cookieよくわからん　そもそもcookieってなんだよお菓子かよ
+}
+
+void	HttpRequest::set_service_worker_navigation_preload(const std::string &value)
+{
+
+}
+
+void	HttpRequest::set_set_cookie(const std::string &value)
+{
+
+}
 
 void	HttpRequest::set_sourcemap(const std::string &value)
+{
+
+}
+
+void	HttpRequest::set_strict_transport_security(const std::string &value)
+{
+
+}
+
+void	HttpRequest::set_te(const std::string &value)
 {
 
 }
@@ -411,43 +543,47 @@ void	HttpRequest::set_timing_allow_origin(const std::string &value)
 
 }
 
+void	HttpRequest::set_trailer(const std::string &value)
+{
+
+}
+
 void	HttpRequest::set_transfer_encoding(const std::string &value)
 {
 
 }
 
-//upgradeも対応したくない
+void	HttpRequest::set_upgrade(const std::string &value)
+{
+
+}
 
 void	HttpRequest::set_upgrade_insecure_requests(const std::string &value)
 {
 
 }
 
-//User-Agentは特殊なクラスを持たせたほうがいいかも
+void	HttpRequest::set_user_agent(const std::string &value)
+{
+
+}
 
 void	HttpRequest::set_vary(const std::string &value)
 {
 
 }
 
-//Viaは特殊なクラスを持たせたほうがいいかも
+void	HttpRequest::set_via(const std::string &value)
+{
+
+}
 
 void	HttpRequest::set_www_authenticate(const std::string &value)
 {
 
 }
 
-void	HttpRequest::set_x_content_type_options(const std::string &value)
+void	HttpRequest::set_x_xss_protection(const std::string &value)
 {
 
-}
-
-void	HttpRequest::set_x_frame_options(const std::string &value)
-{
-
-}
-
-static	httprequest_key_functions(const std::string &key)
-{
-	std::map<std::string, void(*)()> functionMap;
 }

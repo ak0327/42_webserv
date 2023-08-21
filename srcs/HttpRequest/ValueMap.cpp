@@ -16,6 +16,16 @@ void	ValueMap::set_value(const std::string &only_value, const std::map<std::stri
 	this->_value_map = value_map;
 }
 
+void	ValueMap::set_value(const std::string &only_value)
+{
+	this->_only_value = only_value;
+}
+
+void	ValueMap::set_value(const std::map<std::string, std::string> &value_map)
+{
+	this->_value_map = value_map;
+}
+
 std::string ValueMap::get_only_value(void) const
 {
 	return (this->_only_value);
