@@ -13,8 +13,7 @@ class ValueSet
 		ValueSet &operator=(const ValueSet &other);
 	
 	public:
-		ValueSet(){};
-		ValueSet(const std::string &value);
+		ValueSet();
 		~ValueSet();
 
 		void		set_value(const std::string &value);

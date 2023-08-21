@@ -14,11 +14,9 @@ class ValueMap
 	
 	public:
 		ValueMap();
-		ValueMap(const std::string &value);
 		~ValueMap();
 
-		void	set_only_value(const std::string &value);
-		void	set_value_map(const std::string &value);
+		void	set_value(const std::string &only_value, const std::map<std::string, std::string> &value_map);
 
 		std::string							get_only_value(void) const;
 		std::map<std::string, std::string>	get_value_map(void) const;

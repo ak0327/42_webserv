@@ -1,8 +1,8 @@
 #include "../includes/ValueSet.hpp"
 
-ValueSet::ValueSet(const std::string &value)
+ValueSet::ValueSet()
 {
-	this->_value = value;
+	this->_value = "";
 }
 
 ValueSet::~ValueSet()

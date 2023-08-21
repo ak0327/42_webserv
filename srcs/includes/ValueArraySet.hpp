@@ -14,12 +14,10 @@ class ValueArraySet
 	
 	public:
 		ValueArraySet();
-		ValueArraySet(const std::string &value);
 		~ValueArraySet();
 
 		std::vector<std::string>	get_value_array(void) const;
 
-		void						set_value_array(const std::string &value);
 		void						set_value_array(const std::vector<std::string> &value);
 };
 

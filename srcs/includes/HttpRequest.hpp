@@ -12,11 +12,15 @@
 #include "ValueWeightArraySet.hpp"
 #include "ValueArraySet.hpp"
 #include "ValueSet.hpp"
+#include "TwoValueSet.hpp"
+#include "ValueMap.hpp"
 
 class RequestLine;
 class ValueWeightArraySet;
 class ValueArraySet;
 class ValueSet;
+class TwoValueSet;
+class ValueMap;
 
 //日付に関するクラスを作成すること
 
@@ -31,7 +35,7 @@ class HttpRequest
 		ValueWeightArraySet	_accept_encoding;
 		ValueWeightArraySet	_accept_language;
 		//Accept-Patchどういう持ち方かわからん
-		//Accept-Postは特殊なクラスを持たせたほうがいいかも
+		TwoValueSet			_accept_post;
 		ValueSet			_accept_ranges;
 		ValueSet			_access_control_allow_credentials;
 		ValueArraySet		_access_control_allow_headers;
@@ -43,22 +47,22 @@ class HttpRequest
 		ValueSet			_access_control_request_method;
 		ValueSet			_age;
 		ValueArraySet		_allow;
-		//Alt-Svc値どう使うのか全くわからない
-		//Alt-Usedは特殊なクラスを与えた方がいいかも
+		ValueMap			_alt_svc;
+		TwoValueSet			_alt_used;
 		ValueArraySet		_authorization;
-		//Cache-Controlどう使うのか全くわからない
+		//Cache-Controlどう使うのか全くわからない うまく分けられん
 		ValueArraySet		_clear_site_data;
 		ValueSet			_connection;
-		//content_disponesitionは特殊なクラスを与えた方が良さそう
+		ValueMap			_content_disponesition;
 		ValueArraySet		_content_encoding;
 		ValueArraySet		_content_language;
 		ValueSet			_content_length;
 		ValueSet			_content_location;
-		//content-rangeは特殊なクラスを与えた方が良さそう
-		//content-security-policyよくわからん
-		//content-security-policy-report-onlyよくわからん
-		//content-typeは特殊なクラスを与えた方が良さそう
-		//cookieは特殊なクラスを与えた方が良さそう
+		ValueSet			_content_range;
+		TwoValueSet			_content_security_policy;
+		TwoValueSet			_content_security_policy_report_only;
+		ValueMap			_content_type;
+		ValueMap			_cookie;
 		ValueSet			_cross_origin_embedder_policy;
 		ValueSet			_cross_origin_opener_policy;
 		ValueSet			_cross_origin_resource_policy;
@@ -67,10 +71,10 @@ class HttpRequest
 		ValueSet			_expect;
 		//expect-ctは現状廃止されているっぽくて対応したくない
 		ValueSet			_expires;
-		//Forwardedは特殊なクラスを与えた方がいいかも
+		ValueMap			_forwarded;
 		ValueSet			_email;
 		ValuseSet			_from;
-		//Hostは特殊なクラスを与えた方がいいかも
+		TwoValueSet			_host;
 		ValueArraySet		_if_match;
 		ValueSet			_if_modified_since;
 		ValueArraySet		_if_none_match;
@@ -78,14 +82,14 @@ class HttpRequest
 		ValueSet			_if_unmodified_since;
 		ValueSet			_keep_alive;
 		ValueSet			_last_modified;
-		//Linkは特殊なクラスを持たせたほうがいいかも
+		ValueMap			_link;
 		ValueSet			_location;
 		ValueSet			_max_forwards;
-		//Originは特殊なクラスを持たせたほうがいいかも
-		//permission-policy何してるのかよくわからん
-		//proxy-authenticateは特殊なクラスを持たせたほうがいいかも
-		//proxy-authorizationは特殊なクラスを持たせたほうがいいかも
-		//range何かよくわからん
+		ValueSet			_origin;
+		TwoValueSet			_permission_policy;
+		ValueMap			_proxy_authenticate;
+		TwoValueSet			_proxy_authorization;
+		//range何かよくわからん これどれが当てはまるかわからん
 		ValueSet			_referer;
 		ValueSet			_referrer_policy;
 		ValueSet			_retry_after;
@@ -96,11 +100,11 @@ class HttpRequest
 		ValueSet			_sec_purpose;
 		ValueSet			_sec_websocket_accept;
 		ValueSet			_server;
-		//servertimingよくわからん
+		ValueMap			_servertiming;
 		ValueSet			_service_worker_navigation_preload;
-		//set-cookieよくわからん　そもそもcookieってなんだよお菓子かよ
+		ValueMap			_set_cookie;
 		ValueSet			_sourcemap;
-		//Strict-Transport-Securityは特殊なクラスにした方がいいかも
+		ValueMap			_strict_transport_security;
 		ValueSet			_te;
 		ValueSet			_timing_allow_origin;
 		ValueSet			_trailer;
@@ -111,7 +115,7 @@ class HttpRequest
 		ValueArraySet		_vary;
 		ValueSet			_via;
 		ValueArraySet		_www_authenticate;
-		//x-xss-protectionはなんか特殊な機能っぽいので不対応でいきたい
+		ValueMap			_x_xss_protection;
 
 		HttpRequest();
 		HttpRequest(const HttpRequest &other);
