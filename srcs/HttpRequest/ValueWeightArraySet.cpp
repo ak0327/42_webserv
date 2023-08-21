@@ -1,8 +1,8 @@
 #include "../includes/ValueWeightArraySet.hpp"
 
-ValueWeightArraySet::ValueWeightArraySet(const std::string &value)
+ValueWeightArraySet::ValueWeightArraySet()
 {
-	(void)value;
+
 }
 
 ValueWeightArraySet::~ValueWeightArraySet()
@@ -18,4 +18,15 @@ std::map<std::string, double> ValueWeightArraySet::get_valueweight_set(void) con
 void ValueWeightArraySet::append_valueweight_set(const std::string &value, double key)
 {
 	this->_valueweight_set[value] = key;
+}
+
+void ValueWeightArraySet::append_valueweight_set(const std::string &value)
+{
+	std::stringstream	ss(value);
+	std::string			key;
+	std::string			weight;
+
+	std::getline(ss, key, ';');
+	std::getline(ss, weight, ';');
+	this->_valueweight_set[key] = HandlingString::str_to_double(weight);
 }

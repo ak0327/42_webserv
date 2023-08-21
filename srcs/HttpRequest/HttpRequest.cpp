@@ -76,85 +76,168 @@ bool HttpRequest::check_keyword_exist(const std::string &key)
 
 void	HttpRequest::set_accept(const std::string &value)
 {
-	
+	std::stringstream	ss(value);
+	std::string			line;
+
+	while(std::getline(ss, line, ','))
+	{
+		if (line.find(';') != std::string::npos)
+			this->_accept.append_valueweight_set(HandlingString::skipping_emptyword(line));
+		else
+			this->_accept.append_valueweight_set(HandlingString::skipping_emptyword(line), 1.0);
+	}
 }//命名規則はMDN上に乗っている名前の前に_をつけることで対応していく、ただし大文字は全て小文字に変更して対応するものとする//要相談
 
 void	HttpRequest::set_accept_ch(const std::string &value)
 {
-	
+	std::vector<std::string>	value_array;
+
+	std::stringstream	ss(value);
+	std::string			line;
+	while(std::getline(ss, line, ','))
+		value_array.push_back(HandlingString::skipping_emptyword(line));
+	this->_accept_ch.set_value_array(value_array);
 }//ハイフンは_にしちゃいたいかも
 
 //初期化に引数を必ず取りたいため、引数なしのコンストラクタは許可したくなく、privateに避難しているがこれだとダメっぽい？ちゃうんかい
 void	HttpRequest::set_accept_charset(const std::string &value)
 {
+	std::stringstream	ss(value);
+	std::string			line;
 
+	while(std::getline(ss, line, ','))
+	{
+		if (line.find(';') != std::string::npos)
+			this->_accept_charset.append_valueweight_set(HandlingString::skipping_emptyword(line));
+		else
+			this->_accept_charset.append_valueweight_set(HandlingString::skipping_emptyword(line), 1.0);
+	}
 }
 
 void	HttpRequest::set_accept_encoding(const std::string &value)
 {
+	std::stringstream	ss(value);
+	std::string			line;
 
+	while(std::getline(ss, line, ','))
+	{
+		if (line.find(';') != std::string::npos)
+			this->_accept_encoding.append_valueweight_set(HandlingString::skipping_emptyword(line));
+		else
+			this->_accept_encoding.append_valueweight_set(HandlingString::skipping_emptyword(line), 1.0);
+	}
 }
 
 void	HttpRequest::set_accept_language(const std::string &value)
 {
+	std::stringstream	ss(value);
+	std::string			line;
 
+	while(std::getline(ss, line, ','))
+	{
+		if (line.find(';') != std::string::npos)
+			this->_accept_language.append_valueweight_set(HandlingString::skipping_emptyword(line));
+		else
+			this->_accept_language.append_valueweight_set(HandlingString::skipping_emptyword(line), 1.0);
+	}
 }
 
 //Accept-Patchどういう持ち方かわからん
 
+void	HttpRequest::set_accept_post(const std::string &value)
+{
+	std::stringstream	ss(HandlingString::skipping_emptyword(value));
+	std::string			first_value;
+	std::string			second_value;
+
+	std::getline(ss, first_value, '/');
+	std::getline(ss, second_value, '/');
+	this->_accept_post.set_values(first_value, second_value);
+}
+
 void	HttpRequest::set_accept_ranges(const std::string &value)
 {
-
+	this->_accept_ranges.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_access_control_allow_credentials(const std::string &value)
 {
-
+	this->_accept_ranges.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_access_control_allow_headers(const std::string &value)
 {
+	std::vector<std::string>	value_array;
 
+	std::stringstream	ss(value);
+	std::string			line;
+	while(std::getline(ss, line, ','))
+		value_array.push_back(HandlingString::skipping_emptyword(line));
+	this->_access_control_allow_headers.set_value_array(value_array);
 }
 
 void	HttpRequest::set_access_control_allow_methods(const std::string &value)
 {
+	std::vector<std::string>	value_array;
 
+	std::stringstream	ss(value);
+	std::string			line;
+	while(std::getline(ss, line, ','))
+		value_array.push_back(HandlingString::skipping_emptyword(line));
+	this->_access_control_allow_methods.set_value_array(value_array);
 }
 
 void	HttpRequest::set_access_control_allow_origin(const std::string &value)
 {
-
+	this->_access_control_allow_origin.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_access_control_expose_headers(const std::string &value)
 {
+	std::vector<std::string>	value_array;
 
+	std::stringstream	ss(value);
+	std::string			line;
+	while(std::getline(ss, line, ','))
+		value_array.push_back(HandlingString::skipping_emptyword(line));
+	this->_access_control_expose_headers.set_value_array(value_array);
 }
 
 void	HttpRequest::set_access_control_max_age(const std::string &value)
 {
-
+	this->_access_control_max_age.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_access_control_request_headers(const std::string &value)
 {
+	std::vector<std::string>	value_array;
 
+	std::stringstream	ss(value);
+	std::string			line;
+	while(std::getline(ss, line, ','))
+		value_array.push_back(HandlingString::skipping_emptyword(line));
+	this->_access_control_request_headers.set_value_array(value_array);
 }
 
 void	HttpRequest::set_access_control_request_method(const std::string &value)
 {
-
+	this->_access_control_request_method.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_age(const std::string &value)
 {
-
+	this->_age.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_allow(const sts::string &value)
 {
+	std::vector<std::string>	value_array;
 
+	std::stringstream	ss(value);
+	std::string			line;
+	while(std::getline(ss, line, ','))
+		value_array.push_back(HandlingString::skipping_emptyword(line));
+	this->_allow.set_value_array(value_array);
 }
 
 //Alt-Svc値どう使うのか全くわからない

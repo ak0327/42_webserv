@@ -15,12 +15,12 @@ class ValueWeightArraySet
 	
 	public:
 		ValueWeightArraySet();
-		ValueWeightArraySet(const std::string &other);
 		~ValueWeightArraySet();
 
 		std::map<std::string, double> get_valueweight_set(void) const;
 
 		void	append_valueweight_set(const std::string &value, double weight);
+		void	append_valueweight_set(const std::string &value);
 };
 
 #endif
