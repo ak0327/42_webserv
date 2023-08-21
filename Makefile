@@ -28,15 +28,13 @@ INCLUDES	 =	$(addprefix -I, $(INCLUDES_DIR))
 
 # RULES ------------------------------------------------------------------------
 .PHONY	: all
-all		: $(OBJS_DIR) $(NAME)
+all		: $(NAME)
 
 $(NAME)	: $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-$(OBJS_DIR)		:
-	@mkdir -p $@
-
 $(OBJS_DIR)/%.o	: $(SRCS_DIR)/%.cpp
+	@mkdir -p $$(dirname $@)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
 .PHONY	: clean
