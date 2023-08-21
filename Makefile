@@ -11,6 +11,11 @@ SRCS_DIR	=	srcs
 SRCS		=	main.cpp \
 				get_valid_config_file_path.cpp
 
+#socket
+SOCKET_DIR	=	Socket
+SRCS		+=	$(SOCKET_DIR)/Socket.cpp
+INCLUDES_DIR += $(SRCS_DIR)/$(SOCKET_DIR)
+
 
 # OBJS -------------------------------------------------------------------------
 OBJS_DIR	=	objs
@@ -22,7 +27,7 @@ DEPS		=	$(OBJS:%.o=%.d)
 
 
 # INCLUDES ---------------------------------------------------------------------
-INCLUDES_DIR =	includes srcs/includes
+INCLUDES_DIR =	includes
 INCLUDES	 =	$(addprefix -I, $(INCLUDES_DIR))
 
 
