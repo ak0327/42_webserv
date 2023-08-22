@@ -17,6 +17,11 @@ void TwoValueSet::set_values(const std::string &first_value, const std::string &
 	this->_secondValue = second_value;
 }
 
+void TwoValueSet::set_values(const std::string &first_value)
+{
+	this->_firstvalue = first_value;
+}
+
 std::string TwoValueSet::get_firstvalue(void) const
 {
 	return (this->_firstvalue);

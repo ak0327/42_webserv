@@ -422,25 +422,26 @@ void	HttpReques::set_cross_origin_opener_policy(const std::string &value)
 
 void	HttpRequest::set_cross_origin_resource_policy(const std::string &value)
 {
-
+	this->_cross_origin_resource_policy = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_date(const std:string &value)
 {
-
+	
 }
 
 void	HttpRequest::set_etag(const std::string &value)
 {
-
+	this->_etag = HandlingString::skipping_emptyword(value);
 }
 
 void	Httprequest::set_expect(const std::string &value)
 {
-
+	this->_expect = HandlingString::skipping_emptyword(value);
 }
 
 //expect-ctは現状廃止されているっぽくて対応したくない
+
 void	HttpRequest::set_expires(const std::string &value)
 {
 
@@ -448,37 +449,68 @@ void	HttpRequest::set_expires(const std::string &value)
 
 void	HttpRequest::set_forwarded(const std::string &value)
 {
+	std::map<std::string, std::string> value_map;
+	std::stringstream	ss(value);
+	std::string			line;
 
+	while(std::getline(ss, line, ';'))
+		value_map[HandlingString::obtain_beforeword(HandlingString::skipping_emptyword(line), '=')] = HandlingString::obtain_afterword(HandlingString::skipping_emptyword(line), '=');
+	this->_forwarded.set_value(value_map);
 }
 
 void	HttpRequest::set_email(const std::string &value)
 {
 
-}
+}//?
 
 void	HttpRequest::set_from(const std::string &value)
 {
-
+	this->_form = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_host(const std::string &value)
 {
+	std::stringstream	ss(HandlingString::skipping_emptyword(value));
+	std::string			first_value;
+	std::string			second_value;
 
+	if (value.find(':') != std::string::npos)
+	{
+		std::getline(ss, first_value, ':');
+		std::getline(ss, second_value, ':');
+		this->_alt_used.set_values(first_value, second_value);
+	}
+	else
+	{
+		this->_alt_used.set_values(HandlingString::skipping_emptyword(value));
+	}
 }
 
 void	HttpRequest::set_if_match(const std::string &value)
 {
+	std::vector<std::string>	value_array;
+	std::stringstream	ss(value);
+	std::string			line;
 
+	while(std::getline(ss, line, ','))
+		value_array.push_back(HandlingString::skipping_emptyword(line));
+	this->_if_match.set_value_array(value_array);
 }
 
 void	Httprequest::set_if_modified_since(const std::string &value)
 {
-
+	
 }
 
 void	HttpRequest::set_if_none_match(const std::string &value)
 {
-
+	std::vector<std::string>	value_array;
+	std::stringstream	ss(value);
+	std::string			line;
+	
+	while(std::getline(ss, line, ','))
+		value_array.push_back(HandlingString::skipping_emptyword(line));
+	this->_if_none_match.set_value_array(value_array);
 }
 
 void	Httprequest::set_if_range(const std::string &value)
@@ -493,7 +525,7 @@ void	Httprequest::set_if_unmodified_since(const std::string &value)
 
 void	HttpRequest::set_keepalive(const std::string &value)
 {
-
+	this->_keepalive = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_last_modified(const std::string &value)
@@ -503,79 +535,109 @@ void	HttpRequest::set_last_modified(const std::string &value)
 
 void	HttpRequest::set_link(const std::string &value)
 {
+	std::map<std::string, std::string> value_map;
+	std::stringstream	ss(value);
+	std::string			line;
 
+	std::string	key;
+	std::getline(ss, key, ';');
+	while(std::getline(ss, line, ';'))
+		value_map[HandlingString::obtain_beforeword(HandlingString::skipping_emptyword(line), '=')] = HandlingString::obtain_afterword(HandlingString::skipping_emptyword(line), '=');
+	this->_content_disponesition.set_value(key, value_map);
 }
 
 void	HttpRequest::set_location(const std::string &value)
 {
-
+	this->_location = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_max_forwards(const std::string &value)
 {
-
+	this->_max_forwards = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_origin(const std::string &value)
 {
-
+	this->_origin = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_permission_policy(const std::string &value)
 {
+	// std::stringstream	ss(HandlingString::skipping_emptyword(value));
+	// std::string			first_value;
+	// std::string			second_value;
 
+	// std::getline(ss, first_value, ' ');
+	// std::getline(ss, second_value, '/');
+	// this->_accept_post.set_values(first_value, second_value);
+	//空白が分割文字だからそのまま使うとまずい
 }
 
 void	Httprequest::set_proxy_authenticate(const std::string &value)
 {
+	// std::map<std::string, std::string> value_map;
+	// std::stringstream	ss(value);
+	// std::string			line;
 
+	// if (value.find(';') == std::string::npos)
+	// {
+	// 	while(std::getline(ss, line, ';'))
+	// 		value_map[HandlingString::obtain_beforeword(HandlingString::skipping_emptyword(line), '=')] = HandlingString::obtain_afterword(HandlingString::skipping_emptyword(line), '=');
+	// 	this->_alt_svc.set_value(value_map);
+	// }
+	// else
+	// {
+	// 	this->_alt_svc.set_value(HandlingString::skipping_emptyword(line));
+	// }
+	//これも空白文字が分割に使われてるからまずい
 }
 
 void	HttpRequest::set_proxy_authorization(const std::string &value)
 {
-
+	//空白が分割文字だからそのまま使うとまずい
 }
 
 //range何かよくわからん
 
 void	HttpRequest::set_referer(const std::string &value)
 {
-
+	this->_referer = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_referrer_policy(const std::string &value)
 {
-
+	this->_referrer_policy = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_retry_after(const std::string &value)
 {
-
+	this->_retry_after = HandlingString::skipping_emptyword(value);
+	//やばいこいつ普通の値とDate型の値持ちやがる
 }
 
 void	HttpRequest::set_sec_fetch_dest(const std::string &value)
 {
-
+	this->_sec_fetch_dest = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_sec_fetch_mode(const std::string &value)
 {
-
+	this->_sec_fetch_mode = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_sec_fetch_site(const std::string &value)
 {
-
+	this->_sec_fetch_site = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_sec_fetch_user(const std::string &value)
 {
-
+	this->_sec_fetch_user = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_sec_purpose(const std::string &value)
 {
-
+	this->_sec_purpose = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_sec_websocket_accept(const std::string &value)

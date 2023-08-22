@@ -72,18 +72,18 @@ class HttpRequest
 		ValueSet			_etag;
 		ValueSet			_expect;
 		//expect-ctは現状廃止されているっぽくて対応したくない
-		ValueSet			_expires;
+		ValueDateSet		_expires;
 		ValueMap			_forwarded;
 		ValueSet			_email;
 		ValuseSet			_from;
 		TwoValueSet			_host;
 		ValueArraySet		_if_match;
-		ValueSet			_if_modified_since;
+		ValueDateSet		_if_modified_since;
 		ValueArraySet		_if_none_match;
-		ValueSet			_if_range;
-		ValueSet			_if_unmodified_since;
+		ValueDateSet		_if_range;
+		ValueDateSet		_if_unmodified_since;
 		ValueSet			_keep_alive;
-		ValueSet			_last_modified;
+		ValueDateSet		_last_modified;
 		ValueMap			_link;
 		ValueSet			_location;
 		ValueSet			_max_forwards;
