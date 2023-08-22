@@ -260,84 +260,164 @@ void	HttpRequest::set_alt_svc(const std::string &value)
 
 void	HttpRequest:: set_alt_used(const std::string &value)
 {
+	std::stringstream	ss(HandlingString::skipping_emptyword(value));
+	std::string			first_value;
+	std::string			second_value;
 
+	std::getline(ss, first_value, ':');
+	std::getline(ss, second_value, ':');
+	this->_alt_used.set_values(first_value, second_value);
 }
 
 void	HttpRequest:: set_authorization(const std::string &value)
 {
+	std::map<std::string, std::string> value_map;
+	std::stringstream	ss(value);
+	std::string			line;
 
+	if (value.find(',') != std::string::npos)
+	{
+		while(std::getline(ss, line, ';'))
+			value_map[HandlingString::obtain_beforeword(HandlingString::skipping_emptyword(line), '=')] = HandlingString::obtain_afterword(HandlingString::skipping_emptyword(line), '=');
+		this->_alt_svc.set_value(value_map);
+	}
+	else
+	{
+		this->_alt_svc.set_value(HandlingString::skipping_emptyword(line));
+	}
 }
+//この格納方法でいいのかちょっとわからん
 
 //Cache-Controlどう使うのか全くわからない
 
 void	HttpRequest::set_clear_site_data(const std::string &value)
 {
+	std::vector<std::string>	value_array;
 
+	std::stringstream	ss(value);
+	std::string			line;
+	while(std::getline(ss, line, ','))
+		value_array.push_back(HandlingString::skipping_emptyword(line));
+	this->_clear_site_data.set_value_array(value_array);
+	//ダブルクオーテーションとれ
 }
 
 void	HttpRequest::set_connection(const std::string &value)
 {
-
+	this->_connection = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_content_disponesition(const std::string &value)
 {
+	std::map<std::string, std::string> value_map;
+	std::stringstream	ss(value);
+	std::string			line;
 
+	if (value.find(';') != std::string::npos)
+	{
+		std::string	key;
+		std::getline(ss, key, ';');
+		while(std::getline(ss, line, ';'))
+			value_map[HandlingString::obtain_beforeword(HandlingString::skipping_emptyword(line), '=')] = HandlingString::obtain_afterword(HandlingString::skipping_emptyword(line), '=');
+		this->_content_disponesition.set_value(key, value_map);
+	}
+	else
+	{
+		this->_content_disponesition.set_value(HandlingString::skipping_emptyword(line));
+	}
 }
 
 void	HttpRequest::set_content_encoding(const std::string &value)
 {
+	std::vector<std::string>	value_array;
 
+	std::stringstream	ss(value);
+	std::string			line;
+	while(std::getline(ss, line, ','))
+		value_array.push_back(HandlingString::skipping_emptyword(line));
+	this->_content_encoding.set_value_array(value_array);
 }
 
 void	HttpRequest::set_content_language(const std::string &value)
 {
+	std::vector<std::string>	value_array;
 
+	std::stringstream	ss(value);
+	std::string			line;
+	while(std::getline(ss, line, ','))
+		value_array.push_back(HandlingString::skipping_emptyword(line));
+	this->_content_language.set_value_array(value_array);
 }
 
 void	HttpRequest::set_content_length(const std::string &value)
 {
-
+	this->_content_length = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_content_location(const std::string &value)
 {
-
+	this->_content_location = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_content_range(const std::string &value)
 {
-
+	this->_content_range = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_content_security_policy(const std::string &value)
 {
+	std::stringstream	ss(HandlingString::skipping_emptyword(value));
+	std::string			first_value;
+	std::string			second_value;
 
+	std::getline(ss, first_value, ';');
+	std::getline(ss, second_value, ';');
+	this->_content_security_policy.set_values(first_value, second_value);
 }
 
 void	HttpRequest::set_content_security_policy_report_only(const std::string &value)
 {
+	std::stringstream	ss(HandlingString::skipping_emptyword(value));
+	std::string			first_value;
+	std::string			second_value;
 
+	std::getline(ss, first_value, ';');
+	std::getline(ss, second_value, ';');
+	this->_content_security_policy_report_only.set_values(first_value, second_value);
 }
 
 void	HttpRequest::set_content_type(const std::string &value)
 {
+	std::map<std::string, std::string> value_map;
+	std::stringstream	ss(value);
+	std::string			line;
+	std::string	key;
 
+	std::getline(ss, key, ';');
+	while(std::getline(ss, line, ';'))
+		value_map[HandlingString::obtain_beforeword(HandlingString::skipping_emptyword(line), '=')] = HandlingString::obtain_afterword(HandlingString::skipping_emptyword(line), '=');
+	this->_content_type.set_value(key, value_map);
 }
 
 void	HttpRequest::set_cookie(const std::string &value)
 {
+	std::map<std::string, std::string> value_map;
+	std::stringstream	ss(value);
+	std::string			line;
 
+	while(std::getline(ss, line, ';'))
+		value_map[HandlingString::obtain_beforeword(HandlingString::skipping_emptyword(line), '=')] = HandlingString::obtain_afterword(HandlingString::skipping_emptyword(line), '=');
+	this->_content_type.set_value(value_map);
 }
 
 void	HttpRequest::set_cross_origin_embedder_policy(const std::string &value)
 {
-
+	this->_cross_origin_embedder_policy = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpReques::set_cross_origin_opener_policy(const std::string &value)
 {
-
+	this->_cross_origin_opener_policy = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_cross_origin_resource_policy(const std::string &value)

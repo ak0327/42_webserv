@@ -51,7 +51,7 @@ class HttpRequest
 		ValueArraySet		_allow;
 		ValueMap			_alt_svc;
 		TwoValueSet			_alt_used;
-		ValueArraySet		_authorization;
+		ValueMap			_authorization;
 		//Cache-Controlどう使うのか全くわからない うまく分けられん
 		ValueArraySet		_clear_site_data;
 		ValueSet			_connection;
