@@ -10,7 +10,9 @@
 # define PATH_DELIM			'/'
 # define EXTENSION_DELIM	'.'
 
-# define STAT_ERROR	(-1)
+# define STAT_ERROR		(-1)
+# define ERROR			(-1)
+# define OK				0
 
 # define INVALID_ARGUMENT_ERROR_MSG	"[Error] invalid argument"
 # define INVALID_PATH_ERROR_MSG		"[Error] invalid file path"

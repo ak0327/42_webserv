@@ -1,39 +1,32 @@
-#ifndef SOCKET_HPP
-#define SOCKET_HPP
+#pragma once
 
-# include <iostream>
-# include <string>
-# include <map>
-# include <unistd.h>
+# define SERVER_IP		"127.0.0.1"
+# define SERVER_PORT	"8080"
 
-# include <sys/param.h>
-# include <sys/socket.h>
-# include <sys/types.h>
-# include <sys/wait.h>
+// todo: config -> port, protocol
+// todo: signal
+class Socket {
+ public:
+	Socket();
+	~Socket();
 
-# include <arpa/inet.h>
-# include <netinet/in.h>
-# include <netdb.h>
+	int	get_socket_fd() const;
+	int	get_status() const;
 
-# include <fcntl.h>
+ private:
+	int _status;
+	int _socket_fd;
+	struct addrinfo *_addr_info;
+	const char *_server_ip;  // Nullable
+	const char *_server_port;
 
-class Socket
-{
-	private:
-		int	_socketFD;
-		int _status;
+	int create_socket();
+	int bind_socket() const;
+	int listen_socket() const;
+	int set_fd_to_nonblock() const;
 
-		int			makesocket(std::string const &port);
-		int			makeAddressInfo(std::string const &port, struct addrinfo **res);
-
-	public:
-		Socket(std::string&);
-		Socket(const Socket &other);
-		Socket &operator=(const Socket &other);
-		~Socket();
-
-		int	get_socketFD(void) const;
-		int	get_status(void) const;
+	static int set_addr_info(const char *ip, const char *port, struct addrinfo **result);
+	static void set_addr_hints(struct addrinfo *hints);
+	static int set_socket_opt(int socket_fd);
+	static void close_socket_fd(int socket_fd);
 };
-
-#endif
