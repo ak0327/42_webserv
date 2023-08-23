@@ -110,7 +110,7 @@ class HttpRequest
 		ValueSet			_te;
 		ValueSet			_timing_allow_origin;
 		ValueSet			_trailer;
-		ValueSet			_transfer_encoding;
+		ValueArraySet		_transfer_encoding;
 		ValueArraySet		_upgrade;
 		ValueSet			_upgrade_insecure_requests;
 		ValueSet			_user_agent;
@@ -119,6 +119,8 @@ class HttpRequest
 		ValueArraySet		_www_authenticate;
 		ValueMap			_x_xss_protection;
 
+		std::map<std::string, void(*)()> inputvalue_functionmap;
+
 		HttpRequest();
 		HttpRequest(const HttpRequest &other);
 		HttpRequest &operator=(const HttpRequest &other);
@@ -126,6 +128,7 @@ class HttpRequest
 		bool		check_keyword_exist(const std::string &key);
 		std::string	obtain_request_key(const std::string value);
 		std::string	obtain_request_value(const std::string value);
+		void		ready_functionmap(void) const;
 	
 	public:
 		HttpRequest(const std::string &value);
