@@ -61,13 +61,7 @@ bool is_valid_config_file_path(const char *path) {
 	return true;
 }
 
-// if config file is not given, path is 'default'  todo: empty string ?
-std::string get_valid_config_file_path(int argc, char **argv) {
-	const char	*path = argv[CONFIG_FILE_INDEX];
-
-	if (argc == EXECUTABLE_FILE_ONLY_ARGC) {
-		return std::string(DEFAULT_CONFIG);
-	}
+std::string get_valid_config_file_path(const char *path) {
 	if (!is_valid_config_file_path(path)) {
 		throw std::invalid_argument(INVALID_PATH_ERROR_MSG);
 	}

@@ -3,9 +3,6 @@
 #include "webserv.hpp"
 
 static void validate_argc(int argc) {
-	if (argc == EXECUTABLE_FILE_ONLY_ARGC) {
-		return;
-	}
 	if (argc == CONFIG_FILE_GIVEN_ARGC) {
 		return;
 	}
@@ -19,7 +16,7 @@ int main(int argc, char **argv) {
 
 	try {
 		validate_argc(argc);
-		config_file_path = get_valid_config_file_path(argc, argv);
+		config_file_path = get_valid_config_file_path(argv[CONFIG_FILE_INDEX]);
 		std::cout << "config_file_path=[" << config_file_path << "]" << std::endl;
 
 		// if path is 'default', config set to default
