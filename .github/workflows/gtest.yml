@@ -1,7 +1,7 @@
-name: GOOGLE_TEST
+name: UNIT_TEST
 on: [push]
 jobs:
-  run-google-test:
+  run-unit-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -11,7 +11,7 @@ jobs:
           cmake -S . -B build
           cmake --build build
 
-      - name: run-all-test
+      - name: run all tests
         run: ./build/unit_test
 
       - uses: sarisia/actions-status-discord@v1
