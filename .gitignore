@@ -22,8 +22,9 @@
 !Makefile
 !CPPLINT.cfg
 !webserv.drawio
+!CMakeLists.txt
 
 .idea
 .vscode
 .DS_Store
-CMakeLists.txt
+CMakeCache.txt

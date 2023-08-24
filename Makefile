@@ -52,9 +52,16 @@ re		: fclean all
 lint	:
 	cpplint --recursive srcs
 
+#.PHONY	: unit
+#unit	:
+#	./test/unit_test/run_unit_test.sh
+
 .PHONY	: unit
 unit	:
-	./test/unit_test/run_unit_test.sh
-
+	rm -rf build
+	cmake -S . -B build
+	cmake --build build
+	#cd build && ctest
+	./build/unit_test
 
 -include $(DEPS)
