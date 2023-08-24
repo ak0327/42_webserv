@@ -13,7 +13,9 @@ HttpRequest::HttpRequest(const std::string &all_request_text)
 	while (std::getline(ss, line, '\n'))
 	{
         key = this->obtain_request_key(line);
+		std::cout << "key is " << key << std::endl;
 		value = this->obtain_request_value(line);
+		std::cout << "value is " << value << std::endl;
 		if (this->check_keyword_exist(key) == true)
 			(this->*inputvalue_functionmap[key])(line);
     }
@@ -305,8 +307,7 @@ void	HttpRequest::set_clear_site_data(const std::string &value)
 
 void	HttpRequest::set_connection(const std::string &value)
 {
-	(void)value;
-	// this->_connection = HandlingString::skipping_emptyword(value);
+	this->_connection.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_content_disponesition(const std::string &value)
@@ -353,20 +354,17 @@ void	HttpRequest::set_content_language(const std::string &value)
 
 void	HttpRequest::set_content_length(const std::string &value)
 {
-	(void)value;
-	// this->_content_length = HandlingString::skipping_emptyword(value);
+	this->_content_length.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_content_location(const std::string &value)
 {
-	(void)value;
-	// this->_content_location = HandlingString::skipping_emptyword(value);
+	this->_content_location.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_content_range(const std::string &value)
 {
-	(void)value;
-	// this->_content_range = HandlingString::skipping_emptyword(value);
+	this->_content_range.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_content_security_policy(const std::string &value)
@@ -417,20 +415,17 @@ void	HttpRequest::set_cookie(const std::string &value)
 
 void	HttpRequest::set_cross_origin_embedder_policy(const std::string &value)
 {
-	(void)value;
-	// this->_cross_origin_embedder_policy = HandlingString::skipping_emptyword(value);
+	this->_cross_origin_embedder_policy.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_cross_origin_opener_policy(const std::string &value)
 {
-	(void)value;
-	// this->_cross_origin_opener_policy = HandlingString::skipping_emptyword(value);
+	this->_cross_origin_opener_policy.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_cross_origin_resource_policy(const std::string &value)
 {
-	(void)value;
-	// this->_cross_origin_resource_policy = HandlingString::skipping_emptyword(value);
+	this->_cross_origin_resource_policy.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_date(const std::string &value)
@@ -440,14 +435,12 @@ void	HttpRequest::set_date(const std::string &value)
 
 void	HttpRequest::set_etag(const std::string &value)
 {
-	(void)value;
-	// this->_etag = HandlingString::skipping_emptyword(value);
+	this->_etag.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_expect(const std::string &value)
 {
-	(void)value;
-	// this->_expect = HandlingString::skipping_emptyword(value);
+	this->_expect.set_value(HandlingString::skipping_emptyword(value));
 }
 
 //expect-ctは現状廃止されているっぽくて対応したくない
@@ -475,8 +468,7 @@ void	HttpRequest::set_email(const std::string &value)
 
 void	HttpRequest::set_from(const std::string &value)
 {
-	(void)value;
-	// this->_from = HandlingString::skipping_emptyword(value);
+	this->_from.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_host(const std::string &value)
@@ -536,8 +528,7 @@ void	HttpRequest::set_if_unmodified_since(const std::string &value)
 
 void	HttpRequest::set_keepalive(const std::string &value)
 {
-	(void)value;
-	// this->_keep_alive = HandlingString::skipping_emptyword(value);
+	this->_keep_alive.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_last_modified(const std::string &value)
@@ -560,20 +551,17 @@ void	HttpRequest::set_link(const std::string &value)
 
 void	HttpRequest::set_location(const std::string &value)
 {
-	(void)value;
-	// this->_location = HandlingString::skipping_emptyword(value);
+	this->_location.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_max_forwards(const std::string &value)
 {
-	(void)value;
-	// this->_max_forwards = HandlingString::skipping_emptyword(value);
+	this->_max_forwards.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_origin(const std::string &value)
 {
-	(void)value;
-	// this->_origin = HandlingString::skipping_emptyword(value);
+	this->_origin.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_permission_policy(const std::string &value)
@@ -616,63 +604,52 @@ void	HttpRequest::set_proxy_authorization(const std::string &value)
 
 void	HttpRequest::set_referer(const std::string &value)
 {
-	(void)value;
-	// this->_referer = HandlingString::skipping_emptyword(value);
+	this->_referer.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_referrer_policy(const std::string &value)
 {
-	(void)value;
-	// this->_referrer_policy = HandlingString::skipping_emptyword(value);
+	this->_referrer_policy.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_retry_after(const std::string &value)
 {
-	(void)value;
-	// this->_retry_after = HandlingString::skipping_emptyword(value);
-	//やばいこいつ普通の値とDate型の値持ちやがる
+	this->_retry_after.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_sec_fetch_dest(const std::string &value)
 {
-	(void)value;
-	// this->_sec_fetch_dest = HandlingString::skipping_emptyword(value);
+	this->_sec_fetch_dest.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_sec_fetch_mode(const std::string &value)
 {
-	(void)value;
-	// this->_sec_fetch_mode = HandlingString::skipping_emptyword(value);
+	this->_sec_fetch_mode.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_sec_fetch_site(const std::string &value)
 {
-	(void)value;
-	// this->_sec_fetch_site = HandlingString::skipping_emptyword(value);
+	this->_sec_fetch_site.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_sec_fetch_user(const std::string &value)
 {
-	(void)value;
-	// this->_sec_fetch_user = HandlingString::skipping_emptyword(value);
+	this->_sec_fetch_user.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_sec_purpose(const std::string &value)
 {
-	(void)value;
-	// this->_sec_purpose = HandlingString::skipping_emptyword(value);
+	this->_sec_purpose.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_sec_websocket_accept(const std::string &value)
 {
-	(void)value;
-	// this->_sec_websocket_accept = HandlingString::skipping_emptyword(value);
+	this->_sec_websocket_accept.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_server(const std::string &value)
 {
-	(void)value;
-	// this->_server = HandlingString::skipping_emptyword(value);
+	this->_server.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_servertiming(const std::string &value)
@@ -690,8 +667,7 @@ void	HttpRequest::set_servertiming(const std::string &value)
 
 void	HttpRequest::set_service_worker_navigation_preload(const std::string &value)
 {
-	(void)value;
-	// this->_service_worker_navigation_preload = HandlingString::skipping_emptyword(value);
+	this->_service_worker_navigation_preload.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_set_cookie(const std::string &value)
@@ -701,8 +677,7 @@ void	HttpRequest::set_set_cookie(const std::string &value)
 
 void	HttpRequest::set_sourcemap(const std::string &value)
 {
-	(void)value;
-	// this->_sourcemap = HandlingString::skipping_emptyword(value);
+	this->_sourcemap.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_strict_transport_security(const std::string &value)
@@ -726,14 +701,12 @@ void	HttpRequest::set_te(const std::string &value)
 
 void	HttpRequest::set_timing_allow_origin(const std::string &value)
 {
-	(void)value;
-	// this->_timing_allow_origin = HandlingString::skipping_emptyword(value);
+	this->_timing_allow_origin.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_trailer(const std::string &value)
 {
-	(void)value;
-	// this->_trailer = HandlingString::skipping_emptyword(value);
+	this->_timing_allow_origin.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_transfer_encoding(const std::string &value)
@@ -760,14 +733,12 @@ void	HttpRequest::set_upgrade(const std::string &value)
 
 void	HttpRequest::set_upgrade_insecure_requests(const std::string &value)
 {
-	(void)value;
-	// this->_upgrade_insecure_requests = HandlingString::skipping_emptyword(value);
+	this->_upgrade_insecure_requests.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_user_agent(const std::string &value)
 {
-	(void)value;
-	// this->_user_agent = HandlingString::skipping_emptyword(value);
+	this->_user_agent.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_vary(const std::string &value)
@@ -783,8 +754,7 @@ void	HttpRequest::set_vary(const std::string &value)
 
 void	HttpRequest::set_via(const std::string &value)
 {
-	(void)value;
-	// this->_via = HandlingString::skipping_emptyword(value);
+	this->_via.set_value(HandlingString::skipping_emptyword(value));
 }
 
 void	HttpRequest::set_www_authenticate(const std::string &value)
@@ -893,5 +863,5 @@ void	HttpRequest::ready_functionmap()
 
 void	HttpRequest::show_requestinfs(void) const
 {
-
+	std::cout << this->_requestline.get_method() << std::endl;
 }
