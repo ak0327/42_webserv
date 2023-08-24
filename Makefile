@@ -63,10 +63,11 @@ lint	:
 
 .PHONY	: unit
 unit	:
-	rm -rf build
+	#rm -rf build
 	cmake -S . -B build
 	cmake --build build
-	#cd build && ctest
+	#./build/unit_test 2>/dev/null
 	./build/unit_test
+	#cd build && ctest
 
 -include $(DEPS)

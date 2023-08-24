@@ -1,4 +1,4 @@
-name: UNIT_TEST
+name: UNIT_TEST_SH
 on: [push]
 jobs:
   run-unit-test:

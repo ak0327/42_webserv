@@ -2,6 +2,8 @@
 #include <netdb.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <cerrno>
+#include <cstring>
 #include <iostream>
 #include "webserv.hpp"
 #include "Socket.hpp"
@@ -26,20 +28,59 @@ Socket::Socket() : _status(ERROR),
 	this->_status = OK;
 }
 
+Socket::Socket(const char *server_ip, const char *server_port) : _status(ERROR),
+																 _socket_fd(ERROR),
+																 _addr_info(NULL),
+																 _server_ip(server_ip),
+																 _server_port(server_port) {
+	if (create_socket() == ERROR) {
+		return;
+	}
+	if (bind_socket() == ERROR) {
+		return;
+	}
+	if (listen_socket() == ERROR) {
+		return;
+	}
+	if (set_fd_to_nonblock() == ERROR) {
+		return;
+	}
+	this->_status = OK;
+}
+
+// Socket::Socket(const Socket &copy) {
+// 	*this = copy;
+// }
+//
+// Socket &Socket::operator=(const Socket &rhs) {
+// 	if (this != &rhs) {
+// 		_status = rhs._status;
+// 		_socket_fd = rhs._socket_fd;
+// 		_server_ip = rhs._server_ip;
+// 		_server_port = rhs._server_port;
+// 		// _addr_info = rhs._addr_info;
+// 		set_addr_info(this->_server_ip, this->_server_port, &this->_addr_info);
+// 	}
+// 	return *this;
+// }
+
 Socket::~Socket() {
 	if (this->_addr_info != NULL) {
 		freeaddrinfo(this->_addr_info);
+		this->_addr_info = NULL;
 	}
 	if (this->_socket_fd != ERROR) {
 		close_socket_fd(this->_socket_fd);
+		this->_socket_fd = ERROR;
 	}
+	// std::cout << "destructor" << std::endl;
 }
 
 int Socket::create_socket() {
 	int errcode;
 	int ai_family, ai_socktype, ai_protocol;
 
-	errcode = set_addr_info(&this->_addr_info);
+	errcode = set_addr_info(this->_server_ip, this->_server_port, &this->_addr_info);
 	if (errcode != OK) {
 		std::cerr << gai_strerror(errcode) << std::endl;
 		return ERROR;
@@ -71,7 +112,6 @@ int Socket::set_addr_info(const char *ip, const char *port, struct addrinfo **re
 }
 
 void Socket::set_addr_hints(struct addrinfo *hints) {
-	memset(hints, 0, sizeof(struct addrinfo));
 	hints->ai_socktype = SOCK_STREAM;
 	hints->ai_family = AF_UNSPEC;  // allows IPv4 and IPv6
 	hints->ai_flags = AI_PASSIVE | AI_NUMERICHOST | AI_NUMERICSERV;  // socket, IP, PORT
@@ -134,3 +174,5 @@ void Socket::close_socket_fd(int socket_fd) {
 
 int Socket::get_socket_fd() const { return this->_socket_fd; }
 int Socket::get_status() const { return this->_status; }
+// std::string Socket::get_server_port() const { return this->_server_port; }
+// std::string Socket::get_server_ip() const { return this->_server_ip; }

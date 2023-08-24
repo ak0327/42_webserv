@@ -24,11 +24,13 @@ enable_testing()
 # includes ---------------------------------------------------------------------
 include_directories(
         includes
+        srcs/Socket
 )
 
 # webserv_srcs -----------------------------------------------------------------
 set(webserv_srcs
         srcs/get_valid_config_file_path.cpp
+        srcs/Socket/Socket.cpp
 )
 
 add_executable(webserv
@@ -38,7 +40,9 @@ add_executable(webserv
 
 # unit_test_srcs ---------------------------------------------------------------
 set (unit_test_srcs
-        test/unit_test/is_valid_file_path/test_get_valid_config_file_path.cpp)
+        test/unit_test/is_valid_file_path/test_get_valid_config_file_path.cpp
+        test/unit_test/TestSocket.cpp
+)
 
 add_executable(unit_test
         ${webserv_srcs}
