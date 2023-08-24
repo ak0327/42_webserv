@@ -1,0 +1,21 @@
+name: GOOGLE_TEST
+on: [push]
+jobs:
+  run-google-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: build
+        run: |
+          cmake -S . -B build
+          cmake --build build
+
+      - name: run-all-test
+        run: ./build/unit_test
+
+      - uses: sarisia/actions-status-discord@v1
+        if: always()
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          status: ${{ job.status }}
