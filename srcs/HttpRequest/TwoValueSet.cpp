@@ -31,3 +31,8 @@ std::string TwoValueSet::get_secondvalue(void) const
 {
 	return (this->_secondValue);
 }
+
+void	TwoValueSet::show_allvalue(void) const
+{
+	std::cout << "values is >> " << this->_firstvalue << " | " << this->_secondValue << " <<" << std::endl;
+}
