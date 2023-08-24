@@ -7,7 +7,7 @@ RequestLine::RequestLine()
 
 void RequestLine::set_value(const std::string &line)
 {
-	std::istringstream	iss(input);
+	std::istringstream	iss(line);
 	std::string			word;
 
 	iss >> word;
@@ -35,5 +35,5 @@ std::string RequestLine::get_target_page(void) const
 
 std::string	RequestLine::get_version(void) const
 {
-	return (this->get_version);
+	return (this->_version);
 }

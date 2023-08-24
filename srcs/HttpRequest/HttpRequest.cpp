@@ -1,110 +1,22 @@
 #include "../includes/HttpRequest.hpp"
 
-HttpRequest::HttpRequest(const std::string &value)
+HttpRequest::HttpRequest(const std::string &all_request_text)
 {
 	std::string	line;
 	std::string	key;
+	std::string	value;
 
 	ready_functionmap();
-	std::stringstream ss(value);
+	std::stringstream ss(all_request_text);
 	std::getline(ss, line, '\n');
 	this->_requestline.set_value(line);
 	while (std::getline(ss, line, '\n'))
 	{
         key = this->obtain_request_key(line);
+		value = this->obtain_request_value(line);
 		if (this->check_keyword_exist(key) == true)
-		{
-
-		}
+			(this->*inputvalue_functionmap[key])(line);
     }
-}
-
-void	HttpRequest::ready_functionmap() const
-{
-	this->inputvalue_functionmap["Accept"] = this->set_accept;
-	this->inputvalue_functionmap["Accept-CH"] = this->set_accept_ch;
-	this->inputvalue_functionmap["Accept-Charset"] = this->set_accept_charset;
-	this->inputvalue_functionmap["Accept-Encoding"] = this->set_accept_encoding;
-	this->inputvalue_functionmap["Accept-Language"] = this->set_accept_language;
-	//this->inputvalue_functionmap["Accept-Patch"] = this->set_accept_patch;
-	this->inputvalue_functionmap["Accept-Post"] = this->set_accept_post;
-	this->inputvalue_functionmap["Accept-Ranges"] = this->set_accept_ranges;
-	this->inputvalue_functionmap["Access-Control-Allow-Credentials"] = this->set_access_control_allow_credentials;
-	this->inputvalue_functionmap["Access-Control-Allow-Headers"] = this->set_access_control_allow_headers;
-	this->inputvalue_functionmap["Access-Control-Allow-Methods"] = this->set_access_control_allow_methods;
-	this->inputvalue_functionmap["Access-Control-Allow-Origin"] = this->set_access_control_allow_origin;
-	this->inputvalue_functionmap["Access-Control-Expose-Headers"] = this->set_access_control_expose_headers;
-	this->inputvalue_functionmap["Access-Control-Max-Age"] = this->set_access_control_max_age;
-	this->inputvalue_functionmap["Access-Control-Request-Headers"] = this->set_access_control_request_headers;
-	this->inputvalue_functionmap["Access-Control-Request-Method"] = this->set_access_control_request_method;
-	this->inputvalue_functionmap["Age"] = this->set_age;
-	this->inputvalue_functionmap["Allow"] = this->set_allow;
-	this->inputvalue_functionmap["Alt-Svc"] = this->set_alt_svc;
-	this->inputvalue_functionmap["Alt-Used"] = this->set_alt_used;
-	this->inputvalue_functionmap["Authorization"] = this->set_authorization;
-	// this->inputvalue_functionmap["Cache-Control"] = this->set_cache_control;
-	this->inputvalue_functionmap["Clear-Site-Data"] = this->set_clear_site_data;
-	this->inputvalue_functionmap["Connection"] = this->set_connection;
-	this->inputvalue_functionmap["Content-Disposition"] = this->set_content_disponesition;
-	this->inputvalue_functionmap["Content-Encoding"] = this->set_content_encoding;
-	this->inputvalue_functionmap["Content-Language"] = this->set_content_language;
-	this->inputvalue_functionmap["Content-Length"] = this->set_content_length;
-	this->inputvalue_functionmap["Content-Location"] = this->set_content_location;
-	this->inputvalue_functionmap["Content-Range"] = this->set_content_range;
-	this->inputvalue_functionmap["Content-Security-Policy"] = this->set_content_security_policy;
-	this->inputvalue_functionmap["Content-Security-Policy-Report-Only"] = this->set_content_security_policy_report_only;
-	this->inputvalue_functionmap["Content-Type"] = this->set_content_type;
-	this->inputvalue_functionmap["Cookie"] = this->set_cookie;
-	this->inputvalue_functionmap["Cross-Origin-Embedder-Policy"] = this->set_cross_origin_embedder_policy;
-	this->inputvalue_functionmap["Cross-Origin-Opener-Policy"] = this->set_cross_origin_opener_policy;
-	this->inputvalue_functionmap["Cross-Origin-Resource-Policy"] = this->set_cross_origin_resource_policy;
-	this->inputvalue_functionmap["Date"] = this->set_date;
-	this->inputvalue_functionmap["ETag"] = this->set_etag;
-	this->inputvalue_functionmap["Expect"] = this->set_expect;
-	// this->inputvalue_functionmap["Expect-CT"] = this->set_expect_ct;
-	this->inputvalue_functionmap["Expires"] = this->set_expires;
-	this->inputvalue_functionmap["Forwarded"] = this->set_forwarded;
-	this->inputvalue_functionmap["From"] = this->set_from;
-	this->inputvalue_functionmap["Host"] = this->set_host;
-	this->inputvalue_functionmap["If-Match"] = this->set_if_match;
-	this->inputvalue_functionmap["If-Modified-Since"] = this->set_if_modified_since;
-	this->inputvalue_functionmap["If-None-Match"] = this->set_if_none_match;
-	this->inputvalue_functionmap["If-Range"] = this->set_if_range;
-	this->inputvalue_functionmap["If-Unmodified-Since"] = this->set_if_unmodified_since;
-	this->inputvalue_functionmap["Keep-Alive"] = this->set_keepalive;
-	this->inputvalue_functionmap["Last-Modified"] = this->set_last_modified;
-	this->inputvalue_functionmap["Link"] = this->set_link;
-	this->inputvalue_functionmap["Location"] = this->set_location;
-	this->inputvalue_functionmap["Max-Forwards"] = this->set_max_forwards;
-	this->inputvalue_functionmap["Origin"] = this->set_origin;
-	this->inputvalue_functionmap["Permissions-Policy"] = this->set_permission_policy;
-	this->inputvalue_functionmap["Proxy-Authenticate"] = this->set_proxy_authenticate;
-	this->inputvalue_functionmap["Proxy-Authorization"] = this->set_proxy_authorization;
-	// this->inputvalue_functionmap["Range"] = this->set_range;
-	this->inputvalue_functionmap["Referer"] = this->set_referer;
-	this->inputvalue_functionmap["Retry-After"] = this->set_retry_after;
-	this->inputvalue_functionmap["Sec-Fetch-Dest"] = this->set_sec_fetch_dest;
-	this->inputvalue_functionmap["Sec-Fetch-Mode"] = this->set_sec_fetch_mode;
-	this->inputvalue_functionmap["Sec-Fetch-Site"] = this->set_sec_fetch_site;
-	this->inputvalue_functionmap["Sec-Fetch-User"] = this->set_sec_fetch_user;
-	this->inputvalue_functionmap["Sec-Purpose"] = this->set_sec_purpose;
-	this->inputvalue_functionmap["Sec-WebSocket-Accept"] = this->set_sec_websocket_accept;
-	this->inputvalue_functionmap["Server"] = this->set_server;
-	// this->inputvalue_functionmap["Server-Timing"] = this->set_server_timing;
-	this->inputvalue_functionmap["Service-Worker-Navigation-Preload"] = this->set_server_worker_navigation_preload;
-	this->inputvalue_functionmap["Set-Cookie"] = this->set_cookie;
-	this->inputvalue_functionmap["SourceMap"] = this->set_sourcemap;
-	this->inputvalue_functionmap["Strict-Transport-Security"] = this->set_strict_transport_security;
-	this->inputvalue_functionmap["TE"] = this->set_te;
-	this->inputvalue_functionmap["Timing-Allow-Origin"] = this->set_timing_allow_origin;
-	this->inputvalue_functionmap["Trailer"] = this->set_trailer;
-	this->inputvalue_functionmap["Transfer-Encoding"] = this->set_transfer_encoding;
-	this->inputvalue_functionmap["Upgrade"] = this->set_upgrade;
-	this->inputvalue_functionmap["Upgrade-Insecure-Requests"] = this->set_upgrade_insecure_requests;
-	this->inputvalue_functionmap["User-Agent"] = this->set_user_agent;
-	this->inputvalue_functionmap["Vary"] = this->set_vary;
-	this->inputvalue_functionmap["Via"] = this->set_via;
-	this->inputvalue_functionmap["WWW-Authenticate"] = this->set_www_authenticate;
 }
 
 std::string HttpRequest::obtain_request_key(const std::string value)
@@ -318,7 +230,7 @@ void	HttpRequest::set_age(const std::string &value)
 	this->_age.set_value(HandlingString::skipping_emptyword(value));
 }
 
-void	HttpRequest::set_allow(const sts::string &value)
+void	HttpRequest::set_allow(const std::string &value)
 {
 	std::vector<std::string>	value_array;
 
@@ -393,7 +305,8 @@ void	HttpRequest::set_clear_site_data(const std::string &value)
 
 void	HttpRequest::set_connection(const std::string &value)
 {
-	this->_connection = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_connection = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_content_disponesition(const std::string &value)
@@ -440,17 +353,20 @@ void	HttpRequest::set_content_language(const std::string &value)
 
 void	HttpRequest::set_content_length(const std::string &value)
 {
-	this->_content_length = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_content_length = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_content_location(const std::string &value)
 {
-	this->_content_location = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_content_location = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_content_range(const std::string &value)
 {
-	this->_content_range = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_content_range = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_content_security_policy(const std::string &value)
@@ -501,32 +417,37 @@ void	HttpRequest::set_cookie(const std::string &value)
 
 void	HttpRequest::set_cross_origin_embedder_policy(const std::string &value)
 {
-	this->_cross_origin_embedder_policy = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_cross_origin_embedder_policy = HandlingString::skipping_emptyword(value);
 }
 
-void	HttpReques::set_cross_origin_opener_policy(const std::string &value)
+void	HttpRequest::set_cross_origin_opener_policy(const std::string &value)
 {
-	this->_cross_origin_opener_policy = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_cross_origin_opener_policy = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_cross_origin_resource_policy(const std::string &value)
 {
-	this->_cross_origin_resource_policy = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_cross_origin_resource_policy = HandlingString::skipping_emptyword(value);
 }
 
-void	HttpRequest::set_date(const std:string &value)
+void	HttpRequest::set_date(const std::string &value)
 {
-	
+	(void)value;
 }
 
 void	HttpRequest::set_etag(const std::string &value)
 {
-	this->_etag = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_etag = HandlingString::skipping_emptyword(value);
 }
 
-void	Httprequest::set_expect(const std::string &value)
+void	HttpRequest::set_expect(const std::string &value)
 {
-	this->_expect = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_expect = HandlingString::skipping_emptyword(value);
 }
 
 //expect-ctは現状廃止されているっぽくて対応したくない
@@ -549,12 +470,13 @@ void	HttpRequest::set_forwarded(const std::string &value)
 
 void	HttpRequest::set_email(const std::string &value)
 {
-
+	(void)value;
 }//?
 
 void	HttpRequest::set_from(const std::string &value)
 {
-	this->_form = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_from = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_host(const std::string &value)
@@ -586,7 +508,7 @@ void	HttpRequest::set_if_match(const std::string &value)
 	this->_if_match.set_value_array(value_array);
 }
 
-void	Httprequest::set_if_modified_since(const std::string &value)
+void	HttpRequest::set_if_modified_since(const std::string &value)
 {
 	
 }
@@ -602,24 +524,25 @@ void	HttpRequest::set_if_none_match(const std::string &value)
 	this->_if_none_match.set_value_array(value_array);
 }
 
-void	Httprequest::set_if_range(const std::string &value)
+void	HttpRequest::set_if_range(const std::string &value)
 {
-
+	(void)value;
 }
 
-void	Httprequest::set_if_unmodified_since(const std::string &value)
+void	HttpRequest::set_if_unmodified_since(const std::string &value)
 {
-
+	(void)value;
 }
 
 void	HttpRequest::set_keepalive(const std::string &value)
 {
-	this->_keepalive = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_keep_alive = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_last_modified(const std::string &value)
 {
-
+	(void)value;
 }
 
 void	HttpRequest::set_link(const std::string &value)
@@ -637,17 +560,20 @@ void	HttpRequest::set_link(const std::string &value)
 
 void	HttpRequest::set_location(const std::string &value)
 {
-	this->_location = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_location = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_max_forwards(const std::string &value)
 {
-	this->_max_forwards = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_max_forwards = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_origin(const std::string &value)
 {
-	this->_origin = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_origin = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_permission_policy(const std::string &value)
@@ -662,7 +588,7 @@ void	HttpRequest::set_permission_policy(const std::string &value)
 	//空白が分割文字だからそのまま使うとまずい
 }
 
-void	Httprequest::set_proxy_authenticate(const std::string &value)
+void	HttpRequest::set_proxy_authenticate(const std::string &value)
 {
 	// std::map<std::string, std::string> value_map;
 	// std::stringstream	ss(value);
@@ -690,53 +616,63 @@ void	HttpRequest::set_proxy_authorization(const std::string &value)
 
 void	HttpRequest::set_referer(const std::string &value)
 {
-	this->_referer = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_referer = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_referrer_policy(const std::string &value)
 {
-	this->_referrer_policy = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_referrer_policy = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_retry_after(const std::string &value)
 {
-	this->_retry_after = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_retry_after = HandlingString::skipping_emptyword(value);
 	//やばいこいつ普通の値とDate型の値持ちやがる
 }
 
 void	HttpRequest::set_sec_fetch_dest(const std::string &value)
 {
-	this->_sec_fetch_dest = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_sec_fetch_dest = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_sec_fetch_mode(const std::string &value)
 {
-	this->_sec_fetch_mode = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_sec_fetch_mode = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_sec_fetch_site(const std::string &value)
 {
-	this->_sec_fetch_site = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_sec_fetch_site = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_sec_fetch_user(const std::string &value)
 {
-	this->_sec_fetch_user = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_sec_fetch_user = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_sec_purpose(const std::string &value)
 {
-	this->_sec_purpose = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_sec_purpose = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_sec_websocket_accept(const std::string &value)
 {
-	this->_sec_websocket_accept = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_sec_websocket_accept = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_server(const std::string &value)
 {
-	this->_server = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_server = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_servertiming(const std::string &value)
@@ -754,7 +690,8 @@ void	HttpRequest::set_servertiming(const std::string &value)
 
 void	HttpRequest::set_service_worker_navigation_preload(const std::string &value)
 {
-	this->_service_worker_navigation_preload = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_service_worker_navigation_preload = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_set_cookie(const std::string &value)
@@ -764,7 +701,8 @@ void	HttpRequest::set_set_cookie(const std::string &value)
 
 void	HttpRequest::set_sourcemap(const std::string &value)
 {
-	this->_sourcemap = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_sourcemap = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_strict_transport_security(const std::string &value)
@@ -788,12 +726,14 @@ void	HttpRequest::set_te(const std::string &value)
 
 void	HttpRequest::set_timing_allow_origin(const std::string &value)
 {
-	this->_timing_allow_origin = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_timing_allow_origin = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_trailer(const std::string &value)
 {
-	this->_trailer = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_trailer = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_transfer_encoding(const std::string &value)
@@ -820,12 +760,14 @@ void	HttpRequest::set_upgrade(const std::string &value)
 
 void	HttpRequest::set_upgrade_insecure_requests(const std::string &value)
 {
-	this->_upgrade_insecure_requests = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_upgrade_insecure_requests = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_user_agent(const std::string &value)
 {
-	this->_user_agent = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_user_agent = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_vary(const std::string &value)
@@ -841,7 +783,8 @@ void	HttpRequest::set_vary(const std::string &value)
 
 void	HttpRequest::set_via(const std::string &value)
 {
-	this->_via = HandlingString::skipping_emptyword(value);
+	(void)value;
+	// this->_via = HandlingString::skipping_emptyword(value);
 }
 
 void	HttpRequest::set_www_authenticate(const std::string &value)
@@ -856,6 +799,99 @@ void	HttpRequest::set_www_authenticate(const std::string &value)
 }
 
 void	HttpRequest::set_x_xss_protection(const std::string &value)
+{
+
+}
+
+void	HttpRequest::ready_functionmap()
+{
+	this->inputvalue_functionmap["Accept"] = &HttpRequest::set_accept;
+	this->inputvalue_functionmap["Accept-CH"] = &HttpRequest::set_accept_ch;
+	// this->inputvalue_functionmap["Accept-Charset"] = &HttpRequest::set_accept_charset;
+	// this->inputvalue_functionmap["Accept-Encoding"] = &HttpRequest::set_accept_encoding;
+	// this->inputvalue_functionmap["Accept-Language"] = &HttpRequest::set_accept_language;
+	// //this->inputvalue_functionmap["Accept-Patch"] = this->set_accept_patch;
+	// this->inputvalue_functionmap["Accept-Post"] = &HttpRequest::set_accept_post;
+	// this->inputvalue_functionmap["Accept-Ranges"] = &HttpRequest::set_accept_ranges;
+	// this->inputvalue_functionmap["Access-Control-Allow-Credentials"] = &HttpRequest::set_access_control_allow_credentials;
+	// this->inputvalue_functionmap["Access-Control-Allow-Headers"] = &HttpRequest::set_access_control_allow_headers;
+	// this->inputvalue_functionmap["Access-Control-Allow-Methods"] = &HttpRequest::set_access_control_allow_methods;
+	// this->inputvalue_functionmap["Access-Control-Allow-Origin"] = &HttpRequest::set_access_control_allow_origin;
+	// this->inputvalue_functionmap["Access-Control-Expose-Headers"] = &HttpRequest::set_access_control_expose_headers;
+	// this->inputvalue_functionmap["Access-Control-Max-Age"] = &HttpRequest::set_access_control_max_age;
+	// this->inputvalue_functionmap["Access-Control-Request-Headers"] = &HttpRequest::set_access_control_request_headers;
+	// this->inputvalue_functionmap["Access-Control-Request-Method"] = &HttpRequest::set_access_control_request_method;
+	// this->inputvalue_functionmap["Age"] = &HttpRequest::set_age;
+	// this->inputvalue_functionmap["Allow"] = &HttpRequest::set_allow;
+	// this->inputvalue_functionmap["Alt-Svc"] = &HttpRequest::set_alt_svc;
+	// this->inputvalue_functionmap["Alt-Used"] = &HttpRequest::set_alt_used;
+	// this->inputvalue_functionmap["Authorization"] = &HttpRequest::set_authorization;
+	// // this->inputvalue_functionmap["Cache-Control"] = this->set_cache_control;
+	// this->inputvalue_functionmap["Clear-Site-Data"] = &HttpRequest::set_clear_site_data;
+	// this->inputvalue_functionmap["Connection"] = &HttpRequest::set_connection;
+	// this->inputvalue_functionmap["Content-Disposition"] = &HttpRequest::set_content_disponesition;
+	// this->inputvalue_functionmap["Content-Encoding"] = &HttpRequest::set_content_encoding;
+	// this->inputvalue_functionmap["Content-Language"] = &HttpRequest::set_content_language;
+	// this->inputvalue_functionmap["Content-Length"] = &HttpRequest::set_content_length;
+	// this->inputvalue_functionmap["Content-Location"] = &HttpRequest::set_content_location;
+	// this->inputvalue_functionmap["Content-Range"] = &HttpRequest::set_content_range;
+	// this->inputvalue_functionmap["Content-Security-Policy"] = &HttpRequest::set_content_security_policy;
+	// this->inputvalue_functionmap["Content-Security-Policy-Report-Only"] = &HttpRequest::set_content_security_policy_report_only;
+	// this->inputvalue_functionmap["Content-Type"] = &HttpRequest::set_content_type;
+	// this->inputvalue_functionmap["Cookie"] = &HttpRequest::set_cookie;
+	// this->inputvalue_functionmap["Cross-Origin-Embedder-Policy"] = &HttpRequest::set_cross_origin_embedder_policy;
+	// this->inputvalue_functionmap["Cross-Origin-Opener-Policy"] = &HttpRequest::set_cross_origin_opener_policy;
+	// this->inputvalue_functionmap["Cross-Origin-Resource-Policy"] = &HttpRequest::set_cross_origin_resource_policy;
+	// this->inputvalue_functionmap["Date"] = &HttpRequest::set_date;
+	// this->inputvalue_functionmap["ETag"] = &HttpRequest::set_etag;
+	// this->inputvalue_functionmap["Expect"] = &HttpRequest::set_expect;
+	// // this->inputvalue_functionmap["Expect-CT"] = this->set_expect_ct;
+	// this->inputvalue_functionmap["Expires"] = &HttpRequest::set_expires;
+	// this->inputvalue_functionmap["Forwarded"] = &HttpRequest::set_forwarded;
+	// this->inputvalue_functionmap["From"] = &HttpRequest::set_from;
+	// this->inputvalue_functionmap["Host"] = &HttpRequest::set_host;
+	// this->inputvalue_functionmap["If-Match"] = &HttpRequest::set_if_match;
+	// this->inputvalue_functionmap["If-Modified-Since"] = &HttpRequest::set_if_modified_since;
+	// this->inputvalue_functionmap["If-None-Match"] = &HttpRequest::set_if_none_match;
+	// this->inputvalue_functionmap["If-Range"] = &HttpRequest::set_if_range;
+	// this->inputvalue_functionmap["If-Unmodified-Since"] = &HttpRequest::set_if_unmodified_since;
+	// this->inputvalue_functionmap["Keep-Alive"] = &HttpRequest::set_keepalive;
+	// this->inputvalue_functionmap["Last-Modified"] = &HttpRequest::set_last_modified;
+	// this->inputvalue_functionmap["Link"] = &HttpRequest::set_link;
+	// this->inputvalue_functionmap["Location"] = &HttpRequest::set_location;
+	// this->inputvalue_functionmap["Max-Forwards"] = &HttpRequest::set_max_forwards;
+	// this->inputvalue_functionmap["Origin"] = &HttpRequest::set_origin;
+	// this->inputvalue_functionmap["Permissions-Policy"] = &HttpRequest::set_permission_policy;
+	// this->inputvalue_functionmap["Proxy-Authenticate"] = &HttpRequest::set_proxy_authenticate;
+	// this->inputvalue_functionmap["Proxy-Authorization"] = &HttpRequest::set_proxy_authorization;
+	// // this->inputvalue_functionmap["Range"] = this->set_range;
+	// this->inputvalue_functionmap["Referer"] = &HttpRequest::set_referer;
+	// this->inputvalue_functionmap["Retry-After"] = &HttpRequest::set_retry_after;
+	// this->inputvalue_functionmap["Sec-Fetch-Dest"] = &HttpRequest::set_sec_fetch_dest;
+	// this->inputvalue_functionmap["Sec-Fetch-Mode"] = &HttpRequest::set_sec_fetch_mode;
+	// this->inputvalue_functionmap["Sec-Fetch-Site"] = &HttpRequest::set_sec_fetch_site;
+	// this->inputvalue_functionmap["Sec-Fetch-User"] = &HttpRequest::set_sec_fetch_user;
+	// this->inputvalue_functionmap["Sec-Purpose"] = &HttpRequest::set_sec_purpose;
+	// this->inputvalue_functionmap["Sec-WebSocket-Accept"] = &HttpRequest::set_sec_websocket_accept;
+	// this->inputvalue_functionmap["Server"] = &HttpRequest::set_server;
+	// // this->inputvalue_functionmap["Server-Timing"] = this->set_server_timing;
+	// this->inputvalue_functionmap["Service-Worker-Navigation-Preload"] = &HttpRequest::set_server_worker_navigation_preload;
+	// this->inputvalue_functionmap["Set-Cookie"] = &HttpRequest::set_cookie;
+	// this->inputvalue_functionmap["SourceMap"] = &HttpRequest::set_sourcemap;
+	// this->inputvalue_functionmap["Strict-Transport-Security"] = &HttpRequest::set_strict_transport_security;
+	// this->inputvalue_functionmap["TE"] = &HttpRequest::set_te;
+	// this->inputvalue_functionmap["Timing-Allow-Origin"] = &HttpRequest::set_timing_allow_origin;
+	// this->inputvalue_functionmap["Trailer"] = &HttpRequest::set_trailer;
+	// this->inputvalue_functionmap["Transfer-Encoding"] = &HttpRequest::set_transfer_encoding;
+	// this->inputvalue_functionmap["Upgrade"] = &HttpRequest::set_upgrade;
+	// this->inputvalue_functionmap["Upgrade-Insecure-Requests"] = &HttpRequest::set_upgrade_insecure_requests;
+	// this->inputvalue_functionmap["User-Agent"] = &HttpRequest::set_user_agent;
+	// this->inputvalue_functionmap["Vary"] = &HttpRequest::set_vary;
+	// this->inputvalue_functionmap["Via"] = &HttpRequest::set_via;
+	// this->inputvalue_functionmap["WWW-Authenticate"] = &HttpRequest::set_www_authenticate;
+}
+
+void	HttpRequest::show_requestinfs(void) const
 {
 
 }
