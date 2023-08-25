@@ -10,6 +10,7 @@
 !www
 !includes
 !test
+!playground
 
 !*.cpp
 !*.hpp
