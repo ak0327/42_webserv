@@ -3,7 +3,7 @@ project(webserv)
 
 set(CMAKE_CXX_STANDARD 98)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
+set(CMAKE_CXX_FLAGS "-std=c++98 -Wall -Wextra -Werror -pedantic")
 
 # google test ------------------------------------------------------------------
 include(FetchContent)
