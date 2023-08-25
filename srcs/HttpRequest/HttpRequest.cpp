@@ -1,28 +1,7 @@
 #include "../includes/HttpRequest.hpp"
 
 template <typename T>
-HttpRequest<T>::HttpRequest(const std::string &all_request_text)
-{
-	std::string	line;
-	std::string	key;
-	std::string	value;
-
-	ready_functionmap();
-	std::stringstream ss(all_request_text);
-	std::getline(ss, line, '\n');
-	this->_requestline.set_value(line);
-	while (std::getline(ss, line, '\n'))
-	{
-        key = this->obtain_request_key(line);
-		value = this->obtain_request_value(line);
-		if (this->check_keyword_exist(key) == true)
-			insert_to_map(key, );
-			(this->*inputvalue_functionmap[key])(line);
-		std::cout << "line ended" << std::endl;
-    }
-}
-
-std::string HttpRequest::obtain_request_key(const std::string value)
+std::string HttpRequest<T>::obtain_request_key(const std::string value)
 {
 	std::stringstream	ss(value);
 	std::string			line;
@@ -31,7 +10,8 @@ std::string HttpRequest::obtain_request_key(const std::string value)
 	return (line);
 }
 
-std::string HttpRequest::obtain_request_value(const std::string value)
+template <typename T>
+std::string HttpRequest<T>::obtain_request_value(const std::string value)
 {
 	std::stringstream	ss(value);
 	std::string			line;
@@ -41,12 +21,14 @@ std::string HttpRequest::obtain_request_value(const std::string value)
 	return (line.substr(1));
 }
 
-HttpRequest::~HttpRequest()
+template <typename T>
+HttpRequest<T>::~HttpRequest()
 {
 
 }
 
-bool HttpRequest::check_keyword_exist(const std::string &key)
+template <typename T>
+bool HttpRequest<T>::HttpRequest::check_keyword_exist(const std::string &key)
 {
 	const std::string httprequest_keyset_arr[] = {
 		"Host",
@@ -78,7 +60,8 @@ bool HttpRequest::check_keyword_exist(const std::string &key)
     return false;
 }
 
-ValueWeightArraySet	HttpRequest::ready_accept(const std::string &value)
+template <typename T>
+ValueWeightArraySet HttpRequest<T>::ready_accept(const std::string &value)
 {
 	ValueWeightArraySet	accept;
 	std::stringstream	ss(value);
@@ -776,9 +759,10 @@ ValueWeightArraySet	HttpRequest::ready_accept(const std::string &value)
 
 // }
 
-void	HttpRequest::ready_functionmap()
+template <typename T>
+void HttpRequest<T>::ready_functionmap()
 {
-	this->inputvalue_functionmap["Accept"] = &HttpRequest::ready_accept;
+	this->inputvalue_functionmap["Accept"] = &HttpRequest<T>::ready_accept;
 	// this->inputvalue_functionmap["Accept-CH"] = &HttpRequest::set_accept_ch;
 	// this->inputvalue_functionmap["Accept-Charset"] = &HttpRequest::set_accept_charset;
 	// this->inputvalue_functionmap["Accept-Encoding"] = &HttpRequest::set_accept_encoding;
@@ -864,7 +848,8 @@ void	HttpRequest::ready_functionmap()
 	// this->inputvalue_functionmap["WWW-Authenticate"] = &HttpRequest::set_www_authenticate;
 }
 
-void	HttpRequest::show_requestinfs(void) const
+template <typename T>
+void HttpRequest<T>::show_requestinfs(void) const
 {
 	std::cout << this->_requestline.get_method() << std::endl;
 }
