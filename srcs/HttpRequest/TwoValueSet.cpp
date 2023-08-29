@@ -1,25 +1,19 @@
 #include "../includes/TwoValueSet.hpp"
 
-TwoValueSet::TwoValueSet()
+TwoValueSet::TwoValueSet(std::string const &first_value)
 {
-	this->_firstvalue = "";
-	this->_secondValue = "";
+	this->_firstvalue = first_value;
 }
 
-TwoValueSet::~TwoValueSet()
-{
-
-}
-
-void TwoValueSet::set_values(const std::string &first_value, const std::string &second_value)
+TwoValueSet::TwoValueSet(const std::string &first_value, const std::string &second_value)
 {
 	this->_firstvalue = first_value;
 	this->_secondValue = second_value;
 }
 
-void TwoValueSet::set_values(const std::string &first_value)
+TwoValueSet::~TwoValueSet()
 {
-	this->_firstvalue = first_value;
+
 }
 
 std::string TwoValueSet::get_firstvalue(void) const

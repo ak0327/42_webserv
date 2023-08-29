@@ -1,8 +1,9 @@
 #include "../includes/ValueDateSet.hpp"
 
-ValueDateSet::ValueDateSet()
+ValueDateSet::ValueDateSet(const std::string &date_format)
 {
-
+	//分割するための方法を書く
+	this->_year = date_format;
 }
 
 ValueDateSet::~ValueDateSet()

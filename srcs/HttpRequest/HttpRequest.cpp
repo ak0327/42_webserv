@@ -1,5 +1,30 @@
 #include "../includes/HttpRequest.hpp"
 
+HttpRequest::HttpRequest(const std::string &all_request_text)
+{
+	std::string	line;
+	std::string	key;
+	std::string	value;
+
+	ready_functionmap();
+	std::stringstream ss(all_request_text);
+	std::getline(ss, line, '\n');
+	this->_requestline.set_value(line);
+	while (std::getline(ss, line, '\n'))
+	{
+		key = this->obtain_request_key(line);
+		value = this->obtain_request_value(line);
+		if (this->check_keyword_exist(key) == true)
+			this->_key_value_map = (this->*inputvalue_functionmap[key])(line);
+		std::cout << "line ended" << std::endl;
+	}
+}
+
+HttpRequest::~HttpRequest()
+{
+	
+}
+
 bool	HttpRequest::check_keyword_exist(const std::string &key)
 {
 	const std::string httprequest_keyset_arr[] = {
