@@ -7,7 +7,7 @@ ValueWeightArraySet::ValueWeightArraySet()
 
 ValueWeightArraySet::ValueWeightArraySet(const ValueWeightArraySet &other)
 {
-	this->_valueweight_set = other->_valueweight_set;
+	this->_valueweight_set = other._valueweight_set;
 }
 
 ValueWeightArraySet::~ValueWeightArraySet()

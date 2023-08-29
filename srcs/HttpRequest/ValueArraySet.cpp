@@ -20,7 +20,7 @@ void	ValueArraySet::set_value_array(const std::vector<std::string> &value)
 	this->_value_array = value;
 }
 
-void	ValueArraySet::show_value_array_set(void) const
+void	ValueArraySet::show_value_array_set(void)
 {
 	std::vector<std::string>::iterator it = this->_value_array.begin();
 
