@@ -24,6 +24,8 @@ class RequestLine
 		std::string	get_method(void) const;
 		std::string get_target_page(void) const;
 		std::string	get_version(void) const;
+
+		void	show_requestline(void) const;
 };
 
 #endif

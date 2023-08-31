@@ -3,22 +3,24 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 
-class ValueArraySet
+class ValueArraySet: public KeyValueMap
 {
 	private:
 		std::vector<std::string> _value_array;
 		
+		ValueArraySet();
 		ValueArraySet(const ValueArraySet &other);
 		ValueArraySet &operator=(const ValueArraySet &other);
 	
 	public:
-		ValueArraySet();
+		ValueArraySet(const std::vector<std::string> value_array);
 		~ValueArraySet();
 
 		std::vector<std::string>	get_value_array(void) const;
 
-		void						set_value_array(const std::vector<std::string> &value);
+		void						show_value_array_set(void);
 };
 
 #endif

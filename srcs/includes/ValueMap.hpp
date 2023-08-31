@@ -4,16 +4,17 @@
 #include <string>
 #include <map>
 
-class ValueMap
+class ValueMap: public KeyValueMap
 {
 	private:
 		std::string							_only_value;
 		std::map<std::string, std::string>	_value_map;
+		ValueMap();
 		ValueMap(const ValueMap &other);
 		ValueMap& operator=(const ValueMap &other);
 	
 	public:
-		ValueMap();
+		ValueMap(std::map<std::string, std::string> value_map);
 		~ValueMap();
 
 		void	set_value(const std::string &only_value, const std::map<std::string, std::string> &value_map);
