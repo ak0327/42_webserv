@@ -2,14 +2,26 @@
 
 ValueDateSet::ValueDateSet(const std::string &date_format)
 {
-	//分割するための方法を書く
-	this->_year = date_format;
-	this->_day = "";
-	this->_month = "";
-	this->_year = "";
-	this->_hour = "";
-	this->_minute = "";
-	this->_second = "";
+	std::vector<std::string>	value_array;
+
+	std::stringstream	ss(all_value);
+	std::string			line;
+
+	std::getline(ss, this->_day_name, ',');
+	std::getline(ss, line, ',');
+
+	std::stringstream	sss(line);
+	std::getline(sss, this->_day, ' ');
+	std::getline(sss, this->_month, ' ');
+	std::getline(sss, this->_year, ' ');
+
+	std::string			hour_minute_second;
+	std::getline(sss, hour_minute_second, ' ');
+
+	std::stringstream	ssss(hour_minute_second);
+	std::getline(ssss, this->_hour, ':');
+	std::getline(ssss, this->_minute, ':');
+	std::getline(ssss, this->_second, ':');
 }
 
 ValueDateSet::~ValueDateSet()
