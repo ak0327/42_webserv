@@ -62,12 +62,14 @@ ValueMap HttpRequest::ready_ValueMap(const std::string &value)
 	{
 		while(std::getline(ss, line, ';'))
 			value_map[HandlingString::obtain_beforeword(HandlingString::skipping_emptyword(line), '=')] = HandlingString::obtain_afterword(HandlingString::skipping_emptyword(line), '=');
-		this->_alt_svc.set_value(value_map);
 	}
-	else
-	{
-		this->_alt_svc.set_value(HandlingString::skipping_emptyword(line));
-	}
+	// else
+	// {
+	// 	value_map
+	// 	this->_alt_svc.set_value(HandlingString::skipping_emptyword(line));
+	// }
+
+	return (ValueMap(value_map));
 }
 
 ValueSet HttpRequest::ready_ValueSet(const std::string &value)
@@ -165,12 +167,12 @@ void	HttpRequest::set_accept_post(const std::string &key, const std::string &val
 
 void	HttpRequest::set_accept_ranges(const std::string &key, const std::string &value)
 {
-	this->_accept_ranges.set_value(HandlingString::skipping_emptyword(value));
+	this->request_keyvalue_map[key] = ready_ValueSet(value);
 }
 
 void	HttpRequest::set_access_control_allow_credentials(const std::string &key, const std::string &value)
 {
-	this->_accept_ranges.set_value(HandlingString::skipping_emptyword(value));
+	this->request_keyvalue_map[key] = ready_ValueSet(value);
 }
 
 void	HttpRequest::set_access_control_allow_headers(const std::string &key, const std::string &value)
@@ -198,7 +200,7 @@ void	HttpRequest::set_access_control_max_age(const std::string &key, const std::
 	this->request_keyvalue_map[key] = ready_ValueSet(value);
 }
 
-void	HttpRequest::set_access_control_request_headers(const std::string &value)
+void	HttpRequest::set_access_control_request_headers(const std::string &key, const std::string &value)
 {
 	this->request_keyvalue_map[key] = ready_ValueArraySet(value);
 }
