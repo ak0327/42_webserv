@@ -57,13 +57,13 @@ class HttpRequest
 		HttpRequest(const std::string &all_request_text);
 		~HttpRequest();
 
-		void	set_all_method();
+		// void	set_all_method();
 		void	set_accept(const std::string &key, const std::string &value);
 		void	set_accept_ch(const std::string &key,const std::string &value);
 		void	set_accept_charset(const std::string &key,const std::string &value);
 		void	set_accept_encoding(const std::string &key,const std::string &value);
 		void	set_accept_language(const std::string &key,const std::string &value);
-		void	set_//方かわからん
+		// void	set_//方かわからん
 		void	set_accept_post(const std::string &key,const std::string &value);
 		void	set_accept_ranges(const std::string &key,const std::string &value);
 		void	set_access_control_allow_credentials(const std::string &key,const std::string &value);
@@ -79,7 +79,7 @@ class HttpRequest
 		void	set_alt_svc(const std::string &key,const std::string &value);
 		void	set_alt_used(const std::string &key,const std::string &value);
 		void	set_authorization(const std::string &value);
-		void	set//か全くわからない うまく分けられん
+		// void	set//か全くわからない うまく分けられん
 		void	set_clear_site_data(const std::string &key,const std::string &value);
 		void	set_connection(const std::string &key,const std::string &value);
 		void	set_content_disponesition(const std::string &key,const std::string &value);
@@ -98,7 +98,7 @@ class HttpRequest
 		void	set_date(const std::string &key,const std::string &value);
 		void	set_etag(const std::string &key,const std::string &value);
 		void	set_expect(const std::string &key,const std::string &value);
-		void	set//ているっぽくて対応したくない
+		// void	set//ているっぽくて対応したくない
 		void	set_expires(const std::string &key,const std::string &value);
 		void	set_forwarded(const std::string &key,const std::string &value);
 		void	set_email(const std::string &key,const std::string &value);
@@ -118,7 +118,7 @@ class HttpRequest
 		void	set_permission_policy(const std::string &key,const std::string &value);
 		void	set_proxy_authenticate(const std::string &key,const std::string &value);
 		void	set_proxy_authorization(const std::string &key,const std::string &value);
-		void	set//れどれが当てはまるかわからん
+		// void	set//れどれが当てはまるかわからん
 		void	set_referer(const std::string &key,const std::string &value);
 		void	set_referrer_policy(const std::string &key,const std::string &value);
 		void	set_retry_after(const std::string &key,const std::string &value);
