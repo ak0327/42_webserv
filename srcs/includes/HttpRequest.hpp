@@ -16,7 +16,6 @@
 #include "TwoValueSet.hpp"
 #include "ValueMap.hpp"
 #include "ValueDateSet.hpp"
-#include "ValueInsertMethod.hpp"
 
 class BaseKeyValueMap;
 
@@ -27,8 +26,6 @@ class ValueSet;
 class TwoValueSet;
 class ValueMap;
 class ValueDateSet;
-
-class ValueInsertMethod;
 
 class HttpRequest
 {

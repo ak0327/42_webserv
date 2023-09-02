@@ -5,18 +5,19 @@
 #include <iostream>
 #include "BaseKeyValueMap.hpp"
 
-class TwoValueSet: public KeyValueMap
+class TwoValueSet: public BaseKeyValueMap
 {
 	private:
 		std::string _firstvalue;
 		std::string _secondValue;
 
-		TwoValueSet();
 		TwoValueSet& operator=(const TwoValueSet &other);
 	
 	public:
+		TwoValueSet();
 		TwoValueSet(std::string const &first_value);
 		TwoValueSet(const std::string &first_value, const std::string &second_value);
+		TwoValueSet& operator=(const TwoValueSet &other);
 		~TwoValueSet();
 
 		std::string get_firstvalue(void) const;

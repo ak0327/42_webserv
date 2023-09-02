@@ -5,15 +5,17 @@
 #include <map>
 #include "HandlingString.hpp"
 
-class ValueWeightArraySet: public KeyValueMap
+#include "BaseKeyValueMap.hpp"
+
+class ValueWeightArraySet: public BaseKeyValueMap
 {
 	private:
 		std::map<std::string, double> _valueweight_set;//map型で入れるが、どうせなら重みを加味したようなインプットの流れにしておけば取り出す時に非常に楽になるのでは？
-		
-		ValueWeightArraySet();
-		ValueWeightArraySet &operator=(const ValueWeightArraySet &other);
 	
 	public:
+		ValueWeightArraySet();
+		ValueWeightArraySet(const ValueWeightArraySet &other);
+		ValueWeightArraySet &operator=(const ValueWeightArraySet &other);
 		ValueWeightArraySet(std::map<std::string, double> &valueweight_set);
 		~ValueWeightArraySet();
 

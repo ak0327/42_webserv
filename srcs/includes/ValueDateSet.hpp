@@ -3,7 +3,9 @@
 
 #include <string>
 
-class ValueDateSet: public KeyValueMap
+#include "BaseKeyValueMap.hpp"
+
+class ValueDateSet: public BaseKeyValueMap
 {
 	private:
 		std::string	_day_name;
@@ -19,6 +21,9 @@ class ValueDateSet: public KeyValueMap
 		ValueDateSet& operator=(const ValueDateSet &other);
 
 	public:
+		ValueDateSet();
+		ValueDateSet(const ValueDateSet &other);
+		ValueDateSet& operator=(const ValueDateSet &other);
 		ValueDateSet(const std::string &date_format);
 		~ValueDateSet();
 

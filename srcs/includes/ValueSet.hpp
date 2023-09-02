@@ -4,15 +4,17 @@
 #include <vector>
 #include <string>
 
-class ValueSet: public KeyValueMap
+#include "BaseKeyValueMap.hpp"
+
+class ValueSet: public BaseKeyValueMap
 {
 	private:
 		std::string	_value;
-
-		ValueSet();
-		//ValueSet &operator=(const ValueSet &other);
 	
 	public:
+		ValueSet();
+		ValueSet(const ValueSet &other);
+		ValueSet &operator=(const ValueSet &other);
 		ValueSet(const std::string &value);
 		~ValueSet();
 

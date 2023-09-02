@@ -7,9 +7,10 @@
 class	BaseKeyValueMap
 {
 	private:
-		BaseKeyValueMap(const KeyValueMap &other);
 
 	public:
+		BaseKeyValueMap(void);
+		BaseKeyValueMap(const BaseKeyValueMap &other);
 		virtual ~BaseKeyValueMap();
 };
 
