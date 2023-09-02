@@ -15,7 +15,7 @@ HttpRequest::HttpRequest(const std::string &all_request_text)
 		key = this->obtain_request_key(line);
 		value = this->obtain_request_value(line);
 		if (this->check_keyword_exist(key) == true)
-			this->_key_value_map = (this->*inputvalue_functionmap[key])(key, line);
+			this->request_keyvalue_map = (this->*inputvalue_functionmap[key])(key, line);
 	}
 }
 

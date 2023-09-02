@@ -1,5 +1,23 @@
 #include "../includes/ValueDateSet.hpp"
 
+ValueDateSet::ValueDateSet()
+{
+
+}
+
+ValueDateSet& ValueDateSet::operator=(const ValueDateSet &other)
+{
+	if (this == &other)
+		return (*this);
+	this->_day_name = other->get_valuedateset_day_name();
+	this->_day = other->get_valuedateset_day();
+	this->_month = other->get_valuedateset_month();
+	this->_year = other->get_valuedateset_year();
+	this->_hour = other->get_valuedateset_hour();
+	this->_minute = other->get_valuedateset_minute();
+	this->_second = other->get_valuedateset_second();
+}
+
 ValueDateSet::ValueDateSet(const std::string &date_format)
 {
 	std::vector<std::string>	value_array;

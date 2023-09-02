@@ -5,6 +5,19 @@ ValueMap::ValueMap()
 
 }
 
+ValueMap::ValueMap(const ValueMap &other)
+{
+	this->_value_map = other.get_value_map();
+}
+
+ValueMap& ValueMap::operator=(const ValueMap &other)
+{
+	if (this == &other)
+		return (*this);
+	this->_value_map = other.get_value_map();
+	return (*this);
+}
+
 ValueMap::~ValueMap()
 {
 
