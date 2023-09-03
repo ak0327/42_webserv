@@ -80,3 +80,9 @@ std::string ValueDateSet::get_valuedateset_second() const
 {
 	return (this->_second);
 }
+
+void ValueDateSet::show_value()
+{
+	std::cout << "Day info is " << std::endl;
+	std::cout << this->_day_name << " | " << this->_day << " | " << this->_month << " | " << this->_year << " | " << this->_hour << " | " << this->_minute << " | " << this->_second << std::endl;
+}

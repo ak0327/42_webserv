@@ -24,7 +24,7 @@ HttpRequest::~HttpRequest()
 	
 }
 
-TwoValueSet HttpRequest::ready_TwoValueSet(const std::string &all_value)
+TwoValueSet* HttpRequest::ready_TwoValueSet(const std::string &all_value)
 {
 	std::stringstream	ss(HandlingString::skipping_emptyword(all_value));
 	std::string			first_value;
@@ -33,10 +33,10 @@ TwoValueSet HttpRequest::ready_TwoValueSet(const std::string &all_value)
 	std::getline(ss, first_value, '/');
 	std::getline(ss, second_value, '/');
 
-	return (TwoValueSet(first_value, second_value));
+	return (new TwoValueSet(first_value, second_value));
 }
 
-ValueArraySet HttpRequest::ready_ValueArraySet(const std::string &all_value)
+ValueArraySet* HttpRequest::ready_ValueArraySet(const std::string &all_value)
 {
 	std::vector<std::string>	value_array;
 
@@ -44,15 +44,15 @@ ValueArraySet HttpRequest::ready_ValueArraySet(const std::string &all_value)
 	std::string			line;
 	while(std::getline(ss, line, ','))
 		value_array.push_back(HandlingString::skipping_emptyword(line));
-	return (ValueArraySet(value_array));
+	return (new ValueArraySet(value_array));
 }
 
-ValueDateSet HttpRequest::ready_ValueDateSet(const std::string &value)
+ValueDateSet* HttpRequest::ready_ValueDateSet(const std::string &value)
 {
-	return (ValueDateSet(value));
+	return (new ValueDateSet(value));
 }
 
-ValueMap HttpRequest::ready_ValueMap(const std::string &value)
+ValueMap* HttpRequest::ready_ValueMap(const std::string &value)
 {
 	std::map<std::string, std::string> value_map;
 	std::stringstream	ss(value);
@@ -69,17 +69,18 @@ ValueMap HttpRequest::ready_ValueMap(const std::string &value)
 	// 	this->_alt_svc.set_value(HandlingString::skipping_emptyword(line));
 	// }
 
-	return (ValueMap(value_map));
+	return (new ValueMap(value_map));
 }
 
-ValueSet HttpRequest::ready_ValueSet(const std::string &value)
+ValueSet* HttpRequest::ready_ValueSet(const std::string &value)
 {
-	return (ValueSet(value));
+	return (new ValueSet(value));
 }
 
-ValueWeightArraySet	HttpRequest::ready_ValueWeightArraySet(const std::string &value)
+ValueWeightArraySet*	HttpRequest::ready_ValueWeightArraySet(const std::string &value)
 {
-	return (this->ready_ValueWeightArraySet(value));
+	// return (this->ready_ValueWeightArraySet(value));
+	return (new ValueWeightArraySet());//適当に作ってる
 }
 
 bool	HttpRequest::check_keyword_exist(const std::string &key)
@@ -667,9 +668,14 @@ void HttpRequest::ready_functionmap()
 	this->inputvalue_functionmap["WWW-Authenticate"] = &HttpRequest::set_www_authenticate;
 }
 
-void HttpRequest::show_requestinfs(void) const
+void HttpRequest::show_requestinfs(void)
 {
 	// std::cout << this->_requestline.get_method() << std::endl;
 	this->_requestline.show_requestline();
-	// std::map<std::string, BaseKeyValueMap>::iterator	now_it = this->request_keyvalue_map.begin();
+	std::map<std::string, BaseKeyValueMap*>::iterator now_it = this->request_keyvalue_map.begin();
+	while (now_it != this->request_keyvalue_map.end())
+	{
+		now_it->second->show_value();
+		now_it++;
+	}
 }

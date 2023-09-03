@@ -53,3 +53,18 @@ std::map<std::string, std::string>	ValueMap::get_value_map(void) const
 {
 	return (this->_value_map);
 }
+
+void ValueMap::show_value()
+{
+	std::cout << "one value is >> " << this->_only_value;
+	std::cout << "map are ";
+	
+	std::map<std::string, std::string>::iterator now_it = this->_value_map.begin();
+
+	while (now_it != this->_value_map.end())
+	{
+		std::cout << now_it->first << " " << now_it->second << " | ";
+		now_it++;
+	}
+	std::cout << std::endl;
+}

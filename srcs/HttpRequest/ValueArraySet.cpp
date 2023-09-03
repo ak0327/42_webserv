@@ -33,7 +33,7 @@ std::vector<std::string>	ValueArraySet::get_value_array(void) const
 	return (this->_value_array);
 }
 
-void	ValueArraySet::show_value_array_set(void)
+void ValueArraySet::show_value(void)
 {
 	std::vector<std::string>::iterator it = this->_value_array.begin();
 

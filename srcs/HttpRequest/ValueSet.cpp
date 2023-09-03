@@ -32,3 +32,8 @@ std::string ValueSet::get_value_set(void) const
 {
 	return (this->_value);
 }
+
+void ValueSet::show_value()
+{
+	std::cout << "this value is " << this->_value << std::endl;
+}
