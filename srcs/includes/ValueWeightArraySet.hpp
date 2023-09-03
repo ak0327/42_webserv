@@ -20,6 +20,8 @@ class ValueWeightArraySet: public BaseKeyValueMap
 		~ValueWeightArraySet();
 
 		std::map<std::string, double> get_valueweight_set(void) const;
+
+		void show_value();
 };
 
 #endif

@@ -3,6 +3,7 @@
 
 #include <string>
 #include <map>
+#include <iostream>
 
 #include "BaseKeyValueMap.hpp"
 
@@ -25,6 +26,8 @@ class ValueMap: public BaseKeyValueMap
 
 		std::string							get_only_value(void) const;
 		std::map<std::string, std::string>	get_value_map(void) const;
+
+		void show_value();
 };
 
 #endif

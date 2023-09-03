@@ -10,8 +10,6 @@ class TwoValueSet: public BaseKeyValueMap
 	private:
 		std::string _firstvalue;
 		std::string _secondValue;
-
-		TwoValueSet& operator=(const TwoValueSet &other);
 	
 	public:
 		TwoValueSet();
@@ -23,7 +21,7 @@ class TwoValueSet: public BaseKeyValueMap
 		std::string get_firstvalue(void) const;
 		std::string get_secondvalue(void) const;
 
-		void	show_allvalue(void) const;
+		void show_value(void);
 };
 
 #endif

@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <iostream>
 
 #include "BaseKeyValueMap.hpp"
 
@@ -19,6 +20,8 @@ class ValueSet: public BaseKeyValueMap
 		~ValueSet();
 
 		std::string get_value_set(void) const;
+
+		void show_value();
 };
 
 #endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef HANDLINGSTRING_HPP
+#define HANDLINGSTRING_HPP
 
 #include <string>
 #include <iostream>
@@ -30,3 +31,5 @@ class HandlingString
 		static	std::string					obtain_beforeword(const std::string other, char delimiter);
 		static	std::string					obtain_afterword(const std::string other, char delimiter);
 };
+
+#endif

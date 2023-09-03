@@ -2,6 +2,8 @@
 #define VALUEDATESET_HPP
 
 #include <string>
+#include <iostream>
+#include <sstream>
 
 #include "BaseKeyValueMap.hpp"
 
@@ -16,10 +18,6 @@ class ValueDateSet: public BaseKeyValueMap
 		std::string _minute;
 		std::string _second;
 
-		ValueDateSet();
-		ValueDateSet(const ValueDateSet &other);
-		ValueDateSet& operator=(const ValueDateSet &other);
-
 	public:
 		ValueDateSet();
 		ValueDateSet(const ValueDateSet &other);
@@ -27,13 +25,15 @@ class ValueDateSet: public BaseKeyValueMap
 		ValueDateSet(const std::string &date_format);
 		~ValueDateSet();
 
-		std::string get_valuedateset_day_name();
-		std::string get_valuedateset_day();
-		std::string get_valuedateset_month();
-		std::string get_valuedateset_year();
-		std::string get_valuedateset_hour();
-		std::string get_valuedateset_minute();
-		std::string get_valuedateset_second();
+		std::string get_valuedateset_day_name() const;
+		std::string get_valuedateset_day() const;
+		std::string get_valuedateset_month() const;
+		std::string get_valuedateset_year() const;
+		std::string get_valuedateset_hour() const;
+		std::string get_valuedateset_minute() const;
+		std::string get_valuedateset_second() const;
+
+		void show_value();
 };
 
 #endif

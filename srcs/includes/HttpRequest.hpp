@@ -31,8 +31,8 @@ class HttpRequest
 {
 	private:
 		RequestLine	_requestline;
-		std::map<std::string, void(*)()> inputvalue_functionmap;
-		std::map<std::string, BaseKeyValueMap> request_keyvalue_map;
+		std::map<std::string, void(HttpRequest::*)(const std::string&, const std::string&)> inputvalue_functionmap;
+		std::map<std::string, BaseKeyValueMap*> request_keyvalue_map;
 
 		HttpRequest();
 		HttpRequest(const HttpRequest &other);
@@ -41,12 +41,12 @@ class HttpRequest
 		std::string	obtain_request_key(const std::string value);
 		std::string	obtain_request_value(const std::string value);
 
-		TwoValueSet			ready_TwoValueSet(const std::string &value);
-		ValueArraySet		ready_ValueArraySet(const std::string &value);
-		ValueDateSet		ready_ValueDateSet(const std::string &value);
-		ValueMap			ready_ValueMap(const std::string &value);
-		ValueSet			ready_ValueSet(const std::string &value);
-		ValueWeightArraySet	ready_ValueWeightArraySet(const std::string &value);
+		TwoValueSet			*ready_TwoValueSet(const std::string &value);
+		ValueArraySet		*ready_ValueArraySet(const std::string &value);
+		ValueDateSet		*ready_ValueDateSet(const std::string &value);
+		ValueMap			*ready_ValueMap(const std::string &value);
+		ValueSet			*ready_ValueSet(const std::string &value);
+		ValueWeightArraySet	*ready_ValueWeightArraySet(const std::string &value);
 		void				ready_functionmap(void);
 	
 	public:
@@ -75,7 +75,7 @@ class HttpRequest
 		void	set_allow(const std::string &key,const std::string &value);
 		void	set_alt_svc(const std::string &key,const std::string &value);
 		void	set_alt_used(const std::string &key,const std::string &value);
-		void	set_authorization(const std::string &value);
+		void	set_authorization(const std::string &key, const std::string &value);
 		// void	set//か全くわからない うまく分けられん
 		void	set_clear_site_data(const std::string &key,const std::string &value);
 		void	set_connection(const std::string &key,const std::string &value);
@@ -144,9 +144,7 @@ class HttpRequest
 		void	set_x_xss_protection(const std::string &key,const std::string &value);
 
 		//debug関数
-		void show_requestinfs(void) const;
+		void show_requestinfs(void);
 };
-
-#include "../HttpRequest/HttpRequest.cpp"
 
 #endif

@@ -12,6 +12,8 @@ class	BaseKeyValueMap
 		BaseKeyValueMap(void);
 		BaseKeyValueMap(const BaseKeyValueMap &other);
 		virtual ~BaseKeyValueMap();
+
+		virtual	void show_value() = 0;
 };
 
 #endif
