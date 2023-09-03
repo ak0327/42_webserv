@@ -58,17 +58,8 @@ ValueMap* HttpRequest::ready_ValueMap(const std::string &value)
 	std::stringstream	ss(value);
 	std::string			line;
 
-	if (value.find(';') == std::string::npos)
-	{
-		while(std::getline(ss, line, ';'))
-			value_map[HandlingString::obtain_beforeword(HandlingString::skipping_emptyword(line), '=')] = HandlingString::obtain_afterword(HandlingString::skipping_emptyword(line), '=');
-	}
-	// else
-	// {
-	// 	value_map
-	// 	this->_alt_svc.set_value(HandlingString::skipping_emptyword(line));
-	// }
-
+	while(std::getline(ss, line, ';'))
+		value_map[HandlingString::obtain_beforeword(HandlingString::skipping_emptyword(line), '=')] = HandlingString::obtain_afterword(HandlingString::skipping_emptyword(line), '=');
 	return (new ValueMap(value_map));
 }
 
