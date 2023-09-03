@@ -9,20 +9,19 @@ ValueDateSet& ValueDateSet::operator=(const ValueDateSet &other)
 {
 	if (this == &other)
 		return (*this);
-	this->_day_name = other->get_valuedateset_day_name();
-	this->_day = other->get_valuedateset_day();
-	this->_month = other->get_valuedateset_month();
-	this->_year = other->get_valuedateset_year();
-	this->_hour = other->get_valuedateset_hour();
-	this->_minute = other->get_valuedateset_minute();
-	this->_second = other->get_valuedateset_second();
+	this->_day_name = other.get_valuedateset_day_name();
+	this->_day = other.get_valuedateset_day();
+	this->_month = other.get_valuedateset_month();
+	this->_year = other.get_valuedateset_year();
+	this->_hour = other.get_valuedateset_hour();
+	this->_minute = other.get_valuedateset_minute();
+	this->_second = other.get_valuedateset_second();
+	return (*this);
 }
 
 ValueDateSet::ValueDateSet(const std::string &date_format)
 {
-	std::vector<std::string>	value_array;
-
-	std::stringstream	ss(all_value);
+	std::stringstream	ss(date_format);
 	std::string			line;
 
 	std::getline(ss, this->_day_name, ',');
@@ -47,37 +46,37 @@ ValueDateSet::~ValueDateSet()
 	
 }
 
-std::string ValueDateSet::get_valuedateset_day_name()
+std::string ValueDateSet::get_valuedateset_day_name() const
 {
 	return (this->_day_name);
 }
 
-std::string ValueDateSet::get_valuedateset_day()
+std::string ValueDateSet::get_valuedateset_day() const
 {
 	return (this->_day);
 }
 
-std::string ValueDateSet::get_valuedateset_month()
+std::string ValueDateSet::get_valuedateset_month() const
 {
 	return (this->_month);
 }
 
-std::string ValueDateSet::get_valuedateset_year()
+std::string ValueDateSet::get_valuedateset_year() const
 {
 	return (this->_year);
 }
 
-std::string ValueDateSet::get_valuedateset_hour()
+std::string ValueDateSet::get_valuedateset_hour() const
 {
 	return (this->_hour);
 }
 
-std::string ValueDateSet::get_valuedateset_minute()
+std::string ValueDateSet::get_valuedateset_minute() const
 {
 	return (this->_minute);
 }
 
-std::string ValueDateSet::get_valuedateset_second()
+std::string ValueDateSet::get_valuedateset_second() const
 {
 	return (this->_second);
 }

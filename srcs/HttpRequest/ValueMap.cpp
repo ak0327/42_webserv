@@ -5,6 +5,11 @@ ValueMap::ValueMap()
 
 }
 
+ValueMap::ValueMap(std::map<std::string, std::string> value_map)
+{
+	this->_value_map = value_map;
+}
+
 ValueMap::ValueMap(const ValueMap &other)
 {
 	this->_value_map = other.get_value_map();

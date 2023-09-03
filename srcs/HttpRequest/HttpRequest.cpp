@@ -15,7 +15,7 @@ HttpRequest::HttpRequest(const std::string &all_request_text)
 		key = this->obtain_request_key(line);
 		value = this->obtain_request_value(line);
 		if (this->check_keyword_exist(key) == true)
-			this->request_keyvalue_map = (this->*inputvalue_functionmap[key])(key, line);
+			(this->*inputvalue_functionmap[key])(key, line);
 	}
 }
 
@@ -49,7 +49,7 @@ ValueArraySet HttpRequest::ready_ValueArraySet(const std::string &all_value)
 
 ValueDateSet HttpRequest::ready_ValueDateSet(const std::string &value)
 {
-
+	return (ValueDateSet(value));
 }
 
 ValueMap HttpRequest::ready_ValueMap(const std::string &value)
@@ -225,12 +225,12 @@ void	HttpRequest::set_alt_svc(const std::string &key, const std::string &value)
 	this->request_keyvalue_map[key] = ready_ValueWeightArraySet(value);
 }
 
-void	HttpRequest:: set_alt_used(const std::string &key, const std::string &value)
+void	HttpRequest::set_alt_used(const std::string &key, const std::string &value)
 {
 	this->request_keyvalue_map[key] = ready_TwoValueSet(value);
 }
 
-void	HttpRequest:: set_authorization(const std::string &key, const std::string &value)
+void	HttpRequest::set_authorization(const std::string &key, const std::string &value)
 {
 	this->request_keyvalue_map[key] = ready_ValueWeightArraySet(value);
 }
@@ -381,7 +381,7 @@ void	HttpRequest::set_if_unmodified_since(const std::string &key, const std::str
 	(void)value;
 }
 
-void	HttpRequest::set_keepalive(const std::string &key, const std::string &value)
+void	HttpRequest::set_keep_alive(const std::string &key, const std::string &value)
 {
 	this->request_keyvalue_map[key] = ready_ValueSet(value);
 }
@@ -579,10 +579,9 @@ void	HttpRequest::set_x_xss_protection(const std::string &key, const std::string
 
 }
 
-template <typename T>
 void HttpRequest::ready_functionmap()
 {
-	this->inputvalue_functionmap["Accept"] = &HttpRequest::ready_accept;
+	this->inputvalue_functionmap["Accept"] = &HttpRequest::set_accept;
 	this->inputvalue_functionmap["Accept-CH"] = &HttpRequest::set_accept_ch;
 	this->inputvalue_functionmap["Accept-Charset"] = &HttpRequest::set_accept_charset;
 	this->inputvalue_functionmap["Accept-Encoding"] = &HttpRequest::set_accept_encoding;
@@ -632,7 +631,7 @@ void HttpRequest::ready_functionmap()
 	this->inputvalue_functionmap["If-None-Match"] = &HttpRequest::set_if_none_match;
 	this->inputvalue_functionmap["If-Range"] = &HttpRequest::set_if_range;
 	this->inputvalue_functionmap["If-Unmodified-Since"] = &HttpRequest::set_if_unmodified_since;
-	this->inputvalue_functionmap["Keep-Alive"] = &HttpRequest::set_keepalive;
+	this->inputvalue_functionmap["Keep-Alive"] = &HttpRequest::set_keep_alive;
 	this->inputvalue_functionmap["Last-Modified"] = &HttpRequest::set_last_modified;
 	this->inputvalue_functionmap["Link"] = &HttpRequest::set_link;
 	this->inputvalue_functionmap["Location"] = &HttpRequest::set_location;
@@ -668,8 +667,7 @@ void HttpRequest::ready_functionmap()
 	this->inputvalue_functionmap["WWW-Authenticate"] = &HttpRequest::set_www_authenticate;
 }
 
-template <typename T>
-void HttpRequest<T>::show_requestinfs(void) const
+void HttpRequest::show_requestinfs(void) const
 {
 	std::cout << this->_requestline.get_method() << std::endl;
 }
