@@ -15,7 +15,7 @@ HttpRequest::HttpRequest(const std::string &all_request_text)
 		key = this->obtain_request_key(line);
 		value = this->obtain_request_value(line);
 		if (this->check_keyword_exist(key) == true)
-			(this->*inputvalue_functionmap[key])(key, line);
+			(this->*inputvalue_functionmap[key])(key, value);
 	}
 }
 
@@ -79,8 +79,19 @@ ValueSet* HttpRequest::ready_ValueSet(const std::string &value)
 
 ValueWeightArraySet*	HttpRequest::ready_ValueWeightArraySet(const std::string &value)
 {
-	// return (this->ready_ValueWeightArraySet(value));
-	return (new ValueWeightArraySet());//適当に作ってる
+	std::map<std::string, double>	value_map;
+	std::stringstream				splited_by_commma(value);
+	std::string						line;
+
+	while(std::getline(splited_by_commma, line, ','))
+	{
+		std::cout << line << std::endl;
+		if (line.find(';') != std::string::npos)
+			value_map[HandlingString::obtain_beforeword(line, ';')] = HandlingString::obtain_weight(HandlingString::obtain_afterword(line, ';'));
+		else
+			value_map[line] = 1.0;
+	}
+	return (new ValueWeightArraySet(value_map));//適当に作ってる
 }
 
 bool	HttpRequest::check_keyword_exist(const std::string &key)
@@ -136,7 +147,7 @@ std::string	HttpRequest::obtain_request_value(const std::string value)
 
 void HttpRequest::set_accept(const std::string &key, const std::string &value)
 {
-	
+	this->request_keyvalue_map[key] = ready_ValueWeightArraySet(value);
 }
 
 void	HttpRequest::set_accept_ch(const std::string &key, const std::string &value)
@@ -670,7 +681,6 @@ void HttpRequest::ready_functionmap()
 
 void HttpRequest::show_requestinfs(void)
 {
-	// std::cout << this->_requestline.get_method() << std::endl;
 	this->_requestline.show_requestline();
 	std::map<std::string, BaseKeyValueMap*>::iterator now_it = this->request_keyvalue_map.begin();
 	while (now_it != this->request_keyvalue_map.end())
