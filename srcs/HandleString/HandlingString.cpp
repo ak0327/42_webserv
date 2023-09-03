@@ -204,3 +204,8 @@ std::string HandlingString::obtain_afterword(const std::string other, char delim
 {
 	return other.substr(other.find(delimiter) + 1);
 }
+
+double	HandlingString::obtain_weight(const std::string &other)
+{
+	return (HandlingString::str_to_double(HandlingString::obtain_afterword(other, '=')));
+}
