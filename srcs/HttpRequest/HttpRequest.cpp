@@ -669,5 +669,7 @@ void HttpRequest::ready_functionmap()
 
 void HttpRequest::show_requestinfs(void) const
 {
-	std::cout << this->_requestline.get_method() << std::endl;
+	// std::cout << this->_requestline.get_method() << std::endl;
+	this->_requestline.show_requestline();
+	// std::map<std::string, BaseKeyValueMap>::iterator	now_it = this->request_keyvalue_map.begin();
 }

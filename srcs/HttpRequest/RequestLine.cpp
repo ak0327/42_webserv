@@ -12,13 +12,10 @@ void RequestLine::set_value(const std::string &line)
 
 	iss >> word;
 	this->_method = word;
-	std::cout << this->_method << std::endl;
 	iss >> word;
 	this->_target_page = word;
-	std::cout << this->_target_page << std::endl;
 	iss >> word;
 	this->_version = word;
-	std::cout << this->_version << std::endl;
 }
 
 RequestLine::~RequestLine()
@@ -43,5 +40,7 @@ std::string	RequestLine::get_version(void) const
 
 void	RequestLine::show_requestline(void) const
 {
-	std::cout << "request line info is >> " << this->_method << " | " << std::endl;
+	std::cout << "request line info is >> " << this->_method << std::endl;
+	std::cout << "target page info is >> " << this->_target_page << std::endl;
+	std::cout << "version info is >> " << this->_version << std::endl;
 }

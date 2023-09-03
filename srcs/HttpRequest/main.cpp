@@ -13,6 +13,5 @@ std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\nHost: www.example.com\r\
 int main()
 {
 	HttpRequest some(TEST_REQUEST);
-	std::cout << "here" << std::endl;
 	some.show_requestinfs();
 }
