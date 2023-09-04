@@ -10,3 +10,12 @@
 !*.sh
 
 !Makefile
+/files/dir/file_---
+/files/dir/file_---.conf
+/files/dir/file_--r
+/files/dir/file_--r.conf
+/files/dir/file_-r-.conf
+/files/dir/file_-rr.conf
+/files/dir/file_r--
+/files/dir/file_r-r
+/files/no_x_dir
