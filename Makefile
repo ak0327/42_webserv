@@ -26,7 +26,8 @@ DEPS		=	$(OBJS:%.o=%.d)
 
 # INCLUDES ---------------------------------------------------------------------
 INCLUDES_DIR =	includes \
-				$(SRCS_DIR)/$(DEBUG_DIR)
+				$(SRCS_DIR)/$(DEBUG_DIR) \
+				$(SRCS_DIR)/$(ERROR_DIR)
 INCLUDES	 =	$(addprefix -I, $(INCLUDES_DIR))
 
 

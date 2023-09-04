@@ -7,6 +7,7 @@
 
 !srcs
 !srcs/Debug
+!srcs/Error
 !www
 !includes
 !test
