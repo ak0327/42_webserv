@@ -6,7 +6,7 @@
 !config
 
 !srcs
-!srcs/**
+!srcs/Debug
 !www
 !includes
 !test
