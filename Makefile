@@ -2,7 +2,7 @@ NAME		=	webserv
 
 CXX			=	c++
 CXXFLAGS	=	-std=c++98 -Wall -Wextra -Werror -MMD -MP
-
+CXXFLAGS	+=	-g -fsanitize=address,undefined -fno-omit-frame-pointer
 
 # SRCS -------------------------------------------------------------------------
 SRCS_DIR	=	srcs
@@ -57,9 +57,29 @@ re		: fclean all
 lint	:
 	cpplint --recursive srcs
 
-.PHONY	: unit
-unit	:
-	./test/unit_test/run_unit_test.sh
 
+.PHONY	: run_unit_test
+run_unit_test	:
+	#rm -rf build
+	cmake -S . -B build
+	#cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT_MULTIPLEXER"
+	cmake --build build
+	./build/unit_test 2>/dev/null
+	#./build/unit_test
+
+
+.PHONY	: run_result_test
+run_result_test	:
+	#rm -rf build
+	cmake -S . -B build
+	cmake --build build
+	./build/unit_test --gtest_filter=Result*
+
+.PHONY	: run_err_test
+run_err_test	:
+	#rm -rf build
+	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
+	cmake --build build
+	./build/unit_test --gtest_filter=ErrorMessage*
 
 -include $(DEPS)

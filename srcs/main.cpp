@@ -1,16 +1,25 @@
 #include <cstdlib>
 #include <iostream>
+#include <string>
 #include "webserv.hpp"
+#include "Debug.hpp"
 
-static void validate_argc(int argc) {
-	if (argc == EXECUTABLE_FILE_ONLY_ARGC) {
-		return;
+namespace {
+	int CONFIG_FILE_INDEX = 1;
+	int EXECUTABLE_FILE_ONLY_ARGC = 1;
+	int CONFIG_FILE_GIVEN_ARGC = 2;
+	std::string INVALID_ARGUMENT_ERROR_MSG = "[Error] invalid argument";
+
+	void validate_argc(int argc) {
+		if (argc == EXECUTABLE_FILE_ONLY_ARGC) {
+			return;
+		}
+		if (argc == CONFIG_FILE_GIVEN_ARGC) {
+			return;
+		}
+		throw std::invalid_argument(INVALID_ARGUMENT_ERROR_MSG);
 	}
-	if (argc == CONFIG_FILE_GIVEN_ARGC) {
-		return;
-	}
-	throw std::invalid_argument(INVALID_ARGUMENT_ERROR_MSG);
-}
+}  // namespace
 
 int main(int argc, char **argv) {
 	std::string		config_file_path;
@@ -19,8 +28,8 @@ int main(int argc, char **argv) {
 
 	try {
 		validate_argc(argc);
-		config_file_path = get_valid_config_file_path(argc, argv);
-		std::cout << "config_file_path=[" << config_file_path << "]" << std::endl;
+		config_file_path = get_valid_config_file_path(argv[CONFIG_FILE_INDEX]);
+		DEBUG_PRINT("config_file_path=[%s]", config_file_path.c_str());
 
 		// if path is 'default', config set to default
 		// config = Configuration(config_file_path);
