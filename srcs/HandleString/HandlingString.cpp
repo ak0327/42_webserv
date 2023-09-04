@@ -209,3 +209,17 @@ double	HandlingString::obtain_weight(const std::string &other)
 {
 	return (HandlingString::str_to_double(HandlingString::obtain_afterword(other, '=')));
 }
+
+bool	HandlingString::check_int_or_not(const std::string &value)
+{
+	size_t	value_length = value.length();
+	size_t	now_location = 0;
+
+	while (now_location != value_length)
+	{
+		if (!('0' < value[now_location] && value[now_location] < '9'))
+			return (false);
+		now_location++;
+	}
+	return (true);
+}

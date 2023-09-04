@@ -60,6 +60,7 @@ class HttpRequest
 		void	set_accept_charset(const std::string &key,const std::string &value);
 		void	set_accept_encoding(const std::string &key,const std::string &value);
 		void	set_accept_language(const std::string &key,const std::string &value);
+		bool	check_accept_langage_valueword(const std::string &value);
 		// void	set_//方かわからん
 		void	set_accept_post(const std::string &key,const std::string &value);
 		void	set_accept_ranges(const std::string &key,const std::string &value);

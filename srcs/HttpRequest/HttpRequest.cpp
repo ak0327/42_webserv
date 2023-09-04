@@ -155,12 +155,83 @@ void	HttpRequest::set_accept_charset(const std::string &key, const std::string &
 
 void	HttpRequest::set_accept_encoding(const std::string &key, const std::string &value)
 {
-	this->request_keyvalue_map[key] = ready_ValueWeightArraySet(value);
+	std::stringstream splited_by_commma(value);
+	std::string	skipping_nokeyword;
+	std::string	keyword;
+	std::string	line;
+
+	const std::string accept_encoding_keyset[] = 
+	{
+		"gzip", "compress", "deflate", "br", "*", "identity"
+	};
+
+	const std::set<std::string> httprequest_keyset
+	(
+		accept_encoding_keyset,
+		accept_encoding_keyset + sizeof(accept_encoding_keyset) / sizeof(accept_encoding_keyset[0])
+	);
+
+	while(std::getline(splited_by_commma, line, ','))
+	{
+		if (line.find(';') != std::string::npos)
+		{
+			keyword = HandlingString::obtain_beforeword(line, ';');
+			if (httprequest_keyset.count(keyword) > 0)
+				skipping_nokeyword = skipping_nokeyword + line;
+		}
+		else
+		{
+			if (httprequest_keyset.count(line) > 0)
+				skipping_nokeyword = skipping_nokeyword + line;
+		}
+	}
+	this->request_keyvalue_map[key] = ready_ValueWeightArraySet(skipping_nokeyword);
 }
 
 void	HttpRequest::set_accept_language(const std::string &key, const std::string &value)
 {
+	std::stringstream splited_by_commma(value);
+	std::string	skipping_nokeyword;
+	std::string	accept_language_value;
+	std::string	line;
+
+	while(std::getline(splited_by_commma, line, ','))
+	{
+		if (line.find(';') != std::string::npos)
+		{
+			accept_language_value = HandlingString::obtain_afterword(line, ';');
+			if (check_accept_langage_valueword(accept_language_value) == true)
+				skipping_nokeyword = skipping_nokeyword + line;
+		}
+		else
+		{
+			if (check_accept_langage_valueword(line) == true)
+				skipping_nokeyword = skipping_nokeyword + line;
+		}
+	}
 	this->request_keyvalue_map[key] = ready_ValueWeightArraySet(value);
+}
+
+bool	HttpRequest::check_accept_langage_valueword(const std::string &value)
+{
+	size_t	string_length = value.length();
+	size_t	now_location = 0;
+
+	while (string_length != now_location)
+	{
+		if (!('0' <= value[now_location] <= '9'))
+		{
+			if (!('A' <= value[now_location] <= 'Z'))
+			{
+				if (!('a' <= value[now_location] <= 'z'))
+				{
+					if (!(' ' == value[now_location] || '*' == value[now_location] || '-' == value[now_location] || ',' == value[now_location] || '.' == value[now_location] || ';' == value[now_location] || '=' == value[now_location]))
+						return (false);
+				}
+			}
+		}
+	}
+	return (true);
 }
 
 //Accept-Patchどういう持ち方かわからん
@@ -172,7 +243,18 @@ void	HttpRequest::set_accept_post(const std::string &key, const std::string &val
 
 void	HttpRequest::set_accept_ranges(const std::string &key, const std::string &value)
 {
-	this->request_keyvalue_map[key] = ready_ValueSet(value);
+	if (value.find('-') != std::string::npos)
+	{
+		std::string start_byte = HandlingString::obtain_beforeword(value, '-');
+		std::string end_byte = HandlingString::obtain_afterword(value, '-');
+		if (HandlingString::check_int_or_not(start_byte) == false || HandlingString::check_int_or_not(end_byte) == false)
+			return;
+		this->request_keyvalue_map[key] = ready_ValueSet(value);
+	}
+	else
+	{
+		return ;
+	}
 }
 
 void	HttpRequest::set_access_control_allow_credentials(const std::string &key, const std::string &value)

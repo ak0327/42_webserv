@@ -31,6 +31,7 @@ class HandlingString
 		static	std::string					obtain_beforeword(const std::string other, char delimiter);
 		static	std::string					obtain_afterword(const std::string other, char delimiter);
 		static	double						obtain_weight(const std::string &other);
+		static	bool						check_int_or_not(const std::string &value);
 };
 
 #endif
