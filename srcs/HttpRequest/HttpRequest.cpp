@@ -658,6 +658,7 @@ void	HttpRequest::set_server(const std::string &key, const std::string &value)
 
 void	HttpRequest::set_servertiming(const std::string &key, const std::string &value)
 {
+	//cpu;dur=2.4みたいな感じなのでmapで保持しないほうがいいかもしれない
 	this->request_keyvalue_map[key] = ready_ValueMap(value);
 }
 
@@ -683,6 +684,32 @@ void	HttpRequest::set_strict_transport_security(const std::string &key, const st
 
 void	HttpRequest::set_te(const std::string &key, const std::string &value)
 {
+	std::stringstream				splited_by_commma(value);
+	std::string						line;
+	std::string						key;
+	std::string						target_value;
+
+	while(std::getline(splited_by_commma, line, ','))
+	{
+		if (line.find(';') != std::string::npos)
+		{
+			key = HandlingString::obtain_beforeword(line, ';');
+			target_value = HandlingString::obtain_weight(HandlingString::obtain_afterword(line, ';'));
+			if (key == "compress" || key == "deflate" || key == "gzip" || key == "trailers")
+				;
+			else
+				return;
+			if (HandlingString::check_double_or_not(target_value) == false)
+				return;
+		}
+		else
+		{
+			if (line == "compress" || line == "deflate" || line == "gzip" || line == "trailers")
+				;
+			else
+				return;
+		}
+	}
 	this->request_keyvalue_map[key] = ready_ValueWeightArraySet(value);
 }
 
@@ -698,6 +725,13 @@ void	HttpRequest::set_trailer(const std::string &key, const std::string &value)
 
 void	HttpRequest::set_transfer_encoding(const std::string &key, const std::string &value)
 {
+	std::stringstream	ss(value);
+	std::string			line;
+	while(std::getline(ss, line, ','))
+	{
+		if (line != "gzip" && line != "compress" && line != "deflate" && line != "gzip")
+			return;
+	}
 	this->request_keyvalue_map[key] = ready_ValueArraySet(value);
 }
 
@@ -708,6 +742,8 @@ void	HttpRequest::set_upgrade(const std::string &key, const std::string &value)
 
 void	HttpRequest::set_upgrade_insecure_requests(const std::string &key, const std::string &value)
 {
+	if (HandlingString::check_int_or_not(value) == false)
+		return;
 	this->request_keyvalue_map[key] = ready_ValueSet(value);
 }
 
@@ -718,6 +754,7 @@ void	HttpRequest::set_user_agent(const std::string &key, const std::string &valu
 
 void	HttpRequest::set_vary(const std::string &key, const std::string &value)
 {
+	//headerのみしか許可しないのでは
 	this->request_keyvalue_map[key] = ready_ValueArraySet(value);
 }
 

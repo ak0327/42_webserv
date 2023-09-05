@@ -223,3 +223,24 @@ bool	HandlingString::check_int_or_not(const std::string &value)
 	}
 	return (true);
 }
+
+bool	HandlingString::check_double_or_not(const std::string &value)
+{
+	if (value.find('.') == std::string::npos)
+		return (false);
+	
+	size_t	dot_counter = 0;
+	size_t	now_location = 0;
+	size_t	value_length = value.length();
+	while (now_location != value_length)
+	{
+		if (value[now_location] == '.')
+			dot_counter++;
+		if (!('0' <= value[now_location] && value[now_location] <= '9'))
+			return (false);
+		now_location++;
+	}
+	if (dot_counter != 1)
+		return (false);
+	return (true);
+}
