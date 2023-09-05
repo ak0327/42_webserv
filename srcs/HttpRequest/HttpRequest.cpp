@@ -259,16 +259,27 @@ void	HttpRequest::set_accept_ranges(const std::string &key, const std::string &v
 
 void	HttpRequest::set_access_control_allow_credentials(const std::string &key, const std::string &value)
 {
+	if (value != "true")
+		return ;
 	this->request_keyvalue_map[key] = ready_ValueSet(value);
 }
 
 void	HttpRequest::set_access_control_allow_headers(const std::string &key, const std::string &value)
 {
+	//header名しか許可されていない？
 	this->request_keyvalue_map[key] = ready_ValueArraySet(value);
 }
 
 void	HttpRequest::set_access_control_allow_methods(const std::string &key, const std::string &value)
 {
+	std::stringstream	ss(value);
+	std::string			line;
+	while(std::getline(ss, line, ','))
+	{
+		if (line != "GET" && line != "HEAD" && line != "POST" && line != "PUT" || line != "PUT" || line != "DELETE" \
+		|| line != "CONNECT" || line != "OPTIONS" || line != "TRACE" || line != "PATCH")
+			return ;
+	}
 	this->request_keyvalue_map[key] = ready_ValueArraySet(value);
 }
 
@@ -279,79 +290,114 @@ void	HttpRequest::set_access_control_allow_origin(const std::string &key, const 
 
 void	HttpRequest::set_access_control_expose_headers(const std::string &key, const std::string &value)
 {
+	//headerしか許可されていない可能性
 	this->request_keyvalue_map[key] = ready_ValueArraySet(value);
 }
 
 void	HttpRequest::set_access_control_max_age(const std::string &key, const std::string &value)
 {
+	if (HandlingString::check_int_or_not(value) == false)
+		return ;
 	this->request_keyvalue_map[key] = ready_ValueSet(value);
 }
 
 void	HttpRequest::set_access_control_request_headers(const std::string &key, const std::string &value)
 {
+	//headernameしか許されない可能性
 	this->request_keyvalue_map[key] = ready_ValueArraySet(value);
 }
 
 void	HttpRequest::set_access_control_request_method(const std::string &key, const std::string &value)
 {
+	if (line != "GET" && line != "HEAD" && line != "POST" && line != "PUT" || line != "PUT" || line != "DELETE" \
+		|| line != "CONNECT" || line != "OPTIONS" || line != "TRACE" || line != "PATCH")
+		return ;
 	this->request_keyvalue_map[key] = ready_ValueSet(value);
 }
 
 void	HttpRequest::set_age(const std::string &key, const std::string &value)
 {
+	if (HandlingString::check_int_or_not(value) == false)
+		return ;
 	this->request_keyvalue_map[key] = ready_ValueSet(value);
 }
 
 void	HttpRequest::set_allow(const std::string &key, const std::string &value)
 {
+	std::stringstream	ss(value);
+	std::string			line;
+	while(std::getline(ss, line, ','))
+	{
+		if (line != "GET" && line != "HEAD" && line != "POST" && line != "PUT" || line != "PUT" || line != "DELETE" \
+		|| line != "CONNECT" || line != "OPTIONS" || line != "TRACE" || line != "PATCH")
+			return ;
+	}
 	this->request_keyvalue_map[key] = ready_ValueArraySet(value);
 }
 
 void	HttpRequest::set_alt_svc(const std::string &key, const std::string &value)
 {
+	//普通のweightsetと違う
+	//確認が必要、少なくともvalueweightarraysetでは対応できない
 	this->request_keyvalue_map[key] = ready_ValueWeightArraySet(value);
 }
 
 void	HttpRequest::set_alt_used(const std::string &key, const std::string &value)
 {
-	this->request_keyvalue_map[key] = ready_TwoValueSet(value);
+	this->request_keyvalue_map[key] = ready_ValueSet(value);
 }
 
 void	HttpRequest::set_authorization(const std::string &key, const std::string &value)
 {
+	//この格納方法でいいのかちょっとわからん
 	this->request_keyvalue_map[key] = ready_ValueWeightArraySet(value);
 }
-//この格納方法でいいのかちょっとわからん
 
 //Cache-Controlどう使うのか全くわからない
 
 void	HttpRequest::set_clear_site_data(const std::string &key, const std::string &value)
 {
+	//ダブルクオーテーションで囲う必要性があるようだが、"aaaa"", "bbb"みたいなことをされたとする
+	//この場合にフォーマットが正しくないみたいなステータスコード を投げる？
 	this->request_keyvalue_map[key] = ready_ValueArraySet(value);
 }
 
 void	HttpRequest::set_connection(const std::string &key, const std::string &value)
 {
-	this->request_keyvalue_map[key] = ready_ValueSet(value);
+	if (value == "close" || value == "keep-alive")
+		this->request_keyvalue_map[key] = ready_ValueSet(value);
+	else
+		return;
 }
 
 void	HttpRequest::set_content_disponesition(const std::string &key, const std::string &value)
 {
+	//value_a; key_some = value_someみたいなクラスを一つ作ると収まりいいかも
 	this->request_keyvalue_map[key] = ready_ValueWeightArraySet(value);
 }
 
 void	HttpRequest::set_content_encoding(const std::string &key, const std::string &value)
 {
+	std::stringstream	ss(value);
+	std::string			line;
+	while(std::getline(ss, line, ','))
+	{
+		if (line != "gzip" && line != "compress" && line != "deflate" && line != "br")
+			return;
+	}
 	this->request_keyvalue_map[key] = ready_ValueArraySet(value);
 }
 
 void	HttpRequest::set_content_language(const std::string &key, const std::string &value)
 {
+	//valueの値がある程度限定されていそうだが、まとまっていそうではなく特定が難しい
 	this->request_keyvalue_map[key] = ready_ValueArraySet(value);
 }
 
 void	HttpRequest::set_content_length(const std::string &key, const std::string &value)
 {
+	if (HandlingString::check_int_or_not(value) == false)
+		return ;
 	this->request_keyvalue_map[key] = ready_ValueSet(value);
 }
 
@@ -362,16 +408,19 @@ void	HttpRequest::set_content_location(const std::string &key, const std::string
 
 void	HttpRequest::set_content_range(const std::string &key, const std::string &value)
 {
+	//確かにvaluesetでも良さそうだが、もう少しあっているものもありそう
 	this->request_keyvalue_map[key] = ready_ValueSet(value);
 }
 
 void	HttpRequest::set_content_security_policy(const std::string &key, const std::string &value)
 {
+	//Two value set は区切り文字が;になっているため、使用に注意がいる
 	this->request_keyvalue_map[key] = ready_TwoValueSet(value);
 }
 
 void	HttpRequest::set_content_security_policy_report_only(const std::string &key, const std::string &value)
 {
+	//Two value set は区切り文字が;になっているため、使用に注意がいる
 	this->request_keyvalue_map[key] = ready_TwoValueSet(value);
 }
 
@@ -397,7 +446,12 @@ void	HttpRequest::set_cross_origin_opener_policy(const std::string &key, const s
 
 void	HttpRequest::set_cross_origin_resource_policy(const std::string &key, const std::string &value)
 {
-	this->request_keyvalue_map[key] = ready_ValueSet(value);
+	if (value == "same-site" || value == "same-origin" || value == "cross-origin")
+	{
+		this->request_keyvalue_map[key] = ready_ValueSet(value);
+	}
+	else
+		return ;
 }
 
 void	HttpRequest::set_date(const std::string &key, const std::string &value)
@@ -412,25 +466,23 @@ void	HttpRequest::set_etag(const std::string &key, const std::string &value)
 
 void	HttpRequest::set_expect(const std::string &key, const std::string &value)
 {
-	this->request_keyvalue_map[key] = ready_ValueSet(value);
+	if (value == "100-continue")
+		this->request_keyvalue_map[key] = ready_ValueSet(value);
+	else
+		return ;
 }
 
 //expect-ctは現状廃止されているっぽくて対応したくない
 
 void	HttpRequest::set_expires(const std::string &key, const std::string &value)
 {
-
+	this->request_keyvalue_map[key] = ready_ValueSet(value);
 }
 
 void	HttpRequest::set_forwarded(const std::string &key, const std::string &value)
 {
 	this->request_keyvalue_map[key] = ready_ValueMap(value);
 }
-
-void	HttpRequest::set_email(const std::string &key, const std::string &value)
-{
-	(void)value;
-}//?
 
 void	HttpRequest::set_from(const std::string &key, const std::string &value)
 {
@@ -450,7 +502,7 @@ void	HttpRequest::set_if_match(const std::string &key, const std::string &value)
 
 void	HttpRequest::set_if_modified_since(const std::string &key, const std::string &value)
 {
-	
+	this->request_keyvalue_map[key] = ready_ValueDateSet(value);
 }
 
 void	HttpRequest::set_if_none_match(const std::string &key, const std::string &value)
@@ -460,22 +512,22 @@ void	HttpRequest::set_if_none_match(const std::string &key, const std::string &v
 
 void	HttpRequest::set_if_range(const std::string &key, const std::string &value)
 {
-	(void)value;
+	this->request_keyvalue_map[key] = ready_ValueDateSet(value);
 }
 
 void	HttpRequest::set_if_unmodified_since(const std::string &key, const std::string &value)
 {
-	(void)value;
+	this->request_keyvalue_map[key] = ready_ValueDateSet(value);
 }
 
 void	HttpRequest::set_keep_alive(const std::string &key, const std::string &value)
 {
-	this->request_keyvalue_map[key] = ready_ValueSet(value);
+	this->request_keyvalue_map[key] = ready_ValueMap(value);
 }
 
 void	HttpRequest::set_last_modified(const std::string &key, const std::string &value)
 {
-	(void)value;
+	this->request_keyvalue_map[key] = ready_ValueDateSet(value);
 }
 
 void	HttpRequest::set_link(const std::string &key, const std::string &value)
@@ -490,7 +542,10 @@ void	HttpRequest::set_location(const std::string &key, const std::string &value)
 
 void	HttpRequest::set_max_forwards(const std::string &key, const std::string &value)
 {
-	this->request_keyvalue_map[key] = ready_ValueSet(value);
+	if (HandlingString::check_int_or_not(value) == true)
+		this->request_keyvalue_map[key] = ready_ValueSet(value);
+	else
+		return;
 }
 
 void	HttpRequest::set_origin(const std::string &key, const std::string &value)
@@ -543,17 +598,29 @@ void	HttpRequest::set_referer(const std::string &key, const std::string &value)
 
 void	HttpRequest::set_referrer_policy(const std::string &key, const std::string &value)
 {
-	this->request_keyvalue_map[key] = ready_ValueSet(value);
+	if (value == "no-referrer" || value == "no-referrer-when-downgrade" || value == "origin" || value == "origin-when-cross-origin" || \
+	value == "same-origin" || value == "strict-origin" || value == "strict-origin-when-cross-origin" || value == "unsafe-url")
+		this->request_keyvalue_map[key] = ready_ValueSet(value);
+	else
+		return ;
 }
 
 void	HttpRequest::set_retry_after(const std::string &key, const std::string &value)
 {
+	//timeでも時間でも指定ができそう
 	this->request_keyvalue_map[key] = ready_ValueSet(value);
 }
 
 void	HttpRequest::set_sec_fetch_dest(const std::string &key, const std::string &value)
 {
-	this->request_keyvalue_map[key] = ready_ValueSet(value);
+
+	if (value == "audio" || value == "audioworklet" || value == "document" || value == "embed" || \
+	value == "empty" || value == "font" || value == "frame" || value == "iframe" || value == "image" || value == "manifest" || \
+	value == "object" || value == "paintworklet" || value == "report" || value == "script" || value == "serviceworker" || \ 
+	value == "sharedworker" || value == "style" || value == "track" || value == "video" || value == "worker" || value == "xslt")
+		this->request_keyvalue_map[key] = ready_ValueSet(value);
+	else
+		return ;
 }
 
 void	HttpRequest::set_sec_fetch_mode(const std::string &key, const std::string &value)
@@ -563,7 +630,10 @@ void	HttpRequest::set_sec_fetch_mode(const std::string &key, const std::string &
 
 void	HttpRequest::set_sec_fetch_site(const std::string &key, const std::string &value)
 {
-	this->request_keyvalue_map[key] = ready_ValueSet(value);
+	if (value == "cors" || value == "navigate" || value == "no-cors" || value == "same-origin" || value == "websocket")
+		this->request_keyvalue_map[key] = ready_ValueSet(value);
+	else
+		return;
 }
 
 void	HttpRequest::set_sec_fetch_user(const std::string &key, const std::string &value)
