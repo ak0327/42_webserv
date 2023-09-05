@@ -17,6 +17,7 @@ class ValueMap: public BaseKeyValueMap
 		ValueMap();
 		ValueMap(const ValueMap &other);
 		ValueMap& operator=(const ValueMap &other);
+		ValueMap(const std::string &value, std::map<std::string, std::string> value_map);
 		ValueMap(std::map<std::string, std::string> value_map);
 		~ValueMap();
 

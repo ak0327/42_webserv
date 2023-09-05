@@ -244,3 +244,31 @@ bool	HandlingString::check_double_or_not(const std::string &value)
 		return (false);
 	return (true);
 }
+
+bool HandlingString::check_doublequote_format(const std::string &value)
+{
+	size_t	now_location = 0;
+	
+	if (value[now_location] != '"')
+		return (false);
+	now_location++;
+	while (value[now_location] != '"')
+		now_location++;
+	if (now_location != value.length())
+		return (false);
+	return (true);
+}
+
+std::string HandlingString::obtain_string_in_doublequote(const std::string &value)
+{
+	size_t		value_length = value.length();
+	size_t		now_location = 1;
+	std::string	anser;
+
+	while (now_location != value_length - 1)
+	{
+		anser = anser + value[now_location];
+		now_location++;
+	}
+	return (anser);
+}

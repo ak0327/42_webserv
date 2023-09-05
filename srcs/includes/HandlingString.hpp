@@ -33,6 +33,8 @@ class HandlingString
 		static	double						obtain_weight(const std::string &other);
 		static	bool						check_int_or_not(const std::string &value);
 		static	bool						check_double_or_not(const std::string &value);
+		static	bool						check_doublequote_format(const std::string &value);
+		static	std::string					obtain_string_in_doublequote(const std::string &value);
 };
 
 #endif
