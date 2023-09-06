@@ -48,6 +48,8 @@ class HttpRequest
 		ValueSet			*ready_ValueSet(const std::string &value);
 		ValueWeightArraySet	*ready_ValueWeightArraySet(const std::string &value);
 		void				ready_functionmap(void);
+
+		double				_status_code;
 	
 	public:
 

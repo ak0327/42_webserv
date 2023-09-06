@@ -15,3 +15,5 @@ int main()
 	HttpRequest some(TEST_REQUEST);
 	some.show_requestinfs();
 }
+
+//g++ *.cpp ../HandleString/HandlingString.cpp

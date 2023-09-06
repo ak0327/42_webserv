@@ -2,6 +2,8 @@
 
 HttpRequest::HttpRequest(const std::string &all_request_text)
 {
+	this->_status_code = 200;
+
 	std::string	line;
 	std::string	key;
 	std::string	value;
@@ -140,6 +142,29 @@ std::string	HttpRequest::obtain_request_value(const std::string value)
 void HttpRequest::set_accept(const std::string &key, const std::string &value)
 {
 	//どんなリクエストも受け付ける模様？
+	size_t	value_length = value.size();
+	size_t	now_location = 0;
+
+	const char accept_encoding_keyset[] = 
+	{
+		'\x00', '\x01', '\x02', '\x03', '\x04', '\x05', '\x06', '\x07', '\x08', '\x09', '\x10',\
+		'\x0A', '\x0B', '\x0C', '\x0D', '\x0E', '\x0F', '\x10', '\x11', '\x12', '\x13', '\x14',\
+		'\x15', '\x16', '\x17', '\x18', '\x19', '\x1A', '\x1B', '\x1C', '\x1D', '\x1E', '\x1F',\
+		'(', ')', ':', '<', '>', '?', '@', '[', '\\', ']', '{', '}'
+	};
+
+	const std::set<char> accept_keyset
+	(
+		accept_encoding_keyset,
+		accept_encoding_keyset + sizeof(accept_encoding_keyset) / sizeof(accept_encoding_keyset[0])
+	);
+
+	while (now_location != value_length)
+	{
+		if (accept_encoding_keyset.count(value[now_location]) > 0)
+			return ;
+		now_location++;
+	}
 	this->request_keyvalue_map[key] = ready_ValueWeightArraySet(value);
 }
 
@@ -194,14 +219,21 @@ void	HttpRequest::set_accept_language(const std::string &key, const std::string 
 	std::string	skipping_nokeyword;
 	std::string	accept_language_value;
 	std::string	line;
+	std::string	target_value;
 
 	while(std::getline(splited_by_commma, line, ','))
 	{
 		if (line.find(';') != std::string::npos)
 		{
-			accept_language_value = HandlingString::obtain_afterword(line, ';');
+			accept_language_value = HandlingString::obtain_beforeword(line, ';');
+			target_value = HandlingString::obtain_weight(HandlingString::obtain_afterword(line, ';'));
 			if (check_accept_langage_valueword(accept_language_value) == true)
 				skipping_nokeyword = skipping_nokeyword + line;
+			if (target_value == "0" || target_value == "0.0")
+			{
+				this->_status_code = 406;
+				return ;
+			}
 		}
 		else
 		{
@@ -219,14 +251,17 @@ bool	HttpRequest::check_accept_langage_valueword(const std::string &value)
 
 	while (string_length != now_location)
 	{
-		if (!('0' <= value[now_location] <= '9'))
+		if (!('0' <= value[now_location] && value[now_location] <= '9'))
 		{
-			if (!('A' <= value[now_location] <= 'Z'))
+			if (!('A' <= value[now_location] && value[now_location] <= 'Z'))
 			{
-				if (!('a' <= value[now_location] <= 'z'))
+				if (!('a' <= value[now_location] && value[now_location] <= 'z'))
 				{
 					if (!(' ' == value[now_location] || '*' == value[now_location] || '-' == value[now_location] || ',' == value[now_location] || '.' == value[now_location] || ';' == value[now_location] || '=' == value[now_location]))
+					{
+						this->_status_code = 406;
 						return (false);
+					}
 				}
 			}
 		}
@@ -243,18 +278,10 @@ void	HttpRequest::set_accept_post(const std::string &key, const std::string &val
 
 void	HttpRequest::set_accept_ranges(const std::string &key, const std::string &value)
 {
-	if (value.find('-') != std::string::npos)
-	{
-		std::string start_byte = HandlingString::obtain_beforeword(value, '-');
-		std::string end_byte = HandlingString::obtain_afterword(value, '-');
-		if (HandlingString::check_int_or_not(start_byte) == false || HandlingString::check_int_or_not(end_byte) == false)
-			return;
+	if (value == "bytes")
 		this->request_keyvalue_map[key] = ready_ValueSet(value);
-	}
 	else
-	{
 		return ;
-	}
 }
 
 void	HttpRequest::set_access_control_allow_credentials(const std::string &key, const std::string &value)
@@ -291,7 +318,8 @@ void	HttpRequest::set_access_control_allow_origin(const std::string &key, const 
 void	HttpRequest::set_access_control_expose_headers(const std::string &key, const std::string &value)
 {
 	//headerしか許可されていない可能性
-	this->request_keyvalue_map[key] = ready_ValueArraySet(value);
+	if (check_keyword_exist(value) == true)
+		this->request_keyvalue_map[key] = ready_ValueArraySet(value);
 }
 
 void	HttpRequest::set_access_control_max_age(const std::string &key, const std::string &value)
@@ -304,13 +332,14 @@ void	HttpRequest::set_access_control_max_age(const std::string &key, const std::
 void	HttpRequest::set_access_control_request_headers(const std::string &key, const std::string &value)
 {
 	//headernameしか許されない可能性
-	this->request_keyvalue_map[key] = ready_ValueArraySet(value);
+	if (check_keyword_exist(value) == true)
+		this->request_keyvalue_map[key] = ready_ValueArraySet(value);
 }
 
 void	HttpRequest::set_access_control_request_method(const std::string &key, const std::string &value)
 {
-	if (line != "GET" && line != "HEAD" && line != "POST" && line != "PUT" || line != "PUT" || line != "DELETE" \
-		|| line != "CONNECT" || line != "OPTIONS" || line != "TRACE" || line != "PATCH")
+	if (value != "GET" && value != "HEAD" && value != "POST" && value != "PUT" || value != "PUT" || value != "DELETE" \
+		|| value != "CONNECT" || value != "OPTIONS" || value!= "TRACE" || value != "PATCH")
 		return ;
 	this->request_keyvalue_map[key] = ready_ValueSet(value);
 }
@@ -339,6 +368,7 @@ void	HttpRequest::set_alt_svc(const std::string &key, const std::string &value)
 {
 	//普通のweightsetと違う
 	//確認が必要、少なくともvalueweightarraysetでは対応できない
+	//<protocol-id>=<alt-authority>; ma=<max-age>
 	this->request_keyvalue_map[key] = ready_ValueWeightArraySet(value);
 }
 
@@ -616,7 +646,7 @@ void	HttpRequest::set_sec_fetch_dest(const std::string &key, const std::string &
 
 	if (value == "audio" || value == "audioworklet" || value == "document" || value == "embed" || \
 	value == "empty" || value == "font" || value == "frame" || value == "iframe" || value == "image" || value == "manifest" || \
-	value == "object" || value == "paintworklet" || value == "report" || value == "script" || value == "serviceworker" || \ 
+	value == "object" || value == "paintworklet" || value == "report" || value == "script" || value == "serviceworker" || \
 	value == "sharedworker" || value == "style" || value == "track" || value == "video" || value == "worker" || value == "xslt")
 		this->request_keyvalue_map[key] = ready_ValueSet(value);
 	else
@@ -686,16 +716,16 @@ void	HttpRequest::set_te(const std::string &key, const std::string &value)
 {
 	std::stringstream				splited_by_commma(value);
 	std::string						line;
-	std::string						key;
+	std::string						target_key;
 	std::string						target_value;
 
 	while(std::getline(splited_by_commma, line, ','))
 	{
 		if (line.find(';') != std::string::npos)
 		{
-			key = HandlingString::obtain_beforeword(line, ';');
+			target_key = HandlingString::obtain_beforeword(line, ';');
 			target_value = HandlingString::obtain_weight(HandlingString::obtain_afterword(line, ';'));
-			if (key == "compress" || key == "deflate" || key == "gzip" || key == "trailers")
+			if (target_key == "compress" || target_key == "deflate" || target_key == "gzip" || target_key == "trailers")
 				;
 			else
 				return;
