@@ -10,9 +10,18 @@ SRCS_DIR	=	srcs
 #main
 SRCS		=	main.cpp \
 				get_valid_config_file_path.cpp
+
+#error
+ERROR_DIR	=	Error
+SRCS		+=	$(ERROR_DIR)/Error.cpp
+
 #debug
 DEBUG_DIR	=	Debug
 SRCS		+=	$(DEBUG_DIR)/Debug.cpp
+
+#socket
+SOCKET_DIR	=	Socket
+SRCS		+=	$(SOCKET_DIR)/Socket.cpp
 
 
 # OBJS -------------------------------------------------------------------------
@@ -27,7 +36,9 @@ DEPS		=	$(OBJS:%.o=%.d)
 # INCLUDES ---------------------------------------------------------------------
 INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(DEBUG_DIR) \
-				$(SRCS_DIR)/$(ERROR_DIR)
+				$(SRCS_DIR)/$(ERROR_DIR) \
+				$(SRCS_DIR)/$(SOCKET_DIR)
+
 INCLUDES	 =	$(addprefix -I, $(INCLUDES_DIR))
 
 
@@ -56,7 +67,6 @@ re		: fclean all
 .PHONY	: lint
 lint	:
 	cpplint --recursive srcs
-
 
 .PHONY	: run_unit_test
 run_unit_test	:

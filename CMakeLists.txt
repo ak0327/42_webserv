@@ -34,6 +34,7 @@ include_directories(
         includes
         srcs/Debug
         srcs/Error
+        srcs/Socket
 )
 
 # webserv_srcs -----------------------------------------------------------------
@@ -41,7 +42,8 @@ set(webserv_srcs
         srcs/get_valid_config_file_path.cpp
         srcs/Debug/Debug.cpp
         srcs/Error/Error.cpp
-        )
+        srcs/Socket/Socket.cpp
+)
 
 add_executable(webserv
         srcs/main.cpp
@@ -53,7 +55,8 @@ set (unit_test_srcs
         test/unit_test/is_valid_file_path/test_get_valid_config_file_path.cpp
         test/unit_test/TestError.cpp
         test/unit_test/TestResult.cpp
-        )
+        test/unit_test/TestSocket.cpp
+)
 
 add_executable(unit_test
         ${webserv_srcs}
