@@ -6,7 +6,8 @@
 !config
 
 !srcs
-!srcs/**
+!srcs/Debug
+!srcs/Error
 !www
 !includes
 !test
@@ -22,8 +23,10 @@
 !Makefile
 !CPPLINT.cfg
 !webserv.drawio
+!CMakeLists.txt
 
 .idea
 .vscode
 .DS_Store
-CMakeLists.txt
+CMakeCache.txt
+Dockerfile
