@@ -3,6 +3,7 @@ NAME		=	webserv
 CXX			=	c++
 CXXFLAGS	=	-std=c++98 -Wall -Wextra -Werror -MMD -MP
 CXXFLAGS	+=	-g -fsanitize=address,undefined -fno-omit-frame-pointer
+#CXXFLAGS	+=	-D USE_SELECT_MULTIPLEXER
 
 # SRCS -------------------------------------------------------------------------
 SRCS_DIR	=	srcs
@@ -10,6 +11,25 @@ SRCS_DIR	=	srcs
 #main
 SRCS		=	main.cpp \
 				get_valid_config_file_path.cpp
+#debug
+DEBUG_DIR	=	Debug
+SRCS		+=	$(DEBUG_DIR)/Debug.cpp
+
+#error
+ERROR_DIR	=	Error
+SRCS		+=	$(ERROR_DIR)/Error.cpp
+
+#io
+IO_DIR		=	IOMultiplexer
+SRCS		+=	$(IO_DIR)/IOMultiplexer.cpp
+
+#server
+SERVER_DIR	=	Server
+SRCS		+=	$(SERVER_DIR)/Server.cpp
+
+#socket
+SOCKET_DIR	=	Socket
+SRCS		+=	$(SOCKET_DIR)/Socket.cpp
 
 #error
 ERROR_DIR	=	Error
@@ -35,8 +55,10 @@ DEPS		=	$(OBJS:%.o=%.d)
 
 # INCLUDES ---------------------------------------------------------------------
 INCLUDES_DIR =	includes \
+				$(SRCS_DIR)/$(IO_DIR) \
 				$(SRCS_DIR)/$(DEBUG_DIR) \
 				$(SRCS_DIR)/$(ERROR_DIR) \
+				$(SRCS_DIR)/$(SERVER_DIR) \
 				$(SRCS_DIR)/$(SOCKET_DIR)
 
 INCLUDES	 =	$(addprefix -I, $(INCLUDES_DIR))
