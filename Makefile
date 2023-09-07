@@ -53,6 +53,13 @@ OBJS		=	$(SRCS:%.cpp=$(OBJS_DIR)/%.o)
 DEPS		=	$(OBJS:%.o=%.d)
 
 
+# CLIENT -----------------------------------------------------------------------
+CLIENT_DIR	=	Client
+CLIENT_SRC	=	$(CLIENT_DIR)/Client.cpp \
+				$(CLIENT_DIR)/client_main.cpp
+CLIENT_OBJ	=	$(CLIENT_SRC:%.cpp=%.o)
+CLIENT_OBJS	=	$(addprefix $(OBJS_DIR)/, $(CLIENT_OBJ))
+
 # INCLUDES ---------------------------------------------------------------------
 INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(IO_DIR) \
@@ -81,7 +88,7 @@ clean	:
 
 .PHONY	: fclean
 fclean	: clean
-	rm -f $(NAME)
+	rm -f $(NAME) client
 
 .PHONY	: re
 re		: fclean all
@@ -113,12 +120,8 @@ run_err_test	:
 	cmake --build build
 	./build/unit_test --gtest_filter=ErrorMessage*
 
-.PHONY	: run_socket_test
-run_socket_test	:
-	#rm -rf build
-	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
-	cmake --build build
-	./build/unit_test --gtest_filter=SocketUnitTest.*:SocketIntegrationTest.*
-
+.PHONY	: client
+client	: $(CLIENT_OBJS)
+	$(CXX) $(CXXFLAGS) -o $@ $^
 
 -include $(DEPS)

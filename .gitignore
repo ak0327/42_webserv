@@ -6,6 +6,7 @@
 !config
 
 !srcs
+!srcs/Client
 !srcs/Debug
 !srcs/Error
 !srcs/Server
@@ -30,6 +31,6 @@
 
 .idea
 .vscode
-.DS_Store
+client_response.txt
 CMakeCache.txt
 Dockerfile
