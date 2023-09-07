@@ -77,7 +77,6 @@ run_unit_test	:
 	./build/unit_test 2>/dev/null
 	#./build/unit_test
 
-
 .PHONY	: run_result_test
 run_result_test	:
 	#rm -rf build
@@ -91,5 +90,13 @@ run_err_test	:
 	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
 	cmake --build build
 	./build/unit_test --gtest_filter=ErrorMessage*
+
+.PHONY	: run_socket_test
+run_socket_test	:
+	#rm -rf build
+	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
+	cmake --build build
+	./build/unit_test --gtest_filter=SocketUnitTest.*:SocketIntegrationTest.*
+
 
 -include $(DEPS)
