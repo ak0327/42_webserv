@@ -5,6 +5,12 @@ ValueMap::ValueMap()
 
 }
 
+ValueMap::ValueMap(const std::string &value, std::map<std::string, std::string> value_map)
+{
+	this->_only_value = value;
+	this->_value_map = value_map;
+}
+
 ValueMap::ValueMap(std::map<std::string, std::string> value_map)
 {
 	this->_value_map = value_map;

@@ -42,9 +42,11 @@ class HttpRequest
 		std::string	obtain_request_value(const std::string value);
 
 		TwoValueSet			*ready_TwoValueSet(const std::string &value);
+		TwoValueSet			*ready_TwoValueSet(const std::string &value, char delimiter);
 		ValueArraySet		*ready_ValueArraySet(const std::string &value);
 		ValueDateSet		*ready_ValueDateSet(const std::string &value);
 		ValueMap			*ready_ValueMap(const std::string &value);
+		ValueMap			*ready_ValueMap(const std::string &only_value, const std::string &value);
 		ValueSet			*ready_ValueSet(const std::string &value);
 		ValueWeightArraySet	*ready_ValueWeightArraySet(const std::string &value);
 		void				ready_functionmap(void);
