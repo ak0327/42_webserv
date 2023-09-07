@@ -1,8 +1,8 @@
 *
 
-!.gitignore
 !.github
 !.github/*
+!.gitignore
 !config
 
 !srcs
@@ -11,24 +11,25 @@
 !srcs/Error
 !srcs/Server
 !srcs/Socket
-!www
 !includes
-!test
 !playground
+!test
+!www
 
-!*.cpp
-!*.hpp
-!*.yml
 !*.conf
-!*.txt
+!*.cpp
 !*.h
+!*.hpp
+!*.txt
+!*.yml
 
-!Readme.md
-!Makefile
 !CPPLINT.cfg
-!webserv.drawio
 !CMakeLists.txt
+!Makefile
+!Readme.md
+!webserv.drawio
 
+.DS_Store
 .idea
 .vscode
 client_response.txt

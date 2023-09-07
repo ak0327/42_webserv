@@ -130,8 +130,8 @@ run_result_test	:
 	cmake --build build
 	./build/unit_test --gtest_filter=Result*
 
-.PHONY	: run_err_test
-run_err_test	:
+.PHONY	: run_errmsg_test
+run_errmsg_test	:
 	#rm -rf build
 	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
 	cmake --build build
