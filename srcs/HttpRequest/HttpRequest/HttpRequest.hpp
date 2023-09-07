@@ -7,15 +7,15 @@
 #include <sstream>
 #include <set>
 
-#include "BaseKeyValueMap.hpp"
-#include "HandlingString.hpp"
-#include "RequestLine.hpp"
-#include "ValueWeightArraySet.hpp"
-#include "ValueArraySet.hpp"
-#include "ValueSet.hpp"
-#include "TwoValueSet.hpp"
-#include "ValueMap.hpp"
-#include "ValueDateSet.hpp"
+#include "../BaseKeyValueMap/BaseKeyValueMap.hpp"
+#include "../HandlingString/HandlingString.hpp"
+#include "../RequestLine/RequestLine.hpp"
+#include "../ValueWeightArraySet/ValueWeightArraySet.hpp"
+#include "../ValueArraySet/ValueArraySet.hpp"
+#include "../ValueSet/ValueSet.hpp"
+#include "../TwoValueSet/TwoValueSet.hpp"
+#include "../ValueMap/ValueMap.hpp"
+#include "../ValueDateSet/ValueDateSet.hpp"
 
 class BaseKeyValueMap;
 

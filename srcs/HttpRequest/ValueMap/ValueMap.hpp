@@ -5,7 +5,7 @@
 #include <map>
 #include <iostream>
 
-#include "BaseKeyValueMap.hpp"
+#include "../BaseKeyValueMap/BaseKeyValueMap.hpp"
 
 class ValueMap: public BaseKeyValueMap
 {

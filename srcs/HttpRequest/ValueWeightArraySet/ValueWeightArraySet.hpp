@@ -3,9 +3,9 @@
 
 #include <string>
 #include <map>
-#include "HandlingString.hpp"
+#include "../../HandlingString/HandlingString.hpp"
 
-#include "BaseKeyValueMap.hpp"
+#include "../BaseKeyValueMap/BaseKeyValueMap.hpp"
 
 class ValueWeightArraySet: public BaseKeyValueMap
 {
