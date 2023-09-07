@@ -38,9 +38,9 @@ TwoValueSet* HttpRequest::ready_TwoValueSet(const std::string &all_value)
 	return (new TwoValueSet(first_value, second_value));
 }
 
-TwoValueSet			*ready_TwoValueSet(const std::string &value, char delimiter)
+TwoValueSet* HttpRequest::ready_TwoValueSet(const std::string &value, char delimiter)
 {
-	std::stringstream	ss(HandlingString::skipping_emptyword(all_value));
+	std::stringstream	ss(HandlingString::skipping_emptyword(value));
 	std::string			first_value;
 	std::string			second_value;
 
@@ -77,7 +77,7 @@ ValueMap* HttpRequest::ready_ValueMap(const std::string &value)
 	return (new ValueMap(value_map));
 }
 
-ValueMap			*ready_ValueMap(const std::string &only_value, const std::string &value)
+ValueMap* HttpRequest::ready_ValueMap(const std::string &only_value, const std::string &value)
 {
 	std::map<std::string, std::string> value_map;
 	std::stringstream	ss(value);
@@ -168,7 +168,7 @@ void HttpRequest::set_accept(const std::string &key, const std::string &value)
 	size_t	value_length = value.size();
 	size_t	now_location = 0;
 
-	const char accept_encoding_keyset[] = 
+	char accept_encoding_keyset[] = 
 	{
 		'\x00', '\x01', '\x02', '\x03', '\x04', '\x05', '\x06', '\x07', '\x08', '\x09', '\x10',\
 		'\x0A', '\x0B', '\x0C', '\x0D', '\x0E', '\x0F', '\x10', '\x11', '\x12', '\x13', '\x14',\
@@ -184,7 +184,7 @@ void HttpRequest::set_accept(const std::string &key, const std::string &value)
 
 	while (now_location != value_length)
 	{
-		if (accept_encoding_keyset.count(value[now_location]) > 0)
+		if (accept_keyset.count(value[now_location]) > 0)
 			return ;
 		now_location++;
 	}
@@ -316,7 +316,7 @@ void	HttpRequest::set_access_control_allow_headers(const std::string &key, const
 	//header名しか許可されていない？
 	std::vector<std::string>	value_array;
 
-	std::stringstream	ss(all_value);
+	std::stringstream	ss(value);
 	std::string			line;
 	while(std::getline(ss, line, ','))
 	{
@@ -349,7 +349,7 @@ void	HttpRequest::set_access_control_expose_headers(const std::string &key, cons
 	//headerしか許可されていない可能性
 	std::vector<std::string>	value_array;
 
-	std::stringstream	ss(all_value);
+	std::stringstream	ss(value);
 	std::string			line;
 	while(std::getline(ss, line, ','))
 	{
