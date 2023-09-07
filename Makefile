@@ -106,6 +106,23 @@ run_unit_test	:
 	./build/unit_test 2>/dev/null
 	#./build/unit_test
 
+.PHONY	: run_server_test
+run_server_test	:
+	#rm -rf build
+	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
+	#cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG -D USE_SELECT_MULTIPLEXER"
+	cmake --build build
+	#./build/unit_test --gtest_filter=Server* 2>/dev/null
+	./build/unit_test --gtest_filter=Server*
+	#./build/unit_test --gtest_filter=*.ConnectClientCase1
+
+.PHONY	: run_socket_test
+run_socket_test	:
+	#rm -rf build
+	cmake -S . -B build
+	cmake --build build
+	./build/unit_test --gtest_filter=Socket* 2>/dev/null
+
 .PHONY	: run_result_test
 run_result_test	:
 	#rm -rf build
