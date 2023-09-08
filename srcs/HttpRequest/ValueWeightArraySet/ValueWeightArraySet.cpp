@@ -1,4 +1,4 @@
-#include "../includes/ValueWeightArraySet.hpp"
+#include "ValueWeightArraySet.hpp"
 
 ValueWeightArraySet::ValueWeightArraySet()
 {

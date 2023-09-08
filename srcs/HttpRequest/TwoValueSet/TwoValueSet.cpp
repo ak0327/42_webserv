@@ -1,4 +1,4 @@
-#include "../includes/TwoValueSet.hpp"
+#include "TwoValueSet.hpp"
 
 TwoValueSet::TwoValueSet()
 {
