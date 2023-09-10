@@ -44,8 +44,8 @@ TwoValueSet* HttpRequest::ready_TwoValueSet(const std::string &value, char delim
 	std::string			first_value;
 	std::string			second_value;
 
-	std::getline(ss, first_value, ';');
-	std::getline(ss, second_value, ';');
+	std::getline(ss, first_value, delimiter);
+	std::getline(ss, second_value, delimiter);
 
 	return (new TwoValueSet(first_value, second_value));
 }
@@ -332,8 +332,8 @@ void	HttpRequest::set_access_control_allow_methods(const std::string &key, const
 	std::string			line;
 	while(std::getline(ss, line, ','))
 	{
-		if (line != "GET" && line != "HEAD" && line != "POST" && line != "PUT" || line != "PUT" || line != "DELETE" \
-		|| line != "CONNECT" || line != "OPTIONS" || line != "TRACE" || line != "PATCH")
+		if (line != "GET" && line != "HEAD" && line != "POST" && line != "PUT" && line != "PUT" && line != "DELETE" \
+		&& line != "CONNECT" && line != "OPTIONS" && line != "TRACE" && line != "PATCH")
 			return ;
 	}
 	this->request_keyvalue_map[key] = ready_ValueArraySet(value);
@@ -383,8 +383,8 @@ void	HttpRequest::set_access_control_request_headers(const std::string &key, con
 
 void	HttpRequest::set_access_control_request_method(const std::string &key, const std::string &value)
 {
-	if (value != "GET" && value != "HEAD" && value != "POST" && value != "PUT" || value != "PUT" || value != "DELETE" \
-		|| value != "CONNECT" || value != "OPTIONS" || value!= "TRACE" || value != "PATCH")
+	if (value != "GET" && value != "HEAD" && value != "POST" && value != "PUT" && value != "PUT" && value != "DELETE" \
+		&& value != "CONNECT" && value != "OPTIONS" && value!= "TRACE" && value != "PATCH")
 		return ;
 	this->request_keyvalue_map[key] = ready_ValueSet(value);
 }
@@ -402,8 +402,8 @@ void	HttpRequest::set_allow(const std::string &key, const std::string &value)
 	std::string			line;
 	while(std::getline(ss, line, ','))
 	{
-		if (line != "GET" && line != "HEAD" && line != "POST" && line != "PUT" || line != "PUT" || line != "DELETE" \
-		|| line != "CONNECT" || line != "OPTIONS" || line != "TRACE" || line != "PATCH")
+		if (line != "GET" && line != "HEAD" && line != "POST" && line != "PUT" && line != "PUT" && line != "DELETE" \
+		&& line != "CONNECT" && line != "OPTIONS" && line != "TRACE" && line != "PATCH")
 			return ;
 	}
 	this->request_keyvalue_map[key] = ready_ValueArraySet(value);
@@ -631,6 +631,8 @@ void	HttpRequest::set_link(const std::string &key, const std::string &value)
 	//a a=a, b b=b, c c=c
 	//みたいになっておりmapではない
 	// this->request_keyvalue_map[key] = ready_ValueMap(value);
+	(void)key;
+	(void)value;
 }
 
 void	HttpRequest::set_location(const std::string &key, const std::string &value)
@@ -752,6 +754,8 @@ void	HttpRequest::set_servertiming(const std::string &key, const std::string &va
 {
 	//cpu;dur=2.4;a=b, cpu; ,,,みたいな感じなのでmapで保持しないほうがいいかもしれない
 	// this->request_keyvalue_map[key] = ready_ValueMap(value);
+	(void)key;
+	(void)value;
 }
 
 void	HttpRequest::set_service_worker_navigation_preload(const std::string &key, const std::string &value)
@@ -862,7 +866,8 @@ void	HttpRequest::set_www_authenticate(const std::string &key, const std::string
 
 void	HttpRequest::set_x_xss_protection(const std::string &key, const std::string &value)
 {
-
+	(void)key;
+	(void)value;
 }
 
 void HttpRequest::ready_functionmap()

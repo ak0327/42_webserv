@@ -36,6 +36,15 @@ include_directories(
         srcs/Error
         srcs/Socket
         srcs/HandlingString
+        srsc/HttpRequest/BaseKeyValueMap
+        srsc/HttpRequest/HttpRequest
+        srsc/HttpRequest/RequestLine
+        srsc/HttpRequest/TwoValueSet
+        srsc/HttpRequest/ValueArraySet
+        srsc/HttpRequest/ValueDateSet
+        srsc/HttpRequest/ValueMap
+        srsc/HttpRequest/ValueSet
+        srsc/HttpRequest/ValueWeightArraySet
 )
 
 # webserv_srcs -----------------------------------------------------------------
@@ -46,28 +55,39 @@ set(webserv_srcs
         srcs/Socket/Socket.cpp
 )
 
-set(request_srsc
-        srcs/HandlingString/HandlingString.cpp
-)
-
 add_executable(webserv
         srcs/main.cpp
         ${webserv_srcs}
         )
 
 # unit_test_srcs ---------------------------------------------------------------
+set (httprequest_unit_test
+        srcs/HandlingString/HandlingString.cpp
+        srcs/HttpRequest/BaseKeyValueMap/BaseKeyValueMap.cpp
+        srcs/HttpRequest/HttpRequest/HttpRequest.cpp
+        srcs/HttpRequest/RequestLine/RequestLine.cpp
+        srcs/HttpRequest/TwoValueSet/TwoValueSet.cpp
+        #TwoValueSet
+        srcs/HttpRequest/ValueArraySet/ValueArraySet.cpp
+        srcs/HttpRequest/ValueDateSet/ValueDateSet.cpp
+        srcs/HttpRequest/ValueMap/ValueMap.cpp
+        srcs/HttpRequest/ValueSet/ValueSet.cpp
+        srcs/HttpRequest/ValueWeightArraySet/ValueWeightArraySet.cpp
+        )
+
 set (unit_test_srcs
         test/unit_test/is_valid_file_path/test_get_valid_config_file_path.cpp
         test/unit_test/TestError.cpp
         test/unit_test/TestResult.cpp
         test/unit_test/TestSocket.cpp
-        test/HttpRequesttest.cpp
+        test/unit_test/HttpRequesttest.cpp
 )
 
 add_executable(unit_test
         ${webserv_srcs}
         ${unit_test_srcs}
-        )
+        ${httprequest_unit_test}
+)
 
 # test -------------------------------------------------------------------------
 target_link_libraries(

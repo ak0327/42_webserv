@@ -7,6 +7,8 @@ BaseKeyValueMap::BaseKeyValueMap()
 
 BaseKeyValueMap::BaseKeyValueMap(const BaseKeyValueMap &other)
 {
+	if (&other == this)
+		return ;
 	//Nothing to do
 }
 
