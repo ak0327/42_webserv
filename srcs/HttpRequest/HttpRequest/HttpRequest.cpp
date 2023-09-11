@@ -119,7 +119,7 @@ bool	HttpRequest::check_keyword_exist(const std::string &key)
 		"Transfer-Encoding", "Expect", "Authorization", "User-Agent", "Accept-CH", "Accept-Charset", "Accept-Patch", "Accept-Ranges",
 		"Access-Control-Allow-Credentials", "Access-Control-Allow-Headers", "Access-Control-Allow-Methods", "Access-Control-Allow-Origin",
 		"Access-Control-Expose-Headers", "Access-Control-Max-Age", "Access-Control-Request-Headers", "Access-Control-Request-Method",
-		"Age", "Allow", "Alt-Svc", "Cache-Control", "Clear-Site-Data","Content-Disposition", "Content-Encoding", "Content-Language",
+		"Age", "Allow", "Alt-Svc", "Cache-Control", "Clear-Site-Data", "Content-Disposition", "Content-Encoding", "Content-Language",
 		"Content-Location", "Content-Security-Policy", "Content-Security-Policy-Report-Only", "Cross-Origin-Embedder-Policy",
 		"Cross-Origin-Opener-Policy", "Cross-Origin-Resource-Policy", "ETag", "Expect-CT", "Expires", "Forwarded", "From",
 		"Last-Modified", "Location", "Origin", "Permissions-Policy", "Proxy-Authenticate", "Proxy-Authorization", "Referrer-Policy",
@@ -408,7 +408,7 @@ void	HttpRequest::set_authorization(const std::string &key, const std::string &v
 	this->request_keyvalue_map[key] = ready_ValueWeightArraySet(value);
 }
 
-//Cache-Controlどう使うのか全くわからない
+// Cache-Controlどう使うのか全くわからない
 
 void	HttpRequest::set_clear_site_data(const std::string &key, const std::string &value)
 {
@@ -656,7 +656,7 @@ void	HttpRequest::set_referrer_policy(const std::string &key, const std::string 
 	value == "same-origin" || value == "strict-origin" || value == "strict-origin-when-cross-origin" || value == "unsafe-url")
 		this->request_keyvalue_map[key] = ready_ValueSet(value);
 	else
-		return ;
+		return;
 }
 
 void	HttpRequest::set_retry_after(const std::string &key, const std::string &value)
@@ -666,7 +666,6 @@ void	HttpRequest::set_retry_after(const std::string &key, const std::string &val
 
 void	HttpRequest::set_sec_fetch_dest(const std::string &key, const std::string &value)
 {
-
 	if (value == "audio" || value == "audioworklet" || value == "document" || value == "embed" || \
 	value == "empty" || value == "font" || value == "frame" || value == "iframe" || value == "image" || value == "manifest" || \
 	value == "object" || value == "paintworklet" || value == "report" || value == "script" || value == "serviceworker" || \
@@ -810,7 +809,7 @@ void	HttpRequest::set_user_agent(const std::string &key, const std::string &valu
 
 void	HttpRequest::set_vary(const std::string &key, const std::string &value)
 {
-	//headerのみしか許可しないのでは
+	// headerのみしか許可しないのでは
 	this->request_keyvalue_map[key] = ready_ValueArraySet(value);
 }
 
@@ -837,7 +836,7 @@ void HttpRequest::ready_functionmap()
 	this->inputvalue_functionmap["Accept-Charset"] = &HttpRequest::set_accept_charset;
 	this->inputvalue_functionmap["Accept-Encoding"] = &HttpRequest::set_accept_encoding;
 	this->inputvalue_functionmap["Accept-Language"] = &HttpRequest::set_accept_language;
-	//this->inputvalue_functionmap["Accept-Patch"] = this->set_accept_patch;
+	// this->inputvalue_functionmap["Accept-Patch"] = this->set_accept_patch;
 	this->inputvalue_functionmap["Accept-Post"] = &HttpRequest::set_accept_post;
 	this->inputvalue_functionmap["Accept-Ranges"] = &HttpRequest::set_accept_ranges;
 	this->inputvalue_functionmap["Access-Control-Allow-Credentials"] = &HttpRequest::set_access_control_allow_credentials;
