@@ -1,9 +1,6 @@
 #include "BaseKeyValueMap.hpp"
 
-BaseKeyValueMap::BaseKeyValueMap()
-{
-	
-}
+BaseKeyValueMap::BaseKeyValueMap(){}
 
 BaseKeyValueMap::BaseKeyValueMap(const BaseKeyValueMap &other)
 {
@@ -11,8 +8,4 @@ BaseKeyValueMap::BaseKeyValueMap(const BaseKeyValueMap &other)
 		return;
 }
 
-BaseKeyValueMap::~BaseKeyValueMap()
-{
-	
-}
-
+BaseKeyValueMap::~BaseKeyValueMap(){}

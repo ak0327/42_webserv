@@ -111,21 +111,17 @@ ValueWeightArraySet*	HttpRequest::ready_ValueWeightArraySet(const std::string &v
 
 bool	HttpRequest::check_keyword_exist(const std::string &key)
 {
-	const std::string httprequest_keyset_arr[] = 
-	{
+	const std::string httprequest_keyset_arr[] = {
 		"Host",
 		"Connection",
 		"Referer", "Content-Type", "Range", "Upgrade", "Accept-Encoding", "Via", "Keep-Alive", "Accept-Language", "Accept", "Date",
-		"Cookie",
-		"If-Modified-Since", "If-Unmodified-Since","If-Match","If-None-Match","Content-Length","Content-Range","If-Range","Transfer-Encoding",
-		"Expect","Authorization","User-Agent",
-
-		"Accept-CH", "Accept-Charset", "Accept-Patch", "Accept-Ranges", "Access-Control-Allow-Credentials",
-		"Access-Control-Allow-Headers", "Access-Control-Allow-Methods", "Access-Control-Allow-Origin", "Access-Control-Expose-Headers", "Access-Control-Max-Age",
-		"Access-Control-Request-Headers", "Access-Control-Request-Method", "Age", "Allow", "Alt-Svc", "Cache-Control", "Clear-Site-Data",
-		"Content-Disposition", "Content-Encoding", "Content-Language", "Content-Location", "Content-Security-Policy",
-		"Content-Security-Policy-Report-Only", "Cross-Origin-Embedder-Policy", "Cross-Origin-Opener-Policy", "Cross-Origin-Resource-Policy",
-		"ETag", "Expect-CT", "Expires", "Forwarded", "From",
+		"Cookie", "If-Modified-Since", "If-Unmodified-Since", "If-Match", "If-None-Match", "Content-Length", "Content-Range", "If-Range", 
+		"Transfer-Encoding", "Expect", "Authorization", "User-Agent", "Accept-CH", "Accept-Charset", "Accept-Patch", "Accept-Ranges", 
+		"Access-Control-Allow-Credentials", "Access-Control-Allow-Headers", "Access-Control-Allow-Methods", "Access-Control-Allow-Origin",
+		"Access-Control-Expose-Headers", "Access-Control-Max-Age", "Access-Control-Request-Headers", "Access-Control-Request-Method",
+		"Age", "Allow", "Alt-Svc", "Cache-Control", "Clear-Site-Data","Content-Disposition", "Content-Encoding", "Content-Language",
+		"Content-Location", "Content-Security-Policy","Content-Security-Policy-Report-Only", "Cross-Origin-Embedder-Policy",
+		"Cross-Origin-Opener-Policy", "Cross-Origin-Resource-Policy","ETag", "Expect-CT", "Expires", "Forwarded", "From",
 		"Last-Modified", "Location", "Origin", "Permissions-Policy", "Proxy-Authenticate", "Proxy-Authorization", "Referrer-Policy",
 		"Retry-After", "Server", "Server-Timing", "Set-Cookie", "SourceMap", "Timing-Allow-Origin",
 		"Upgrade-Insecure-Requests", "Vary", "WWW-Authenticate"
@@ -135,7 +131,6 @@ bool	HttpRequest::check_keyword_exist(const std::string &key)
 		httprequest_keyset_arr,
 		httprequest_keyset_arr + sizeof(httprequest_keyset_arr) / sizeof(httprequest_keyset_arr[0])
 	);
-
 	if (httprequest_keyset.count(key) > 0)
 		return true;
 	return false;

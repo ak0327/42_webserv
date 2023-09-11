@@ -227,7 +227,6 @@ bool	HandlingString::check_double_or_not(const std::string &value)
 {
 	if (value.find('.') == std::string::npos)
 		return (false);
-	
 	size_t	dot_counter = 0;
 	size_t	now_location = 0;
 	size_t	value_length = value.length();
@@ -247,7 +246,6 @@ bool	HandlingString::check_double_or_not(const std::string &value)
 bool HandlingString::check_doublequote_format(const std::string &value)
 {
 	size_t	now_location = 0;
-	
 	if (value[now_location] != '"')
 		return (false);
 	now_location++;

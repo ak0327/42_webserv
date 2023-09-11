@@ -36,4 +36,4 @@ class HandlingString
 		static	std::string					obtain_string_in_doublequote(const std::string &value);
 };
 
-#endif //SRCS_HANDLINGSTRING_HANDLINGSTRING_HPP_
+#endif  // SRCS_HANDLINGSTRING_HANDLINGSTRING_HPP_
