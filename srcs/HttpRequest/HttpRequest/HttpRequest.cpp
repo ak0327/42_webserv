@@ -120,8 +120,8 @@ bool	HttpRequest::check_keyword_exist(const std::string &key)
 		"Access-Control-Allow-Credentials", "Access-Control-Allow-Headers", "Access-Control-Allow-Methods", "Access-Control-Allow-Origin",
 		"Access-Control-Expose-Headers", "Access-Control-Max-Age", "Access-Control-Request-Headers", "Access-Control-Request-Method",
 		"Age", "Allow", "Alt-Svc", "Cache-Control", "Clear-Site-Data","Content-Disposition", "Content-Encoding", "Content-Language",
-		"Content-Location", "Content-Security-Policy","Content-Security-Policy-Report-Only", "Cross-Origin-Embedder-Policy",
-		"Cross-Origin-Opener-Policy", "Cross-Origin-Resource-Policy","ETag", "Expect-CT", "Expires", "Forwarded", "From",
+		"Content-Location", "Content-Security-Policy", "Content-Security-Policy-Report-Only", "Cross-Origin-Embedder-Policy",
+		"Cross-Origin-Opener-Policy", "Cross-Origin-Resource-Policy", "ETag", "Expect-CT", "Expires", "Forwarded", "From",
 		"Last-Modified", "Location", "Origin", "Permissions-Policy", "Proxy-Authenticate", "Proxy-Authorization", "Referrer-Policy",
 		"Retry-After", "Server", "Server-Timing", "Set-Cookie", "SourceMap", "Timing-Allow-Origin",
 		"Upgrade-Insecure-Requests", "Vary", "WWW-Authenticate"
@@ -157,15 +157,13 @@ std::string	HttpRequest::obtain_request_value(const std::string value)
 
 void HttpRequest::set_accept(const std::string &key, const std::string &value)
 {
-	//どんなリクエストも受け付ける模様？
 	size_t	value_length = value.size();
 	size_t	now_location = 0;
 
-	char accept_encoding_keyset[] = 
-	{
-		'\x00', '\x01', '\x02', '\x03', '\x04', '\x05', '\x06', '\x07', '\x08', '\x09', '\x10',\
-		'\x0A', '\x0B', '\x0C', '\x0D', '\x0E', '\x0F', '\x10', '\x11', '\x12', '\x13', '\x14',\
-		'\x15', '\x16', '\x17', '\x18', '\x19', '\x1A', '\x1B', '\x1C', '\x1D', '\x1E', '\x1F',\
+	char accept_encoding_keyset[] = {
+		'\x00', '\x01', '\x02', '\x03', '\x04', '\x05', '\x06', '\x07', '\x08', '\x09', '\x10', \
+		'\x0A', '\x0B', '\x0C', '\x0D', '\x0E', '\x0F', '\x10', '\x11', '\x12', '\x13', '\x14', \
+		'\x15', '\x16', '\x17', '\x18', '\x19', '\x1A', '\x1B', '\x1C', '\x1D', '\x1E', '\x1F', \
 		'(', ')', ':', '<', '>', '?', '@', '[', '\\', ']', '{', '}'
 	};
 	const std::set<char> accept_keyset
@@ -176,7 +174,7 @@ void HttpRequest::set_accept(const std::string &key, const std::string &value)
 	while (now_location != value_length)
 	{
 		if (accept_keyset.count(value[now_location]) > 0)
-			return ;
+			return;
 		now_location++;
 	}
 	this->request_keyvalue_map[key] = ready_ValueWeightArraySet(value);
@@ -199,8 +197,7 @@ void	HttpRequest::set_accept_encoding(const std::string &key, const std::string 
 	std::string	keyword;
 	std::string	line;
 
-	const std::string accept_encoding_keyset[] = 
-	{
+	const std::string accept_encoding_keyset[] = {
 		"gzip", "compress", "deflate", "br", "*", "identity"
 	};
 	const std::set<std::string> httprequest_keyset
@@ -266,7 +263,9 @@ bool	HttpRequest::check_accept_langage_valueword(const std::string &value)
 			{
 				if (!('a' <= value[now_location] && value[now_location] <= 'z'))
 				{
-					if (!(' ' == value[now_location] || '*' == value[now_location] || '-' == value[now_location] || ',' == value[now_location] || '.' == value[now_location] || ';' == value[now_location] || '=' == value[now_location]))
+					if (!(' ' == value[now_location] || '*' == value[now_location] || '-' == value[now_location] \
+					|| ',' == value[now_location] || '.' == value[now_location] || ';' == value[now_location] \
+					|| '=' == value[now_location]))
 					{
 						this->_status_code = 406;
 						return (false);
@@ -278,7 +277,7 @@ bool	HttpRequest::check_accept_langage_valueword(const std::string &value)
 	return (true);
 }
 
-//Accept-Patchどういう持ち方かわからん
+// Accept-Patchどういう持ち方かわからん
 
 void	HttpRequest::set_accept_post(const std::string &key, const std::string &value)
 {
@@ -302,9 +301,7 @@ void	HttpRequest::set_access_control_allow_credentials(const std::string &key, c
 
 void	HttpRequest::set_access_control_allow_headers(const std::string &key, const std::string &value)
 {
-	//header名しか許可されていない？
 	std::vector<std::string>	value_array;
-
 	std::stringstream	ss(value);
 	std::string			line;
 	while(std::getline(ss, line, ','))
@@ -335,15 +332,13 @@ void	HttpRequest::set_access_control_allow_origin(const std::string &key, const 
 
 void	HttpRequest::set_access_control_expose_headers(const std::string &key, const std::string &value)
 {
-	//headerしか許可されていない可能性
 	std::vector<std::string>	value_array;
-
 	std::stringstream	ss(value);
 	std::string			line;
 	while(std::getline(ss, line, ','))
 	{
 		if (this->check_keyword_exist(HandlingString::skipping_emptyword(line)) == false)
-			return ;
+			return;
 	}
 	this->request_keyvalue_map[key] = ready_ValueArraySet(value);
 }
@@ -357,9 +352,7 @@ void	HttpRequest::set_access_control_max_age(const std::string &key, const std::
 
 void	HttpRequest::set_access_control_request_headers(const std::string &key, const std::string &value)
 {
-	//headernameしか許されない可能性
 	std::vector<std::string>	value_array;
-
 	std::stringstream	ss(value);
 	std::string			line;
 	while(std::getline(ss, line, ','))
@@ -411,7 +404,7 @@ void	HttpRequest::set_alt_used(const std::string &key, const std::string &value)
 void	HttpRequest::set_authorization(const std::string &key, const std::string &value)
 {
 	// Digest username=<username>,realm="<realm>",uri="<url>",algorithm=<algorithm>,nonce="<nonce>",
-	//ValueMapに変更
+	// ValueMapに変更
 	this->request_keyvalue_map[key] = ready_ValueWeightArraySet(value);
 }
 
@@ -419,8 +412,8 @@ void	HttpRequest::set_authorization(const std::string &key, const std::string &v
 
 void	HttpRequest::set_clear_site_data(const std::string &key, const std::string &value)
 {
-	//ダブルクオーテーションで囲う必要性があるようだが、"aaaa"", "bbb"みたいなことをされたとする
-	//この場合にフォーマットが正しくないみたいなステータスコード を投げる？
+	// ダブルクオーテーションで囲う必要性があるようだが、"aaaa"", "bbb"みたいなことをされたとする
+	// この場合にフォーマットが正しくないみたいなステータスコード を投げる？
 	this->request_keyvalue_map[key] = ready_ValueArraySet(value);
 }
 
@@ -458,7 +451,7 @@ void	HttpRequest::set_content_encoding(const std::string &key, const std::string
 
 void	HttpRequest::set_content_language(const std::string &key, const std::string &value)
 {
-	//valueの値がある程度限定されていそうだが、まとまっていそうではなく特定が難しい
+	// valueの値がある程度限定されていそうだが、まとまっていそうではなく特定が難しい
 	this->request_keyvalue_map[key] = ready_ValueArraySet(value);
 }
 
@@ -476,7 +469,7 @@ void	HttpRequest::set_content_location(const std::string &key, const std::string
 
 void	HttpRequest::set_content_range(const std::string &key, const std::string &value)
 {
-	//確かにvaluesetでも良さそうだが、もう少しあっているものもありそう
+	// 確かにvaluesetでも良さそうだが、もう少しあっているものもありそう
 	this->request_keyvalue_map[key] = ready_ValueSet(value);
 }
 
@@ -543,7 +536,7 @@ void	HttpRequest::set_expect(const std::string &key, const std::string &value)
 		return;
 }
 
-//expect-ctは現状廃止されているっぽくて対応したくない
+// expect-ctは現状廃止されているっぽくて対応したくない
 
 void	HttpRequest::set_expires(const std::string &key, const std::string &value)
 {
@@ -563,7 +556,7 @@ void	HttpRequest::set_from(const std::string &key, const std::string &value)
 void	HttpRequest::set_host(const std::string &key, const std::string &value)
 {
 	this->request_keyvalue_map[key] = ready_TwoValueSet(value);
-	//ちょっと変更する必要性あり
+	// ちょっと変更する必要性あり
 }
 
 void	HttpRequest::set_if_match(const std::string &key, const std::string &value)
@@ -593,7 +586,7 @@ void	HttpRequest::set_if_unmodified_since(const std::string &key, const std::str
 
 void	HttpRequest::set_keep_alive(const std::string &key, const std::string &value)
 {
-	//,が区切り文字なのでちょっとValueMapではうまくいかん
+	// ,が区切り文字なのでちょっとValueMapではうまくいかん
 	this->request_keyvalue_map[key] = ready_ValueMap(value);
 }
 
@@ -604,7 +597,7 @@ void	HttpRequest::set_last_modified(const std::string &key, const std::string &v
 
 void	HttpRequest::set_link(const std::string &key, const std::string &value)
 {
-	//a a=a, b b=b, c c=c
+	// a a=a, b b=b, c c=c
 	(void)key;
 	(void)value;
 }
@@ -638,7 +631,6 @@ void	HttpRequest::set_proxy_authenticate(const std::string &key, const std::stri
 	std::string			only_value;
 	std::string			except_onlyvalue_line;
 	std::string 		line;
-
 	std::getline(ss, only_value, ' ');
 	while (std::getline(ss, line, ' '))
 		except_onlyvalue_line = except_onlyvalue_line + line;
@@ -647,11 +639,11 @@ void	HttpRequest::set_proxy_authenticate(const std::string &key, const std::stri
 
 void	HttpRequest::set_proxy_authorization(const std::string &key, const std::string &value)
 {
-	//空白が分割文字だからそのまま使うとまずい
+	// 空白が分割文字だからそのまま使うとまずい
 	this->request_keyvalue_map[key] = ready_TwoValueSet(value, ' ');
 }
 
-//range何かよくわからん
+// range何かよくわからん
 
 void	HttpRequest::set_referer(const std::string &key, const std::string &value)
 {
@@ -725,7 +717,7 @@ void	HttpRequest::set_server(const std::string &key, const std::string &value)
 
 void	HttpRequest::set_servertiming(const std::string &key, const std::string &value)
 {
-	//cpu;dur=2.4;a=b, cpu; ,,,みたいな感じなのでmapで保持しないほうがいいかもしれない
+	// cpu;dur=2.4;a=b, cpu; ,,,みたいな感じなのでmapで保持しないほうがいいかもしれない
 	// this->request_keyvalue_map[key] = ready_ValueMap(value);
 	(void)key;
 	(void)value;
@@ -757,7 +749,6 @@ void	HttpRequest::set_te(const std::string &key, const std::string &value)
 	std::string						line;
 	std::string						target_key;
 	std::string						target_value;
-
 	while(std::getline(splited_by_commma, line, ','))
 	{
 		if (line.find(';') != std::string::npos)
