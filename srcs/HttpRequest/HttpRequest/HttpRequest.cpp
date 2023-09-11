@@ -21,10 +21,7 @@ HttpRequest::HttpRequest(const std::string &all_request_text)
 	}
 }
 
-HttpRequest::~HttpRequest()
-{
-	
-}
+HttpRequest::~HttpRequest(){}
 
 TwoValueSet* HttpRequest::ready_TwoValueSet(const std::string &all_value)
 {
@@ -73,7 +70,8 @@ ValueMap* HttpRequest::ready_ValueMap(const std::string &value)
 	std::string			line;
 
 	while(std::getline(ss, line, ';'))
-		value_map[HandlingString::obtain_beforeword(HandlingString::skipping_emptyword(line), '=')] = HandlingString::obtain_afterword(HandlingString::skipping_emptyword(line), '=');
+		value_map[HandlingString::obtain_beforeword(HandlingString::skipping_emptyword(line), '=')] \
+		= HandlingString::obtain_afterword(HandlingString::skipping_emptyword(line), '=');
 	return (new ValueMap(value_map));
 }
 
@@ -84,7 +82,8 @@ ValueMap* HttpRequest::ready_ValueMap(const std::string &only_value, const std::
 	std::string			line;
 
 	while(std::getline(ss, line, ';'))
-		value_map[HandlingString::obtain_beforeword(HandlingString::skipping_emptyword(line), '=')] = HandlingString::obtain_afterword(HandlingString::skipping_emptyword(line), '=');
+		value_map[HandlingString::obtain_beforeword(HandlingString::skipping_emptyword(line), '=')] \
+		= HandlingString::obtain_afterword(HandlingString::skipping_emptyword(line), '=');
 	return (new ValueMap(only_value, value_map));
 }
 
@@ -131,7 +130,6 @@ bool	HttpRequest::check_keyword_exist(const std::string &key)
 		"Retry-After", "Server", "Server-Timing", "Set-Cookie", "SourceMap", "Timing-Allow-Origin",
 		"Upgrade-Insecure-Requests", "Vary", "WWW-Authenticate"
 	};
-
 	const std::set<std::string> httprequest_keyset
 	(
 		httprequest_keyset_arr,

@@ -79,7 +79,6 @@ double HandlingString::str_to_double(std::string word)
 {
 	std::istringstream iss(word);
     double result;
-	
     iss >> result;
     return result;
 }
@@ -172,7 +171,7 @@ void HandlingString::show_vector_contents(std::vector<std::string> subject)
 	if (subject.empty() == true)
 	{
 		std::cout << " * NO CONTENTS INSERTED * ";
-		return ;
+		return;
 	}
 	std::vector<std::string>::iterator it = subject.begin();
 	if (it == subject.end())

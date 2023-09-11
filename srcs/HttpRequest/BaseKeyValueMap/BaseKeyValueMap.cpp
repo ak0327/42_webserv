@@ -2,18 +2,17 @@
 
 BaseKeyValueMap::BaseKeyValueMap()
 {
-	//Nothing to do
+	
 }
 
 BaseKeyValueMap::BaseKeyValueMap(const BaseKeyValueMap &other)
 {
 	if (&other == this)
-		return ;
-	//Nothing to do
+		return;
 }
 
 BaseKeyValueMap::~BaseKeyValueMap()
 {
-	//Nothing to do
+	
 }
 

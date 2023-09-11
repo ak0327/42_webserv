@@ -1,13 +1,11 @@
-#ifndef BASEKEYVALUEMAP_HPP
-#define BASEKEYVALUEMAP_HPP
+#ifndef SRCS_HTTPREQUEST_BASEKEYVALUEMAP_BASEKEYVALUEMAP_HPP_
+#define SRCS_HTTPREQUEST_BASEKEYVALUEMAP_BASEKEYVALUEMAP_HPP_
 
 #include <map>
 #include <string>
 
 class	BaseKeyValueMap
 {
-	private:
-
 	public:
 		BaseKeyValueMap(void);
 		BaseKeyValueMap(const BaseKeyValueMap &other);
@@ -16,4 +14,4 @@ class	BaseKeyValueMap
 		virtual	void show_value() = 0;
 };
 
-#endif
+#endif //SRCS_HTTPREQUEST_BASEKEYVALUEMAP_BASEKEYVALUEMAP_HPP_

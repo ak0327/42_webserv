@@ -1,12 +1,11 @@
-#ifndef HANDLINGSTRING_HPP
-#define HANDLINGSTRING_HPP
+#ifndef SRCS_HANDLINGSTRING_HANDLINGSTRING_HPP_
+#define SRCS_HANDLINGSTRING_HANDLINGSTRING_HPP_
 
 #include <string>
 #include <iostream>
 #include <vector>
 #include <sstream>
 #include <fstream>
-#include <iostream>
 
 class HandlingString
 {
@@ -37,4 +36,4 @@ class HandlingString
 		static	std::string					obtain_string_in_doublequote(const std::string &value);
 };
 
-#endif
+#endif //SRCS_HANDLINGSTRING_HANDLINGSTRING_HPP_
