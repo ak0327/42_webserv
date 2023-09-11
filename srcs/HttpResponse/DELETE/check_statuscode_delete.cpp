@@ -1,72 +1,29 @@
 //100statuscode
+
+#include "testclasss.hpp"
 #include <string>
-#include <iostream>
-#include <map>
-
-
-std::map<std::string, std::string> key_set;
-key_set["Upgrade"] = "websocket";//リクエストの塊みたいな感じ
-
-class ConfigSet
-{
-	private:
-		std::map<std::string, std::string> config_set;
-	public:
-		ConfigSet(){}
-		~ConfigSet(){}
-
-		void set_configset(){
-			this->config_set["Upgrade"] = "~~~";//ここに"test"ロケーションの設定を記載していく
-		}
-
-		void get_configset_value(const std::string &key){
-			return (this->config_set[key]);
-		}
-
-		bool check_configset_key(const std::string &key){
-			if (this->config_set.find(key) == config_set.end())
-				return (false);
-			else
-				return (true);
-		}
-};
-
-class ServerConfig
-{
-	private:
-		std::map<std::string, ConfigSet> all_config_set;
-	public:
-		ServerConfig(){
-			all_config_set["test"] = ConfigSet();//もし他のロケーションを作りたければここに追加
-			all_config_set["test"].set_configset();
-		};
-		~ServerConfig(){};
-
-		get_serverconfig_value(const std::string &subject_url){
-			return (this->all_config_set[subject_url]);
-		};
-
-		bool check_serverconfig_key(const std::string &key){
-			if (this->all_config_set.find(key) == all_config_set.end())
-				return (false);
-			else
-				return (true);
-		}
-};
+#include <vector>
 
 ServerConfig test;
 
-int	return_101(const std::string &subject_url)
-{ 
-	if (key_set.find("Upgrade") != key_set.end())//requestの中になければ
-	{
-		if (test.check_serverconfig_key(subject_url) == true)//locationの中身を確認して、proxy_passというキーが存在しているか確認して
-		{
+USER_ID = "test"
+USER_PASS = "testpass"
 
-		}
-		else//対象のurlが見つからない場合
-		{
-			return (404);//つまりnot found
-		}
+int check_statuscode_delete(const std::string &subject_source)//リクエストクラスが入ってくる感じになっているはず、なので構成が違う
+{
+	//クラスを渡すと大きくなってしまうため、文字列型として渡す
+	std::vector<std::string> must_request_header;
+	must_request_header.push_back("Host");//クラスの中に本来格納されている情報
+	std::vector<std::string>::iterator key_it = must_request_header.begin();
+	while (key_it != must_request_header.end())
+	{
+		if (test.get_serverconfig_value().check_configset_key() == false)
+			return (400);
+		key_it++;
 	}
+
+	//ユーザー認証情報に関してどこに保存するか分からないので、マクロで設定する
+	//が資格情報をどう合わせるかがわからず、頓挫
+
+	if ()
 }
