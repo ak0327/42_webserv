@@ -10,7 +10,7 @@
 #include "../BaseKeyValueMap/BaseKeyValueMap.hpp"
 #include "../HandlingString/HandlingString.hpp"
 #include "../RequestLine/RequestLine.hpp"
-#include "../ValueWeightArraySet/ValueWeightArraySet.hpp"
+#include "../ValueWeightArraySet/ValueWeightArraySet.hpp
 #include "../ValueArraySet/ValueArraySet.hpp"
 #include "../ValueSet/ValueSet.hpp"
 #include "../TwoValueSet/TwoValueSet.hpp"
