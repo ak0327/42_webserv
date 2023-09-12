@@ -754,14 +754,14 @@ void	HttpRequest::set_te(const std::string &key, const std::string &value)
 		{
 			target_key = HandlingString::obtain_beforeword(line, ';');
 			target_value = HandlingString::obtain_weight(HandlingString::obtain_afterword(line, ';'));
-			if !(target_key == "compress" || target_key == "deflate" || target_key == "gzip" || target_key == "trailers")
+			if (!(target_key == "compress" || target_key == "deflate" || target_key == "gzip" || target_key == "trailers"))
 				return;
 			if (HandlingString::check_double_or_not(target_value) == false)
 				return;
 		}
 		else
 		{
-			if !(line == "compress" || line == "deflate" || line == "gzip" || line == "trailers")
+			if (!(line == "compress" || line == "deflate" || line == "gzip" || line == "trailers"))
 				return;
 		}
 	}

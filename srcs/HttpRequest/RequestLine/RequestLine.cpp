@@ -1,9 +1,6 @@
 #include "RequestLine.hpp"
 
-RequestLine::RequestLine()
-{
-
-}
+RequestLine::RequestLine(){}
 
 void RequestLine::set_value(const std::string &line)
 {
@@ -18,10 +15,7 @@ void RequestLine::set_value(const std::string &line)
 	this->_version = word;
 }
 
-RequestLine::~RequestLine()
-{
-
-}
+RequestLine::~RequestLine(){}
 
 std::string	RequestLine::get_method(void) const
 {

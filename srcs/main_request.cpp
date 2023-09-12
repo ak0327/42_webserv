@@ -20,7 +20,7 @@ namespace {
 	}
 }  // namespace
 
-int main() {
+int main(int argc, char **argv) {
 	std::string		config_file_path;
 	// Configuration	config;  // todo
 	// Server			server;  // todo

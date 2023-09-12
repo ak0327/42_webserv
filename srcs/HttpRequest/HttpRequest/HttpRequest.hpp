@@ -1,5 +1,5 @@
 #ifndef SRCS_HTTPREQUEST_HTTPREQUEST_HTTPREQUEST_HPP_
-#define SRCS_HTTPREQUEST_HTTPREQUEST_HTTPREQUEST_HPP_ 
+#define SRCS_HTTPREQUEST_HTTPREQUEST_HTTPREQUEST_HPP_
 
 #include <map>
 #include <string>
@@ -49,7 +49,7 @@ class HttpRequest
 		void				ready_functionmap(void);
 		double				_status_code;
 	public:
-		HttpRequest(const std::string &all_request_text);
+		explicit HttpRequest(const std::string &all_request_text);
 		~HttpRequest();
 		// void	set_all_method();
 		void	set_accept(const std::string &key, const std::string &value);
@@ -144,4 +144,4 @@ class HttpRequest
 		void show_requestinfs(void);
 };
 
-#endif  // SRCS_HTTPREQUEST_HTTPREQUEST_HTTPREQUEST_HPP_ 
+#endif  // SRCS_HTTPREQUEST_HTTPREQUEST_HTTPREQUEST_HPP_

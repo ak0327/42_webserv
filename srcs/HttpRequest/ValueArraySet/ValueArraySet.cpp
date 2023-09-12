@@ -1,9 +1,6 @@
 #include "ValueArraySet.hpp"
 
-ValueArraySet::ValueArraySet()
-{
-
-}
+ValueArraySet::ValueArraySet(){}
 
 ValueArraySet::ValueArraySet(const ValueArraySet &other)
 {
@@ -23,10 +20,7 @@ ValueArraySet& ValueArraySet::operator=(const ValueArraySet &other)
 	return (*this);
 }
 
-ValueArraySet::~ValueArraySet()
-{
-	//Nothing To Do
-}
+ValueArraySet::~ValueArraySet(){}
 
 std::vector<std::string>	ValueArraySet::get_value_array(void) const
 {

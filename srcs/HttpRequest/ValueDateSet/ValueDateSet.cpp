@@ -1,8 +1,16 @@
 #include "ValueDateSet.hpp"
 
-ValueDateSet::ValueDateSet()
-{
+ValueDateSet::ValueDateSet(){}
 
+ValueDateSet::ValueDateSet(const ValueDateSet &other)
+{
+	this->_day_name = other._day_name;
+	this->_day = other._day;
+	this->_month = other._month;
+	this->_year = other._year;
+	this->_hour = other._hour;
+	this->_minute = other._minute;
+	this->_second = other._second;
 }
 
 ValueDateSet& ValueDateSet::operator=(const ValueDateSet &other)
@@ -41,10 +49,7 @@ ValueDateSet::ValueDateSet(const std::string &date_format)
 	std::getline(ssss, this->_second, ':');
 }
 
-ValueDateSet::~ValueDateSet()
-{
-	
-}
+ValueDateSet::~ValueDateSet(){}
 
 std::string ValueDateSet::get_valuedateset_day_name() const
 {
@@ -84,5 +89,7 @@ std::string ValueDateSet::get_valuedateset_second() const
 void ValueDateSet::show_value()
 {
 	std::cout << "Day info is " << std::endl;
-	std::cout << this->_day_name << " | " << this->_day << " | " << this->_month << " | " << this->_year << " | " << this->_hour << " | " << this->_minute << " | " << this->_second << std::endl;
+	std::cout << this->_day_name << " | " << this->_day << " | " \
+	<< this->_month << " | " << this->_year << " | " << this->_hour \
+	<< " | " << this->_minute << " | " << this->_second << std::endl;
 }

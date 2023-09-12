@@ -1,9 +1,6 @@
 #include "ValueWeightArraySet.hpp"
 
-ValueWeightArraySet::ValueWeightArraySet()
-{
-
-}
+ValueWeightArraySet::ValueWeightArraySet(){}
 
 ValueWeightArraySet& ValueWeightArraySet::operator=(const ValueWeightArraySet &other)
 {
@@ -18,15 +15,12 @@ ValueWeightArraySet::ValueWeightArraySet(const ValueWeightArraySet &other)
 	this->_valueweight_set = other.get_valueweight_set();
 }
 
-ValueWeightArraySet::ValueWeightArraySet(std::map<std::string, double> &valueweight_set)
+ValueWeightArraySet::ValueWeightArraySet(const std::map<std::string, double> &valueweight_set) const
 {
 	this->_valueweight_set = valueweight_set;
 }
 
-ValueWeightArraySet::~ValueWeightArraySet()
-{
-	//nothing to do
-}
+ValueWeightArraySet::~ValueWeightArraySet(){}
 
 std::map<std::string, double> ValueWeightArraySet::get_valueweight_set(void) const
 {

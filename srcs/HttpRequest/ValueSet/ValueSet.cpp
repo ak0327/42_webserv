@@ -1,9 +1,6 @@
 #include "ValueSet.hpp"
 
-ValueSet::ValueSet()
-{
-
-}
+ValueSet::ValueSet(){}
 
 ValueSet::ValueSet(const ValueSet &other)
 {
@@ -23,10 +20,7 @@ ValueSet::ValueSet(const std::string &value)
 	this->_value = value;
 }
 
-ValueSet::~ValueSet()
-{
-	//nothing to do
-}
+ValueSet::~ValueSet(){}
 
 std::string ValueSet::get_value_set(void) const
 {

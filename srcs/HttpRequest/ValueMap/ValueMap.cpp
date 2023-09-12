@@ -1,9 +1,6 @@
 #include "ValueMap.hpp"
 
-ValueMap::ValueMap()
-{
-
-}
+ValueMap::ValueMap(){}
 
 ValueMap::ValueMap(const std::string &value, std::map<std::string, std::string> value_map)
 {
@@ -29,10 +26,7 @@ ValueMap& ValueMap::operator=(const ValueMap &other)
 	return (*this);
 }
 
-ValueMap::~ValueMap()
-{
-
-}
+ValueMap::~ValueMap(){}
 
 void	ValueMap::set_value(const std::string &only_value, const std::map<std::string, std::string> &value_map)
 {
@@ -64,9 +58,7 @@ void ValueMap::show_value()
 {
 	std::cout << "one value is >> " << this->_only_value;
 	std::cout << "map are ";
-	
 	std::map<std::string, std::string>::iterator now_it = this->_value_map.begin();
-
 	while (now_it != this->_value_map.end())
 	{
 		std::cout << now_it->first << " " << now_it->second << " | ";

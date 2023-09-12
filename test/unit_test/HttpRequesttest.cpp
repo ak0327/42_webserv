@@ -13,7 +13,7 @@ const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\nHost: www.example.
 int main()
 {
 	HttpRequest some(TEST_REQUEST);
-	some.show_requestinfs();
+	DEBUG_PRINT(some.show_requestinfs());
 }
 
 //g++ *.cpp ../HandleString/HandlingString.cpp

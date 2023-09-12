@@ -1,9 +1,6 @@
 #include "TwoValueSet.hpp"
 
-TwoValueSet::TwoValueSet()
-{
-	// Nothing to do
-}
+TwoValueSet::TwoValueSet(){}
 
 TwoValueSet::TwoValueSet(std::string const &first_value)
 {
@@ -26,10 +23,7 @@ TwoValueSet& TwoValueSet::operator=(const TwoValueSet &other)
 	return (*this);
 }
 
-TwoValueSet::~TwoValueSet()
-{
-
-}
+TwoValueSet::~TwoValueSet(){}
 
 std::string TwoValueSet::get_firstvalue(void) const
 {
