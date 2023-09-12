@@ -34,5 +34,7 @@ std::string	RequestLine::get_version(void) const
 
 std::string	RequestLine::show_requestline(void) const
 {
-	return ("request line info is >> " + this->_method + " | " + "target page info is >> " + this->_target_page + " | " + "version info is >> " + this->_version + " | ");
+	return ("request line info is >> " + this->_method + " | " + \
+	"target page info is >> " + this->_target_page + " | " + \
+	"version info is >> " + this->_version + " | ");
 }
