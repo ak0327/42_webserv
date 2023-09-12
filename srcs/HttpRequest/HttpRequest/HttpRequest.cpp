@@ -917,13 +917,13 @@ void HttpRequest::ready_functionmap()
 	this->inputvalue_functionmap["WWW-Authenticate"] = &HttpRequest::set_www_authenticate;
 }
 
-void HttpRequest::show_requestinfs(void)
+std::string HttpRequest::show_requestinfs(void)
 {
-	this->_requestline.show_requestline();
 	std::map<std::string, BaseKeyValueMap*>::iterator now_it = this->request_keyvalue_map.begin();
 	while (now_it != this->request_keyvalue_map.end())
 	{
 		now_it->second->show_value();
 		now_it++;
 	}
+	return (this->_requestline.show_requestline());
 }

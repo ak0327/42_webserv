@@ -21,7 +21,7 @@ class RequestLine
 		std::string get_target_page(void) const;
 		std::string	get_version(void) const;
 
-		void	show_requestline(void) const;
+		std::string	show_requestline(void) const;
 };
 
 #endif  // SRCS_HTTPREQUEST_REQUESTLINE_REQUESTLINE_HPP_

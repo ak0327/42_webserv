@@ -8,7 +8,7 @@
 #include "../../srcs/HttpRequest/ValueWeightArraySet/ValueWeightArraySet.hpp"
 #include "../../srcs/HttpRequest/HttpRequest/HttpRequest.hpp"
 #include "gtest/gtest.h"
-#include "Color.hpp"
+#include "../../includes/Color.hpp"
 #include "../../srcs/Error/Error.hpp"
 #include "../../srcs/Debug/Debug.hpp"
 #include "Result.hpp"
@@ -19,7 +19,7 @@ const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\nHost: www.example.
 int main()
 {
 	HttpRequest some(TEST_REQUEST);
-	DEBUG_PRINT(some.show_requestinfs());
+	DEBUG_PRINT(YELLOW, some.show_requestinfs().c_str());
 }
 
 //g++ *.cpp ../HandleString/HandlingString.cpp

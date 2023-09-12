@@ -32,9 +32,7 @@ std::string	RequestLine::get_version(void) const
 	return (this->_version);
 }
 
-void	RequestLine::show_requestline(void) const
+std::string	RequestLine::show_requestline(void) const
 {
-	std::cout << "request line info is >> " << this->_method << std::endl;
-	std::cout << "target page info is >> " << this->_target_page << std::endl;
-	std::cout << "version info is >> " << this->_version << std::endl;
+	return ("request line info is >> " + this->_method + " | " + "target page info is >> " + this->_target_page + " | " + "version info is >> " + this->_version + " | ");
 }

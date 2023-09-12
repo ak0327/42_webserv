@@ -141,7 +141,7 @@ class HttpRequest
 		void	set_www_authenticate(const std::string &key, const std::string &value);
 		void	set_x_xss_protection(const std::string &key, const std::string &value);
 		// debug関数
-		void show_requestinfs(void);
+		std::string show_requestinfs(void);
 };
 
 #endif  // SRCS_HTTPREQUEST_HTTPREQUEST_HTTPREQUEST_HPP_
