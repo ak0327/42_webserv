@@ -15,7 +15,7 @@ ValueWeightArraySet::ValueWeightArraySet(const ValueWeightArraySet &other)
 	this->_valueweight_set = other.get_valueweight_set();
 }
 
-ValueWeightArraySet::ValueWeightArraySet(const std::map<std::string, double> &valueweight_set) const
+ValueWeightArraySet::ValueWeightArraySet(const std::map<std::string, double> &valueweight_set)
 {
 	this->_valueweight_set = valueweight_set;
 }

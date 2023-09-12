@@ -15,7 +15,7 @@ class ValueArraySet: public BaseKeyValueMap
 		ValueArraySet();
 		ValueArraySet(const ValueArraySet &other);
 		explicit ValueArraySet(const std::vector<std::string> &value_array);
-		explicit ValueArraySet &operator=(const ValueArraySet &other);
+		ValueArraySet &operator=(const ValueArraySet &other);
 		~ValueArraySet();
 		std::vector<std::string>	get_value_array(void) const;
 		void				show_value(void);

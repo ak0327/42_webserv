@@ -62,7 +62,8 @@ add_executable(webserv
 
 # unit_test_srcs ---------------------------------------------------------------
 set (httprequest_unit_test
-        
+        srcs/Debug/Debug.cpp
+        srcs/Error/Error.cpp
         srcs/HandlingString/HandlingString.cpp
         srcs/HttpRequest/BaseKeyValueMap/BaseKeyValueMap.cpp
         srcs/HttpRequest/HttpRequest/HttpRequest.cpp
