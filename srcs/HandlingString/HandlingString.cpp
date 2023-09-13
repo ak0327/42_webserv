@@ -54,7 +54,7 @@ bool	HandlingString::check_under_intmax(std::string const &word)
 	while (word[pos] != '\0')
 	{
 		sum = sum * 10 + (word[pos] - '0');
-		if (sum >= 2147483647)
+		if (sum >= INT_MAX)
 			return (false);
 		pos++;
 	}

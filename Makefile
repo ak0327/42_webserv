@@ -98,4 +98,11 @@ run_socket_test	:
 	cmake --build build
 	./build/unit_test --gtest_filter=SocketUnitTest.*:SocketIntegrationTest.*
 
+.PHONY    : run_request_test
+run_request_test    :
+#rm -rf build
+	cmake -S . -B build
+	cmake --build build
+	./build/unit_test --gtest_filter=Request*
+
 -include $(DEPS)

@@ -6,13 +6,13 @@
 #include <vector>
 #include <sstream>
 #include <fstream>
+#include <climits>
 
 class HandlingString
 {
- private:
+	private:
 		// うえ〜〜い
-
- public:
+	public:
 		static	bool						check_lastword_semicoron(std::string const &word);
 		static	bool						compare_word(std::string const &tgt_string, std::string const &key);
 		static	std::string					skip_lastsemicoron(std::string const &word);

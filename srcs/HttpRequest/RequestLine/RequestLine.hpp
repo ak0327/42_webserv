@@ -11,11 +11,11 @@ class RequestLine
 		std::string _method;
 		std::string _target_page;
 		std::string _version;
-		RequestLine(const RequestLine &other);
 		RequestLine& operator=(const RequestLine &other);
 	public:
 		RequestLine();
 		~RequestLine();
+		RequestLine(const RequestLine &other);
 		void		set_value(const std::string &line);
 		std::string	get_method(void) const;
 		std::string get_target_page(void) const;

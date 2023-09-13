@@ -4,6 +4,8 @@
 #include "webserv.hpp"
 #include "Debug.hpp"
 
+//一旦関係ない
+
 namespace {
 	int CONFIG_FILE_INDEX = 1;
 	int EXECUTABLE_FILE_ONLY_ARGC = 1;

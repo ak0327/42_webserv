@@ -14,12 +14,52 @@
 #include "Result.hpp"
 #include <string>
 
-const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\nHost: www.example.com\r\nUser-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8";
-
-int main()
+void	check(const std::string &first_target_word, const std::string &second_target_word, const std::string &exp_1, const std::string &exp_2)
 {
-	HttpRequest some(TEST_REQUEST);
-	DEBUG_PRINT(YELLOW, some.show_requestinfs().c_str());
+	EXPECT_EQ(first_target_word, exp_1);
+	EXPECT_EQ(second_target_word, exp_2);
+}
+
+void	check(const std::string &target_word, const std::string &expected_word)
+{
+	EXPECT_EQ(target_word, expected_word);
+}
+
+bool	same_class_test(int raw, const char *key, HttpRequest &target)
+{
+	std::map<std::string, BaseKeyValueMap*>keyvaluemap = target.get_request_keyvalue_map();
+	std::map<std::string, BaseKeyValueMap*>::iterator itr_now = keyvaluemap.begin();
+	while (itr_now != keyvaluemap.end())
+	{
+		if (itr_now->first == key)
+			break;
+		itr_now++;
+	}
+	if (itr_now == keyvaluemap.end())
+	{
+		ADD_FAILURE_AT(__FILE__, raw);
+		return (false);
+	}
+	return (true);
+}
+
+TEST(Request, TEST1)
+{
+	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\nHost: www.example.com\r\nETag: some_etag\r\n";
+	HttpRequest httprequest_test1(TEST_REQUEST);
+	EXPECT_EQ(httprequest_test1.get_requestline().get_method(), "GET");
+	EXPECT_EQ(httprequest_test1.get_requestline().get_target_page(), "/index.html");
+	EXPECT_EQ(httprequest_test1.get_requestline().get_version(), "HTTP/1.1");
+	if (same_class_test(__LINE__, "Host", httprequest_test1) == true)
+	{
+		TwoValueSet* twoval = static_cast<TwoValueSet*>(httprequest_test1.return_value("Host"));
+		check( twoval->get_firstvalue(), twoval->get_secondvalue(), "www.example.com", "");
+	}
+	if (same_class_test(__LINE__, "ETag", httprequest_test1) == true)
+	{
+		ValueSet* val = static_cast<ValueSet*>(httprequest_test1.return_value("ETag"));
+		check( val->get_value_set(), "some_etag");
+	}
 }
 
 //g++ *.cpp ../HandleString/HandlingString.cpp

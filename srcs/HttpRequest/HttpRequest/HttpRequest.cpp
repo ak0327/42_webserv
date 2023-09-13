@@ -89,7 +89,8 @@ ValueMap* HttpRequest::ready_ValueMap(const std::string &only_value, const std::
 
 ValueSet* HttpRequest::ready_ValueSet(const std::string &value)
 {
-	return (new ValueSet(value));
+
+	return (new ValueSet(value.substr(0, value.length() - 1)));
 }
 
 ValueWeightArraySet*	HttpRequest::ready_ValueWeightArraySet(const std::string &value)
@@ -926,4 +927,19 @@ std::string HttpRequest::show_requestinfs(void)
 		now_it++;
 	}
 	return (this->_requestline.show_requestline());
+}
+
+RequestLine HttpRequest::get_requestline() const
+{
+	return (this->_requestline);
+}
+
+BaseKeyValueMap* HttpRequest::return_value(const std::string &key)
+{
+	return (this->request_keyvalue_map[key]);
+}
+
+std::map<std::string, BaseKeyValueMap*> HttpRequest::get_request_keyvalue_map(void)
+{
+	return (this->request_keyvalue_map);
 }

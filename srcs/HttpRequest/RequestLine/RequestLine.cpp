@@ -2,6 +2,13 @@
 
 RequestLine::RequestLine(){}
 
+RequestLine::RequestLine(const RequestLine &other)
+{
+	this->_method = other.get_method();
+	this->_target_page = other.get_target_page();
+	this->_version = other.get_version();
+}
+
 void RequestLine::set_value(const std::string &line)
 {
 	std::istringstream	iss(line);
