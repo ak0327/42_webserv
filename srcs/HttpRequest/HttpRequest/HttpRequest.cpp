@@ -14,10 +14,15 @@ HttpRequest::HttpRequest(const std::string &all_request_text)
 	this->_requestline.set_value(line);
 	while (std::getline(ss, line, '\n'))
 	{
+		std::cout << line << std::endl;
 		key = this->obtain_request_key(line);
 		value = this->obtain_request_value(line);
 		if (this->check_keyword_exist(key) == true)
+		{
+			std::cout << key << std::endl;
+			std::cout << value << std::endl;
 			(this->*inputvalue_functionmap[key])(key, value);
+		}
 	}
 }
 
@@ -158,6 +163,7 @@ std::string	HttpRequest::obtain_request_value(const std::string value)
 
 void HttpRequest::set_accept(const std::string &key, const std::string &value)
 {
+	std::string value_ = value.substr(0, value.length() - 1);
 	size_t	value_length = value.size();
 	size_t	now_location = 0;
 
@@ -172,13 +178,14 @@ void HttpRequest::set_accept(const std::string &key, const std::string &value)
 		accept_encoding_keyset,
 		accept_encoding_keyset + sizeof(accept_encoding_keyset) / sizeof(accept_encoding_keyset[0])
 	);
-	while (now_location != value_length)
+	while (now_location != value_length - 1)
 	{
-		if (accept_keyset.count(value[now_location]) > 0)
+		if (accept_keyset.count(value_[now_location]) > 0)
 			return;
 		now_location++;
 	}
-	this->request_keyvalue_map[key] = ready_ValueWeightArraySet(value);
+	std::cout << "here is reached" << std::endl;
+	this->request_keyvalue_map[key] = ready_ValueWeightArraySet(value_);
 }
 
 void	HttpRequest::set_accept_ch(const std::string &key, const std::string &value)
