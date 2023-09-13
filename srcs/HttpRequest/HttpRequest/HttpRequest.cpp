@@ -12,18 +12,18 @@ HttpRequest::HttpRequest(const std::string &all_request_text)
 	std::stringstream ss(all_request_text);
 	std::getline(ss, line, '\n');
 	this->_requestline.set_value(line);
+	std::cout << "ready..." << std::endl;
 	while (std::getline(ss, line, '\n'))
 	{
 		std::cout << line << std::endl;
 		key = this->obtain_request_key(line);
+		std::cout << key << std::endl;
 		value = this->obtain_request_value(line);
+		std::cout << value << std::endl;
 		if (this->check_keyword_exist(key) == true)
-		{
-			std::cout << key << std::endl;
-			std::cout << value << std::endl;
 			(this->*inputvalue_functionmap[key])(key, value);
-		}
 	}
+	std::cout << "ready" << std::endl;
 }
 
 HttpRequest::~HttpRequest(){}
@@ -94,7 +94,6 @@ ValueMap* HttpRequest::ready_ValueMap(const std::string &only_value, const std::
 
 ValueSet* HttpRequest::ready_ValueSet(const std::string &value)
 {
-
 	return (new ValueSet(value.substr(0, value.length() - 1)));
 }
 
@@ -106,7 +105,6 @@ ValueWeightArraySet*	HttpRequest::ready_ValueWeightArraySet(const std::string &v
 
 	while(std::getline(splited_by_commma, line, ','))
 	{
-		std::cout << line << std::endl;
 		if (line.find(';') != std::string::npos)
 			value_map[HandlingString::obtain_beforeword(line, ';')] = HandlingString::obtain_weight(HandlingString::obtain_afterword(line, ';'));
 		else
@@ -184,7 +182,6 @@ void HttpRequest::set_accept(const std::string &key, const std::string &value)
 			return;
 		now_location++;
 	}
-	std::cout << "here is reached" << std::endl;
 	this->request_keyvalue_map[key] = ready_ValueWeightArraySet(value_);
 }
 
