@@ -133,26 +133,21 @@ TEST(Request, TEST2)
 	EXPECT_EQ(httprequest_test1.get_requestline().get_method(), "GET");
 	EXPECT_EQ(httprequest_test1.get_requestline().get_target_page(), "/path/to/resource");
 	EXPECT_EQ(httprequest_test1.get_requestline().get_version(), "HTTP/1.1");
-	std::cout << "here" << std::endl;
 	if (same_class_test(__LINE__, "Host", httprequest_test1) == true)
 	{
 		TwoValueSet* twoval1 = static_cast<TwoValueSet*>(httprequest_test1.return_value("Host"));
 		check( twoval1->get_firstvalue(), twoval1->get_secondvalue(), "example.com", "");
 	}
-	std::cout << "here" << std::endl;
 	if (same_class_test(__LINE__, "User-Agent", httprequest_test1) == true)
 	{
 		ValueSet* val2 = static_cast<ValueSet*>(httprequest_test1.return_value("User-Agent"));
 		check( val2->get_value_set(), "YourUserAgent");
 	}
-	std::cout << "here" << std::endl;
 	if (same_class_test(__LINE__, "Accept", httprequest_test1) == true)
 	{
 		ValueWeightArraySet* valweightarray3 = static_cast<ValueWeightArraySet*>(httprequest_test1.return_value("Accept"));
-		std::cout << "here" << std::endl;
 		std::map<std::string, double> keyvalue3;
 		std::vector<std::string> keys3;
-		std::cout << "here" << std::endl;
 		keyvalue3["text/html"] = 1.0;
 		keyvalue3["application/xhtml+xml"] = 1.0;
 		keyvalue3["application/xml"] = 0.9;
@@ -161,7 +156,6 @@ TEST(Request, TEST2)
 		keys3.push_back("application/xhtml+xml");
 		keys3.push_back("application/xml");
 		keys3.push_back("*/*");
-		std::cout << "here" << std::endl;
 		check(valweightarray3->get_valueweight_set(), keyvalue3, keys3);
 	}
 	if (same_class_test(__LINE__, "Accept-Language", httprequest_test1) == true)
@@ -181,7 +175,7 @@ TEST(Request, TEST2)
 		std::map<std::string, double> keyvalue5;
 		std::vector<std::string> keys5;
 		keyvalue5["gzip"] = 1.0;
-		keyvalue5["deflate"] = 0.5;
+		keyvalue5["deflate"] = 1.0;
 		keys5.push_back("gzip");
 		keys5.push_back("deflate");
 		check(valweightarray5->get_valueweight_set(), keyvalue5, keys5);
@@ -234,7 +228,7 @@ TEST(Request, TEST2)
 	if (same_class_test(__LINE__, "Upgrade-Insecure-Requests", httprequest_test1) == true)
 	{
 		ValueSet* val9 = static_cast<ValueSet*>(httprequest_test1.return_value("Upgrade-Insecure-Requests"));
-		check( val9->get_value_set(), "http://www.example.com/referrer");
+		check( val9->get_value_set(), "1");
 	}
 }
 

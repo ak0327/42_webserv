@@ -87,6 +87,7 @@ class HttpRequest
 		void	set_content_security_policy_report_only(const std::string &key, const std::string &value);
 		void	set_content_type(const std::string &key, const std::string &value);
 		void	set_cookie(const std::string &key, const std::string &value);
+		void	set_cache_control(const std::string &key, const std::string &value);
 		void	set_cross_origin_embedder_policy(const std::string &key, const std::string &value);
 		void	set_cross_origin_opener_policy(const std::string &key, const std::string &value);
 		void	set_cross_origin_resource_policy(const std::string &key, const std::string &value);
