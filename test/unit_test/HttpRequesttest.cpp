@@ -39,6 +39,28 @@ void	check(ValueDateSet *targetdatevalue, std::string day_name, std::string day,
 	EXPECT_EQ(targetdatevalue->get_valuedateset_second(), second);
 }
 
+//valuemap1.get_only_value(), valmap1->get_value_map(), "attachment", valuemap1, keys1
+void	check(std::string only_value, std::map<std::string, std::string> target_wordmap, std::string expect_only_value, std::map<std::string, std::string> expected_wordmap, std::vector<std::string> keys)
+{
+	EXPECT_EQ(only_value, expect_only_value);
+	std::vector<std::string>::iterator itr_now = keys.begin();
+	while (itr_now != keys.end())
+	{
+		std::map<std::string, std::string>::iterator key_check_itr = target_wordmap.begin();
+		while (key_check_itr != target_wordmap.end())
+		{
+			if (key_check_itr->first == *itr_now)
+				break;
+			key_check_itr++;
+		}
+		if (key_check_itr == target_wordmap.end())
+			ADD_FAILURE_AT(__FILE__, __LINE__);
+		else
+			EXPECT_EQ(target_wordmap[*itr_now], expected_wordmap[*itr_now]);
+		itr_now++;
+	}
+}
+
 void	check(std::map<std::string, std::string> target_wordmap, std::map<std::string, std::string> expected_wordmap, std::vector<std::string> keys)
 {
 	std::vector<std::string>::iterator itr_now = keys.begin();
@@ -451,5 +473,251 @@ TEST(Request, TEST4)
 
 TEST(Request, TEST5)
 {
+	const std::string TEST_REQUEST2 = "OPTIONS /example HTTP/1.1\r\nHost: example.com\r\nAccess-Control-Expose-Headers: X-Custom-Header, Content-Type\r\nAccess-Control-Max-Age: 3600\r\nAccess-Control-Request-Headers: Authorization, Content-Type\r\nAccess-Control-Request-Method: POST\r\nAllow: GET, POST, PUT, DELETE\r\nAlt-Svc: h2=\"https://example.com:443\"\r\nAlt-Used: h2\r\nClear-Site-Data: \"cache\", \"cookies\"\r\n";
+	HttpRequest httprequest_test1(TEST_REQUEST2);
+	EXPECT_EQ(httprequest_test1.get_requestline().get_method(), "OPTIONS");
+	EXPECT_EQ(httprequest_test1.get_requestline().get_target_page(), "/example");
+	EXPECT_EQ(httprequest_test1.get_requestline().get_version(), "HTTP/1.1");
+	if (same_class_test(__LINE__, "Access-Control-Expose-Headers", httprequest_test1) == true)
+	{
+		ValueArraySet* val1 = static_cast<ValueArraySet*>(httprequest_test1.return_value("Access-Control-Expose-Headers"));
+		std::vector<std::string> vector1;
+		vector1.push_back("X-Custom-Header");
+		vector1.push_back("Content-Type");
+		check(val1->get_value_array(), vector1, 465);
+	}
+	if (same_class_test(__LINE__, "Access-Control-Max-Age", httprequest_test1) == true)
+	{
+		ValueSet* val2 = static_cast<ValueSet*>(httprequest_test1.return_value("Access-Control-Max-Age"));
+		check(val2->get_value_set(), "3600");
+	}
+	if (same_class_test(__LINE__, "Access-Control-Request-Headers", httprequest_test1) == true)
+	{
+		ValueArraySet* val3 = static_cast<ValueArraySet*>(httprequest_test1.return_value("Access-Control-Request-Headers"));
+		std::vector<std::string> vector3;
+		vector3.push_back("Authorization");
+		vector3.push_back("Content-Type");
+		check(val3->get_value_array(), vector3, 478);
+	}
+	if (same_class_test(__LINE__, "Access-Control-Request-Method", httprequest_test1) == true)
+	{
+		ValueSet* val4 = static_cast<ValueSet*>(httprequest_test1.return_value("Access-Control-Request-Method"));
+		check(val4->get_value_set(), "POST");
+	}
+	if (same_class_test(__LINE__, "Allow", httprequest_test1) == true)
+	{
+		ValueArraySet* val5 = static_cast<ValueArraySet*>(httprequest_test1.return_value("Allow"));
+		std::vector<std::string> vector5;
+		vector5.push_back("GET");
+		vector5.push_back("POST");
+		vector5.push_back("PUT");
+		vector5.push_back("DELETE");
+		check(val5->get_value_array(), vector5, 478);
+	}
+	if (same_class_test(__LINE__, "Alt-Svc", httprequest_test1) == true)
+	{
+		//map型
+		ValueMap* valmap6 = static_cast<ValueMap*>(httprequest_test1.return_value("Alt-Svc"));
+		std::map<std::string, std::string> valuemap6;
+		std::vector<std::string> keys6;
+		valuemap6["h2"] = "\"https://example.com:443\"";
+		keys6.push_back("h2");
+		check( valmap6->get_value_map(), valuemap6, keys6);
+	}
+	if (same_class_test(__LINE__, "Clear-Site-Data", httprequest_test1) == true)
+	{
+		ValueArraySet* val7 = static_cast<ValueArraySet*>(httprequest_test1.return_value("Clear-Site-Data"));
+		std::vector<std::string> vector7;
+		vector7.push_back("\"cache\"");
+		vector7.push_back("\"cookies\"");
+		check(val7->get_value_array(), vector7, 511);
+	}
+}
 
+// GET /example HTTP/1.1
+// Host: example.com
+// Content-Disposition: attachment; filename="example.txt"
+// Content-Encoding: gzip
+// Content-Language: en-US
+// Content-Length: 1024
+// Content-Location: /documents/example.txt
+// Content-Range: bytes 0-511/1024
+// Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'
+// Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline'; report-uri /csp-report
+// Content-Type: application/json
+
+TEST(Request, TEST6)
+{
+	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\nHost: example.com\r\nContent-Disposition: attachment; filename=\"example.txt\"\r\nContent-Encoding: gzip\r\nContent-Language: en-US\r\nContent-Length: 1024\r\nContent-Location: /documents/example.txt\r\nContent-Range: bytes 0-511/1024\r\nContent-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'\r\nContent-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline'; report-uri /csp-report\r\nContent-Type: application/json\r\n";
+	HttpRequest httprequest_test1(TEST_REQUEST2);
+	EXPECT_EQ(httprequest_test1.get_requestline().get_method(), "GET");
+	EXPECT_EQ(httprequest_test1.get_requestline().get_target_page(), "/example");
+	EXPECT_EQ(httprequest_test1.get_requestline().get_version(), "HTTP/1.1");
+	if (same_class_test(__LINE__, "Content-Disposition", httprequest_test1) == true)
+	{
+		//map型
+		ValueMap* valmap1 = static_cast<ValueMap*>(httprequest_test1.return_value("Content-Disposition"));
+		std::map<std::string, std::string> valuemap1;
+		std::vector<std::string> keys1;
+		valuemap1["filename"] = "\"example.txt\"";
+		keys1.push_back("filename");
+		check( valmap1->get_only_value(), valmap1->get_value_map(), "attachment", valuemap1, keys1);
+	}
+	if (same_class_test(__LINE__, "Content-Encoding", httprequest_test1) == true)
+	{
+		ValueArraySet* val2 = static_cast<ValueArraySet*>(httprequest_test1.return_value("Content-Encoding"));
+		std::vector<std::string> vector2;
+		vector2.push_back("gzip");
+		check(val2->get_value_array(), vector2, 571);
+	}
+	if (same_class_test(__LINE__, "Content-Language", httprequest_test1) == true)
+	{
+		ValueArraySet* val3 = static_cast<ValueArraySet*>(httprequest_test1.return_value("Content-Language"));
+		std::vector<std::string> vector3;
+		vector3.push_back("en-US");
+		check(val3->get_value_array(), vector3, 578);
+	}
+	if (same_class_test(__LINE__, "Content-Length", httprequest_test1) == true)
+	{
+		ValueSet* val4 = static_cast<ValueSet*>(httprequest_test1.return_value("Content-Length"));
+		check(val4->get_value_set(), "1024");
+	}
+	if (same_class_test(__LINE__, "Content-Location", httprequest_test1) == true)
+	{
+		ValueSet* val5 = static_cast<ValueSet*>(httprequest_test1.return_value("Content-Location"));
+		check(val5->get_value_set(), "/documents/example.txt");
+	}
+	if (same_class_test(__LINE__, "Content-Range", httprequest_test1) == true)
+	{
+		ValueSet* val6 = static_cast<ValueSet*>(httprequest_test1.return_value("Content-Range"));
+		check(val6->get_value_set(), "bytes 0-511/1024");
+	}
+	// if (same_class_test(__LINE__, "Content-Security-Policy", httprequest_test1) == true)
+	// {
+	// 	TwoValueSet* twoval7 = static_cast<TwoValueSet*>(httprequest_test1.return_value("Content-Security-Policy"));
+	// 	check( twoval7->get_firstvalue(), twoval7->get_secondvalue(), "default-src \'self\'", "script-src \'self\' \'unsafe-inline\'");
+	// }
+	if (same_class_test(__LINE__, "Content-Type", httprequest_test1) == true)
+	{
+		//map型
+		ValueMap* valmap8 = static_cast<ValueMap*>(httprequest_test1.return_value("Content-Type"));
+		EXPECT_EQ(valmap8->get_only_value(), "application/json");
+	}
+}
+
+// GET /example HTTP/1.1\r\n
+// Host: example.com\r\n
+// Cross-Origin-Embedder-Policy: require-corp\r\n
+// Cross-Origin-Opener-Policy: same-origin-allow-popups\r\n
+// Cross-Origin-Resource-Policy: same-origin\r\n
+// Date: Thu, 15 Sep 2023 12:00:00 GMT\r\n
+// Expect: 100-continue\r\n
+// Expires: Thu, 15 Sep 2023 13:00:00 GMT\r\n
+// Forwarded: for=192.0.2.60;proto=http;by=203.0.113.43\r\n
+// Host: example.com\r\n
+// If-Match: \"etag123\"\r\n
+// If-Range: \"etag123\"\r\n
+// If-Unmodified-Since: Thu, 15 Sep 2023 11:30:00 GMT\r\n
+// Keep-Alive: timeout=5, max=1000\r\n
+// Last-Modified: Thu, 15 Sep 2023 11:45:00 GMT\r\n
+// Link: <https://example.com/style.css>; rel=preload; as=style\r\n
+// Location: https://example.com/redirected-page\r\n
+
+TEST(Request, TEST7)
+{
+	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\nHost: example.com\r\nCross-Origin-Embedder-Policy: require-corp\r\nCross-Origin-Opener-Policy: same-origin-allow-popups\r\nCross-Origin-Resource-Policy: same-origin\r\nDate: Thu, 15 Sep 2023 12:00:00 GMT\r\nExpect: 100-continue\r\nExpires: Thu, 15 Sep 2023 13:00:00 GMT\r\nForwarded: for=192.0.2.60;proto=http;by=203.0.113.43\r\nHost: example.com\r\nIf-Match: \"etag123\"\r\nIf-Range: \"etag123\"\r\nIf-Unmodified-Since: Thu, 15 Sep 2023 11:30:00 GMT\r\nKeep-Alive: timeout=5, max=1000\r\nLast-Modified: Thu, 15 Sep 2023 11:45:00 GMT\r\nLink: <https://example.com/style.css>; rel=preload; as=style\r\nLocation: https://example.com/redirected-page\r\n";
+	HttpRequest httprequest_test1(TEST_REQUEST2);
+	EXPECT_EQ(httprequest_test1.get_requestline().get_method(), "GET");
+	EXPECT_EQ(httprequest_test1.get_requestline().get_target_page(), "/example");
+	EXPECT_EQ(httprequest_test1.get_requestline().get_version(), "HTTP/1.1");
+
+	if (same_class_test(__LINE__, "Cross-Origin-Embedder-Policy", httprequest_test1) == true)
+	{
+		ValueSet* val1 = static_cast<ValueSet*>(httprequest_test1.return_value("Cross-Origin-Embedder-Policy"));
+		check(val1->get_value_set(), "require-corp");
+	}
+	if (same_class_test(__LINE__, "Cross-Origin-Opener-Policy", httprequest_test1) == true)
+	{
+		ValueSet* val2 = static_cast<ValueSet*>(httprequest_test1.return_value("Cross-Origin-Opener-Policy"));
+		check(val2->get_value_set(), "same-origin-allow-popups");
+	}
+	if (same_class_test(__LINE__, "Cross-Origin-Resource-Policy", httprequest_test1) == true)
+	{
+		ValueSet* val3 = static_cast<ValueSet*>(httprequest_test1.return_value("Cross-Origin-Resource-Policy"));
+		check(val3->get_value_set(), "same-origin");
+	}
+	if (same_class_test(__LINE__, "Date", httprequest_test1) == true)
+	{
+		// Thu, 15 Sep 2023 12:00:00 GMT
+		ValueDateSet *dateval4 = static_cast<ValueDateSet*>(httprequest_test1.return_value("Date"));
+		check(dateval4, "Thu", "15", "Sep", "2023", "12", "00", "00");
+	}
+	if (same_class_test(__LINE__, "Expect", httprequest_test1) == true)
+	{
+		ValueSet* val5 = static_cast<ValueSet*>(httprequest_test1.return_value("Expect"));
+		check(val5->get_value_set(), "100-continue");
+	}
+	if (same_class_test(__LINE__, "Expires", httprequest_test1) == true)
+	{
+		// Thu, 15 Sep 2023 12:00:00 GMT
+		ValueDateSet *dateval6 = static_cast<ValueDateSet*>(httprequest_test1.return_value("Expires"));
+		check(dateval6, "Thu", "15", "Sep", "2023", "13", "00", "00");
+	}
+	if (same_class_test(__LINE__, "Forwarded", httprequest_test1) == true)
+	{
+		//map型
+		ValueMap* valmap7 = static_cast<ValueMap*>(httprequest_test1.return_value("Forwarded"));
+		std::map<std::string, std::string> valuemap7;
+		std::vector<std::string> keys7;
+		valuemap7["for"] = "192.0.2.60";
+		valuemap7["proto"] = "http";
+		valuemap7["by"] = "203.0.113.43";
+		keys7.push_back("for");
+		keys7.push_back("proto");
+		keys7.push_back("by");
+		check(valmap7->get_value_map(), valuemap7, keys7);
+	}
+	if (same_class_test(__LINE__, "If-Match", httprequest_test1) == true)
+	{
+		ValueArraySet* val8 = static_cast<ValueArraySet*>(httprequest_test1.return_value("If-Match"));
+		std::vector<std::string> vector8;
+		vector8.push_back("\"etag123\"");
+		check(val8->get_value_array(), vector8, 685);
+	}
+	if (same_class_test(__LINE__, "If-Range", httprequest_test1) == true)
+	{
+		ValueArraySet* val9 = static_cast<ValueArraySet*>(httprequest_test1.return_value("If-Range"));
+		std::vector<std::string> vector9;
+		vector9.push_back("\"etag123\"");
+		check(val9->get_value_array(), vector9, 692);
+	}
+	if (same_class_test(__LINE__, "If-Unmodified-Since", httprequest_test1) == true)
+	{
+		// Thu, 15 Sep 2023 11:30:00 GMT
+		ValueDateSet *dateval10 = static_cast<ValueDateSet*>(httprequest_test1.return_value("If-Unmodified-Since"));
+		check(dateval10, "Thu", "15", "Sep", "2023", "11", "30", "00");
+	}
+	if (same_class_test(__LINE__, "Keep-Alive", httprequest_test1) == true)
+	{
+		//map型
+		ValueMap* valmap11 = static_cast<ValueMap*>(httprequest_test1.return_value("Keep-Alive"));
+		std::map<std::string, std::string> valuemap11;
+		std::vector<std::string> keys11;
+		valuemap11["timeout"] = "5";
+		valuemap11["max"] = "1000";
+		keys11.push_back("timeout");
+		keys11.push_back("max");
+		check(valmap11->get_value_map(), valuemap11, keys11);
+	}
+	if (same_class_test(__LINE__, "Last-Modified", httprequest_test1) == true)
+	{
+		// Thu, 15 Sep 2023 11:45:00 GMT
+		ValueDateSet *dateval12 = static_cast<ValueDateSet*>(httprequest_test1.return_value("Last-Modified"));
+		check(dateval12, "Thu", "15", "Sep", "2023", "11", "45", "00");
+	}
+	if (same_class_test(__LINE__, "Location", httprequest_test1) == true)
+	{
+		ValueSet* val13 = static_cast<ValueSet*>(httprequest_test1.return_value("Location"));
+		check(val13->get_value_set(), "https://example.com/redirected-page");
+	}
 }

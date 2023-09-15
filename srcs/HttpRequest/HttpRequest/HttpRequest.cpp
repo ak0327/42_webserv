@@ -128,8 +128,8 @@ bool	HttpRequest::check_keyword_exist(const std::string &key)
 		"Content-Location", "Content-Security-Policy", "Content-Security-Policy-Report-Only", "Cross-Origin-Embedder-Policy",
 		"Cross-Origin-Opener-Policy", "Cross-Origin-Resource-Policy", "ETag", "Expect-CT", "Expires", "Forwarded", "From",
 		"Last-Modified", "Location", "Origin", "Permissions-Policy", "Proxy-Authenticate", "Proxy-Authorization", "Referrer-Policy",
-		"Retry-After", "Server", "Server-Timing", "Set-Cookie", "SourceMap", "Timing-Allow-Origin",
-		"Upgrade-Insecure-Requests", "Vary", "WWW-Authenticate", "Max-Forwards", "TE", "Accept-Post"
+		"Retry-After", "Server", "Server-Timing", "Set-Cookie", "SourceMap", "Timing-Allow-Origin", "Authorization",
+		"Upgrade-Insecure-Requests", "Vary", "WWW-Authenticate", "Max-Forwards", "TE", "Accept-Post", "X-Custom-Header"
 	};
 	const std::set<std::string> httprequest_keyset
 	(
@@ -370,9 +370,14 @@ void	HttpRequest::set_access_control_request_headers(const std::string &key, con
 	std::vector<std::string>	value_array;
 	std::stringstream	ss(value);
 	std::string			line;
+	std::string			word;
 	while(std::getline(ss, line, ','))
 	{
-		if (this->check_keyword_exist(HandlingString::skipping_emptyword(line)) == false)
+		if (line[0] == ' ')
+			word = line.substr(1);
+		else
+			word = line;
+		if (this->check_keyword_exist(HandlingString::skipping_emptyword(word)) == false)
 			return;
 	}
 	this->request_keyvalue_map[key] = ready_ValueArraySet(value);
@@ -397,10 +402,15 @@ void	HttpRequest::set_allow(const std::string &key, const std::string &value)
 {
 	std::stringstream	ss(value);
 	std::string			line;
+	std::string			word;
 	while(std::getline(ss, line, ','))
 	{
-		if (line != "GET" && line != "HEAD" && line != "POST" && line != "PUT" && line != "PUT" && line != "DELETE" \
-		&& line != "CONNECT" && line != "OPTIONS" && line != "TRACE" && line != "PATCH")
+		if (line[0] == ' ')
+			word = line.substr(1);
+		else
+			word = line;
+		if (word != "GET" && word != "HEAD" && word != "POST" && word != "PUT" && word != "PUT" && word != "DELETE" \
+		&& word != "CONNECT" && word != "OPTIONS" && word != "TRACE" && word != "PATCH")
 			return;
 	}
 	this->request_keyvalue_map[key] = ready_ValueArraySet(value);
@@ -454,8 +464,8 @@ void	HttpRequest::set_content_disponesition(const std::string &key, const std::s
 	std::string			only_value;
 	std::string			except_onlyvalue_line;
 	std::string 		line;
-	std::getline(ss, only_value, ',');
-	while (std::getline(ss, line, ','))
+	std::getline(ss, only_value, ';');
+	while (std::getline(ss, line, ';'))
 		except_onlyvalue_line = except_onlyvalue_line + line;
 	this->request_keyvalue_map[key] = ready_ValueMap(only_value, except_onlyvalue_line);
 }
