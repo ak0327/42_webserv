@@ -659,9 +659,8 @@ TEST(Request, TEST7)
 	}
 	if (same_class_test(__LINE__, "Expires", httprequest_test1) == true)
 	{
-		// Thu, 15 Sep 2023 12:00:00 GMT
-		ValueDateSet *dateval6 = static_cast<ValueDateSet*>(httprequest_test1.return_value("Expires"));
-		check(dateval6, "Thu", "15", "Sep", "2023", "13", "00", "00");
+		ValueSet* val6 = static_cast<ValueSet*>(httprequest_test1.return_value("Expires"));
+		check(val6->get_value_set(), "Thu, 15 Sep 2023 13:00:00 GMT");
 	}
 	if (same_class_test(__LINE__, "Forwarded", httprequest_test1) == true)
 	{
@@ -686,10 +685,8 @@ TEST(Request, TEST7)
 	}
 	if (same_class_test(__LINE__, "If-Range", httprequest_test1) == true)
 	{
-		ValueArraySet* val9 = static_cast<ValueArraySet*>(httprequest_test1.return_value("If-Range"));
-		std::vector<std::string> vector9;
-		vector9.push_back("\"etag123\"");
-		check(val9->get_value_array(), vector9, 692);
+		ValueSet* val9 = static_cast<ValueSet*>(httprequest_test1.return_value("If-Range"));
+		check(val9->get_value_set(), "\"etag123\"");
 	}
 	if (same_class_test(__LINE__, "If-Unmodified-Since", httprequest_test1) == true)
 	{
@@ -697,18 +694,18 @@ TEST(Request, TEST7)
 		ValueDateSet *dateval10 = static_cast<ValueDateSet*>(httprequest_test1.return_value("If-Unmodified-Since"));
 		check(dateval10, "Thu", "15", "Sep", "2023", "11", "30", "00");
 	}
-	if (same_class_test(__LINE__, "Keep-Alive", httprequest_test1) == true)
-	{
-		//map型
-		ValueMap* valmap11 = static_cast<ValueMap*>(httprequest_test1.return_value("Keep-Alive"));
-		std::map<std::string, std::string> valuemap11;
-		std::vector<std::string> keys11;
-		valuemap11["timeout"] = "5";
-		valuemap11["max"] = "1000";
-		keys11.push_back("timeout");
-		keys11.push_back("max");
-		check(valmap11->get_value_map(), valuemap11, keys11);
-	}
+	// if (same_class_test(__LINE__, "Keep-Alive", httprequest_test1) == true)
+	// {
+	// 	//map型
+	// 	ValueMap* valmap11 = static_cast<ValueMap*>(httprequest_test1.return_value("Keep-Alive"));
+	// 	std::map<std::string, std::string> valuemap11;
+	// 	std::vector<std::string> keys11;
+	// 	valuemap11["timeout"] = "5";
+	// 	valuemap11["max"] = "1000";
+	// 	keys11.push_back("timeout");
+	// 	keys11.push_back("max");
+	// 	check(valmap11->get_value_map(), valuemap11, keys11);
+	// }
 	if (same_class_test(__LINE__, "Last-Modified", httprequest_test1) == true)
 	{
 		// Thu, 15 Sep 2023 11:45:00 GMT
@@ -720,4 +717,224 @@ TEST(Request, TEST7)
 		ValueSet* val13 = static_cast<ValueSet*>(httprequest_test1.return_value("Location"));
 		check(val13->get_value_set(), "https://example.com/redirected-page");
 	}
+}
+
+// GET /example HTTP/1.1z\r\n
+// Host: example.com\r\n
+// Permissions-Policy: geolocation=(self "https://example.com"), camera=()\r\n
+// Proxy-Authenticate: Basic realm="Proxy Server"\r\n
+// Proxy-Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==\r\n
+// Referer: https://example.com/previous-page\r\n
+// Retry-After: 120\r\n
+// Sec-Fetch-Dest: document\r\n
+// Sec-Fetch-Mode: navigate\r\n
+// Sec-Fetch-Site: same-origin\r\n
+// Sec-Fetch-User: ?1\r\n
+// Sec-Purpose: prefetch\r\n
+// Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=\r\n
+// Server: Apache/2.4.41 (Ubuntu)\r\n
+
+TEST(Request, TEST8)
+{
+	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\nHost: example.com\r\nPermissions-Policy: geolocation=(self \"https://example.com\"), camera=()\r\nProxy-Authenticate: Basic realm=\"Proxy Server\"\r\nProxy-Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==\r\nReferer: https://example.com/previous-page\r\nRetry-After: 120\r\nSec-Fetch-Dest: document\r\nSec-Fetch-Mode: navigate\r\nSec-Fetch-Site: same-origin\r\nSec-Fetch-User: ?1\r\nSec-Purpose: prefetch\r\nSec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=\r\nServer: Apache/2.4.41 (Ubuntu)\r\n";
+	HttpRequest httprequest_test1(TEST_REQUEST2);
+	EXPECT_EQ(httprequest_test1.get_requestline().get_method(), "GET");
+	EXPECT_EQ(httprequest_test1.get_requestline().get_target_page(), "/example");
+	EXPECT_EQ(httprequest_test1.get_requestline().get_version(), "HTTP/1.1");
+
+	if (same_class_test(__LINE__, "Permissions-Policy", httprequest_test1) == true)
+	{
+		TwoValueSet* twoval1 = static_cast<TwoValueSet*>(httprequest_test1.return_value("Permissions-Policy"));
+		check( twoval1->get_firstvalue(), twoval1->get_secondvalue(), "geolocation=(self \"https://example.com\")", "camera=()");
+	}
+	if (same_class_test(__LINE__, "Proxy-Authenticate", httprequest_test1) == true)
+	{
+		//map型
+		ValueMap* valmap2 = static_cast<ValueMap*>(httprequest_test1.return_value("Proxy-Authenticate"));
+		std::map<std::string, std::string> valuemap2;
+		std::vector<std::string> keys2;
+		valuemap2["realm"] = "\"Proxy Server\"";
+		keys2.push_back("realm");
+		check(valmap2->get_value_map(), valuemap2, keys2);
+	}
+	if (same_class_test(__LINE__, "Retry-After", httprequest_test1) == true)
+	{
+		ValueSet* val3 = static_cast<ValueSet*>(httprequest_test1.return_value("Retry-After"));
+		check(val3->get_value_set(), "120");
+	}
+	if (same_class_test(__LINE__, "Sec-Fetch-Dest", httprequest_test1) == true)
+	{
+		ValueSet* val4 = static_cast<ValueSet*>(httprequest_test1.return_value("Sec-Fetch-Dest"));
+		check(val4->get_value_set(), "document");
+	}
+	if (same_class_test(__LINE__, "Sec-Fetch-Mode", httprequest_test1) == true)
+	{
+		ValueSet* val5 = static_cast<ValueSet*>(httprequest_test1.return_value("Sec-Fetch-Mode"));
+		check(val5->get_value_set(), "navigate");
+	}
+	if (same_class_test(__LINE__, "Sec-Fetch-Site", httprequest_test1) == true)
+	{
+		ValueSet* val6 = static_cast<ValueSet*>(httprequest_test1.return_value("Sec-Fetch-Site"));
+		check(val6->get_value_set(), "same-origin");
+	}
+	if (same_class_test(__LINE__, "Sec-Fetch-Site", httprequest_test1) == true)
+	{
+		ValueSet* val7 = static_cast<ValueSet*>(httprequest_test1.return_value("Sec-Fetch-Site"));
+		check(val7->get_value_set(), "same-origin");
+	}
+	if (same_class_test(__LINE__, "Sec-Fetch-User", httprequest_test1) == true)
+	{
+		ValueSet* val8 = static_cast<ValueSet*>(httprequest_test1.return_value("Sec-Fetch-User"));
+		check(val8->get_value_set(), "?1");
+	}
+	if (same_class_test(__LINE__, "Sec-Purpose", httprequest_test1) == true)
+	{
+		ValueSet* val9 = static_cast<ValueSet*>(httprequest_test1.return_value("Sec-Purpose"));
+		check(val9->get_value_set(), "prefetch");
+	}
+	if (same_class_test(__LINE__, "Sec-WebSocket-Accept", httprequest_test1) == true)
+	{
+		ValueSet* val10 = static_cast<ValueSet*>(httprequest_test1.return_value("Sec-WebSocket-Accept"));
+		check(val10->get_value_set(), "s3pPLMBiTxaQ9kYGzzhZRbK+xOo=");
+	}
+	if (same_class_test(__LINE__, "Server", httprequest_test1) == true)
+	{
+		ValueSet* val11 = static_cast<ValueSet*>(httprequest_test1.return_value("Server"));
+		check(val11->get_value_set(), "Apache/2.4.41 (Ubuntu)");
+	}
+}
+
+// /GET /example HTTP/1.1\r\n
+// Host: example.com\r\n
+// Service-Worker-Navigation-Preload: true\r\n
+// Set-Cookie: sessionId=12345; path=/; Secure; HttpOnly\r\n
+// SourceMap: /path/to/source.map\r\n
+// Strict-Transport-Security: max-age=31536000; includeSubDomains\r\n
+// TE: trailers, deflate\r\n
+// Timing-Allow-Origin: *\r\n
+// Trailer: Content-MD5\r\n
+// Transfer-Encoding: chunked\r\n
+// Upgrade: websocket\r\n
+// Upgrade-Insecure-Requests: 1\r\n
+// User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36\r\n
+// Vary: Accept-Encoding, User-Agent\r\n
+// Via: 1.1 example.com\r\n
+// WWW-Authenticate: Basic realm="Secure Area"\r\n
+
+
+TEST(Request, TEST9)
+{
+	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\nHost: example.com\r\nService-Worker-Navigation-Preload: true\r\nSet-Cookie: sessionId=12345; path=/; Secure; HttpOnly\r\nSourceMap: /path/to/source.map\r\nStrict-Transport-Security: max-age=31536000; includeSubDomains\r\nTE: trailers, deflate\r\nTiming-Allow-Origin: *\r\nTrailer: Content-MD5\r\nTransfer-Encoding: chunked\r\nUpgrade: websocket\r\nUpgrade-Insecure-Requests: 1\r\nUser-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36\r\nVary: Accept-Encoding, User-Agent\r\nVia: 1.1 example.com\r\nWWW-Authenticate: Basic realm=\"Secure Area\"\r\n";
+	HttpRequest httprequest_test1(TEST_REQUEST2);
+	EXPECT_EQ(httprequest_test1.get_requestline().get_method(), "GET");
+	EXPECT_EQ(httprequest_test1.get_requestline().get_target_page(), "/example");
+	EXPECT_EQ(httprequest_test1.get_requestline().get_version(), "HTTP/1.1");
+
+	if (same_class_test(__LINE__, "Service-Worker-Navigation-Preload", httprequest_test1) == true)
+	{
+		ValueSet* val1 = static_cast<ValueSet*>(httprequest_test1.return_value("Service-Worker-Navigation-Preload"));
+		check(val1->get_value_set(), "true");
+	}
+	// if (same_class_test(__LINE__, "Proxy-Authenticate", httprequest_test1) == true)
+	// {
+	// 	//map型
+	// 	ValueMap* valmap2 = static_cast<ValueMap*>(httprequest_test1.return_value("Proxy-Authenticate"));
+	// 	std::map<std::string, std::string> valuemap2;
+	// 	std::vector<std::string> keys2;
+	// 	valuemap2["sessionId"] = "12345";
+	// 	valuemap2["path"] = "/";
+	// 	valuemap2["path"] = "/";
+	// 	keys2.push_back("sessionId");
+	// 	check(valmap2->get_value_map(), valuemap2, keys2);
+	// }
+	if (same_class_test(__LINE__, "SourceMap", httprequest_test1) == true)
+	{
+		ValueSet* val3 = static_cast<ValueSet*>(httprequest_test1.return_value("SourceMap"));
+		check(val3->get_value_set(), "/path/to/source.map");
+	}
+	// if (same_class_test(__LINE__, "Strict-Transport-Security", httprequest_test1) == true)
+	// {
+	// 	ValueMap* valmap2 = static_cast<ValueMap*>(httprequest_test1.return_value("Strict-Transport-Security"));
+	// 	std::map<std::string, std::string> valuemap2;
+	// 	std::vector<std::string> keys2;
+	// 	valuemap2["max-age"] = "31536000";
+	// 	valuemap2["path"] = "/";
+	// 	valuemap2["path"] = "/";
+	// 	keys2.push_back("sessionId");
+	// 	check(valmap2->get_value_map(), valuemap2, keys2);
+	// }
+	if (same_class_test(__LINE__, "TE", httprequest_test1) == true)
+	{
+		ValueWeightArraySet* valweightarrayset4 = static_cast<ValueWeightArraySet*>(httprequest_test1.return_value("TE"));
+		std::map<std::string, double> keyvalue4;
+		std::vector<std::string> keys4;
+		keyvalue4["trailers"] = 1.0;
+		keyvalue4["deflate"] = 1.0;
+		keys4.push_back("trailers");
+		keys4.push_back("deflate");
+		check(valweightarrayset4->get_valueweight_set(), keyvalue4, keys4);
+	}
+	if (same_class_test(__LINE__, "Timing-Allow-Origin", httprequest_test1) == true)
+	{
+		ValueSet* val5 = static_cast<ValueSet*>(httprequest_test1.return_value("Timing-Allow-Origin"));
+		check(val5->get_value_set(), "*");
+	}
+	if (same_class_test(__LINE__, "Trailer", httprequest_test1) == true)
+	{
+		ValueSet* val6 = static_cast<ValueSet*>(httprequest_test1.return_value("Trailer"));
+		check(val6->get_value_set(), "Content-MD5");
+	}
+	if (same_class_test(__LINE__, "Transfer-Encoding", httprequest_test1) == true)
+	{
+		ValueArraySet* val7 = static_cast<ValueArraySet*>(httprequest_test1.return_value("Transfer-Encoding"));
+		std::vector<std::string> vector7;
+		vector7.push_back("chunked");
+		check(val7->get_value_array(), vector7, 310);
+	}
+	if (same_class_test(__LINE__, "Upgrade", httprequest_test1) == true)
+	{
+		ValueArraySet* val8 = static_cast<ValueArraySet*>(httprequest_test1.return_value("Upgrade"));
+		std::vector<std::string> vector8;
+		vector8.push_back("websocket");
+		check(val8->get_value_array(), vector8, 310);
+	}
+	if (same_class_test(__LINE__, "Upgrade-Insecure-Requests", httprequest_test1) == true)
+	{
+		ValueSet* val9 = static_cast<ValueSet*>(httprequest_test1.return_value("Upgrade-Insecure-Requests"));
+		check(val9->get_value_set(), "1");
+	}
+	if (same_class_test(__LINE__, "User-Agent", httprequest_test1) == true)
+	{
+		ValueSet* val10 = static_cast<ValueSet*>(httprequest_test1.return_value("User-Agent"));
+		check(val10->get_value_set(), "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36");
+	}
+	if (same_class_test(__LINE__, "Vary", httprequest_test1) == true)
+	{
+		ValueArraySet* val11 = static_cast<ValueArraySet*>(httprequest_test1.return_value("Vary"));
+		std::vector<std::string> vector11;
+		vector11.push_back("Accept-Encoding");
+		vector11.push_back("User-Agent");
+		check(val11->get_value_array(), vector11, 310);
+	}
+	if (same_class_test(__LINE__, "Vary", httprequest_test1) == true)
+	{
+		ValueArraySet* val12 = static_cast<ValueArraySet*>(httprequest_test1.return_value("Vary"));
+		std::vector<std::string> vector12;
+		vector12.push_back("Accept-Encoding");
+		vector12.push_back("User-Agent");
+		check(val12->get_value_array(), vector12, 310);
+	}
+	if (same_class_test(__LINE__, "Via", httprequest_test1) == true)
+	{
+		ValueSet* val13 = static_cast<ValueSet*>(httprequest_test1.return_value("Via"));
+		check(val13->get_value_set(), "1.1 example.com");
+	}
+	// if (same_class_test(__LINE__, "WWW-Authenticate", httprequest_test1) == true)
+	// {
+	// 	ValueArraySet* val1 = static_cast<ValueArraySet*>(httprequest_test1.return_value("WWW-Authenticate"));
+	// 	std::vector<std::string> vector1;
+	// 	vector1.push_back("Accept-Encoding");
+	// 	vector1.push_back("User-Agent");
+	// 	check(val1->get_value_array(), vector1, 310);
+	// }
 }

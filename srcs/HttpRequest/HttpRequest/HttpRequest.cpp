@@ -38,14 +38,23 @@ TwoValueSet* HttpRequest::ready_TwoValueSet(const std::string &all_value)
 
 TwoValueSet* HttpRequest::ready_TwoValueSet(const std::string &value, char delimiter)
 {
-	std::stringstream	ss(HandlingString::skipping_emptyword(value));
+	std::stringstream	ss(value);
 	std::string			first_value;
+	std::string			first_value_in;
 	std::string			second_value;
+	std::string			second_value_in;
 
 	std::getline(ss, first_value, delimiter);
+	if (first_value[0] == ' ')
+		first_value_in = first_value.substr(1);
+	else
+		first_value_in = first_value;
 	std::getline(ss, second_value, delimiter);
-
-	return (new TwoValueSet(first_value, second_value));
+	if (second_value[0] == ' ')
+		second_value_in = second_value.substr(1);
+	else
+		second_value_in = second_value;
+	return (new TwoValueSet(first_value_in, second_value_in));
 }
 
 ValueArraySet* HttpRequest::ready_ValueArraySet(const std::string &all_value)
@@ -81,10 +90,17 @@ ValueMap* HttpRequest::ready_ValueMap(const std::string &only_value, const std::
 	std::map<std::string, std::string> value_map;
 	std::stringstream	ss(value);
 	std::string			line;
+	std::string			skipping_word;
 
 	while(std::getline(ss, line, ';'))
-		value_map[HandlingString::obtain_beforeword(HandlingString::skipping_emptyword(line), '=')] \
-		= HandlingString::obtain_afterword(HandlingString::skipping_emptyword(line), '=');
+	{
+		if (line[0] == ' ')
+			skipping_word = line.substr(1);
+		else
+			skipping_word = line;
+		value_map[HandlingString::obtain_beforeword(skipping_word, '=')] \
+		= HandlingString::obtain_afterword(skipping_word, '=');
+	}
 	return (new ValueMap(only_value, value_map));
 }
 
@@ -129,7 +145,10 @@ bool	HttpRequest::check_keyword_exist(const std::string &key)
 		"Cross-Origin-Opener-Policy", "Cross-Origin-Resource-Policy", "ETag", "Expect-CT", "Expires", "Forwarded", "From",
 		"Last-Modified", "Location", "Origin", "Permissions-Policy", "Proxy-Authenticate", "Proxy-Authorization", "Referrer-Policy",
 		"Retry-After", "Server", "Server-Timing", "Set-Cookie", "SourceMap", "Timing-Allow-Origin", "Authorization",
-		"Upgrade-Insecure-Requests", "Vary", "WWW-Authenticate", "Max-Forwards", "TE", "Accept-Post", "X-Custom-Header"
+		"Upgrade-Insecure-Requests", "Vary", "WWW-Authenticate", "Max-Forwards", "TE", "Accept-Post", "X-Custom-Header", "Sec-Fetch-Dest",
+		"Sec-Fetch-Mode", "Sec-Fetch-Site", "Sec-Fetch-User", "Sec-Purpose", "Sec-WebSocket-Accept", "Service-Worker-Navigation-Preload",
+		"Trailer", 
+
 	};
 	const std::set<std::string> httprequest_keyset
 	(
@@ -609,7 +628,7 @@ void	HttpRequest::set_if_none_match(const std::string &key, const std::string &v
 
 void	HttpRequest::set_if_range(const std::string &key, const std::string &value)
 {
-	this->request_keyvalue_map[key] = ready_ValueDateSet(value);
+	this->request_keyvalue_map[key] = ready_ValueSet(value);
 }
 
 void	HttpRequest::set_if_unmodified_since(const std::string &key, const std::string &value)
@@ -655,19 +674,18 @@ void	HttpRequest::set_origin(const std::string &key, const std::string &value)
 
 void	HttpRequest::set_permission_policy(const std::string &key, const std::string &value)
 {
-	this->request_keyvalue_map[key] = ready_TwoValueSet(value, ' ');
+	this->request_keyvalue_map[key] = ready_TwoValueSet(value, ',');
 }
 
 void	HttpRequest::set_proxy_authenticate(const std::string &key, const std::string &value)
 {
-	std::stringstream	ss(value);
-	std::string			only_value;
-	std::string			except_onlyvalue_line;
-	std::string 		line;
-	std::getline(ss, only_value, ' ');
-	while (std::getline(ss, line, ' '))
-		except_onlyvalue_line = except_onlyvalue_line + line;
-	this->request_keyvalue_map[key] = ready_ValueMap(only_value, except_onlyvalue_line);
+	// Basic realm="Proxy Server"
+	std::string re_line = value.substr(1);
+	size_t	empty_position = re_line.find(' ');
+	std::string	before_space_word = re_line.substr(0, empty_position);
+	std::string	after_space_word = re_line.substr(empty_position + 1, re_line.length());
+
+	this->request_keyvalue_map[key] = ready_ValueMap(before_space_word, after_space_word);
 }
 
 void	HttpRequest::set_proxy_authorization(const std::string &key, const std::string &value)
@@ -796,6 +814,8 @@ void	HttpRequest::set_te(const std::string &key, const std::string &value)
 		}
 		else
 		{
+			if (line[0] == ' ')
+				line = line.substr(1);
 			if (!(line == "compress" || line == "deflate" || line == "gzip" || line == "trailers"))
 				return;
 		}
