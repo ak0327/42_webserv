@@ -34,6 +34,7 @@ include_directories(
         includes
         srcs/Debug
         srcs/Error
+        srcs/HttpResponse
 )
 
 # webserv_srcs -----------------------------------------------------------------
@@ -41,6 +42,7 @@ set(webserv_srcs
         srcs/get_valid_config_file_path.cpp
         srcs/Debug/Debug.cpp
         srcs/Error/Error.cpp
+        srcs/HttpResponse/HttpResponse.cpp
         )
 
 add_executable(webserv
