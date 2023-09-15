@@ -35,7 +35,8 @@ ValueDateSet::ValueDateSet(const std::string &date_format)
 	std::getline(ss, this->_day_name, ',');
 	std::getline(ss, line, ',');
 
-	std::stringstream	sss(line);
+	std::string after_line = line.substr(1);
+	std::stringstream	sss(after_line);
 	std::getline(sss, this->_day, ' ');
 	std::getline(sss, this->_month, ' ');
 	std::getline(sss, this->_year, ' ');

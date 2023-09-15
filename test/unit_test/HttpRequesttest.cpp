@@ -14,6 +14,31 @@
 #include "Result.hpp"
 #include <string>
 
+void	check(std::vector<std::string> target_vector, std::vector<std::string> subject_vector, size_t raw)
+{
+	std::vector<std::string>::iterator itr_now = target_vector.begin();
+	while (itr_now != target_vector.end())
+	{
+		if (std::find(subject_vector.begin(), subject_vector.end(), *itr_now) == subject_vector.end())
+		{
+			std::cout << *itr_now << " is not exist" << std::endl;
+			ADD_FAILURE_AT(__FILE__, raw);
+		}
+		itr_now++;
+	}
+}
+
+void	check(ValueDateSet *targetdatevalue, std::string day_name, std::string day, std::string month, std::string year, std::string hour, std::string minute, std::string second)
+{
+	EXPECT_EQ(targetdatevalue->get_valuedateset_day_name(), day_name);
+	EXPECT_EQ(targetdatevalue->get_valuedateset_day(), day);
+	EXPECT_EQ(targetdatevalue->get_valuedateset_month(), month);
+	EXPECT_EQ(targetdatevalue->get_valuedateset_year(), year);
+	EXPECT_EQ(targetdatevalue->get_valuedateset_hour(), hour);
+	EXPECT_EQ(targetdatevalue->get_valuedateset_minute(), minute);
+	EXPECT_EQ(targetdatevalue->get_valuedateset_second(), second);
+}
+
 void	check(std::map<std::string, std::string> target_wordmap, std::map<std::string, std::string> expected_wordmap, std::vector<std::string> keys)
 {
 	std::vector<std::string>::iterator itr_now = keys.begin();
@@ -232,4 +257,199 @@ TEST(Request, TEST2)
 	}
 }
 
-//g++ *.cpp ../HandleString/HandlingString.cpp
+// g++ *.cpp ../HandleString/HandlingString.cpp
+
+// GET /path/to/resource HTTP/1.1
+// X-Forwarded-For: 192.168.1.1
+// X-Request-ID: 12345
+// X-Requested-With: XMLHttpRequest
+// If-None-Match: "some_etag"
+// If-Modified-Since: Thu, 01 Sep 2023 12:00:00 GMT
+// Max-Forwards: 10
+// TE: trailers, deflate;q=0.5
+// From: sender@example.com
+// Origin: http://www.origin-example.com
+// Via: 1.0 proxy.example.com (Apache/1.1)
+// Age: 3600
+// Warning: 199 Miscellaneous warning
+// Access-Control-Allow-Origin: *
+// X-Frame-Options: SAMEORIGIN
+
+TEST(Request, TEST3)
+{
+	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\nX-Forwarded-For: 192.168.1.1\r\nX-Request-ID: 12345\r\nX-Requested-With: XMLHttpRequest\r\nIf-None-Match: some_etag\r\nIf-Modified-Since: Thu, 01 Sep 2023 12:00:00 GMT\r\nMax-Forwards: 10\r\nTE: trailers, deflate;q=0.5\r\nFrom: sender@example.com\r\nOrigin: http://www.origin-example.com\r\nVia: 1.0 proxy.example.com (Apache/1.1)\r\nAge: 3600\r\nWarning: 199 Miscellaneous warning\r\nAccess-Control-Allow-Origin: *\r\nX-Frame-Options: SAMEORIGIN\r\n";
+	HttpRequest httprequest_test1(TEST_REQUEST2);
+	EXPECT_EQ(httprequest_test1.get_requestline().get_method(), "GET");
+	EXPECT_EQ(httprequest_test1.get_requestline().get_target_page(), "/path/to/resource");
+	EXPECT_EQ(httprequest_test1.get_requestline().get_version(), "HTTP/1.1");
+	// if (same_class_test(__LINE__, "X-Forwarded-For", httprequest_test1) == true)
+	// {
+	// 	TwoValueSet* twoval1 = static_cast<TwoValueSet*>(httprequest_test1.return_value("Host"));
+	// 	check( twoval1->get_firstvalue(), twoval1->get_secondvalue(), "example.com", "");
+	// }
+	// if (same_class_test(__LINE__, "X-Forwarded-For", httprequest_test1) == true)
+	// {
+	// 	TwoValueSet* twoval1 = static_cast<TwoValueSet*>(httprequest_test1.return_value("Host"));
+	// 	check( twoval1->get_firstvalue(), twoval1->get_secondvalue(), "example.com", "");
+	// }
+	// if (same_class_test(__LINE__, "X-Request-ID", httprequest_test1) == true)
+	// {
+	// 	TwoValueSet* twoval1 = static_cast<TwoValueSet*>(httprequest_test1.return_value("Host"));
+	// 	check( twoval1->get_firstvalue(), twoval1->get_secondvalue(), "example.com", "");
+	// }
+	// if (same_class_test(__LINE__, "X-Requested-With", httprequest_test1) == true)
+	// {
+	// 	TwoValueSet* twoval1 = static_cast<TwoValueSet*>(httprequest_test1.return_value("Host"));
+	// 	check( twoval1->get_firstvalue(), twoval1->get_secondvalue(), "example.com", "");
+	// }
+	if (same_class_test(__LINE__, "If-None-Match", httprequest_test1) == true)
+	{
+		ValueArraySet* val1 = static_cast<ValueArraySet*>(httprequest_test1.return_value("If-None-Match"));
+		std::vector<std::string> vector1;
+		vector1.push_back("some_etag");
+		check(val1->get_value_array(), vector1, 310);
+	}
+	if (same_class_test(__LINE__, "If-Modified-Since", httprequest_test1) == true)
+	{
+		ValueDateSet *dateval2 = static_cast<ValueDateSet*>(httprequest_test1.return_value("If-Modified-Since"));
+		check(dateval2, "Thu", "01", "Sep", "2023", "12", "00", "00");
+	}
+	if (same_class_test(__LINE__, "Max-Forwards", httprequest_test1) == true)
+	{
+		ValueSet* val3 = static_cast<ValueSet*>(httprequest_test1.return_value("Max-Forwards"));
+		check(val3->get_value_set(), "10");
+	}
+	if (same_class_test(__LINE__, "TE", httprequest_test1) == true)
+	{
+		ValueWeightArraySet* valweightarrayset4 = static_cast<ValueWeightArraySet*>(httprequest_test1.return_value("TE"));
+		std::map<std::string, double> keyvalue4;
+		std::vector<std::string> keys4;
+		keyvalue4["trailers"] = 1.0;
+		keyvalue4["deflate"] = 0.5;
+		keys4.push_back("trailers");
+		keys4.push_back("deflate");
+		check(valweightarrayset4->get_valueweight_set(), keyvalue4, keys4);
+	}
+	if (same_class_test(__LINE__, "From", httprequest_test1) == true)
+	{
+		ValueSet* val5 = static_cast<ValueSet*>(httprequest_test1.return_value("From"));
+		check(val5->get_value_set(), "sender@example.com");
+	}
+	if (same_class_test(__LINE__, "Origin", httprequest_test1) == true)
+	{
+		ValueSet* val6 = static_cast<ValueSet*>(httprequest_test1.return_value("Origin"));
+		check(val6->get_value_set(), "http://www.origin-example.com");
+	}
+	if (same_class_test(__LINE__, "Via", httprequest_test1) == true)
+	{
+		ValueSet* val7 = static_cast<ValueSet*>(httprequest_test1.return_value("Via"));
+		check(val7->get_value_set(), "1.0 proxy.example.com (Apache/1.1)");
+	}
+	if (same_class_test(__LINE__, "Age", httprequest_test1) == true)
+	{
+		ValueSet* val8 = static_cast<ValueSet*>(httprequest_test1.return_value("Age"));
+		check(val8->get_value_set(), "3600");
+	}
+	// if (same_class_test(__LINE__, "Warning", httprequest_test1) == true)
+	// {
+	// 	TwoValueSet* twoval1 = static_cast<TwoValueSet*>(httprequest_test1.return_value("Warning"));
+	// 	check( twoval1->get_firstvalue(), twoval1->get_secondvalue(), "example.com", "");
+	// }
+	if (same_class_test(__LINE__, "Access-Control-Allow-Origin", httprequest_test1) == true)
+	{
+		ValueSet* val9 = static_cast<ValueSet*>(httprequest_test1.return_value("Access-Control-Allow-Origin"));
+		check(val9->get_value_set(), "*");
+	}
+	// if (same_class_test(__LINE__, "X-Frame-Options", httprequest_test1) == true)
+	// {
+	// 	TwoValueSet* twoval1 = static_cast<TwoValueSet*>(httprequest_test1.return_value("Host"));
+	// 	check( twoval1->get_firstvalue(), twoval1->get_secondvalue(), "example.com", "");
+	// }
+}
+
+// GET /example HTTP/1.1
+// Host: example.com
+// Accept-CH: viewport-width, width, downlink
+// Accept-Charset: utf-8
+// Accept-Post: text/html, application/json
+// Accept-Ranges: bytes
+// Access-Control-Allow-Credentials: true
+// Access-Control-Allow-Headers: Content-Type, Authorization
+// Access-Control-Allow-Methods: GET, POST, PUT, DELETE
+
+TEST(Request, TEST4)
+{
+	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\nHost: example.com\r\nAccept-CH: viewport-width, width, downlink\r\nAccept-Charset: utf-8\r\nAccept-Post: text/html, application/json\r\nAccept-Ranges: bytes\r\nAccess-Control-Allow-Credentials: true\r\nAccess-Control-Allow-Headers: Content-Type, Authorization\r\nAccess-Control-Allow-Methods: GET, POST, PUT, DELETE\r\n";
+	HttpRequest httprequest_test1(TEST_REQUEST2);
+	EXPECT_EQ(httprequest_test1.get_requestline().get_method(), "GET");
+	EXPECT_EQ(httprequest_test1.get_requestline().get_target_page(), "/example");
+	EXPECT_EQ(httprequest_test1.get_requestline().get_version(), "HTTP/1.1");
+	if (same_class_test(__LINE__, "Accept-CH", httprequest_test1) == true)
+	{
+		ValueArraySet* val1 = static_cast<ValueArraySet*>(httprequest_test1.return_value("Accept-CH"));
+		std::vector<std::string> vector1;
+		vector1.push_back("viewport-width");
+		vector1.push_back("width");
+		vector1.push_back("downlink");
+		check(val1->get_value_array(), vector1, 394);
+	}
+	if (same_class_test(__LINE__, "Accept-Charset", httprequest_test1) == true)
+	{
+		ValueWeightArraySet* valweightarrayset2 = static_cast<ValueWeightArraySet*>(httprequest_test1.return_value("Accept-Charset"));
+		std::map<std::string, double> keyvalue2;
+		std::vector<std::string> keys2;
+		keyvalue2["utf-8"] = 1.0;
+		keys2.push_back("utf-8");
+		check(valweightarrayset2->get_valueweight_set(), keyvalue2, keys2);
+	}
+	if (same_class_test(__LINE__, "Accept-Post", httprequest_test1) == true)
+	{
+		TwoValueSet* twoval3 = static_cast<TwoValueSet*>(httprequest_test1.return_value("Accept-Post"));
+		check( twoval3->get_firstvalue(), twoval3->get_secondvalue(), "text/html", "application/json");
+	}
+	if (same_class_test(__LINE__, "Accept-Ranges", httprequest_test1) == true)
+	{
+		ValueSet* val4 = static_cast<ValueSet*>(httprequest_test1.return_value("Accept-Ranges"));
+		check(val4->get_value_set(), "bytes");
+	}
+	if (same_class_test(__LINE__, "Access-Control-Allow-Credentials", httprequest_test1) == true)
+	{
+		ValueSet* val5 = static_cast<ValueSet*>(httprequest_test1.return_value("Access-Control-Allow-Credentials"));
+		check(val5->get_value_set(), "true");
+	}
+	if (same_class_test(__LINE__, "Access-Control-Allow-Headers", httprequest_test1) == true)
+	{
+		ValueArraySet* val6 = static_cast<ValueArraySet*>(httprequest_test1.return_value("Access-Control-Allow-Headers"));
+		std::vector<std::string> vector6;
+		vector6.push_back("Content-Type");
+		vector6.push_back("Authorization");
+		check(val6->get_value_array(), vector6, 426);
+	}
+	if (same_class_test(__LINE__, "Access-Control-Allow-Methods", httprequest_test1) == true)
+	{
+		ValueArraySet* val7 = static_cast<ValueArraySet*>(httprequest_test1.return_value("Access-Control-Allow-Methods"));
+		std::vector<std::string> vector7;
+		// GET, POST, PUT, DELETE
+		vector7.push_back("GET");
+		vector7.push_back("POST");
+		vector7.push_back("PUT");
+		vector7.push_back("DELETE");
+		check(val7->get_value_array(), vector7, 426);
+	}
+}
+
+// OPTIONS /example HTTP/1.1
+// Host: example.com
+// Access-Control-Expose-Headers: X-Custom-Header, Content-Type
+// Access-Control-Max-Age: 3600
+// Access-Control-Request-Headers: Authorization, Content-Type
+// Access-Control-Request-Method: POST
+// Allow: GET, POST, PUT, DELETE
+// Alt-Svc: h2="https://example.com:443"
+// Alt-Used: h2
+// Clear-Site-Data: "cache", "cookies"
+
+TEST(Request, TEST5)
+{
+
+}

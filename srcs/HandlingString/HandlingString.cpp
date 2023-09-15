@@ -204,9 +204,9 @@ std::string HandlingString::obtain_afterword(const std::string other, char delim
 	return other.substr(other.find(delimiter) + 1);
 }
 
-double	HandlingString::obtain_weight(const std::string &other)
+std::string	HandlingString::obtain_weight(const std::string &other)
 {
-	return (HandlingString::str_to_double(HandlingString::obtain_afterword(other, '=')));
+	return (HandlingString::obtain_afterword(other, '='));
 }
 
 bool	HandlingString::check_int_or_not(const std::string &value)
@@ -216,7 +216,7 @@ bool	HandlingString::check_int_or_not(const std::string &value)
 
 	while (now_location != value_length)
 	{
-		if (!('0' < value[now_location] && value[now_location] < '9'))
+		if (!('0' <= value[now_location] && value[now_location] <= '9'))
 			return (false);
 		now_location++;
 	}
@@ -233,12 +233,15 @@ bool	HandlingString::check_double_or_not(const std::string &value)
 	while (now_location != value_length)
 	{
 		if (value[now_location] == '.')
+		{
 			dot_counter++;
+			now_location++;
+		}
 		if (!('0' <= value[now_location] && value[now_location] <= '9'))
 			return (false);
 		now_location++;
 	}
-	if (dot_counter != 1)
+	if (dot_counter > 1)
 		return (false);
 	return (true);
 }

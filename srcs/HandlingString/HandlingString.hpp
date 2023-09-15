@@ -29,7 +29,7 @@ class HandlingString
 		static	void						ft_strcpy(char *input_memory, std::string const &sub);
 		static	std::string					obtain_beforeword(const std::string other, char delimiter);
 		static	std::string					obtain_afterword(const std::string other, char delimiter);
-		static	double						obtain_weight(const std::string &other);
+		static	std::string					obtain_weight(const std::string &other);
 		static	bool						check_int_or_not(const std::string &value);
 		static	bool						check_double_or_not(const std::string &value);
 		static	bool						check_doublequote_format(const std::string &value);

@@ -107,7 +107,7 @@ ValueWeightArraySet*	HttpRequest::ready_ValueWeightArraySet(const std::string &v
 		else
 			changed_line = line;
 		if (changed_line.find(';') != std::string::npos)
-			value_map[HandlingString::obtain_beforeword(changed_line, ';')] = HandlingString::obtain_weight(HandlingString::obtain_afterword(changed_line, ';'));
+			value_map[HandlingString::obtain_beforeword(changed_line, ';')] = HandlingString::str_to_double(HandlingString::obtain_weight(HandlingString::obtain_afterword(changed_line, ';')));
 		else
 			value_map[changed_line] = 1.0;
 	}
@@ -129,7 +129,7 @@ bool	HttpRequest::check_keyword_exist(const std::string &key)
 		"Cross-Origin-Opener-Policy", "Cross-Origin-Resource-Policy", "ETag", "Expect-CT", "Expires", "Forwarded", "From",
 		"Last-Modified", "Location", "Origin", "Permissions-Policy", "Proxy-Authenticate", "Proxy-Authorization", "Referrer-Policy",
 		"Retry-After", "Server", "Server-Timing", "Set-Cookie", "SourceMap", "Timing-Allow-Origin",
-		"Upgrade-Insecure-Requests", "Vary", "WWW-Authenticate"
+		"Upgrade-Insecure-Requests", "Vary", "WWW-Authenticate", "Max-Forwards", "TE", "Accept-Post"
 	};
 	const std::set<std::string> httprequest_keyset
 	(
@@ -227,7 +227,7 @@ void	HttpRequest::set_accept_encoding(const std::string &key, const std::string 
 		}
 	}
 	last_line = skipping_nokeyword.substr(0, skipping_nokeyword.length() - 1);
-	std::cout << last_line << std::endl;
+
 	this->request_keyvalue_map[key] = ready_ValueWeightArraySet(last_line);
 }
 
@@ -291,7 +291,7 @@ bool	HttpRequest::check_accept_langage_valueword(const std::string &value)
 
 void	HttpRequest::set_accept_post(const std::string &key, const std::string &value)
 {
-	this->request_keyvalue_map[key] = ready_TwoValueSet(value);
+	this->request_keyvalue_map[key] = ready_TwoValueSet(value, ',');
 }
 
 void	HttpRequest::set_accept_ranges(const std::string &key, const std::string &value)
@@ -326,10 +326,15 @@ void	HttpRequest::set_access_control_allow_methods(const std::string &key, const
 {
 	std::stringstream	ss(value);
 	std::string			line;
+	std::string			word;
 	while(std::getline(ss, line, ','))
 	{
-		if (line != "GET" && line != "HEAD" && line != "POST" && line != "PUT" && line != "PUT" && line != "DELETE" \
-		&& line != "CONNECT" && line != "OPTIONS" && line != "TRACE" && line != "PATCH")
+		if (line[0] == ' ')
+			word = line.substr(1);
+		else
+			word = line;
+		if (word != "GET" && word != "HEAD" && word != "POST" && word != "PUT" && word != "PUT" && word != "DELETE" \
+		&& word != "CONNECT" && word != "OPTIONS" && word != "TRACE" && word != "PATCH")
 			return;
 	}
 	this->request_keyvalue_map[key] = ready_ValueArraySet(value);
@@ -770,6 +775,8 @@ void	HttpRequest::set_te(const std::string &key, const std::string &value)
 	{
 		if (line.find(';') != std::string::npos)
 		{
+			if (line[0] == ' ')
+				line = line.substr(1);
 			target_key = HandlingString::obtain_beforeword(line, ';');
 			target_value = HandlingString::obtain_weight(HandlingString::obtain_afterword(line, ';'));
 			if (!(target_key == "compress" || target_key == "deflate" || target_key == "gzip" || target_key == "trailers"))
