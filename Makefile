@@ -21,7 +21,8 @@ SRCS		+=	$(ERROR_DIR)/Error.cpp
 
 #HttpResponse
 RESPONSE_DIR =	HttpResponse
-SRCS		+=	$(RESPONSE_DIR)/HttpResponse.cpp
+SRCS		+=	$(RESPONSE_DIR)/HttpResponse.cpp \
+				$(RESPONSE_DIR)/GET/get_request_body.cpp
 
 
 # OBJS -------------------------------------------------------------------------
