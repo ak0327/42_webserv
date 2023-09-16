@@ -10,9 +10,12 @@
 !srcs/Error
 !srcs/HttpResponse
 !srcs/HttpResponse/*
+!srcs/Socket
+
 !www
 !includes
 !test
+!playground
 
 !*.cpp
 !*.hpp
