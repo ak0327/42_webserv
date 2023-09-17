@@ -16,6 +16,8 @@
 #include "../TwoValueSet/TwoValueSet.hpp"
 #include "../ValueMap/ValueMap.hpp"
 #include "../ValueDateSet/ValueDateSet.hpp"
+#include "../SecurityPolicy/SecurityPolicy.hpp"
+#include "../LinkClass/LinkClass.hpp"
 
 class BaseKeyValueMap;
 
@@ -43,9 +45,15 @@ class HttpRequest
 		ValueArraySet		*ready_ValueArraySet(const std::string &value);
 		ValueDateSet		*ready_ValueDateSet(const std::string &value);
 		ValueMap			*ready_ValueMap(const std::string &value);
+		ValueMap			*ready_ValueMap(const std::string &value, char delimiter);
 		ValueMap			*ready_ValueMap(const std::string &only_value, const std::string &value);
 		ValueSet			*ready_ValueSet(const std::string &value);
 		ValueWeightArraySet	*ready_ValueWeightArraySet(const std::string &value);
+		std::vector<std::string>	securitypolicy_readyvector(const std::string &words);
+		SecurityPolicy		*ready_SecurityPolicy(const std::string &report_url, std::map<std::string, std::vector<std::string> >	_policy_directive);
+		SecurityPolicy		*ready_SecurityPolicy(std::map<std::string, std::vector<std::string> >	_policy_directive);
+		LinkClass			*ready_LinkClass(std::map<std::string, std::map<std::string, std::string> > link_valuemap);
+		std::map<std::string, std::string>	ready_mappingvalue(const std::string &value_map);
 		void				ready_functionmap(void);
 		double				_status_code;
 	public:

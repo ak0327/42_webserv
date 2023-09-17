@@ -45,6 +45,8 @@ include_directories(
         srsc/HttpRequest/ValueMap
         srsc/HttpRequest/ValueSet
         srsc/HttpRequest/ValueWeightArraySet
+        srcs/HttpRequest/SecurityPolicy
+        srcs/HttpRequest/LinkClass
 )
 
 # webserv_srcs -----------------------------------------------------------------
@@ -75,6 +77,8 @@ set (httprequest_unit_test
         srcs/HttpRequest/ValueMap/ValueMap.cpp
         srcs/HttpRequest/ValueSet/ValueSet.cpp
         srcs/HttpRequest/ValueWeightArraySet/ValueWeightArraySet.cpp
+        srcs/HttpRequest/SecurityPolicy/SecurityPolicy.cpp
+        srcs/HttpRequest/LinkClass/LinkClass.cpp
         )
 
 set (unit_test_srcs
@@ -82,7 +86,7 @@ set (unit_test_srcs
         test/unit_test/TestError.cpp
         test/unit_test/TestResult.cpp
         test/unit_test/TestSocket.cpp
-        test/unit_test/HttpRequesttest.cpp
+        test/unit_test/TestHttpRequest.cpp
 )
 
 add_executable(unit_test

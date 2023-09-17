@@ -243,6 +243,17 @@ bool	HandlingString::check_double_or_not(const std::string &value)
 	}
 	if (dot_counter > 1)
 		return (false);
+	std::istringstream ss(value);
+	double value_to_double;
+	if (ss >> value_to_double)
+	{
+        if (value_to_double < 0) 
+            return (false);
+        if (value_to_double <= static_cast<double>(std::numeric_limits<int>::max()))
+            return (true);
+        else
+            return (false);
+    }
 	return (true);
 }
 

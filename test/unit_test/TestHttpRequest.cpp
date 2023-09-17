@@ -7,6 +7,7 @@
 #include "../../srcs/HttpRequest/ValueMap/ValueMap.hpp"
 #include "../../srcs/HttpRequest/ValueWeightArraySet/ValueWeightArraySet.hpp"
 #include "../../srcs/HttpRequest/HttpRequest/HttpRequest.hpp"
+#include "../../srcs/HttpRequest/SecurityPolicy/SecurityPolicy.hpp"
 #include "gtest/gtest.h"
 #include "../../includes/Color.hpp"
 #include "../../srcs/Error/Error.hpp"
@@ -14,7 +15,37 @@
 #include "Result.hpp"
 #include <string>
 
-void	check(std::vector<std::string> target_vector, std::vector<std::string> subject_vector, size_t raw)
+void	compare_inputvalue_truevalue_linkclass(std::map<std::string, std::map<std::string, std::string> > test_map_values, std::map<std::string, std::map<std::string, std::string> > true_map_values, size_t line)
+{
+	std::map<std::string, std::map<std::string, std::string> >::iterator true_itr_now = true_map_values.begin();
+	std::map<std::string, std::string>	checking_map;
+	std::map<std::string, std::string>	true_map;
+	while (true_itr_now != true_map_values.end())
+	{
+		if (test_map_values.find(true_itr_now->first) == test_map_values.end())
+			ADD_FAILURE_AT(__FILE__, line);
+		else
+		{
+			checking_map = test_map_values[true_itr_now->first];
+			true_map = true_map_values[true_itr_now->first];
+			std::map<std::string, std::string>::iterator true_map_itr_now = true_map.begin();
+			while (true_map_itr_now != true_map.end())
+			{
+				if (checking_map.find(true_map_itr_now->first) == true_map.end())
+				{
+					std::cout << true_map_itr_now->first << " is not exist" << std::endl;
+					ADD_FAILURE_AT(__FILE__, line);
+				}
+				else
+					EXPECT_EQ(checking_map[true_map_itr_now->first], true_map[true_map_itr_now->first]);
+				true_map_itr_now++;
+			}
+		}
+		true_itr_now++;
+	}
+}
+
+void	check(std::vector<std::string> target_vector, std::vector<std::string> subject_vector, size_t line)
 {
 	std::vector<std::string>::iterator itr_now = target_vector.begin();
 	while (itr_now != target_vector.end())
@@ -22,8 +53,21 @@ void	check(std::vector<std::string> target_vector, std::vector<std::string> subj
 		if (std::find(subject_vector.begin(), subject_vector.end(), *itr_now) == subject_vector.end())
 		{
 			std::cout << *itr_now << " is not exist" << std::endl;
-			ADD_FAILURE_AT(__FILE__, raw);
+			ADD_FAILURE_AT(__FILE__, line);
 		}
+		itr_now++;
+	}
+}
+
+void	check(std::map<std::string, std::vector<std::string> > target_map, std::map<std::string, std::vector<std::string> > true_map, size_t line)
+{
+	std::map<std::string, std::vector<std::string> >::iterator itr_now = true_map.begin();
+	while (itr_now != true_map.end())
+	{
+		if (target_map.find(itr_now->first) == target_map.end())
+			ADD_FAILURE_AT(__FILE__, line);
+		else
+			check(target_map[itr_now->first], true_map[itr_now->first], line);
 		itr_now++;
 	}
 }
@@ -112,8 +156,9 @@ void	check(const std::string &target_word, const std::string &expected_word)
 	EXPECT_EQ(target_word, expected_word);
 }
 
-bool	same_class_test(int raw, const char *key, HttpRequest &target)
+bool	same_class_test(int line, const char *key, HttpRequest &target)
 {
+	(void)line;
 	std::map<std::string, BaseKeyValueMap*>keyvaluemap = target.get_request_keyvalue_map();
 	std::map<std::string, BaseKeyValueMap*>::iterator itr_now = keyvaluemap.begin();
 	while (itr_now != keyvaluemap.end())
@@ -124,9 +169,28 @@ bool	same_class_test(int raw, const char *key, HttpRequest &target)
 	}
 	if (itr_now == keyvaluemap.end())
 	{
-		ADD_FAILURE_AT(__FILE__, raw);
+		ADD_FAILURE_AT(__FILE__, line);
 		return (false);
 	}
+	return (true);
+}
+
+bool	keyword_doesnot_exist(int line, const char *key, HttpRequest &target)
+{
+	(void)line;
+	std::map<std::string, BaseKeyValueMap*>keyvaluemap = target.get_request_keyvalue_map();
+	std::map<std::string, BaseKeyValueMap*>::iterator itr_now = keyvaluemap.begin();
+	while (itr_now != keyvaluemap.end())
+	{
+		if (itr_now->first == key)
+			break;
+		itr_now++;
+	}
+	if (itr_now == keyvaluemap.end())
+	{
+		return (false);
+	}
+	ADD_FAILURE_AT(__FILE__, line);
 	return (true);
 }
 
@@ -250,12 +314,12 @@ TEST(Request, TEST2)
 		check( valmap8->get_value_map(), valuemap8, keys8);
 	}
 	//Authorization
-	// if (same_class_test(__LINE__, "Authorization", httprequest_test1) == true)
-	// {
-	// 	//map型
-	// 	ValueSet* val = static_cast<ValueSet*>(httprequest_test1.return_value("User-Agent"));
-	// 	check( val->get_value_set(), "http://www.example.com/referrer");
-	// }
+	if (same_class_test(__LINE__, "Authorization", httprequest_test1) == true)
+	{
+		//map型 Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
+		TwoValueSet* twoval9 = static_cast<TwoValueSet*>(httprequest_test1.return_value("Authorization"));
+		check(twoval9->get_firstvalue(), twoval9->get_secondvalue(), "Basic", "QWxhZGRpbjpvcGVuIHNlc2FtZQ==");
+	}
 	// if (same_class_test(__LINE__, "Cache-Control", httprequest_test1) == true)
 	// {
 	// 	//map型
@@ -329,7 +393,7 @@ TEST(Request, TEST3)
 		ValueArraySet* val1 = static_cast<ValueArraySet*>(httprequest_test1.return_value("If-None-Match"));
 		std::vector<std::string> vector1;
 		vector1.push_back("some_etag");
-		check(val1->get_value_array(), vector1, 310);
+		check(val1->get_value_array(), vector1, __LINE__);
 	}
 	if (same_class_test(__LINE__, "If-Modified-Since", httprequest_test1) == true)
 	{
@@ -389,6 +453,26 @@ TEST(Request, TEST3)
 	// }
 }
 
+TEST(Request, MAX_FORWARDS_TEST)
+{
+	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\nMax-Forwards: -1\r\nMax-Forwards: 1000000000000000000\r\n";
+	HttpRequest httprequest_test1(TEST_REQUEST2);
+	EXPECT_EQ(httprequest_test1.get_requestline().get_method(), "GET");
+	EXPECT_EQ(httprequest_test1.get_requestline().get_target_page(), "/path/to/resource");
+	EXPECT_EQ(httprequest_test1.get_requestline().get_version(), "HTTP/1.1");
+	keyword_doesnot_exist(__LINE__, "Max-Forwards", httprequest_test1);
+}
+
+TEST(Request, AGE_MINUS)
+{
+	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\nAge: -1\r\nAge: 11111111111111\r\nAge: -1";
+	HttpRequest httprequest_test1(TEST_REQUEST2);
+	EXPECT_EQ(httprequest_test1.get_requestline().get_method(), "GET");
+	EXPECT_EQ(httprequest_test1.get_requestline().get_target_page(), "/path/to/resource");
+	EXPECT_EQ(httprequest_test1.get_requestline().get_version(), "HTTP/1.1");
+	keyword_doesnot_exist(__LINE__, "Age", httprequest_test1);
+}
+
 // GET /example HTTP/1.1
 // Host: example.com
 // Accept-CH: viewport-width, width, downlink
@@ -445,7 +529,7 @@ TEST(Request, TEST4)
 		std::vector<std::string> vector6;
 		vector6.push_back("Content-Type");
 		vector6.push_back("Authorization");
-		check(val6->get_value_array(), vector6, 426);
+		check(val6->get_value_array(), vector6, 492);
 	}
 	if (same_class_test(__LINE__, "Access-Control-Allow-Methods", httprequest_test1) == true)
 	{
@@ -456,7 +540,7 @@ TEST(Request, TEST4)
 		vector7.push_back("POST");
 		vector7.push_back("PUT");
 		vector7.push_back("DELETE");
-		check(val7->get_value_array(), vector7, 426);
+		check(val7->get_value_array(), vector7, 503);
 	}
 }
 
@@ -484,7 +568,7 @@ TEST(Request, TEST5)
 		std::vector<std::string> vector1;
 		vector1.push_back("X-Custom-Header");
 		vector1.push_back("Content-Type");
-		check(val1->get_value_array(), vector1, 465);
+		check(val1->get_value_array(), vector1, 531);
 	}
 	if (same_class_test(__LINE__, "Access-Control-Max-Age", httprequest_test1) == true)
 	{
@@ -579,6 +663,7 @@ TEST(Request, TEST6)
 	}
 	if (same_class_test(__LINE__, "Content-Length", httprequest_test1) == true)
 	{
+
 		ValueSet* val4 = static_cast<ValueSet*>(httprequest_test1.return_value("Content-Length"));
 		check(val4->get_value_set(), "1024");
 	}
@@ -592,17 +677,36 @@ TEST(Request, TEST6)
 		ValueSet* val6 = static_cast<ValueSet*>(httprequest_test1.return_value("Content-Range"));
 		check(val6->get_value_set(), "bytes 0-511/1024");
 	}
-	// if (same_class_test(__LINE__, "Content-Security-Policy", httprequest_test1) == true)
-	// {
-	// 	TwoValueSet* twoval7 = static_cast<TwoValueSet*>(httprequest_test1.return_value("Content-Security-Policy"));
-	// 	check( twoval7->get_firstvalue(), twoval7->get_secondvalue(), "default-src \'self\'", "script-src \'self\' \'unsafe-inline\'");
-	// }
+	if (same_class_test(__LINE__, "Content-Security-Policy", httprequest_test1) == true)
+	{
+		SecurityPolicy* securitypolicy7 = static_cast<SecurityPolicy*>(httprequest_test1.return_value("Content-Security-Policy"));
+		std::map<std::string, std::vector<std::string> >	policy_directive;
+		// default-src 'self'; script-src 'self' 'unsafe-inline'
+		std::vector<std::string>	test_vector7_1;
+		std::vector<std::string>	test_vector7_2;
+		test_vector7_1.push_back("\'self\'");
+		test_vector7_2.push_back("\'self\'");
+		test_vector7_2.push_back("\'unsafe-inline\'");
+		policy_directive["default-src"] = test_vector7_1;
+		policy_directive["script-src"] = test_vector7_2;
+		check(securitypolicy7->get_policy_directhive(), policy_directive, __LINE__);
+	}
 	if (same_class_test(__LINE__, "Content-Type", httprequest_test1) == true)
 	{
 		//map型
 		ValueMap* valmap8 = static_cast<ValueMap*>(httprequest_test1.return_value("Content-Type"));
 		EXPECT_EQ(valmap8->get_only_value(), "application/json");
 	}
+}
+
+TEST(Request, TEST_CONTENT_LENGTH)
+{
+	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\nContent-Length: -1\r\nContent-Length: 10000000000000000\r\n";
+	HttpRequest httprequest_test1(TEST_REQUEST2);
+	EXPECT_EQ(httprequest_test1.get_requestline().get_method(), "GET");
+	EXPECT_EQ(httprequest_test1.get_requestline().get_target_page(), "/example");
+	EXPECT_EQ(httprequest_test1.get_requestline().get_version(), "HTTP/1.1");
+	keyword_doesnot_exist(__LINE__, "Content-Length", httprequest_test1);
 }
 
 // GET /example HTTP/1.1\r\n
@@ -694,23 +798,35 @@ TEST(Request, TEST7)
 		ValueDateSet *dateval10 = static_cast<ValueDateSet*>(httprequest_test1.return_value("If-Unmodified-Since"));
 		check(dateval10, "Thu", "15", "Sep", "2023", "11", "30", "00");
 	}
-	// if (same_class_test(__LINE__, "Keep-Alive", httprequest_test1) == true)
-	// {
-	// 	//map型
-	// 	ValueMap* valmap11 = static_cast<ValueMap*>(httprequest_test1.return_value("Keep-Alive"));
-	// 	std::map<std::string, std::string> valuemap11;
-	// 	std::vector<std::string> keys11;
-	// 	valuemap11["timeout"] = "5";
-	// 	valuemap11["max"] = "1000";
-	// 	keys11.push_back("timeout");
-	// 	keys11.push_back("max");
-	// 	check(valmap11->get_value_map(), valuemap11, keys11);
-	// }
+	if (same_class_test(__LINE__, "Keep-Alive", httprequest_test1) == true)
+	{
+		//map型
+		ValueMap* valmap11 = static_cast<ValueMap*>(httprequest_test1.return_value("Keep-Alive"));
+		std::map<std::string, std::string> valuemap11;
+		std::vector<std::string> keys11;
+		valuemap11["timeout"] = "5";
+		valuemap11["max"] = "1000";
+		keys11.push_back("timeout");
+		keys11.push_back("max");
+		check(valmap11->get_value_map(), valuemap11, keys11);
+	}
 	if (same_class_test(__LINE__, "Last-Modified", httprequest_test1) == true)
 	{
 		// Thu, 15 Sep 2023 11:45:00 GMT
 		ValueDateSet *dateval12 = static_cast<ValueDateSet*>(httprequest_test1.return_value("Last-Modified"));
 		check(dateval12, "Thu", "15", "Sep", "2023", "11", "45", "00");
+	}
+	if (same_class_test(__LINE__, "Link", httprequest_test1) == true)
+	{
+		// Thu, 15 Sep 2023 11:45:00 GMT
+		// <https://example.com/style.css>; rel=preload; as=style\r\n
+		std::map<std::string, std::map<std::string, std::string> > test_map_values;
+		std::map<std::string, std::string>	map_value;
+		map_value["rel"] = "preload";
+		map_value["as"] = "style";
+		test_map_values["<https://example.com/style.css>"] = map_value;
+		LinkClass *linkckass12 = static_cast<LinkClass*>(httprequest_test1.return_value("Link"));
+		compare_inputvalue_truevalue_linkclass(linkckass12->get_link_valuemap(), test_map_values, __LINE__);
 	}
 	if (same_class_test(__LINE__, "Location", httprequest_test1) == true)
 	{
@@ -938,3 +1054,5 @@ TEST(Request, TEST9)
 	// 	check(val1->get_value_array(), vector1, 310);
 	// }
 }
+
+//イレギュラーケース　数字系統の異常
