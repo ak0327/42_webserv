@@ -310,3 +310,8 @@ std::string HandlingString::obtain_value(const std::string &value)
 		after_location--;
 	return (value.substr(before_location, after_location - before_location + 1));
 }
+
+bool	HandlingString::check_printablecontent()
+{
+	
+}

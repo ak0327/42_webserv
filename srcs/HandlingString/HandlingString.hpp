@@ -36,6 +36,7 @@ class HandlingString
 		static	bool						check_doublequote_format(const std::string &value);
 		static	std::string					obtain_string_in_doublequote(const std::string &value);
 		static	std::string					obtain_value(const std::string &value);
+		static	bool						check_printablecontent(const std::string &value);
 };
 
 #endif  // SRCS_HANDLINGSTRING_HANDLINGSTRING_HPP_

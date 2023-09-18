@@ -33,8 +33,8 @@ class HttpRequest
 {
 	private:
 		RequestLine	_requestline;
-		std::map<std::string, void(HttpRequest::*)(const std::string&, const std::string&)> inputvalue_functionmap;
-		std::map<std::string, BaseKeyValueMap*> request_keyvalue_map;
+		std::map<std::string, void(HttpRequest::*)(const std::string&, const std::string&)> _inputvalue_functionmap;
+		std::map<std::string, BaseKeyValueMap*> _request_keyvalue_map;
 		HttpRequest();
 		HttpRequest(const HttpRequest &other);
 		bool		check_keyword_exist(const std::string &key);
