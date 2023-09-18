@@ -10,7 +10,7 @@ ValueWeightArraySet& ValueWeightArraySet::operator=(const ValueWeightArraySet &o
 	return (*this);
 }
 
-ValueWeightArraySet::ValueWeightArraySet(const ValueWeightArraySet &other)
+ValueWeightArraySet::ValueWeightArraySet(const ValueWeightArraySet &other):BaseKeyValueMap(other)
 {
 	this->_valueweight_set = other.get_valueweight_set();
 }
