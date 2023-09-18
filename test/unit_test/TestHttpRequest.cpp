@@ -14,6 +14,7 @@
 #include "../../srcs/Debug/Debug.hpp"
 #include "Result.hpp"
 #include <string>
+#include <algorithm>
 
 void	compare_inputvalue_truevalue_linkclass(std::map<std::string, std::map<std::string, std::string> > test_map_values, std::map<std::string, std::map<std::string, std::string> > true_map_values, size_t line)
 {
