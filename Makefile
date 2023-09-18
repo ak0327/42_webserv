@@ -77,6 +77,14 @@ run_unit_test	:
 	./build/unit_test 2>/dev/null
 	#./build/unit_test
 
+.PHONY	: run_leaks
+run_leaks	:
+	#rm -rf build
+	cmake -S . -B build -DUSE_LEAKS=ON
+	cmake --build build
+	#leaks -q --atExit -- ./build/unit_test 2>/dev/null
+	leaks -q --atExit -- ./build/unit_test
+
 .PHONY	: run_result_test
 run_result_test	:
 	#rm -rf build
