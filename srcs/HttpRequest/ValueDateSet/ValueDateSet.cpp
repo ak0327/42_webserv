@@ -2,7 +2,7 @@
 
 ValueDateSet::ValueDateSet():BaseKeyValueMap(){}
 
-ValueDateSet::ValueDateSet(const ValueDateSet &other):BaseKeyValueMap()
+ValueDateSet::ValueDateSet(const ValueDateSet &other):BaseKeyValueMap(other)
 {
 	this->_day_name = other._day_name;
 	this->_day = other._day;
