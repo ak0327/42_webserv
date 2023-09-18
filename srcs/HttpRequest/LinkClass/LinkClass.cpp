@@ -1,6 +1,6 @@
 #include "LinkClass.hpp"
 
-LinkClass::LinkClass(std::map<std::string, std::map<std::string, std::string> > link_valuemap)
+LinkClass::LinkClass(std::map<std::string, std::map<std::string, std::string> > link_valuemap):BaseKeyValueMap()
 {
 	this->_link_valuemap = link_valuemap;
 }

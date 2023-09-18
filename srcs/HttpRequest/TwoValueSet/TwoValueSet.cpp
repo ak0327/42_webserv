@@ -1,6 +1,6 @@
 #include "TwoValueSet.hpp"
 
-TwoValueSet::TwoValueSet(){}
+TwoValueSet::TwoValueSet():BaseKeyValueMap(){}
 
 TwoValueSet::TwoValueSet(std::string const &first_value)
 {

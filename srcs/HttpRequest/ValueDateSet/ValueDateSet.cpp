@@ -1,6 +1,6 @@
 #include "ValueDateSet.hpp"
 
-ValueDateSet::ValueDateSet(){}
+ValueDateSet::ValueDateSet():BaseKeyValueMap(){}
 
 ValueDateSet::ValueDateSet(const ValueDateSet &other)
 {

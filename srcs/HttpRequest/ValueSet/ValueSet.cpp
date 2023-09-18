@@ -1,6 +1,6 @@
 #include "ValueSet.hpp"
 
-ValueSet::ValueSet(){}
+ValueSet::ValueSet():BaseKeyValueMap(){}
 
 ValueSet::ValueSet(const ValueSet &other)
 {

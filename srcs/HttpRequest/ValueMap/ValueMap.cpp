@@ -1,6 +1,6 @@
 #include "ValueMap.hpp"
 
-ValueMap::ValueMap(){}
+ValueMap::ValueMap():BaseKeyValueMap(){}
 
 ValueMap::ValueMap(const std::string &value, std::map<std::string, std::string> value_map)
 {

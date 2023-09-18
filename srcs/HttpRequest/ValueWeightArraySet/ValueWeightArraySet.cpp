@@ -1,6 +1,6 @@
 #include "ValueWeightArraySet.hpp"
 
-ValueWeightArraySet::ValueWeightArraySet(){}
+ValueWeightArraySet::ValueWeightArraySet():BaseKeyValueMap(){}
 
 ValueWeightArraySet& ValueWeightArraySet::operator=(const ValueWeightArraySet &other)
 {

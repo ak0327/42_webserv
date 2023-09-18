@@ -1,6 +1,6 @@
 #include "ValueArraySet.hpp"
 
-ValueArraySet::ValueArraySet(){}
+ValueArraySet::ValueArraySet():BaseKeyValueMap(){}
 
 ValueArraySet::ValueArraySet(const ValueArraySet &other):BaseKeyValueMap()
 {

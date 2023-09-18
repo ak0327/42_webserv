@@ -1,6 +1,6 @@
 #include "SecurityPolicy.hpp"
 
-SecurityPolicy::SecurityPolicy(std::map<std::string, std::vector<std::string> >	_policy_directive)
+SecurityPolicy::SecurityPolicy(std::map<std::string, std::vector<std::string> >	_policy_directive):BaseKeyValueMap()
 {
 	this->_policy_directive = _policy_directive;
 }
