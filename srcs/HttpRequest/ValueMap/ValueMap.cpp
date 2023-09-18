@@ -2,7 +2,7 @@
 
 ValueMap::ValueMap():BaseKeyValueMap(){}
 
-ValueMap::ValueMap(const std::string &value, std::map<std::string, std::string> value_map)
+ValueMap::ValueMap(const std::string &value, std::map<std::string, std::string> value_map):BaseKeyValueMap()
 {
 	this->_only_value = value;
 	this->_value_map = value_map;

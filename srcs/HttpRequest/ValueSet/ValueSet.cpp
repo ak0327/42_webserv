@@ -2,7 +2,7 @@
 
 ValueSet::ValueSet():BaseKeyValueMap(){}
 
-ValueSet::ValueSet(const ValueSet &other)
+ValueSet::ValueSet(const ValueSet &other):BaseKeyValueMap()
 {
 	this->_value = other.get_value_set();
 }
