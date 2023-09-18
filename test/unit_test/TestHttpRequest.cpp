@@ -233,6 +233,7 @@ TEST(Request, TEST1)
 		keys.push_back("text/html");
 		compair_valueweightarray_report(valweightarray->get_valueweight_set(), keyvalue, keys);
 	}
+	system("leaks -q --atExit unit_test");
 }
 
 TEST(Request, TOP_WARD_KORON)

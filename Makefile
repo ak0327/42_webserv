@@ -68,6 +68,9 @@ re		: fclean all
 lint	:
 	python3 -m cpplint --recursive srcs
 
+.PHONY	: request_test
+request_test: 
+
 .PHONY	: run_unit_test
 run_unit_test	:
 	#rm -rf build
@@ -104,5 +107,6 @@ run_request_test    :
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=Request*
+	leaks -q --atExit ./unit_test
 
 -include $(DEPS)
