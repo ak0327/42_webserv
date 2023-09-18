@@ -16,6 +16,11 @@ HttpRequest::HttpRequest(const std::string &all_request_text)
 	while (std::getline(ss, line, '\n'))
 	{
 		remove_sohword_line = line.substr(0, line.length() - 1);
+		if (check_requestformat(line) == false)
+		{
+			this->_status_code = 400;
+			return ;
+		}
 		if (HandlingString::check_printablecontent(remove_sohword_line) == false)
 		{
 			this->_status_code = 400;
@@ -29,7 +34,15 @@ HttpRequest::HttpRequest(const std::string &all_request_text)
 	}
 }
 
-HttpRequest::~HttpRequest(){}
+HttpRequest::~HttpRequest()
+{
+	std::map<std::string, BaseKeyValueMap*>::iterator inputed_class_itr = this->_request_keyvalue_map.begin();
+	while (inputed_class_itr != this->_request_keyvalue_map.end())
+	{
+		delete (inputed_class_itr->second);
+		inputed_class_itr++;
+	}
+}
 
 LinkClass* HttpRequest::ready_LinkClass(std::map<std::string, std::map<std::string, std::string> > link_valuemap)
 {
@@ -201,6 +214,14 @@ std::string	HttpRequest::obtain_request_key(const std::string value)
 
 	std::getline(ss, line, ':');
 	return (line);
+}
+
+bool	HttpRequest::check_requestformat(const std::string &val)
+{
+	std::string::size_type pos = val.find_first_of(":");
+	if (val[pos - 1] == ' ' || val[pos - 1] == '\t')
+		return (false);
+	return (true);
 }
 
 std::string	HttpRequest::obtain_request_value(const std::string value)
