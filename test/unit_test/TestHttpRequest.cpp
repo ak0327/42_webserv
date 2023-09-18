@@ -200,6 +200,10 @@ TEST(Request, HandlingStringTEST)
 {
 	std::string val1 = "   	 aaa bbb ccc      dd ";
 	EXPECT_EQ(HandlingString::obtain_value(val1), "aaa bbb ccc      dd");
+
+	std::string	val2 = "  \1 thiis is not true line !";
+	if (HandlingString::check_printablecontent(val2) == true)
+		ADD_FAILURE_AT(__FILE__, __LINE__);
 }
 
 TEST(Request, TEST1)
@@ -228,6 +232,13 @@ TEST(Request, TEST1)
 		keys.push_back("text/html");
 		compair_valueweightarray_report(valweightarray->get_valueweight_set(), keyvalue, keys);
 	}
+}
+
+TEST(Request, TEST1_CONTAIN_FORBIDDENWORD)
+{
+	const std::string TEST_REQUEST = "GET /index.html \rHTTP/1.1\r\nHost: www.example.com\r\nETag: \3some_etag\r\nUser-Agent: \7YourUserAgent\r\nAccept: text/html\r\n";
+	HttpRequest httprequest_test1(TEST_REQUEST);
+	EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
 }
 
 

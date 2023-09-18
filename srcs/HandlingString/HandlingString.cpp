@@ -311,7 +311,15 @@ std::string HandlingString::obtain_value(const std::string &value)
 	return (value.substr(before_location, after_location - before_location + 1));
 }
 
-bool	HandlingString::check_printablecontent()
+bool	HandlingString::check_printablecontent(const std::string &value)
 {
-	
+	size_t	value_length = value.length();
+	size_t	now_location = 0;
+	while (now_location != value_length)
+	{
+		if (0<= static_cast<int>(value[now_location]) && static_cast<int>(value[now_location]) <= 31)
+			return (false);
+		now_location++;
+	}
+	return (true);
 }

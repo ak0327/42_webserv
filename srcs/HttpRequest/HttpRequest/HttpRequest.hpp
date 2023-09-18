@@ -150,6 +150,7 @@ class HttpRequest
 		void	set_www_authenticate(const std::string &key, const std::string &value);
 		void	set_x_xss_protection(const std::string &key, const std::string &value);
 		RequestLine	get_requestline(void) const;
+		int			get_statuscode(void) const;
 		// debug関数
 		std::string show_requestinfs(void);
 		BaseKeyValueMap* return_value(const std::string &key);

@@ -5,6 +5,7 @@ HttpRequest::HttpRequest(const std::string &all_request_text)
 	this->_status_code = 200;
 
 	std::string	line;
+	std::string	remove_sohword_line;
 	std::string	key;
 	std::string	value;
 
@@ -14,6 +15,12 @@ HttpRequest::HttpRequest(const std::string &all_request_text)
 	this->_requestline.set_value(line);
 	while (std::getline(ss, line, '\n'))
 	{
+		remove_sohword_line = line.substr(0, line.length() - 1);
+		if (HandlingString::check_printablecontent(remove_sohword_line) == false)
+		{
+			this->_status_code = 400;
+			return ;
+		}
 		key = this->obtain_request_key(line);
 		value = this->obtain_request_value(line);
 		value = value.substr(0, value.length() - 1);
@@ -1278,4 +1285,9 @@ BaseKeyValueMap* HttpRequest::return_value(const std::string &key)
 std::map<std::string, BaseKeyValueMap*> HttpRequest::get_request_keyvalue_map(void)
 {
 	return (this->_request_keyvalue_map);
+}
+
+int	HttpRequest::get_statuscode() const
+{
+	return (this->_status_code);
 }
