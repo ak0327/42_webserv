@@ -19,6 +19,7 @@ class HandlingString
 		static	std::vector<std::string> 	inputarg_tomap_without_firstword(std::string const &words);
 		static	bool						return_matchpattern(std::string True_wd, std::string False_wd, std::string sub_wd);
 		static	std::string					skipping_emptyword(std::string const &word);
+		static	std::string					skipping_first_emptyword(std::string const &word);
 		static	bool						check_under_intmax(std::string const &word);
 		static	int							str_to_int(std::string const &word);
 		static	double						str_to_double(std::string word);
@@ -34,6 +35,7 @@ class HandlingString
 		static	bool						check_double_or_not(const std::string &value);
 		static	bool						check_doublequote_format(const std::string &value);
 		static	std::string					obtain_string_in_doublequote(const std::string &value);
+		static	std::string					obtain_value(const std::string &value);
 };
 
 #endif  // SRCS_HANDLINGSTRING_HANDLINGSTRING_HPP_

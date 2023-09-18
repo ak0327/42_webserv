@@ -55,7 +55,7 @@ class HttpRequest
 		LinkClass			*ready_LinkClass(std::map<std::string, std::map<std::string, std::string> > link_valuemap);
 		std::map<std::string, std::string>	ready_mappingvalue(const std::string &value_map);
 		void				ready_functionmap(void);
-		double				_status_code;
+		int					_status_code;
 	public:
 		explicit HttpRequest(const std::string &all_request_text);
 		~HttpRequest();

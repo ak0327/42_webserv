@@ -41,7 +41,7 @@ SecurityPolicy* HttpRequest::ready_SecurityPolicy(std::map<std::string, std::vec
 
 TwoValueSet* HttpRequest::ready_TwoValueSet(const std::string &all_value)
 {
-	std::stringstream	ss(HandlingString::skipping_emptyword(all_value));
+	std::stringstream	ss(HandlingString::skipping_first_emptyword(all_value));
 	std::string			first_value;
 	std::string			second_value;
 
@@ -79,13 +79,14 @@ ValueArraySet* HttpRequest::ready_ValueArraySet(const std::string &all_value)
 	std::stringstream	ss(all_value);
 	std::string			line;
 	while(std::getline(ss, line, ','))
-		value_array.push_back(HandlingString::skipping_emptyword(line));
+		value_array.push_back(HandlingString::obtain_value(line));
 	return (new ValueArraySet(value_array));
 }
 
+//Thu, 0 1 Sep 2023 12:00:00 GMT
 ValueDateSet* HttpRequest::ready_ValueDateSet(const std::string &value)
 {
-	return (new ValueDateSet(value));
+	return (new ValueDateSet(HandlingString::obtain_value(value)));
 }
 
 ValueMap* HttpRequest::ready_ValueMap(const std::string &value, char delimiter)
@@ -96,7 +97,7 @@ ValueMap* HttpRequest::ready_ValueMap(const std::string &value, char delimiter)
 
 	while(std::getline(ss, line, delimiter))
 		value_map[HandlingString::obtain_beforeword(HandlingString::skipping_emptyword(line), '=')] \
-		= HandlingString::obtain_afterword(HandlingString::skipping_emptyword(line), '=');
+		= HandlingString::obtain_afterword(HandlingString::obtain_value(line), '=');
 	return (new ValueMap(value_map));
 }
 
@@ -107,8 +108,8 @@ ValueMap* HttpRequest::ready_ValueMap(const std::string &value)
 	std::string			line;
 
 	while(std::getline(ss, line, ';'))
-		value_map[HandlingString::obtain_beforeword(HandlingString::skipping_emptyword(line), '=')] \
-		= HandlingString::obtain_afterword(HandlingString::skipping_emptyword(line), '=');
+		value_map[HandlingString::obtain_beforeword(HandlingString::skipping_first_emptyword(line), '=')] \
+		= HandlingString::obtain_afterword(HandlingString::obtain_value(line), '=');
 	return (new ValueMap(value_map));
 }
 
@@ -121,19 +122,16 @@ ValueMap* HttpRequest::ready_ValueMap(const std::string &only_value, const std::
 
 	while(std::getline(ss, line, ';'))
 	{
-		if (line[0] == ' ')
-			skipping_word = line.substr(1);
-		else
-			skipping_word = line;
+		skipping_word = HandlingString::obtain_value(line);
 		value_map[HandlingString::obtain_beforeword(skipping_word, '=')] \
-		= HandlingString::obtain_afterword(skipping_word, '=');
+		= HandlingString::obtain_value(HandlingString::obtain_afterword(skipping_word, '='));
 	}
 	return (new ValueMap(only_value, value_map));
 }
 
 ValueSet* HttpRequest::ready_ValueSet(const std::string &value)
 {
-	return (new ValueSet(value));
+	return (new ValueSet(HandlingString::obtain_value(value)));
 }
 
 ValueWeightArraySet*	HttpRequest::ready_ValueWeightArraySet(const std::string &value)
@@ -146,14 +144,13 @@ ValueWeightArraySet*	HttpRequest::ready_ValueWeightArraySet(const std::string &v
 
 	while(std::getline(splited_by_commma, line, ','))
 	{
-		if (line[0] == ' ')
-			changed_line = line.substr(1);
-		else
-			changed_line = line;
-		target_value = HandlingString::obtain_weight(HandlingString::obtain_afterword(changed_line, ';'));
+		changed_line = HandlingString::obtain_value(line);
 		if (changed_line.find(';') != std::string::npos)
+		{
+			target_value = HandlingString::obtain_weight(HandlingString::obtain_afterword(changed_line, ';'));
 			value_map[HandlingString::obtain_beforeword(changed_line, ';')] = \
 			HandlingString::str_to_double(HandlingString::obtain_weight(HandlingString::obtain_afterword(changed_line, ';')));
+		}
 		else
 			value_map[changed_line] = 1.0;
 	}
@@ -680,6 +677,41 @@ void	HttpRequest::set_cross_origin_resource_policy(const std::string &key, const
 
 void	HttpRequest::set_date(const std::string &key, const std::string &value)
 {
+	std::stringstream	ss(value);
+	std::string			line;
+	std::string			day_name;
+	std::string			day;
+	std::string			month;
+	std::string			year;
+	std::string			hour;
+	std::string			minute;
+	std::string			second;
+
+	std::getline(ss, day_name, ',');
+	std::getline(ss, line, ',');
+	if (day_name != "Mon" && day_name != "Tue" && day_name != "Wed" && day_name != "Thu" && day_name != "Fri" && day_name != "Sat" && day_name != "Sun")
+		return;
+	std::string after_line = line.substr(1);
+	std::stringstream	sss(after_line);
+	std::getline(sss, day, ' ');
+	if (day.length() != 2)
+		return;
+	if (!(1 <= HandlingString::str_to_int(day) || HandlingString::str_to_int(day) <= 31))
+		return;
+	std::getline(sss, month, ' ');
+	std::getline(sss, year, ' ');
+	std::string			hour_minute_second;
+	std::getline(sss, hour_minute_second, ' ');
+	std::stringstream	ssss(hour_minute_second);
+	std::getline(ssss, hour, ':');
+	if (!(0 <= HandlingString::str_to_int(hour) || HandlingString::str_to_int(hour) <= 60))
+		return;
+	std::getline(ssss, minute, ':');
+	if (!(0 <= HandlingString::str_to_int(minute) || HandlingString::str_to_int(minute) <= 60))
+		return;
+	std::getline(ssss, second, ':');
+	if (!(0 <= HandlingString::str_to_int(second) || HandlingString::str_to_int(second) <= 60))
+		return;
 	this->request_keyvalue_map[key] = ready_ValueDateSet(value);
 }
 
@@ -726,6 +758,41 @@ void	HttpRequest::set_if_match(const std::string &key, const std::string &value)
 
 void	HttpRequest::set_if_modified_since(const std::string &key, const std::string &value)
 {
+	std::stringstream	ss(value);
+	std::string			line;
+	std::string			day_name;
+	std::string			day;
+	std::string			month;
+	std::string			year;
+	std::string			hour;
+	std::string			minute;
+	std::string			second;
+
+	std::getline(ss, day_name, ',');
+	std::getline(ss, line, ',');
+	if (day_name != "Mon" && day_name != "Tue" && day_name != "Wed" && day_name != "Thu" && day_name != "Fri" && day_name != "Sat" && day_name != "Sun")
+		return;
+	std::string after_line = line.substr(1);
+	std::stringstream	sss(after_line);
+	std::getline(sss, day, ' ');
+	if (day.length() != 2)
+		return;
+	if (!(1 <= HandlingString::str_to_int(day) || HandlingString::str_to_int(day) <= 31))
+		return;
+	std::getline(sss, month, ' ');
+	std::getline(sss, year, ' ');
+	std::string			hour_minute_second;
+	std::getline(sss, hour_minute_second, ' ');
+	std::stringstream	ssss(hour_minute_second);
+	std::getline(ssss, hour, ':');
+	if (!(0 <= HandlingString::str_to_int(hour) || HandlingString::str_to_int(hour) <= 60))
+		return;
+	std::getline(ssss, minute, ':');
+	if (!(0 <= HandlingString::str_to_int(minute) || HandlingString::str_to_int(minute) <= 60))
+		return;
+	std::getline(ssss, second, ':');
+	if (!(0 <= HandlingString::str_to_int(second) || HandlingString::str_to_int(second) <= 60))
+		return;
 	this->request_keyvalue_map[key] = ready_ValueDateSet(value);
 }
 
@@ -741,6 +808,41 @@ void	HttpRequest::set_if_range(const std::string &key, const std::string &value)
 
 void	HttpRequest::set_if_unmodified_since(const std::string &key, const std::string &value)
 {
+	std::stringstream	ss(value);
+	std::string			line;
+	std::string			day_name;
+	std::string			day;
+	std::string			month;
+	std::string			year;
+	std::string			hour;
+	std::string			minute;
+	std::string			second;
+
+	std::getline(ss, day_name, ',');
+	std::getline(ss, line, ',');
+	if (day_name != "Mon" && day_name != "Tue" && day_name != "Wed" && day_name != "Thu" && day_name != "Fri" && day_name != "Sat" && day_name != "Sun")
+		return;
+	std::string after_line = line.substr(1);
+	std::stringstream	sss(after_line);
+	std::getline(sss, day, ' ');
+	if (day.length() != 2)
+		return;
+	if (!(1 <= HandlingString::str_to_int(day) || HandlingString::str_to_int(day) <= 31))
+		return;
+	std::getline(sss, month, ' ');
+	std::getline(sss, year, ' ');
+	std::string			hour_minute_second;
+	std::getline(sss, hour_minute_second, ' ');
+	std::stringstream	ssss(hour_minute_second);
+	std::getline(ssss, hour, ':');
+	if (!(0 <= HandlingString::str_to_int(hour) || HandlingString::str_to_int(hour) <= 60))
+		return;
+	std::getline(ssss, minute, ':');
+	if (!(0 <= HandlingString::str_to_int(minute) || HandlingString::str_to_int(minute) <= 60))
+		return;
+	std::getline(ssss, second, ':');
+	if (!(0 <= HandlingString::str_to_int(second) || HandlingString::str_to_int(second) <= 60))
+		return;
 	this->request_keyvalue_map[key] = ready_ValueDateSet(value);
 }
 
@@ -752,6 +854,41 @@ void	HttpRequest::set_keep_alive(const std::string &key, const std::string &valu
 
 void	HttpRequest::set_last_modified(const std::string &key, const std::string &value)
 {
+	std::stringstream	ss(value);
+	std::string			line;
+	std::string			day_name;
+	std::string			day;
+	std::string			month;
+	std::string			year;
+	std::string			hour;
+	std::string			minute;
+	std::string			second;
+
+	std::getline(ss, day_name, ',');
+	std::getline(ss, line, ',');
+	if (day_name != "Mon" && day_name != "Tue" && day_name != "Wed" && day_name != "Thu" && day_name != "Fri" && day_name != "Sat" && day_name != "Sun")
+		return;
+	std::string after_line = line.substr(1);
+	std::stringstream	sss(after_line);
+	std::getline(sss, day, ' ');
+	if (day.length() != 2)
+		return;
+	if (!(1 <= HandlingString::str_to_int(day) || HandlingString::str_to_int(day) <= 31))
+		return;
+	std::getline(sss, month, ' ');
+	std::getline(sss, year, ' ');
+	std::string			hour_minute_second;
+	std::getline(sss, hour_minute_second, ' ');
+	std::stringstream	ssss(hour_minute_second);
+	std::getline(ssss, hour, ':');
+	if (!(0 <= HandlingString::str_to_int(hour) || HandlingString::str_to_int(hour) <= 60))
+		return;
+	std::getline(ssss, minute, ':');
+	if (!(0 <= HandlingString::str_to_int(minute) || HandlingString::str_to_int(minute) <= 60))
+		return;
+	std::getline(ssss, second, ':');
+	if (!(0 <= HandlingString::str_to_int(second) || HandlingString::str_to_int(second) <= 60))
+		return;
 	this->request_keyvalue_map[key] = ready_ValueDateSet(value);
 }
 

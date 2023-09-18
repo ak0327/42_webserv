@@ -26,6 +26,22 @@ bool HandlingString::return_matchpattern(std::string true_word, std::string fals
 	return (false);
 }
 
+std::string	HandlingString::skipping_first_emptyword(std::string const &word)
+{
+	std::string	tmp_word;
+	size_t		word_length = word.length();
+	size_t		word_nowposl = 0;
+
+	while (word[word_nowposl] == ' ' || word[word_nowposl] == '\t')
+		word_nowposl++;
+	while (word_nowposl != word_length)
+	{
+		tmp_word = tmp_word + word[word_nowposl];
+		word_nowposl++;
+	}
+	return (tmp_word);
+}
+
 std::string HandlingString::skipping_emptyword(std::string const &word)
 {
 	std::istringstream	splited_words(word);
@@ -282,4 +298,15 @@ std::string HandlingString::obtain_string_in_doublequote(const std::string &valu
 		now_location++;
 	}
 	return (anser);
+}
+
+std::string HandlingString::obtain_value(const std::string &value)
+{
+	size_t		before_location = 0;
+	size_t		after_location = value.length() - 1;
+	while (value[before_location] == ' ' || value[before_location] == '\t')
+		before_location++;
+	while (value[after_location] == ' ' || value[after_location] == '\t')
+		after_location--;
+	return (value.substr(before_location, after_location - before_location + 1));
 }
