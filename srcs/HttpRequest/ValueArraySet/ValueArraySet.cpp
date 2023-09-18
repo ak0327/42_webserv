@@ -2,7 +2,7 @@
 
 ValueArraySet::ValueArraySet():BaseKeyValueMap(){}
 
-ValueArraySet::ValueArraySet(const ValueArraySet &other)::BaseKeyValueMap(other)
+ValueArraySet::ValueArraySet(const ValueArraySet &other):BaseKeyValueMap(other)
 {
 	this->_value_array = other.get_value_array();
 }
