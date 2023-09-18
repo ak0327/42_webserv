@@ -13,7 +13,7 @@ ValueMap::ValueMap(std::map<std::string, std::string> value_map)
 	this->_value_map = value_map;
 }
 
-ValueMap::ValueMap(const ValueMap &other)
+ValueMap::ValueMap(const ValueMap &other):BaseKeyValueMap(other)
 {
 	this->_value_map = other.get_value_map();
 }
