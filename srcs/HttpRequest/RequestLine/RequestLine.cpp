@@ -1,6 +1,6 @@
 #include "RequestLine.hpp"
 
-RequestLine::RequestLine():BaseKeyValueMap(){}
+RequestLine::RequestLine(){}
 
 RequestLine::RequestLine(const RequestLine &other)
 {
