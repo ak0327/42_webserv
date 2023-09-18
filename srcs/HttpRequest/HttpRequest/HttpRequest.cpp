@@ -19,12 +19,12 @@ HttpRequest::HttpRequest(const std::string &all_request_text)
 		if (check_requestformat(line) == false)
 		{
 			this->_status_code = 400;
-			return ;
+			return;
 		}
 		if (HandlingString::check_printablecontent(remove_sohword_line) == false)
 		{
 			this->_status_code = 400;
-			return ;
+			return;
 		}
 		key = this->obtain_request_key(line);
 		value = this->obtain_request_value(line);
@@ -103,7 +103,6 @@ ValueArraySet* HttpRequest::ready_ValueArraySet(const std::string &all_value)
 	return (new ValueArraySet(value_array));
 }
 
-//Thu, 0 1 Sep 2023 12:00:00 GMT
 ValueDateSet* HttpRequest::ready_ValueDateSet(const std::string &value)
 {
 	return (new ValueDateSet(HandlingString::obtain_value(value)));
@@ -195,7 +194,6 @@ bool	HttpRequest::check_keyword_exist(const std::string &key)
 		"Upgrade-Insecure-Requests", "Vary", "WWW-Authenticate", "Max-Forwards", "TE", "Accept-Post", "X-Custom-Header", "Sec-Fetch-Dest",
 		"Sec-Fetch-Mode", "Sec-Fetch-Site", "Sec-Fetch-User", "Sec-Purpose", "Sec-WebSocket-Accept", "Service-Worker-Navigation-Preload",
 		"Trailer", "Link"
-
 	};
 	const std::set<std::string> httprequest_keyset
 	(
@@ -219,6 +217,8 @@ std::string	HttpRequest::obtain_request_key(const std::string value)
 bool	HttpRequest::check_requestformat(const std::string &val)
 {
 	std::string::size_type pos = val.find_first_of(":");
+	if (pos == 0)
+		return (false);
 	if (val[pos - 1] == ' ' || val[pos - 1] == '\t')
 		return (false);
 	return (true);
@@ -265,7 +265,7 @@ void HttpRequest::set_accept(const std::string &key, const std::string &value)
 		if (changed_line.find(';') != std::string::npos)
 		{
 			if (HandlingString::check_double_or_not(HandlingString::obtain_weight(HandlingString::obtain_afterword(changed_line, ';'))) == false)
-				return ;
+				return;
 		}
 	}
 	this->_request_keyvalue_map[key] = ready_ValueWeightArraySet(value);
@@ -290,7 +290,7 @@ void	HttpRequest::set_accept_charset(const std::string &key, const std::string &
 		if (changed_line.find(';') != std::string::npos)
 		{
 			if (HandlingString::check_double_or_not(HandlingString::obtain_weight(HandlingString::obtain_afterword(changed_line, ';'))) == false)
-				return ;
+				return;
 		}
 	}
 	this->_request_keyvalue_map[key] = ready_ValueWeightArraySet(value);
@@ -319,7 +319,7 @@ void	HttpRequest::set_accept_encoding(const std::string &key, const std::string 
 		if (line.find(';') != std::string::npos)
 		{
 			if (HandlingString::check_double_or_not(HandlingString::obtain_weight(HandlingString::obtain_afterword(line, ';'))) == false)
-				return ;
+				return;
 			keyword = HandlingString::obtain_beforeword(line, ';');
 		}
 		else
@@ -360,7 +360,7 @@ void	HttpRequest::set_accept_language(const std::string &key, const std::string 
 			if (target_value == "0" || target_value == "0.0")
 				return;
 			if (HandlingString::check_double_or_not(target_value) == false)
-				return ;
+				return;
 		}
 		else
 		{
@@ -508,7 +508,7 @@ void	HttpRequest::set_age(const std::string &key, const std::string &value)
 	if (HandlingString::check_int_or_not(value) == false)
 		return;
 	if (HandlingString::check_under_intmax(value) == false)
-		return ;
+		return;
 	this->_request_keyvalue_map[key] = ready_ValueSet(value);
 }
 
@@ -1147,7 +1147,8 @@ void	HttpRequest::set_transfer_encoding(const std::string &key, const std::strin
 			skipping_firstemptyword = line.substr(1);
 		else
 			skipping_firstemptyword = line;
-		if (skipping_firstemptyword != "gzip" && skipping_firstemptyword != "compress" && skipping_firstemptyword != "deflate" && skipping_firstemptyword != "gzip" && skipping_firstemptyword != "chunked")
+		if (skipping_firstemptyword != "gzip" && skipping_firstemptyword != "compress" && skipping_firstemptyword \
+		!= "deflate" && skipping_firstemptyword != "gzip" && skipping_firstemptyword != "chunked")
 			return;
 	}
 	this->_request_keyvalue_map[key] = ready_ValueArraySet(value);

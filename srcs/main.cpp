@@ -4,7 +4,7 @@
 #include "webserv.hpp"
 #include "Debug.hpp"
 
-//一旦関係ない
+// 一旦関係ない
 
 namespace {
 	int CONFIG_FILE_INDEX = 1;

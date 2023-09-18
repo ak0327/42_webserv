@@ -7,6 +7,7 @@
 #include <sstream>
 #include <fstream>
 #include <climits>
+#include <limits>
 
 class HandlingString
 {
