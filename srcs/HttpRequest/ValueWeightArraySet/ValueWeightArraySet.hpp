@@ -14,10 +14,10 @@ class ValueWeightArraySet: public BaseKeyValueMap
 	public:
 		ValueWeightArraySet();
 		ValueWeightArraySet(const ValueWeightArraySet &other);
-		ValueWeightArraySet &operator=(const ValueWeightArraySet &other);
+		ValueWeightArraySet& operator=(const ValueWeightArraySet &other);
 		explicit ValueWeightArraySet(const std::map<std::string, double> &valueweight_set);
 		~ValueWeightArraySet();
-		std::map<std::string, double> get_valueweight_set(void);
+		std::map<std::string, double> get_valueweight_set(void) const;
 		void show_value();
 };
 

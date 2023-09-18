@@ -2,7 +2,7 @@
 
 ValueWeightArraySet::ValueWeightArraySet(){}
 
-ValueWeightArraySet& ValueWeightArraySet::operator=(ValueWeightArraySet &other)
+ValueWeightArraySet& ValueWeightArraySet::operator=(const ValueWeightArraySet &other)
 {
 	if (this == &other)
 		return (*this);
@@ -10,7 +10,7 @@ ValueWeightArraySet& ValueWeightArraySet::operator=(ValueWeightArraySet &other)
 	return (*this);
 }
 
-ValueWeightArraySet::ValueWeightArraySet(ValueWeightArraySet &other)
+ValueWeightArraySet::ValueWeightArraySet(const ValueWeightArraySet &other)
 {
 	this->_valueweight_set = other.get_valueweight_set();
 }
@@ -22,7 +22,7 @@ ValueWeightArraySet::ValueWeightArraySet(const std::map<std::string, double> &va
 
 ValueWeightArraySet::~ValueWeightArraySet(){}
 
-std::map<std::string, double> ValueWeightArraySet::get_valueweight_set(void)
+std::map<std::string, double> ValueWeightArraySet::get_valueweight_set(void) const
 {
 	return (this->_valueweight_set);
 }
