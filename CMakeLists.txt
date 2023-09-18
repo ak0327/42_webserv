@@ -60,17 +60,6 @@ set(webserv_srcs
         srcs/Debug/Debug.cpp
         srcs/Error/Error.cpp
         srcs/Socket/Socket.cpp
-)
-
-add_executable(webserv
-        srcs/main.cpp
-        ${webserv_srcs}
-        )
-
-# unit_test_srcs ---------------------------------------------------------------
-set (httprequest_unit_test
-        srcs/Debug/Debug.cpp
-        srcs/Error/Error.cpp
         srcs/HandlingString/HandlingString.cpp
         srcs/HttpRequest/BaseKeyValueMap/BaseKeyValueMap.cpp
         srcs/HttpRequest/HttpRequest/HttpRequest.cpp
@@ -84,8 +73,14 @@ set (httprequest_unit_test
         srcs/HttpRequest/ValueWeightArraySet/ValueWeightArraySet.cpp
         srcs/HttpRequest/SecurityPolicy/SecurityPolicy.cpp
         srcs/HttpRequest/LinkClass/LinkClass.cpp
+)
+
+add_executable(webserv
+        srcs/main.cpp
+        ${webserv_srcs}
         )
 
+# unit_test_srcs ---------------------------------------------------------------
 set (unit_test_srcs
         test/unit_test/is_valid_file_path/test_get_valid_config_file_path.cpp
         test/unit_test/TestError.cpp
