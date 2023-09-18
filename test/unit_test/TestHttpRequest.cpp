@@ -45,7 +45,7 @@ void	compare_inputvalue_truevalue_linkclass(std::map<std::string, std::map<std::
 	}
 }
 
-void	check(std::vector<std::string> target_vector, std::vector<std::string> subject_vector, size_t line)
+void	compare_vectors_report(std::vector<std::string> target_vector, std::vector<std::string> subject_vector, size_t line)
 {
 	std::vector<std::string>::iterator itr_now = target_vector.begin();
 	while (itr_now != target_vector.end())
@@ -59,7 +59,7 @@ void	check(std::vector<std::string> target_vector, std::vector<std::string> subj
 	}
 }
 
-void	check(std::map<std::string, std::vector<std::string> > target_map, std::map<std::string, std::vector<std::string> > true_map, size_t line)
+void	compare_map_report(std::map<std::string, std::vector<std::string> > target_map, std::map<std::string, std::vector<std::string> > true_map, size_t line)
 {
 	std::map<std::string, std::vector<std::string> >::iterator itr_now = true_map.begin();
 	while (itr_now != true_map.end())
@@ -67,12 +67,12 @@ void	check(std::map<std::string, std::vector<std::string> > target_map, std::map
 		if (target_map.find(itr_now->first) == target_map.end())
 			ADD_FAILURE_AT(__FILE__, line);
 		else
-			check(target_map[itr_now->first], true_map[itr_now->first], line);
+			compare_vectors_report(target_map[itr_now->first], true_map[itr_now->first], line);
 		itr_now++;
 	}
 }
 
-void	check(ValueDateSet *targetdatevalue, std::string day_name, std::string day, std::string month, std::string year, std::string hour, std::string minute, std::string second)
+void	compare_daymap_report(ValueDateSet *targetdatevalue, std::string day_name, std::string day, std::string month, std::string year, std::string hour, std::string minute, std::string second)
 {
 	EXPECT_EQ(targetdatevalue->get_valuedateset_day_name(), day_name);
 	EXPECT_EQ(targetdatevalue->get_valuedateset_day(), day);
@@ -84,7 +84,7 @@ void	check(ValueDateSet *targetdatevalue, std::string day_name, std::string day,
 }
 
 //valuemap1.get_only_value(), valmap1->get_value_map(), "attachment", valuemap1, keys1
-void	check(std::string only_value, std::map<std::string, std::string> target_wordmap, std::string expect_only_value, std::map<std::string, std::string> expected_wordmap, std::vector<std::string> keys)
+void	compair_valuemapset_withfirstvalue_report(std::string only_value, std::map<std::string, std::string> target_wordmap, std::string expect_only_value, std::map<std::string, std::string> expected_wordmap, std::vector<std::string> keys)
 {
 	EXPECT_EQ(only_value, expect_only_value);
 	std::vector<std::string>::iterator itr_now = keys.begin();
@@ -128,7 +128,7 @@ void	check(std::map<std::string, std::string> target_wordmap, std::map<std::stri
 	}
 }
 
-void	check(std::map<std::string, double> target_wordmap, std::map<std::string, double> expected_wordmap, std::vector<std::string> keys)
+void	compair_valueweightarray_report(std::map<std::string, double> target_wordmap, std::map<std::string, double> expected_wordmap, std::vector<std::string> keys)
 {
 	std::vector<std::string>::iterator itr_now = keys.begin();
 	while (itr_now != keys.end())
@@ -148,13 +148,13 @@ void	check(std::map<std::string, double> target_wordmap, std::map<std::string, d
 	}
 }
 
-void	check(const std::string &first_target_word, const std::string &second_target_word, const std::string &exp_1, const std::string &exp_2)
+void	compair_twovaluemap_report(const std::string &first_target_word, const std::string &second_target_word, const std::string &exp_1, const std::string &exp_2)
 {
 	EXPECT_EQ(first_target_word, exp_1);
 	EXPECT_EQ(second_target_word, exp_2);
 }
 
-void	check(const std::string &target_word, const std::string &expected_word)
+void	compair_valueset_report(const std::string &target_word, const std::string &expected_word)
 {
 	EXPECT_EQ(target_word, expected_word);
 }
@@ -212,12 +212,12 @@ TEST(Request, TEST1)
 	if (same_class_test(__LINE__, "Host", httprequest_test1) == true)
 	{
 		TwoValueSet* twoval = static_cast<TwoValueSet*>(httprequest_test1.return_value("Host"));
-		check( twoval->get_firstvalue(), twoval->get_secondvalue(), "www.example.com", "");
+		compair_twovaluemap_report( twoval->get_firstvalue(), twoval->get_secondvalue(), "www.example.com", "");
 	}
 	if (same_class_test(__LINE__, "User-Agent", httprequest_test1) == true)
 	{
 		ValueSet* val = static_cast<ValueSet*>(httprequest_test1.return_value("User-Agent"));
-		check( val->get_value_set(), "YourUserAgent");
+		compair_valueset_report( val->get_value_set(), "YourUserAgent");
 	}
 	if (same_class_test(__LINE__, "Accept", httprequest_test1) == true)
 	{
@@ -226,7 +226,7 @@ TEST(Request, TEST1)
 		std::vector<std::string> keys;
 		keyvalue["text/html"] = 1.0;
 		keys.push_back("text/html");
-		check(valweightarray->get_valueweight_set(), keyvalue, keys);
+		compair_valueweightarray_report(valweightarray->get_valueweight_set(), keyvalue, keys);
 	}
 }
 
@@ -241,12 +241,12 @@ TEST(Request, TEST1_include_empty)
 	if (same_class_test(__LINE__, "Host", httprequest_test1) == true)
 	{
 		TwoValueSet* twoval = static_cast<TwoValueSet*>(httprequest_test1.return_value("Host"));
-		check( twoval->get_firstvalue(), twoval->get_secondvalue(), "www.example  .com", "");
+		compair_twovaluemap_report( twoval->get_firstvalue(), twoval->get_secondvalue(), "www.example  .com", "");
 	}
 	if (same_class_test(__LINE__, "User-Agent", httprequest_test1) == true)
 	{
 		ValueSet* val = static_cast<ValueSet*>(httprequest_test1.return_value("User-Agent"));
-		check( val->get_value_set(), "YourUser  Agent");
+		compair_valueset_report( val->get_value_set(), "YourUser  Agent");
 	}
 	if (same_class_test(__LINE__, "Accept", httprequest_test1) == true)
 	{
@@ -255,7 +255,7 @@ TEST(Request, TEST1_include_empty)
 		std::vector<std::string> keys;
 		keyvalue["text  /html"] = 1.0;
 		keys.push_back("text  /html");
-		check(valweightarray->get_valueweight_set(), keyvalue, keys);
+		compair_valueweightarray_report(valweightarray->get_valueweight_set(), keyvalue, keys);
 	}
 }
 
@@ -284,12 +284,12 @@ TEST(Request, TEST2)
 	if (same_class_test(__LINE__, "Host", httprequest_test1) == true)
 	{
 		TwoValueSet* twoval1 = static_cast<TwoValueSet*>(httprequest_test1.return_value("Host"));
-		check( twoval1->get_firstvalue(), twoval1->get_secondvalue(), "example.com", "");
+		compair_twovaluemap_report( twoval1->get_firstvalue(), twoval1->get_secondvalue(), "example.com", "");
 	}
 	if (same_class_test(__LINE__, "User-Agent", httprequest_test1) == true)
 	{
 		ValueSet* val2 = static_cast<ValueSet*>(httprequest_test1.return_value("User-Agent"));
-		check( val2->get_value_set(), "YourUserAgent");
+		compair_valueset_report( val2->get_value_set(), "YourUserAgent");
 	}
 	if (same_class_test(__LINE__, "Accept", httprequest_test1) == true)
 	{
@@ -304,7 +304,7 @@ TEST(Request, TEST2)
 		keys3.push_back("application/xhtml+xml");
 		keys3.push_back("application/xml");
 		keys3.push_back("*/*");
-		check(valweightarray3->get_valueweight_set(), keyvalue3, keys3);
+		compair_valueweightarray_report(valweightarray3->get_valueweight_set(), keyvalue3, keys3);
 	}
 	if (same_class_test(__LINE__, "Accept-Language", httprequest_test1) == true)
 	{
@@ -315,7 +315,7 @@ TEST(Request, TEST2)
 		keyvalue4["en"] = 0.5;
 		keys4.push_back("en-US");
 		keys4.push_back("en");
-		check(valweightarray4->get_valueweight_set(), keyvalue4, keys4);
+		compair_valueweightarray_report(valweightarray4->get_valueweight_set(), keyvalue4, keys4);
 	}
 	if (same_class_test(__LINE__, "Accept-Encoding", httprequest_test1) == true)
 	{
@@ -326,17 +326,17 @@ TEST(Request, TEST2)
 		keyvalue5["deflate"] = 1.0;
 		keys5.push_back("gzip");
 		keys5.push_back("deflate");
-		check(valweightarray5->get_valueweight_set(), keyvalue5, keys5);
+		compair_valueweightarray_report(valweightarray5->get_valueweight_set(), keyvalue5, keys5);
 	}
 	if (same_class_test(__LINE__, "Connection", httprequest_test1) == true)
 	{
 		ValueSet* val6 = static_cast<ValueSet*>(httprequest_test1.return_value("Connection"));
-		check( val6->get_value_set(), "keep-alive");
+		compair_valueset_report( val6->get_value_set(), "keep-alive");
 	}
 	if (same_class_test(__LINE__, "Referer", httprequest_test1) == true)
 	{
 		ValueSet* val7 = static_cast<ValueSet*>(httprequest_test1.return_value("Referer"));
-		check( val7->get_value_set(), "http://www.example.com/referrer");
+		compair_valueset_report( val7->get_value_set(), "http://www.example.com/referrer");
 	}
 	if (same_class_test(__LINE__, "Cookie", httprequest_test1) == true)
 	{
@@ -355,12 +355,12 @@ TEST(Request, TEST2)
 	{
 		//map型 Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
 		TwoValueSet* twoval9 = static_cast<TwoValueSet*>(httprequest_test1.return_value("Authorization"));
-		check(twoval9->get_firstvalue(), twoval9->get_secondvalue(), "Basic", "QWxhZGRpbjpvcGVuIHNlc2FtZQ==");
+		compair_twovaluemap_report(twoval9->get_firstvalue(), twoval9->get_secondvalue(), "Basic", "QWxhZGRpbjpvcGVuIHNlc2FtZQ==");
 	}
 	if (same_class_test(__LINE__, "Upgrade-Insecure-Requests", httprequest_test1) == true)
 	{
 		ValueSet* val9 = static_cast<ValueSet*>(httprequest_test1.return_value("Upgrade-Insecure-Requests"));
-		check( val9->get_value_set(), "1");
+		compair_valueset_report( val9->get_value_set(), "1");
 	}
 }
 
@@ -374,12 +374,12 @@ TEST(Request, TEST2_include_empty)
 	if (same_class_test(__LINE__, "Host", httprequest_test1) == true)
 	{
 		TwoValueSet* twoval1 = static_cast<TwoValueSet*>(httprequest_test1.return_value("Host"));
-		check( twoval1->get_firstvalue(), twoval1->get_secondvalue(), "example.com", "");
+		compair_twovaluemap_report( twoval1->get_firstvalue(), twoval1->get_secondvalue(), "example.com", "");
 	}
 	if (same_class_test(__LINE__, "User-Agent", httprequest_test1) == true)
 	{
 		ValueSet* val2 = static_cast<ValueSet*>(httprequest_test1.return_value("User-Agent"));
-		check( val2->get_value_set(), "YourUserAgent");
+		compair_valueset_report( val2->get_value_set(), "YourUserAgent");
 	}
 	if (same_class_test(__LINE__, "Accept", httprequest_test1) == true)
 	{
@@ -394,7 +394,7 @@ TEST(Request, TEST2_include_empty)
 		keys3.push_back("application/xhtml+xml");
 		keys3.push_back("appl  ication/xml");
 		keys3.push_back("*/*");
-		check(valweightarray3->get_valueweight_set(), keyvalue3, keys3);
+		compair_valueweightarray_report(valweightarray3->get_valueweight_set(), keyvalue3, keys3);
 	}
 	if (same_class_test(__LINE__, "Accept-Language", httprequest_test1) == true)
 	{
@@ -405,14 +405,14 @@ TEST(Request, TEST2_include_empty)
 		keyvalue4["en"] = 0.5;
 		keys4.push_back("en -US");
 		keys4.push_back("en");
-		check(valweightarray4->get_valueweight_set(), keyvalue4, keys4);
+		compair_valueweightarray_report(valweightarray4->get_valueweight_set(), keyvalue4, keys4);
 	}
 	// keyword_doesnot_exist(__LINE__, "Accept-Encoding", httprequest_test1);//deflateはあっても良い
 	keyword_doesnot_exist(__LINE__, "Connection", httprequest_test1);
 	if (same_class_test(__LINE__, "Referer", httprequest_test1) == true)
 	{
 		ValueSet* val7 = static_cast<ValueSet*>(httprequest_test1.return_value("Referer"));
-		check( val7->get_value_set(), "http://www.exampl e.com/referrer");
+		compair_valueset_report( val7->get_value_set(), "http://www.exampl e.com/referrer");
 	}
 	if (same_class_test(__LINE__, "Cookie", httprequest_test1) == true)
 	{
@@ -431,12 +431,12 @@ TEST(Request, TEST2_include_empty)
 	{
 		//map型 Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
 		TwoValueSet* twoval9 = static_cast<TwoValueSet*>(httprequest_test1.return_value("Authorization"));
-		check(twoval9->get_firstvalue(), twoval9->get_secondvalue(), "Basic", "QWxhZGRpbjpvcGVuIHNlc2FtZQ==");
+		compair_twovaluemap_report(twoval9->get_firstvalue(), twoval9->get_secondvalue(), "Basic", "QWxhZGRpbjpvcGVuIHNlc2FtZQ==");
 	}
 	if (same_class_test(__LINE__, "Upgrade-Insecure-Requests", httprequest_test1) == true)
 	{
 		ValueSet* val9 = static_cast<ValueSet*>(httprequest_test1.return_value("Upgrade-Insecure-Requests"));
-		check( val9->get_value_set(), "1");
+		compair_valueset_report( val9->get_value_set(), "1");
 	}
 }
 
@@ -470,17 +470,17 @@ TEST(Request, TEST3)
 		ValueArraySet* val1 = static_cast<ValueArraySet*>(httprequest_test1.return_value("If-None-Match"));
 		std::vector<std::string> vector1;
 		vector1.push_back("some_etag");
-		check(val1->get_value_array(), vector1, __LINE__);
+		compare_vectors_report(val1->get_value_array(), vector1, __LINE__);
 	}
 	if (same_class_test(__LINE__, "If-Modified-Since", httprequest_test1) == true)
 	{
 		ValueDateSet *dateval2 = static_cast<ValueDateSet*>(httprequest_test1.return_value("If-Modified-Since"));
-		check(dateval2, "Thu", "01", "Sep", "2023", "12", "00", "00");
+		compare_daymap_report(dateval2, "Thu", "01", "Sep", "2023", "12", "00", "00");
 	}
 	if (same_class_test(__LINE__, "Max-Forwards", httprequest_test1) == true)
 	{
 		ValueSet* val3 = static_cast<ValueSet*>(httprequest_test1.return_value("Max-Forwards"));
-		check(val3->get_value_set(), "10");
+		compair_valueset_report(val3->get_value_set(), "10");
 	}
 	if (same_class_test(__LINE__, "TE", httprequest_test1) == true)
 	{
@@ -491,32 +491,32 @@ TEST(Request, TEST3)
 		keyvalue4["deflate"] = 0.5;
 		keys4.push_back("trailers");
 		keys4.push_back("deflate");
-		check(valweightarrayset4->get_valueweight_set(), keyvalue4, keys4);
+		compair_valueweightarray_report(valweightarrayset4->get_valueweight_set(), keyvalue4, keys4);
 	}
 	if (same_class_test(__LINE__, "From", httprequest_test1) == true)
 	{
 		ValueSet* val5 = static_cast<ValueSet*>(httprequest_test1.return_value("From"));
-		check(val5->get_value_set(), "sender@example.com");
+		compair_valueset_report(val5->get_value_set(), "sender@example.com");
 	}
 	if (same_class_test(__LINE__, "Origin", httprequest_test1) == true)
 	{
 		ValueSet* val6 = static_cast<ValueSet*>(httprequest_test1.return_value("Origin"));
-		check(val6->get_value_set(), "http://www.origin-example.com");
+		compair_valueset_report(val6->get_value_set(), "http://www.origin-example.com");
 	}
 	if (same_class_test(__LINE__, "Via", httprequest_test1) == true)
 	{
 		ValueSet* val7 = static_cast<ValueSet*>(httprequest_test1.return_value("Via"));
-		check(val7->get_value_set(), "1.0 proxy.example.com (Apache/1.1)");
+		compair_valueset_report(val7->get_value_set(), "1.0 proxy.example.com (Apache/1.1)");
 	}
 	if (same_class_test(__LINE__, "Age", httprequest_test1) == true)
 	{
 		ValueSet* val8 = static_cast<ValueSet*>(httprequest_test1.return_value("Age"));
-		check(val8->get_value_set(), "3600");
+		compair_valueset_report(val8->get_value_set(), "3600");
 	}
 	if (same_class_test(__LINE__, "Access-Control-Allow-Origin", httprequest_test1) == true)
 	{
 		ValueSet* val9 = static_cast<ValueSet*>(httprequest_test1.return_value("Access-Control-Allow-Origin"));
-		check(val9->get_value_set(), "*");
+		compair_valueset_report(val9->get_value_set(), "*");
 	}
 }
 
@@ -532,7 +532,7 @@ TEST(Request, TEST3_include_empty)
 		ValueArraySet* val1 = static_cast<ValueArraySet*>(httprequest_test1.return_value("If-None-Match"));
 		std::vector<std::string> vector1;
 		vector1.push_back("some  _etag");
-		check(val1->get_value_array(), vector1, __LINE__);
+		compare_vectors_report(val1->get_value_array(), vector1, __LINE__);
 	}
 	keyword_doesnot_exist(__LINE__, "If-Modified-Since", httprequest_test1);
 	keyword_doesnot_exist(__LINE__, "Max-Forwards", httprequest_test1);
@@ -540,23 +540,23 @@ TEST(Request, TEST3_include_empty)
 	if (same_class_test(__LINE__, "From", httprequest_test1) == true)
 	{
 		ValueSet* val5 = static_cast<ValueSet*>(httprequest_test1.return_value("From"));
-		check(val5->get_value_set(), "sender@ example.com");
+		compair_valueset_report(val5->get_value_set(), "sender@ example.com");
 	}
 	if (same_class_test(__LINE__, "Origin", httprequest_test1) == true)
 	{
 		ValueSet* val6 = static_cast<ValueSet*>(httprequest_test1.return_value("Origin"));
-		check(val6->get_value_set(), "http:// www.origin-example.com");
+		compair_valueset_report(val6->get_value_set(), "http:// www.origin-example.com");
 	}
 	if (same_class_test(__LINE__, "Via", httprequest_test1) == true)
 	{
 		ValueSet* val7 = static_cast<ValueSet*>(httprequest_test1.return_value("Via"));
-		check(val7->get_value_set(), "1.0 proxy.example.com (Apache/1.1)");
+		compair_valueset_report(val7->get_value_set(), "1.0 proxy.example.com (Apache/1.1)");
 	}
 	keyword_doesnot_exist(__LINE__, "Age", httprequest_test1);
 	if (same_class_test(__LINE__, "Access-Control-Allow-Origin", httprequest_test1) == true)
 	{
 		ValueSet* val9 = static_cast<ValueSet*>(httprequest_test1.return_value("Access-Control-Allow-Origin"));
-		check(val9->get_value_set(), "*");
+		compair_valueset_report(val9->get_value_set(), "*");
 	}
 }
 
@@ -604,7 +604,7 @@ TEST(Request, TEST4)
 		vector1.push_back("viewport-width");
 		vector1.push_back("width");
 		vector1.push_back("downlink");
-		check(val1->get_value_array(), vector1, 394);
+		compare_vectors_report(val1->get_value_array(), vector1, 394);
 	}
 	if (same_class_test(__LINE__, "Accept-Charset", httprequest_test1) == true)
 	{
@@ -613,22 +613,22 @@ TEST(Request, TEST4)
 		std::vector<std::string> keys2;
 		keyvalue2["utf-8"] = 1.0;
 		keys2.push_back("utf-8");
-		check(valweightarrayset2->get_valueweight_set(), keyvalue2, keys2);
+		compair_valueweightarray_report(valweightarrayset2->get_valueweight_set(), keyvalue2, keys2);
 	}
 	if (same_class_test(__LINE__, "Accept-Post", httprequest_test1) == true)
 	{
 		TwoValueSet* twoval3 = static_cast<TwoValueSet*>(httprequest_test1.return_value("Accept-Post"));
-		check( twoval3->get_firstvalue(), twoval3->get_secondvalue(), "text/html", "application/json");
+		compair_twovaluemap_report( twoval3->get_firstvalue(), twoval3->get_secondvalue(), "text/html", "application/json");
 	}
 	if (same_class_test(__LINE__, "Accept-Ranges", httprequest_test1) == true)
 	{
 		ValueSet* val4 = static_cast<ValueSet*>(httprequest_test1.return_value("Accept-Ranges"));
-		check(val4->get_value_set(), "bytes");
+		compair_valueset_report(val4->get_value_set(), "bytes");
 	}
 	if (same_class_test(__LINE__, "Access-Control-Allow-Credentials", httprequest_test1) == true)
 	{
 		ValueSet* val5 = static_cast<ValueSet*>(httprequest_test1.return_value("Access-Control-Allow-Credentials"));
-		check(val5->get_value_set(), "true");
+		compair_valueset_report(val5->get_value_set(), "true");
 	}
 	if (same_class_test(__LINE__, "Access-Control-Allow-Headers", httprequest_test1) == true)
 	{
@@ -636,7 +636,7 @@ TEST(Request, TEST4)
 		std::vector<std::string> vector6;
 		vector6.push_back("Content-Type");
 		vector6.push_back("Authorization");
-		check(val6->get_value_array(), vector6, 492);
+		compare_vectors_report(val6->get_value_array(), vector6, 492);
 	}
 	if (same_class_test(__LINE__, "Access-Control-Allow-Methods", httprequest_test1) == true)
 	{
@@ -647,7 +647,7 @@ TEST(Request, TEST4)
 		vector7.push_back("POST");
 		vector7.push_back("PUT");
 		vector7.push_back("DELETE");
-		check(val7->get_value_array(), vector7, 503);
+		compare_vectors_report(val7->get_value_array(), vector7, 503);
 	}
 }
 
@@ -665,7 +665,7 @@ TEST(Request, TEST4_include_empty)
 		vector1.push_back("viewpor  t-width");
 		vector1.push_back("wi dth");
 		vector1.push_back("downlink");
-		check(val1->get_value_array(), vector1, 661);
+		compare_vectors_report(val1->get_value_array(), vector1, 661);
 	}
 	if (same_class_test(__LINE__, "Accept-Charset", httprequest_test1) == true)
 	{
@@ -674,18 +674,18 @@ TEST(Request, TEST4_include_empty)
 		std::vector<std::string> keys2;
 		keyvalue2["utf-8"] = 1.0;
 		keys2.push_back("utf-8");
-		check(valweightarrayset2->get_valueweight_set(), keyvalue2, keys2);
+		compair_valueweightarray_report(valweightarrayset2->get_valueweight_set(), keyvalue2, keys2);
 	}
 	if (same_class_test(__LINE__, "Accept-Post", httprequest_test1) == true)
 	{
 		TwoValueSet* twoval3 = static_cast<TwoValueSet*>(httprequest_test1.return_value("Accept-Post"));
-		check( twoval3->get_firstvalue(), twoval3->get_secondvalue(), "text/ html", "application/json");
+		compair_twovaluemap_report( twoval3->get_firstvalue(), twoval3->get_secondvalue(), "text/ html", "application/json");
 	}
 	keyword_doesnot_exist(__LINE__, "Accept-Ranges", httprequest_test1);
 	if (same_class_test(__LINE__, "Access-Control-Allow-Credentials", httprequest_test1) == true)
 	{
 		ValueSet* val5 = static_cast<ValueSet*>(httprequest_test1.return_value("Access-Control-Allow-Credentials"));
-		check(val5->get_value_set(), "true");
+		compair_valueset_report(val5->get_value_set(), "true");
 	}
 	if (same_class_test(__LINE__, "Access-Control-Allow-Headers", httprequest_test1) == true)
 	{
@@ -693,7 +693,7 @@ TEST(Request, TEST4_include_empty)
 		std::vector<std::string> vector6;
 		vector6.push_back("Content-Type");
 		vector6.push_back("Authorization");
-		check(val6->get_value_array(), vector6, 492);
+		compare_vectors_report(val6->get_value_array(), vector6, 492);
 	}
 	keyword_doesnot_exist(__LINE__, "Access-Control-Allow-Methods", httprequest_test1);
 }
@@ -722,12 +722,12 @@ TEST(Request, TEST5)
 		std::vector<std::string> vector1;
 		vector1.push_back("X-Custom-Header");
 		vector1.push_back("Content-Type");
-		check(val1->get_value_array(), vector1, 531);
+		compare_vectors_report(val1->get_value_array(), vector1, 531);
 	}
 	if (same_class_test(__LINE__, "Access-Control-Max-Age", httprequest_test1) == true)
 	{
 		ValueSet* val2 = static_cast<ValueSet*>(httprequest_test1.return_value("Access-Control-Max-Age"));
-		check(val2->get_value_set(), "3600");
+		compair_valueset_report(val2->get_value_set(), "3600");
 	}
 	if (same_class_test(__LINE__, "Access-Control-Request-Headers", httprequest_test1) == true)
 	{
@@ -735,12 +735,12 @@ TEST(Request, TEST5)
 		std::vector<std::string> vector3;
 		vector3.push_back("Authorization");
 		vector3.push_back("Content-Type");
-		check(val3->get_value_array(), vector3, 478);
+		compare_vectors_report(val3->get_value_array(), vector3, 478);
 	}
 	if (same_class_test(__LINE__, "Access-Control-Request-Method", httprequest_test1) == true)
 	{
 		ValueSet* val4 = static_cast<ValueSet*>(httprequest_test1.return_value("Access-Control-Request-Method"));
-		check(val4->get_value_set(), "POST");
+		compair_valueset_report(val4->get_value_set(), "POST");
 	}
 	if (same_class_test(__LINE__, "Allow", httprequest_test1) == true)
 	{
@@ -750,7 +750,7 @@ TEST(Request, TEST5)
 		vector5.push_back("POST");
 		vector5.push_back("PUT");
 		vector5.push_back("DELETE");
-		check(val5->get_value_array(), vector5, 478);
+		compare_vectors_report(val5->get_value_array(), vector5, 478);
 	}
 	if (same_class_test(__LINE__, "Alt-Svc", httprequest_test1) == true)
 	{
@@ -768,7 +768,7 @@ TEST(Request, TEST5)
 		std::vector<std::string> vector7;
 		vector7.push_back("\"cache\"");
 		vector7.push_back("\"cookies\"");
-		check(val7->get_value_array(), vector7, 511);
+		compare_vectors_report(val7->get_value_array(), vector7, 511);
 	}
 }
 
@@ -799,37 +799,37 @@ TEST(Request, TEST6)
 		std::vector<std::string> keys1;
 		valuemap1["filename"] = "\"example.txt\"";
 		keys1.push_back("filename");
-		check( valmap1->get_only_value(), valmap1->get_value_map(), "attachment", valuemap1, keys1);
+		compair_valuemapset_withfirstvalue_report( valmap1->get_only_value(), valmap1->get_value_map(), "attachment", valuemap1, keys1);
 	}
 	if (same_class_test(__LINE__, "Content-Encoding", httprequest_test1) == true)
 	{
 		ValueArraySet* val2 = static_cast<ValueArraySet*>(httprequest_test1.return_value("Content-Encoding"));
 		std::vector<std::string> vector2;
 		vector2.push_back("gzip");
-		check(val2->get_value_array(), vector2, 571);
+		compare_vectors_report(val2->get_value_array(), vector2, 571);
 	}
 	if (same_class_test(__LINE__, "Content-Language", httprequest_test1) == true)
 	{
 		ValueArraySet* val3 = static_cast<ValueArraySet*>(httprequest_test1.return_value("Content-Language"));
 		std::vector<std::string> vector3;
 		vector3.push_back("en-US");
-		check(val3->get_value_array(), vector3, 578);
+		compare_vectors_report(val3->get_value_array(), vector3, 578);
 	}
 	if (same_class_test(__LINE__, "Content-Length", httprequest_test1) == true)
 	{
 
 		ValueSet* val4 = static_cast<ValueSet*>(httprequest_test1.return_value("Content-Length"));
-		check(val4->get_value_set(), "1024");
+		compair_valueset_report(val4->get_value_set(), "1024");
 	}
 	if (same_class_test(__LINE__, "Content-Location", httprequest_test1) == true)
 	{
 		ValueSet* val5 = static_cast<ValueSet*>(httprequest_test1.return_value("Content-Location"));
-		check(val5->get_value_set(), "/documents/example.txt");
+		compair_valueset_report(val5->get_value_set(), "/documents/example.txt");
 	}
 	if (same_class_test(__LINE__, "Content-Range", httprequest_test1) == true)
 	{
 		ValueSet* val6 = static_cast<ValueSet*>(httprequest_test1.return_value("Content-Range"));
-		check(val6->get_value_set(), "bytes 0-511/1024");
+		compair_valueset_report(val6->get_value_set(), "bytes 0-511/1024");
 	}
 	if (same_class_test(__LINE__, "Content-Security-Policy", httprequest_test1) == true)
 	{
@@ -843,7 +843,7 @@ TEST(Request, TEST6)
 		test_vector7_2.push_back("\'unsafe-inline\'");
 		policy_directive["default-src"] = test_vector7_1;
 		policy_directive["script-src"] = test_vector7_2;
-		check(securitypolicy7->get_policy_directhive(), policy_directive, __LINE__);
+		compare_map_report(securitypolicy7->get_policy_directhive(), policy_directive, __LINE__);
 	}
 	if (same_class_test(__LINE__, "Content-Type", httprequest_test1) == true)
 	{
@@ -892,33 +892,33 @@ TEST(Request, TEST7)
 	if (same_class_test(__LINE__, "Cross-Origin-Embedder-Policy", httprequest_test1) == true)
 	{
 		ValueSet* val1 = static_cast<ValueSet*>(httprequest_test1.return_value("Cross-Origin-Embedder-Policy"));
-		check(val1->get_value_set(), "require-corp");
+		compair_valueset_report(val1->get_value_set(), "require-corp");
 	}
 	if (same_class_test(__LINE__, "Cross-Origin-Opener-Policy", httprequest_test1) == true)
 	{
 		ValueSet* val2 = static_cast<ValueSet*>(httprequest_test1.return_value("Cross-Origin-Opener-Policy"));
-		check(val2->get_value_set(), "same-origin-allow-popups");
+		compair_valueset_report(val2->get_value_set(), "same-origin-allow-popups");
 	}
 	if (same_class_test(__LINE__, "Cross-Origin-Resource-Policy", httprequest_test1) == true)
 	{
 		ValueSet* val3 = static_cast<ValueSet*>(httprequest_test1.return_value("Cross-Origin-Resource-Policy"));
-		check(val3->get_value_set(), "same-origin");
+		compair_valueset_report(val3->get_value_set(), "same-origin");
 	}
 	if (same_class_test(__LINE__, "Date", httprequest_test1) == true)
 	{
 		// Thu, 15 Sep 2023 12:00:00 GMT
 		ValueDateSet *dateval4 = static_cast<ValueDateSet*>(httprequest_test1.return_value("Date"));
-		check(dateval4, "Thu", "15", "Sep", "2023", "12", "00", "00");
+		compare_daymap_report(dateval4, "Thu", "15", "Sep", "2023", "12", "00", "00");
 	}
 	if (same_class_test(__LINE__, "Expect", httprequest_test1) == true)
 	{
 		ValueSet* val5 = static_cast<ValueSet*>(httprequest_test1.return_value("Expect"));
-		check(val5->get_value_set(), "100-continue");
+		compair_valueset_report(val5->get_value_set(), "100-continue");
 	}
 	if (same_class_test(__LINE__, "Expires", httprequest_test1) == true)
 	{
 		ValueSet* val6 = static_cast<ValueSet*>(httprequest_test1.return_value("Expires"));
-		check(val6->get_value_set(), "Thu, 15 Sep 2023 13:00:00 GMT");
+		compair_valueset_report(val6->get_value_set(), "Thu, 15 Sep 2023 13:00:00 GMT");
 	}
 	if (same_class_test(__LINE__, "Forwarded", httprequest_test1) == true)
 	{
@@ -939,18 +939,18 @@ TEST(Request, TEST7)
 		ValueArraySet* val8 = static_cast<ValueArraySet*>(httprequest_test1.return_value("If-Match"));
 		std::vector<std::string> vector8;
 		vector8.push_back("\"etag123\"");
-		check(val8->get_value_array(), vector8, 685);
+		compare_vectors_report(val8->get_value_array(), vector8, 685);
 	}
 	if (same_class_test(__LINE__, "If-Range", httprequest_test1) == true)
 	{
 		ValueSet* val9 = static_cast<ValueSet*>(httprequest_test1.return_value("If-Range"));
-		check(val9->get_value_set(), "\"etag123\"");
+		compair_valueset_report(val9->get_value_set(), "\"etag123\"");
 	}
 	if (same_class_test(__LINE__, "If-Unmodified-Since", httprequest_test1) == true)
 	{
 		// Thu, 15 Sep 2023 11:30:00 GMT
 		ValueDateSet *dateval10 = static_cast<ValueDateSet*>(httprequest_test1.return_value("If-Unmodified-Since"));
-		check(dateval10, "Thu", "15", "Sep", "2023", "11", "30", "00");
+		compare_daymap_report(dateval10, "Thu", "15", "Sep", "2023", "11", "30", "00");
 	}
 	if (same_class_test(__LINE__, "Keep-Alive", httprequest_test1) == true)
 	{
@@ -968,7 +968,7 @@ TEST(Request, TEST7)
 	{
 		// Thu, 15 Sep 2023 11:45:00 GMT
 		ValueDateSet *dateval12 = static_cast<ValueDateSet*>(httprequest_test1.return_value("Last-Modified"));
-		check(dateval12, "Thu", "15", "Sep", "2023", "11", "45", "00");
+		compare_daymap_report(dateval12, "Thu", "15", "Sep", "2023", "11", "45", "00");
 	}
 	if (same_class_test(__LINE__, "Link", httprequest_test1) == true)
 	{
@@ -985,7 +985,7 @@ TEST(Request, TEST7)
 	if (same_class_test(__LINE__, "Location", httprequest_test1) == true)
 	{
 		ValueSet* val13 = static_cast<ValueSet*>(httprequest_test1.return_value("Location"));
-		check(val13->get_value_set(), "https://example.com/redirected-page");
+		compair_valueset_report(val13->get_value_set(), "https://example.com/redirected-page");
 	}
 }
 
@@ -1015,7 +1015,7 @@ TEST(Request, TEST8)
 	if (same_class_test(__LINE__, "Permissions-Policy", httprequest_test1) == true)
 	{
 		TwoValueSet* twoval1 = static_cast<TwoValueSet*>(httprequest_test1.return_value("Permissions-Policy"));
-		check( twoval1->get_firstvalue(), twoval1->get_secondvalue(), "geolocation=(self \"https://example.com\")", "camera=()");
+		compair_twovaluemap_report( twoval1->get_firstvalue(), twoval1->get_secondvalue(), "geolocation=(self \"https://example.com\")", "camera=()");
 	}
 	if (same_class_test(__LINE__, "Proxy-Authenticate", httprequest_test1) == true)
 	{
@@ -1030,47 +1030,47 @@ TEST(Request, TEST8)
 	if (same_class_test(__LINE__, "Retry-After", httprequest_test1) == true)
 	{
 		ValueSet* val3 = static_cast<ValueSet*>(httprequest_test1.return_value("Retry-After"));
-		check(val3->get_value_set(), "120");
+		compair_valueset_report(val3->get_value_set(), "120");
 	}
 	if (same_class_test(__LINE__, "Sec-Fetch-Dest", httprequest_test1) == true)
 	{
 		ValueSet* val4 = static_cast<ValueSet*>(httprequest_test1.return_value("Sec-Fetch-Dest"));
-		check(val4->get_value_set(), "document");
+		compair_valueset_report(val4->get_value_set(), "document");
 	}
 	if (same_class_test(__LINE__, "Sec-Fetch-Mode", httprequest_test1) == true)
 	{
 		ValueSet* val5 = static_cast<ValueSet*>(httprequest_test1.return_value("Sec-Fetch-Mode"));
-		check(val5->get_value_set(), "navigate");
+		compair_valueset_report(val5->get_value_set(), "navigate");
 	}
 	if (same_class_test(__LINE__, "Sec-Fetch-Site", httprequest_test1) == true)
 	{
 		ValueSet* val6 = static_cast<ValueSet*>(httprequest_test1.return_value("Sec-Fetch-Site"));
-		check(val6->get_value_set(), "same-origin");
+		compair_valueset_report(val6->get_value_set(), "same-origin");
 	}
 	if (same_class_test(__LINE__, "Sec-Fetch-Site", httprequest_test1) == true)
 	{
 		ValueSet* val7 = static_cast<ValueSet*>(httprequest_test1.return_value("Sec-Fetch-Site"));
-		check(val7->get_value_set(), "same-origin");
+		compair_valueset_report(val7->get_value_set(), "same-origin");
 	}
 	if (same_class_test(__LINE__, "Sec-Fetch-User", httprequest_test1) == true)
 	{
 		ValueSet* val8 = static_cast<ValueSet*>(httprequest_test1.return_value("Sec-Fetch-User"));
-		check(val8->get_value_set(), "?1");
+		compair_valueset_report(val8->get_value_set(), "?1");
 	}
 	if (same_class_test(__LINE__, "Sec-Purpose", httprequest_test1) == true)
 	{
 		ValueSet* val9 = static_cast<ValueSet*>(httprequest_test1.return_value("Sec-Purpose"));
-		check(val9->get_value_set(), "prefetch");
+		compair_valueset_report(val9->get_value_set(), "prefetch");
 	}
 	if (same_class_test(__LINE__, "Sec-WebSocket-Accept", httprequest_test1) == true)
 	{
 		ValueSet* val10 = static_cast<ValueSet*>(httprequest_test1.return_value("Sec-WebSocket-Accept"));
-		check(val10->get_value_set(), "s3pPLMBiTxaQ9kYGzzhZRbK+xOo=");
+		compair_valueset_report(val10->get_value_set(), "s3pPLMBiTxaQ9kYGzzhZRbK+xOo=");
 	}
 	if (same_class_test(__LINE__, "Server", httprequest_test1) == true)
 	{
 		ValueSet* val11 = static_cast<ValueSet*>(httprequest_test1.return_value("Server"));
-		check(val11->get_value_set(), "Apache/2.4.41 (Ubuntu)");
+		compair_valueset_report(val11->get_value_set(), "Apache/2.4.41 (Ubuntu)");
 	}
 }
 
@@ -1103,7 +1103,7 @@ TEST(Request, TEST9)
 	if (same_class_test(__LINE__, "Service-Worker-Navigation-Preload", httprequest_test1) == true)
 	{
 		ValueSet* val1 = static_cast<ValueSet*>(httprequest_test1.return_value("Service-Worker-Navigation-Preload"));
-		check(val1->get_value_set(), "true");
+		compair_valueset_report(val1->get_value_set(), "true");
 	}
 	// if (same_class_test(__LINE__, "Proxy-Authenticate", httprequest_test1) == true)
 	// {
@@ -1120,7 +1120,7 @@ TEST(Request, TEST9)
 	if (same_class_test(__LINE__, "SourceMap", httprequest_test1) == true)
 	{
 		ValueSet* val3 = static_cast<ValueSet*>(httprequest_test1.return_value("SourceMap"));
-		check(val3->get_value_set(), "/path/to/source.map");
+		compair_valueset_report(val3->get_value_set(), "/path/to/source.map");
 	}
 	// if (same_class_test(__LINE__, "Strict-Transport-Security", httprequest_test1) == true)
 	// {
@@ -1142,41 +1142,41 @@ TEST(Request, TEST9)
 		keyvalue4["deflate"] = 1.0;
 		keys4.push_back("trailers");
 		keys4.push_back("deflate");
-		check(valweightarrayset4->get_valueweight_set(), keyvalue4, keys4);
+		compair_valueweightarray_report(valweightarrayset4->get_valueweight_set(), keyvalue4, keys4);
 	}
 	if (same_class_test(__LINE__, "Timing-Allow-Origin", httprequest_test1) == true)
 	{
 		ValueSet* val5 = static_cast<ValueSet*>(httprequest_test1.return_value("Timing-Allow-Origin"));
-		check(val5->get_value_set(), "*");
+		compair_valueset_report(val5->get_value_set(), "*");
 	}
 	if (same_class_test(__LINE__, "Trailer", httprequest_test1) == true)
 	{
 		ValueSet* val6 = static_cast<ValueSet*>(httprequest_test1.return_value("Trailer"));
-		check(val6->get_value_set(), "Content-MD5");
+		compair_valueset_report(val6->get_value_set(), "Content-MD5");
 	}
 	if (same_class_test(__LINE__, "Transfer-Encoding", httprequest_test1) == true)
 	{
 		ValueArraySet* val7 = static_cast<ValueArraySet*>(httprequest_test1.return_value("Transfer-Encoding"));
 		std::vector<std::string> vector7;
 		vector7.push_back("chunked");
-		check(val7->get_value_array(), vector7, 310);
+		compare_vectors_report(val7->get_value_array(), vector7, 310);
 	}
 	if (same_class_test(__LINE__, "Upgrade", httprequest_test1) == true)
 	{
 		ValueArraySet* val8 = static_cast<ValueArraySet*>(httprequest_test1.return_value("Upgrade"));
 		std::vector<std::string> vector8;
 		vector8.push_back("websocket");
-		check(val8->get_value_array(), vector8, 310);
+		compare_vectors_report(val8->get_value_array(), vector8, 310);
 	}
 	if (same_class_test(__LINE__, "Upgrade-Insecure-Requests", httprequest_test1) == true)
 	{
 		ValueSet* val9 = static_cast<ValueSet*>(httprequest_test1.return_value("Upgrade-Insecure-Requests"));
-		check(val9->get_value_set(), "1");
+		compair_valueset_report(val9->get_value_set(), "1");
 	}
 	if (same_class_test(__LINE__, "User-Agent", httprequest_test1) == true)
 	{
 		ValueSet* val10 = static_cast<ValueSet*>(httprequest_test1.return_value("User-Agent"));
-		check(val10->get_value_set(), "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36");
+		compair_valueset_report(val10->get_value_set(), "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36");
 	}
 	if (same_class_test(__LINE__, "Vary", httprequest_test1) == true)
 	{
@@ -1184,7 +1184,7 @@ TEST(Request, TEST9)
 		std::vector<std::string> vector11;
 		vector11.push_back("Accept-Encoding");
 		vector11.push_back("User-Agent");
-		check(val11->get_value_array(), vector11, 310);
+		compare_vectors_report(val11->get_value_array(), vector11, 310);
 	}
 	if (same_class_test(__LINE__, "Vary", httprequest_test1) == true)
 	{
@@ -1192,12 +1192,12 @@ TEST(Request, TEST9)
 		std::vector<std::string> vector12;
 		vector12.push_back("Accept-Encoding");
 		vector12.push_back("User-Agent");
-		check(val12->get_value_array(), vector12, 310);
+		compare_vectors_report(val12->get_value_array(), vector12, 310);
 	}
 	if (same_class_test(__LINE__, "Via", httprequest_test1) == true)
 	{
 		ValueSet* val13 = static_cast<ValueSet*>(httprequest_test1.return_value("Via"));
-		check(val13->get_value_set(), "1.1 example.com");
+		compair_valueset_report(val13->get_value_set(), "1.1 example.com");
 	}
 	// if (same_class_test(__LINE__, "WWW-Authenticate", httprequest_test1) == true)
 	// {
