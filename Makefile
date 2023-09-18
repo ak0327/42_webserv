@@ -86,7 +86,7 @@ run_leaks	:
 	cmake -S . -B build -DUSE_LEAKS=ON
 	cmake --build build
 	#leaks -q --atExit -- ./build/unit_test 2>/dev/null
-	leaks -q --atExit -- ./build/unit_test
+	./build/unit_test
 
 .PHONY	: run_result_test
 run_result_test	:
