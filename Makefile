@@ -1,52 +1,101 @@
-NAME = webserv
-CXX = c++
-CXXFLAGS = -std=c++98 -Wall -Wextra -Werror -MMD -MP
+NAME		=	webserv
 
-DEPS = $(OBJS:%.o=%.d)
-CONF_DIR = srcs/Config
-UTILS_DIR = srcs/HandleString
-OBJ_DIR = objs
+CXX			=	c++
+CXXFLAGS	=	-std=c++98 -Wall -Wextra -Werror -MMD -MP
+CXXFLAGS	+=	-g -fsanitize=address,undefined -fno-omit-frame-pointer
 
-#utils
-SRCS_HandleString = $(UTILS_DIR)/HandlingString.cpp
-
-# conに関するsrc
-SRCS_Conf =  $(CONF_DIR)/Config.cpp $(CONF_DIR)/ServerConfig.cpp $(CONF_DIR)/LocationConfig.cpp $(CONF_DIR)/ErrorPage.cpp
-
-#socketに関する
-#SRCS_Socket = $(SOCKET_DIR)/makeSockets.cpp $(SOCKET_DIR)/Socket.cpp
-
-#http通信を実際に行うことに関する
-#SRCS_Http = 
-
-#test
-SRCS_TestMain_HandlingString = srcs/TestMain/test_handlestring_main.cpp
-SRCS_TestMain_Config = srcs/TestMain/test_configread.cpp
+# SRCS -------------------------------------------------------------------------
+SRCS_DIR	=	srcs
 
 #main
-#SRCS_main += webserve_tentative/srcs/main.cpp
+SRCS		=	main.cpp \
+				get_valid_config_file_path.cpp
 
-SRCS = $(SRCS_Conf) $(SRCS_HandleString) $(SRCS_TestMain_Config)
+#error
+ERROR_DIR	=	Error
+SRCS		+=	$(ERROR_DIR)/Error.cpp
 
-OBJ = $(SRCS:.cpp=.o)
-OBJS = $(addprefix $(OBJ_DIR)/, $(OBJ))
+#debug
+DEBUG_DIR	=	Debug
+SRCS		+=	$(DEBUG_DIR)/Debug.cpp
+
+#socket
+SOCKET_DIR	=	Socket
+SRCS		+=	$(SOCKET_DIR)/Socket.cpp
 
 
-all: $(NAME)
+# OBJS -------------------------------------------------------------------------
+OBJS_DIR	=	objs
+OBJS		=	$(SRCS:%.cpp=$(OBJS_DIR)/%.o)
 
-$(NAME):$(OBJS)
-	$(CXX) $(OBJS) $(CXXFLAGS) -o $(NAME)
 
-$(OBJ_DIR)/%.o : %.cpp
+# DEPS -------------------------------------------------------------------------
+DEPS		=	$(OBJS:%.o=%.d)
+
+
+# INCLUDES ---------------------------------------------------------------------
+INCLUDES_DIR =	includes \
+				$(SRCS_DIR)/$(DEBUG_DIR) \
+				$(SRCS_DIR)/$(ERROR_DIR) \
+				$(SRCS_DIR)/$(SOCKET_DIR)
+
+INCLUDES	 =	$(addprefix -I, $(INCLUDES_DIR))
+
+
+# RULES ------------------------------------------------------------------------
+.PHONY	: all
+all		: $(NAME)
+
+$(NAME)	: $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+$(OBJS_DIR)/%.o	: $(SRCS_DIR)/%.cpp
 	@mkdir -p $$(dirname $@)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
-clean:
-	rm -rf $(OBJ_DIR)
+.PHONY	: clean
+clean	:
+	rm -rf $(OBJS_DIR)
 
-fclean:clean
-	$(RM) $(NAME)
+.PHONY	: fclean
+fclean	: clean
+	rm -f $(NAME)
 
-re: fclean all
+.PHONY	: re
+re		: fclean all
+
+.PHONY	: lint
+lint	:
+	cpplint --recursive srcs
+
+.PHONY	: run_unit_test
+run_unit_test	:
+	#rm -rf build
+	cmake -S . -B build
+	#cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT_MULTIPLEXER"
+	cmake --build build
+	./build/unit_test 2>/dev/null
+	#./build/unit_test
+
+.PHONY	: run_result_test
+run_result_test	:
+	#rm -rf build
+	cmake -S . -B build
+	cmake --build build
+	./build/unit_test --gtest_filter=Result*
+
+.PHONY	: run_err_test
+run_err_test	:
+	#rm -rf build
+	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
+	cmake --build build
+	./build/unit_test --gtest_filter=ErrorMessage*
+
+.PHONY	: run_socket_test
+run_socket_test	:
+	#rm -rf build
+	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
+	cmake --build build
+	./build/unit_test --gtest_filter=SocketUnitTest.*:SocketIntegrationTest.*
 
 -include $(DEPS)

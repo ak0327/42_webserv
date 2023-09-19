@@ -6,9 +6,13 @@
 !config
 
 !srcs
-!srcs/**
-!TestMain
-!CGI_test
+!srcs/Debug
+!srcs/Error
+!srcs/Socket
+!www
+!includes
+!test
+!playground
 
 !*.cpp
 !*.hpp
@@ -19,7 +23,15 @@
 
 !Readme.md
 !Makefile
+.idea
+.vscode
+.DS_Store
+!CPPLINT.cfg
+!webserv.drawio
+!CMakeLists.txt
 
 .idea
 .vscode
 .DS_Store
+CMakeCache.txt
+Dockerfile
