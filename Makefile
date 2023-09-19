@@ -1,7 +1,5 @@
-NAME		=	webserv
+NAME = webserv
 
-CXX			=	c++
-CXXFLAGS	=	-std=c++98 -Wall -Wextra -Werror -MMD -MP
 CXXFLAGS	+=	-g -fsanitize=address,undefined -fno-omit-frame-pointer
 
 # SRCS -------------------------------------------------------------------------
@@ -32,34 +30,28 @@ OBJS		=	$(SRCS:%.cpp=$(OBJS_DIR)/%.o)
 # DEPS -------------------------------------------------------------------------
 DEPS		=	$(OBJS:%.o=%.d)
 
-
-# INCLUDES ---------------------------------------------------------------------
-INCLUDES_DIR =	includes \
-				$(SRCS_DIR)/$(DEBUG_DIR) \
-				$(SRCS_DIR)/$(ERROR_DIR) \
-				$(SRCS_DIR)/$(SOCKET_DIR)
-
-INCLUDES	 =	$(addprefix -I, $(INCLUDES_DIR))
+# todo: srcs/includes -> includes
+INCLUDES_DIR = srcs/includes
+INCLUDES	= $(addprefix -I, $(INCLUDES_DIR))
 
 
-# RULES ------------------------------------------------------------------------
 .PHONY	: all
 all		: $(NAME)
 
 $(NAME)	: $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(CXX) $(OBJS) $(CXXFLAGS) -o $(NAME)
 
-$(OBJS_DIR)/%.o	: $(SRCS_DIR)/%.cpp
+$(OBJ_DIR)/%.o : %.cpp
 	@mkdir -p $$(dirname $@)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
 .PHONY	: clean
 clean	:
-	rm -rf $(OBJS_DIR)
+	rm -rf $(OBJ_DIR)
 
 .PHONY	: fclean
 fclean	: clean
-	rm -f $(NAME)
+	$(RM) $(NAME)
 
 .PHONY	: re
 re		: fclean all

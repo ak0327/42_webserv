@@ -29,9 +29,5 @@
 !CPPLINT.cfg
 !webserv.drawio
 !CMakeLists.txt
-
-.idea
-.vscode
-.DS_Store
-CMakeCache.txt
+!CPPLINT.cfg
 Dockerfile

@@ -10,6 +10,7 @@ jobs:
         run: pip install cpplint && cpplint --version
 
       - name: Run cpplint
+<<<<<<< HEAD
         run: cpplint --recursive srcs
 
       - uses: sarisia/actions-status-discord@v1
@@ -17,3 +18,6 @@ jobs:
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
           status: ${{ job.status }}
+=======
+        run: cpplint --recursive srcs
+>>>>>>> f3074272ae3c997e8995da33c1a478b34364103e
