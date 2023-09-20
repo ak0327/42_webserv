@@ -58,7 +58,7 @@ re		: fclean all
 
 .PHONY	: lint
 lint	:
-	cpplint --recursive srcs
+	python3 -m cpplint --recursive srcs
 
 .PHONY	: run_unit_test
 run_unit_test	:
