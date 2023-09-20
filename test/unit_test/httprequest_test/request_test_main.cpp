@@ -7,7 +7,7 @@
 
 TEST(TestCaseName, TestName)
 {
-	EXPECT_EQ("aaa", HandlingString::skipping_emptyword("a a a"));
+	EXPECT_EQ("aaa", HandlingString::skip_emptyword("a a a"));
 }
 
 //g++ *.cpp ../HandleString/HandlingString.cpp

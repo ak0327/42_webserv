@@ -209,7 +209,7 @@ TEST(Request, HandlingStringTEST)
 
 TEST(Request, TEST1)
 {
-	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\nHost: www.example.com\r\nETag: some_etag\r\nUser-Agent: YourUserAgent\r\nAccept: text/html\r\n";
+	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\nHost: www.example.com   \r\nETag: some_etag\r\nUser-Agent: YourUserAgent\r\nAccept: text/html\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
 	EXPECT_EQ(httprequest_test1.get_requestline().get_method(), "GET");
 	EXPECT_EQ(httprequest_test1.get_requestline().get_target_page(), "/index.html");
