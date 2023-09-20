@@ -304,9 +304,9 @@ std::string HandlingString::obtain_value(const std::string &value)
 {
 	size_t		before_location = 0;
 	size_t		after_location = value.length() - 1;
-	while (value[before_location] == ' ' || value[before_location] == '\t')
+	while (is_ows(value[before_location]) == true)
 		before_location++;
-	while (value[after_location] == ' ' || value[after_location] == '\t')
+	while (is_ows(value[after_location]) == true)
 		after_location--;
 	return (value.substr(before_location, after_location - before_location + 1));
 }
@@ -317,9 +317,16 @@ bool	HandlingString::check_printablecontent(const std::string &value)
 	size_t	now_location = 0;
 	while (now_location != value_length)
 	{
-		if (0<= static_cast<int>(value[now_location]) && static_cast<int>(value[now_location]) <= 31)
+		if (isprint(value[now_location]) == false)
 			return (false);
 		now_location++;
 	}
 	return (true);
+}
+
+bool HandlingString::is_ows(const char &val)
+{
+	if (val == ' ' || val == ' \t')
+		return (true);
+	return (false);
 }

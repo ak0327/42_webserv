@@ -8,13 +8,12 @@
 #include <fstream>
 #include <climits>
 #include <limits>
+#include <ctype.h>
 
 class HandlingString
 {
 	private:
 		HandlingString();
-		HandlingString(const HandlingString &other);
-		HandlingString &operator=(const HandlingString &other);
 		~HandlingString();
 	public:
 		static	bool						check_lastword_semicoron(std::string const &word);
@@ -41,6 +40,7 @@ class HandlingString
 		static	std::string					obtain_string_in_doublequote(const std::string &value);
 		static	std::string					obtain_value(const std::string &value);
 		static	bool						check_printablecontent(const std::string &value);
+		static	bool						is_ows(const char &val);
 };
 
 #endif  // SRCS_HANDLINGSTRING_HANDLINGSTRING_HPP_

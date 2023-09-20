@@ -10,8 +10,6 @@
 !srcs/Error
 !srcs/Socket
 !srcs/HttpRequest
-!srcs/HttpRequest/LinkClass
-!srcs/HttpRequest/SecurityPolicy
 !www
 !includes
 !test

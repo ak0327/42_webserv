@@ -23,6 +23,24 @@ SRCS		+=	$(DEBUG_DIR)/Debug.cpp
 SOCKET_DIR	=	Socket
 SRCS		+=	$(SOCKET_DIR)/Socket.cpp
 
+#handlestr
+HANDLE_STR_DIR	=	HandlingString
+SRCS		+= $(HANDLE_STR_DIR)/HandlingString.cpp
+
+#httprequest
+REQUEST_DIR	=	HttpRequest
+SRCS		+=	$(REQUEST_DIR)/BaseKeyValueMap/BaseKeyValueMap.cpp \
+				$(REQUEST_DIR)/HttpRequest/HttpRequest.cpp \
+				$(REQUEST_DIR)/LinkClass/LinkClass.cpp \
+				$(REQUEST_DIR)/RequestLine/RequestLine.cpp \
+				$(REQUEST_DIR)/SecurityPolicy/SecurityPolicy.cpp \
+				$(REQUEST_DIR)/TwoValueSet/TwoValueSet.cpp \
+				$(REQUEST_DIR)/ValueArraySet/ValueArraySet.cpp \
+				$(REQUEST_DIR)/ValueDateSet/ValueDateSet.cpp \
+				$(REQUEST_DIR)/ValueMap/ValueMap.cpp \
+				$(REQUEST_DIR)/ValueSet/ValueSet.cpp \
+				$(REQUEST_DIR)/ValueWeightArraySet/ValueWeightArraySet.cpp
+
 
 # OBJS -------------------------------------------------------------------------
 OBJS_DIR	=	objs
@@ -37,7 +55,9 @@ DEPS		=	$(OBJS:%.o=%.d)
 INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(DEBUG_DIR) \
 				$(SRCS_DIR)/$(ERROR_DIR) \
-				$(SRCS_DIR)/$(SOCKET_DIR)
+				$(SRCS_DIR)/$(SOCKET_DIR) \
+				$(SRCS_DIR)/$(HANDLE_STR_DIR) \
+				$(SRCS_DIR)/$(REQUEST_DIR)
 
 INCLUDES	 =	$(addprefix -I, $(INCLUDES_DIR))
 
@@ -79,14 +99,6 @@ run_unit_test	:
 	cmake --build build
 	./build/unit_test 2>/dev/null
 	#./build/unit_test
-
-.PHONY	: run_leaks
-run_leaks	:
-	#rm -rf build
-	cmake -S . -B build -DUSE_LEAKS=ON
-	cmake --build build
-	#leaks -q --atExit -- ./build/unit_test 2>/dev/null
-	./build/unit_test
 
 .PHONY	: run_result_test
 run_result_test	:
