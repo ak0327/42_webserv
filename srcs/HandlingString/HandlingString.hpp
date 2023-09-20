@@ -1,6 +1,7 @@
 #ifndef SRCS_HANDLINGSTRING_HANDLINGSTRING_HPP_
 #define SRCS_HANDLINGSTRING_HANDLINGSTRING_HPP_
 
+#include <ctype.h>
 #include <string>
 #include <iostream>
 #include <vector>
@@ -8,7 +9,6 @@
 #include <fstream>
 #include <climits>
 #include <limits>
-#include <ctype.h>
 
 class HandlingString
 {
