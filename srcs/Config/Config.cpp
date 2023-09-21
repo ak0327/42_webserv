@@ -3,18 +3,14 @@
 Config::Config(std::string const &conf)
 {
 	std::ifstream conf_file_test(conf);
-
-
 	if (!conf_file_test.is_open())
 		throw	Config::ConfigError();
-
 	std::ifstream	conf_file(conf);
 	std::string		line;
 	bool			in_server = false;
 	bool			in_location = false;
 	size_t			config_line = 1;
 	ServerConfig	server_config;
-
 	while (std::getline(conf_file, line))
 	{
 		if (HandlingString::skipping_emptyword(line)[0] == '#' || HandlingString::skipping_emptyword(line) == "")
@@ -23,11 +19,9 @@ Config::Config(std::string const &conf)
 			config_linecheck(line, in_server, in_location, server_config, config_line);
 		config_line++;
 	}
-
 	in_server= false;
 	in_location = false;
 	config_line = 1;
-
 	std::ifstream	conf_file2(conf);
 	LocationConfig	location_config;
 	std::string		location_path = "";

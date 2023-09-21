@@ -9,6 +9,7 @@
 !srcs/Debug
 !srcs/Error
 !srcs/Socket
+!srcs/Config/*
 !www
 !includes
 !test

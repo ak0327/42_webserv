@@ -70,3 +70,25 @@ ms 1/1000(s)
 * log_not_found [on off];ファイルが見つからなかった場合のエラーログを出すかどうか決めれる  
   
 めんどくさいからダブルクオーテーションは特殊文字として解釈したくない（願望） 
+  
+## config配下の構成要素  
+main(単純にConfigクラスを呼び出す)  
+  | -- ServerConfigクラスを呼び出す
+		| --LocationConfigクラスを呼び出す  
+
+config　でやるべきこと
+	対象のファイルの構成が問題ないか  
+		変な文字が入っていないか  
+serverconfigでやるべきこと  
+	serverconfig内の表示が問題ないか  
+	serverconfigの情報を格納する  
+locationconfigでやるべきこと  
+	serverconfig内の表示が問題ないか  
+	serverconfigの情報を格納する  
+  
+クラス構成に関してはrequestと共通化する  
+BaseConfigクラスの作成  
+	-- Aクラス(std::stringをprivateに持っているようなクラス) 
+	-- Bクラス(size_tをprivateに持っているようなクラス)
+	...  
+	
