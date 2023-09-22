@@ -37,7 +37,7 @@ class HttpRequest
 		std::map<std::string, BaseKeyValueMap*> _request_keyvalue_map;
 		HttpRequest();
 		HttpRequest(const HttpRequest &other);
-		bool		check_keyword_exist(const std::string &key);
+		bool		is_keyword_exist(const std::string &key);
 		std::string	obtain_request_key(const std::string value);
 		std::string	obtain_request_value(const std::string value);
 		TwoValueSet			*ready_TwoValueSet(const std::string &value);
@@ -55,7 +55,7 @@ class HttpRequest
 		LinkClass			*ready_LinkClass(std::map<std::string, std::map<std::string, std::string> > link_valuemap);
 		std::map<std::string, std::string>	ready_mappingvalue(const std::string &value_map);
 		void				ready_functionmap(void);
-		bool				check_requestformat(const std::string &value);
+		bool				is_requestformat(const std::string &value);
 		int					_status_code;
 	public:
 		explicit HttpRequest(const std::string &all_request_text);
@@ -66,7 +66,7 @@ class HttpRequest
 		void	set_accept_charset(const std::string &key, const std::string &value);
 		void	set_accept_encoding(const std::string &key, const std::string &value);
 		void	set_accept_language(const std::string &key, const std::string &value);
-		bool	check_accept_langage_valueword(const std::string &value);
+		bool	is_accept_langage_valueword(const std::string &value);
 		// void	set_//方かわからん
 		void	set_accept_post(const std::string &key, const std::string &value);
 		void	set_accept_ranges(const std::string &key, const std::string &value);

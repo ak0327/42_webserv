@@ -91,14 +91,14 @@
 // 	std::vector<std::string>::iterator itr_now = keys.begin();
 // 	while (itr_now != keys.end())
 // 	{
-// 		std::map<std::string, std::string>::iterator key_check_itr = target_wordmap.begin();
-// 		while (key_check_itr != target_wordmap.end())
+// 		std::map<std::string, std::string>::iterator key_is_itr = target_wordmap.begin();
+// 		while (key_is_itr != target_wordmap.end())
 // 		{
-// 			if (key_check_itr->first == *itr_now)
+// 			if (key_is_itr->first == *itr_now)
 // 				break;
-// 			key_check_itr++;
+// 			key_is_itr++;
 // 		}
-// 		if (key_check_itr == target_wordmap.end())
+// 		if (key_is_itr == target_wordmap.end())
 // 			ADD_FAILURE_AT(__FILE__, __LINE__);
 // 		else
 // 			EXPECT_EQ(target_wordmap[*itr_now], expected_wordmap[*itr_now]);
@@ -111,14 +111,14 @@
 // 	std::vector<std::string>::iterator itr_now = keys.begin();
 // 	while (itr_now != keys.end())
 // 	{
-// 		std::map<std::string, std::string>::iterator key_check_itr = target_wordmap.begin();
-// 		while (key_check_itr != target_wordmap.end())
+// 		std::map<std::string, std::string>::iterator key_is_itr = target_wordmap.begin();
+// 		while (key_is_itr != target_wordmap.end())
 // 		{
-// 			if (key_check_itr->first == *itr_now)
+// 			if (key_is_itr->first == *itr_now)
 // 				break;
-// 			key_check_itr++;
+// 			key_is_itr++;
 // 		}
-// 		if (key_check_itr == target_wordmap.end())
+// 		if (key_is_itr == target_wordmap.end())
 // 		{
 // 			std::cout << *itr_now << " is not exist" << std::endl;
 // 			ADD_FAILURE_AT(__FILE__, __LINE__);
@@ -134,14 +134,14 @@
 // 	std::vector<std::string>::iterator itr_now = keys.begin();
 // 	while (itr_now != keys.end())
 // 	{
-// 		std::map<std::string, double>::iterator key_check_itr = target_wordmap.begin();
-// 		while (key_check_itr != target_wordmap.end())
+// 		std::map<std::string, double>::iterator key_is_itr = target_wordmap.begin();
+// 		while (key_is_itr != target_wordmap.end())
 // 		{
-// 			if (key_check_itr->first == *itr_now)
+// 			if (key_is_itr->first == *itr_now)
 // 				break;
-// 			key_check_itr++;
+// 			key_is_itr++;
 // 		}
-// 		if (key_check_itr == target_wordmap.end())
+// 		if (key_is_itr == target_wordmap.end())
 // 			ADD_FAILURE_AT(__FILE__, __LINE__);
 // 		else
 // 			EXPECT_EQ(target_wordmap[*itr_now], expected_wordmap[*itr_now]);

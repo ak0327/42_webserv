@@ -91,14 +91,14 @@ void	compair_valuemapset_withfirstvalue_report(std::string only_value, std::map<
 	std::vector<std::string>::iterator itr_now = keys.begin();
 	while (itr_now != keys.end())
 	{
-		std::map<std::string, std::string>::iterator key_check_itr = target_wordmap.begin();
-		while (key_check_itr != target_wordmap.end())
+		std::map<std::string, std::string>::iterator key_is_itr = target_wordmap.begin();
+		while (key_is_itr != target_wordmap.end())
 		{
-			if (key_check_itr->first == *itr_now)
+			if (key_is_itr->first == *itr_now)
 				break;
-			key_check_itr++;
+			key_is_itr++;
 		}
-		if (key_check_itr == target_wordmap.end())
+		if (key_is_itr == target_wordmap.end())
 			ADD_FAILURE_AT(__FILE__, __LINE__);
 		else
 			EXPECT_EQ(target_wordmap[*itr_now], expected_wordmap[*itr_now]);
@@ -111,14 +111,14 @@ void	check(std::map<std::string, std::string> target_wordmap, std::map<std::stri
 	std::vector<std::string>::iterator itr_now = keys.begin();
 	while (itr_now != keys.end())
 	{
-		std::map<std::string, std::string>::iterator key_check_itr = target_wordmap.begin();
-		while (key_check_itr != target_wordmap.end())
+		std::map<std::string, std::string>::iterator key_is_itr = target_wordmap.begin();
+		while (key_is_itr != target_wordmap.end())
 		{
-			if (key_check_itr->first == *itr_now)
+			if (key_is_itr->first == *itr_now)
 				break;
-			key_check_itr++;
+			key_is_itr++;
 		}
-		if (key_check_itr == target_wordmap.end())
+		if (key_is_itr == target_wordmap.end())
 		{
 			std::cout << *itr_now << " is not exist" << std::endl;
 			ADD_FAILURE_AT(__FILE__, __LINE__);
@@ -134,14 +134,14 @@ void	compair_valueweightarray_report(std::map<std::string, double> target_wordma
 	std::vector<std::string>::iterator itr_now = keys.begin();
 	while (itr_now != keys.end())
 	{
-		std::map<std::string, double>::iterator key_check_itr = target_wordmap.begin();
-		while (key_check_itr != target_wordmap.end())
+		std::map<std::string, double>::iterator key_is_itr = target_wordmap.begin();
+		while (key_is_itr != target_wordmap.end())
 		{
-			if (key_check_itr->first == *itr_now)
+			if (key_is_itr->first == *itr_now)
 				break;
-			key_check_itr++;
+			key_is_itr++;
 		}
-		if (key_check_itr == target_wordmap.end())
+		if (key_is_itr == target_wordmap.end())
 			ADD_FAILURE_AT(__FILE__, __LINE__);
 		else
 			EXPECT_EQ(target_wordmap[*itr_now], expected_wordmap[*itr_now]);
@@ -203,7 +203,7 @@ TEST(Request, HandlingStringTEST)
 	EXPECT_EQ(HandlingString::obtain_value(val1), "aaa bbb ccc      dd");
 
 	std::string	val2 = "  \1 thiis is not true line !";
-	if (HandlingString::check_printablecontent(val2) == true)
+	if (HandlingString::is_printablecontent(val2) == true)
 		ADD_FAILURE_AT(__FILE__, __LINE__);
 }
 

@@ -16,12 +16,12 @@ HttpRequest::HttpRequest(const std::string &all_request_text)
 	while (std::getline(ss, line, '\n'))
 	{
 		remove_sohword_line = line.substr(0, line.length() - 1);
-		if (check_requestformat(line) == false)
+		if (is_requestformat(line) == false)
 		{
 			this->_status_code = 400;
 			return;
 		}
-		if (HandlingString::check_printablecontent(remove_sohword_line) == false)
+		if (HandlingString::is_printablecontent(remove_sohword_line) == false)
 		{
 			this->_status_code = 400;
 			return;
@@ -29,7 +29,7 @@ HttpRequest::HttpRequest(const std::string &all_request_text)
 		key = this->obtain_request_key(line);
 		value = this->obtain_request_value(line);
 		value = value.substr(0, value.length() - 1);
-		if (this->check_keyword_exist(key) == true)
+		if (this->is_keyword_exist(key) == true)
 			(this->*_inputvalue_functionmap[key])(key, value);
 	}
 }
@@ -166,7 +166,7 @@ ValueWeightArraySet*	HttpRequest::ready_ValueWeightArraySet(const std::string &v
 	return (new ValueWeightArraySet(value_map));
 }
 
-bool	HttpRequest::check_keyword_exist(const std::string &key)
+bool	HttpRequest::is_keyword_exist(const std::string &key)
 {
 	const std::string httprequest_keyset_arr[] = {
 		"Host",
@@ -204,7 +204,7 @@ std::string	HttpRequest::obtain_request_key(const std::string value)
 	return (line);
 }
 
-bool	HttpRequest::check_requestformat(const std::string &val)
+bool	HttpRequest::is_requestformat(const std::string &val)
 {
 	std::string::size_type pos = val.find_first_of(":");
 	if (pos == 0)
@@ -254,7 +254,7 @@ void HttpRequest::set_accept(const std::string &key, const std::string &value)
 			changed_line = line;
 		if (changed_line.find(';') != std::string::npos)
 		{
-			if (HandlingString::check_double_or_not(HandlingString::obtain_weight(HandlingString::obtain_afterword(changed_line, ';'))) == false)
+			if (HandlingString::is_double_or_not(HandlingString::obtain_weight(HandlingString::obtain_afterword(changed_line, ';'))) == false)
 				return;
 		}
 	}
@@ -279,7 +279,7 @@ void	HttpRequest::set_accept_charset(const std::string &key, const std::string &
 			changed_line = line;
 		if (changed_line.find(';') != std::string::npos)
 		{
-			if (HandlingString::check_double_or_not(HandlingString::obtain_weight(HandlingString::obtain_afterword(changed_line, ';'))) == false)
+			if (HandlingString::is_double_or_not(HandlingString::obtain_weight(HandlingString::obtain_afterword(changed_line, ';'))) == false)
 				return;
 		}
 	}
@@ -308,7 +308,7 @@ void	HttpRequest::set_accept_encoding(const std::string &key, const std::string 
 	{
 		if (line.find(';') != std::string::npos)
 		{
-			if (HandlingString::check_double_or_not(HandlingString::obtain_weight(HandlingString::obtain_afterword(line, ';'))) == false)
+			if (HandlingString::is_double_or_not(HandlingString::obtain_weight(HandlingString::obtain_afterword(line, ';'))) == false)
 				return;
 			keyword = HandlingString::obtain_word_beforedelimiter(line, ';');
 		}
@@ -345,23 +345,23 @@ void	HttpRequest::set_accept_language(const std::string &key, const std::string 
 		{
 			accept_language_value = HandlingString::obtain_word_beforedelimiter(line, ';');
 			target_value = HandlingString::obtain_weight(HandlingString::obtain_afterword(line, ';'));
-			if (check_accept_langage_valueword(accept_language_value) == true)
+			if (is_accept_langage_valueword(accept_language_value) == true)
 				skipping_nokeyword = skipping_nokeyword + line;
 			if (target_value == "0" || target_value == "0.0")
 				return;
-			if (HandlingString::check_double_or_not(target_value) == false)
+			if (HandlingString::is_double_or_not(target_value) == false)
 				return;
 		}
 		else
 		{
-			if (check_accept_langage_valueword(line) == true)
+			if (is_accept_langage_valueword(line) == true)
 				skipping_nokeyword = skipping_nokeyword + line;
 		}
 	}
 	this->_request_keyvalue_map[key] = ready_ValueWeightArraySet(value);
 }
 
-bool	HttpRequest::check_accept_langage_valueword(const std::string &value)
+bool	HttpRequest::is_accept_langage_valueword(const std::string &value)
 {
 	size_t	string_length = value.length();
 	size_t	now_location = 0;
@@ -418,7 +418,7 @@ void	HttpRequest::set_access_control_allow_headers(const std::string &key, const
 	std::string			line;
 	while(std::getline(ss, line, ','))
 	{
-		if (this->check_keyword_exist(HandlingString::skip_emptyword(line)) == false)
+		if (this->is_keyword_exist(HandlingString::skip_emptyword(line)) == false)
 			return;
 	}
 	this->_request_keyvalue_map[key] = ready_ValueArraySet(value);
@@ -454,7 +454,7 @@ void	HttpRequest::set_access_control_expose_headers(const std::string &key, cons
 	std::string			line;
 	while(std::getline(ss, line, ','))
 	{
-		if (this->check_keyword_exist(HandlingString::skip_emptyword(line)) == false)
+		if (this->is_keyword_exist(HandlingString::skip_emptyword(line)) == false)
 			return;
 	}
 	this->_request_keyvalue_map[key] = ready_ValueArraySet(value);
@@ -462,7 +462,7 @@ void	HttpRequest::set_access_control_expose_headers(const std::string &key, cons
 
 void	HttpRequest::set_access_control_max_age(const std::string &key, const std::string &value)
 {
-	if (HandlingString::is_int_or_not(value) == false)
+	if (HandlingString::is_positiveint_or_not(value) == false)
 		return;
 	this->_request_keyvalue_map[key] = ready_ValueSet(value);
 }
@@ -479,7 +479,7 @@ void	HttpRequest::set_access_control_request_headers(const std::string &key, con
 			word = line.substr(1);
 		else
 			word = line;
-		if (this->check_keyword_exist(HandlingString::skip_emptyword(word)) == false)
+		if (this->is_keyword_exist(HandlingString::skip_emptyword(word)) == false)
 			return;
 	}
 	this->_request_keyvalue_map[key] = ready_ValueArraySet(value);
@@ -495,9 +495,9 @@ void	HttpRequest::set_access_control_request_method(const std::string &key, cons
 
 void	HttpRequest::set_age(const std::string &key, const std::string &value)
 {
-	if (HandlingString::is_int_or_not(value) == false)
+	if (HandlingString::is_positiveint_or_not(value) == false)
 		return;
-	if (HandlingString::is_under_intmax(value) == false)
+	if (HandlingString::is_positive_and_under_intmax(value) == false)
 		return;
 	this->_request_keyvalue_map[key] = ready_ValueSet(value);
 }
@@ -594,9 +594,9 @@ void	HttpRequest::set_content_language(const std::string &key, const std::string
 
 void	HttpRequest::set_content_length(const std::string &key, const std::string &value)
 {
-	if (HandlingString::is_int_or_not(value) == false)
+	if (HandlingString::is_positiveint_or_not(value) == false)
 		return;
-	if (HandlingString::is_under_intmax(value) == false)
+	if (HandlingString::is_positive_and_under_intmax(value) == false)
 		return;
 	this->_request_keyvalue_map[key] = ready_ValueSet(value);
 }
@@ -954,7 +954,7 @@ void	HttpRequest::set_location(const std::string &key, const std::string &value)
 
 void	HttpRequest::set_max_forwards(const std::string &key, const std::string &value)
 {
-	if (HandlingString::is_int_or_not(value) == true && HandlingString::is_under_intmax(value) == true)
+	if (HandlingString::is_positiveint_or_not(value) == true && HandlingString::is_positive_and_under_intmax(value) == true)
 		this->_request_keyvalue_map[key] = ready_ValueSet(value);
 	else
 		return;
@@ -1102,7 +1102,7 @@ void	HttpRequest::set_te(const std::string &key, const std::string &value)
 			target_value = HandlingString::obtain_weight(HandlingString::obtain_afterword(line, ';'));
 			if (!(target_key == "compress" || target_key == "deflate" || target_key == "gzip" || target_key == "trailers"))
 				return;
-			if (HandlingString::check_double_or_not(target_value) == false)
+			if (HandlingString::is_double_or_not(target_value) == false)
 				return;
 		}
 		else
@@ -1151,9 +1151,9 @@ void	HttpRequest::set_upgrade(const std::string &key, const std::string &value)
 
 void	HttpRequest::set_upgrade_insecure_requests(const std::string &key, const std::string &value)
 {
-	if (HandlingString::is_int_or_not(value) == false)
+	if (HandlingString::is_positiveint_or_not(value) == false)
 		return;
-	if (HandlingString::is_under_intmax(value) == false)
+	if (HandlingString::is_positive_and_under_intmax(value) == false)
 		return;
 	this->_request_keyvalue_map[key] = ready_ValueSet(value);
 }

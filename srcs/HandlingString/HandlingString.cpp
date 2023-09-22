@@ -1,8 +1,8 @@
 #include "HandlingString.hpp"
 
-std::vector<std::string> HandlingString::inputarg_to_vector_without_firstword(std::string const &words)
+std::vector<std::string> HandlingString::input_arg_to_vector_without_firstword(const std::string &words)
 {
-	std::string					replaced_words = HandlingString::skip_lastsemicoron(words);
+	std::string					replaced_words = HandlingString::skip_lastsemicolon(words);
 	std::string					word;
 	std::istringstream			splited_words(replaced_words);
 	std::vector<std::string>	ans;
@@ -17,28 +17,16 @@ std::vector<std::string> HandlingString::inputarg_to_vector_without_firstword(st
 	return (ans);
 }
 
-bool HandlingString::return_matchpattern(std::string true_word, std::string target_word)
+std::string	HandlingString::skipping_first_emptyword(const std::string &word)
 {
-	return (true_word == target_word);
+	size_t		pos = 0;
+
+	while (is_ows(word[pos]))
+		pos++;
+	return (word.substr(pos));
 }
 
-std::string	HandlingString::skipping_first_emptyword(std::string const &word)
-{
-	std::string	tmp_word;
-	size_t		word_length = word.length();
-	size_t		word_pos = 0;
-
-	while (word[word_pos] == ' ' || word[word_pos] == '\t')
-		word_pos++;
-	while (word_pos != word_length)
-	{
-		tmp_word += word[word_pos];
-		word_pos++;
-	}
-	return (tmp_word);
-}
-
-std::string HandlingString::skip_emptyword(std::string const &word)
+std::string HandlingString::skip_emptyword(const std::string &word)
 {
 	std::istringstream	splitted_words(word);
 	std::string			src;
@@ -49,17 +37,17 @@ std::string HandlingString::skip_emptyword(std::string const &word)
 	return (all_src);
 }
 
-bool	HandlingString::is_under_intmax(std::string const &word)
+bool	HandlingString::is_positive_and_under_intmax(const std::string &num_str)
 {
 	size_t	pos = 0;
 
-	while (word[pos] != '\0')
+	while (num_str[pos] != '\0')
 	{
-		if (std::isdigit(word[pos]) == false && word[pos] != ';')
+		if (std::isdigit(num_str[pos]) == false)
 			return (false);
 		pos++;
 	}
-	std::istringstream	iss(word);
+	std::istringstream	iss(num_str);
 	size_t				result;
 	iss >> result;
 	if (result > INT_MAX)
@@ -67,67 +55,56 @@ bool	HandlingString::is_under_intmax(std::string const &word)
 	return (true);
 }
 
-int HandlingString::to_digit(const char &target)
+int HandlingString::to_digit(const char &c)
 {
-	return (target - '0');
+	return (c - '0');
 }
 
-int	HandlingString::str_to_int(std::string const &word)
+int	HandlingString::str_to_int(const std::string &word)
 {
 	size_t	pos = 0;
-	int		sum = 0;
+	int		num = 0;
 
-	pos = 0;
 	while (word[pos] != '\0')
 	{
-		sum = sum * 10 + to_digit(word[pos]);
+		num = num * 10 + to_digit(word[pos]);
 		pos++;
 	}
-	return (sum);
+	return (num);
 }
 
-double HandlingString::str_to_double(std::string word)
+double HandlingString::str_to_double(const std::string &num_str)
 {
-	std::istringstream iss(word);
+	std::istringstream iss(num_str);
     double result;
     iss >> result;
     return result;
 }
 
-bool	HandlingString::check_lastword_semicoron(std::string const &word)
+bool	HandlingString::is_lastword_semicolon(const std::string &word)
 {
 	size_t	pos = 0;
-	size_t	semicoron_count = 0;
+	size_t	semicolon_count = 0;
 
 	while (word[pos] != '\0')
 	{
 		if (word[pos] == ';')
-			semicoron_count++;
+			semicolon_count++;
 		pos++;
 	}
-	if (semicoron_count != 1)
+	if (semicolon_count != 1)
 		return (false);
 	if (word[pos - 1] != ';')
 		return (false);
 	return (true);
 }
 
-std::string	HandlingString::skip_lastsemicoron(std::string const &word)
+std::string	HandlingString::skip_lastsemicolon(const std::string &word)
 {
-	size_t		pos = 0;
-	std::string	return_str;
-
-	if (word.find(';') == std::string::npos)
-		return (word);
-	while (word[pos] != ';')
-	{
-		return_str = return_str + word[pos];
-		pos++;
-	}
-	return (return_str);
+	return word.substr(0, word.find(';'));
 }
 
-void	HandlingString::error_show(std::string const &word, size_t const &pos)
+void	HandlingString::error_show(const std::string &word, const size_t &pos)
 {
 	std::string error_one = "<< missed word! >>";
 	std::string error_two = "<< missed line >>";
@@ -149,7 +126,7 @@ std::string HandlingString::int_to_str(int num)
 		return "0";
 	while (num > 0)
 	{
-		result += static_cast<char>(toascii('0' + num % 10));
+		result += static_cast<char>(toascii(num % 10));
 		num /= 10;
 	}
     return result;
@@ -160,9 +137,9 @@ std::string HandlingString::obtain_word_beforedelimiter(const std::string &other
 	return other.substr(0, other.find(delimiter));
 }
 
-std::string HandlingString::obtain_afterword(const std::string other, char delimiter)
+std::string HandlingString::obtain_afterword(const std::string &str, char delimiter)
 {
-	return other.substr(other.find(delimiter) + 1);
+	return str.substr(str.find(delimiter) + 1);
 }
 
 std::string	HandlingString::obtain_weight(const std::string &other)
@@ -170,7 +147,7 @@ std::string	HandlingString::obtain_weight(const std::string &other)
 	return (HandlingString::obtain_afterword(other, '='));
 }
 
-bool	HandlingString::is_int_or_not(const std::string &value)
+bool	HandlingString::is_positiveint_or_not(const std::string &value)
 {
 	size_t	value_length = value.length();
 	size_t	pos = 0;
@@ -181,26 +158,26 @@ bool	HandlingString::is_int_or_not(const std::string &value)
 			return (false);
 		pos++;
 	}
-	return (is_under_intmax(value));
+	return (is_positive_and_under_intmax(value));
 }
 
-bool	HandlingString::check_double_or_not(const std::string &value)
+bool	HandlingString::is_double_or_not(const std::string &value)
 {
 	if (value.find('.') == std::string::npos)
 		return (false);
 	size_t	dot_counter = 0;
-	size_t	now_location = 0;
+	size_t	now_pos = 0;
 	size_t	value_length = value.length();
-	while (now_location != value_length)
+	while (now_pos != value_length)
 	{
-		if (value[now_location] == '.')
+		if (value[now_pos] == '.')
 		{
 			dot_counter++;
-			now_location++;
+			now_pos++;
 		}
-		if (!('0' <= value[now_location] && value[now_location] <= '9'))
+		if (!('0' <= value[now_pos] && value[now_pos] <= '9'))
 			return (false);
-		now_location++;
+		now_pos++;
 	}
 	if (dot_counter > 1)
 		return (false);
@@ -218,60 +195,58 @@ bool	HandlingString::check_double_or_not(const std::string &value)
 	return (true);
 }
 
-bool HandlingString::check_doublequote_format(const std::string &value)
-{
-	size_t	now_location = 0;
-	if (value[now_location] != '"')
-		return (false);
-	now_location++;
-	while (value[now_location] != '"')
-		now_location++;
-	if (now_location != value.length())
-		return (false);
-	return (true);
-}
+std::size_t count_char(const std::string &str, const char c) {
+	std::size_t	count = 0;
+	std::size_t pos = 0;
 
-std::string HandlingString::obtain_string_in_doublequote(const std::string &value)
-{
-	size_t		value_length = value.length();
-	size_t		now_location = 1;
-	std::string	anser;
-
-	while (now_location != value_length - 1)
-	{
-		anser = anser + value[now_location];
-		now_location++;
+	while (str[pos]) {
+		count += (str[pos] == c) ? 1 : 0;
+		pos++;
 	}
-	return (anser);
+	return count;
 }
 
-std::string HandlingString::obtain_value(const std::string &field_value)
+bool HandlingString::is_doublequote_format(const std::string &value) {
+	std::size_t head, tail;
+
+	if (count_char(value, '"') != 2) {
+		return false;
+	}
+	head = value.find('"');
+	tail = value.rfind('"');
+	return head == 0 && tail + 1 == value.length();
+}
+
+std::string HandlingString::obtain_unquote_str(const std::string &quoted_str)
 {
-	size_t		before_location = 0;
-	size_t		after_location = field_value.length() - 1;
-	while (is_ows(field_value[before_location]) == true)
-		before_location++;
-	while (is_ows(field_value[after_location]) == true)
-		after_location--;
-	return (field_value.substr(before_location, after_location - before_location + 1));
+	return quoted_str.substr(1, quoted_str.length() - 2);
 }
 
-bool	HandlingString::check_printablecontent(const std::string &value)
+std::string HandlingString::obtain_value(const std::string &field_value_with_ows)
+{
+	size_t		before_pos = 0;
+	size_t		after_pos = field_value_with_ows.length() - 1;
+	while (is_ows(field_value_with_ows[before_pos]) == true)
+		before_pos++;
+	while (is_ows(field_value_with_ows[after_pos]) == true)
+		after_pos--;
+	return (field_value_with_ows.substr(before_pos, after_pos - before_pos + 1));
+}
+
+bool	HandlingString::is_printablecontent(const std::string &value)
 {
 	size_t	value_length = value.length();
-	size_t	now_location = 0;
-	while (now_location != value_length)
+	size_t	now_pos = 0;
+	while (now_pos != value_length)
 	{
-		if (isprint(value[now_location]) == false)
+		if (isprint(value[now_pos]) == false)
 			return (false);
-		now_location++;
+		now_pos++;
 	}
 	return (true);
 }
 
-bool HandlingString::is_ows(const char &val)
+bool HandlingString::is_ows(const char &c)
 {
-	if (val == ' ' || val == '\t')
-		return (true);
-	return (false);
+	return c == ' ' || c == '\t';
 }
