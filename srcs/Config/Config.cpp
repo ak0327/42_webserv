@@ -39,7 +39,7 @@ Config::Config(std::string const &conf)
 
 Config::~Config(){}
 
-void	Config::handle_serverinfs(std::string &line, bool &in_server, bool &in_location, ServerConfig &server_config, size_t pos)
+void	Config::handle_serverinfs(const std::string &line, const bool &in_server, const bool &in_location, const ServerConfig &server_config, size_t pos)
 {
 	if (HandlingString::skipping_emptyword(line).find("location") != std::string::npos)
 		in_location = true;
@@ -58,7 +58,7 @@ void	Config::handle_serverinfs(std::string &line, bool &in_server, bool &in_loca
 		server_config.serverkeyword_insert(line, pos);
 }
 
-void	Config::config_linecheck(std::string &line, bool &in_server, bool &in_location, ServerConfig &server_config, size_t pos)
+void	Config::config_linecheck(const std::string &line, const bool &in_server, const bool &in_location, const ServerConfig &server_config, size_t pos)
 {
 	if (in_location == true && in_server == true)// locationの中 locationの中だからserverの中
 	{

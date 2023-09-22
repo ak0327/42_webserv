@@ -9,6 +9,7 @@
 #include "HandlingString/ConfigHandlingString.hpp"
 #include "LocationConfig/LocationConfig.hpp"
 #include "ServerConfig/ServerConfig.hpp"
+#include "ErrorPage/ErrorPage.hpp"
 class	LocationConfig;
 class	ServerConfig;
 
