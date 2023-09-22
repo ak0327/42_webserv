@@ -90,4 +90,11 @@ run_socket_test	:
 	cmake --build build
 	./build/unit_test --gtest_filter=SocketUnitTest.*:SocketIntegrationTest.*
 
+.PHONY	: run_config_test
+run_config_test	:
+	#rm -rf build
+	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
+	cmake --build build
+	./build/unit_test --gtest_filter=ConfigReading*
+
 -include $(DEPS)

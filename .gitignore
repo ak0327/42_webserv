@@ -10,6 +10,8 @@
 !srcs/Error
 !srcs/Socket
 !srcs/Config
+!srcs/Config/HandlingString
+!srcs/Config/HandlingString/*
 !www
 !includes
 !test
