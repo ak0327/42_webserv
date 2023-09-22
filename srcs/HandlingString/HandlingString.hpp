@@ -1,9 +1,9 @@
 #ifndef SRCS_HANDLINGSTRING_HANDLINGSTRING_HPP_
 #define SRCS_HANDLINGSTRING_HANDLINGSTRING_HPP_
 
+#include <ctype.h>
 #include <cctype>
 #include <climits>
-#include <ctype.h>
 #include <fstream>
 #include <iostream>
 #include <limits>
