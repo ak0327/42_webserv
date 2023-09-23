@@ -13,7 +13,7 @@ Config::Config(std::string const &conf)
 	ServerConfig	server_config;
 	while (std::getline(conf_file, line))
 	{
-		if (HandlingString::skipping_emptyword(line)[0] == '#' || HandlingString::skipping_emptyword(line) == "")
+		if (HandlingString::skip_emptyword(line)[0] == '#' || HandlingString::skip_emptyword(line) == "")
 			;
 		else
 			config_linecheck(line, in_server, in_location, server_config, config_line);
@@ -29,7 +29,7 @@ Config::Config(std::string const &conf)
 
 	while (std::getline(conf_file2, line))
 	{
-		if (HandlingString::skipping_emptyword(line)[0] == '#' || HandlingString::skipping_emptyword(line) == "")
+		if (HandlingString::skip_emptyword(line)[0] == '#' || HandlingString::skip_emptyword(line) == "")
 			;
 		else
 			config_location_check(line, in_server, in_location, location_config, location_path, it, config_line);
@@ -39,13 +39,13 @@ Config::Config(std::string const &conf)
 
 Config::~Config(){}
 
-void	Config::handle_serverinfs(const std::string &line, const bool &in_server, const bool &in_location, const ServerConfig &server_config, size_t pos)
+void	Config::handle_serverinfs(const std::string &line, bool &in_server, bool &in_location, ServerConfig &server_config, size_t pos)
 {
-	if (HandlingString::skipping_emptyword(line).find("location") != std::string::npos)
+	if (HandlingString::skip_emptyword(line).find("location") != std::string::npos)
 		in_location = true;
-	else if (HandlingString::skipping_emptyword(line) == "}" && in_location == true)
+	else if (HandlingString::skip_emptyword(line) == "}" && in_location == true)
 		in_location = false;
-	else if (HandlingString::skipping_emptyword(line) == "}" && in_location == false)
+	else if (HandlingString::skip_emptyword(line) == "}" && in_location == false)
 	{
 		if (server_config.get_port() == "")
 			throw ServerConfig::ConfigServerdhirecthiveError();
@@ -57,18 +57,18 @@ void	Config::handle_serverinfs(const std::string &line, const bool &in_server, c
 		server_config.serverkeyword_insert(line, pos);
 }
 
-void	Config::config_linecheck(const std::string &line, const bool &in_server, const bool &in_location, const ServerConfig &server_config, size_t pos)
+void	Config::config_linecheck(const std::string &line, bool &in_server, bool &in_location, ServerConfig &server_config, size_t pos)
 {
 	if (in_location == true && in_server == true)// locationの中 locationの中だからserverの中
 	{
-		if (HandlingString::skipping_emptyword(line) == "}")
+		if (HandlingString::skip_emptyword(line) == "}")
 			in_location = false;
 	}
 	else if (in_server == true)// serverの中locationの外
 		handle_serverinfs(line, in_server, in_location, server_config, pos);
 	else
 	{
-		if (HandlingString::skipping_emptyword(line) == "server{")
+		if (HandlingString::skip_emptyword(line) == "server{")
 			in_server = true;
 		else
 			throw ServerConfig::ConfigSyntaxError(line, pos);
@@ -77,7 +77,7 @@ void	Config::config_linecheck(const std::string &line, const bool &in_server, co
 
 bool	Config::handle_locationinfs(std::string &line, bool &in_location, LocationConfig &location_config, std::map<std::string, ServerConfig>::iterator &it, std::string &location_path)
 {
-	if (HandlingString::skipping_emptyword(line) == "}")
+	if (HandlingString::skip_emptyword(line) == "}")
 	{
 		(server_configs[it->first]).set_locations(location_path, location_config);
 		location_config.reset_locationconf(server_configs[it->first]);
@@ -88,6 +88,16 @@ bool	Config::handle_locationinfs(std::string &line, bool &in_location, LocationC
 	return (true);
 }
 
+std::string	Config::get_location_path(const std::string &locationfield_word)
+{
+	std::string			trim_emptyword = HandlingString::obtain_value(locationfield_word);
+	std::stringstream	split_with_empty(trim_emptyword);
+	std::string			location_path;
+	split_with_empty >> location_path;
+	split_with_empty >> location_path;  // location *.cgi {みたいに入ってきたときにstringstreamだと冗長な感じを受ける。。。気にしすぎ？
+	return (location_path);
+}
+
 void	Config::config_location_check(std::string &line, bool &in_server, bool &in_location, LocationConfig &location_config, std::string &location_path, \
 std::map<std::string, ServerConfig>::iterator	&it, size_t &pos)
 {
@@ -95,12 +105,12 @@ std::map<std::string, ServerConfig>::iterator	&it, size_t &pos)
 		handle_locationinfs(line, in_location, location_config, it, location_path);
 	else if (in_server == true)  // serverの中locationの外
 	{
-		if (HandlingString::skipping_emptyword(line).find("location") != std::string::npos)
+		if (HandlingString::skip_emptyword(line).find("location") != std::string::npos)
 		{
-			location_path = HandlingString::obtain_second_word(line);
+			location_path = get_location_path(line);
 			in_location = true;
 		}
-		else if (HandlingString::skipping_emptyword(line) == "}")
+		else if (HandlingString::skip_emptyword(line) == "}")
 		{
 			// location_config.reset();
 			in_server = false;
@@ -108,7 +118,7 @@ std::map<std::string, ServerConfig>::iterator	&it, size_t &pos)
 	}
 	else
 	{
-		if (HandlingString::skipping_emptyword(line) == "server{")
+		if (HandlingString::skip_emptyword(line) == "server{")
 			in_server = true;
 		else
 			throw ServerConfig::ConfigSyntaxError(line, pos);

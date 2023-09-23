@@ -10,7 +10,7 @@
 
 #include "ErrorPage.hpp"
 #include "LocationConfig.hpp"
-#include "HandlingString.hpp"
+#include "../HandlingString/ConfigHandlingString.hpp"
 
 class ErrorPage;
 class LocationConfig;
@@ -50,7 +50,7 @@ class ServerConfig
 		bool									serverkeyword_insert(std::string const &line, size_t pos);
 		bool									serverkeyword_ch(const std::string& word);
 		void									show_serverconfig_allinfo();
-		void									value_check();
+		void									value_check(void);
 
 		// void									reset_contents();
 

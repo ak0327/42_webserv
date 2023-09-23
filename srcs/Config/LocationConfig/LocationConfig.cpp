@@ -1,6 +1,6 @@
 #include "LocationConfig.hpp"
 #include "ServerConfig.hpp"
-#include "HandlingString.hpp"
+#include "../HandlingString/ConfigHandlingString.hpp"
 
 LocationConfig::LocationConfig():_maxBodySize(1024), _chunked_transferencoding_allow(false),
 _keepaliverequests(10), _server_tokens(1), _autoindex(false), _default_type("application/octet-stream")
@@ -192,7 +192,7 @@ bool	LocationConfig::insert_location(std::string const &line)
 	splited_woeds >> key_word >> val_two;
 	if (key_word == "" && val == "")
 		return (true);
-	val = HandlingString::skip_lastsemicoron(val_two);
+	val = HandlingString::skip_lastsemicolon(val_two);
 	if (locationkeyword_ch(key_word) == false)
 		return (false);
 	if (key_word == "listen")
@@ -200,7 +200,7 @@ bool	LocationConfig::insert_location(std::string const &line)
 	else if (key_word == "cgi_extension")  // 何するかわかってない
 		;
 	else if (key_word == "server_name")
-		this->set_servername(HandlingString::inputarg_tomap_without_firstword(line));
+		this->set_servername(HandlingString::input_arg_to_vector_without_firstword(line));
 	else if (key_word == "root")
 		this->set_root(val);
 	else if (key_word == "alias")
@@ -208,14 +208,17 @@ bool	LocationConfig::insert_location(std::string const &line)
 	else if (key_word == "index")
 		this->set_root(val);
 	else if (key_word == "allow_methods")
-		this->set_allowmethod_set(HandlingString::inputarg_tomap_without_firstword(line));
+		this->set_allowmethod_set(HandlingString::input_arg_to_vector_without_firstword(line));
 	else if (key_word == "error_page")
 		this->set_errorlog(val);
 	else if (key_word == "chunked_transfer_encoding")
 	{
 		if (val != "on" && val != "off")
 			return (false);
-		this->set_chunked_transferencoding_allow(HandlingString::return_matchpattern("on", "off", val));
+		if (val == "on")
+			this->set_chunked_transferencoding_allow(true);
+		else
+			this->set_chunked_transferencoding_allow(false);
 	}
 	else if (key_word == "access_log")
 		this->set_accesslog(val);
@@ -223,15 +226,15 @@ bool	LocationConfig::insert_location(std::string const &line)
 		this->set_errorlog(val);
 	else if (key_word == "keepalive_requests")
 	{
-		if (HandlingString::check_under_intmax(val) == false)
+		if (HandlingString::is_positive_and_under_intmax(val) == false)
 			return (false);
-		this->set_keepaliverequests(HandlingString::str_to_int(HandlingString::skip_lastsemicoron(val)));
+		this->set_keepaliverequests(HandlingString::str_to_int(HandlingString::skip_lastsemicolon(val)));
 	}
 	else if (key_word == "keepalive_timeout")  // timeoutの実装がC++98のみでは難しい、Cでも許可された関数にない
 	{
-		if (HandlingString::check_under_intmax(val) == false)
+		if (HandlingString::is_positive_and_under_intmax(val) == false)
 			return (false);
-		this->set_keepalive_timeout(HandlingString::str_to_int(HandlingString::skip_lastsemicoron(val)));
+		this->set_keepalive_timeout(HandlingString::str_to_int(HandlingString::skip_lastsemicolon(val)));
 	}
 	else if (key_word == "server_tokens")
 		;
@@ -239,7 +242,10 @@ bool	LocationConfig::insert_location(std::string const &line)
 	{
 		if (val != "on" && val != "off")
 			return (false);
-		this->set_autoindex(HandlingString::return_matchpattern("on", "off", val));
+		if (val == "on")
+			this->set_autoindex(true);
+		else
+			this->set_autoindex(false);
 	}
 	else if (key_word == "upload_path")
 		this->set_upload_path(val);
@@ -249,40 +255,40 @@ bool	LocationConfig::insert_location(std::string const &line)
 		;
 	else if (key_word == "client_body_buffer_size")  // 単位付きで入ってくる場合に対応する必要性、簡単のために単位なしに一旦する
 	{
-		if (HandlingString::check_under_intmax(val) == false)
+		if (HandlingString::is_positive_and_under_intmax(val) == false)
 			return (false);
-		this->set_client_body_buffer_size(HandlingString::str_to_int(HandlingString::skip_lastsemicoron(val)));
+		this->set_client_body_buffer_size(HandlingString::str_to_int(HandlingString::skip_lastsemicolon(val)));
 	}
 	else if (key_word == "client_body_timeout")
 	{
-		if (HandlingString::check_under_intmax(val) == false)
+		if (HandlingString::is_positive_and_under_intmax(val) == false)
 			return (false);
-		this->set_client_body_timeout(HandlingString::str_to_int(HandlingString::skip_lastsemicoron(val)));
+		this->set_client_body_timeout(HandlingString::str_to_int(HandlingString::skip_lastsemicolon(val)));
 	}
 	else if (key_word == "client_header_buffer_size")
 	{
-		if (HandlingString::check_under_intmax(val) == false)
+		if (HandlingString::is_positive_and_under_intmax(val) == false)
 			return (false);
-		this->set_client_header_buffer_size(HandlingString::str_to_int(HandlingString::skip_lastsemicoron(val)));
+		this->set_client_header_buffer_size(HandlingString::str_to_int(HandlingString::skip_lastsemicolon(val)));
 	}
 	else if (key_word == "client_header_timeout")
 	{
-		if (HandlingString::check_under_intmax(val) == false)
+		if (HandlingString::is_positive_and_under_intmax(val) == false)
 			return (false);
-		this->set_client_header_timeout(HandlingString::str_to_int(HandlingString::skip_lastsemicoron(val)));
+		this->set_client_header_timeout(HandlingString::str_to_int(HandlingString::skip_lastsemicolon(val)));
 	}
 	else if (key_word == "client_max_body_size")
 	{
-		if (HandlingString::check_under_intmax(val) == false)
+		if (HandlingString::is_positive_and_under_intmax(val) == false)
 			return (false);
-		this->set_client_maxbody_size(HandlingString::str_to_int(HandlingString::skip_lastsemicoron(val)));
+		this->set_client_maxbody_size(HandlingString::str_to_int(HandlingString::skip_lastsemicolon(val)));
 	}
 	else if (key_word == "default_type")
 		this->set_default_type(val);
 	else if (key_word == "cgi_path")
 		this->set_cgi_path(val);
 	else if (key_word == "allow_methods")
-		this->set_allowmethod_set(HandlingString::inputarg_tomap_without_firstword(line));
+		this->set_allowmethod_set(HandlingString::input_arg_to_vector_without_firstword(line));
 	else
 		return (false);
 	// return (true);

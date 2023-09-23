@@ -21,13 +21,13 @@ class	Config
  public:
 		explicit Config(std::string	const &config);
 		~Config();
-		void	config_linecheck(const std::string &line, const bool &in_server, const bool &in_location, const ServerConfig &server_config, size_t pos);
-		void	handle_serverinfs(const std::string &line, const bool &in_server, const bool &in_location, const ServerConfig &server_config, size_t pos);
-		bool	handle_locationinfs(const std::string &line, const bool &in_location, const LocationConfig &location_config, std::map<std::string, \
-		ServerConfig>::iterator &it, const std::string &location_path);
+		void	config_linecheck(const std::string &line, bool &in_server, bool &in_location, ServerConfig &server_config, size_t pos);
+		void	handle_serverinfs(const std::string &line, bool &in_server, bool &in_location, ServerConfig &server_config, size_t pos);
+		bool	handle_locationinfs(std::string &line, bool &in_location, LocationConfig &location_config, std::map<std::string, ServerConfig>::iterator &it, std::string &location_path);
 		std::map<std::string, ServerConfig>		get_server_config(){ return (this->server_configs); }
-		void	config_location_check(const std::string &line, const bool &in_server, const bool &in_location, const LocationConfig &location_config, \
-		const std::string &location_path, std::map<std::string, ServerConfig>::iterator	&it, size_t &pos);
+		void	config_location_check(std::string &line, bool &in_server, bool &in_location, LocationConfig &location_config, std::string &location_path, \
+		std::map<std::string, ServerConfig>::iterator	&it, size_t &pos);
+		std::string	get_location_path(const std::string &locationfield_word);
 		void	show_configinfos();
 		class	ConfigError
 		{

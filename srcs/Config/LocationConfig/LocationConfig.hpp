@@ -5,7 +5,7 @@
 #include <vector>
 #include <iostream>
 // #include "errorpage.hpp"
-#include "ServerConfig.hpp"
+#include "../ServerConfig/ServerConfig.hpp"
 
 class	ServerConfig;
 

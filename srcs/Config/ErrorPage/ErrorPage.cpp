@@ -76,7 +76,7 @@ std::string ErrorPage::get_redirect_path() const
 void ErrorPage::show_wrrorpage_infos()
 {
 	std::cout << "changed status code is " << BLUE_COLOR;
-	HandlingString::show_vector_contents(this->changed_statuscode);
+	// HandlingString::show_vector_contents(this->changed_statuscode);
 	std::cout << RESET_COLOR << std::endl;
 	if (this->tgt_statuscode != "")
 		std::cout << "target statuscode is " << BLUE_COLOR << this->tgt_statuscode << RESET_COLOR << std::endl;
