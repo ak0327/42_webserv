@@ -1,9 +1,7 @@
 #include "HttpRequest.hpp"
 
-HttpRequest::HttpRequest(const std::string &all_request_text)
+HttpRequest::HttpRequest(const std::string &all_request_text):_status_code(200)
 {
-	this->_status_code = 200;
-
 	std::string	line;
 	std::string	remove_sohword_line;
 	std::string	key;
@@ -12,16 +10,19 @@ HttpRequest::HttpRequest(const std::string &all_request_text)
 	ready_functionmap();
 	std::stringstream ss(all_request_text);
 	std::getline(ss, line, '\n');
-	this->_requestline.set_value(line);
+	// TODO REQUESTLINEのformatが正しくない場合に除外
+	this->_request_line.set_value(line);
+	// std::cout << "request_line end" << std::endl;
 	while (std::getline(ss, line, '\n'))
 	{
+		//文末にCREFがあるかどうかを確認する
 		remove_sohword_line = line.substr(0, line.length() - 1);
 		if (is_requestformat(line) == false)
 		{
 			this->_status_code = 400;
 			return;
 		}
-		if (HandlingString::is_printablecontent(remove_sohword_line) == false)
+		if (HandlingString::is_printable_content(remove_sohword_line) == false)
 		{
 			this->_status_code = 400;
 			return;
@@ -30,7 +31,7 @@ HttpRequest::HttpRequest(const std::string &all_request_text)
 		value = this->obtain_request_value(line);
 		value = value.substr(0, value.length() - 1);
 		if (this->is_keyword_exist(key) == true)
-			(this->*_inputvalue_functionmap[key])(key, value);
+			(this->*_field_name_parser[key])(key, value);
 	}
 }
 
@@ -168,29 +169,31 @@ ValueWeightArraySet*	HttpRequest::ready_ValueWeightArraySet(const std::string &v
 
 bool	HttpRequest::is_keyword_exist(const std::string &key)
 {
-	const std::string httprequest_keyset_arr[] = {
-		"Host",
-		"Connection",
-		"Referer", "Content-Type", "Range", "Upgrade", "Accept-Encoding", "Via", "Keep-Alive", "Accept-Language", "Accept", "Date",
-		"Cookie", "If-Modified-Since", "If-Unmodified-Since", "If-Match", "If-None-Match", "Content-Length", "Content-Range", "If-Range",
-		"Transfer-Encoding", "Expect", "Authorization", "User-Agent", "Accept-CH", "Accept-Charset", "Accept-Patch", "Accept-Ranges",
-		"Access-Control-Allow-Credentials", "Access-Control-Allow-Headers", "Access-Control-Allow-Methods", "Access-Control-Allow-Origin",
-		"Access-Control-Expose-Headers", "Access-Control-Max-Age", "Access-Control-Request-Headers", "Access-Control-Request-Method",
-		"Age", "Allow", "Alt-Svc", "Cache-Control", "Clear-Site-Data", "Content-Disposition", "Content-Encoding", "Content-Language",
-		"Content-Location", "Content-Security-Policy", "Content-Security-Policy-Report-Only", "Cross-Origin-Embedder-Policy",
-		"Cross-Origin-Opener-Policy", "Cross-Origin-Resource-Policy", "ETag", "Expect-CT", "Expires", "Forwarded", "From",
-		"Last-Modified", "Location", "Origin", "Permissions-Policy", "Proxy-Authenticate", "Proxy-Authorization", "Referrer-Policy",
-		"Retry-After", "Server", "Server-Timing", "Set-Cookie", "SourceMap", "Timing-Allow-Origin", "Authorization",
-		"Upgrade-Insecure-Requests", "Vary", "WWW-Authenticate", "Max-Forwards", "TE", "Accept-Post", "X-Custom-Header", "Sec-Fetch-Dest",
-		"Sec-Fetch-Mode", "Sec-Fetch-Site", "Sec-Fetch-User", "Sec-Purpose", "Sec-WebSocket-Accept", "Service-Worker-Navigation-Preload",
-		"Trailer", "Link"
-	};
-	const std::set<std::string> httprequest_keyset
-	(
-		httprequest_keyset_arr,
-		httprequest_keyset_arr + sizeof(httprequest_keyset_arr) / sizeof(httprequest_keyset_arr[0])
-	);
-	if (httprequest_keyset.count(key) > 0)
+	// const std::string httprequest_keyset_arr[] = {
+	// 	"Host",
+	// 	"Connection",
+	// 	"Referer", "Content-Type", "Range", "Upgrade", "Accept-Encoding", "Via", "Keep-Alive", "Accept-Language", "Accept", "Date",
+	// 	"Cookie", "If-Modified-Since", "If-Unmodified-Since", "If-Match", "If-None-Match", "Content-Length", "Content-Range", "If-Range",
+	// 	"Transfer-Encoding", "Expect", "Authorization", "User-Agent", "Accept-CH", "Accept-Charset", "Accept-Patch", "Accept-Ranges",
+	// 	"Access-Control-Allow-Credentials", "Access-Control-Allow-Headers", "Access-Control-Allow-Methods", "Access-Control-Allow-Origin",
+	// 	"Access-Control-Expose-Headers", "Access-Control-Max-Age", "Access-Control-Request-Headers", "Access-Control-Request-Method",
+	// 	"Age", "Allow", "Alt-Svc", "Cache-Control", "Clear-Site-Data", "Content-Disposition", "Content-Encoding", "Content-Language",
+	// 	"Content-Location", "Content-Security-Policy", "Content-Security-Policy-Report-Only", "Cross-Origin-Embedder-Policy",
+	// 	"Cross-Origin-Opener-Policy", "Cross-Origin-Resource-Policy", "ETag", "Expect-CT", "Expires", "Forwarded", "From",
+	// 	"Last-Modified", "Location", "Origin", "Permissions-Policy", "Proxy-Authenticate", "Proxy-Authorization", "Referrer-Policy",
+	// 	"Retry-After", "Server", "Server-Timing", "Set-Cookie", "SourceMap", "Timing-Allow-Origin", "Authorization",
+	// 	"Upgrade-Insecure-Requests", "Vary", "WWW-Authenticate", "Max-Forwards", "TE", "Accept-Post", "X-Custom-Header", "Sec-Fetch-Dest",
+	// 	"Sec-Fetch-Mode", "Sec-Fetch-Site", "Sec-Fetch-User", "Sec-Purpose", "Sec-WebSocket-Accept", "Service-Worker-Navigation-Preload",
+	// 	"Trailer", "Link"
+	// };
+	// const std::set<std::string> httprequest_keyset
+	// (
+	// 	httprequest_keyset_arr,
+	// 	httprequest_keyset_arr + sizeof(httprequest_keyset_arr) / sizeof(httprequest_keyset_arr[0])
+	// );
+	if (key == "Access-Control-Expose-Headers")
+		std::cout << this->_field_name_parser.count(key) << std::endl;
+	if (this->_field_name_parser.count(key) > 0)
 		return true;
 	return false;
 }
@@ -207,9 +210,9 @@ std::string	HttpRequest::obtain_request_key(const std::string value)
 bool	HttpRequest::is_requestformat(const std::string &val)
 {
 	std::string::size_type pos = val.find_first_of(":");
-	if (pos == 0)
+	if (pos == 0 || pos == std::string::npos)
 		return (false);
-	if (val[pos - 1] == ' ' || val[pos - 1] == '\t')
+	if (HandlingString::is_ows(val[pos - 1]))
 		return (false);
 	return (true);
 }
@@ -462,7 +465,7 @@ void	HttpRequest::set_access_control_expose_headers(const std::string &key, cons
 
 void	HttpRequest::set_access_control_max_age(const std::string &key, const std::string &value)
 {
-	if (HandlingString::is_positive_int_or_not(value) == false)
+	if (HandlingString::is_positive_int(value) == false)
 		return;
 	this->_request_keyvalue_map[key] = ready_ValueSet(value);
 }
@@ -495,7 +498,7 @@ void	HttpRequest::set_access_control_request_method(const std::string &key, cons
 
 void	HttpRequest::set_age(const std::string &key, const std::string &value)
 {
-	if (HandlingString::is_positive_int_or_not(value) == false)
+	if (HandlingString::is_positive_int(value) == false)
 		return;
 	if (HandlingString::is_positive_and_under_intmax(value) == false)
 		return;
@@ -594,7 +597,7 @@ void	HttpRequest::set_content_language(const std::string &key, const std::string
 
 void	HttpRequest::set_content_length(const std::string &key, const std::string &value)
 {
-	if (HandlingString::is_positive_int_or_not(value) == false)
+	if (HandlingString::is_positive_int(value) == false)
 		return;
 	if (HandlingString::is_positive_and_under_intmax(value) == false)
 		return;
@@ -954,7 +957,7 @@ void	HttpRequest::set_location(const std::string &key, const std::string &value)
 
 void	HttpRequest::set_max_forwards(const std::string &key, const std::string &value)
 {
-	if (HandlingString::is_positive_int_or_not(value) == true && HandlingString::is_positive_and_under_intmax(value) == true)
+	if (HandlingString::is_positive_int(value) == true && HandlingString::is_positive_and_under_intmax(value) == true)
 		this->_request_keyvalue_map[key] = ready_ValueSet(value);
 	else
 		return;
@@ -1151,7 +1154,7 @@ void	HttpRequest::set_upgrade(const std::string &key, const std::string &value)
 
 void	HttpRequest::set_upgrade_insecure_requests(const std::string &key, const std::string &value)
 {
-	if (HandlingString::is_positive_int_or_not(value) == false)
+	if (HandlingString::is_positive_int(value) == false)
 		return;
 	if (HandlingString::is_positive_and_under_intmax(value) == false)
 		return;
@@ -1187,106 +1190,95 @@ void	HttpRequest::set_x_xss_protection(const std::string &key, const std::string
 
 void HttpRequest::ready_functionmap()
 {
-	this->_inputvalue_functionmap["Accept"] = &HttpRequest::set_accept;
-	this->_inputvalue_functionmap["Accept-CH"] = &HttpRequest::set_accept_ch;
-	this->_inputvalue_functionmap["Accept-Charset"] = &HttpRequest::set_accept_charset;
-	this->_inputvalue_functionmap["Accept-Encoding"] = &HttpRequest::set_accept_encoding;
-	this->_inputvalue_functionmap["Accept-Language"] = &HttpRequest::set_accept_language;
-	// this->_inputvalue_functionmap["Accept-Patch"] = this->set_accept_patch;
-	this->_inputvalue_functionmap["Accept-Post"] = &HttpRequest::set_accept_post;
-	this->_inputvalue_functionmap["Accept-Ranges"] = &HttpRequest::set_accept_ranges;
-	this->_inputvalue_functionmap["Access-Control-Allow-Credentials"] = &HttpRequest::set_access_control_allow_credentials;
-	this->_inputvalue_functionmap["Access-Control-Allow-Headers"] = &HttpRequest::set_access_control_allow_headers;
-	this->_inputvalue_functionmap["Access-Control-Allow-Methods"] = &HttpRequest::set_access_control_allow_methods;
-	this->_inputvalue_functionmap["Access-Control-Allow-Origin"] = &HttpRequest::set_access_control_allow_origin;
-	this->_inputvalue_functionmap["Access-Control-Expose-Headers"] = &HttpRequest::set_access_control_expose_headers;
-	this->_inputvalue_functionmap["Access-Control-Max-Age"] = &HttpRequest::set_access_control_max_age;
-	this->_inputvalue_functionmap["Access-Control-Request-Headers"] = &HttpRequest::set_access_control_request_headers;
-	this->_inputvalue_functionmap["Access-Control-Request-Method"] = &HttpRequest::set_access_control_request_method;
-	this->_inputvalue_functionmap["Age"] = &HttpRequest::set_age;
-	this->_inputvalue_functionmap["Allow"] = &HttpRequest::set_allow;
-	this->_inputvalue_functionmap["Alt-Svc"] = &HttpRequest::set_alt_svc;
-	this->_inputvalue_functionmap["Alt-Used"] = &HttpRequest::set_alt_used;
-	this->_inputvalue_functionmap["Authorization"] = &HttpRequest::set_authorization;
-	this->_inputvalue_functionmap["Cache-Control"] =  &HttpRequest::set_cache_control;
-	this->_inputvalue_functionmap["Clear-Site-Data"] = &HttpRequest::set_clear_site_data;
-	this->_inputvalue_functionmap["Connection"] = &HttpRequest::set_connection;
-	this->_inputvalue_functionmap["Content-Disposition"] = &HttpRequest::set_content_disponesition;
-	this->_inputvalue_functionmap["Content-Encoding"] = &HttpRequest::set_content_encoding;
-	this->_inputvalue_functionmap["Content-Language"] = &HttpRequest::set_content_language;
-	this->_inputvalue_functionmap["Content-Length"] = &HttpRequest::set_content_length;
-	this->_inputvalue_functionmap["Content-Location"] = &HttpRequest::set_content_location;
-	this->_inputvalue_functionmap["Content-Range"] = &HttpRequest::set_content_range;
-	this->_inputvalue_functionmap["Content-Security-Policy"] = &HttpRequest::set_content_security_policy;
-	this->_inputvalue_functionmap["Content-Security-Policy-Report-Only"] = &HttpRequest::set_content_security_policy_report_only;
-	this->_inputvalue_functionmap["Content-Type"] = &HttpRequest::set_content_type;
-	this->_inputvalue_functionmap["Cookie"] = &HttpRequest::set_cookie;
-	this->_inputvalue_functionmap["Cross-Origin-Embedder-Policy"] = &HttpRequest::set_cross_origin_embedder_policy;
-	this->_inputvalue_functionmap["Cross-Origin-Opener-Policy"] = &HttpRequest::set_cross_origin_opener_policy;
-	this->_inputvalue_functionmap["Cross-Origin-Resource-Policy"] = &HttpRequest::set_cross_origin_resource_policy;
-	this->_inputvalue_functionmap["Date"] = &HttpRequest::set_date;
-	this->_inputvalue_functionmap["ETag"] = &HttpRequest::set_etag;
-	this->_inputvalue_functionmap["Expect"] = &HttpRequest::set_expect;
-	// this->_inputvalue_functionmap["Expect-CT"] = this->set_expect_ct;
-	this->_inputvalue_functionmap["Expires"] = &HttpRequest::set_expires;
-	this->_inputvalue_functionmap["Forwarded"] = &HttpRequest::set_forwarded;
-	this->_inputvalue_functionmap["From"] = &HttpRequest::set_from;
-	this->_inputvalue_functionmap["Host"] = &HttpRequest::set_host;
-	this->_inputvalue_functionmap["If-Match"] = &HttpRequest::set_if_match;
-	this->_inputvalue_functionmap["If-Modified-Since"] = &HttpRequest::set_if_modified_since;
-	this->_inputvalue_functionmap["If-None-Match"] = &HttpRequest::set_if_none_match;
-	this->_inputvalue_functionmap["If-Range"] = &HttpRequest::set_if_range;
-	this->_inputvalue_functionmap["If-Unmodified-Since"] = &HttpRequest::set_if_unmodified_since;
-	this->_inputvalue_functionmap["Keep-Alive"] = &HttpRequest::set_keep_alive;
-	this->_inputvalue_functionmap["Last-Modified"] = &HttpRequest::set_last_modified;
-	this->_inputvalue_functionmap["Link"] = &HttpRequest::set_link;
-	this->_inputvalue_functionmap["Location"] = &HttpRequest::set_location;
-	this->_inputvalue_functionmap["Max-Forwards"] = &HttpRequest::set_max_forwards;
-	this->_inputvalue_functionmap["Origin"] = &HttpRequest::set_origin;
-	this->_inputvalue_functionmap["Permissions-Policy"] = &HttpRequest::set_permission_policy;
-	this->_inputvalue_functionmap["Proxy-Authenticate"] = &HttpRequest::set_proxy_authenticate;
-	this->_inputvalue_functionmap["Proxy-Authorization"] = &HttpRequest::set_proxy_authorization;
-	// this->_inputvalue_functionmap["Range"] = this->set_range;
-	this->_inputvalue_functionmap["Referer"] = &HttpRequest::set_referer;
-	this->_inputvalue_functionmap["Retry-After"] = &HttpRequest::set_retry_after;
-	this->_inputvalue_functionmap["Sec-Fetch-Dest"] = &HttpRequest::set_sec_fetch_dest;
-	this->_inputvalue_functionmap["Sec-Fetch-Mode"] = &HttpRequest::set_sec_fetch_mode;
-	this->_inputvalue_functionmap["Sec-Fetch-Site"] = &HttpRequest::set_sec_fetch_site;
-	this->_inputvalue_functionmap["Sec-Fetch-User"] = &HttpRequest::set_sec_fetch_user;
-	this->_inputvalue_functionmap["Sec-Purpose"] = &HttpRequest::set_sec_purpose;
-	this->_inputvalue_functionmap["Sec-WebSocket-Accept"] = &HttpRequest::set_sec_websocket_accept;
-	this->_inputvalue_functionmap["Server"] = &HttpRequest::set_server;
-	// this->_inputvalue_functionmap["Server-Timing"] = this->set_server_timing;
-	this->_inputvalue_functionmap["Service-Worker-Navigation-Preload"] = &HttpRequest::set_service_worker_navigation_preload;
-	this->_inputvalue_functionmap["Set-Cookie"] = &HttpRequest::set_cookie;
-	this->_inputvalue_functionmap["SourceMap"] = &HttpRequest::set_sourcemap;
-	this->_inputvalue_functionmap["Strict-Transport-Security"] = &HttpRequest::set_strict_transport_security;
-	this->_inputvalue_functionmap["TE"] = &HttpRequest::set_te;
-	this->_inputvalue_functionmap["Timing-Allow-Origin"] = &HttpRequest::set_timing_allow_origin;
-	this->_inputvalue_functionmap["Trailer"] = &HttpRequest::set_trailer;
-	this->_inputvalue_functionmap["Transfer-Encoding"] = &HttpRequest::set_transfer_encoding;
-	this->_inputvalue_functionmap["Upgrade"] = &HttpRequest::set_upgrade;
-	this->_inputvalue_functionmap["Upgrade-Insecure-Requests"] = &HttpRequest::set_upgrade_insecure_requests;
-	this->_inputvalue_functionmap["User-Agent"] = &HttpRequest::set_user_agent;
-	this->_inputvalue_functionmap["Vary"] = &HttpRequest::set_vary;
-	this->_inputvalue_functionmap["Via"] = &HttpRequest::set_via;
-	this->_inputvalue_functionmap["WWW-Authenticate"] = &HttpRequest::set_www_authenticate;
+	this->_field_name_parser["Accept"] = &HttpRequest::set_accept;
+	this->_field_name_parser["Accept-CH"] = &HttpRequest::set_accept_ch;
+	this->_field_name_parser["Accept-Charset"] = &HttpRequest::set_accept_charset;
+	this->_field_name_parser["Accept-Encoding"] = &HttpRequest::set_accept_encoding;
+	this->_field_name_parser["Accept-Language"] = &HttpRequest::set_accept_language;
+	// this->_field_name_parser["Accept-Patch"] = this->set_accept_patch;
+	this->_field_name_parser["Accept-Post"] = &HttpRequest::set_accept_post;
+	this->_field_name_parser["Accept-Ranges"] = &HttpRequest::set_accept_ranges;
+	this->_field_name_parser["Access-Control-Allow-Credentials"] = &HttpRequest::set_access_control_allow_credentials;
+	this->_field_name_parser["Access-Control-Allow-Headers"] = &HttpRequest::set_access_control_allow_headers;
+	this->_field_name_parser["Access-Control-Allow-Methods"] = &HttpRequest::set_access_control_allow_methods;
+	this->_field_name_parser["Access-Control-Allow-Origin"] = &HttpRequest::set_access_control_allow_origin;
+	this->_field_name_parser["Access-Control-Expose-Headers"] = &HttpRequest::set_access_control_expose_headers;
+	this->_field_name_parser["Access-Control-Max-Age"] = &HttpRequest::set_access_control_max_age;
+	this->_field_name_parser["Access-Control-Request-Headers"] = &HttpRequest::set_access_control_request_headers;
+	this->_field_name_parser["Access-Control-Request-Method"] = &HttpRequest::set_access_control_request_method;
+	this->_field_name_parser["Age"] = &HttpRequest::set_age;
+	this->_field_name_parser["Allow"] = &HttpRequest::set_allow;
+	this->_field_name_parser["Alt-Svc"] = &HttpRequest::set_alt_svc;
+	this->_field_name_parser["Alt-Used"] = &HttpRequest::set_alt_used;
+	this->_field_name_parser["Authorization"] = &HttpRequest::set_authorization;
+	this->_field_name_parser["Cache-Control"] =  &HttpRequest::set_cache_control;
+	this->_field_name_parser["Clear-Site-Data"] = &HttpRequest::set_clear_site_data;
+	this->_field_name_parser["Connection"] = &HttpRequest::set_connection;
+	this->_field_name_parser["Content-Disposition"] = &HttpRequest::set_content_disponesition;
+	this->_field_name_parser["Content-Encoding"] = &HttpRequest::set_content_encoding;
+	this->_field_name_parser["Content-Language"] = &HttpRequest::set_content_language;
+	this->_field_name_parser["Content-Length"] = &HttpRequest::set_content_length;
+	this->_field_name_parser["Content-Location"] = &HttpRequest::set_content_location;
+	this->_field_name_parser["Content-Range"] = &HttpRequest::set_content_range;
+	this->_field_name_parser["Content-Security-Policy"] = &HttpRequest::set_content_security_policy;
+	this->_field_name_parser["Content-Security-Policy-Report-Only"] = &HttpRequest::set_content_security_policy_report_only;
+	this->_field_name_parser["Content-Type"] = &HttpRequest::set_content_type;
+	this->_field_name_parser["Cookie"] = &HttpRequest::set_cookie;
+	this->_field_name_parser["Cross-Origin-Embedder-Policy"] = &HttpRequest::set_cross_origin_embedder_policy;
+	this->_field_name_parser["Cross-Origin-Opener-Policy"] = &HttpRequest::set_cross_origin_opener_policy;
+	this->_field_name_parser["Cross-Origin-Resource-Policy"] = &HttpRequest::set_cross_origin_resource_policy;
+	this->_field_name_parser["Date"] = &HttpRequest::set_date;
+	this->_field_name_parser["ETag"] = &HttpRequest::set_etag;
+	this->_field_name_parser["Expect"] = &HttpRequest::set_expect;
+	// this->_field_name_parser["Expect-CT"] = this->set_expect_ct;
+	this->_field_name_parser["Expires"] = &HttpRequest::set_expires;
+	this->_field_name_parser["Forwarded"] = &HttpRequest::set_forwarded;
+	this->_field_name_parser["From"] = &HttpRequest::set_from;
+	this->_field_name_parser["Host"] = &HttpRequest::set_host;
+	this->_field_name_parser["If-Match"] = &HttpRequest::set_if_match;
+	this->_field_name_parser["If-Modified-Since"] = &HttpRequest::set_if_modified_since;
+	this->_field_name_parser["If-None-Match"] = &HttpRequest::set_if_none_match;
+	this->_field_name_parser["If-Range"] = &HttpRequest::set_if_range;
+	this->_field_name_parser["If-Unmodified-Since"] = &HttpRequest::set_if_unmodified_since;
+	this->_field_name_parser["Keep-Alive"] = &HttpRequest::set_keep_alive;
+	this->_field_name_parser["Last-Modified"] = &HttpRequest::set_last_modified;
+	this->_field_name_parser["Link"] = &HttpRequest::set_link;
+	this->_field_name_parser["Location"] = &HttpRequest::set_location;
+	this->_field_name_parser["Max-Forwards"] = &HttpRequest::set_max_forwards;
+	this->_field_name_parser["Origin"] = &HttpRequest::set_origin;
+	this->_field_name_parser["Permissions-Policy"] = &HttpRequest::set_permission_policy;
+	this->_field_name_parser["Proxy-Authenticate"] = &HttpRequest::set_proxy_authenticate;
+	this->_field_name_parser["Proxy-Authorization"] = &HttpRequest::set_proxy_authorization;
+	// this->_field_name_parser["Range"] = this->set_range;
+	this->_field_name_parser["Referer"] = &HttpRequest::set_referer;
+	this->_field_name_parser["Retry-After"] = &HttpRequest::set_retry_after;
+	this->_field_name_parser["Sec-Fetch-Dest"] = &HttpRequest::set_sec_fetch_dest;
+	this->_field_name_parser["Sec-Fetch-Mode"] = &HttpRequest::set_sec_fetch_mode;
+	this->_field_name_parser["Sec-Fetch-Site"] = &HttpRequest::set_sec_fetch_site;
+	this->_field_name_parser["Sec-Fetch-User"] = &HttpRequest::set_sec_fetch_user;
+	this->_field_name_parser["Sec-Purpose"] = &HttpRequest::set_sec_purpose;
+	this->_field_name_parser["Sec-WebSocket-Accept"] = &HttpRequest::set_sec_websocket_accept;
+	this->_field_name_parser["Server"] = &HttpRequest::set_server;
+	// this->_field_name_parser["Server-Timing"] = this->set_server_timing;
+	this->_field_name_parser["Service-Worker-Navigation-Preload"] = &HttpRequest::set_service_worker_navigation_preload;
+	this->_field_name_parser["Set-Cookie"] = &HttpRequest::set_cookie;
+	this->_field_name_parser["SourceMap"] = &HttpRequest::set_sourcemap;
+	this->_field_name_parser["Strict-Transport-Security"] = &HttpRequest::set_strict_transport_security;
+	this->_field_name_parser["TE"] = &HttpRequest::set_te;
+	this->_field_name_parser["Timing-Allow-Origin"] = &HttpRequest::set_timing_allow_origin;
+	this->_field_name_parser["Trailer"] = &HttpRequest::set_trailer;
+	this->_field_name_parser["Transfer-Encoding"] = &HttpRequest::set_transfer_encoding;
+	this->_field_name_parser["Upgrade"] = &HttpRequest::set_upgrade;
+	this->_field_name_parser["Upgrade-Insecure-Requests"] = &HttpRequest::set_upgrade_insecure_requests;
+	this->_field_name_parser["User-Agent"] = &HttpRequest::set_user_agent;
+	this->_field_name_parser["Vary"] = &HttpRequest::set_vary;
+	this->_field_name_parser["Via"] = &HttpRequest::set_via;
+	this->_field_name_parser["WWW-Authenticate"] = &HttpRequest::set_www_authenticate;
 }
 
-std::string HttpRequest::show_requestinfs(void)
+RequestLine& HttpRequest::get_request_line()
 {
-	std::map<std::string, BaseKeyValueMap*>::iterator now_it = this->_request_keyvalue_map.begin();
-	while (now_it != this->_request_keyvalue_map.end())
-	{
-		now_it->second->show_value();
-		now_it++;
-	}
-	return (this->_requestline.show_requestline());
-}
-
-RequestLine HttpRequest::get_requestline() const
-{
-	return (this->_requestline);
+	return (this->_request_line);
 }
 
 BaseKeyValueMap* HttpRequest::return_value(const std::string &key)

@@ -127,6 +127,5 @@ run_request_test    :
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=Request*
-	leaks -q --atExit ./unit_test
 
 -include $(DEPS)

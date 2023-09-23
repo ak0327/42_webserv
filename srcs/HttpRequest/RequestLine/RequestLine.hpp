@@ -9,19 +9,17 @@ class RequestLine
 {
 	private:
 		std::string _method;
-		std::string _target_page;
-		std::string _version;
+		std::string _request_target;
+		std::string _http_version;
 		RequestLine& operator=(const RequestLine &other);
+		RequestLine(const RequestLine &other);
 	public:
 		RequestLine();
 		~RequestLine();
-		RequestLine(const RequestLine &other);
 		void		set_value(const std::string &line);
 		std::string	get_method(void) const;
 		std::string get_target_page(void) const;
 		std::string	get_version(void) const;
-
-		std::string	show_requestline(void) const;
 };
 
 #endif  // SRCS_HTTPREQUEST_REQUESTLINE_REQUESTLINE_HPP_

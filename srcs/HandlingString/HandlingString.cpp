@@ -109,7 +109,7 @@ std::string	HandlingString::obtain_weight(const std::string &other)
 	return (HandlingString::obtain_word_after_delimiter(other, '='));
 }
 
-bool	HandlingString::is_positive_int_or_not(const std::string &value)
+bool	HandlingString::is_positive_int(const std::string &value)
 {
 	size_t	value_length = value.length();
 	size_t	pos = 0;
@@ -125,11 +125,14 @@ bool	HandlingString::is_positive_int_or_not(const std::string &value)
 
 bool	HandlingString::is_double_or_not(const std::string &value)
 {
-	if (value.find('.') == std::string::npos)
-		return (false);
 	size_t	dot_counter = 0;
 	size_t	now_pos = 0;
 	size_t	value_length = value.length();
+	std::istringstream ss(value);
+	double value_to_double;
+
+	if (value.find('.') == std::string::npos)
+		return (false);
 	while (now_pos != value_length)
 	{
 		if (value[now_pos] == '.')
@@ -137,14 +140,12 @@ bool	HandlingString::is_double_or_not(const std::string &value)
 			dot_counter++;
 			now_pos++;
 		}
-		if (!('0' <= value[now_pos] && value[now_pos] <= '9'))
+		if (!(std::isdigit(value[now_pos])))
 			return (false);
 		now_pos++;
 	}
 	if (dot_counter > 1)
 		return (false);
-	std::istringstream ss(value);
-	double value_to_double;
 	if (ss >> value_to_double)
 	{
         if (value_to_double < 0)
@@ -157,7 +158,8 @@ bool	HandlingString::is_double_or_not(const std::string &value)
 	return (true);
 }
 
-std::size_t count_char(const std::string &str, const char c) {
+std::size_t count_char(const std::string &str, const char c)
+{
 	std::size_t	count = 0;
 	std::size_t pos = 0;
 
@@ -188,6 +190,7 @@ std::string HandlingString::obtain_withoutows_value(const std::string &field_val
 {
 	size_t		before_pos = 0;
 	size_t		after_pos = field_value_with_ows.length() - 1;
+
 	while (is_ows(field_value_with_ows[before_pos]) == true)
 		before_pos++;
 	while (is_ows(field_value_with_ows[after_pos]) == true)
@@ -195,15 +198,16 @@ std::string HandlingString::obtain_withoutows_value(const std::string &field_val
 	return (field_value_with_ows.substr(before_pos, after_pos - before_pos + 1));
 }
 
-bool	HandlingString::is_printablecontent(const std::string &value)
+bool	HandlingString::is_printable_content(const std::string &value)
 {
 	size_t	value_length = value.length();
-	size_t	now_pos = 0;
-	while (now_pos != value_length)
+	size_t	pos = 0;
+
+	while (pos != value_length)
 	{
-		if (isprint(value[now_pos]) == false)
+		if (isprint(value[pos]) == false)
 			return (false);
-		now_pos++;
+		pos++;
 	}
 	return (true);
 }

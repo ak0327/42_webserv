@@ -57,10 +57,9 @@ set(webserv_srcs
         srcs/Socket/Socket.cpp
         srcs/HandlingString/HandlingString.cpp
         srcs/HttpRequest/BaseKeyValueMap/BaseKeyValueMap.cpp
-        srcs/HttpRequest/HttpRequest/HttpRequest.cpp
+        srcs/HttpRequest/HttpRequest.cpp
         srcs/HttpRequest/RequestLine/RequestLine.cpp
         srcs/HttpRequest/TwoValueSet/TwoValueSet.cpp
-        #TwoValueSet
         srcs/HttpRequest/ValueArraySet/ValueArraySet.cpp
         srcs/HttpRequest/ValueDateSet/ValueDateSet.cpp
         srcs/HttpRequest/ValueMap/ValueMap.cpp
@@ -77,7 +76,6 @@ add_executable(webserv
 
 # unit_test_srcs ---------------------------------------------------------------
 set (unit_test_srcs
-        test/unit_test/TestMain.cpp
         test/unit_test/is_valid_file_path/test_get_valid_config_file_path.cpp
         test/unit_test/TestError.cpp
         test/unit_test/TestResult.cpp
