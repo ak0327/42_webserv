@@ -61,7 +61,7 @@ SecurityPolicy* HttpRequest::ready_SecurityPolicy(std::map<std::string, std::vec
 
 TwoValueSet* HttpRequest::ready_TwoValueSet(const std::string &all_value)
 {
-	std::stringstream	ss(HandlingString::obtain_value(all_value));
+	std::stringstream	ss(HandlingString::obtain_withoutows_value(all_value));
 	std::string			first_value;
 	std::string			second_value;
 
@@ -73,13 +73,13 @@ TwoValueSet* HttpRequest::ready_TwoValueSet(const std::string &all_value)
 
 TwoValueSet* HttpRequest::ready_TwoValueSet(const std::string &value, char delimiter)
 {
-	std::stringstream	ss(HandlingString::obtain_value(value));
+	std::stringstream	ss(HandlingString::obtain_withoutows_value(value));
 	std::string			first_value;
 	std::string			second_value;
 
 	std::getline(ss, first_value, delimiter);
 	std::getline(ss, second_value, delimiter);
-	return (new TwoValueSet(HandlingString::obtain_value(first_value), HandlingString::obtain_value(second_value)));
+	return (new TwoValueSet(HandlingString::obtain_withoutows_value(first_value), HandlingString::obtain_withoutows_value(second_value)));
 }
 
 ValueArraySet* HttpRequest::ready_ValueArraySet(const std::string &all_value)
@@ -89,13 +89,13 @@ ValueArraySet* HttpRequest::ready_ValueArraySet(const std::string &all_value)
 	std::stringstream	ss(all_value);
 	std::string			line;
 	while(std::getline(ss, line, ','))
-		value_array.push_back(HandlingString::obtain_value(line));
+		value_array.push_back(HandlingString::obtain_withoutows_value(line));
 	return (new ValueArraySet(value_array));
 }
 
 ValueDateSet* HttpRequest::ready_ValueDateSet(const std::string &value)
 {
-	return (new ValueDateSet(HandlingString::obtain_value(value)));
+	return (new ValueDateSet(HandlingString::obtain_withoutows_value(value)));
 }
 
 ValueMap* HttpRequest::ready_ValueMap(const std::string &value, char delimiter)
@@ -105,8 +105,8 @@ ValueMap* HttpRequest::ready_ValueMap(const std::string &value, char delimiter)
 	std::string			line;
 
 	while(std::getline(ss, line, delimiter))
-		value_map[HandlingString::obtain_word_beforedelimiter(HandlingString::skip_emptyword(line), '=')] \
-		= HandlingString::obtain_afterword(HandlingString::obtain_value(line), '=');
+		value_map[HandlingString::obtain_word_before_delimiter(HandlingString::obtain_withoutows_value(line), '=')] \
+		= HandlingString::obtain_word_after_delimiter(HandlingString::obtain_withoutows_value(line), '=');
 	return (new ValueMap(value_map));
 }
 
@@ -117,8 +117,8 @@ ValueMap* HttpRequest::ready_ValueMap(const std::string &value)
 	std::string			line;
 
 	while(std::getline(ss, line, ';'))
-		value_map[HandlingString::obtain_word_beforedelimiter(HandlingString::skipping_first_emptyword(line), '=')] \
-		= HandlingString::obtain_afterword(HandlingString::obtain_value(line), '=');
+		value_map[HandlingString::obtain_word_before_delimiter(HandlingString::obtain_withoutows_value(line), '=')] \
+		= HandlingString::obtain_word_after_delimiter(HandlingString::obtain_withoutows_value(line), '=');
 	return (new ValueMap(value_map));
 }
 
@@ -131,16 +131,16 @@ ValueMap* HttpRequest::ready_ValueMap(const std::string &only_value, const std::
 
 	while(std::getline(ss, line, ';'))
 	{
-		skipping_word = HandlingString::obtain_value(line);
-		value_map[HandlingString::obtain_word_beforedelimiter(skipping_word, '=')] \
-		= HandlingString::obtain_value(HandlingString::obtain_afterword(skipping_word, '='));
+		skipping_word = HandlingString::obtain_withoutows_value(line);
+		value_map[HandlingString::obtain_word_before_delimiter(skipping_word, '=')] \
+		= HandlingString::obtain_withoutows_value(HandlingString::obtain_word_after_delimiter(skipping_word, '='));
 	}
 	return (new ValueMap(only_value, value_map));
 }
 
 ValueSet* HttpRequest::ready_ValueSet(const std::string &value)
 {
-	return (new ValueSet(HandlingString::obtain_value(value)));
+	return (new ValueSet(HandlingString::obtain_withoutows_value(value)));
 }
 
 ValueWeightArraySet*	HttpRequest::ready_ValueWeightArraySet(const std::string &value)
@@ -153,12 +153,12 @@ ValueWeightArraySet*	HttpRequest::ready_ValueWeightArraySet(const std::string &v
 
 	while(std::getline(splited_by_commma, line, ','))
 	{
-		changed_line = HandlingString::obtain_value(line);
+		changed_line = HandlingString::obtain_withoutows_value(line);
 		if (changed_line.find(';') != std::string::npos)
 		{
-			target_value = HandlingString::obtain_weight(HandlingString::obtain_afterword(changed_line, ';'));
-			value_map[HandlingString::obtain_word_beforedelimiter(changed_line, ';')] = \
-			HandlingString::str_to_double(HandlingString::obtain_weight(HandlingString::obtain_afterword(changed_line, ';')));
+			target_value = HandlingString::obtain_weight(HandlingString::obtain_word_after_delimiter(changed_line, ';'));
+			value_map[HandlingString::obtain_word_before_delimiter(changed_line, ';')] = \
+			HandlingString::str_to_double(HandlingString::obtain_weight(HandlingString::obtain_word_after_delimiter(changed_line, ';')));
 		}
 		else
 			value_map[changed_line] = 1.0;
@@ -254,7 +254,7 @@ void HttpRequest::set_accept(const std::string &key, const std::string &value)
 			changed_line = line;
 		if (changed_line.find(';') != std::string::npos)
 		{
-			if (HandlingString::is_double_or_not(HandlingString::obtain_weight(HandlingString::obtain_afterword(changed_line, ';'))) == false)
+			if (HandlingString::is_double_or_not(HandlingString::obtain_weight(HandlingString::obtain_word_after_delimiter(changed_line, ';'))) == false)
 				return;
 		}
 	}
@@ -279,7 +279,7 @@ void	HttpRequest::set_accept_charset(const std::string &key, const std::string &
 			changed_line = line;
 		if (changed_line.find(';') != std::string::npos)
 		{
-			if (HandlingString::is_double_or_not(HandlingString::obtain_weight(HandlingString::obtain_afterword(changed_line, ';'))) == false)
+			if (HandlingString::is_double_or_not(HandlingString::obtain_weight(HandlingString::obtain_word_after_delimiter(changed_line, ';'))) == false)
 				return;
 		}
 	}
@@ -308,9 +308,9 @@ void	HttpRequest::set_accept_encoding(const std::string &key, const std::string 
 	{
 		if (line.find(';') != std::string::npos)
 		{
-			if (HandlingString::is_double_or_not(HandlingString::obtain_weight(HandlingString::obtain_afterword(line, ';'))) == false)
+			if (HandlingString::is_double_or_not(HandlingString::obtain_weight(HandlingString::obtain_word_after_delimiter(line, ';'))) == false)
 				return;
-			keyword = HandlingString::obtain_word_beforedelimiter(line, ';');
+			keyword = HandlingString::obtain_word_before_delimiter(line, ';');
 		}
 		else
 			keyword = line;
@@ -343,8 +343,8 @@ void	HttpRequest::set_accept_language(const std::string &key, const std::string 
 	{
 		if (line.find(';') != std::string::npos)
 		{
-			accept_language_value = HandlingString::obtain_word_beforedelimiter(line, ';');
-			target_value = HandlingString::obtain_weight(HandlingString::obtain_afterword(line, ';'));
+			accept_language_value = HandlingString::obtain_word_before_delimiter(line, ';');
+			target_value = HandlingString::obtain_weight(HandlingString::obtain_word_after_delimiter(line, ';'));
 			if (is_accept_langage_valueword(accept_language_value) == true)
 				skipping_nokeyword = skipping_nokeyword + line;
 			if (target_value == "0" || target_value == "0.0")
@@ -418,7 +418,7 @@ void	HttpRequest::set_access_control_allow_headers(const std::string &key, const
 	std::string			line;
 	while(std::getline(ss, line, ','))
 	{
-		if (this->is_keyword_exist(HandlingString::skip_emptyword(line)) == false)
+		if (this->is_keyword_exist(HandlingString::obtain_withoutows_value(line)) == false)
 			return;
 	}
 	this->_request_keyvalue_map[key] = ready_ValueArraySet(value);
@@ -454,7 +454,7 @@ void	HttpRequest::set_access_control_expose_headers(const std::string &key, cons
 	std::string			line;
 	while(std::getline(ss, line, ','))
 	{
-		if (this->is_keyword_exist(HandlingString::skip_emptyword(line)) == false)
+		if (this->is_keyword_exist(HandlingString::obtain_withoutows_value(line)) == false)
 			return;
 	}
 	this->_request_keyvalue_map[key] = ready_ValueArraySet(value);
@@ -462,7 +462,7 @@ void	HttpRequest::set_access_control_expose_headers(const std::string &key, cons
 
 void	HttpRequest::set_access_control_max_age(const std::string &key, const std::string &value)
 {
-	if (HandlingString::is_positiveint_or_not(value) == false)
+	if (HandlingString::is_positive_int_or_not(value) == false)
 		return;
 	this->_request_keyvalue_map[key] = ready_ValueSet(value);
 }
@@ -479,7 +479,7 @@ void	HttpRequest::set_access_control_request_headers(const std::string &key, con
 			word = line.substr(1);
 		else
 			word = line;
-		if (this->is_keyword_exist(HandlingString::skip_emptyword(word)) == false)
+		if (this->is_keyword_exist(HandlingString::obtain_withoutows_value(word)) == false)
 			return;
 	}
 	this->_request_keyvalue_map[key] = ready_ValueArraySet(value);
@@ -495,7 +495,7 @@ void	HttpRequest::set_access_control_request_method(const std::string &key, cons
 
 void	HttpRequest::set_age(const std::string &key, const std::string &value)
 {
-	if (HandlingString::is_positiveint_or_not(value) == false)
+	if (HandlingString::is_positive_int_or_not(value) == false)
 		return;
 	if (HandlingString::is_positive_and_under_intmax(value) == false)
 		return;
@@ -594,7 +594,7 @@ void	HttpRequest::set_content_language(const std::string &key, const std::string
 
 void	HttpRequest::set_content_length(const std::string &key, const std::string &value)
 {
-	if (HandlingString::is_positiveint_or_not(value) == false)
+	if (HandlingString::is_positive_int_or_not(value) == false)
 		return;
 	if (HandlingString::is_positive_and_under_intmax(value) == false)
 		return;
@@ -921,8 +921,8 @@ std::map<std::string, std::string>	HttpRequest::ready_mappingvalue(const std::st
 	while(std::getline(ss, line, ';'))
 	{
 		skipping_first_empty = line.substr(1);
-		key = HandlingString::obtain_word_beforedelimiter(skipping_first_empty, '=');
-		val = HandlingString::obtain_afterword(skipping_first_empty, '=');
+		key = HandlingString::obtain_word_before_delimiter(skipping_first_empty, '=');
+		val = HandlingString::obtain_word_after_delimiter(skipping_first_empty, '=');
 		words_mapping[key] = val;
 	}
 	return (words_mapping);
@@ -940,8 +940,8 @@ void	HttpRequest::set_link(const std::string &key, const std::string &value)
 
 	while(std::getline(ss, line, ','))
 	{
-		uri = HandlingString::obtain_word_beforedelimiter(line, ';');
-		mapping_value = HandlingString::obtain_afterword(line, ';');
+		uri = HandlingString::obtain_word_before_delimiter(line, ';');
+		mapping_value = HandlingString::obtain_word_after_delimiter(line, ';');
 		value_map[uri] = this->ready_mappingvalue(mapping_value);
 	}
 	this->_request_keyvalue_map[key] = ready_LinkClass(value_map);
@@ -954,7 +954,7 @@ void	HttpRequest::set_location(const std::string &key, const std::string &value)
 
 void	HttpRequest::set_max_forwards(const std::string &key, const std::string &value)
 {
-	if (HandlingString::is_positiveint_or_not(value) == true && HandlingString::is_positive_and_under_intmax(value) == true)
+	if (HandlingString::is_positive_int_or_not(value) == true && HandlingString::is_positive_and_under_intmax(value) == true)
 		this->_request_keyvalue_map[key] = ready_ValueSet(value);
 	else
 		return;
@@ -1098,8 +1098,8 @@ void	HttpRequest::set_te(const std::string &key, const std::string &value)
 		{
 			if (line[0] == ' ')
 				line = line.substr(1);
-			target_key = HandlingString::obtain_word_beforedelimiter(line, ';');
-			target_value = HandlingString::obtain_weight(HandlingString::obtain_afterword(line, ';'));
+			target_key = HandlingString::obtain_word_before_delimiter(line, ';');
+			target_value = HandlingString::obtain_weight(HandlingString::obtain_word_after_delimiter(line, ';'));
 			if (!(target_key == "compress" || target_key == "deflate" || target_key == "gzip" || target_key == "trailers"))
 				return;
 			if (HandlingString::is_double_or_not(target_value) == false)
@@ -1151,7 +1151,7 @@ void	HttpRequest::set_upgrade(const std::string &key, const std::string &value)
 
 void	HttpRequest::set_upgrade_insecure_requests(const std::string &key, const std::string &value)
 {
-	if (HandlingString::is_positiveint_or_not(value) == false)
+	if (HandlingString::is_positive_int_or_not(value) == false)
 		return;
 	if (HandlingString::is_positive_and_under_intmax(value) == false)
 		return;

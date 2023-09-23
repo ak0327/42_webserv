@@ -8,33 +8,9 @@ std::vector<std::string> HandlingString::input_arg_to_vector_without_firstword(c
 	std::vector<std::string>	ans;
 
 	splited_words >> word;
-	// std::cout << "word is -> " << word << std::endl;
 	while (splited_words >> word)
-	{
-		// std::cout << "word is -> " << word << std::endl;
 		ans.push_back(word);
-	}
 	return (ans);
-}
-
-std::string	HandlingString::skipping_first_emptyword(const std::string &word)
-{
-	size_t		pos = 0;
-
-	while (is_ows(word[pos]))
-		pos++;
-	return (word.substr(pos));
-}
-
-std::string HandlingString::skip_emptyword(const std::string &word)
-{
-	std::istringstream	splitted_words(word);
-	std::string			src;
-	std::string			all_src;
-
-	while (splitted_words >> src)
-		all_src += src;
-	return (all_src);
 }
 
 bool	HandlingString::is_positive_and_under_intmax(const std::string &num_str)
@@ -104,20 +80,6 @@ std::string	HandlingString::skip_lastsemicolon(const std::string &word)
 	return word.substr(0, word.find(';'));
 }
 
-void	HandlingString::error_show(const std::string &word, const size_t &pos)
-{
-	std::string error_one = "<< missed word! >>";
-	std::string error_two = "<< missed line >>";
-	std::string error_three = "===============";
-
-	std::cout << error_three << std::endl;
-	std::cout << error_one << std::endl;
-	std::cout << "* " << word << std::endl;
-	std::cout << error_two << std::endl;
-	std::cout << "line > " << pos << std::endl;
-	std::cout << error_three << std::endl;
-}
-
 std::string HandlingString::int_to_str(int num)
 {
 	std::string result;
@@ -132,22 +94,22 @@ std::string HandlingString::int_to_str(int num)
     return result;
 }
 
-std::string HandlingString::obtain_word_beforedelimiter(const std::string &other, const char &delimiter)
+std::string HandlingString::obtain_word_before_delimiter(const std::string &other, const char &delimiter)
 {
 	return other.substr(0, other.find(delimiter));
 }
 
-std::string HandlingString::obtain_afterword(const std::string &str, char delimiter)
+std::string HandlingString::obtain_word_after_delimiter(const std::string &str, char delimiter)
 {
 	return str.substr(str.find(delimiter) + 1);
 }
 
 std::string	HandlingString::obtain_weight(const std::string &other)
 {
-	return (HandlingString::obtain_afterword(other, '='));
+	return (HandlingString::obtain_word_after_delimiter(other, '='));
 }
 
-bool	HandlingString::is_positiveint_or_not(const std::string &value)
+bool	HandlingString::is_positive_int_or_not(const std::string &value)
 {
 	size_t	value_length = value.length();
 	size_t	pos = 0;
@@ -222,7 +184,7 @@ std::string HandlingString::obtain_unquote_str(const std::string &quoted_str)
 	return quoted_str.substr(1, quoted_str.length() - 2);
 }
 
-std::string HandlingString::obtain_value(const std::string &field_value_with_ows)
+std::string HandlingString::obtain_withoutows_value(const std::string &field_value_with_ows)
 {
 	size_t		before_pos = 0;
 	size_t		after_pos = field_value_with_ows.length() - 1;

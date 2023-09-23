@@ -200,7 +200,7 @@ bool	keyword_doesnot_exist(int line, const char *key, HttpRequest &target)
 TEST(Request, HandlingStringTEST)
 {
 	std::string val1 = "   	 aaa bbb ccc      dd ";
-	EXPECT_EQ(HandlingString::obtain_value(val1), "aaa bbb ccc      dd");
+	EXPECT_EQ(HandlingString::obtain_withoutows_value(val1), "aaa bbb ccc      dd");
 
 	std::string	val2 = "  \1 thiis is not true line !";
 	if (HandlingString::is_printablecontent(val2) == true)
