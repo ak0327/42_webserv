@@ -18,6 +18,7 @@ HttpRequest::HttpRequest(const std::string &all_request_text):_status_code(200)
 	this->_request_line.set_value(line);
 	while (std::getline(ss, line, '\n'))
 	{
+		// std::cout << "line is " << "|" << line << "|" << std::endl;
 		if (HandlingString::is_end_with_cr(line) == false)
 		{
 			this->_status_code = 400;
@@ -139,10 +140,6 @@ bool	HttpRequest::is_weightformat(const std::string &value)
 	return HandlingString::is_double(weight_num);
 }
 
-// linkclass
-
-//~~~~
-
 // まだできてない
 void	HttpRequest::set_cache_control(const std::string &key, const std::string &value)
 {
@@ -173,24 +170,6 @@ void	HttpRequest::set_x_xss_protection(const std::string &key, const std::string
 {
 	(void)key;
 	(void)value;
-}
-
-std::map<std::string, std::string>	HttpRequest::ready_mappingvalue(const std::string &value_map_words)
-{
-	std::stringstream				ss(value_map_words);
-	std::string						line;
-	std::map<std::string, std::string>	words_mapping;
-	std::string	key;
-	std::string	val;
-	std::string	skipping_first_empty;
-	while(std::getline(ss, line, ';'))
-	{
-		skipping_first_empty = line.substr(1);
-		key = HandlingString::obtain_word_before_delimiter(skipping_first_empty, '=');
-		val = HandlingString::obtain_word_after_delimiter(skipping_first_empty, '=');
-		words_mapping[key] = val;
-	}
-	return (words_mapping);
 }
 
 void HttpRequest::ready_functionmap()

@@ -145,4 +145,11 @@ run_handlingstring_test    :
 	cmake --build build
 	./build/unit_test --gtest_filter=HandlingSTring*
 
+.PHONY    : run_httprequest_list_test
+run_httprequest_list_test    :
+#rm -rf build
+	cmake -S . -B build
+	cmake --build build
+	./build/unit_test --gtest_filter=List*
+
 -include $(DEPS)

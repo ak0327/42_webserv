@@ -5,8 +5,6 @@ ValueSet* HttpRequest::ready_ValueSet(const std::string &value)
 	return (new ValueSet(HandlingString::obtain_withoutows_value(value)));
 }
 
-// valueset わかりやすいように
-
 void	HttpRequest::set_accept_ranges(const std::string &key, const std::string &value)
 {
 	if (value == "bytes")
