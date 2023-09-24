@@ -2,10 +2,10 @@
 #define SRCS_HTTPREQUEST_HTTPREQUEST_HPP_
 
 # include <map>
+# include <set>
+# include <sstream>
 # include <string>
 # include <vector>
-# include <sstream>
-# include <set>
 
 # include "BaseKeyValueMap/BaseKeyValueMap.hpp"
 # include "../HandlingString/HandlingString.hpp"
@@ -21,18 +21,18 @@
 
 class BaseKeyValueMap;
 class RequestLine;
-class ValueWeightArraySet;
-class ValueArraySet;
-class ValueSet;
 class TwoValueSet;
-class ValueMap;
+class ValueArraySet;
 class ValueDateSet;
+class ValueMap;
+class ValueSet;
+class ValueWeightArraySet;
 
 class HttpRequest
 {
 	private:
-		RequestLine																			_request_line;
 		int																					_status_code;
+		RequestLine																			_request_line;
 		std::map<std::string, void(HttpRequest::*)(const std::string&, const std::string&)> _field_name_parser;
 		std::map<std::string, BaseKeyValueMap*> 											_request_keyvalue_map;
 
@@ -41,6 +41,7 @@ class HttpRequest
 		bool																				is_keyword_exist(const std::string &key);
 		bool																				is_requestformat(const std::string &value);
 		bool																				is_requestlineformat(std::string value);
+		bool																				is_weightformat(const std::string &value);
 		LinkClass																			*ready_LinkClass(std::map<std::string, std::map<std::string, std::string> > link_valuemap);
 		SecurityPolicy																		*ready_SecurityPolicy(const std::string &report_url, \
 		std::map<std::string, std::vector<std::string> >	_policy_directive);
@@ -62,16 +63,16 @@ class HttpRequest
 	public:
 		explicit HttpRequest(const std::string &all_request_text);
 		~HttpRequest();
-		std::map<std::string, BaseKeyValueMap*> 											get_request_keyvalue_map(void);
-		RequestLine&																		get_request_line(void);
-		int																					get_statuscode(void) const;
 		BaseKeyValueMap* 																	return_value(const std::string &key);
+		bool																				is_accept_langage_valueword(const std::string &value);
+		int																					get_statuscode(void) const;
+		RequestLine&																		get_request_line(void);
+		std::map<std::string, BaseKeyValueMap*> 											get_request_keyvalue_map(void);
 		void																				set_accept(const std::string &key, const std::string &value);
 		void																				set_accept_ch(const std::string &key, const std::string &value);
 		void																				set_accept_charset(const std::string &key, const std::string &value);
 		void																				set_accept_encoding(const std::string &key, const std::string &value);
 		void																				set_accept_language(const std::string &key, const std::string &value);
-		bool																				is_accept_langage_valueword(const std::string &value);
 		// void	set_//方かわからん
 		void																				set_accept_post(const std::string &key, const std::string &value);
 		void																				set_accept_ranges(const std::string &key, const std::string &value);

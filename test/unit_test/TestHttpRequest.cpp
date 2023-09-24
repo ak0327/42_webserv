@@ -197,6 +197,20 @@ bool	keyword_doesnot_exist(int line, const char *key, HttpRequest &target)
 	return (true);
 }
 
+TEST(Request, UNCORRECTFORMATREQUESTLINE1)
+{
+	const std::string TEST_REQUEST = "GET/index.htmlHTTP/1.1\r\n";
+	HttpRequest httprequest_test1(TEST_REQUEST);
+	EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
+}
+
+TEST(Request, UNCORRECTFORMATREQUESTLINE2)
+{
+	const std::string TEST_REQUEST = "GET /index.html\nHTTP/1.1\r\n";
+	HttpRequest httprequest_test1(TEST_REQUEST);
+	EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
+}
+
 TEST(Request, REQUESTLINETEST1)
 {
 	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\n";
@@ -261,6 +275,36 @@ TEST(Request, TEST1_include_empty)
 	const std::string TEST_REQUEST = "GET 	/index.html HTTP/1.1\r\nHost: www.example  .com\r\nETag: some_etag\r\nUser-Agent: YourUser  Agent  \r\nAccept: text  /html  \r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
 	EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
+}
+
+TEST(Request, AcceptEncoding)
+{
+	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\nAccept-Encoding: gzip;q=0.5, deflate\r\n";
+	HttpRequest httprequest_test1(TEST_REQUEST2);
+	if (same_class_test(__LINE__, "Accept-Encoding", httprequest_test1) == true)
+	{
+		ValueWeightArraySet* valweightarray5 = static_cast<ValueWeightArraySet*>(httprequest_test1.return_value("Accept-Encoding"));
+		std::map<std::string, double> keyvalue5;
+		std::vector<std::string> keys5;
+		keyvalue5["gzip"] = 0.5;
+		keyvalue5["deflate"] = 1.0;
+		keys5.push_back("gzip");
+		keys5.push_back("deflate");
+		compair_valueweightarray_report(valweightarray5->get_valueweight_set(), keyvalue5, keys5);
+	}
+}
+
+TEST(Request, AcceptEncoding_Error1)
+{
+	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\nAccept-Encoding: gzip;;;;;;q=;0.5, deflate\r\n";
+	HttpRequest httprequest_test1(TEST_REQUEST2);
+	EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
+}
+
+TEST(Request, AcceptEncoding_Error2)
+{
+	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\nAccept-Encoding: gzip;q=0.5, ,,def,l,ate\r\n";
+	HttpRequest httprequest_test1(TEST_REQUEST2);
 }
 
 // GET /path/to/resource HTTP/1.1

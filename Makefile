@@ -57,7 +57,17 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(ERROR_DIR) \
 				$(SRCS_DIR)/$(SOCKET_DIR) \
 				$(SRCS_DIR)/$(HANDLE_STR_DIR) \
-				$(SRCS_DIR)/$(REQUEST_DIR)
+				$(SRCS_DIR)/$(REQUEST_DIR) \
+				$(SRCS_DIR)/$(REQUEST_DIR)/BaseKeyValueMap \
+				$(SRCS_DIR)/$(REQUEST_DIR)/LinkClass \
+				$(SRCS_DIR)/$(REQUEST_DIR)/RequestLine \
+				$(SRCS_DIR)/$(REQUEST_DIR)/SecurityPolicy \
+				$(SRCS_DIR)/$(REQUEST_DIR)/TwoValueSet \
+				$(SRCS_DIR)/$(REQUEST_DIR)/ValueArraySet \
+				$(SRCS_DIR)/$(REQUEST_DIR)/ValueDateSet \
+				$(SRCS_DIR)/$(REQUEST_DIR)/ValueMap \
+				$(SRCS_DIR)/$(REQUEST_DIR)/ValueSet \
+				$(SRCS_DIR)/$(REQUEST_DIR)/ValueWeightArraySet
 
 INCLUDES	 =	$(addprefix -I, $(INCLUDES_DIR))
 

@@ -5,7 +5,7 @@ bool	HandlingString::is_end_with_cr(const std::string &value)
 	return (value[value.length() - 1] == '\r');
 }
 
-bool	HandlingString::is_double_or_not(const std::string &value)
+bool	HandlingString::is_double(const std::string &value)
 {
 	size_t	dot_counter = 0;
 	size_t	now_pos = 0;
@@ -60,6 +60,8 @@ bool HandlingString::is_doublequote_format(const std::string &value) {
 	}
 	head = value.find('"');
 	tail = value.rfind('"');
+	if (tail - head == 1)
+		return (false);
 	return head == 0 && tail + 1 == value.length();
 }
 
@@ -201,9 +203,13 @@ std::string HandlingString::obtain_withoutows_value(const std::string &field_val
 	size_t		before_pos = 0;
 	size_t		after_pos = field_value_with_ows.length() - 1;
 
-	while (is_ows(field_value_with_ows[before_pos]) == true)
+	if (field_value_with_ows == "")
+		return "";
+	while (is_ows(field_value_with_ows[before_pos]) == true && before_pos != field_value_with_ows.length())
 		before_pos++;
-	while (is_ows(field_value_with_ows[after_pos]) == true)
+	while (is_ows(field_value_with_ows[after_pos]) == true && after_pos != 0)
 		after_pos--;
+	if (before_pos > after_pos)
+		return "";
 	return (field_value_with_ows.substr(before_pos, after_pos - before_pos + 1));
 }
