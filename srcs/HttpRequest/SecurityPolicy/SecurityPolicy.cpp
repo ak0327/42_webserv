@@ -13,12 +13,12 @@ SecurityPolicy::SecurityPolicy(const std::string &report_url, std::map<std::stri
 
 SecurityPolicy::~SecurityPolicy(){}
 
-std::string SecurityPolicy::get_reporturl(void) const
-{
-	return (this->_report_url);
-}
-
 std::map<std::string, std::vector<std::string> > SecurityPolicy::get_policy_directhive(void) const
 {
 	return (this->_policy_directive);
+}
+
+std::string SecurityPolicy::get_reporturl(void) const
+{
+	return (this->_report_url);
 }

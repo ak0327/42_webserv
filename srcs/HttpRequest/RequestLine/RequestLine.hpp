@@ -1,9 +1,9 @@
 #ifndef SRCS_HTTPREQUEST_REQUESTLINE_REQUESTLINE_HPP_
 #define SRCS_HTTPREQUEST_REQUESTLINE_REQUESTLINE_HPP_
 
-#include <string>
-#include <iostream>
-#include <sstream>
+# include <iostream>
+# include <sstream>
+# include <string>
 
 class RequestLine
 {
@@ -16,10 +16,10 @@ class RequestLine
 	public:
 		RequestLine();
 		~RequestLine();
-		void		set_value(const std::string &line);
 		std::string	get_method(void) const;
 		std::string get_target_page(void) const;
 		std::string	get_version(void) const;
+		void		set_value(const std::string &line);
 };
 
 #endif  // SRCS_HTTPREQUEST_REQUESTLINE_REQUESTLINE_HPP_

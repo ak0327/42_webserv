@@ -1,9 +1,9 @@
 #ifndef SRCS_HTTPREQUEST_VALUESET_VALUESET_HPP_
 #define SRCS_HTTPREQUEST_VALUESET_VALUESET_HPP_
 
-#include <vector>
-#include <string>
 #include <iostream>
+#include <string>
+#include <vector>
 #include "../BaseKeyValueMap/BaseKeyValueMap.hpp"
 
 class ValueSet: public BaseKeyValueMap
@@ -17,7 +17,6 @@ class ValueSet: public BaseKeyValueMap
 		explicit ValueSet(const std::string &value);
 		~ValueSet();
 		std::string get_value_set(void) const;
-		void show_value();
 };
 
 #endif  // SRCS_HTTPREQUEST_VALUESET_VALUESET_HPP_

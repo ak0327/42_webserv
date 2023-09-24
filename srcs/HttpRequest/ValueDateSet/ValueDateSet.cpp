@@ -62,16 +62,6 @@ std::string ValueDateSet::get_valuedateset_day() const
 	return (this->_day);
 }
 
-std::string ValueDateSet::get_valuedateset_month() const
-{
-	return (this->_month);
-}
-
-std::string ValueDateSet::get_valuedateset_year() const
-{
-	return (this->_year);
-}
-
 std::string ValueDateSet::get_valuedateset_hour() const
 {
 	return (this->_hour);
@@ -82,15 +72,17 @@ std::string ValueDateSet::get_valuedateset_minute() const
 	return (this->_minute);
 }
 
+std::string ValueDateSet::get_valuedateset_month() const
+{
+	return (this->_month);
+}
+
 std::string ValueDateSet::get_valuedateset_second() const
 {
 	return (this->_second);
 }
 
-void ValueDateSet::show_value()
+std::string ValueDateSet::get_valuedateset_year() const
 {
-	std::cout << "Day info is " << std::endl;
-	std::cout << this->_day_name << " | " << this->_day << " | " \
-	<< this->_month << " | " << this->_year << " | " << this->_hour \
-	<< " | " << this->_minute << " | " << this->_second << std::endl;
+	return (this->_year);
 }

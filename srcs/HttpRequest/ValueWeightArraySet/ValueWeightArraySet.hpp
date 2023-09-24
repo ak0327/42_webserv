@@ -1,8 +1,8 @@
 #ifndef SRCS_HTTPREQUEST_VALUEWEIGHTARRAYSET_VALUEWEIGHTARRAYSET_HPP_
 #define SRCS_HTTPREQUEST_VALUEWEIGHTARRAYSET_VALUEWEIGHTARRAYSET_HPP_
 
-#include <string>
 #include <map>
+#include <string>
 #include "../../HandlingString/HandlingString.hpp"
 #include "../BaseKeyValueMap/BaseKeyValueMap.hpp"
 
@@ -18,7 +18,6 @@ class ValueWeightArraySet: public BaseKeyValueMap
 		explicit ValueWeightArraySet(const std::map<std::string, double> &valueweight_set);
 		~ValueWeightArraySet();
 		std::map<std::string, double> get_valueweight_set(void) const;
-		void show_value();
 };
 
 #endif  // SRCS_HTTPREQUEST_VALUEWEIGHTARRAYSET_VALUEWEIGHTARRAYSET_HPP_

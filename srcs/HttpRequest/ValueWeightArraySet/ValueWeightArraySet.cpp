@@ -26,15 +26,3 @@ std::map<std::string, double> ValueWeightArraySet::get_valueweight_set(void) con
 {
 	return (this->_valueweight_set);
 }
-
-void ValueWeightArraySet::show_value()
-{
-	std::cout << "value are ";
-	std::map<std::string, double>::iterator it = this->_valueweight_set.begin();
-	while (it != this->_valueweight_set.end())
-	{
-		std::cout << it->first << " " << it->second << " | ";
-		it++;
-	}
-	std::cout << std::endl;
-}

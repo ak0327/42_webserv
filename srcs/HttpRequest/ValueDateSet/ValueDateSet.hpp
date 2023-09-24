@@ -1,9 +1,9 @@
 #ifndef SRCS_HTTPREQUEST_VALUEDATESET_VALUEDATESET_HPP_
 #define SRCS_HTTPREQUEST_VALUEDATESET_VALUEDATESET_HPP_
 
-#include <string>
 #include <iostream>
 #include <sstream>
+#include <string>
 #include "../BaseKeyValueMap/BaseKeyValueMap.hpp"
 
 class ValueDateSet: public BaseKeyValueMap
@@ -11,11 +11,11 @@ class ValueDateSet: public BaseKeyValueMap
 	private:
 		std::string	_day_name;
 		std::string _day;
-		std::string _month;
-		std::string _year;
 		std::string _hour;
 		std::string _minute;
+		std::string _month;
 		std::string _second;
+		std::string _year;
 	public:
 		ValueDateSet();
 		ValueDateSet(const ValueDateSet &other);
@@ -29,7 +29,6 @@ class ValueDateSet: public BaseKeyValueMap
 		std::string get_valuedateset_hour() const;
 		std::string get_valuedateset_minute() const;
 		std::string get_valuedateset_second() const;
-		void show_value();
 };
 
 #endif  // SRCS_HTTPREQUEST_VALUEDATESET_VALUEDATESET_HPP_
