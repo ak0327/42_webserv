@@ -1,5 +1,10 @@
 #include "HandlingString.hpp"
 
+bool	HandlingString::is_end_with_cr(const std::string &value)
+{
+	return (value[value.length() - 1] == '\r');
+}
+
 bool	HandlingString::is_double_or_not(const std::string &value)
 {
 	size_t	dot_counter = 0;

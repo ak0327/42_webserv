@@ -197,6 +197,15 @@ bool	keyword_doesnot_exist(int line, const char *key, HttpRequest &target)
 	return (true);
 }
 
+TEST(Request, REQUESTLINETEST1)
+{
+	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\n";
+	HttpRequest httprequest_test1(TEST_REQUEST);
+	EXPECT_EQ(httprequest_test1.get_request_line().get_method(), "GET");
+	EXPECT_EQ(httprequest_test1.get_request_line().get_target_page(), "/index.html");
+	EXPECT_EQ(httprequest_test1.get_request_line().get_version(), "HTTP/1.1");
+}
+
 TEST(Request, TEST1)
 {
 	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\nHost: www.example.com   \r\nETag: some_etag\r\nUser-Agent: YourUserAgent\r\nAccept: text/html\r\n";
@@ -251,28 +260,7 @@ TEST(Request, TEST1_include_empty)
 {
 	const std::string TEST_REQUEST = "GET 	/index.html HTTP/1.1\r\nHost: www.example  .com\r\nETag: some_etag\r\nUser-Agent: YourUser  Agent  \r\nAccept: text  /html  \r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
-	EXPECT_EQ(httprequest_test1.get_request_line().get_method(), "GET");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_target_page(), "/index.html");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_version(), "HTTP/1.1");
-	if (same_class_test(__LINE__, "Host", httprequest_test1) == true)
-	{
-		TwoValueSet* twoval = static_cast<TwoValueSet*>(httprequest_test1.return_value("Host"));
-		compair_twovaluemap_report( twoval->get_firstvalue(), twoval->get_secondvalue(), "www.example  .com", "");
-	}
-	if (same_class_test(__LINE__, "User-Agent", httprequest_test1) == true)
-	{
-		ValueSet* val = static_cast<ValueSet*>(httprequest_test1.return_value("User-Agent"));
-		compair_valueset_report( val->get_value_set(), "YourUser  Agent");
-	}
-	if (same_class_test(__LINE__, "Accept", httprequest_test1) == true)
-	{
-		ValueWeightArraySet* valweightarray = static_cast<ValueWeightArraySet*>(httprequest_test1.return_value("Accept"));
-		std::map<std::string, double> keyvalue;
-		std::vector<std::string> keys;
-		keyvalue["text  /html"] = 1.0;
-		keys.push_back("text  /html");
-		compair_valueweightarray_report(valweightarray->get_valueweight_set(), keyvalue, keys);
-	}
+	EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
 }
 
 // GET /path/to/resource HTTP/1.1
@@ -384,76 +372,7 @@ TEST(Request, TEST2_include_empty)
 {
 	const std::string TEST_REQUEST2 = "GET 		/path/to/resource HTTP/1.1\r\nHost: example.com\r\nUser-Agent: YourUserAgent\r\nAccept: text/ht   ml,application/xhtml+xml,appl  ication/xml;q=0.9,*/*;q=0.8\r\nAccept-Language: en -US,en;q=0.5\r\nAccept-Encoding: gzi p, deflate\r\nConnection: keep- alive\r\nReferer: http://www.exampl e.com/referrer\r\nCookie: session _id=12345;  user=JohnDoe\r\nAuthorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nDNT: 1\r\nUpgrade-Insecure-Requests: 1\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST2);
-	EXPECT_EQ(httprequest_test1.get_request_line().get_method(), "GET");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_target_page(), "/path/to/resource");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_version(), "HTTP/1.1");
-	if (same_class_test(__LINE__, "Host", httprequest_test1) == true)
-	{
-		TwoValueSet* twoval1 = static_cast<TwoValueSet*>(httprequest_test1.return_value("Host"));
-		compair_twovaluemap_report( twoval1->get_firstvalue(), twoval1->get_secondvalue(), "example.com", "");
-	}
-	if (same_class_test(__LINE__, "User-Agent", httprequest_test1) == true)
-	{
-		ValueSet* val2 = static_cast<ValueSet*>(httprequest_test1.return_value("User-Agent"));
-		compair_valueset_report( val2->get_value_set(), "YourUserAgent");
-	}
-	if (same_class_test(__LINE__, "Accept", httprequest_test1) == true)
-	{
-		ValueWeightArraySet* valweightarray3 = static_cast<ValueWeightArraySet*>(httprequest_test1.return_value("Accept"));
-		std::map<std::string, double> keyvalue3;
-		std::vector<std::string> keys3;
-		keyvalue3["text/ht   ml"] = 1.0;
-		keyvalue3["application/xhtml+xml"] = 1.0;
-		keyvalue3["appl  ication/xml"] = 0.9;
-		keyvalue3["*/*"] = 0.8;
-		keys3.push_back("text/ht   ml");
-		keys3.push_back("application/xhtml+xml");
-		keys3.push_back("appl  ication/xml");
-		keys3.push_back("*/*");
-		compair_valueweightarray_report(valweightarray3->get_valueweight_set(), keyvalue3, keys3);
-	}
-	if (same_class_test(__LINE__, "Accept-Language", httprequest_test1) == true)
-	{
-		ValueWeightArraySet* valweightarray4 = static_cast<ValueWeightArraySet*>(httprequest_test1.return_value("Accept-Language"));
-		std::map<std::string, double> keyvalue4;
-		std::vector<std::string> keys4;
-		keyvalue4["en -US"] = 1.0;
-		keyvalue4["en"] = 0.5;
-		keys4.push_back("en -US");
-		keys4.push_back("en");
-		compair_valueweightarray_report(valweightarray4->get_valueweight_set(), keyvalue4, keys4);
-	}
-	// keyword_doesnot_exist(__LINE__, "Accept-Encoding", httprequest_test1);//deflateはあっても良い
-	keyword_doesnot_exist(__LINE__, "Connection", httprequest_test1);
-	if (same_class_test(__LINE__, "Referer", httprequest_test1) == true)
-	{
-		ValueSet* val7 = static_cast<ValueSet*>(httprequest_test1.return_value("Referer"));
-		compair_valueset_report( val7->get_value_set(), "http://www.exampl e.com/referrer");
-	}
-	if (same_class_test(__LINE__, "Cookie", httprequest_test1) == true)
-	{
-		//map型
-		ValueMap* valmap8 = static_cast<ValueMap*>(httprequest_test1.return_value("Cookie"));
-		std::map<std::string, std::string> valuemap8;
-		std::vector<std::string> keys8;
-		valuemap8["session _id"] = "12345";
-		valuemap8["user"] = "JohnDoe";
-		keys8.push_back("session _id");
-		keys8.push_back("user");
-		check( valmap8->get_value_map(), valuemap8, keys8);
-	}
-	//Authorization
-	if (same_class_test(__LINE__, "Authorization", httprequest_test1) == true)
-	{
-		//map型 Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
-		TwoValueSet* twoval9 = static_cast<TwoValueSet*>(httprequest_test1.return_value("Authorization"));
-		compair_twovaluemap_report(twoval9->get_firstvalue(), twoval9->get_secondvalue(), "Basic", "QWxhZGRpbjpvcGVuIHNlc2FtZQ==");
-	}
-	if (same_class_test(__LINE__, "Upgrade-Insecure-Requests", httprequest_test1) == true)
-	{
-		ValueSet* val9 = static_cast<ValueSet*>(httprequest_test1.return_value("Upgrade-Insecure-Requests"));
-		compair_valueset_report( val9->get_value_set(), "1");
-	}
+	EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
 }
 
 // g++ *.cpp ../HandleString/HandlingString.cpp

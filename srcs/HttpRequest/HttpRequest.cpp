@@ -10,7 +10,11 @@ HttpRequest::HttpRequest(const std::string &all_request_text):_status_code(200)
 	ready_functionmap();
 	std::stringstream ss(all_request_text);
 	std::getline(ss, line, '\n');
-	// TODO(my_username): satushi.REQUESTLINEのformatが正しくない場合に除外
+	if (this->is_requestlineformat(line) == false)
+	{
+		this->_status_code = 400;
+		return;
+	}
 	this->_request_line.set_value(line);
 	// std::cout << "request_line end" << std::endl;
 	while (std::getline(ss, line, '\n'))
@@ -43,6 +47,38 @@ HttpRequest::~HttpRequest()
 		delete (inputed_class_itr->second);
 		inputed_class_itr++;
 	}
+}
+
+bool HttpRequest::is_requestlineformat(std::string input_requestline)
+{
+	int			i = 0;
+	size_t		pos = 0;
+
+	while (i != 3)
+	{
+		if (input_requestline[pos] == ' ')
+		{
+			std::cout << "1" << std::endl;
+			return (false);
+		}
+		if (i == 2)
+		{
+			if (HandlingString::is_end_with_cr(input_requestline.substr(pos)) == false)
+				return (false);
+			if (input_requestline.substr(pos, input_requestline.length() - pos - 1).find(' ') != std::string::npos)
+				return (false);
+		}
+		while (input_requestline[pos] != ' ' && pos != input_requestline.length() - 2)
+		{
+			if (isprint(input_requestline[pos]) == false)
+				return false;
+			pos++;
+		}
+		if (i != 2)
+			pos++;
+		i++;
+	}
+	return (true);
 }
 
 LinkClass* HttpRequest::ready_LinkClass(std::map<std::string, std::map<std::string, std::string> > link_valuemap)

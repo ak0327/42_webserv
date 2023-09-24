@@ -40,14 +40,15 @@ class HttpRequest
 		HttpRequest(const HttpRequest &other);
 		bool																				is_keyword_exist(const std::string &key);
 		bool																				is_requestformat(const std::string &value);
+		bool																				is_requestlineformat(std::string value);
 		LinkClass																			*ready_LinkClass(std::map<std::string, std::map<std::string, std::string> > link_valuemap);
+		SecurityPolicy																		*ready_SecurityPolicy(const std::string &report_url, \
+		std::map<std::string, std::vector<std::string> >	_policy_directive);
+		SecurityPolicy																		*ready_SecurityPolicy(std::map<std::string, std::vector<std::string> >	_policy_directive);
 		std::string																			obtain_request_key(const std::string value);
 		std::string																			obtain_request_value(const std::string value);
 		std::map<std::string, std::string>													ready_mappingvalue(const std::string &value_map);
 		std::vector<std::string>															securitypolicy_readyvector(const std::string &words);
-		SecurityPolicy																		*ready_SecurityPolicy(const std::string &report_url, \
-		std::map<std::string, std::vector<std::string> >	_policy_directive);
-		SecurityPolicy																		*ready_SecurityPolicy(std::map<std::string, std::vector<std::string> >	_policy_directive);
 		TwoValueSet																			*ready_TwoValueSet(const std::string &value);
 		TwoValueSet																			*ready_TwoValueSet(const std::string &value, char delimiter);
 		ValueArraySet																		*ready_ValueArraySet(const std::string &value);
@@ -61,10 +62,10 @@ class HttpRequest
 	public:
 		explicit HttpRequest(const std::string &all_request_text);
 		~HttpRequest();
-		BaseKeyValueMap* 																	return_value(const std::string &key);
 		std::map<std::string, BaseKeyValueMap*> 											get_request_keyvalue_map(void);
 		RequestLine&																		get_request_line(void);
 		int																					get_statuscode(void) const;
+		BaseKeyValueMap* 																	return_value(const std::string &key);
 		void																				set_accept(const std::string &key, const std::string &value);
 		void																				set_accept_ch(const std::string &key, const std::string &value);
 		void																				set_accept_charset(const std::string &key, const std::string &value);

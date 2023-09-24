@@ -17,6 +17,7 @@ class HandlingString
 		HandlingString();
 		~HandlingString();
 	public:
+		static	bool						is_end_with_cr(const std::string &value);
 		static	bool						is_double_or_not(const std::string &value);
 		static	bool						is_doublequote_format(const std::string &value);
 		static	bool						is_lastword_semicolon(const std::string &word);
