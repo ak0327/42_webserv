@@ -25,6 +25,7 @@ TwoValueSet* HttpRequest::ready_TwoValueSet(const std::string &value, char delim
 
 // twovalueset わかりやすいように
 
+// authorizationはちょっと格納方法変えるかもしれない
 void	HttpRequest::set_authorization(const std::string &key, const std::string &value)
 {
 	// Digest username=<username>,realm="<realm>",uri="<url>",algorithm=<algorithm>,nonce="<nonce>",
@@ -34,20 +35,87 @@ void	HttpRequest::set_authorization(const std::string &key, const std::string &v
 
 void	HttpRequest::set_accept_post(const std::string &key, const std::string &value)
 {
+	if (std::count(value.begin(), value.end(), ',') == 1)
+	{
+		std::string	first_value = HandlingString::obtain_withoutows_value(HandlingString::obtain_word_before_delimiter(value, ','));
+		std::string	second_value = HandlingString::obtain_withoutows_value(HandlingString::obtain_word_after_delimiter(value, ','));
+		if (first_value == "" || second_value == "")
+		{
+			this->_status_code = 400;
+			return;
+		}
+		this->_request_keyvalue_map[key] = this->ready_TwoValueSet(value, ',');
+	}
+	else if (std::count(value.begin(), value.end(), ',') > 1)
+	{
+		this->_status_code = 400;
+		return;
+	}
 	this->_request_keyvalue_map[key] = this->ready_TwoValueSet(value, ',');
 }
 
 void	HttpRequest::set_host(const std::string &key, const std::string &value)
 {
-	this->_request_keyvalue_map[key] = this->ready_TwoValueSet(value);
+	std::string	first_value;
+	std::string	second_value;
+
+	if (std::count(value.begin(), value.end(), ':') == 1)
+	{
+		std::string	first_value = HandlingString::obtain_withoutows_value(HandlingString::obtain_word_before_delimiter(value, ':'));
+		std::string	second_value = HandlingString::obtain_withoutows_value(HandlingString::obtain_word_after_delimiter(value, ':'));
+		if (first_value == "" || second_value == "")
+		{
+			this->_status_code = 400;
+			return;
+		}
+		this->_request_keyvalue_map[key] = this->ready_TwoValueSet(value, ':');	
+	}
+	else if (std::count(value.begin(), value.end(), ':') > 1)
+	{
+		this->_status_code = 400;
+		return;
+	}
+	this->_request_keyvalue_map[key] = this->ready_TwoValueSet(value, ':');
 }
 
 void	HttpRequest::set_permission_policy(const std::string &key, const std::string &value)
 {
+	if (std::count(value.begin(), value.end(), ',') == 1)
+	{
+		std::string	first_value = HandlingString::obtain_withoutows_value(HandlingString::obtain_word_before_delimiter(value, ','));
+		std::string	second_value = HandlingString::obtain_withoutows_value(HandlingString::obtain_word_after_delimiter(value, ','));
+		if (first_value == "" || second_value == "")
+		{
+			this->_status_code = 400;
+			return;
+		}
+		this->_request_keyvalue_map[key] = this->ready_TwoValueSet(value, ',');
+	}
+	else if (std::count(value.begin(), value.end(), ',') > 1)
+	{
+		this->_status_code = 400;
+		return;
+	}
 	this->_request_keyvalue_map[key] = this->ready_TwoValueSet(value, ',');
 }
 
 void	HttpRequest::set_proxy_authorization(const std::string &key, const std::string &value)
 {
+	if (std::count(value.begin(), value.end(), ' ') == 1)
+	{
+		std::string	first_value = HandlingString::obtain_withoutows_value(HandlingString::obtain_word_before_delimiter(value, ' '));
+		std::string	second_value = HandlingString::obtain_withoutows_value(HandlingString::obtain_word_after_delimiter(value, ' '));
+		if (first_value == "" || second_value == "")
+		{
+			this->_status_code = 400;
+			return;
+		}
+		this->_request_keyvalue_map[key] = this->ready_TwoValueSet(value, ' ');
+	}
+	else if (std::count(value.begin(), value.end(), ' ') > 1)
+	{
+		this->_status_code = 400;
+		return;
+	}
 	this->_request_keyvalue_map[key] = this->ready_TwoValueSet(value, ' ');
 }

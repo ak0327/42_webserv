@@ -42,9 +42,6 @@ bool	is_list_form(const std::string &field_value_without_ows)
 	return (true);
 }
 
-// Link: </page1>; rel="next"; rel2="next2", </page2>; rel="prev"
-// Link:<SP>(uri);<SP>key=val;<SP>key=val,<SP>(uri)...
-// みたいな感じでformat化できる
 void	HttpRequest::set_link(const std::string &key, const std::string &value)
 {
 	std::map<std::string, std::map<std::string, std::string> > value_map;

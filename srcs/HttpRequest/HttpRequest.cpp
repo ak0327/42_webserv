@@ -18,7 +18,6 @@ HttpRequest::HttpRequest(const std::string &all_request_text):_status_code(200)
 	this->_request_line.set_value(line);
 	while (std::getline(ss, line, '\n'))
 	{
-		// std::cout << "line is " << "|" << line << "|" << std::endl;
 		if (HandlingString::is_end_with_cr(line) == false)
 		{
 			this->_status_code = 400;
@@ -230,7 +229,7 @@ void HttpRequest::ready_functionmap()
 	this->_field_name_parser["Location"] = &HttpRequest::set_location;
 	this->_field_name_parser["Max-Forwards"] = &HttpRequest::set_max_forwards;
 	this->_field_name_parser["Origin"] = &HttpRequest::set_origin;
-	this->_field_name_parser["Permissions-Policy"] = &HttpRequest::set_permission_policy;
+	this->_field_name_parser["Permission-Policy"] = &HttpRequest::set_permission_policy;
 	this->_field_name_parser["Proxy-Authenticate"] = &HttpRequest::set_proxy_authenticate;
 	this->_field_name_parser["Proxy-Authorization"] = &HttpRequest::set_proxy_authorization;
 	// this->_field_name_parser["Range"] = this->set_range;
