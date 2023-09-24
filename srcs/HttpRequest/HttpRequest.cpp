@@ -10,12 +10,12 @@ HttpRequest::HttpRequest(const std::string &all_request_text):_status_code(200)
 	ready_functionmap();
 	std::stringstream ss(all_request_text);
 	std::getline(ss, line, '\n');
-	// TODO REQUESTLINEのformatが正しくない場合に除外
+	// TODO(my_username): satushi.REQUESTLINEのformatが正しくない場合に除外
 	this->_request_line.set_value(line);
 	// std::cout << "request_line end" << std::endl;
 	while (std::getline(ss, line, '\n'))
 	{
-		//文末にCREFがあるかどうかを確認する
+		// 文末にCREFがあるかどうかを確認する
 		remove_sohword_line = line.substr(0, line.length() - 1);
 		if (is_requestformat(line) == false)
 		{

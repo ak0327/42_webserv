@@ -1,5 +1,5 @@
-#ifndef SRCS_HTTPREQUEST_HTTPREQUEST_HTTPREQUEST_HPP_
-#define SRCS_HTTPREQUEST_HTTPREQUEST_HTTPREQUEST_HPP_
+#ifndef SRCS_HTTPREQUEST_HTTPREQUEST_HPP_
+#define SRCS_HTTPREQUEST_HTTPREQUEST_HPP_
 
 # include <map>
 # include <string>
@@ -45,7 +45,8 @@ class HttpRequest
 		std::string																			obtain_request_value(const std::string value);
 		std::map<std::string, std::string>													ready_mappingvalue(const std::string &value_map);
 		std::vector<std::string>															securitypolicy_readyvector(const std::string &words);
-		SecurityPolicy																		*ready_SecurityPolicy(const std::string &report_url, std::map<std::string, std::vector<std::string> >	_policy_directive);
+		SecurityPolicy																		*ready_SecurityPolicy(const std::string &report_url, \
+		std::map<std::string, std::vector<std::string> >	_policy_directive);
 		SecurityPolicy																		*ready_SecurityPolicy(std::map<std::string, std::vector<std::string> >	_policy_directive);
 		TwoValueSet																			*ready_TwoValueSet(const std::string &value);
 		TwoValueSet																			*ready_TwoValueSet(const std::string &value, char delimiter);
@@ -155,4 +156,4 @@ class HttpRequest
 		void																				set_x_xss_protection(const std::string &key, const std::string &value);
 };
 
-#endif  // SRCS_HTTPREQUEST_HTTPREQUEST_HTTPREQUEST_HPP_
+#endif  // SRCS_HTTPREQUEST_HTTPREQUEST_HPP_
