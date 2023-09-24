@@ -465,7 +465,7 @@ void	HttpRequest::set_access_control_expose_headers(const std::string &key, cons
 
 void	HttpRequest::set_access_control_max_age(const std::string &key, const std::string &value)
 {
-	if (HandlingString::is_positive_int(value) == false)
+	if (HandlingString::is_positive_and_under_intmax(value) == false)
 		return;
 	this->_request_keyvalue_map[key] = ready_ValueSet(value);
 }
@@ -476,6 +476,7 @@ void	HttpRequest::set_access_control_request_headers(const std::string &key, con
 	std::stringstream	ss(value);
 	std::string			line;
 	std::string			word;
+
 	while(std::getline(ss, line, ','))
 	{
 		if (line[0] == ' ')
@@ -498,7 +499,7 @@ void	HttpRequest::set_access_control_request_method(const std::string &key, cons
 
 void	HttpRequest::set_age(const std::string &key, const std::string &value)
 {
-	if (HandlingString::is_positive_int(value) == false)
+	if (HandlingString::is_positive_and_under_intmax(value) == false)
 		return;
 	if (HandlingString::is_positive_and_under_intmax(value) == false)
 		return;
@@ -597,7 +598,7 @@ void	HttpRequest::set_content_language(const std::string &key, const std::string
 
 void	HttpRequest::set_content_length(const std::string &key, const std::string &value)
 {
-	if (HandlingString::is_positive_int(value) == false)
+	if (HandlingString::is_positive_and_under_intmax(value) == false)
 		return;
 	if (HandlingString::is_positive_and_under_intmax(value) == false)
 		return;
@@ -957,7 +958,7 @@ void	HttpRequest::set_location(const std::string &key, const std::string &value)
 
 void	HttpRequest::set_max_forwards(const std::string &key, const std::string &value)
 {
-	if (HandlingString::is_positive_int(value) == true && HandlingString::is_positive_and_under_intmax(value) == true)
+	if (HandlingString::is_positive_and_under_intmax(value))
 		this->_request_keyvalue_map[key] = ready_ValueSet(value);
 	else
 		return;
@@ -1154,7 +1155,7 @@ void	HttpRequest::set_upgrade(const std::string &key, const std::string &value)
 
 void	HttpRequest::set_upgrade_insecure_requests(const std::string &key, const std::string &value)
 {
-	if (HandlingString::is_positive_int(value) == false)
+	if (HandlingString::is_positive_and_under_intmax(value) == false)
 		return;
 	if (HandlingString::is_positive_and_under_intmax(value) == false)
 		return;
@@ -1274,6 +1275,7 @@ void HttpRequest::ready_functionmap()
 	this->_field_name_parser["Vary"] = &HttpRequest::set_vary;
 	this->_field_name_parser["Via"] = &HttpRequest::set_via;
 	this->_field_name_parser["WWW-Authenticate"] = &HttpRequest::set_www_authenticate;
+	// this->_field_name_parser["X-Custom-Header"] = &HttpRequest::set_x_custom_header;
 }
 
 RequestLine& HttpRequest::get_request_line()

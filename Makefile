@@ -128,4 +128,11 @@ run_request_test    :
 	cmake --build build
 	./build/unit_test --gtest_filter=Request*
 
+.PHONY    : run_handlingstring_test
+run_handlingstring_test    :
+#rm -rf build
+	cmake -S . -B build
+	cmake --build build
+	./build/unit_test --gtest_filter=HandlingSTring*
+
 -include $(DEPS)

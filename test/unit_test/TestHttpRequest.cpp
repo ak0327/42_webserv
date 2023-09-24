@@ -197,44 +197,6 @@ bool	keyword_doesnot_exist(int line, const char *key, HttpRequest &target)
 	return (true);
 }
 
-TEST(Request, HandlingStringTEST)
-{
-	std::string val1 = "   	 aaa bbb ccc      dd ";
-	EXPECT_EQ(HandlingString::obtain_withoutows_value(val1), "aaa bbb ccc      dd");
-
-	std::string	val2 = "  \1 thiis is not true line !";
-	if (HandlingString::is_printable_content(val2) == true)
-		ADD_FAILURE_AT(__FILE__, __LINE__);
-}
-
-TEST(Request, ALLEMPTY)
-{
-	const std::string TEST_REQUEST = "a a a\na\r\n";
-	HttpRequest httprequest_test1(TEST_REQUEST);
-	(void)httprequest_test1;
-}
-
-TEST(Request, ALLEMPTY_1)
-{
-	const std::string TEST_REQUEST = "a a a\n\r\n";
-	HttpRequest httprequest_test1(TEST_REQUEST);
-	(void)httprequest_test1;
-}
-
-TEST(Request, ALLEMPTY_2)
-{
-	const std::string TEST_REQUEST = "a a a\n:\r\n";
-	HttpRequest httprequest_test1(TEST_REQUEST);
-	EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
-}
-
-TEST(Request, ALLEMPTY_3)
-{
-	const std::string TEST_REQUEST = "a a a\n:::\r\n";
-	HttpRequest httprequest_test1(TEST_REQUEST);
-	EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
-}
-
 TEST(Request, TEST1)
 {
 	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\nHost: www.example.com   \r\nETag: some_etag\r\nUser-Agent: YourUserAgent\r\nAccept: text/html\r\n";

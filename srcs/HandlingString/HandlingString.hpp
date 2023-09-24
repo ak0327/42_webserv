@@ -21,13 +21,11 @@ class HandlingString
 		static	bool						is_doublequote_format(const std::string &value);
 		static	bool						is_lastword_semicolon(const std::string &word);
 		static	bool						is_ows(const char &c);
-		static	bool						is_positive_int(const std::string &value);
 		static	bool						is_printable_content(const std::string &value);
 		static	bool						is_positive_and_under_intmax(const std::string &word);
 		static	double						str_to_double(const std::string &num_str);
 		static	int							str_to_int(const std::string &word);
 		static	int							to_digit(const char &c);
-		static	std::vector<std::string> 	input_arg_to_vector_without_firstword(const std::string &words);
 		static	std::string					int_to_str(int num);
 		static	std::string					obtain_word_after_delimiter(const std::string &str, char delimiter);
 		static	std::string					obtain_unquote_str(const std::string &quoted_str);
@@ -35,6 +33,7 @@ class HandlingString
 		static	std::string					obtain_weight(const std::string &other);
 		static	std::string					obtain_word_before_delimiter(const std::string &other, const char &delimiter);
 		static	std::string					skip_lastsemicolon(const std::string &word);
+		static	std::vector<std::string> 	input_arg_to_vector_without_firstword(const std::string &words);
 };
 
 #endif  // SRCS_HANDLINGSTRING_HANDLINGSTRING_HPP_

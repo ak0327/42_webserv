@@ -82,6 +82,7 @@ set (unit_test_srcs
         test/unit_test/TestSocket.cpp
         test/unit_test/TestHttpRequest.cpp
         test/unit_test/TestLeaks.cpp
+        test/unit_test/TestHandlingString.cpp
 )
 
 add_executable(unit_test
