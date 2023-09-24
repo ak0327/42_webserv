@@ -58,6 +58,14 @@ set(webserv_srcs
         srcs/HandlingString/HandlingString.cpp
         srcs/HttpRequest/BaseKeyValueMap/BaseKeyValueMap.cpp
         srcs/HttpRequest/HttpRequest.cpp
+        srcs/HttpRequest/HttpRequest_LinkClass.cpp
+        srcs/HttpRequest/HttpRequest_SecurityPolicy.cpp
+        srcs/HttpRequest/HttpRequest_TwoValueSet.cpp
+        srcs/HttpRequest/HttpRequest_ValueArraySet.cpp
+        srcs/HttpRequest/HttpRequest_ValueDateSet.cpp
+        srcs/HttpRequest/HttpRequest_ValueMap.cpp
+        srcs/HttpRequest/HttpRequest_ValueSet.cpp
+        srcs/HttpRequest/HttpRequest_ValueWeightArraySet.cpp
         srcs/HttpRequest/RequestLine/RequestLine.cpp
         srcs/HttpRequest/TwoValueSet/TwoValueSet.cpp
         srcs/HttpRequest/ValueArraySet/ValueArraySet.cpp

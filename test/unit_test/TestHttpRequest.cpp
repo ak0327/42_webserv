@@ -412,6 +412,37 @@ TEST(Request, TEST2)
 	}
 }
 
+TEST(Request, TEST2ERROR1)
+{
+	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\nAccept-Language: en-US,en;;;;q=0.5\r\n";
+	HttpRequest httprequest_test1(TEST_REQUEST2);
+	EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
+}
+
+TEST(Request, TEST2ANYCORON)
+{
+	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\nAccept-Language: en-US,en;q=0.5,,\r\n";
+	HttpRequest httprequest_test1(TEST_REQUEST2);
+	if (same_class_test(__LINE__, "Accept-Language", httprequest_test1) == true)
+	{
+		ValueWeightArraySet* valweightarray4 = static_cast<ValueWeightArraySet*>(httprequest_test1.return_value("Accept-Language"));
+		std::map<std::string, double> keyvalue4;
+		std::vector<std::string> keys4;
+		keyvalue4["en-US"] = 1.0;
+		keyvalue4["en"] = 0.5;
+		keys4.push_back("en-US");
+		keys4.push_back("en");
+		compair_valueweightarray_report(valweightarray4->get_valueweight_set(), keyvalue4, keys4);
+	}
+}
+
+TEST(Request, TEST2NOWEIGHTSEMICORON)
+{
+	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\nAccept-Language: en-US,en;,,\r\n";
+	HttpRequest httprequest_test1(TEST_REQUEST2);
+	EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
+}
+
 TEST(Request, TEST2_include_empty)
 {
 	const std::string TEST_REQUEST2 = "GET 		/path/to/resource HTTP/1.1\r\nHost: example.com\r\nUser-Agent: YourUserAgent\r\nAccept: text/ht   ml,application/xhtml+xml,appl  ication/xml;q=0.9,*/*;q=0.8\r\nAccept-Language: en -US,en;q=0.5\r\nAccept-Encoding: gzi p, deflate\r\nConnection: keep- alive\r\nReferer: http://www.exampl e.com/referrer\r\nCookie: session _id=12345;  user=JohnDoe\r\nAuthorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nDNT: 1\r\nUpgrade-Insecure-Requests: 1\r\n";
