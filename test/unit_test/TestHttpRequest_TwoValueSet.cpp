@@ -55,7 +55,7 @@ bool	same_class_test_twovalueset(int line, const char *key, HttpRequest &target)
 
 TEST(TwoValuseSet, TEST1)
 {
-	const std::string TEST_REQUEST = "GET /example-page HTTP/1.1\r\nHost: example.com\r\nAccept-Post: application/json, application/xml\r\nHost: example.com\r\nPermission-Policy: geolocation=*, microphone=()\r\nProxy-Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==\r\n";
+	const std::string TEST_REQUEST = "GET /example-page HTTP/1.1\r\nHost: example.com\r\nAccept-Post: application/json, application/xml\r\nPermission-Policy: geolocation=*, microphone=()\r\nProxy-Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
 	if (same_class_test_twovalueset(__LINE__, "Host", httprequest_test1) == true)
 	{
