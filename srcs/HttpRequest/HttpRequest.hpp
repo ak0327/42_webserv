@@ -1,6 +1,7 @@
 #ifndef SRCS_HTTPREQUEST_HTTPREQUEST_HPP_
 #define SRCS_HTTPREQUEST_HTTPREQUEST_HPP_
 
+#include <algorithm>
 # include <map>
 # include <set>
 # include <sstream>
