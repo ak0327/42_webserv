@@ -13,8 +13,4 @@ jobs:
           echo hello
           ./webserv config/testconfig1.conf
           echo hello
-
-      - name: Post to Discord
-        run: |
-          curl -H "Content-Type: application/json" -X POST -d '{"content":"GitHub Actions completed!"}' ${{ vars.WORKFLOW_URL }}
   #aa
