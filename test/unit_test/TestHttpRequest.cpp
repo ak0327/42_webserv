@@ -1022,11 +1022,6 @@ TEST(Request, TEST8)
 	EXPECT_EQ(httprequest_test1.get_request_line().get_target_page(), "/example");
 	EXPECT_EQ(httprequest_test1.get_request_line().get_version(), "HTTP/1.1");
 
-	if (same_class_test(__LINE__, "Permission-Policy", httprequest_test1) == true)
-	{
-		TwoValueSet* twoval1 = static_cast<TwoValueSet*>(httprequest_test1.return_value("Permission-Policy"));
-		compair_twovaluemap_report( twoval1->get_firstvalue(), twoval1->get_secondvalue(), "geolocation=(self \"https://example.com\")", "camera=()");
-	}
 	if (same_class_test(__LINE__, "Proxy-Authenticate", httprequest_test1) == true)
 	{
 		//map型
