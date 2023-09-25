@@ -30,7 +30,7 @@ SRCS		+= $(HANDLE_STR_DIR)/HandlingString.cpp
 #httprequest
 REQUEST_DIR	=	HttpRequest
 SRCS		+=	$(REQUEST_DIR)/BaseKeyValueMap/BaseKeyValueMap.cpp \
-				$(REQUEST_DIR)/HttpRequest/HttpRequest.cpp \
+				$(REQUEST_DIR)/HttpRequest.cpp \
 				$(REQUEST_DIR)/LinkClass/LinkClass.cpp \
 				$(REQUEST_DIR)/RequestLine/RequestLine.cpp \
 				$(REQUEST_DIR)/SecurityPolicy/SecurityPolicy.cpp \
