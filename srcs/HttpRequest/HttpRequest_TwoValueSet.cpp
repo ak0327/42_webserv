@@ -42,7 +42,6 @@ void	HttpRequest::set_accept_post(const std::string &key, const std::string &val
 			this->_status_code = 400;
 			return;
 		}
-		this->_request_keyvalue_map[key] = this->ready_TwoValueSet(value, ',');
 	}
 	else if (std::count(value.begin(), value.end(), ',') > 1)
 	{
@@ -66,7 +65,6 @@ void	HttpRequest::set_host(const std::string &key, const std::string &value)
 			this->_status_code = 400;
 			return;
 		}
-		this->_request_keyvalue_map[key] = this->ready_TwoValueSet(value, ':');
 	}
 	else if (std::count(value.begin(), value.end(), ':') > 1)
 	{
@@ -87,7 +85,6 @@ void	HttpRequest::set_permission_policy(const std::string &key, const std::strin
 			this->_status_code = 400;
 			return;
 		}
-		this->_request_keyvalue_map[key] = this->ready_TwoValueSet(value, ',');
 	}
 	else if (std::count(value.begin(), value.end(), ',') > 1)
 	{
@@ -108,7 +105,6 @@ void	HttpRequest::set_proxy_authorization(const std::string &key, const std::str
 			this->_status_code = 400;
 			return;
 		}
-		this->_request_keyvalue_map[key] = this->ready_TwoValueSet(value, ' ');
 	}
 	else if (std::count(value.begin(), value.end(), ' ') > 1)
 	{
