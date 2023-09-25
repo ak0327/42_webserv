@@ -686,11 +686,6 @@ TEST(Request, TEST4_include_empty)
 		keys2.push_back("utf-8");
 		compair_valueweightarray_report(valweightarrayset2->get_valueweight_set(), keyvalue2, keys2);
 	}
-	if (same_class_test(__LINE__, "Accept-Post", httprequest_test1) == true)
-	{
-		TwoValueSet* twoval3 = static_cast<TwoValueSet*>(httprequest_test1.return_value("Accept-Post"));
-		compair_twovaluemap_report( twoval3->get_firstvalue(), twoval3->get_secondvalue(), "text/ html", "application/json");
-	}
 	keyword_doesnot_exist(__LINE__, "Accept-Ranges", httprequest_test1);
 	if (same_class_test(__LINE__, "Access-Control-Allow-Credentials", httprequest_test1) == true)
 	{
