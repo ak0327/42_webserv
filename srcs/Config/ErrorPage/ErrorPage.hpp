@@ -4,7 +4,7 @@
 #include <string>
 #include <iostream>
 
-#include "../HandlingString/ConfigHandlingString.hpp"
+#include "../HandleString/ConfigHandlingString.hpp"
 
 class ErrorPage
 {

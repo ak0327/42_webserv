@@ -35,23 +35,18 @@ class LocationConfig
 		std::string								_default_type;
 		std::string								_cgi_path;
 		std::string								_upload_path;
-
 	public:
 		LocationConfig();
 		LocationConfig(ServerConfig const &some);
 		LocationConfig& operator=(const LocationConfig& other);
 		LocationConfig& operator=(LocationConfig& other);
 		~LocationConfig();
-
-
-
 		// void									set_locationconf();
 		void									reset_locationconf();
 		void									reset_locationconf(ServerConfig const &some);
 		void									show_locationconfinf();
 		bool									insert_location(std::string const &line);
 		bool									locationkeyword_ch(std::string const &keyword);
-
 		void									set_port(std::string const &port);
 		void									set_servername(std::vector<std::string> const &server_name);
 		void									set_root(std::string const &root);
@@ -74,8 +69,6 @@ class LocationConfig
 		void									set_cgi_path(std::string const &default_type);
 		void									set_alias(std::string const &alias);
 		void									set_upload_path(std::string const &upload_path);
-
-
 		std::string								get_port(void) const;
 		std::vector<std::string>				get_servername(void) const;
 		std::string								get_root(void) const;

@@ -1,27 +1,13 @@
 #include "LocationConfig.hpp"
 #include "ServerConfig.hpp"
 
-ServerConfig::ServerConfig():_maxBodySize(1024), _chunked_transferencoding_allow(false),
-_keepaliverequests(0), _keepalive_timeout(0), _server_tokens(1), _autoindex(false), _client_body_buffer_size(8000),
-_client_body_timeout(60), _client_header_buffer_size(1024), _client_header_timeout(60), _client_maxbody_size(1048576),
-_default_type("application/octet-stream")
+ServerConfig::ServerConfig():_autoindex(false), _chunked_transferencoding_allow(false),
+_server_tokens(1), _client_body_buffer_size(8000), _client_body_timeout(60), _client_header_buffer_size(1024), _client_header_timeout(60), _client_maxbody_size(1048576), _keepaliverequests(0), _keepalive_timeout(0), _maxBodySize(1024), _default_type("application/octet-stream")
 {
 
 }
 
 ServerConfig::~ServerConfig(){}
-
-// ServerConfig& ServerConfig::operator=(const ServerConfig& other)
-// {
-// 	(void)other;
-// 	return (*this);
-// }
-
-// ServerConfig& ServerConfig::operator=(ServerConfig& other)
-// {
-// 	(void)other;
-// 	return (*this);
-// }
 
 bool ServerConfig::serverkeyword_ch(const std::string& word)
 {
@@ -147,60 +133,3 @@ bool	ServerConfig::serverkeyword_insert(std::string const &line, size_t pos)
 }
 
 void ServerConfig::set_locations(std::string &key, LocationConfig &locationconf){ _locations[key] = locationconf; }
-
-void ServerConfig::value_check()
-{
-	if (this->_indexpage_set.empty() == true)
-		this->_indexpage_set.push_back("index.html");
-	if (this->_allowmethod_set.empty() == true)
-	{
-		std::cout << "check" << std::endl;
-		this->_allowmethod_set.push_back("GET");
-		// this->_allowmethod_set.push_back("HEAD"); HEADは一旦実装しないはずなので無視
-		this->_allowmethod_set.push_back("POST");
-	}
-}
-
-#define RESET_COLOR "\033[0m"
-#define RED_COLOR "\033[31m"
-#define GREEN_COLOR "\033[32m"
-#define YELLOW_COLOR "\033[33m"
-#define BLUE_COLOR "\033[34m"
-#define MAGENTA_COLOR "\033[35m"
-#define CYAN_COLOR "\033[36m"
-
-void ServerConfig::show_serverconfig_allinfo()
-{
-	std::cout << "server name is " << GREEN_COLOR;
-	// HandlingString::show_vector_contents(this->_server_name);
-	std::cout << RESET_COLOR << std::endl;
-	std::cout << "root is " << GREEN_COLOR << this->_root << RESET_COLOR << std::endl;
-	std::cout << "index page is " << GREEN_COLOR;
-	// HandlingString::show_vector_contents(this->_indexpage_set);
-	std::cout << RESET_COLOR << std::endl;
-	std::cout << "allowmethod is " << GREEN_COLOR;
-	// HandlingString::show_vector_contents(this->_allowmethod_set);
-	std::cout << RESET_COLOR << std::endl;
-	std::cout << "maxbodysize is " << GREEN_COLOR << HandlingString::int_to_str(this->_maxBodySize) << RESET_COLOR << std::endl;
-	std::cout << BLUE_COLOR << "## ERROR PAGE SHOW ##" << RESET_COLOR << std::endl;
-	this->_errorpage.show_wrrorpage_infos();
-	std::cout << BLUE_COLOR << "## ## ## ## ## ## ## ##" << RESET_COLOR << std::endl;
-	if (this->_chunked_transferencoding_allow == true)
-		std::cout << "transfer encoding is " << GREEN_COLOR << "<< ALLOWED!! >>" << RESET_COLOR << std::endl;
-	else
-		std::cout << "transfer encoding is " << GREEN_COLOR << "<< NOT ALLOWED!! >>" << RESET_COLOR << std::endl;
-	std::cout << "access log is " << GREEN_COLOR << this->_accesslog << RESET_COLOR << std::endl;
-	std::cout << "error log is " << GREEN_COLOR << this->_errorlog << RESET_COLOR << std::endl;
-	std::cout << "keepalive request is " << GREEN_COLOR << HandlingString::int_to_str(this->_keepaliverequests) << RESET_COLOR << std::endl;
-	std::cout << "keepalive timeout is " << GREEN_COLOR << HandlingString::int_to_str(this->_keepalive_timeout) << RESET_COLOR << std::endl;
-	if (this->_autoindex == true)
-		std::cout << "autoindex is " << GREEN_COLOR << "<< ON!! >>" << RESET_COLOR << std::endl;
-	else
-		std::cout << "autoindex is " << GREEN_COLOR << "<< OFF!! >>" << RESET_COLOR << std::endl;
-	std::cout << "client body buffersize is " << GREEN_COLOR << HandlingString::int_to_str(this->_client_body_buffer_size) << RESET_COLOR << std::endl;
-	std::cout << "client body timeout " << GREEN_COLOR << HandlingString::int_to_str(this->_client_body_timeout) << RESET_COLOR << std::endl;
-	std::cout << "client header buffersize is " << GREEN_COLOR << HandlingString::int_to_str(this->_client_header_buffer_size) << RESET_COLOR << std::endl;
-	std::cout << "client header timeout " << GREEN_COLOR << HandlingString::int_to_str(this->_client_header_timeout) << RESET_COLOR << std::endl;
-	std::cout << "client max body size " << GREEN_COLOR << HandlingString::int_to_str(this->_client_maxbody_size) << RESET_COLOR << std::endl;
-	std::cout << "default type is " << GREEN_COLOR << this->_default_type << RESET_COLOR << std::endl;
-}

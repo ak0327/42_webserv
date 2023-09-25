@@ -1,47 +1,19 @@
 #include "Config.hpp"
 
-Config::Config(std::string const &conf)
+bool	is_open_file(const std::string &target_file_name)
 {
-	std::ifstream conf_file_test(conf);
-	if (!conf_file_test.is_open())
-		throw	Config::ConfigError();
-	std::ifstream	conf_file(conf);
-	std::string		line;
-	bool			in_server = false;
-	bool			in_location = false;
-	size_t			config_line = 1;
-	ServerConfig	server_config;
-	while (std::getline(conf_file, line))
-	{
-		if (HandlingString::skip_emptyword(line)[0] == '#' || HandlingString::skip_emptyword(line) == "")
-			;
-		else
-			config_linecheck(line, in_server, in_location, server_config, config_line);
-		config_line++;
-	}
-	in_server= false;
-	in_location = false;
-	config_line = 1;
-	std::ifstream	conf_file2(conf);
-	LocationConfig	location_config;
-	std::string		location_path = "";
-	std::map<std::string, ServerConfig>::iterator	it = this->server_configs.begin();
+	std::ifstream tmp_open(target_file_name);
 
-	while (std::getline(conf_file2, line))
-	{
-		if (HandlingString::skip_emptyword(line)[0] == '#' || HandlingString::skip_emptyword(line) == "")
-			;
-		else
-			config_location_check(line, in_server, in_location, location_config, location_path, it, config_line);
-		config_line++;
-	}
+	if (!tmp_open.is_open())
+		return (false);
+	return (true);
 }
 
-Config::~Config(){}
-
+//locationのスタートなら　location *.cgi {のように<OWS><文字列><SP><文字列><SP><{>のみ許容
+//location内部なら　header<SP>*{文字列}<;>を許容　が、空白が一つかは不明
 void	Config::handle_serverinfs(const std::string &line, bool &in_server, bool &in_location, ServerConfig &server_config, size_t pos)
 {
-	if (HandlingString::skip_emptyword(line).find("location") != std::string::npos)
+	if (HandlingString::skip_emptyword(line).find("location") != std::string::npos)  // locationaaaのような不備のある文字も通してしまっており、不適
 		in_location = true;
 	else if (HandlingString::skip_emptyword(line) == "}" && in_location == true)
 		in_location = false;
@@ -55,6 +27,37 @@ void	Config::handle_serverinfs(const std::string &line, bool &in_server, bool &i
 	}
 	else
 		server_config.serverkeyword_insert(line, pos);
+}
+
+bool	is_location_start_format(const std::string &line);
+{
+	std::string		line_without_ows = HandlingString::obtain_withoutows_value(line);
+	std::ifstream	location_parts(line_without_ows);  // <location> <*.cgi> <{> の<>内に存在しているそれぞれの文字の意味で名付けたい
+	std::string		location_part;
+	int				parts_counter = 0;
+
+	while(std::getline(location_parts, location_part, ' '))
+	{
+		switch (parts_counter) 
+		{
+			case 0:
+				if (location_part != "location")
+					return false;
+				else
+					break;
+			case 1:  //構成文字はprintableのみ？
+				break;
+			case 2:
+				if (location_part != "{")
+					return false;
+				else
+					break;
+			default:
+				return (false);
+		}
+		parts_counter++;
+	}
+	return (true);
 }
 
 void	Config::config_linecheck(const std::string &line, bool &in_server, bool &in_location, ServerConfig &server_config, size_t pos)
@@ -75,87 +78,48 @@ void	Config::config_linecheck(const std::string &line, bool &in_server, bool &in
 	}
 }
 
-bool	Config::handle_locationinfs(std::string &line, bool &in_location, LocationConfig &location_config, std::map<std::string, ServerConfig>::iterator &it, std::string &location_path)
+bool	is_config_format(const std::string &target_file_name)
 {
-	if (HandlingString::skip_emptyword(line) == "}")
-	{
-		(server_configs[it->first]).set_locations(location_path, location_config);
-		location_config.reset_locationconf(server_configs[it->first]);
-		in_location = false;
-	}
-	else if (location_config.insert_location(line) == false)
-		return (false);
-	return (true);
-}
+	std::ifstream	configfile_lines(target_file_name);
+	std::string		line;
+	size_t			pos = 1;
+	bool			in_server = false;
+	bool			in_location = false;
 
-std::string	Config::get_location_path(const std::string &locationfield_word)
-{
-	std::string			trim_emptyword = HandlingString::obtain_value(locationfield_word);
-	std::stringstream	split_with_empty(trim_emptyword);
-	std::string			location_path;
-	split_with_empty >> location_path;
-	split_with_empty >> location_path;  // location *.cgi {みたいに入ってきたときにstringstreamだと冗長な感じを受ける。。。気にしすぎ？
-	return (location_path);
-}
-
-void	Config::config_location_check(std::string &line, bool &in_server, bool &in_location, LocationConfig &location_config, std::string &location_path, \
-std::map<std::string, ServerConfig>::iterator	&it, size_t &pos)
-{
-	if (in_location == true && in_server == true)  // locationの中 locationの中だからserverの中
-		handle_locationinfs(line, in_location, location_config, it, location_path);
-	else if (in_server == true)  // serverの中locationの外
+	while (std::getline(configfile_lines, line))
 	{
-		if (HandlingString::skip_emptyword(line).find("location") != std::string::npos)
-		{
-			location_path = get_location_path(line);
-			in_location = true;
-		}
-		else if (HandlingString::skip_emptyword(line) == "}")
-		{
-			// location_config.reset();
-			in_server = false;
-		}
-	}
-	else
-	{
-		if (HandlingString::skip_emptyword(line) == "server{")
-			in_server = true;
-		else
-			throw ServerConfig::ConfigSyntaxError(line, pos);
+		if (!(HandlingString::skip_emptyword(line)[0] == '#' || HandlingString::skip_emptyword(line) == ""))
+			config_linecheck(line, in_server, in_location, server_config, config_line);;
+		pos++;
 	}
 }
 
-// test用関数
-
-// 　 ﾉ"′∧∧ ∧∧、ヽ､
-// ((と(ﾟДﾟ三ﾟДﾟ)つ))　configの中身を見るぞーーー
-// 　＼ヽﾐ　三　彡 ソ
-// 　　 )ﾐ ､_　彡ノ
-// 　　(ﾐ∪三∪彡
-// 　　 ＼ヾ丿ノ
-// 　　　 ヽ ﾉ
-// 　　　　)ﾉ
-// 　　　 ((
-
-#define RESET_COLOR "\033[0m"
-#define RED_COLOR "\033[31m"
-#define GREEN_COLOR "\033[32m"
-#define YELLOW_COLOR "\033[33m"
-#define BLUE_COLOR "\033[34m"
-#define MAGENTA_COLOR "\033[35m"
-#define CYAN_COLOR "\033[36m"
-
-void	Config::show_configinfos()
+Config::Config(std::string const &configfile_name)
 {
+	std::ifstream	conf_file(configfile_name);
+	std::string		line;
+	ServerConfig	server_config;
+
+	if (is_open_file(configfile_name) == false)
+		return;
+	if (is_config_format(configfile_name) == false)
+		return;
+	in_server= false;
+	in_location = false;
+	config_line = 1;
+	std::ifstream	conf_file2(conf);
+	LocationConfig	location_config;
+	std::string		location_path = "";
 	std::map<std::string, ServerConfig>::iterator	it = this->server_configs.begin();
 
-	while (it != this->server_configs.end())
+	while (std::getline(conf_file2, line))
 	{
-		std::cout << "==============" << std::endl;
-		std::cout << "|| port is -> " << RED_COLOR << it->first << RESET_COLOR << std::endl;
-		std::cout << "==============" << std::endl;
-		std::cout << "## SHOW SERVER CONFIG INFS## " << std::endl;
-		it->second.show_serverconfig_allinfo();
-		it++;
+		if (HandlingString::skip_emptyword(line)[0] == '#' || HandlingString::skip_emptyword(line) == "")
+			;
+		else
+			config_location_check(line, in_server, in_location, location_config, location_path, it, config_line);
+		config_line++;
 	}
 }
+
+Config::~Config(){}

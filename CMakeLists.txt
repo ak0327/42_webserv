@@ -52,7 +52,7 @@ set(webserv_srcs
 
 set(config_srcs
         srcs/Config/ErrorPage/ErrorPage.cpp
-        srcs/Config/HandlingString/ConfigHandlingString.cpp
+        srcs/HandleString/ConfigHandlingString.cpp
         srcs/Config/LocationConfig/LocationConfig.cpp
         srcs/Config/ServerConfig/ServerConfig.cpp
         srcs/Config/Config.cpp
@@ -71,6 +71,7 @@ set (unit_test_srcs
         test/unit_test/TestError.cpp
         test/unit_test/TestResult.cpp
         test/unit_test/TestSocket.cpp
+        test/unit_test/TestUtils.cpp
 )
 
 add_executable(unit_test

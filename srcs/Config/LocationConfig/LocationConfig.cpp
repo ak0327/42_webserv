@@ -1,6 +1,6 @@
 #include "LocationConfig.hpp"
 #include "ServerConfig.hpp"
-#include "../HandlingString/ConfigHandlingString.hpp"
+#include "../HandleString/ConfigHandlingString.hpp"
 
 LocationConfig::LocationConfig():_maxBodySize(1024), _chunked_transferencoding_allow(false),
 _keepaliverequests(10), _server_tokens(1), _autoindex(false), _default_type("application/octet-stream")
@@ -142,25 +142,6 @@ void LocationConfig::reset_locationconf(ServerConfig const &some)
 	_upload_path = "";
 }
 
-void	LocationConfig::show_locationconfinf()
-{
-	std::cout << "============" << std::endl;
-	std::cout << "port is " << this->get_port() << std::endl;
-	if (this->get_servername().size() != 0)
-		std::cout << "servername is " << this->get_servername()[0] << std::endl;
-	std::cout << "             " << std::endl;
-	std::cout << "root is " << this->get_root() << std::endl;
-	std::cout << "alias is " << this->get_alias() << std::endl;
-	std::cout << "             " << std::endl;
-	if (this->get_autoindex() == true)
-		std::cout << "autoindex is true" << std::endl;
-	else
-		std::cout << "autoindex is false" << std::endl;
-	std::cout << "             " << std::endl;
-	std::cout << "cgi_path is " << this->get_cgi_path() << std::endl;
-	std::cout << "             " << std::endl;
-}
-
 bool	LocationConfig::locationkeyword_ch(std::string const &key_word)
 {
 	const std::string server_keyset_arr[] = {
@@ -295,11 +276,6 @@ bool	LocationConfig::insert_location(std::string const &line)
 	return (true);
 }
 
-// 　-＝ ∧ ∧　　setterだよ！　∧ ∧ ＝-
-// -＝と( ･∀･)			   （･∀･ ) ＝-
-// 　-＝/ と_ノ			     と_ノヾ ＝-
-// -＝_/／⌒ｿ				   (_＞､＼ ＝-
-
 void	LocationConfig::set_port(std::string const &port){ this->_port = port; }
 void	LocationConfig::set_servername(std::vector<std::string> const &server_name){ this->_server_name = server_name; }
 void	LocationConfig::set_root(std::string const &root){ this->_root = root; }
@@ -322,12 +298,6 @@ void	LocationConfig::set_default_type(std::string const &default_type){ this->_d
 void	LocationConfig::set_cgi_path(std::string const &cgi_path){ this->_cgi_path = cgi_path; }
 void	LocationConfig::set_alias(std::string const &alias){ this->_alias = alias; }
 void	LocationConfig::set_upload_path(std::string const &upload_path){ this->_upload_path = upload_path; }
-
-//     ∩∩     getterだよ
-//   （´･ω･）
-//   ＿| ⊃／(＿＿_
-//  ／ └-(＿＿＿_／
-//  ￣￣￣￣￣￣￣
 
 std::string								LocationConfig::get_port(void) const { return (this->_port); }
 std::vector<std::string>				LocationConfig::get_servername(void) const { return (this->_server_name); }
