@@ -1016,15 +1016,15 @@ TEST(Request, TEST7)
 
 TEST(Request, TEST8)
 {
-	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\nHost: example.com\r\nPermissions-Policy: geolocation=(self \"https://example.com\"), camera=()\r\nProxy-Authenticate: Basic realm=\"Proxy Server\"\r\nProxy-Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==\r\nReferer: https://example.com/previous-page\r\nRetry-After: 120\r\nSec-Fetch-Dest: document\r\nSec-Fetch-Mode: navigate\r\nSec-Fetch-Site: same-origin\r\nSec-Fetch-User: ?1\r\nSec-Purpose: prefetch\r\nSec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=\r\nServer: Apache/2.4.41 (Ubuntu)\r\n";
+	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\nHost: example.com\r\nPermission-Policy: geolocation=(self \"https://example.com\"), camera=()\r\nProxy-Authenticate: Basic realm=\"Proxy Server\"\r\nProxy-Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==\r\nReferer: https://example.com/previous-page\r\nRetry-After: 120\r\nSec-Fetch-Dest: document\r\nSec-Fetch-Mode: navigate\r\nSec-Fetch-Site: same-origin\r\nSec-Fetch-User: ?1\r\nSec-Purpose: prefetch\r\nSec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=\r\nServer: Apache/2.4.41 (Ubuntu)\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST2);
 	EXPECT_EQ(httprequest_test1.get_request_line().get_method(), "GET");
 	EXPECT_EQ(httprequest_test1.get_request_line().get_target_page(), "/example");
 	EXPECT_EQ(httprequest_test1.get_request_line().get_version(), "HTTP/1.1");
 
-	if (same_class_test(__LINE__, "Permissions-Policy", httprequest_test1) == true)
+	if (same_class_test(__LINE__, "Permission-Policy", httprequest_test1) == true)
 	{
-		TwoValueSet* twoval1 = static_cast<TwoValueSet*>(httprequest_test1.return_value("Permissions-Policy"));
+		TwoValueSet* twoval1 = static_cast<TwoValueSet*>(httprequest_test1.return_value("Permission-Policy"));
 		compair_twovaluemap_report( twoval1->get_firstvalue(), twoval1->get_secondvalue(), "geolocation=(self \"https://example.com\")", "camera=()");
 	}
 	if (same_class_test(__LINE__, "Proxy-Authenticate", httprequest_test1) == true)

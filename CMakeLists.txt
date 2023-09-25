@@ -93,6 +93,7 @@ set (unit_test_srcs
         test/unit_test/TestHandlingString.cpp
         test/unit_test/TestHttpRequest_List.cpp
         test/unit_test/TestHttpRequest_TwoValueSet.cpp
+        test/unit_test/TestHttpRequest_Array.cpp
 )
 
 add_executable(unit_test

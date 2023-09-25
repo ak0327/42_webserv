@@ -33,22 +33,25 @@ bool	is_list_form(const std::string &field_value_without_ows)
 		std::string	same_field_value = field_value_without_ows.substr(same_field_value_start, same_field_value_end - same_field_value_start);
 		if (same_field_value_start != 0 && std::count(same_field_value.begin(), same_field_value.end(), '=') != 1)
 			return (false);
-		std::string	key = HandlingString::obtain_word_before_delimiter(same_field_value, '=');// = のようにkeyもvalueも空文字の場合は弾くのか
+		std::string	key = HandlingString::obtain_word_before_delimiter(same_field_value, '=');  // = のようにkeyもvalueも空文字の場合は弾くのか
 		std::string	value = HandlingString::obtain_word_after_delimiter(same_field_value, '=');
 		if (HandlingString::obtain_withoutows_value(key) == "" || HandlingString::obtain_withoutows_value(value) == "")
 			return (false);
-		same_field_value_start = field_value_without_ows.find(';') + 1;
+		same_field_value_start = same_field_value_end + 1;
+		if (same_field_value_start == field_value_without_ows.size())
+			return (true);
 	}
+	// <https://example.com/style.css>; rel=preload; as=style
 	return (true);
 }
 
 void	HttpRequest::set_link(const std::string &key, const std::string &value)
 {
-	std::map<std::string, std::map<std::string, std::string> > value_map;
-	std::stringstream	ss(value);
-	std::string			line;
-	std::string			uri;
-	std::string			mapping_value;
+	std::map<std::string, std::map<std::string, std::string> >	value_map;
+	std::stringstream											ss(value);
+	std::string													line;
+	std::string													uri;
+	std::string													mapping_value;
 
 	while(std::getline(ss, line, ','))
 	{

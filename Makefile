@@ -159,4 +159,11 @@ run_httprequest_twovaluemap_test    :
 	cmake --build build
 	./build/unit_test --gtest_filter=TwoValuseSet*
 
+.PHONY    : run_httprequest_array_test
+run_httprequest_array_test    :
+#rm -rf build
+	cmake -S . -B build
+	cmake --build build
+	./build/unit_test --gtest_filter=Array*
+
 -include $(DEPS)

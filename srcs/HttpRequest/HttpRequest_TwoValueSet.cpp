@@ -23,8 +23,6 @@ TwoValueSet* HttpRequest::ready_TwoValueSet(const std::string &value, char delim
 	return (new TwoValueSet(HandlingString::obtain_withoutows_value(first_value), HandlingString::obtain_withoutows_value(second_value)));
 }
 
-// twovalueset わかりやすいように
-
 // authorizationはちょっと格納方法変えるかもしれない
 void	HttpRequest::set_authorization(const std::string &key, const std::string &value)
 {
@@ -68,7 +66,7 @@ void	HttpRequest::set_host(const std::string &key, const std::string &value)
 			this->_status_code = 400;
 			return;
 		}
-		this->_request_keyvalue_map[key] = this->ready_TwoValueSet(value, ':');	
+		this->_request_keyvalue_map[key] = this->ready_TwoValueSet(value, ':');
 	}
 	else if (std::count(value.begin(), value.end(), ':') > 1)
 	{
