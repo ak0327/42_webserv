@@ -39,6 +39,7 @@ SRCS		+=	$(REQUEST_DIR)/BaseKeyValueMap/BaseKeyValueMap.cpp \
 				$(REQUEST_DIR)/HttpRequest_ValueSet.cpp \
 				$(REQUEST_DIR)/HttpRequest_ValueMap.cpp \
 				$(REQUEST_DIR)/HttpRequest_ValueWeightArraySet.cpp \
+				$(REQUEST_DIR)/HttpRequest_ValueDateSet.cpp \
 				$(REQUEST_DIR)/LinkClass/LinkClass.cpp \
 				$(REQUEST_DIR)/RequestLine/RequestLine.cpp \
 				$(REQUEST_DIR)/SecurityPolicy/SecurityPolicy.cpp \
