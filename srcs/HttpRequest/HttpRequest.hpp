@@ -38,7 +38,7 @@ class HttpRequest
 		std::map<std::string, BaseKeyValueMap*> 											_request_keyvalue_map;
 
 		HttpRequest();
-		HttpRequest(const HttpRequest &other);
+		HttpRequest(const HttpRequest &request);
 		bool																				is_keyword_exist(const std::string &key);
 		bool																				is_requestformat(const std::string &value);
 		bool																				is_requestlineformat(std::string value);

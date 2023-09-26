@@ -56,7 +56,7 @@ void HttpRequest::set_accept(const std::string &key, const std::string &value)
 			changed_line = line;
 		if (changed_line.find(';') != std::string::npos)
 		{
-			if (HandlingString::is_double(HandlingString::obtain_weight(HandlingString::obtain_word_after_delimiter(changed_line, ';'))) == false)
+			if (HandlingString::is_positive_under_intmax_double(HandlingString::obtain_weight(HandlingString::obtain_word_after_delimiter(changed_line, ';'))) == false)
 				return;
 		}
 	}
@@ -77,7 +77,7 @@ void	HttpRequest::set_accept_charset(const std::string &key, const std::string &
 			changed_line = line;
 		if (changed_line.find(';') != std::string::npos)
 		{
-			if (HandlingString::is_double(HandlingString::obtain_weight(HandlingString::obtain_word_after_delimiter(changed_line, ';'))) == false)
+			if (HandlingString::is_positive_under_intmax_double(HandlingString::obtain_weight(HandlingString::obtain_word_after_delimiter(changed_line, ';'))) == false)
 				return;
 		}
 	}
@@ -164,7 +164,7 @@ void	HttpRequest::set_te(const std::string &key, const std::string &value)
 			target_value = HandlingString::obtain_weight(HandlingString::obtain_word_after_delimiter(line, ';'));
 			if (!(target_key == "compress" || target_key == "deflate" || target_key == "gzip" || target_key == "trailers"))
 				return;
-			if (HandlingString::is_double(target_value) == false)
+			if (HandlingString::is_positive_under_intmax_double(target_value) == false)
 				return;
 		}
 		else

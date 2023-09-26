@@ -18,9 +18,9 @@ class HandlingString
 		~HandlingString();
 	public:
 		static	bool						is_end_with_cr(const std::string &value);
-		static	bool						is_double(const std::string &value);
-		static	bool						is_doublequote_format(const std::string &value);
-		static	bool						is_lastword_semicolon(const std::string &word);
+		static	bool						is_positive_under_intmax_double(const std::string &value);
+		static	bool						is_quoted(const std::string &value);
+		static	bool						is_endl_semicolon_and_no_inner_semicoron(const std::string &word);
 		static	bool						is_ows(const char &c);
 		static	bool						is_printable_content(const std::string &value);
 		static	bool						is_positive_and_under_intmax(const std::string &word);

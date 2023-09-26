@@ -136,7 +136,7 @@ bool	HttpRequest::is_weightformat(const std::string &value)
 	if (weight_key != "q")
 		return (false);
 	weight_num = field_value_weight.substr(field_value_weight.find('=') + 1);
-	return HandlingString::is_double(weight_num);
+	return HandlingString::is_positive_under_intmax_double(weight_num);
 }
 
 // まだできてない

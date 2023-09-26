@@ -4,16 +4,16 @@ bool	HandlingString::is_end_with_cr(const std::string &value)
 {
 	if (value.length() <= 1)
 		return (false);
-	return (value[value.length() - 1] == '\r');
+	return (!value.empty() && value[value.length() - 1] == '\r');
 }
 
-bool	HandlingString::is_double(const std::string &value)
+bool	HandlingString::is_positive_under_intmax_double(const std::string &value)
 {
-	size_t	dot_counter = 0;
-	size_t	now_pos = 0;
-	size_t	value_length = value.length();
-	std::istringstream ss(value);
-	double value_to_double;
+	size_t				dot_counter = 0;
+	size_t				now_pos = 0;
+	size_t				value_length = value.length();
+	std::istringstream	ss(value);
+	double				value_to_double;
 
 	if (value.find('.') == std::string::npos)
 		return (false);
@@ -39,6 +39,8 @@ bool	HandlingString::is_double(const std::string &value)
         else
             return (false);
     }
+	else
+		return (false);
 	return (true);
 }
 
@@ -54,7 +56,7 @@ size_t count_char(const std::string &str, const char c)
 	return count;
 }
 
-bool HandlingString::is_doublequote_format(const std::string &value) {
+bool HandlingString::is_quoted(const std::string &value) {
 	std::size_t head, tail;
 
 	if (count_char(value, '"') != 2) {
@@ -65,7 +67,7 @@ bool HandlingString::is_doublequote_format(const std::string &value) {
 	return head == 0 && tail + 1 == value.length();
 }
 
-bool	HandlingString::is_lastword_semicolon(const std::string &word)
+bool	HandlingString::is_endl_semicolon_and_no_inner_semicoron(const std::string &word)
 {
 	size_t	pos = 0;
 	size_t	semicolon_count = 0;
@@ -137,6 +139,7 @@ double HandlingString::str_to_double(const std::string &num_str)
 {
 	std::istringstream iss(num_str);
     double result;
+
     iss >> result;
     return result;
 }
