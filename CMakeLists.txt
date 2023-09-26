@@ -36,15 +36,15 @@ include_directories(
         srcs/Error
         srcs/Socket
         srcs/HandlingString
-        srsc/HttpRequest/BaseKeyValueMap
-        srsc/HttpRequest/HttpRequest
-        srsc/HttpRequest/RequestLine
-        srsc/HttpRequest/TwoValueSet
-        srsc/HttpRequest/ValueArraySet
-        srsc/HttpRequest/ValueDateSet
-        srsc/HttpRequest/ValueMap
-        srsc/HttpRequest/ValueSet
-        srsc/HttpRequest/ValueWeightArraySet
+        srcs/HttpRequest/BaseKeyValueMap
+        srcs/HttpRequest/HttpRequest
+        srcs/HttpRequest/RequestLine
+        srcs/HttpRequest/TwoValueSet
+        srcs/HttpRequest/ValueArraySet
+        srcs/HttpRequest/ValueDateSet
+        srcs/HttpRequest/ValueMap
+        srcs/HttpRequest/ValueSet
+        srcs/HttpRequest/ValueWeightArraySet
         srcs/HttpRequest/SecurityPolicy
         srcs/HttpRequest/LinkClass
 )

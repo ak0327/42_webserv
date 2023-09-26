@@ -31,8 +31,8 @@ class HandlingString
 		static	std::string					obtain_word_after_delimiter(const std::string &str, char delimiter);
 		static	std::string					obtain_unquote_str(const std::string &quoted_str);
 		static	std::string					obtain_withoutows_value(const std::string &field_value_with_ows);
-		static	std::string					obtain_weight(const std::string &other);
-		static	std::string					obtain_word_before_delimiter(const std::string &other, const char &delimiter);
+		static	std::string					obtain_weight(const std::string &field_value);
+		static	std::string					obtain_word_before_delimiter(const std::string &field_value, const char &delimiter);
 		static	std::string					skip_lastsemicolon(const std::string &word);
 		static	std::vector<std::string> 	input_arg_to_vector_without_firstword(const std::string &words);
 };

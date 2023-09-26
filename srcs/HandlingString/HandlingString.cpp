@@ -2,6 +2,8 @@
 
 bool	HandlingString::is_end_with_cr(const std::string &value)
 {
+	if (value.length() <= 1)
+		return (false);
 	return (value[value.length() - 1] == '\r');
 }
 
@@ -32,7 +34,7 @@ bool	HandlingString::is_double(const std::string &value)
 	{
         if (value_to_double < 0)
             return (false);
-        if (value_to_double <= static_cast<double>(std::numeric_limits<int>::max()))
+        if (value_to_double <= INT_MAX)
             return (true);
         else
             return (false);
@@ -40,7 +42,7 @@ bool	HandlingString::is_double(const std::string &value)
 	return (true);
 }
 
-std::size_t count_char(const std::string &str, const char c)
+size_t count_char(const std::string &str, const char c)
 {
 	std::size_t	count = 0;
 	std::size_t pos = 0;
@@ -60,8 +62,6 @@ bool HandlingString::is_doublequote_format(const std::string &value) {
 	}
 	head = value.find('"');
 	tail = value.rfind('"');
-	if (tail - head == 1)
-		return (false);
 	return head == 0 && tail + 1 == value.length();
 }
 
@@ -178,9 +178,9 @@ std::string HandlingString::int_to_str(int num)
     return result;
 }
 
-std::string HandlingString::obtain_word_before_delimiter(const std::string &other, const char &delimiter)
+std::string HandlingString::obtain_word_before_delimiter(const std::string &field_value, const char &delimiter)
 {
-	return other.substr(0, other.find(delimiter));
+	return field_value.substr(0, field_value.find(delimiter));
 }
 
 std::string HandlingString::obtain_word_after_delimiter(const std::string &str, char delimiter)
@@ -188,9 +188,9 @@ std::string HandlingString::obtain_word_after_delimiter(const std::string &str, 
 	return str.substr(str.find(delimiter) + 1);
 }
 
-std::string	HandlingString::obtain_weight(const std::string &other)
+std::string	HandlingString::obtain_weight(const std::string &field_value)
 {
-	return (HandlingString::obtain_word_after_delimiter(other, '='));
+	return (HandlingString::obtain_word_after_delimiter(field_value, '='));
 }
 
 std::string HandlingString::obtain_unquote_str(const std::string &quoted_str)

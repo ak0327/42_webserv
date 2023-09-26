@@ -16,7 +16,14 @@
 #include <string>
 #include <algorithm>
 
-TEST(HandlingSTring, HandlingStringTEST)
+TEST(HandlingString, IS_END_WITH_CR)
+{
+	const std::string TEST_REQUEST = "";
+    if (HandlingString::is_end_with_cr(TEST_REQUEST) == true)
+		ADD_FAILURE_AT(__FILE__, __LINE__);
+}
+
+TEST(HandlingString, HandlingStringTEST)
 {
 	std::string val1 = "   	 aaa bbb ccc      dd ";
 	EXPECT_EQ(HandlingString::obtain_withoutows_value(val1), "aaa bbb ccc      dd");
@@ -26,30 +33,38 @@ TEST(HandlingSTring, HandlingStringTEST)
 		ADD_FAILURE_AT(__FILE__, __LINE__);
 }
 
-TEST(HandlingSTring, ALLEMPTY)
+TEST(HandlingString, ALLEMPTY)
 {
 	const std::string TEST_REQUEST = "a a a\na\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
 	(void)httprequest_test1;
 }
 
-TEST(HandlingSTring, ALLEMPTY_1)
+TEST(HandlingString, ALLEMPTY_1)
 {
 	const std::string TEST_REQUEST = "a a a\n\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
 	(void)httprequest_test1;
 }
 
-TEST(HandlingSTring, ALLEMPTY_2)
+TEST(HandlingString, ALLEMPTY_2)
 {
 	const std::string TEST_REQUEST = "a a a\n:\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
 	EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
 }
 
-TEST(HandlingSTring, ALLEMPTY_3)
+TEST(HandlingString, ALLEMPTY_3)
 {
 	const std::string TEST_REQUEST = "a a a\n:::\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
 	EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
+}
+
+TEST(HandlingString, IS_DOUBLE_QUOTE)
+{
+    if (HandlingString::is_doublequote_format("") == true)
+		ADD_FAILURE_AT(__FILE__, __LINE__);
+	if (HandlingString::is_doublequote_format("\"\"") == false)
+		ADD_FAILURE_AT(__FILE__, __LINE__);
 }

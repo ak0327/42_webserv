@@ -152,7 +152,7 @@ run_handlingstring_test    :
 #rm -rf build
 	cmake -S . -B build
 	cmake --build build
-	./build/unit_test --gtest_filter=HandlingSTring*
+	./build/unit_test --gtest_filter=HandlingString*
 
 .PHONY    : run_httprequest_list_test
 run_httprequest_list_test    :

@@ -197,6 +197,13 @@ bool	keyword_doesnot_exist(int line, const char *key, HttpRequest &target)
 	return (true);
 }
 
+TEST(Request, SEGV)
+{
+    const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\n\n\n\n";
+    HttpRequest httprequest_test1(TEST_REQUEST);
+    EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
+}
+
 TEST(Request, UNCORRECTFORMATREQUESTLINE1)
 {
 	const std::string TEST_REQUEST = "GET/index.htmlHTTP/1.1\r\n";
