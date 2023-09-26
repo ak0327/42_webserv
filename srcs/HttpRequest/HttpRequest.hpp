@@ -60,15 +60,6 @@ class HttpRequest
 		ValueMap																			*ready_ValueMap(const std::string &only_value, const std::string &value);
 		ValueSet																			*ready_ValueSet(const std::string &value);
 		ValueWeightArraySet																	*ready_ValueWeightArraySet(const std::string &value);
-		void																				ready_functionmap(void);
-	public:
-		explicit HttpRequest(const std::string &all_request_text);
-		~HttpRequest();
-		BaseKeyValueMap* 																	return_value(const std::string &key);
-		bool																				is_accept_langage_valueword(const std::string &value);
-		int																					get_statuscode(void) const;
-		RequestLine&																		get_request_line(void);
-		std::map<std::string, BaseKeyValueMap*> 											get_request_keyvalue_map(void);
 		void																				set_accept(const std::string &key, const std::string &value);
 		void																				set_accept_ch(const std::string &key, const std::string &value);
 		void																				set_accept_charset(const std::string &key, const std::string &value);
@@ -157,6 +148,15 @@ class HttpRequest
 		void																				set_via(const std::string &key, const std::string &value);
 		void																				set_www_authenticate(const std::string &key, const std::string &value);
 		void																				set_x_xss_protection(const std::string &key, const std::string &value);
+		void																				ready_functionmap(void);
+	public:
+		explicit HttpRequest(const std::string &all_request_text);
+		~HttpRequest();
+		BaseKeyValueMap* 																	return_value(const std::string &key);
+		bool																				is_accept_langage_valueword(const std::string &value);
+		int																					get_statuscode(void) const;
+		RequestLine&																		get_request_line(void);
+		std::map<std::string, BaseKeyValueMap*> 											get_request_keyvalue_map(void);
 };
 
 #endif  // SRCS_HTTPREQUEST_HTTPREQUEST_HPP_

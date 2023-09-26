@@ -34,7 +34,6 @@ class HandlingString
 		static	std::string					obtain_weight(const std::string &field_value);
 		static	std::string					obtain_word_before_delimiter(const std::string &field_value, const char &delimiter);
 		static	std::string					skip_lastsemicolon(const std::string &word);
-		static	std::vector<std::string> 	input_arg_to_vector_without_firstword(const std::string &words);
 };
 
 #endif  // SRCS_HANDLINGSTRING_HANDLINGSTRING_HPP_

@@ -122,19 +122,6 @@ bool	HandlingString::is_positive_and_under_intmax(const std::string &num_str)
 	return (true);
 }
 
-std::vector<std::string> HandlingString::input_arg_to_vector_without_firstword(const std::string &words)
-{
-	std::string					replaced_words = HandlingString::skip_lastsemicolon(words);
-	std::string					word;
-	std::istringstream			splited_words(replaced_words);
-	std::vector<std::string>	ans;
-
-	splited_words >> word;
-	while (splited_words >> word)
-		ans.push_back(word);
-	return (ans);
-}
-
 double HandlingString::str_to_double(const std::string &num_str)
 {
 	std::istringstream iss(num_str);

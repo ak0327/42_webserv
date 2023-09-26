@@ -53,6 +53,10 @@ HttpRequest::~HttpRequest()
 	}
 }
 
+/*
+request-line
+	= method SP request-target SP HTTP-version
+*/
 bool HttpRequest::is_requestlineformat(std::string input_requestline)
 {
 	int			i = 0;
@@ -81,8 +85,6 @@ bool HttpRequest::is_requestlineformat(std::string input_requestline)
 			pos++;
 		i++;
 	}
-	if (i != 3)
-		return (false);
 	return (true);
 }
 
