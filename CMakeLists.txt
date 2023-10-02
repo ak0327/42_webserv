@@ -36,8 +36,10 @@ include_directories(
         srcs/Error
         srcs/Socket
         srcs/Config
-        srcs/Config/ErrorPage
-        srcs/Config/HandlingString
+        srcs/Config/ConfigHandlingString
+        srcs/Config/IsConfigFormat
+        srcs/Config/AllConfig
+        srcs/Config/IsConfigFormat
         srcs/Config/LocationConfig
         srcs/Config/ServerConfig
 )
@@ -51,10 +53,12 @@ set(webserv_srcs
 )
 
 set(config_srcs
-        srcs/Config/ErrorPage/ErrorPage.cpp
-        srcs/HandleString/ConfigHandlingString.cpp
+        srcs/HandlingString/HandlingString.cpp
+        srcs/Config/AllConfig/AllConfig.cpp
+        srcs/Config/ConfigHandlingString/ConfigHandlingString.cpp
         srcs/Config/LocationConfig/LocationConfig.cpp
-        srcs/Config/ServerConfig/ServerConfig.cpp
+        srcs/Config/ServerConfig/Serverconfig.cpp
+        srcs/Config/IsConfigFormat/IsConfigFormat.cpp
         srcs/Config/Config.cpp
 )
 
@@ -72,6 +76,8 @@ set (unit_test_srcs
         test/unit_test/TestResult.cpp
         test/unit_test/TestSocket.cpp
         test/unit_test/TestUtils.cpp
+        test/unit_test/TestIsConfigFormat.cpp
+        test/unit_test/TestIsConfig.cpp
 )
 
 add_executable(unit_test
