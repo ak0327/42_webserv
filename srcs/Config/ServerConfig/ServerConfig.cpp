@@ -55,9 +55,10 @@ bool	ServerConfig::ready_serverblock_keyword(const std::string &field_key, const
 	field_keys.push_back("errorlog");
 	field_keys.push_back("port");
 	field_keys.push_back("root");
-	field_keys.push_back("allowmethod_set");
-	field_keys.push_back("indexpage_set");
+	field_keys.push_back("allow_methods");
+	field_keys.push_back("index");
 	field_keys.push_back("server_name");
+	field_keys.push_back("listen");
 
 	if (std::find(field_keys.begin(), field_keys.end(), field_key) == field_keys.end())
 		return true;
@@ -126,6 +127,11 @@ bool	ServerConfig::ready_serverblock_keyword(const std::string &field_key, const
 		this->_default_type = this->ready_string_fieldvalue(field_value);
 		return true;
 	}
+	else if (field_key == "listen")
+	{
+		this->_port = this->ready_string_fieldvalue(field_value);
+		return true;
+	}
 	else if (field_key == "errorlog")
 	{
 		this->_errorlog = this->ready_string_fieldvalue(field_value);
@@ -141,12 +147,12 @@ bool	ServerConfig::ready_serverblock_keyword(const std::string &field_key, const
 		this->_root = this->ready_string_fieldvalue(field_value);
 		return true;
 	}
-	else if (field_key == "allowmethod_set")
+	else if (field_key == "allow_methods")
 	{
 		this->_allowmethod_set = this->ready_string_vector_fieldvalue(field_value);
 		return true;
 	}
-	else if (field_key == "indexpage_set")
+	else if (field_key == "index")
 	{
 		this->_indexpage_set = this->ready_string_vector_fieldvalue(field_value);
 		return true;

@@ -1,35 +1,46 @@
 #include "LocationConfig.hpp"
 
-LocationConfig::LocationConfig()
+LocationConfig::LocationConfig():_autoindex(false), _chunked_transferencoding_allow(false), _server_tokens(1),
+_client_body_buffer_size(8000), _client_body_timeout(60), _client_header_buffer_size(1024), _client_header_timeout(60),
+_client_max_body_size(1048576), _keepaliverequests(0), _keepalive_timeout(0), _maxBodySize(1024), _default_type("application/octet-stream")
 {
-	// _autoindex;
-	// _chunked_transferencoding_allow;
-	// _server_tokens;
-	// _client_body_buffer_size;
-	// _client_body_timeout;
-	// _client_header_buffer_size;
-	// _client_header_timeout;
-	// _client_maxbody_size;
-	// _keepaliverequests;
-	// _keepalive_timeout;
-	// _maxBodySize;
-	// _alias;
-	// 	_errorpage_set;//これめっち
-	// _accesslog;
-	// _cgi_path;
-	// _default_type;
-	// _errorlog;
-	// _upload_path;
-	// _port;
-	// _root;
-	// _allowmethod_set;
-	// _indexpage_set;
-	// _server_name;
+
 }
 
 LocationConfig::~LocationConfig(){}
 
-void	LocationConfig::ready_locationblock_keyword(const std::string &field_key, const std::string &field_value)
+bool	LocationConfig::ready_boolean_fieldvalue(const std::string &field_value)
+{
+	std::cout << field_value << std::endl;
+	return (true);
+}
+
+int		LocationConfig::ready_int_fieldvalue(const std::string &field_value)
+{
+	std::cout << field_value << std::endl;
+	return (0);
+}
+
+size_t	LocationConfig::ready_size_t_fieldvalue(const std::string &field_value)
+{
+	std::cout << field_value << std::endl;
+	return (1);
+}
+
+std::string		LocationConfig::ready_string_fieldvalue(const std::string &field_value)
+{
+	std::cout << field_value << std::endl;
+	return ("");
+}
+
+std::vector<std::string>	LocationConfig::ready_string_vector_fieldvalue(const std::string &field_value)
+{
+	std::vector<std::string>	anser_vector;
+	std::cout << field_value << std::endl;
+	return (anser_vector);
+}
+
+bool	LocationConfig::ready_locationblock_keyword(const std::string &field_key, const std::string &field_value)
 {
 	std::vector<std::string>	field_keys;
 
@@ -40,7 +51,7 @@ void	LocationConfig::ready_locationblock_keyword(const std::string &field_key, c
 	field_keys.push_back("client_body_timeout");
 	field_keys.push_back("client_header_buffer_size");
 	field_keys.push_back("client_header_timeout");
-	field_keys.push_back("client_maxbody_size");
+	field_keys.push_back("client_max_body_size");
 	field_keys.push_back("keepaliverequests");
 	field_keys.push_back("keepalive_timeout");
 	field_keys.push_back("maxBodySize");
@@ -49,58 +60,131 @@ void	LocationConfig::ready_locationblock_keyword(const std::string &field_key, c
 	field_keys.push_back("errorlog");
 	field_keys.push_back("port");
 	field_keys.push_back("root");
-	field_keys.push_back("allowmethod_set");
-	field_keys.push_back("indexpage_set");
+	field_keys.push_back("allow_methods");
+	field_keys.push_back("index");
 	field_keys.push_back("server_name");
 	field_keys.push_back("cgi_path");
 	field_keys.push_back("alias");
 	field_keys.push_back("upload_path");
+	field_keys.push_back("error_page");
+	field_keys.push_back("return"); //未実装
 
-      std::cout << field_value << std::endl;
 	if (std::find(field_keys.begin(), field_keys.end(), field_key) == field_keys.end())
-		return;
-      if (field_key == "autoindex")
-            std::cout << "選択されたのはメニュー 1 です。" << std::endl;
-      else if (field_key ==  "chunked_transferencoding_allow")
-            std::cout << "選択されたのはメニュー 2 です。" << std::endl;
-      else if (field_key ==  "server_tokens")
-            std::cout << "選択されたのはメニュー 3 です。" << std::endl;
+		return false;
+    if (field_key == "autoindex")
+    {
+		this->_autoindex = this->ready_boolean_fieldvalue(field_value);
+		return true;
+	}
+    else if (field_key ==  "chunked_transferencoding_allow")
+    {
+		this->_chunked_transferencoding_allow = this->ready_boolean_fieldvalue(field_value);
+		return true;
+	}
+    else if (field_key ==  "server_tokens")
+    {
+		this->_server_tokens = this->ready_int_fieldvalue(field_value);
+		return true;
+	}
 	else if (field_key ==  "client_body_buffer_size")
-            std::cout << "選択されたのはメニュー 3 です。" << std::endl;
+    {
+		this->_client_body_buffer_size = this->ready_size_t_fieldvalue(field_value);
+		return true;
+	}
 	else if (field_key ==  "client_body_timeout")
-            std::cout << "選択されたのはメニュー 3 です。" << std::endl;
+    {
+		this->_client_body_timeout = this->ready_size_t_fieldvalue(field_value);
+		return true;
+	}
 	else if (field_key ==  "client_header_buffer_size")
-            std::cout << "選択されたのはメニュー 3 です。" << std::endl;
+    {
+		this->_client_header_buffer_size = this->ready_size_t_fieldvalue(field_value);
+		return true;
+	}
 	else if (field_key ==  "client_header_timeout")
-            std::cout << "選択されたのはメニュー 3 です。" << std::endl;
-	else if (field_key ==  "client_maxbody_size")
-            std::cout << "選択されたのはメニュー 3 です。" << std::endl;
+    {
+		this->_client_header_timeout = this->ready_size_t_fieldvalue(field_value);
+		return true;
+	}
+	else if (field_key ==  "client_max_body_size")
+    {
+		this->_client_max_body_size = this->ready_size_t_fieldvalue(field_value);
+		return true;
+	}
 	else if (field_key ==  "keepaliverequests")
-            std::cout << "選択されたのはメニュー 3 です。" << std::endl;
+    {
+		this->_keepaliverequests = this->ready_size_t_fieldvalue(field_value);
+		return true;
+	}
 	else if (field_key ==  "keepalive_timeout")
-            std::cout << "選択されたのはメニュー 3 です。" << std::endl;
+    {
+		this->_keepalive_timeout = this->ready_size_t_fieldvalue(field_value);
+		return true;
+	}
 	else if (field_key ==  "maxBodySize")
-            std::cout << "選択されたのはメニュー 3 です。" << std::endl;
+    {
+		this->_maxBodySize = this->ready_size_t_fieldvalue(field_value);
+		return true;
+	}
 	else if (field_key ==  "accesslog")
-            std::cout << "選択されたのはメニュー 3 です。" << std::endl;
+    {
+		this->_accesslog = this->ready_string_fieldvalue(field_value);
+		return true;
+	}
 	else if (field_key ==  "default_type")
-            std::cout << "選択されたのはメニュー 3 です。" << std::endl;
+    {
+		this->_default_type = this->ready_string_fieldvalue(field_value);
+		return true;
+	}
 	else if (field_key ==  "errorlog")
-            std::cout << "選択されたのはメニュー 3 です。" << std::endl;
+    {
+		this->_errorlog = this->ready_string_fieldvalue(field_value);
+		return true;
+	}
 	else if (field_key ==  "port")
-            std::cout << "選択されたのはメニュー 3 です。" << std::endl;
+    {
+		this->_port = this->ready_string_fieldvalue(field_value);
+		return true;
+	}
 	else if (field_key ==  "root")
-            std::cout << "選択されたのはメニュー 3 です。" << std::endl;
-	else if (field_key ==  "allowmethod_set")
-            std::cout << "選択されたのはメニュー 3 です。" << std::endl;
-	else if (field_key ==  "indexpage_set")
-            std::cout << "選択されたのはメニュー 3 です。" << std::endl;
-	else if (field_key ==  "server_name")
-            std::cout << "選択されたのはメニュー 3 です。" << std::endl;
+    {
+		this->_root = this->ready_string_fieldvalue(field_value);
+		return true;
+	}
 	else if (field_key ==  "cgi_path")
-            std::cout << "選択されたのはメニュー 3 です。" << std::endl;
+	{
+		this->_cgi_path = this->ready_string_fieldvalue(field_value);
+		return true;
+	}
 	else if (field_key ==  "alias")
-            std::cout << "選択されたのはメニュー 3 です。" << std::endl;
+    {
+		this->_alias = this->ready_string_fieldvalue(field_value);
+		return true;
+	}
 	else if (field_key ==  "upload_path")
-            std::cout << "選択されたのはメニュー 3 です。" << std::endl;
+    {
+		this->_upload_path = this->ready_string_fieldvalue(field_value);
+		return true;
+	}
+	else if (field_key ==  "allow_methods")
+    {
+		this->_allowmethod_set = this->ready_string_vector_fieldvalue(field_value);
+		return true;
+	}
+	else if (field_key ==  "index")
+    {
+		this->_indexpage_set = this->ready_string_vector_fieldvalue(field_value);
+		return true;
+	}
+	else if (field_key ==  "error_page")
+    {
+		this->_errorpage_set = this->ready_string_vector_fieldvalue(field_value);
+		return true;
+	}
+	else if (field_key ==  "server_name")
+    {
+		this->_server_name = this->ready_string_vector_fieldvalue(field_value);
+		return true;
+	}
+	return (true);
 }

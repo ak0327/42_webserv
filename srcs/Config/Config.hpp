@@ -30,14 +30,14 @@
 class	Config
 {
 	private:
-		bool								_is_config_format;
-		std::map<std::string, AllConfig>	_all_configs;
+		bool											_is_config_format;
+		std::map<std::vector<std::string>, AllConfig>	_all_configs;
 
 	public:
 		Config(const std::string &config_file_name);
 		~Config();
-		bool								is_config_format(const std::string &config_file_name);
-		bool								get_is_config_format(void){ return this->_is_config_format; };
+		bool											is_config_format(const std::string &config_file_name);
+		bool											get_is_config_format(void){ return this->_is_config_format; };
 };
 
 #endif
