@@ -1,37 +1,104 @@
 #include "ServerConfig.hpp"
 
-ServerConfig::ServerConfig(): _autoindex(false), _chunked_transferencoding_allow(false), _server_tokens(1), _client_body_buffer_size(8000), _client_body_timeout(60), _client_header_buffer_size(1024), _client_header_timeout(60), _client_maxbody_size(1048576), _keepaliverequests(0), _keepalive_timeout(0), _maxBodySize(1024), _default_type("application/octet-stream"){}
+ServerConfig::ServerConfig(): _autoindex(false), _chunked_transferencoding_allow(false), _server_tokens(1),
+_client_body_buffer_size(8000), _client_body_timeout(60), _client_header_buffer_size(1024),
+_client_header_timeout(60), _client_maxbody_size(1048576), _keepaliverequests(0), _keepalive_timeout(0),
+_maxBodySize(1024), _default_type("application/octet-stream"){}
+
+ServerConfig::ServerConfig(const ServerConfig &other)
+{
+	this->_autoindex =	other._autoindex;
+	this->_chunked_transferencoding_allow =	other._chunked_transferencoding_allow;
+	// this->// _errorpage;  // これめっちゃおかしい使い方 =	other->// _errorpage;  // これめっちゃおかしい使い方で
+	this->_server_tokens =	other._server_tokens;
+	this->_client_body_buffer_size = other._client_body_buffer_size;
+	this->_client_body_timeout = other._client_body_timeout;
+	this->_client_header_buffer_size =	other._client_header_buffer_size;
+	this->_client_header_timeout =	other._client_header_timeout;
+	this->_client_maxbody_size =	other._client_maxbody_size;
+	this->_keepaliverequests =	other._keepaliverequests;
+	this->_keepalive_timeout =	other._keepalive_timeout;
+	this->_maxBodySize =	other._maxBodySize;
+	// this->// _locations =	other->// _locations;
+	this->_accesslog =	other._accesslog;
+	this->_default_type =	other._default_type;
+	this->_errorlog =	other._errorlog;
+	this->_port =	other._port;
+	this->_root =	other._root;
+	this->_allowmethod_set = other._allowmethod_set;
+	this->_indexpage_set = other._indexpage_set;
+	this->_server_name = other._server_name;
+}
+
+ServerConfig& ServerConfig::operator=(const ServerConfig &other)
+{
+    if (this == &other)
+        return *this;
+	this->_autoindex =	other._autoindex;
+	this->_chunked_transferencoding_allow =	other._chunked_transferencoding_allow;
+	// this->// _errorpage;  // これめっちゃおかしい使い方 =	other->// _errorpage;  // これめっちゃおかしい使い方で
+	this->_server_tokens =	other._server_tokens;
+	this->_client_body_buffer_size = other._client_body_buffer_size;
+	this->_client_body_timeout = other._client_body_timeout;
+	this->_client_header_buffer_size =	other._client_header_buffer_size;
+	this->_client_header_timeout =	other._client_header_timeout;
+	this->_client_maxbody_size =	other._client_maxbody_size;
+	this->_keepaliverequests =	other._keepaliverequests;
+	this->_keepalive_timeout =	other._keepalive_timeout;
+	this->_maxBodySize =	other._maxBodySize;
+	// this->// _locations =	other->// _locations;
+	this->_accesslog =	other._accesslog;
+	this->_default_type =	other._default_type;
+	this->_errorlog =	other._errorlog;
+	this->_port =	other._port;
+	this->_root =	other._root;
+	this->_allowmethod_set = other._allowmethod_set;
+	this->_indexpage_set = other._indexpage_set;
+	this->_server_name = other._server_name;
+    return *this;
+}
 
 ServerConfig::~ServerConfig(){}
 
 bool ServerConfig::ready_boolean_fieldvalue(const std::string &field_value)
 {
-	std::cout << field_value << std::endl;
-	return (true);
+	std::string	field_value_without_lastsemicolon = ConfigHandlingString::get_value_without_lastsemicolon(field_value);
+
+	if (field_value_without_lastsemicolon == "on")
+		return (true);
+	return (false);
 }
 
 int ServerConfig::ready_int_fieldvalue(const std::string &field_value)
 {
-	std::cout << field_value << std::endl;
-	return (0);
+	std::string	field_value_without_lastsemicolon = ConfigHandlingString::get_value_without_lastsemicolon(field_value);
+
+	return (NumericHandle::str_to_int(field_value_without_lastsemicolon));
 }
 
 size_t ServerConfig::ready_size_t_fieldvalue(const std::string &field_value)
 {
-	std::cout << field_value << std::endl;
-	return (1);
+	std::string	field_value_without_lastsemicolon = ConfigHandlingString::get_value_without_lastsemicolon(field_value);
+
+	return (static_cast<size_t>(NumericHandle::str_to_int(field_value_without_lastsemicolon)));
 }
 
 std::string ServerConfig::ready_string_fieldvalue(const std::string &field_value)
 {
-	std::cout << field_value << std::endl;
-	return ("");
+	std::string	field_value_without_lastsemicolon = ConfigHandlingString::get_value_without_lastsemicolon(field_value);
+
+	return (field_value_without_lastsemicolon);
 }
 
 std::vector<std::string> ServerConfig::ready_string_vector_fieldvalue(const std::string &field_value)
 {
 	std::vector<std::string>	anser_vector;
-	std::cout << field_value << std::endl;
+	std::string					field_value_without_lastsemicolon = ConfigHandlingString::get_value_without_lastsemicolon(field_value);
+	std::istringstream			values_splited_by_empty(field_value_without_lastsemicolon);
+	std::string					value_splited_by_empty;
+
+	while (std::getline(values_splited_by_empty, value_splited_by_empty, ' '))
+		anser_vector.push_back(value_splited_by_empty);
 	return (anser_vector);
 }
 
@@ -64,56 +131,78 @@ bool	ServerConfig::ready_serverblock_keyword(const std::string &field_key, const
 		return true;
 	if (field_key == "autoindex")
 	{
+		if (!(field_value == "on" || field_value == "off"))
+			return false;
 		this->_autoindex = this->ready_boolean_fieldvalue(field_value);
 		return true;
 	}
 	else if (field_key == "chunked_transferencoding_allow")
 	{
+		if (!(field_value == "on" || field_value == "off"))
+			return false;
 		this->_chunked_transferencoding_allow = this->ready_boolean_fieldvalue(field_value);
 		return true;
 	}
 	else if (field_key == "server_tokens")
 	{
+		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
+			return false;
 		this->_server_tokens = this->ready_int_fieldvalue(field_value);
 		return true;
 	}
 	else if (field_key == "client_body_buffer_size")
 	{
+		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
+			return false;
 		this->_client_body_buffer_size = this->ready_size_t_fieldvalue(field_value);
 		return true;
 	}
 	else if (field_key == "client_body_timeout")
 	{
+		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
+			return false;
 		this->_client_body_timeout = this->ready_size_t_fieldvalue(field_value);
 		return true;
 	}
 	else if (field_key == "client_header_buffer_size")
 	{
+		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
+			return false;
 		this->_client_header_buffer_size = this->ready_size_t_fieldvalue(field_value);
 		return true;
 	}
 	else if (field_key == "client_header_timeout")
 	{
+		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
+			return false;
 		this->_client_header_timeout = this->ready_size_t_fieldvalue(field_value);
 		return true;
 	}
 	else if (field_key == "client_maxbody_size")
 	{
+		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
+			return false;
 		this->_client_maxbody_size = this->ready_size_t_fieldvalue(field_value);
 		return true;
 	}
 	else if (field_key == "keepaliverequests")
 	{
+		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
+			return false;
 		this->_keepaliverequests = this->ready_size_t_fieldvalue(field_value);
 		return true;
 	}
 	else if (field_key == "keepalive_timeout")
 	{
+		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
+			return false;
 		this->_keepalive_timeout = this->ready_size_t_fieldvalue(field_value);
 		return true;
 	}
 	else if (field_key == "maxBodySize")
 	{
+		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
+			return false;
 		this->_maxBodySize = this->ready_size_t_fieldvalue(field_value);
 		return true;
 	}
@@ -139,6 +228,8 @@ bool	ServerConfig::ready_serverblock_keyword(const std::string &field_key, const
 	}
 	else if (field_key == "port")
 	{
+		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value))) // requestないと照合する際はstring型で扱いそうなので意図的にstd::string型にしている
+			return false;
 		this->_port = this->ready_string_fieldvalue(field_value);
 		return true;
 	}

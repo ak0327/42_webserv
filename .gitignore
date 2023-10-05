@@ -10,6 +10,9 @@
 !srcs/Error
 !srcs/Socket
 !srcs/Config
+!srcs/Config/AllConfig
+!srcs/Config/ConfigHandlingString
+!srcs/Config/IsConfigFormat
 !www
 !includes
 !test

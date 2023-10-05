@@ -17,7 +17,7 @@ bool	Config::is_config_format(const std::string &config_file_name)
 		{
 			if (in_server_block == false && in_location_block == false && IsConfigFormat::is_start_serverblock(config_line))
 				in_server_block = true;
-			else if (in_server_block == true && in_location_block == false && IsConfigFormat::is_serverblock_format(config_line, in_server_block, in_location_block, serverconfig, location_path))
+			else if (in_server_block == true && in_location_block == false && IsConfigFormat::is_serverblock_format(config_line, in_server_block, in_location_block, &serverconfig, location_path))
 			{
 				if (HandlingString::obtain_without_ows_value(config_line) == "}")
 				{
@@ -51,3 +51,8 @@ Config::Config(const std::string &config_file_name): _is_config_format(true)
 }
 
 Config::~Config(){}
+
+std::map<std::vector<std::string>, AllConfig>	Config::get_all_configs()
+{
+	return (this->_all_configs);
+}

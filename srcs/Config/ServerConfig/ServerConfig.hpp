@@ -1,6 +1,10 @@
 #ifndef SERVECONFIG_HPP
 #define	SERVECONFIG_HPP
 
+#include "../HandlingString/HandlingString.hpp"
+#include "../NumericHandle/NumericHandle.hpp"
+#include "../ConfigHandlingString/ConfigHandlingString.hpp"
+
 #include <vector>
 #include <string>
 #include <algorithm>
@@ -40,6 +44,8 @@ class ServerConfig
 		std::vector<std::string>				ready_string_vector_fieldvalue(const std::string &field_value);
 	public:
 		ServerConfig();
+		ServerConfig(const ServerConfig &other);
+		ServerConfig& operator=(const ServerConfig &other);
 		~ServerConfig();
 		//getter
 		bool									get_autoindex();

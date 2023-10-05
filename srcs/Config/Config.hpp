@@ -12,6 +12,7 @@
 #include "AllConfig/AllConfig.hpp"
 
 #include <map>
+#include <vector>
 
 // 以下のような配置構成にする必要がある　命名は最適解分からず
 // 何かしらのクラス -> AllConfigと仮称
@@ -38,6 +39,7 @@ class	Config
 		~Config();
 		bool											is_config_format(const std::string &config_file_name);
 		bool											get_is_config_format(void){ return this->_is_config_format; };
+		std::map<std::vector<std::string>, AllConfig>	get_all_configs(void);
 };
 
 #endif

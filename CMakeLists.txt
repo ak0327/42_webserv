@@ -54,6 +54,7 @@ set(webserv_srcs
 
 set(config_srcs
         srcs/HandlingString/HandlingString.cpp
+        srcs/NumericHandle/NumericHandle.cpp
         srcs/Config/AllConfig/AllConfig.cpp
         srcs/Config/ConfigHandlingString/ConfigHandlingString.cpp
         srcs/Config/LocationConfig/LocationConfig.cpp
