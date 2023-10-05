@@ -2,7 +2,7 @@
 
 AllConfig::AllConfig(){}
 
-AllConfig::AllConfig(ServerConfig &host_config, std::map<std::string, LocationConfig> &_location_config)
+AllConfig::AllConfig(const ServerConfig &host_config, const std::map<std::string, LocationConfig> &_location_config)
 {
 	this->_host_config = host_config;
 	this->_location_config = _location_config;
@@ -15,7 +15,7 @@ void	AllConfig::set_host_config(const ServerConfig &host_config)
 	this->_host_config = host_config;
 }
 
-void	AllConfig::set_location_config(const std::string &location_path, LocationConfig &location_config)
+void	AllConfig::set_location_config(const std::string &location_path, const LocationConfig &location_config)
 {
 	this->_location_config[location_path] = location_config;
 }

@@ -1,6 +1,7 @@
-#ifndef SRCS_HANDLINGSTRING_CONFIGHANDLINGSTRING_CONFIGHANDLINGSTRINGHPP_
-#define SRCS_HANDLINGSTRING_CONFIGHANDLINGSTRING_CONFIGHANDLINGSTRINGHPP_
+#ifndef SRCS_CONFIG_CONFIGHANDLINGSTRING_CONFIGHANDLINGSTRING_HPP_
+#define SRCS_CONFIG_CONFIGHANDLINGSTRING_CONFIGHANDLINGSTRING_HPP_
 
+#include <string>
 #include "../../HandlingString/HandlingString.hpp"
 
 class ConfigHandlingString
@@ -13,4 +14,4 @@ class ConfigHandlingString
 		static	std::string	get_value_without_lastsemicolon(const std::string &value);
 };
 
-#endif
+#endif  // SRCS_CONFIG_CONFIGHANDLINGSTRING_CONFIGHANDLINGSTRING_HPP_

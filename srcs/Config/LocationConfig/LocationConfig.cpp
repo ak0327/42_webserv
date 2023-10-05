@@ -76,10 +76,12 @@ bool	LocationConfig::ready_locationblock_keyword(const std::string &field_key, c
 	field_keys.push_back("alias");
 	field_keys.push_back("upload_path");
 	field_keys.push_back("error_page");
-	field_keys.push_back("return"); //未実装
+	field_keys.push_back("return");  // 未実装
 
 	if (std::find(field_keys.begin(), field_keys.end(), field_key) == field_keys.end())
+	{
 		return false;
+	}
     if (field_key == "autoindex")
     {
 		if (!(field_value == "on" || field_value == "off"))

@@ -228,7 +228,8 @@ bool	ServerConfig::ready_serverblock_keyword(const std::string &field_key, const
 	}
 	else if (field_key == "port")
 	{
-		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value))) // requestないと照合する際はstring型で扱いそうなので意図的にstd::string型にしている
+		// requestないと照合する際はstring型で扱いそうなので意図的にstd::string型にしている
+		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
 		this->_port = this->ready_string_fieldvalue(field_value);
 		return true;
@@ -262,7 +263,10 @@ void	ServerConfig::set_chunked_transferencoding_allow(const bool &boolean){ this
 void	ServerConfig::set_server_tokens(const int &server_tokens){ this->_server_tokens = server_tokens; }
 void	ServerConfig::set_client_body_buffer_size(const size_t &client_body_buffer_size){ this->_client_body_buffer_size = client_body_buffer_size; }
 void	ServerConfig::set_client_body_timeout(const size_t &client_body_timeout){ this->_client_body_timeout = client_body_timeout; }
-void	ServerConfig::set_client_header_buffer_size(const size_t &client_header_buffer_size) { this->_client_header_buffer_size = client_header_buffer_size; }
+void	ServerConfig::set_client_header_buffer_size(const size_t &client_header_buffer_size)
+{
+	this->_client_header_buffer_size = client_header_buffer_size;
+}
 void	ServerConfig::set_client_header_timeout(const size_t &client_header_timeout) { this->_client_body_timeout = client_header_timeout; }
 void	ServerConfig::set_client_maxbody_size(const size_t &client_maxbody_size){ this->_client_maxbody_size = client_maxbody_size; }
 void	ServerConfig::set_keepaliverequests(const size_t &keepaliverequests){ this->_keepaliverequests = keepaliverequests; }
@@ -274,9 +278,9 @@ void	ServerConfig::set_default_type(const std::string &default_type){ this->_def
 void	ServerConfig::set_errorlog(const std::string &error_log){ this->_errorlog = error_log; }
 void	ServerConfig::set_port(const std::string &port){ this->_port = port; }
 void	ServerConfig::set_root(const std::string &root){ this->_root = root; }
-void	ServerConfig::set_allowmethod_set(std::vector<std::string> &allow_method_set){ this->_allowmethod_set = allow_method_set; }
-void	ServerConfig::set_indexpage_set(std::vector<std::string> &indexpage_set){ this->_indexpage_set = indexpage_set; }
-void	ServerConfig::set_server_name(std::vector<std::string> &indexpage_set){ this->_indexpage_set = indexpage_set; }
+void	ServerConfig::set_allowmethod_set(const std::vector<std::string> &allow_method_set){ this->_allowmethod_set = allow_method_set; }
+void	ServerConfig::set_indexpage_set(const std::vector<std::string> &indexpage_set){ this->_indexpage_set = indexpage_set; }
+void	ServerConfig::set_server_name(const std::vector<std::string> &indexpage_set){ this->_indexpage_set = indexpage_set; }
 
 bool	ServerConfig::get_autoindex(){ return (this->_autoindex); }
 bool	ServerConfig::get_chunked_transferencoding_allow(){ return (this->_chunked_transferencoding_allow); }

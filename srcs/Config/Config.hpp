@@ -1,18 +1,16 @@
-#ifndef SRSC_CONFIG_CONFIG_HPP
-#define SRSC_CONFIG_CONFIG_HPP
+#ifndef SRCS_CONFIG_CONFIG_HPP_
+#define SRCS_CONFIG_CONFIG_HPP_
 
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <map>
+#include <vector>
 #include "../HandlingString/HandlingString.hpp"
-#include "ConfigHandlingString/ConfigHandlingString.hpp"
 #include "ConfigHandlingString/ConfigHandlingString.hpp"
 #include "IsConfigFormat/IsConfigFormat.hpp"
 #include "ServerConfig/ServerConfig.hpp"
 #include "AllConfig/AllConfig.hpp"
-
-#include <map>
-#include <vector>
 
 // 以下のような配置構成にする必要がある　命名は最適解分からず
 // 何かしらのクラス -> AllConfigと仮称
@@ -35,11 +33,11 @@ class	Config
 		std::map<std::vector<std::string>, AllConfig>	_all_configs;
 
 	public:
-		Config(const std::string &config_file_name);
+		explicit Config(const std::string &config_file_name);
 		~Config();
 		bool											is_config_format(const std::string &config_file_name);
-		bool											get_is_config_format(void){ return this->_is_config_format; };
+		bool											get_is_config_format(void){ return this->_is_config_format; }
 		std::map<std::vector<std::string>, AllConfig>	get_all_configs(void);
 };
 
-#endif
+#endif  // SRCS_CONFIG_CONFIG_HPP_

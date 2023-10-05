@@ -1,9 +1,5 @@
-#ifndef SERVECONFIG_HPP
-#define	SERVECONFIG_HPP
-
-#include "../HandlingString/HandlingString.hpp"
-#include "../NumericHandle/NumericHandle.hpp"
-#include "../ConfigHandlingString/ConfigHandlingString.hpp"
+#ifndef SRCS_CONFIG_SERVERCONFIG_SERVERCONFIG_HPP_
+#define	SRCS_CONFIG_SERVERCONFIG_SERVERCONFIG_HPP_
 
 #include <vector>
 #include <string>
@@ -11,6 +7,9 @@
 #include <map>
 #include <iostream>
 #include <sstream>
+#include "../HandlingString/HandlingString.hpp"
+#include "../NumericHandle/NumericHandle.hpp"
+#include "../ConfigHandlingString/ConfigHandlingString.hpp"
 
 class ServerConfig
 {
@@ -47,7 +46,7 @@ class ServerConfig
 		ServerConfig(const ServerConfig &other);
 		ServerConfig& operator=(const ServerConfig &other);
 		~ServerConfig();
-		//getter
+		// getter
 		bool									get_autoindex();
 		bool									get_chunked_transferencoding_allow();
 		// ErrorPage 							get_errorpage;
@@ -69,7 +68,7 @@ class ServerConfig
 		std::vector<std::string>				get_allowmethod_set();
 		std::vector<std::string>				get_indexpage_set();
 		std::vector<std::string>				get_server_name();
-		//setter
+		// setter
 		void									set_autoindex(const bool &boolean);
 		void									set_chunked_transferencoding_allow(const bool &boolean);
 		// void									set_errorpage;
@@ -88,12 +87,12 @@ class ServerConfig
 		void									set_errorlog(const std::string &error_log);
 		void									set_port(const std::string &port);
 		void									set_root(const std::string &root);
-		void									set_allowmethod_set(std::vector<std::string> &allow_method_set);
-		void									set_indexpage_set(std::vector<std::string> &indexpag_set);
-		void									set_server_name(std::vector<std::string> &indexpage_set);
+		void									set_allowmethod_set(const std::vector<std::string> &allow_method_set);
+		void									set_indexpage_set(const std::vector<std::string> &indexpag_set);
+		void									set_server_name(const std::vector<std::string> &indexpage_set);
 		// 関数
 		bool									ready_serverblock_keyword(const std::string &fiels_key, const std::string &field_value);
 		void									clear_serverconfig();
 };
 
-#endif
+#endif  // SRCS_CONFIG_SERVERCONFIG_SERVERCONFIG_HPP_

@@ -1,3 +1,4 @@
+#include <string>
 #include "ConfigHandlingString.hpp"
 
 bool ConfigHandlingString::is_nomeanig_line(const std::string &line)

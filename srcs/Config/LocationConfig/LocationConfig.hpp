@@ -1,14 +1,13 @@
-#ifndef LOCATIONINFS_HPP
-#define	LOCATIONINFS_HPP
-
-#include "../HandlingString/HandlingString.hpp"
-#include "../NumericHandle/NumericHandle.hpp"
-#include "../ConfigHandlingString/ConfigHandlingString.hpp"
+#ifndef SRCS_CONFIG_LOCATIONCONFIG_LOCATIONCONFIG_HPP_
+#define	SRCS_CONFIG_LOCATIONCONFIG_LOCATIONCONFIG_HPP_
 
 #include <string>
 #include <sstream>
 #include <iostream>
 #include <vector>
+#include "../HandlingString/HandlingString.hpp"
+#include "../NumericHandle/NumericHandle.hpp"
+#include "../ConfigHandlingString/ConfigHandlingString.hpp"
 
 class LocationConfig
 {
@@ -71,4 +70,4 @@ class LocationConfig
 		bool									ready_locationblock_keyword(const std::string &field_key, const std::string &field_value);
 };
 
-#endif
+#endif  // SRCS_CONFIG_LOCATIONCONFIG_LOCATIONCONFIG_HPP_
