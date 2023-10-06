@@ -33,7 +33,9 @@ ServerConfig::ServerConfig(const ServerConfig &other)
 ServerConfig& ServerConfig::operator=(const ServerConfig &other)
 {
     if (this == &other)
+	{
         return *this;
+	}
 	this->_autoindex =	other._autoindex;
 	this->_chunked_transferencoding_allow =	other._chunked_transferencoding_allow;
 	// this->// _errorpage;  // これめっちゃおかしい使い方 =	other->// _errorpage;  // これめっちゃおかしい使い方で
