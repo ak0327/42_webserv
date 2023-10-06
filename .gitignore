@@ -32,3 +32,6 @@
 !CMakeLists.txt
 !CPPLINT.cfg
 Dockerfile
+
+!test/unit_test/
+!test/unit_test/*
