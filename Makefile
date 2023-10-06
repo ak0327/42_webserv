@@ -97,13 +97,6 @@ run_config_test	:
 	cmake --build build
 	./build/unit_test --gtest_filter=ConfigReading*
 
-.PHONY	: run_utils_test
-run_utils_test	:
-	#rm -rf build
-	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
-	cmake --build build
-	./build/unit_test --gtest_filter=UtilTest*
-
 .PHONY	: run_config_reading_test
 run_config_reading_test	:
 	#rm -rf build
