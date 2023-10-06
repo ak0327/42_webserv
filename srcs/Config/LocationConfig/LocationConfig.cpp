@@ -40,7 +40,7 @@ std::vector<std::string>	LocationConfig::ready_string_vector_fieldvalue(const st
 {
 	std::vector<std::string>	anser_vector;
 	std::string					field_value_without_lastsemicolon = ConfigHandlingString::get_value_without_lastsemicolon(field_value);
-	std::ifstream				values_splited_by_empty(field_value_without_lastsemicolon);
+	std::istringstream			values_splited_by_empty(field_value_without_lastsemicolon);
 	std::string					value_splited_by_empty;
 
 	while (std::getline(values_splited_by_empty, value_splited_by_empty, ' '))
