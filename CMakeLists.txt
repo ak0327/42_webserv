@@ -58,7 +58,7 @@ set(config_srcs
         srcs/Config/AllConfig/AllConfig.cpp
         srcs/Config/ConfigHandlingString/ConfigHandlingString.cpp
         srcs/Config/LocationConfig/LocationConfig.cpp
-        srcs/Config/ServerConfig/Serverconfig.cpp
+        srcs/Config/ServerConfig/ServerConfig.cpp
         srcs/Config/IsConfigFormat/IsConfigFormat.cpp
         srcs/Config/Config.cpp
 )
