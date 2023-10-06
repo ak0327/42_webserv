@@ -43,7 +43,7 @@ bool	Config::is_config_format(const std::string &config_file_name)
 
 Config::Config(const std::string &config_file_name): _is_config_format(true)
 {
-	std::ifstream	test_open(config_file_name);
+	std::ifstream	test_open(config_file_name.c_str());
 
 	if (!(test_open.is_open() && this->is_config_format(config_file_name)))
 	{
