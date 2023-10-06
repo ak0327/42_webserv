@@ -2,7 +2,7 @@
 
 bool	Config::is_config_format(const std::string &config_file_name)
 {
-	std::ifstream	config_lines(config_file_name);
+	std::ifstream	config_lines(config_file_name.c_str());
 	std::string		config_line;
 	std::string		location_path;
 	ServerConfig	serverconfig;
