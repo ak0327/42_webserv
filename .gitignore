@@ -8,6 +8,8 @@
 !srcs
 !srcs/Debug
 !srcs/Error
+!srcs/HandlingString
+!srcs/NumericHandle
 !srcs/Socket
 !srcs/Config
 !www
