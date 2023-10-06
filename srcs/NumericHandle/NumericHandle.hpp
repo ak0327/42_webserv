@@ -1,6 +1,7 @@
 #ifndef SRCS_NUMERICHANDLE_NUMERICHANDLE_HPP_
 #define SRCS_NUMERICHANDLE_NUMERICHANDLE_HPP_
 
+#include <climits>
 #include <string>
 #include <sstream>
 
