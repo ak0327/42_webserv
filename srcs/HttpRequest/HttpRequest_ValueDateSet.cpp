@@ -2,7 +2,7 @@
 
 ValueDateSet* HttpRequest::ready_ValueDateSet(const std::string &value)
 {
-	return (new ValueDateSet(HandlingString::obtain_withoutows_value(value)));
+	return (new ValueDateSet(StringHandler::obtain_withoutows_value(value)));
 }
 
 // dateクラス
@@ -27,7 +27,7 @@ void	HttpRequest::set_date(const std::string &key, const std::string &value)
 	std::getline(sss, day, ' ');
 	if (day.length() != 2)
 		return;
-	if (!(1 <= HandlingString::str_to_int(day) || HandlingString::str_to_int(day) <= 31))
+	if (!(1 <= StringHandler::str_to_int(day) || StringHandler::str_to_int(day) <= 31))
 		return;
 	std::getline(sss, month, ' ');
 	std::getline(sss, year, ' ');
@@ -35,13 +35,13 @@ void	HttpRequest::set_date(const std::string &key, const std::string &value)
 	std::getline(sss, hour_minute_second, ' ');
 	std::stringstream	ssss(hour_minute_second);
 	std::getline(ssss, hour, ':');
-	if (!(0 <= HandlingString::str_to_int(hour) || HandlingString::str_to_int(hour) <= 60))
+	if (!(0 <= StringHandler::str_to_int(hour) || StringHandler::str_to_int(hour) <= 60))
 		return;
 	std::getline(ssss, minute, ':');
-	if (!(0 <= HandlingString::str_to_int(minute) || HandlingString::str_to_int(minute) <= 60))
+	if (!(0 <= StringHandler::str_to_int(minute) || StringHandler::str_to_int(minute) <= 60))
 		return;
 	std::getline(ssss, second, ':');
-	if (!(0 <= HandlingString::str_to_int(second) || HandlingString::str_to_int(second) <= 60))
+	if (!(0 <= StringHandler::str_to_int(second) || StringHandler::str_to_int(second) <= 60))
 		return;
 	this->_request_keyvalue_map[key] = this->ready_ValueDateSet(value);
 }
@@ -67,7 +67,7 @@ void	HttpRequest::set_if_modified_since(const std::string &key, const std::strin
 	std::getline(sss, day, ' ');
 	if (day.length() != 2)
 		return;
-	if (!(1 <= HandlingString::str_to_int(day) || HandlingString::str_to_int(day) <= 31))
+	if (!(1 <= StringHandler::str_to_int(day) || StringHandler::str_to_int(day) <= 31))
 		return;
 	std::getline(sss, month, ' ');
 	std::getline(sss, year, ' ');
@@ -75,13 +75,13 @@ void	HttpRequest::set_if_modified_since(const std::string &key, const std::strin
 	std::getline(sss, hour_minute_second, ' ');
 	std::stringstream	ssss(hour_minute_second);
 	std::getline(ssss, hour, ':');
-	if (!(0 <= HandlingString::str_to_int(hour) || HandlingString::str_to_int(hour) <= 60))
+	if (!(0 <= StringHandler::str_to_int(hour) || StringHandler::str_to_int(hour) <= 60))
 		return;
 	std::getline(ssss, minute, ':');
-	if (!(0 <= HandlingString::str_to_int(minute) || HandlingString::str_to_int(minute) <= 60))
+	if (!(0 <= StringHandler::str_to_int(minute) || StringHandler::str_to_int(minute) <= 60))
 		return;
 	std::getline(ssss, second, ':');
-	if (!(0 <= HandlingString::str_to_int(second) || HandlingString::str_to_int(second) <= 60))
+	if (!(0 <= StringHandler::str_to_int(second) || StringHandler::str_to_int(second) <= 60))
 		return;
 	this->_request_keyvalue_map[key] = this->ready_ValueDateSet(value);
 }
@@ -107,7 +107,7 @@ void	HttpRequest::set_if_unmodified_since(const std::string &key, const std::str
 	std::getline(sss, day, ' ');
 	if (day.length() != 2)
 		return;
-	if (!(1 <= HandlingString::str_to_int(day) || HandlingString::str_to_int(day) <= 31))
+	if (!(1 <= StringHandler::str_to_int(day) || StringHandler::str_to_int(day) <= 31))
 		return;
 	std::getline(sss, month, ' ');
 	std::getline(sss, year, ' ');
@@ -115,13 +115,13 @@ void	HttpRequest::set_if_unmodified_since(const std::string &key, const std::str
 	std::getline(sss, hour_minute_second, ' ');
 	std::stringstream	ssss(hour_minute_second);
 	std::getline(ssss, hour, ':');
-	if (!(0 <= HandlingString::str_to_int(hour) || HandlingString::str_to_int(hour) <= 60))
+	if (!(0 <= StringHandler::str_to_int(hour) || StringHandler::str_to_int(hour) <= 60))
 		return;
 	std::getline(ssss, minute, ':');
-	if (!(0 <= HandlingString::str_to_int(minute) || HandlingString::str_to_int(minute) <= 60))
+	if (!(0 <= StringHandler::str_to_int(minute) || StringHandler::str_to_int(minute) <= 60))
 		return;
 	std::getline(ssss, second, ':');
-	if (!(0 <= HandlingString::str_to_int(second) || HandlingString::str_to_int(second) <= 60))
+	if (!(0 <= StringHandler::str_to_int(second) || StringHandler::str_to_int(second) <= 60))
 		return;
 	this->_request_keyvalue_map[key] = this->ready_ValueDateSet(value);
 }
@@ -147,7 +147,7 @@ void	HttpRequest::set_last_modified(const std::string &key, const std::string &v
 	std::getline(sss, day, ' ');
 	if (day.length() != 2)
 		return;
-	if (!(1 <= HandlingString::str_to_int(day) || HandlingString::str_to_int(day) <= 31))
+	if (!(1 <= StringHandler::str_to_int(day) || StringHandler::str_to_int(day) <= 31))
 		return;
 	std::getline(sss, month, ' ');
 	std::getline(sss, year, ' ');
@@ -155,13 +155,13 @@ void	HttpRequest::set_last_modified(const std::string &key, const std::string &v
 	std::getline(sss, hour_minute_second, ' ');
 	std::stringstream	ssss(hour_minute_second);
 	std::getline(ssss, hour, ':');
-	if (!(0 <= HandlingString::str_to_int(hour) || HandlingString::str_to_int(hour) <= 60))
+	if (!(0 <= StringHandler::str_to_int(hour) || StringHandler::str_to_int(hour) <= 60))
 		return;
 	std::getline(ssss, minute, ':');
-	if (!(0 <= HandlingString::str_to_int(minute) || HandlingString::str_to_int(minute) <= 60))
+	if (!(0 <= StringHandler::str_to_int(minute) || StringHandler::str_to_int(minute) <= 60))
 		return;
 	std::getline(ssss, second, ':');
-	if (!(0 <= HandlingString::str_to_int(second) || HandlingString::str_to_int(second) <= 60))
+	if (!(0 <= StringHandler::str_to_int(second) || StringHandler::str_to_int(second) <= 60))
 		return;
 	this->_request_keyvalue_map[key] = this->ready_ValueDateSet(value);
 }

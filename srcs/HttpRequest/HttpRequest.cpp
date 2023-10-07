@@ -18,7 +18,7 @@ HttpRequest::HttpRequest(const std::string &all_request_text):_status_code(200)
 	this->_request_line.set_value(line);
 	while (std::getline(ss, line, '\n'))
 	{
-		if (HandlingString::is_end_with_cr(line) == false)
+		if (StringHandler::is_end_with_cr(line) == false)
 		{
 			this->_status_code = 400;
 			return;
@@ -29,7 +29,7 @@ HttpRequest::HttpRequest(const std::string &all_request_text):_status_code(200)
 			this->_status_code = 400;
 			return;
 		}
-		if (HandlingString::is_printable_content(remove_crlf_word) == false)
+		if (StringHandler::is_printable_content(remove_crlf_word) == false)
 		{
 			this->_status_code = 400;
 			return;
@@ -70,7 +70,7 @@ bool HttpRequest::is_requestlineformat(std::string input_requestline)
 			return (false);
 		if (i == 2)
 		{
-			if (HandlingString::is_end_with_cr(input_requestline.substr(pos)) == false)
+			if (StringHandler::is_end_with_cr(input_requestline.substr(pos)) == false)
 				return (false);
 			if (input_requestline.substr(pos, input_requestline.length() - pos - 1).find(' ') != std::string::npos)
 				return (false);
@@ -110,7 +110,7 @@ bool	HttpRequest::is_requestformat(const std::string &val)
 
 	if (pos == 0 || pos == std::string::npos)
 		return (false);
-	if (HandlingString::is_ows(val[pos - 1]))
+	if (StringHandler::is_ows(val[pos - 1]))
 		return (false);
 	return (true);
 }
@@ -138,7 +138,7 @@ bool	HttpRequest::is_weightformat(const std::string &value)
 	if (weight_key != "q")
 		return (false);
 	weight_num = field_value_weight.substr(field_value_weight.find('=') + 1);
-	return HandlingString::is_positive_under_intmax_double(weight_num);
+	return StringHandler::is_positive_under_intmax_double(weight_num);
 }
 
 // まだできてない

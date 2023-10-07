@@ -56,7 +56,9 @@ void HttpRequest::set_accept(const std::string &key, const std::string &value)
 			changed_line = line;
 		if (changed_line.find(';') != std::string::npos)
 		{
-			if (HandlingString::is_positive_under_intmax_double(HandlingString::obtain_weight(HandlingString::obtain_word_after_delimiter(changed_line, ';'))) == false)
+			if (StringHandler::is_positive_under_intmax_double(
+					StringHandler::obtain_weight(StringHandler::obtain_word_after_delimiter(
+							changed_line, ';'))) == false)
 				return;
 		}
 	}
@@ -77,7 +79,9 @@ void	HttpRequest::set_accept_charset(const std::string &key, const std::string &
 			changed_line = line;
 		if (changed_line.find(';') != std::string::npos)
 		{
-			if (HandlingString::is_positive_under_intmax_double(HandlingString::obtain_weight(HandlingString::obtain_word_after_delimiter(changed_line, ';'))) == false)
+			if (StringHandler::is_positive_under_intmax_double(
+					StringHandler::obtain_weight(
+							StringHandler::obtain_word_after_delimiter(changed_line, ';'))) == false)
 				return;
 		}
 	}
@@ -101,7 +105,7 @@ void	HttpRequest::set_accept_encoding(const std::string &key, const std::string 
 
 	while(std::getline(splited_by_commma, line, ','))
 	{
-		if (HandlingString::obtain_withoutows_value(line) != "")
+		if (StringHandler::obtain_withoutows_value(line) != "")
 		{
 			if (line.find(';') != std::string::npos)
 			{
@@ -110,11 +114,11 @@ void	HttpRequest::set_accept_encoding(const std::string &key, const std::string 
 					this->_status_code = 400;
 					return;
 				}
-				keyword = HandlingString::obtain_word_before_delimiter(line, ';');
+				keyword = StringHandler::obtain_word_before_delimiter(line, ';');
 			}
 			else
 				keyword = line;
-			keyword = HandlingString::obtain_withoutows_value(keyword);
+			keyword = StringHandler::obtain_withoutows_value(keyword);
 			if (httprequest_keyset.count(keyword) > 0)
 				skipping_nokeyword = skipping_nokeyword + line + ',';
 		}
@@ -131,7 +135,7 @@ void	HttpRequest::set_accept_language(const std::string &key, const std::string 
 
 	while(std::getline(splited_by_commma, line, ','))
 	{
-		if (HandlingString::obtain_withoutows_value(line) != "")
+		if (StringHandler::obtain_withoutows_value(line) != "")
 		{
 			if (line.find(';') != std::string::npos)
 			{
@@ -140,7 +144,7 @@ void	HttpRequest::set_accept_language(const std::string &key, const std::string 
 					this->_status_code = 400;
 					return;
 				}
-				keyword = HandlingString::obtain_word_before_delimiter(line, ';');
+				keyword = StringHandler::obtain_word_before_delimiter(line, ';');
 			}
 		}
 	}
@@ -160,11 +164,11 @@ void	HttpRequest::set_te(const std::string &key, const std::string &value)
 		{
 			if (line[0] == ' ')
 				line = line.substr(1);
-			target_key = HandlingString::obtain_word_before_delimiter(line, ';');
-			target_value = HandlingString::obtain_weight(HandlingString::obtain_word_after_delimiter(line, ';'));
+			target_key = StringHandler::obtain_word_before_delimiter(line, ';');
+			target_value = StringHandler::obtain_weight(StringHandler::obtain_word_after_delimiter(line, ';'));
 			if (!(target_key == "compress" || target_key == "deflate" || target_key == "gzip" || target_key == "trailers"))
 				return;
-			if (HandlingString::is_positive_under_intmax_double(target_value) == false)
+			if (StringHandler::is_positive_under_intmax_double(target_value) == false)
 				return;
 		}
 		else

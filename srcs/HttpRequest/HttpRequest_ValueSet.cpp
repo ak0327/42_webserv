@@ -2,7 +2,7 @@
 
 ValueSet* HttpRequest::ready_ValueSet(const std::string &value)
 {
-	return (new ValueSet(HandlingString::obtain_withoutows_value(value)));
+	return (new ValueSet(StringHandler::obtain_withoutows_value(value)));
 }
 
 void	HttpRequest::set_accept_ranges(const std::string &key, const std::string &value)
@@ -27,7 +27,7 @@ void	HttpRequest::set_access_control_allow_origin(const std::string &key, const 
 
 void	HttpRequest::set_access_control_max_age(const std::string &key, const std::string &value)
 {
-	if (HandlingString::is_positive_and_under_intmax(value) == false)
+	if (StringHandler::is_positive_and_under_intmax(value) == false)
 		return;
 	this->_request_keyvalue_map[key] = this->ready_ValueSet(value);
 }
@@ -42,9 +42,9 @@ void	HttpRequest::set_access_control_request_method(const std::string &key, cons
 
 void	HttpRequest::set_age(const std::string &key, const std::string &value)
 {
-	if (HandlingString::is_positive_and_under_intmax(value) == false)
+	if (StringHandler::is_positive_and_under_intmax(value) == false)
 		return;
-	if (HandlingString::is_positive_and_under_intmax(value) == false)
+	if (StringHandler::is_positive_and_under_intmax(value) == false)
 		return;
 	this->_request_keyvalue_map[key] = this->ready_ValueSet(value);
 }
@@ -64,9 +64,9 @@ void	HttpRequest::set_connection(const std::string &key, const std::string &valu
 
 void	HttpRequest::set_content_length(const std::string &key, const std::string &value)
 {
-	if (HandlingString::is_positive_and_under_intmax(value) == false)
+	if (StringHandler::is_positive_and_under_intmax(value) == false)
 		return;
-	if (HandlingString::is_positive_and_under_intmax(value) == false)
+	if (StringHandler::is_positive_and_under_intmax(value) == false)
 		return;
 	this->_request_keyvalue_map[key] = this->ready_ValueSet(value);
 }
@@ -134,7 +134,7 @@ void	HttpRequest::set_location(const std::string &key, const std::string &value)
 
 void	HttpRequest::set_max_forwards(const std::string &key, const std::string &value)
 {
-	if (HandlingString::is_positive_and_under_intmax(value))
+	if (StringHandler::is_positive_and_under_intmax(value))
 		this->_request_keyvalue_map[key] = this->ready_ValueSet(value);
 	else
 		return;
@@ -236,9 +236,9 @@ void	HttpRequest::set_sourcemap(const std::string &key, const std::string &value
 
 void	HttpRequest::set_upgrade_insecure_requests(const std::string &key, const std::string &value)
 {
-	if (HandlingString::is_positive_and_under_intmax(value) == false)
+	if (StringHandler::is_positive_and_under_intmax(value) == false)
 		return;
-	if (HandlingString::is_positive_and_under_intmax(value) == false)
+	if (StringHandler::is_positive_and_under_intmax(value) == false)
 		return;
 	this->_request_keyvalue_map[key] = ready_ValueSet(value);
 }

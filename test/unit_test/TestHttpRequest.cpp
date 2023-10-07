@@ -1,4 +1,4 @@
-#include "../../srcs/HandlingString/HandlingString.hpp"
+#include "../../srcs/StringHandler/StringHandler.hpp"
 #include "../../srcs/HttpRequest/ValueSet/ValueSet.hpp"
 #include "../../srcs/HttpRequest/TwoValueSet/TwoValueSet.hpp"
 #include "../../srcs/HttpRequest/RequestLine/RequestLine.hpp"
@@ -457,7 +457,7 @@ TEST(Request, TEST2_include_empty)
 	EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
 }
 
-// g++ *.cpp ../HandleString/HandlingString.cpp
+// g++ *.cpp ../HandleString/StringHandler.cpp
 
 // GET /path/to/resource HTTP/1.1
 // X-Forwarded-For: 192.168.1.1

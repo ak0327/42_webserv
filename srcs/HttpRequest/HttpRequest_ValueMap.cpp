@@ -7,8 +7,8 @@ ValueMap* HttpRequest::ready_ValueMap(const std::string &value, char delimiter)
 	std::string							line;
 
 	while(std::getline(ss, line, delimiter))
-		value_map[HandlingString::obtain_word_before_delimiter(HandlingString::obtain_withoutows_value(line), '=')] \
-		= HandlingString::obtain_word_after_delimiter(HandlingString::obtain_withoutows_value(line), '=');
+		value_map[StringHandler::obtain_word_before_delimiter(StringHandler::obtain_withoutows_value(line), '=')] \
+		= StringHandler::obtain_word_after_delimiter(StringHandler::obtain_withoutows_value(line), '=');
 	return (new ValueMap(value_map));
 }
 
@@ -19,8 +19,8 @@ ValueMap* HttpRequest::ready_ValueMap(const std::string &value)
 	std::string			line;
 
 	while(std::getline(ss, line, ';'))
-		value_map[HandlingString::obtain_word_before_delimiter(HandlingString::obtain_withoutows_value(line), '=')] \
-		= HandlingString::obtain_word_after_delimiter(HandlingString::obtain_withoutows_value(line), '=');
+		value_map[StringHandler::obtain_word_before_delimiter(StringHandler::obtain_withoutows_value(line), '=')] \
+		= StringHandler::obtain_word_after_delimiter(StringHandler::obtain_withoutows_value(line), '=');
 	return (new ValueMap(value_map));
 }
 
@@ -33,9 +33,9 @@ ValueMap* HttpRequest::ready_ValueMap(const std::string &only_value, const std::
 
 	while(std::getline(ss, line, ';'))
 	{
-		skipping_word = HandlingString::obtain_withoutows_value(line);
-		value_map[HandlingString::obtain_word_before_delimiter(skipping_word, '=')] \
-		= HandlingString::obtain_withoutows_value(HandlingString::obtain_word_after_delimiter(skipping_word, '='));
+		skipping_word = StringHandler::obtain_withoutows_value(line);
+		value_map[StringHandler::obtain_word_before_delimiter(skipping_word, '=')] \
+		= StringHandler::obtain_withoutows_value(StringHandler::obtain_word_after_delimiter(skipping_word, '='));
 	}
 	return (new ValueMap(only_value, value_map));
 }

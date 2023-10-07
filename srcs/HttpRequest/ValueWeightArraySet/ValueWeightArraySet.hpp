@@ -3,7 +3,7 @@
 
 #include <map>
 #include <string>
-#include "../../HandlingString/HandlingString.hpp"
+#include "../../StringHandler/StringHandler.hpp"
 #include "../BaseKeyValueMap/BaseKeyValueMap.hpp"
 
 class ValueWeightArraySet: public BaseKeyValueMap

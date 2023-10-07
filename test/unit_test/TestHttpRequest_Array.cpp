@@ -1,4 +1,4 @@
-#include "../../srcs/HandlingString/HandlingString.hpp"
+#include "../../srcs/StringHandler/StringHandler.hpp"
 #include "../../srcs/HttpRequest/ValueSet/ValueSet.hpp"
 #include "../../srcs/HttpRequest/TwoValueSet/TwoValueSet.hpp"
 #include "../../srcs/HttpRequest/RequestLine/RequestLine.hpp"
