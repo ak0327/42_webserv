@@ -175,4 +175,12 @@ run_httprequest_array_test    :
 	cmake --build build
 	./build/unit_test --gtest_filter=Array*
 
+.PHONY    : run_string_test
+run_string_test    :
+#rm -rf build
+	cmake -S . -B build
+	cmake --build build
+	./build/unit_test --gtest_filter=TestStringHandler*
+
+
 -include $(DEPS)

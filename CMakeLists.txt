@@ -35,7 +35,7 @@ include_directories(
         srcs/Debug
         srcs/Error
         srcs/Socket
-        srcs/HandlingString
+        srcs/StringHandler
         srcs/HttpRequest/BaseKeyValueMap
         srcs/HttpRequest/HttpRequest
         srcs/HttpRequest/RequestLine
@@ -55,7 +55,7 @@ set(webserv_srcs
         srcs/Debug/Debug.cpp
         srcs/Error/Error.cpp
         srcs/Socket/Socket.cpp
-        srcs/HandlingString/HandlingString.cpp
+        srcs/StringHandler/StringHandler.cpp
         srcs/HttpRequest/BaseKeyValueMap/BaseKeyValueMap.cpp
         srcs/HttpRequest/HttpRequest.cpp
         srcs/HttpRequest/HttpRequest_LinkClass.cpp
@@ -94,6 +94,7 @@ set (unit_test_srcs
         test/unit_test/TestHttpRequest_List.cpp
         test/unit_test/TestHttpRequest_TwoValueSet.cpp
         test/unit_test/TestHttpRequest_Array.cpp
+        test/unit_test/TestStringHandler.cpp
 )
 
 add_executable(unit_test
