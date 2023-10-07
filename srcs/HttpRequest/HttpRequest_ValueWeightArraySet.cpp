@@ -10,12 +10,12 @@ ValueWeightArraySet*	HttpRequest::ready_ValueWeightArraySet(const std::string &v
 
 	while(std::getline(splited_by_commma, line, ','))
 	{
-		changed_line = HandlingString::obtain_withoutows_value(line);
+		changed_line = StringHandler::obtain_withoutows_value(line);
 		if (changed_line.find(';') != std::string::npos)
 		{
-			target_value = HandlingString::obtain_weight(HandlingString::obtain_word_after_delimiter(changed_line, ';'));
-			value_map[HandlingString::obtain_word_before_delimiter(changed_line, ';')] = \
-			HandlingString::str_to_double(HandlingString::obtain_weight(HandlingString::obtain_word_after_delimiter(changed_line, ';')));
+			target_value = StringHandler::obtain_weight(StringHandler::obtain_word_after_delimiter(changed_line, ';'));
+			value_map[StringHandler::obtain_word_before_delimiter(changed_line, ';')] = \
+			StringHandler::str_to_double(StringHandler::obtain_weight(StringHandler::obtain_word_after_delimiter(changed_line, ';')));
 		}
 		else
 			value_map[changed_line] = 1.0;
