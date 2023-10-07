@@ -23,9 +23,9 @@ SRCS		+=	$(DEBUG_DIR)/Debug.cpp
 SOCKET_DIR	=	Socket
 SRCS		+=	$(SOCKET_DIR)/Socket.cpp
 
-#handlestr
-HANDLE_STR_DIR	=	HandlingString
-SRCS		+= $(HANDLE_STR_DIR)/HandlingString.cpp
+#StringHandler
+STR_HANDLER	=	StringHandler
+SRCS		+= $(STR_HANDLER)/StringHandler.cpp
 
 #httprequest
 REQUEST_DIR	=	HttpRequest
@@ -65,7 +65,7 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(DEBUG_DIR) \
 				$(SRCS_DIR)/$(ERROR_DIR) \
 				$(SRCS_DIR)/$(SOCKET_DIR) \
-				$(SRCS_DIR)/$(HANDLE_STR_DIR) \
+				$(SRCS_DIR)/$(STR_HANDLER) \
 				$(SRCS_DIR)/$(REQUEST_DIR) \
 				$(SRCS_DIR)/$(REQUEST_DIR)/BaseKeyValueMap \
 				$(SRCS_DIR)/$(REQUEST_DIR)/LinkClass \
