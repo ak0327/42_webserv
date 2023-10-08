@@ -12,5 +12,8 @@ bool ConfigHandlingString::is_nomeanig_line(const std::string &line)
 
 std::string	ConfigHandlingString::get_value_without_lastsemicolon(const std::string &value)
 {
-	return (value.substr(0, value.length() - 1));
+	if (value[value.length() - 1] == ';')
+		return (value.substr(0, value.length() - 1));
+	else
+		return (value);
 }

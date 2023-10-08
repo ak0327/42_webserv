@@ -23,6 +23,7 @@ bool	Config::is_config_format(const std::string &config_file_name)
 				if (HandlingString::obtain_without_ows_value(config_line) == "}")
 				{
 					Configs.set_host_config(serverconfig);
+					std::cout << "input server name is " << *(serverconfig.get_server_name().begin()) << std::endl;
 					this->_all_configs[serverconfig.get_server_name()] = Configs;
 					Configs.clear_information();
 					serverconfig.clear_serverconfig();
@@ -35,7 +36,10 @@ bool	Config::is_config_format(const std::string &config_file_name)
 					Configs.set_location_config(location_path, locationconfig);
 			}
 			else  // 上記3つ以外の場合、状況としてはありえないためfalseになる
+			{
+				std::cout << "config line is -> " << config_line << std::endl;
 				return (false);
+			}
 		}
 	}
 	return (true);
@@ -57,4 +61,9 @@ Config::~Config(){}
 std::map<std::vector<std::string>, AllConfig>	Config::get_all_configs()
 {
 	return (this->_all_configs);
+}
+
+AllConfig Config::get_same_allconfig(const std::string servername)
+{
+	return (this->_all_configs[servername]);
 }

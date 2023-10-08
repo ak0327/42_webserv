@@ -253,6 +253,7 @@ bool	ServerConfig::ready_serverblock_keyword(const std::string &field_key, const
 	}
 	else if (field_key == "server_name")
 	{
+		std::cout << "field value is " << field_value << std::endl;
 		this->_server_name = this->ready_string_vector_fieldvalue(field_value);
 		return true;
 	}

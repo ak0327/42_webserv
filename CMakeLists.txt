@@ -77,7 +77,7 @@ set (unit_test_srcs
         test/unit_test/TestResult.cpp
         test/unit_test/TestSocket.cpp
         test/unit_test/TestIsConfigFormat.cpp
-        test/unit_test/TestIsConfig.cpp
+        test/unit_test/TestConfigReading.cpp
 )
 
 add_executable(unit_test

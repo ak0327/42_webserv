@@ -109,6 +109,6 @@ run_ready_config_test	:
 	#rm -rf build
 	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
 	cmake --build build
-	./build/unit_test --gtest_filter=ConfigTest*
+	./build/unit_test --gtest_filter=ConfigReadingTest*
 
 -include $(DEPS)
