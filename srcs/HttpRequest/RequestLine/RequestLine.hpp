@@ -1,25 +1,35 @@
-#ifndef SRCS_HTTPREQUEST_REQUESTLINE_REQUESTLINE_HPP_
-#define SRCS_HTTPREQUEST_REQUESTLINE_REQUESTLINE_HPP_
+#pragma once
 
-# include <iostream>
-# include <sstream>
 # include <string>
+# include "Result.hpp"
 
-class RequestLine
-{
-	private:
-		std::string _method;
-		std::string _request_target;
-		std::string _http_version;
-		RequestLine& operator=(const RequestLine &other);
-		RequestLine(const RequestLine &other);
-	public:
-		RequestLine();
-		~RequestLine();
-		std::string	get_method(void) const;
-		std::string get_target_page(void) const;
-		std::string	get_version(void) const;
-		void		set_value(const std::string &line);
+class RequestLine {
+ public:
+	RequestLine();
+	~RequestLine();
+
+	std::string	get_method() const;
+	std::string get_request_target() const;
+	std::string	get_http_version() const;
+
+	Result<int, int> parse_and_validate(const std::string &line);
+
+ private:
+	RequestLine& operator=(const RequestLine &other);
+	RequestLine(const RequestLine &other);
+
+	Result<int, int> parse(const std::string &line);
+	Result<int, int> validate() const;
+
+	static Result<std::string, int> parse_pos_to_delimiter(const std::string &line,
+														   std::size_t *idx,
+														   char tail_delimiter);
+
+	static bool is_valid_method(const std::string &method);
+	static bool is_valid_request_target(const std::string &request_target);
+	static bool is_valid_http_version(const std::string &http_version);
+
+	std::string _method;
+	std::string _request_target;
+	std::string _http_version;
 };
-
-#endif  // SRCS_HTTPREQUEST_REQUESTLINE_REQUESTLINE_HPP_

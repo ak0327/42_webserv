@@ -58,6 +58,7 @@ set(webserv_srcs
         srcs/Error/Error.cpp
         srcs/Socket/Socket.cpp
         srcs/StringHandler/StringHandler.cpp
+        srcs/StringHandler/HttpMessageParser.cpp
         srcs/HttpRequest/BaseKeyValueMap/BaseKeyValueMap.cpp
         srcs/HttpRequest/HttpRequest.cpp
         srcs/HttpRequest/HttpRequest_LinkClass.cpp
@@ -96,7 +97,11 @@ set (unit_test_srcs
         test/unit_test/TestHttpRequest_List.cpp
         test/unit_test/TestHttpRequest_TwoValueSet.cpp
         test/unit_test/TestHttpRequest_Array.cpp
+
+        # add
         test/unit_test/TestStringHandler.cpp
+        test/unit_test/TestHttpMessageParser.cpp
+        test/unit_test/TestRequestLine.cpp
 )
 
 add_executable(unit_test
