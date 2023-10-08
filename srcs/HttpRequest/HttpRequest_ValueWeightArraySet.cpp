@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "HttpRequest.hpp"
 
 ValueWeightArraySet*	HttpRequest::ready_ValueWeightArraySet(const std::string &value)

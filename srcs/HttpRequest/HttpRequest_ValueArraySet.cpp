@@ -1,4 +1,5 @@
 #include "HttpRequest.hpp"
+#include "HttpMessageParser.hpp"
 
 ValueArraySet* HttpRequest::ready_ValueArraySet(const std::string &all_value)
 {
@@ -7,7 +8,7 @@ ValueArraySet* HttpRequest::ready_ValueArraySet(const std::string &all_value)
 	std::string					line;
 
 	while(std::getline(ss, line, ','))
-		value_array.push_back(StringHandler::obtain_withoutows_value(line));
+		value_array.push_back(HttpMessageParser::obtain_withoutows_value(line));
 	return (new ValueArraySet(value_array));
 }
 
@@ -24,7 +25,7 @@ void	HttpRequest::set_access_control_allow_headers(const std::string &key, const
 
 	while(std::getline(ss, line, ','))
 	{
-		if (this->is_keyword_exist(StringHandler::obtain_withoutows_value(line)) == false)
+		if (this->is_keyword_exist(HttpMessageParser::obtain_withoutows_value(line)) == false)
 			return;
 	}
 	this->_request_keyvalue_map[key] = this->ready_ValueArraySet(value);
@@ -38,7 +39,7 @@ void	HttpRequest::set_access_control_allow_methods(const std::string &key, const
 
 	while(std::getline(ss, line, ','))
 	{
-		word = StringHandler::obtain_withoutows_value(line);
+		word = HttpMessageParser::obtain_withoutows_value(line);
 		if (word != "GET" && word != "HEAD" && word != "POST" && word != "PUT" && word != "PUT" && word != "DELETE" \
 		&& word != "CONNECT" && word != "OPTIONS" && word != "TRACE" && word != "PATCH")
 			return;
@@ -60,7 +61,7 @@ void	HttpRequest::set_access_control_request_headers(const std::string &key, con
 
 	while(std::getline(ss, line, ','))
 	{
-		if (this->is_keyword_exist(StringHandler::obtain_withoutows_value(line)) == false)
+		if (this->is_keyword_exist(HttpMessageParser::obtain_withoutows_value(line)) == false)
 			return;
 	}
 	this->_request_keyvalue_map[key] = this->ready_ValueArraySet(value);
@@ -74,7 +75,7 @@ void	HttpRequest::set_allow(const std::string &key, const std::string &value)
 
 	while(std::getline(ss, line, ','))
 	{
-		word = StringHandler::obtain_withoutows_value(line);
+		word = HttpMessageParser::obtain_withoutows_value(line);
 		if (word != "GET" && word != "HEAD" && word != "POST" && word != "PUT" && word != "PUT" && word != "DELETE" \
 		&& word != "CONNECT" && word != "OPTIONS" && word != "TRACE" && word != "PATCH")
 			return;
@@ -124,7 +125,7 @@ void	HttpRequest::set_transfer_encoding(const std::string &key, const std::strin
 
 	while(std::getline(ss, line, ','))
 	{
-		line_without_ows = StringHandler::obtain_withoutows_value(line);
+		line_without_ows = HttpMessageParser::obtain_withoutows_value(line);
 		if (line_without_ows != "gzip" && line_without_ows != "compress" && line_without_ows \
 		!= "deflate" && line_without_ows != "gzip" && line_without_ows != "chunked")
 			return;

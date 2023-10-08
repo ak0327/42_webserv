@@ -1,8 +1,10 @@
 #include "HttpRequest.hpp"
+#include "HttpMessageParser.hpp"
+#include "StringHandler.hpp"
 
 ValueSet* HttpRequest::ready_ValueSet(const std::string &value)
 {
-	return (new ValueSet(StringHandler::obtain_withoutows_value(value)));
+	return (new ValueSet(HttpMessageParser::obtain_withoutows_value(value)));
 }
 
 void	HttpRequest::set_accept_ranges(const std::string &key, const std::string &value)

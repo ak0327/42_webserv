@@ -73,12 +73,12 @@ TEST(TwoValuseSet, TEST2)
 {
 	const std::string TEST_REQUEST = "GET /example-page HTTP/1.1\r\nAccept-Post: application/json, appl,ication/xml\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
-	EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
+	EXPECT_EQ(httprequest_test1.get_status_code(), 400);
 }
 
 TEST(TwoValuseSet, TEST3)
 {
 	const std::string TEST_REQUEST = "GET /example-page HTTP/1.1\r\nPermission-Policy: , microphone=()\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
-	EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
+	EXPECT_EQ(httprequest_test1.get_status_code(), 400);
 }

@@ -1,4 +1,6 @@
+#include <algorithm>
 #include "HttpRequest.hpp"
+#include "HttpMessageParser.hpp"
 
 LinkClass* HttpRequest::ready_LinkClass(std::map<std::string, std::map<std::string, std::string> > link_valuemap)
 {
@@ -16,8 +18,8 @@ std::map<std::string, std::string>	HttpRequest::ready_mappingvalue(const std::st
 	while(std::getline(ss, line, ';'))
 	{
 		skipping_first_empty = line.substr(1);
-		key = StringHandler::obtain_word_before_delimiter(skipping_first_empty, '=');
-		val = StringHandler::obtain_word_after_delimiter(skipping_first_empty, '=');
+		key = HttpMessageParser::obtain_word_before_delimiter(skipping_first_empty, '=');
+		val = HttpMessageParser::obtain_word_after_delimiter(skipping_first_empty, '=');
 		words_mapping[key] = val;
 	}
 	return (words_mapping);
@@ -33,9 +35,9 @@ bool	is_list_form(const std::string &field_value_without_ows)
 		std::string	same_field_value = field_value_without_ows.substr(same_field_value_start, same_field_value_end - same_field_value_start);
 		if (same_field_value_start != 0 && std::count(same_field_value.begin(), same_field_value.end(), '=') != 1)
 			return (false);
-		std::string	key = StringHandler::obtain_word_before_delimiter(same_field_value, '=');  // = のようにkeyもvalueも空文字の場合は弾くのか
-		std::string	value = StringHandler::obtain_word_after_delimiter(same_field_value, '=');
-		if (StringHandler::obtain_withoutows_value(key) == "" || StringHandler::obtain_withoutows_value(value) == "")
+		std::string	key = HttpMessageParser::obtain_word_before_delimiter(same_field_value, '=');  // = のようにkeyもvalueも空文字の場合は弾くのか
+		std::string	value = HttpMessageParser::obtain_word_after_delimiter(same_field_value, '=');
+		if (HttpMessageParser::obtain_withoutows_value(key) == "" || HttpMessageParser::obtain_withoutows_value(value) == "")
 			return (false);
 		same_field_value_start = same_field_value_end + 1;
 		if (same_field_value_start == field_value_without_ows.size())
@@ -55,15 +57,15 @@ void	HttpRequest::set_link(const std::string &key, const std::string &value)
 
 	while(std::getline(ss, line, ','))
 	{
-		std::string	without_ows_line = StringHandler::obtain_withoutows_value(line);
+		std::string	without_ows_line = HttpMessageParser::obtain_withoutows_value(line);
 
 		if (is_list_form(without_ows_line) == false)
 		{
 			this->_status_code = 400;
 			return;
 		}
-		uri = StringHandler::obtain_word_before_delimiter(without_ows_line, ';');
-		mapping_value = StringHandler::obtain_word_after_delimiter(without_ows_line, ';');
+		uri = HttpMessageParser::obtain_word_before_delimiter(without_ows_line, ';');
+		mapping_value = HttpMessageParser::obtain_word_after_delimiter(without_ows_line, ';');
 		value_map[uri] = this->ready_mappingvalue(mapping_value);
 	}
 	this->_request_keyvalue_map[key] = this->ready_LinkClass(value_map);

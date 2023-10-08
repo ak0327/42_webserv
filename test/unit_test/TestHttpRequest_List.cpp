@@ -119,12 +119,12 @@ TEST(List, LIST_TEST_ERROR)
 {
 	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\nLink: </page1>;;;; rel=\"next\", </page2>; rel=\"prev\"\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
-	EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
+	EXPECT_EQ(httprequest_test1.get_status_code(), 400);
 }
 
 TEST(List, LIST_TEST_ERROR1)
 {
 	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\nLink: </page1>; =, </page2>; rel=\"prev\"\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
-	EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
+	EXPECT_EQ(httprequest_test1.get_status_code(), 400);
 }
