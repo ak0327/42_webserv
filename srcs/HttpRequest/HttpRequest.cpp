@@ -1,131 +1,237 @@
+#include <algorithm>
+#include <sstream>
+#include <string>
+#include <vector>
+#include "Constant.hpp"
 #include "HttpRequest.hpp"
+#include "HttpMessageParser.hpp"
+#include "Color.hpp"
 
-HttpRequest::HttpRequest(const std::string &all_request_text):_status_code(200)
-{
-	std::string			line;
-	std::string			remove_crlf_word;
-	std::string			key;
-	std::string			field_value;
-	std::stringstream	ss(all_request_text);
+/*
+ HTTP-message
+	= start-line CRLF
+	  *( field-line CRLF )
+	  CRLF
+	  [ message-body ]
+ */
+HttpRequest::HttpRequest(const std::string &input) {
+	std::stringstream	ss(input);
+	std::string 		line;
+	Result<int, int>	request_line_result;
+	Result<int, int>	field_line_result;
 
-	ready_functionmap();
-	std::getline(ss, line, '\n');
-	if (this->is_requestlineformat(line) == false)
-	{
-		this->_status_code = 400;
+	init_field_name_parser();
+
+	// start-line CRLF
+	std::getline(ss, line, LF);
+	request_line_result = this->_request_line.parse_and_validate(line);
+	if (request_line_result.is_err()) {
+		this->_status_code = STATUS_BAD_REQUEST;
 		return;
 	}
-	this->_request_line.set_value(line);
-	while (std::getline(ss, line, '\n'))
-	{
-		if (StringHandler::is_end_with_cr(line) == false)
-		{
-			this->_status_code = 400;
-			return;
-		}
-		remove_crlf_word = line.substr(0, line.length() - 1);
-		if (is_requestformat(line) == false)
-		{
-			this->_status_code = 400;
-			return;
-		}
-		if (StringHandler::is_printable_content(remove_crlf_word) == false)
-		{
-			this->_status_code = 400;
-			return;
-		}
-		key = this->obtain_request_key(line);
-		field_value = this->obtain_request_value(line);
-		field_value = field_value.substr(0, field_value.length() - 1);
-		if (this->is_keyword_exist(key) == true)
-			(this->*_field_name_parser[key])(key, field_value);
+
+	// *( field-line CRLF )
+	try {
+		field_line_result = parse_and_validate_field_lines(&ss);
+	} catch (const std::bad_alloc &e) {
+		this->_status_code = STATUS_SERVER_ERROR;
+		return;
 	}
+	if (field_line_result.is_err()) {
+		this->_status_code = STATUS_BAD_REQUEST;
+		return;
+	}
+
+	// CRLF
+	std::getline(ss, line, LF);
+	if (line != std::string(1, CR)) {
+		this->_status_code = STATUS_BAD_REQUEST;
+		return;
+	}
+
+	// [ message-body ]
+	_message_body = parse_message_body(&ss);
+
+	this->_status_code = STATUS_OK;
 }
 
 HttpRequest::~HttpRequest()
 {
-	std::map<std::string, BaseKeyValueMap*>::iterator inputed_class_itr = this->_request_keyvalue_map.begin();
+	std::map<std::string, BaseKeyValueMap*>::iterator inputed_class_itr;
 
-	while (inputed_class_itr != this->_request_keyvalue_map.end())
-	{
+	inputed_class_itr = this->_request_keyvalue_map.begin();
+	while (inputed_class_itr != this->_request_keyvalue_map.end()) {
 		delete (inputed_class_itr->second);
-		inputed_class_itr++;
+		++inputed_class_itr;
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+// field-line = field-name ":" OWS field-value OWS
+Result<int, int> HttpRequest::parse_field_line(const std::string &field_line,
+											   std::string *ret_field_name,
+											   std::string *ret_field_value) {
+	Result<std::string, int> field_name_result, field_value_result;
+	std::string			field_name, field_value;
+	std::size_t			pos;
+
+	if (!ret_field_name || !ret_field_value) { return Result<int, int>::err(NG); }
+
+	// field-name
+	pos = 0;
+	field_name_result = parse_field_name(field_line, &pos);
+	if (field_name_result.is_err()) {
+		return Result<int, int>::err(NG);
+	}
+	field_name = field_name_result.get_ok_value();
+
+	// ":"
+	if (field_line[pos] != ':') {
+		return Result<int, int>::err(NG);
+	}
+	++pos;
+
+	// OWS
+	while (HttpMessageParser::is_whitespace(field_line[pos])) {
+		++pos;
+	}
+
+	// field-value OWS
+	field_value_result = parse_field_value(field_line, &pos);
+	if (field_value_result.is_err()) {
+		return Result<int, int>::err(NG);
+	}
+	field_value = field_value_result.get_ok_value();
+
+	*ret_field_name = field_name;
+	*ret_field_value = field_value;
+	return Result<int, int>::ok(OK);
+}
+
+// field-line = field-name ":" OWS field-value OWS
+//              ^head       ^colon
+Result<std::string, int> HttpRequest::parse_field_name(const std::string &field_line,
+													   std::size_t *pos) {
+	std::size_t head_pos, colon_pos, len;
+	std::string field_name;
+
+	if (!pos) { return Result<std::string, int>::err(NG); }
+
+	head_pos = 0;
+	colon_pos = field_line.find(':', head_pos);
+	if (colon_pos == std::string::npos || colon_pos <= head_pos) {
+		return Result<std::string, int>::err(NG);
+	}
+	len = colon_pos - head_pos;
+
+	field_name = field_line.substr(head_pos, len);
+	*pos += len;
+	return Result<std::string, int>::ok(field_name);
+}
+
+// field-line CRLF
+// field-line = field-name ":" OWS field-value OWS
+//                                 ^head
+Result<std::string, int> HttpRequest::parse_field_value(const std::string &field_line,
+										   				std::size_t *head_pos) {
+	std::size_t len, ws_len;
+	std::string field_value;
+
+	if (!head_pos) { return Result<std::string, int>::err(NG); }
+
+	len = 0;
+	while (field_line[*head_pos + len]) {
+		while (field_line[*head_pos + len]
+			&& !HttpMessageParser::is_whitespace(field_line[*head_pos + len])) {
+			++len;
+		}
+		ws_len = 0;
+		while (HttpMessageParser::is_whitespace(field_line[*head_pos + len + ws_len])) {
+			++ws_len;
+		}
+		if (field_line[*head_pos + len + ws_len] == '\0') {
+			break;
+		}
+		len += ws_len;
+	}
+
+	field_value = field_line.substr(*head_pos, len);
+	*head_pos += len;
+	return Result<std::string, int>::ok(field_value);
+}
+
+// field-name = token
+bool HttpRequest::is_valid_field_name(const std::string &field_name) {
+	return HttpMessageParser::is_token(field_name);
+}
+
+// field-value = *( field-content )  // todo: empty??
+bool HttpRequest::is_valid_field_value(const std::string &field_value) {
+	if (field_value.empty()) {
+		return false;
+	}
+	if (!HttpMessageParser::is_field_content(field_value)) {
+		return false;
+	}
+	return true;
 }
 
 /*
-request-line
-	= method SP request-target SP HTTP-version
-*/
-bool HttpRequest::is_requestlineformat(std::string input_requestline)
-{
-	int			i = 0;
-	size_t		pos = 0;
+ field-line CRLF
+ field-line = field-name ":" OWS field-value OWS
+ */
+Result<int, int> HttpRequest::parse_and_validate_field_lines(std::stringstream *ss) {
+	std::string			line_end_with_cr, field_line, field_name, field_value;
+	Result<int, int> 	parse_result;
 
-	if (std::count(input_requestline.begin(), input_requestline.end(), ' ') != 2)
-		return (false);
-	while (i != 3)
-	{
-		if (input_requestline[pos] == ' ')
-			return (false);
-		if (i == 2)
-		{
-			if (StringHandler::is_end_with_cr(input_requestline.substr(pos)) == false)
-				return (false);
-			if (input_requestline.substr(pos, input_requestline.length() - pos - 1).find(' ') != std::string::npos)
-				return (false);
+	while (true) {
+		std::getline(*ss, line_end_with_cr, LF);
+		if (ss->eof()) {
+			return Result<int, int>::err(NG);
 		}
-		while (input_requestline[pos] != ' ' && pos != input_requestline.length() - 1)
-		{
-			if (isprint(input_requestline[pos]) == false)
-				return false;
-			pos++;
+		if (line_end_with_cr == std::string(CRLF)) {
+			std::streampos current_pos = ss->tellg();
+			ss->seekg(current_pos - std::streamoff(std::string(CRLF).length()));
+			break;
 		}
-		if (i != 2)
-			pos++;
-		i++;
+
+		if (!HttpMessageParser::is_end_with_cr(line_end_with_cr)) {
+			return Result<int, int>::err(NG);
+		}
+		field_line = line_end_with_cr.substr(0, line_end_with_cr.length() - 1);
+
+		parse_result = parse_field_line(field_line, &field_name, &field_value);
+		if (parse_result.is_err()) {
+			return Result<int, int>::err(NG);
+		}
+
+		if (!is_valid_field_name(field_name) || !is_valid_field_value(field_value)) {
+			return Result<int, int>::err(NG);
+		}
+
+		if (this->is_keyword_exist(field_name)) {  // todo: func name
+			(this->*_field_name_parser[field_name])(field_name, field_value);
+		}
 	}
-	return (true);
+	return Result<int, int>::ok(OK);
 }
 
-bool	HttpRequest::is_keyword_exist(const std::string &key)
+std::string HttpRequest::parse_message_body(std::stringstream *ss) {
+	return ss->str();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool HttpRequest::is_keyword_exist(const std::string &field_name)
 {
-	if (this->_field_name_parser.count(key) > 0)
+	if (this->_field_name_parser.count(field_name) > 0)
 		return true;
 	return false;
 }
 
-std::string	HttpRequest::obtain_request_key(const std::string value)
-{
-	std::stringstream	ss(value);
-	std::string			line;
-
-	std::getline(ss, line, ':');
-	return (line);
-}
-
-bool	HttpRequest::is_requestformat(const std::string &val)
-{
-	std::string::size_type pos = val.find_first_of(":");
-
-	if (pos == 0 || pos == std::string::npos)
-		return (false);
-	if (StringHandler::is_ows(val[pos - 1]))
-		return (false);
-	return (true);
-}
-
-std::string	HttpRequest::obtain_request_value(const std::string value)
-{
-	std::string::size_type pos = value.find_first_of(":");
-	std::string part2 = value.substr(pos + 2);
-
-	return (part2);
-}
-
 // weightarrayset わかりやすいように
-
-bool	HttpRequest::is_weightformat(const std::string &value)
+bool HttpRequest::is_weightformat(const std::string &value)
 {
 	size_t		semicolon_pos = value.find(';');
 	std::string	field_value_weight = value.substr(semicolon_pos + 1);
@@ -142,7 +248,7 @@ bool	HttpRequest::is_weightformat(const std::string &value)
 }
 
 // まだできてない
-void	HttpRequest::set_cache_control(const std::string &key, const std::string &value)
+void HttpRequest::set_cache_control(const std::string &key, const std::string &value)
 {
 	(void)key;
 	(void)value;
@@ -151,7 +257,7 @@ void	HttpRequest::set_cache_control(const std::string &key, const std::string &v
 	// this->_request_keyvalue_map[key] = ready_ValueWeightArraySet(value);
 }
 
-void	HttpRequest::set_content_security_policy_report_only(const std::string &key, const std::string &value)
+void HttpRequest::set_content_security_policy_report_only(const std::string &key, const std::string &value)
 {
 	(void)key;
 	(void)value;
@@ -159,7 +265,7 @@ void	HttpRequest::set_content_security_policy_report_only(const std::string &key
 	// this->_request_keyvalue_map[key] = ready_SecurityPolicy();
 }
 
-void	HttpRequest::set_servertiming(const std::string &key, const std::string &value)
+void HttpRequest::set_servertiming(const std::string &key, const std::string &value)
 {
 	// cpu;dur=2.4;a=b, cpu; ,,,みたいな感じなのでmapで保持しないほうがいいかもしれない
 	// this->_request_keyvalue_map[key] = ready_ValueMap(value);
@@ -167,13 +273,13 @@ void	HttpRequest::set_servertiming(const std::string &key, const std::string &va
 	(void)value;
 }
 
-void	HttpRequest::set_x_xss_protection(const std::string &key, const std::string &value)
+void HttpRequest::set_x_xss_protection(const std::string &key, const std::string &value)
 {
 	(void)key;
 	(void)value;
 }
 
-void HttpRequest::ready_functionmap()
+void HttpRequest::init_field_name_parser()
 {
 	this->_field_name_parser["Accept"] = &HttpRequest::set_accept;
 	this->_field_name_parser["Accept-CH"] = &HttpRequest::set_accept_ch;
@@ -262,22 +368,26 @@ void HttpRequest::ready_functionmap()
 	// this->_field_name_parser["X-Custom-Header"] = &HttpRequest::set_x_custom_header;
 }
 
-RequestLine& HttpRequest::get_request_line()
-{
-	return (this->_request_line);
+std::string HttpRequest::get_method() const {
+	return this->_request_line.get_method();
 }
 
-BaseKeyValueMap* HttpRequest::return_value(const std::string &key)
-{
-	return (this->_request_keyvalue_map[key]);
+std::string HttpRequest::get_request_target() const {
+	return this->_request_line.get_request_target();
 }
 
-std::map<std::string, BaseKeyValueMap*> HttpRequest::get_request_keyvalue_map(void)
-{
-	return (this->_request_keyvalue_map);
+std::string HttpRequest::get_http_version() const {
+	return this->_request_line.get_http_version();
 }
 
-int	HttpRequest::get_statuscode() const
-{
-	return (this->_status_code);
+BaseKeyValueMap* HttpRequest::return_value(const std::string &key) {
+	return this->_request_keyvalue_map[key];
+}
+
+std::map<std::string, BaseKeyValueMap*> HttpRequest::get_request_keyvalue_map(void) {
+	return this->_request_keyvalue_map;
+}
+
+int	HttpRequest::get_status_code() const {
+	return this->_status_code;
 }

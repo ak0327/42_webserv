@@ -1,3 +1,5 @@
+#include <string>
+#include <algorithm>
 #include "../../srcs/StringHandler/StringHandler.hpp"
 #include "../../srcs/HttpRequest/ValueSet/ValueSet.hpp"
 #include "../../srcs/HttpRequest/TwoValueSet/TwoValueSet.hpp"
@@ -13,8 +15,7 @@
 #include "../../srcs/Error/Error.hpp"
 #include "../../srcs/Debug/Debug.hpp"
 #include "Result.hpp"
-#include <string>
-#include <algorithm>
+#include "Constant.hpp"
 
 void	compare_inputvalue_truevalue_linkclass(std::map<std::string, std::map<std::string, std::string> > test_map_values, std::map<std::string, std::map<std::string, std::string> > true_map_values, size_t line)
 {
@@ -201,39 +202,43 @@ TEST(Request, SEGV)
 {
     const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\n\n\n\n";
     HttpRequest httprequest_test1(TEST_REQUEST);
-    EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
+    EXPECT_EQ(httprequest_test1.get_status_code(), 400);
 }
 
 TEST(Request, UNCORRECTFORMATREQUESTLINE1)
 {
 	const std::string TEST_REQUEST = "GET/index.htmlHTTP/1.1\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
-	EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
+	EXPECT_EQ(httprequest_test1.get_status_code(), 400);
 }
 
 TEST(Request, UNCORRECTFORMATREQUESTLINE2)
 {
 	const std::string TEST_REQUEST = "GET /index.html\nHTTP/1.1\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
-	EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
+	EXPECT_EQ(httprequest_test1.get_status_code(), 400);
 }
 
 TEST(Request, REQUESTLINETEST1)
 {
 	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
-	EXPECT_EQ(httprequest_test1.get_request_line().get_method(), "GET");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_target_page(), "/index.html");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_version(), "HTTP/1.1");
+	EXPECT_EQ(httprequest_test1.get_method(), "GET");
+	EXPECT_EQ(httprequest_test1.get_request_target(), "/index.html");
+	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
 }
 
 TEST(Request, TEST1)
 {
-	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\nHost: www.example.com   \r\nETag: some_etag\r\nUser-Agent: YourUserAgent\r\nAccept: text/html\r\n";
+	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\n"
+									 "Host: www.example.com   \r\n"
+									 "ETag: some_etag\r\n"
+									 "User-Agent: YourUserAgent\r\n"
+									 "Accept: text/html\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
-	EXPECT_EQ(httprequest_test1.get_request_line().get_method(), "GET");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_target_page(), "/index.html");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_version(), "HTTP/1.1");
+	EXPECT_EQ(httprequest_test1.get_method(), "GET");
+	EXPECT_EQ(httprequest_test1.get_request_target(), "/index.html");
+	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
 	if (same_class_test(__LINE__, "Host", httprequest_test1) == true)
 	{
 		TwoValueSet* twoval = static_cast<TwoValueSet*>(httprequest_test1.return_value("Host"));
@@ -257,36 +262,50 @@ TEST(Request, TEST1)
 
 TEST(Request, TOP_WARD_KORON)
 {
-	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\n: www.example.com\r\n";
+	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\n"
+									 ": www.example.com\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
-	EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
+	EXPECT_EQ(httprequest_test1.get_status_code(), 400);
 }
 
 TEST(Request, TEST1_CONTAIN_FORBIDDENWORD)
 {
-	const std::string TEST_REQUEST = "GET /index.html \rHTTP/1.1\r\nHost: www.example.com\r\nETag: \3some_etag\r\nUser-Agent: \7YourUserAgent\r\nAccept: text/html\r\n";
+	const std::string TEST_REQUEST = "GET /index.html \rHTTP/1.1\r\n"
+									 "Host: www.example.com\r\n"
+									 "ETag: \3some_etag\r\n"
+									 "User-Agent: \7YourUserAgent\r\n"
+									 "Accept: text/html\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
-	EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
+	EXPECT_EQ(httprequest_test1.get_status_code(), 400);
 }
 
 TEST(Request, NOT_CORRECTRY_FORMAT)
 {
-	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\nHost: www.example.com\r\nETag : some_etag\r\nUser-Agent: YourUserAgent\r\nAccept: text/html\r\n";
+	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\n"
+									 "Host: www.example.com\r\n"
+									 "ETag : some_etag\r\n"
+									 "User-Agent: YourUserAgent\r\n"
+									 "Accept: text/html\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
-	EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
+	EXPECT_EQ(httprequest_test1.get_status_code(), 400);
 }
 
 
 TEST(Request, TEST1_include_empty)
 {
-	const std::string TEST_REQUEST = "GET 	/index.html HTTP/1.1\r\nHost: www.example  .com\r\nETag: some_etag\r\nUser-Agent: YourUser  Agent  \r\nAccept: text  /html  \r\n";
+	const std::string TEST_REQUEST = "GET 	/index.html HTTP/1.1\r\n"
+									 "Host: www.example  .com\r\n"
+									 "ETag: some_etag\r\n"
+									 "User-Agent: YourUser  Agent  \r\n"
+									 "Accept: text  /html  \r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
-	EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
+	EXPECT_EQ(httprequest_test1.get_status_code(), 400);
 }
 
 TEST(Request, AcceptEncoding)
 {
-	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\nAccept-Encoding: gzip;q=0.5, deflate\r\n";
+	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\n"
+									  "Accept-Encoding: gzip;q=0.5, deflate\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST2);
 	if (same_class_test(__LINE__, "Accept-Encoding", httprequest_test1) == true)
 	{
@@ -303,14 +322,16 @@ TEST(Request, AcceptEncoding)
 
 TEST(Request, AcceptEncoding_Error1)
 {
-	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\nAccept-Encoding: gzip;;;;;;q=;0.5, deflate\r\n";
+	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\n"
+									  "Accept-Encoding: gzip;;;;;;q=;0.5, deflate\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST2);
-	EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
+	EXPECT_EQ(httprequest_test1.get_status_code(), 400);
 }
 
 TEST(Request, AcceptEncoding_Error2)
 {
-	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\nAccept-Encoding: gzip;q=0.5, ,,def,l,ate\r\n";
+	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\n"
+									  "Accept-Encoding: gzip;q=0.5, ,,def,l,ate\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST2);
 }
 
@@ -331,11 +352,24 @@ TEST(Request, AcceptEncoding_Error2)
 
 TEST(Request, TEST2)
 {
-	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\nHost: example.com\r\nUser-Agent: YourUserAgent\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\nAccept-Language: en-US,en;q=0.5\r\nAccept-Encoding: gzip, deflate\r\nConnection: keep-alive\r\nReferer: http://www.example.com/referrer\r\nCookie: session_id=12345; user=JohnDoe\r\nAuthorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nDNT: 1\r\nUpgrade-Insecure-Requests: 1\r\n";
+	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\n"
+									  "Host: example.com\r\n"
+									  "User-Agent: YourUserAgent\r\n"
+									  "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n"
+									  "Accept-Language: en-US,en;q=0.5\r\n"
+									  "Accept-Encoding: gzip, deflate\r\n"
+									  "Connection: keep-alive\r\n"
+									  "Referer: http://www.example.com/referrer\r\n"
+									  "Cookie: session_id=12345; user=JohnDoe\r\n"
+									  "Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==\r\n"
+									  "Cache-Control: no-cache\r\n"
+									  "Pragma: no-cache\r\n"
+									  "DNT: 1\r\n"
+									  "Upgrade-Insecure-Requests: 1\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST2);
-	EXPECT_EQ(httprequest_test1.get_request_line().get_method(), "GET");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_target_page(), "/path/to/resource");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_version(), "HTTP/1.1");
+	EXPECT_EQ(httprequest_test1.get_method(), "GET");
+	EXPECT_EQ(httprequest_test1.get_request_target(), "/path/to/resource");
+	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
 	if (same_class_test(__LINE__, "Host", httprequest_test1) == true)
 	{
 		TwoValueSet* twoval1 = static_cast<TwoValueSet*>(httprequest_test1.return_value("Host"));
@@ -421,14 +455,16 @@ TEST(Request, TEST2)
 
 TEST(Request, TEST2ERROR1)
 {
-	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\nAccept-Language: en-US,en;;;;q=0.5\r\n";
+	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\n"
+									  "Accept-Language: en-US,en;;;;q=0.5\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST2);
-	EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
+	EXPECT_EQ(httprequest_test1.get_status_code(), 400);
 }
 
 TEST(Request, TEST2ANYCORON)
 {
-	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\nAccept-Language: en-US,en;q=0.5,,\r\n";
+	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\n"
+									  "Accept-Language: en-US,en;q=0.5,,\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST2);
 	if (same_class_test(__LINE__, "Accept-Language", httprequest_test1) == true)
 	{
@@ -445,16 +481,30 @@ TEST(Request, TEST2ANYCORON)
 
 TEST(Request, TEST2NOWEIGHTSEMICORON)
 {
-	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\nAccept-Language: en-US,en;,,\r\n";
+	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\n"
+									  "Accept-Language: en-US,en;,,\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST2);
-	EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
+	EXPECT_EQ(httprequest_test1.get_status_code(), 400);
 }
 
 TEST(Request, TEST2_include_empty)
 {
-	const std::string TEST_REQUEST2 = "GET 		/path/to/resource HTTP/1.1\r\nHost: example.com\r\nUser-Agent: YourUserAgent\r\nAccept: text/ht   ml,application/xhtml+xml,appl  ication/xml;q=0.9,*/*;q=0.8\r\nAccept-Language: en -US,en;q=0.5\r\nAccept-Encoding: gzi p, deflate\r\nConnection: keep- alive\r\nReferer: http://www.exampl e.com/referrer\r\nCookie: session _id=12345;  user=JohnDoe\r\nAuthorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nDNT: 1\r\nUpgrade-Insecure-Requests: 1\r\n";
+	const std::string TEST_REQUEST2 = "GET 		/path/to/resource HTTP/1.1\r\n"
+									  "Host: example.com\r\n"
+									  "User-Agent: YourUserAgent\r\n"
+									  "Accept: text/ht   ml,application/xhtml+xml,appl  ication/xml;q=0.9,*/*;q=0.8\r\n"
+									  "Accept-Language: en -US,en;q=0.5\r\n"
+									  "Accept-Encoding: gzi p, deflate\r\n"
+									  "Connection: keep- alive\r\n"
+									  "Referer: http://www.exampl e.com/referrer\r\n"
+									  "Cookie: session _id=12345;  user=JohnDoe\r\n"
+									  "Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==\r\n"
+									  "Cache-Control: no-cache\r\n"
+									  "Pragma: no-cache\r\n"
+									  "DNT: 1\r\n"
+									  "Upgrade-Insecure-Requests: 1\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST2);
-	EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
+	EXPECT_EQ(httprequest_test1.get_status_code(), 400);
 }
 
 // g++ *.cpp ../HandleString/StringHandler.cpp
@@ -477,11 +527,25 @@ TEST(Request, TEST2_include_empty)
 
 TEST(Request, TEST3)
 {
-	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\nX-Forwarded-For: 192.168.1.1\r\nX-Request-ID: 12345\r\nX-Requested-With: XMLHttpRequest\r\nIf-None-Match: some_etag\r\nIf-Modified-Since: Thu, 01 Sep 2023 12:00:00 GMT\r\nMax-Forwards: 10\r\nTE: trailers, deflate;q=0.5\r\nFrom: sender@example.com\r\nOrigin: http://www.origin-example.com\r\nVia: 1.0 proxy.example.com (Apache/1.1)\r\nAge: 3600\r\nWarning: 199 Miscellaneous warning\r\nAccess-Control-Allow-Origin: *\r\nX-Frame-Options: SAMEORIGIN\r\n";
+	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\n"
+									  "X-Forwarded-For: 192.168.1.1\r\n"
+									  "X-Request-ID: 12345\r\n"
+									  "X-Requested-With: XMLHttpRequest\r\n"
+									  "If-None-Match: some_etag\r\n"
+									  "If-Modified-Since: Thu, 01 Sep 2023 12:00:00 GMT\r\n"
+									  "Max-Forwards: 10\r\n"
+									  "TE: trailers, deflate;q=0.5\r\n"
+									  "From: sender@example.com\r\n"
+									  "Origin: http://www.origin-example.com\r\n"
+									  "Via: 1.0 proxy.example.com (Apache/1.1)\r\n"
+									  "Age: 3600\r\n"
+									  "Warning: 199 Miscellaneous warning\r\n"
+									  "Access-Control-Allow-Origin: *\r\n"
+									  "X-Frame-Options: SAMEORIGIN\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST2);
-	EXPECT_EQ(httprequest_test1.get_request_line().get_method(), "GET");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_target_page(), "/path/to/resource");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_version(), "HTTP/1.1");
+	EXPECT_EQ(httprequest_test1.get_method(), "GET");
+	EXPECT_EQ(httprequest_test1.get_request_target(), "/path/to/resource");
+	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
 	if (same_class_test(__LINE__, "If-None-Match", httprequest_test1) == true)
 	{
 		ValueArraySet* val1 = static_cast<ValueArraySet*>(httprequest_test1.return_value("If-None-Match"));
@@ -539,11 +603,22 @@ TEST(Request, TEST3)
 
 TEST(Request, TEST3_include_empty)
 {
-	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\nIf-None-Match:  some  _etag\r\nIf-Modified-Since: Thu, 0 1 Sep 2023 12:00:00 GMT\r\nMax-Forwards: 1    0\r\nTE: trail ers, defla  te;q=0.5\r\nFrom: sender@ example.com\r\nOrigin: http:// www.origin-example.com\r\nVia: 1.0 proxy.example.com (Apache/1.1)\r\nAge: 36  00\r\nWarning: 199 Miscellaneous warning\r\nAccess-Control-Allow-Origin: *\r\nX-Frame-Options: SAMEORIGIN\r\n";
+	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\n"
+									  "If-None-Match:  some  _etag\r\n"
+									  "If-Modified-Since: Thu, 0 1 Sep 2023 12:00:00 GMT\r\n"
+									  "Max-Forwards: 1    0\r\n"
+									  "TE: trail ers, defla  te;q=0.5\r\n"
+									  "From: sender@ example.com\r\n"
+									  "Origin: http:// www.origin-example.com\r\n"
+									  "Via: 1.0 proxy.example.com (Apache/1.1)\r\n"
+									  "Age: 36  00\r\n"
+									  "Warning: 199 Miscellaneous warning\r\n"
+									  "Access-Control-Allow-Origin: *\r\n"
+									  "X-Frame-Options: SAMEORIGIN\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST2);
-	EXPECT_EQ(httprequest_test1.get_request_line().get_method(), "GET");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_target_page(), "/path/to/resource");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_version(), "HTTP/1.1");
+	EXPECT_EQ(httprequest_test1.get_method(), "GET");
+	EXPECT_EQ(httprequest_test1.get_request_target(), "/path/to/resource");
+	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
 	if (same_class_test(__LINE__, "If-None-Match", httprequest_test1) == true)
 	{
 		ValueArraySet* val1 = static_cast<ValueArraySet*>(httprequest_test1.return_value("If-None-Match"));
@@ -579,21 +654,26 @@ TEST(Request, TEST3_include_empty)
 
 TEST(Request, MAX_FORWARDS_TEST)
 {
-	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\nMax-Forwards: -1\r\nMax-Forwards: 1000000000000000000\r\n";
+	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\n"
+									  "Max-Forwards: -1\r\n"
+									  "Max-Forwards: 1000000000000000000\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST2);
-	EXPECT_EQ(httprequest_test1.get_request_line().get_method(), "GET");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_target_page(), "/path/to/resource");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_version(), "HTTP/1.1");
+	EXPECT_EQ(httprequest_test1.get_method(), "GET");
+	EXPECT_EQ(httprequest_test1.get_request_target(), "/path/to/resource");
+	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
 	keyword_doesnot_exist(__LINE__, "Max-Forwards", httprequest_test1);
 }
 
 TEST(Request, AGE_MINUS)
 {
-	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\nAge: -1\r\nAge: 11111111111111\r\nAge: -1";
+	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\n"
+									  "Age: -1\r\n"
+									  "Age: 11111111111111\r\n"
+									  "Age: -1";
 	HttpRequest httprequest_test1(TEST_REQUEST2);
-	EXPECT_EQ(httprequest_test1.get_request_line().get_method(), "GET");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_target_page(), "/path/to/resource");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_version(), "HTTP/1.1");
+	EXPECT_EQ(httprequest_test1.get_method(), "GET");
+	EXPECT_EQ(httprequest_test1.get_request_target(), "/path/to/resource");
+	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
 	keyword_doesnot_exist(__LINE__, "Age", httprequest_test1);
 }
 
@@ -609,11 +689,19 @@ TEST(Request, AGE_MINUS)
 
 TEST(Request, TEST4)
 {
-	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\nHost: example.com\r\nAccept-CH: viewport-width, width, downlink\r\nAccept-Charset: utf-8\r\nAccept-Post: text/html, application/json\r\nAccept-Ranges: bytes\r\nAccess-Control-Allow-Credentials: true\r\nAccess-Control-Allow-Headers: Content-Type, Authorization\r\nAccess-Control-Allow-Methods: GET, POST, PUT, DELETE\r\n";
+	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\n"
+									  "Host: example.com\r\n"
+									  "Accept-CH: viewport-width, width, downlink\r\n"
+									  "Accept-Charset: utf-8\r\n"
+									  "Accept-Post: text/html, application/json\r\n"
+									  "Accept-Ranges: bytes\r\n"
+									  "Access-Control-Allow-Credentials: true\r\n"
+									  "Access-Control-Allow-Headers: Content-Type, Authorization\r\n"
+									  "Access-Control-Allow-Methods: GET, POST, PUT, DELETE\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST2);
-	EXPECT_EQ(httprequest_test1.get_request_line().get_method(), "GET");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_target_page(), "/example");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_version(), "HTTP/1.1");
+	EXPECT_EQ(httprequest_test1.get_method(), "GET");
+	EXPECT_EQ(httprequest_test1.get_request_target(), "/example");
+	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
 	if (same_class_test(__LINE__, "Accept-CH", httprequest_test1) == true)
 	{
 		ValueArraySet* val1 = static_cast<ValueArraySet*>(httprequest_test1.return_value("Accept-CH"));
@@ -670,11 +758,19 @@ TEST(Request, TEST4)
 
 TEST(Request, TEST4_include_empty)
 {
-	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\nHost: example.com\r\nAccept-CH: viewpor  t-width , wi dth  , downlink\r\nAccept-Charset: utf-8  \r\nAccept-Post: text/ html, application/json\r\nAccept-Ranges: b ytes\r\nAccess-Control-Allow-Credentials: true\r\nAccess-Control-Allow-Headers: Content-Type, Authorization\r\nAccess-Control-Allow-Methods: G ET, POST, PUT, DELETE\r\n";
+	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\n"
+									  "Host: example.com\r\n"
+									  "Accept-CH: viewpor  t-width , wi dth  , downlink\r\n"
+									  "Accept-Charset: utf-8  \r\n"
+									  "Accept-Post: text/ html, application/json\r\n"
+									  "Accept-Ranges: b ytes\r\n"
+									  "Access-Control-Allow-Credentials: true\r\n"
+									  "Access-Control-Allow-Headers: Content-Type, Authorization\r\n"
+									  "Access-Control-Allow-Methods: G ET, POST, PUT, DELETE\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST2);
-	EXPECT_EQ(httprequest_test1.get_request_line().get_method(), "GET");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_target_page(), "/example");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_version(), "HTTP/1.1");
+	EXPECT_EQ(httprequest_test1.get_method(), "GET");
+	EXPECT_EQ(httprequest_test1.get_request_target(), "/example");
+	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
 	if (same_class_test(__LINE__, "Accept-CH", httprequest_test1) == true)
 	{
 		ValueArraySet* val1 = static_cast<ValueArraySet*>(httprequest_test1.return_value("Accept-CH"));
@@ -721,13 +817,23 @@ TEST(Request, TEST4_include_empty)
 // Alt-Used: h2
 // Clear-Site-Data: "cache", "cookies"
 
+// change OPTIONS -> GET, for request validate
 TEST(Request, TEST5)
 {
-	const std::string TEST_REQUEST2 = "OPTIONS /example HTTP/1.1\r\nHost: example.com\r\nAccess-Control-Expose-Headers: X-Custom-Header, Content-Type\r\nAccess-Control-Max-Age: 3600\r\nAccess-Control-Request-Headers: Authorization, Content-Type\r\nAccess-Control-Request-Method: POST\r\nAllow: GET, POST, PUT, DELETE\r\nAlt-Svc: h2=\"https://example.com:443\"\r\nAlt-Used: h2\r\nClear-Site-Data: \"cache\", \"cookies\"\r\n";
+	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\n"
+									  "Host: example.com\r\n"
+									  "Access-Control-Expose-Headers: X-Custom-Header, Content-Type\r\n"
+									  "Access-Control-Max-Age: 3600\r\n"
+									  "Access-Control-Request-Headers: Authorization, Content-Type\r\n"
+									  "Access-Control-Request-Method: POST\r\n"
+									  "Allow: GET, POST, PUT, DELETE\r\n"
+									  "Alt-Svc: h2=\"https://example.com:443\"\r\n"
+									  "Alt-Used: h2\r\n"
+									  "Clear-Site-Data: \"cache\", \"cookies\"\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST2);
-	EXPECT_EQ(httprequest_test1.get_request_line().get_method(), "OPTIONS");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_target_page(), "/example");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_version(), "HTTP/1.1");
+	EXPECT_EQ(httprequest_test1.get_method(), "GET");
+	EXPECT_EQ(httprequest_test1.get_request_target(), "/example");
+	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
 	if (same_class_test(__LINE__, "Access-Control-Expose-Headers", httprequest_test1) == true)
 	{
 		ValueArraySet* val1 = static_cast<ValueArraySet*>(httprequest_test1.return_value("Access-Control-Expose-Headers"));
@@ -798,11 +904,21 @@ TEST(Request, TEST5)
 
 TEST(Request, TEST6)
 {
-	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\nHost: example.com\r\nContent-Disposition: attachment; filename=\"example.txt\"\r\nContent-Encoding: gzip\r\nContent-Language: en-US\r\nContent-Length: 1024\r\nContent-Location: /documents/example.txt\r\nContent-Range: bytes 0-511/1024\r\nContent-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'\r\nContent-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline'; report-uri /csp-report\r\nContent-Type: application/json\r\n";
+	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\n"
+									  "Host: example.com\r\n"
+									  "Content-Disposition: attachment; filename=\"example.txt\"\r\n"
+									  "Content-Encoding: gzip\r\n"
+									  "Content-Language: en-US\r\n"
+									  "Content-Length: 1024\r\n"
+									  "Content-Location: /documents/example.txt\r\n"
+									  "Content-Range: bytes 0-511/1024\r\n"
+									  "Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'\r\n"
+									  "Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline'; report-uri /csp-report\r\n"
+									  "Content-Type: application/json\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST2);
-	EXPECT_EQ(httprequest_test1.get_request_line().get_method(), "GET");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_target_page(), "/example");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_version(), "HTTP/1.1");
+	EXPECT_EQ(httprequest_test1.get_method(), "GET");
+	EXPECT_EQ(httprequest_test1.get_request_target(), "/example");
+	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
 	if (same_class_test(__LINE__, "Content-Disposition", httprequest_test1) == true)
 	{
 		//map型
@@ -869,9 +985,9 @@ TEST(Request, TEST_CONTENT_LENGTH)
 {
 	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\nContent-Length: -1\r\nContent-Length: 10000000000000000\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST2);
-	EXPECT_EQ(httprequest_test1.get_request_line().get_method(), "GET");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_target_page(), "/example");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_version(), "HTTP/1.1");
+	EXPECT_EQ(httprequest_test1.get_method(), "GET");
+	EXPECT_EQ(httprequest_test1.get_request_target(), "/example");
+	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
 	keyword_doesnot_exist(__LINE__, "Content-Length", httprequest_test1);
 }
 
@@ -897,9 +1013,9 @@ TEST(Request, TEST7)
 {
 	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\nCross-Origin-Embedder-Policy: require-corp\r\nCross-Origin-Opener-Policy: same-origin-allow-popups\r\nCross-Origin-Resource-Policy: same-origin\r\nDate: Thu, 15 Sep 2023 12:00:00 GMT\r\nExpect: 100-continue\r\nExpires: Thu, 15 Sep 2023 13:00:00 GMT\r\nForwarded: for=192.0.2.60;proto=http;by=203.0.113.43\r\nHost: example.com\r\nIf-Match: \"etag123\"\r\nIf-Range: \"etag123\"\r\nIf-Unmodified-Since: Thu, 15 Sep 2023 11:30:00 GMT\r\nKeep-Alive: timeout=5, max=1000\r\nLast-Modified: Thu, 15 Sep 2023 11:45:00 GMT\r\nLink: <https://example.com/style.css>; rel=preload; as=style\r\nLocation: https://example.com/redirected-page\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST2);
-	EXPECT_EQ(httprequest_test1.get_request_line().get_method(), "GET");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_target_page(), "/example");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_version(), "HTTP/1.1");
+	EXPECT_EQ(httprequest_test1.get_method(), "GET");
+	EXPECT_EQ(httprequest_test1.get_request_target(), "/example");
+	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
 
 	if (same_class_test(__LINE__, "Cross-Origin-Embedder-Policy", httprequest_test1) == true)
 	{
@@ -1020,9 +1136,9 @@ TEST(Request, TEST8)
 {
 	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\nHost: example.com\r\nPermission-Policy: geolocation=(self \"https://example.com\"), camera=()\r\nProxy-Authenticate: Basic realm=\"Proxy Server\"\r\nProxy-Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==\r\nReferer: https://example.com/previous-page\r\nRetry-After: 120\r\nSec-Fetch-Dest: document\r\nSec-Fetch-Mode: navigate\r\nSec-Fetch-Site: same-origin\r\nSec-Fetch-User: ?1\r\nSec-Purpose: prefetch\r\nSec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=\r\nServer: Apache/2.4.41 (Ubuntu)\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST2);
-	EXPECT_EQ(httprequest_test1.get_request_line().get_method(), "GET");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_target_page(), "/example");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_version(), "HTTP/1.1");
+	EXPECT_EQ(httprequest_test1.get_method(), "GET");
+	EXPECT_EQ(httprequest_test1.get_request_target(), "/example");
+	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
 
 	if (same_class_test(__LINE__, "Proxy-Authenticate", httprequest_test1) == true)
 	{
@@ -1103,9 +1219,9 @@ TEST(Request, TEST9)
 {
 	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\nHost: example.com\r\nService-Worker-Navigation-Preload: true\r\nSet-Cookie: sessionId=12345; path=/; Secure; HttpOnly\r\nSourceMap: /path/to/source.map\r\nStrict-Transport-Security: max-age=31536000; includeSubDomains\r\nTE: trailers, deflate\r\nTiming-Allow-Origin: *\r\nTrailer: Content-MD5\r\nTransfer-Encoding: chunked\r\nUpgrade: websocket\r\nUpgrade-Insecure-Requests: 1\r\nUser-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36\r\nVary: Accept-Encoding, User-Agent\r\nVia: 1.1 example.com\r\nWWW-Authenticate: Basic realm=\"Secure Area\"\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST2);
-	EXPECT_EQ(httprequest_test1.get_request_line().get_method(), "GET");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_target_page(), "/example");
-	EXPECT_EQ(httprequest_test1.get_request_line().get_version(), "HTTP/1.1");
+	EXPECT_EQ(httprequest_test1.get_method(), "GET");
+	EXPECT_EQ(httprequest_test1.get_request_target(), "/example");
+	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
 
 	if (same_class_test(__LINE__, "Service-Worker-Navigation-Preload", httprequest_test1) == true)
 	{
