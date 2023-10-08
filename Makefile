@@ -30,7 +30,8 @@ SRCS		+=	$(SOCKET_DIR)/Socket.cpp
 
 #StringHandler
 STR_HANDLER	=	StringHandler
-SRCS		+= $(STR_HANDLER)/StringHandler.cpp
+SRCS		+=	$(STR_HANDLER)/HttpMessageParser.cpp \
+				$(STR_HANDLER)/StringHandler.cpp
 
 #httprequest
 REQUEST_DIR	=	HttpRequest
