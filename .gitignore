@@ -6,6 +6,7 @@
 !config
 
 !srcs
+!srcs/Const
 !srcs/Debug
 !srcs/Error
 !srcs/Socket

@@ -32,6 +32,7 @@ enable_testing()
 # includes ---------------------------------------------------------------------
 include_directories(
         includes
+        srcs/Const
         srcs/Debug
         srcs/Error
         srcs/Socket
@@ -52,6 +53,7 @@ include_directories(
 # webserv_srcs -----------------------------------------------------------------
 set(webserv_srcs
         srcs/get_valid_config_file_path.cpp
+        srcs/Const/Constant.cpp
         srcs/Debug/Debug.cpp
         srcs/Error/Error.cpp
         srcs/Socket/Socket.cpp

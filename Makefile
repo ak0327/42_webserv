@@ -11,6 +11,11 @@ SRCS_DIR	=	srcs
 SRCS		=	main.cpp \
 				get_valid_config_file_path.cpp
 
+#const
+CONST_DIR	=	Const
+SRCS		+=	$(CONST_DIR)/Constant.cpp
+
+
 #error
 ERROR_DIR	=	Error
 SRCS		+=	$(ERROR_DIR)/Error.cpp
@@ -62,6 +67,7 @@ DEPS		=	$(OBJS:%.o=%.d)
 
 # INCLUDES ---------------------------------------------------------------------
 INCLUDES_DIR =	includes \
+				$(SRCS_DIR)/$(CONST_DIR) \
 				$(SRCS_DIR)/$(DEBUG_DIR) \
 				$(SRCS_DIR)/$(ERROR_DIR) \
 				$(SRCS_DIR)/$(SOCKET_DIR) \
