@@ -78,31 +78,22 @@ bool	IsConfigFormat::is_locationblock_format(const std::string &line, bool *in_l
 	{
 		std::cout << "first" << std::endl;
 		return (false);
-	}
+	}  // check_header_exist();
 	field_header = line_without_ows.substr(start_pos, end_pos - start_pos);
 	while (HandlingString::is_ows(line_without_ows[end_pos]))
 		end_pos++;
 	if (line_without_ows.substr(end_pos, line_without_ows.length() - end_pos) == ";")  // "  key ; "のようにvalueがない場合はじく
-	{
-		std::cout << "second" << std::endl;
 		return (false);
-	}
 	start_pos = end_pos;
 	while (line_without_ows[end_pos] != ';' && line_without_ows[end_pos] != '\0')  // valueの終了条件は必ずセミコロンが存在しているかどうかになる
 		end_pos++;
 	// if (HandlingString::obtain_without_ows_value(field_value).empty()) //valueを比較する valueが空白なら許容しない
 	// 	return (false);
 	if (line_without_ows.length() == end_pos || line_without_ows.length() != end_pos + 1)
-	{
-		std::cout << "third" << std::endl;
 		return (false);
-	}
 	field_value = line_without_ows.substr(start_pos, end_pos - start_pos);
 	if (locationconfig->ready_locationblock_keyword(field_header, field_value) == false)
-	{
-		std::cout << "locationconfig -> |" << field_header << "|" << field_value << "|" << std::endl;
 		return (false);
-	}
 	return (true);
 }
 
@@ -152,11 +143,6 @@ bool *in_location_block, ServerConfig *serverconfig, std::string *location_path)
 	{
 		std::cout << "serverconfig -> |" << field_header << "|" << field_value << "|" << std::endl;
 		return (false);
-	}
-	else
-	{
-		std::cout << "serverconfig ok -> |" << field_header << "|" << field_value << "|" << std::endl;
-		return (true);
 	}
 	return (true);
 }

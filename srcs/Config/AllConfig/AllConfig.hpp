@@ -16,11 +16,13 @@ class	AllConfig
 		std::map<std::string, LocationConfig>	_location_config;
 	public:
 		AllConfig(const ServerConfig &host_configs, const std::map<std::string, LocationConfig> &_location_config);
+		AllConfig& operator=(const AllConfig &other);
 		AllConfig();
 		~AllConfig();
 		void									set_host_config(const ServerConfig &host_config);
 		void									set_location_config(const std::string &location_path, const LocationConfig &location_config);
 		void									clear_information();
+		void									clear_location_information();
 		ServerConfig							get_host_config(void);
 		LocationConfig							get_location_host_config(const std::string &location_name);
 };

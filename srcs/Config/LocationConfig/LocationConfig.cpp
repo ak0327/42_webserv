@@ -240,3 +240,49 @@ std::vector<std::string> LocationConfig::get_allowmethod_set(void){ return (this
 std::vector<std::string> LocationConfig::get_indexpage_set(void){ return (this->_indexpage_set); }
 std::vector<std::string> LocationConfig::get_server_name(void){ return (this->_server_name); }
 std::vector<std::string> LocationConfig::get_errorpage_set(void){ return (this->_errorpage_set); }
+
+void	LocationConfig::clear_location_keyword()
+{
+	this->_autoindex = false;
+	this->_chunked_transferencoding_allow = false;
+	this->_server_tokens = 1;
+	this->_client_body_buffer_size = 8000;
+	this->_client_body_timeout = 60;
+	this->_client_header_buffer_size = 1024;
+	this->_client_header_timeout = 60;
+	this->_client_max_body_size = 1048576;
+	this->_keepaliverequests = 0;
+	this->_keepalive_timeout = 0;
+	this->_maxBodySize = 1024;
+	this->_alias = "";
+	this->_accesslog = "";
+	this->_cgi_path = "";
+	this->_default_type = "application/octet-stream";
+	this->_errorlog = "";
+	this->_upload_path = "";
+	this->_root = "";
+	this->_allowmethod_set.clear();
+	this->_indexpage_set.clear();
+	this->_server_name.clear();
+	this->_errorpage_set.clear();
+}
+
+void LocationConfig::set_serverblock_infs(const ServerConfig &other)
+{
+	this->set_autoindex(other.get_autoindex());
+	this->set_chunked_transferencoding_allow(other.get_chunked_transferencoding_allow());
+	this->set_server_tokens(other.get_server_tokens());
+	this->set_client_body_buffer_size(other.get_client_body_buffer_size());
+	this->set_client_header_timeout(other.get_client_header_timeout());
+	this->set_client_max_body_size(other.get_client_maxbody_size());
+	this->set_keepaliverequests(other.get_keepaliverequests());
+	this->set_keepalive_timeout(other.get_keepalive_timeout());
+	this->set_maxBodySize(other.get_maxBodySize());
+	this->set_accesslog(other.get_accesslog());
+	this->set_default_type(other.get_default_type());
+	this->set_default_type(other.get_default_type());
+	this->set_errorlog(other.get_errorlog());
+	this->set_root(other.get_root());
+	this->set_allowmethod_set(other.get_allowmethod_set());
+	this->_indexpage_set.clear();
+}

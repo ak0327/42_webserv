@@ -8,6 +8,15 @@ AllConfig::AllConfig(const ServerConfig &host_config, const std::map<std::string
 	this->_location_config = _location_config;
 }
 
+AllConfig& AllConfig::operator=(const AllConfig &other)
+{
+	if (this == &other)
+		return *this;
+	this->_host_config = other._host_config;
+	this->_location_config = other._location_config;
+	return *this;
+}
+
 AllConfig::~AllConfig(){}
 
 void	AllConfig::set_host_config(const ServerConfig &host_config)
@@ -23,6 +32,11 @@ void	AllConfig::set_location_config(const std::string &location_path, const Loca
 void	AllConfig::clear_information()
 {
 	this->_host_config.clear_serverconfig();
+	this->_location_config.clear();
+}
+
+void	AllConfig::clear_location_information()
+{
 	this->_location_config.clear();
 }
 
