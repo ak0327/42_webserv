@@ -108,6 +108,12 @@ int to_integer_num(const std::string &str, bool *succeed) {
 	return num;
 }
 
+// delta-seconds = 1*DIGIT
+int to_delta_seconds(const std::string &str, bool *succeed) {
+	return to_integer_num(str, succeed);
+}
+
+
 // HTTP-version	= HTTP-name "/" DIGIT "." DIGIT
 // qvalue = ( "0" [ "." 0*3DIGIT ] )
 //        / ( "1" [ "." 0*3("0") ] )
