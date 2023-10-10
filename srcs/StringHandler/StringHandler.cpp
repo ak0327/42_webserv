@@ -248,6 +248,18 @@ std::string obtain_unquote_str(const std::string &quoted_str) {
 	return quoted_str.substr(1, quoted_str.length() - 2);
 }
 
+std::string to_lower(const std::string &str) {
+	std::string lower_str;
+	char c;
+
+	for (std::size_t pos = 0; pos < str.length(); ++pos) {
+		c = static_cast<char>(
+				std::tolower(static_cast<unsigned char>(str[pos]))
+				);
+		lower_str += c;
+	}
+	return lower_str;
+}
 
 
 

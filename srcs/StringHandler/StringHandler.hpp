@@ -29,4 +29,6 @@ std::string	skip_lastsemicolon(const std::string &word);
 std::string obtain_unquote_str(const std::string &quoted_str);
 double str_to_double(const std::string &num_str);
 
+std::string to_lower(const std::string &str);
+
 }  // namespace StringHandler
