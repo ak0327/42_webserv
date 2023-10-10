@@ -222,3 +222,63 @@ TEST(TestRequestLine, ResuestLineNG13) {
 	EXPECT_EQ("", request.get_http_version());
 	EXPECT_EQ(true, result.is_err());
 }
+
+TEST(TestRequestLine, ResuestLineNG14) {
+	const std::string request_line = "HEAD /index.html HTTP/1.1\r";
+	RequestLine request;
+	Result<int, int> result;
+
+	result = request.parse_and_validate(request_line);
+	EXPECT_EQ("HEAD", request.get_method());
+	EXPECT_EQ("/index.html", request.get_request_target());
+	EXPECT_EQ("HTTP/1.1", request.get_http_version());
+	EXPECT_EQ(true, result.is_err());
+}
+
+TEST(TestRequestLine, ResuestLineNG15) {
+	const std::string request_line = "OPTIONS /index.html HTTP/1.1\r";
+	RequestLine request;
+	Result<int, int> result;
+
+	result = request.parse_and_validate(request_line);
+	EXPECT_EQ("OPTIONS", request.get_method());
+	EXPECT_EQ("/index.html", request.get_request_target());
+	EXPECT_EQ("HTTP/1.1", request.get_http_version());
+	EXPECT_EQ(true, result.is_err());
+}
+
+TEST(TestRequestLine, ResuestLineNG16) {
+	const std::string request_line = "PUT /index.html HTTP/1.1\r";
+	RequestLine request;
+	Result<int, int> result;
+
+	result = request.parse_and_validate(request_line);
+	EXPECT_EQ("PUT", request.get_method());
+	EXPECT_EQ("/index.html", request.get_request_target());
+	EXPECT_EQ("HTTP/1.1", request.get_http_version());
+	EXPECT_EQ(true, result.is_err());
+}
+
+TEST(TestRequestLine, ResuestLineNG17) {
+	const std::string request_line = "TRACE /index.html HTTP/1.1\r";
+	RequestLine request;
+	Result<int, int> result;
+
+	result = request.parse_and_validate(request_line);
+	EXPECT_EQ("TRACE", request.get_method());
+	EXPECT_EQ("/index.html", request.get_request_target());
+	EXPECT_EQ("HTTP/1.1", request.get_http_version());
+	EXPECT_EQ(true, result.is_err());
+}
+
+TEST(TestRequestLine, ResuestLineNG18) {
+	const std::string request_line = "CONNECT /index.html HTTP/1.1\r";
+	RequestLine request;
+	Result<int, int> result;
+
+	result = request.parse_and_validate(request_line);
+	EXPECT_EQ("CONNECT", request.get_method());
+	EXPECT_EQ("/index.html", request.get_request_target());
+	EXPECT_EQ("HTTP/1.1", request.get_http_version());
+	EXPECT_EQ(true, result.is_err());
+}
