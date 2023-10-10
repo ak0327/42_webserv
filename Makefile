@@ -182,7 +182,7 @@ run_httprequest_array_test    :
 	cmake --build build
 	./build/unit_test --gtest_filter=Array*
 
-
+################################################################################
 
 .PHONY    : run_string_test
 run_string_test    :
@@ -197,5 +197,12 @@ run_rl_test    :
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestRequestLine*
+
+.PHONY    : run_http_request_test
+run_http_request_test    :
+#rm -rf build
+	cmake -S . -B build
+	cmake --build build
+	./build/unit_test --gtest_filter=TestHttpRequest*
 
 -include $(DEPS)

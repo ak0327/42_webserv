@@ -1,21 +1,82 @@
 #include <string>
 #include <algorithm>
-#include "../../srcs/StringHandler/StringHandler.hpp"
-#include "../../srcs/HttpRequest/ValueSet/ValueSet.hpp"
-#include "../../srcs/HttpRequest/TwoValueSet/TwoValueSet.hpp"
-#include "../../srcs/HttpRequest/RequestLine/RequestLine.hpp"
-#include "../../srcs/HttpRequest/ValueArraySet/ValueArraySet.hpp"
-#include "../../srcs/HttpRequest/ValueDateSet/ValueDateSet.hpp"
-#include "../../srcs/HttpRequest/ValueMap/ValueMap.hpp"
-#include "../../srcs/HttpRequest/ValueWeightArraySet/ValueWeightArraySet.hpp"
-#include "../../srcs/HttpRequest/HttpRequest.hpp"
-#include "../../srcs/HttpRequest/SecurityPolicy/SecurityPolicy.hpp"
+
 #include "gtest/gtest.h"
-#include "../../includes/Color.hpp"
-#include "../../srcs/Error/Error.hpp"
-#include "../../srcs/Debug/Debug.hpp"
-#include "Result.hpp"
 #include "Constant.hpp"
+#include "Color.hpp"
+#include "Debug.hpp"
+#include "Error.hpp"
+#include "HttpRequest.hpp"
+#include "RequestLine.hpp"
+#include "Result.hpp"
+#include "StringHandler.hpp"
+#include "TwoValueSet.hpp"
+#include "SecurityPolicy.hpp"
+#include "ValueArraySet.hpp"
+#include "ValueDateSet.hpp"
+#include "ValueMap.hpp"
+#include "ValueSet.hpp"
+#include "ValueWeightArraySet.hpp"
+
+////////////////////////////////////////////////////////////////////////////////
+/* add */
+
+TEST(TestHttpRequest, NgCaseRequestOnly) {
+	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\n";
+	HttpRequest request(TEST_REQUEST);
+
+	EXPECT_EQ("GET", request.get_method());
+	EXPECT_EQ("/index.html", request.get_request_target());
+	EXPECT_EQ("HTTP/1.1", request.get_http_version());
+	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
+}
+
+TEST(TestHttpRequest, NgInvalidMethod) {
+	const std::string TEST_REQUEST = "get /index.html HTTP/1.1\r\n\r\n";
+	HttpRequest request(TEST_REQUEST);
+
+	EXPECT_EQ("get", request.get_method());
+	EXPECT_EQ("/index.html", request.get_request_target());
+	EXPECT_EQ("HTTP/1.1", request.get_http_version());
+	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
+}
+
+TEST(TestHttpRequest, NgNoHeaders) {
+	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\n\r\n";
+	HttpRequest request(TEST_REQUEST);
+
+	EXPECT_EQ("GET", request.get_method());
+	EXPECT_EQ("/index.html", request.get_request_target());
+	EXPECT_EQ("HTTP/1.1", request.get_http_version());
+	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
+}
+
+TEST(TestHttpRequest, NgInvalidHeaderFormat1) {
+	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\n"
+									 "Host: www.example.com\r";
+	HttpRequest request(TEST_REQUEST);
+
+	EXPECT_EQ("GET", request.get_method());
+	EXPECT_EQ("/index.html", request.get_request_target());
+	EXPECT_EQ("HTTP/1.1", request.get_http_version());
+	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
+}
+
+TEST(TestHttpRequest, NgInvalidHeaderFormat2) {
+	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\n"
+									 "\r\n"
+									 "Host: www.example.com\r\n"
+									 "\r\n";
+	HttpRequest request(TEST_REQUEST);
+
+	EXPECT_EQ("GET", request.get_method());
+	EXPECT_EQ("/index.html", request.get_request_target());
+	EXPECT_EQ("HTTP/1.1", request.get_http_version());
+	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
 
 void	compare_inputvalue_truevalue_linkclass(std::map<std::string, std::map<std::string, std::string> > test_map_values, std::map<std::string, std::map<std::string, std::string> > true_map_values, size_t line)
 {
