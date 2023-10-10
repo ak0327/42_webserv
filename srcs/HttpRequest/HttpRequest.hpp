@@ -50,7 +50,7 @@ class HttpRequest {
 	std::string _message_body;
 
 	typedef void (HttpRequest::*func_ptr)(const std::string&, const std::string&);
-	std::map<std::string, func_ptr> _field_value_parse;
+	std::map<std::string, func_ptr> _field_value_parser;
 
 	HttpRequest();
 	HttpRequest(const HttpRequest &request);
