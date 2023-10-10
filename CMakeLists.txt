@@ -37,17 +37,17 @@ include_directories(
         srcs/Error
         srcs/Socket
         srcs/StringHandler
+        srcs/HttpRequest
         srcs/HttpRequest/BaseKeyValueMap
-        srcs/HttpRequest/HttpRequest
+        srcs/HttpRequest/LinkClass
         srcs/HttpRequest/RequestLine
+        srcs/HttpRequest/SecurityPolicy
         srcs/HttpRequest/TwoValueSet
         srcs/HttpRequest/ValueArraySet
         srcs/HttpRequest/ValueDateSet
         srcs/HttpRequest/ValueMap
         srcs/HttpRequest/ValueSet
         srcs/HttpRequest/ValueWeightArraySet
-        srcs/HttpRequest/SecurityPolicy
-        srcs/HttpRequest/LinkClass
 )
 
 # webserv_srcs -----------------------------------------------------------------
