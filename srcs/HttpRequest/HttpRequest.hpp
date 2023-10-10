@@ -43,35 +43,34 @@ class HttpRequest {
 
 	std::map<std::string, BaseKeyValueMap*> get_request_keyvalue_map(void);
 
-	typedef void (HttpRequest::*func_ptr)(const std::string&, const std::string&);
-
  private:
 	int _status_code;
 	RequestLine _request_line;
+	std::map<std::string, BaseKeyValueMap*> _request_keyvalue_map;
 	std::string _message_body;
 
-	std::map<std::string, func_ptr> _field_name_parser;
-	std::map<std::string, BaseKeyValueMap*> _request_keyvalue_map;
+	typedef void (HttpRequest::*func_ptr)(const std::string&, const std::string&);
+	std::map<std::string, func_ptr> _field_name_parse;
 
 	HttpRequest();
 	HttpRequest(const HttpRequest &request);
 	const HttpRequest &operator=(const HttpRequest &rhs);
 
+	/* parse, validate */
+	int parse_and_validate_http_request(const std::string &input);
 	Result<int, int> parse_and_validate_field_lines(std::stringstream *ss);
-	Result<std::string, int> parse_field_name(const std::string &field_line,
-											  std::size_t *pos);
-	Result<std::string, int> parse_field_value(const std::string &field_line,
-											   std::size_t *pos);
-	std::string parse_message_body(std::stringstream *ss);
 
 	Result<int, int> parse_field_line(const std::string &field_line,
 									  std::string *ret_field_name,
 									  std::string *ret_field_value);
+	std::string parse_message_body(std::stringstream *ss);
+
+	bool is_valid_field_name_syntax(const std::string &field_name);
+	bool is_valid_field_value_syntax(const std::string &field_value);
 	bool is_valid_field_name(const std::string &field_name);
-	bool is_valid_field_value(const std::string &field_value);
 
 
-	bool is_keyword_exist(const std::string &key);
+
 	bool is_weightformat(const std::string &value);
 	LinkClass *ready_LinkClass(std::map<std::string, std::map<std::string, std::string> > link_valuemap);
 	SecurityPolicy *ready_SecurityPolicy(const std::string &report_url, std::map<std::string, std::vector<std::string> > _policy_directive);

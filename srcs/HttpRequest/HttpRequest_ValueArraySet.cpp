@@ -25,7 +25,8 @@ void	HttpRequest::set_access_control_allow_headers(const std::string &key, const
 
 	while(std::getline(ss, line, ','))
 	{
-		if (this->is_keyword_exist(HttpMessageParser::obtain_withoutows_value(line)) == false)
+		if (this->is_valid_field_name(
+				HttpMessageParser::obtain_withoutows_value(line)) == false)
 			return;
 	}
 	this->_request_keyvalue_map[key] = this->ready_ValueArraySet(value);
@@ -61,7 +62,8 @@ void	HttpRequest::set_access_control_request_headers(const std::string &key, con
 
 	while(std::getline(ss, line, ','))
 	{
-		if (this->is_keyword_exist(HttpMessageParser::obtain_withoutows_value(line)) == false)
+		if (this->is_valid_field_name(
+				HttpMessageParser::obtain_withoutows_value(line)) == false)
 			return;
 	}
 	this->_request_keyvalue_map[key] = this->ready_ValueArraySet(value);
