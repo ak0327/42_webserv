@@ -102,7 +102,14 @@ run_config_reading_test	:
 	#rm -rf build
 	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
 	cmake --build build
-	./build/unit_test --gtest_filter=IsConfigTest*
+	./build/unit_test --gtest_filter=IsConfigLineTest*
+
+.PHONY	: run_is_config_format_test
+run_is_config_format_test :
+	#rm -rf build
+	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
+	cmake --build build
+	./build/unit_test --gtest_filter=IsConfigFormatTest*
 
 .PHONY	: run_ready_config_test
 run_ready_config_test	:

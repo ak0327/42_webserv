@@ -8,39 +8,21 @@ LocationConfig::~LocationConfig(){}
 
 bool	LocationConfig::ready_boolean_fieldvalue(const std::string &field_value)
 {
-	std::string	field_value_without_lastsemicolon = ConfigHandlingString::get_value_without_lastsemicolon(field_value);
-
-	if (field_value_without_lastsemicolon == "on")
+	if (field_value == "on")
 		return (true);
 	return (false);
 }
 
-int		LocationConfig::ready_int_fieldvalue(const std::string &field_value)
-{
-	std::string	field_value_without_lastsemicolon = ConfigHandlingString::get_value_without_lastsemicolon(field_value);
+int		LocationConfig::ready_int_fieldvalue(const std::string &field_value){ return (NumericHandle::str_to_int(field_value)); }
 
-	return (NumericHandle::str_to_int(field_value_without_lastsemicolon));
-}
+size_t	LocationConfig::ready_size_t_fieldvalue(const std::string &field_value){ return (static_cast<size_t>(NumericHandle::str_to_int(field_value))); }
 
-size_t	LocationConfig::ready_size_t_fieldvalue(const std::string &field_value)
-{
-	std::string	field_value_without_lastsemicolon = ConfigHandlingString::get_value_without_lastsemicolon(field_value);
-
-	return (static_cast<size_t>(NumericHandle::str_to_int(field_value_without_lastsemicolon)));
-}
-
-std::string		LocationConfig::ready_string_fieldvalue(const std::string &field_value)
-{
-	std::string	field_value_without_lastsemicolon = ConfigHandlingString::get_value_without_lastsemicolon(field_value);
-
-	return (field_value_without_lastsemicolon);
-}
+std::string		LocationConfig::ready_string_fieldvalue(const std::string &field_value){ return (field_value); }
 
 std::vector<std::string>	LocationConfig::ready_string_vector_fieldvalue(const std::string &field_value)
 {
 	std::vector<std::string>	anser_vector;
-	std::string					field_value_without_lastsemicolon = ConfigHandlingString::get_value_without_lastsemicolon(field_value);
-	std::istringstream			values_splited_by_empty(field_value_without_lastsemicolon);
+	std::istringstream			values_splited_by_empty(field_value);
 	std::string					value_splited_by_empty;
 
 	while (std::getline(values_splited_by_empty, value_splited_by_empty, ' '))

@@ -10,10 +10,10 @@ bool ConfigHandlingString::is_nomeanig_line(const std::string &line)
 	return (false);
 }
 
-std::string	ConfigHandlingString::get_value_without_lastsemicolon(const std::string &value)
-{
-	if (value[value.length() - 1] == ';')
-		return (value.substr(0, value.length() - 1));
-	else
-		return (value);
-}
+// std::string	ConfigHandlingString::get_value_without_lastsemicolon(const std::string &value)
+// {
+// 	if (value[value.length() - 1] == ';')
+// 		return (value.substr(0, value.length() - 1));
+// 	else
+// 		return (value);
+// }

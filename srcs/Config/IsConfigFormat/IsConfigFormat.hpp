@@ -15,10 +15,11 @@ class IsConfigFormat
 		~IsConfigFormat();
 	public:
 		static	bool	is_start_locationblock(const std::string &line, std::string *config_location_path);
+		static	bool	is_start_locationblock(const std::string &line);
 		static	bool	is_start_serverblock(const std::string &line);
-		static	bool	is_locationblock_format(const std::string &line, bool *in_location_block, LocationConfig *locationconfig);
-		static	bool	is_serverblock_format(const std::string &line, \
-		bool *in_server_block, bool *in_location_block, ServerConfig *serverinfs, std::string *location_path);
+		static	bool	is_locationblock_config(const std::string &line, bool *in_location_block);
+		static	bool	ready_locationblock_config(const std::string &line, bool *in_location_block, LocationConfig *locationconfig);
+		static	bool	ready_serverblock_format(const std::string &line, bool *in_server_block, ServerConfig *serverinfs, std::vector<std::string> *field_key_map);
 };
 
 #endif  // SRCS_CONFIG_ISCONFIGFORMAT_ISCONFIGFORMAT_HPP_

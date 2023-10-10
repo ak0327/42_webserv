@@ -11,7 +11,7 @@ class ConfigHandlingString
 		~ConfigHandlingString();
 	public:
 		static	bool		is_nomeanig_line(const std::string &line);
-		static	std::string	get_value_without_lastsemicolon(const std::string &value);
+		// static	std::string	get_value_without_lastsemicolon(const std::string &value);
 };
 
 #endif  // SRCS_CONFIG_CONFIGHANDLINGSTRING_CONFIGHANDLINGSTRING_HPP_
