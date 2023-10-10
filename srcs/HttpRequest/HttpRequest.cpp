@@ -168,7 +168,7 @@ Result<int, int> HttpRequest::parse_and_validate_field_lines(std::stringstream *
 		}
 
 		if (is_valid_field_name(field_name)) {  // todo: validate such as 'must' header,...
-			(this->*_field_name_parse[field_name])(field_name, field_value);
+			(this->*_field_value_parse[field_name])(field_name, field_value);
 		}
 	}
 	return Result<int, int>::ok(OK);
@@ -246,7 +246,7 @@ std::string HttpRequest::parse_message_body(std::stringstream *ss) {
 }
 
 bool HttpRequest::is_valid_field_name(const std::string &field_name) {
-	 return (this->_field_name_parse.count(field_name) > 0);
+	 return (this->_field_value_parse.count(field_name) > 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -303,91 +303,91 @@ void HttpRequest::set_x_xss_protection(const std::string &key, const std::string
 
 void HttpRequest::init_field_name_parser()
 {
-	this->_field_name_parse["Accept"] = &HttpRequest::set_accept;
-	this->_field_name_parse["Accept-CH"] = &HttpRequest::set_accept_ch;
-	this->_field_name_parse["Accept-Charset"] = &HttpRequest::set_accept_charset;
-	this->_field_name_parse["Accept-Encoding"] = &HttpRequest::set_accept_encoding;
-	this->_field_name_parse["Accept-Language"] = &HttpRequest::set_accept_language;
-	// this->_field_name_parse["Accept-Patch"] = this->set_accept_patch;
-	this->_field_name_parse["Accept-Post"] = &HttpRequest::set_accept_post;
-	this->_field_name_parse["Accept-Ranges"] = &HttpRequest::set_accept_ranges;
-	this->_field_name_parse["Access-Control-Allow-Credentials"] = &HttpRequest::set_access_control_allow_credentials;
-	this->_field_name_parse["Access-Control-Allow-Headers"] = &HttpRequest::set_access_control_allow_headers;
-	this->_field_name_parse["Access-Control-Allow-Methods"] = &HttpRequest::set_access_control_allow_methods;
-	this->_field_name_parse["Access-Control-Allow-Origin"] = &HttpRequest::set_access_control_allow_origin;
-	this->_field_name_parse["Access-Control-Expose-Headers"] = &HttpRequest::set_access_control_expose_headers;
-	this->_field_name_parse["Access-Control-Max-Age"] = &HttpRequest::set_access_control_max_age;
-	this->_field_name_parse["Access-Control-Request-Headers"] = &HttpRequest::set_access_control_request_headers;
-	this->_field_name_parse["Access-Control-Request-Method"] = &HttpRequest::set_access_control_request_method;
-	this->_field_name_parse["Age"] = &HttpRequest::set_age;
-	this->_field_name_parse["Allow"] = &HttpRequest::set_allow;
-	this->_field_name_parse["Alt-Svc"] = &HttpRequest::set_alt_svc;
-	this->_field_name_parse["Alt-Used"] = &HttpRequest::set_alt_used;
-	this->_field_name_parse["Authorization"] = &HttpRequest::set_authorization;
-	this->_field_name_parse["Cache-Control"] =  &HttpRequest::set_cache_control;
-	this->_field_name_parse["Clear-Site-Data"] = &HttpRequest::set_clear_site_data;
-	this->_field_name_parse["Connection"] = &HttpRequest::set_connection;
-	this->_field_name_parse["Content-Disposition"] = &HttpRequest::set_content_disponesition;
-	this->_field_name_parse["Content-Encoding"] = &HttpRequest::set_content_encoding;
-	this->_field_name_parse["Content-Language"] = &HttpRequest::set_content_language;
-	this->_field_name_parse["Content-Length"] = &HttpRequest::set_content_length;
-	this->_field_name_parse["Content-Location"] = &HttpRequest::set_content_location;
-	this->_field_name_parse["Content-Range"] = &HttpRequest::set_content_range;
-	this->_field_name_parse["Content-Security-Policy"] = &HttpRequest::set_content_security_policy;
-	this->_field_name_parse["Content-Security-Policy-Report-Only"] = &HttpRequest::set_content_security_policy_report_only;
-	this->_field_name_parse["Content-Type"] = &HttpRequest::set_content_type;
-	this->_field_name_parse["Cookie"] = &HttpRequest::set_cookie;
-	this->_field_name_parse["Cross-Origin-Embedder-Policy"] = &HttpRequest::set_cross_origin_embedder_policy;
-	this->_field_name_parse["Cross-Origin-Opener-Policy"] = &HttpRequest::set_cross_origin_opener_policy;
-	this->_field_name_parse["Cross-Origin-Resource-Policy"] = &HttpRequest::set_cross_origin_resource_policy;
-	this->_field_name_parse["Date"] = &HttpRequest::set_date;
-	this->_field_name_parse["ETag"] = &HttpRequest::set_etag;
-	this->_field_name_parse["Expect"] = &HttpRequest::set_expect;
-	// this->_field_name_parse["Expect-CT"] = this->set_expect_ct;
-	this->_field_name_parse["Expires"] = &HttpRequest::set_expires;
-	this->_field_name_parse["Forwarded"] = &HttpRequest::set_forwarded;
-	this->_field_name_parse["From"] = &HttpRequest::set_from;
-	this->_field_name_parse["Host"] = &HttpRequest::set_host;
-	this->_field_name_parse["If-Match"] = &HttpRequest::set_if_match;
-	this->_field_name_parse["If-Modified-Since"] = &HttpRequest::set_if_modified_since;
-	this->_field_name_parse["If-None-Match"] = &HttpRequest::set_if_none_match;
-	this->_field_name_parse["If-Range"] = &HttpRequest::set_if_range;
-	this->_field_name_parse["If-Unmodified-Since"] = &HttpRequest::set_if_unmodified_since;
-	this->_field_name_parse["Keep-Alive"] = &HttpRequest::set_keep_alive;
-	this->_field_name_parse["Last-Modified"] = &HttpRequest::set_last_modified;
-	this->_field_name_parse["Link"] = &HttpRequest::set_link;
-	this->_field_name_parse["Location"] = &HttpRequest::set_location;
-	this->_field_name_parse["Max-Forwards"] = &HttpRequest::set_max_forwards;
-	this->_field_name_parse["Origin"] = &HttpRequest::set_origin;
-	this->_field_name_parse["Permission-Policy"] = &HttpRequest::set_permission_policy;
-	this->_field_name_parse["Proxy-Authenticate"] = &HttpRequest::set_proxy_authenticate;
-	this->_field_name_parse["Proxy-Authorization"] = &HttpRequest::set_proxy_authorization;
-	// this->_field_name_parse["Range"] = this->set_range;
-	this->_field_name_parse["Referer"] = &HttpRequest::set_referer;
-	this->_field_name_parse["Retry-After"] = &HttpRequest::set_retry_after;
-	this->_field_name_parse["Sec-Fetch-Dest"] = &HttpRequest::set_sec_fetch_dest;
-	this->_field_name_parse["Sec-Fetch-Mode"] = &HttpRequest::set_sec_fetch_mode;
-	this->_field_name_parse["Sec-Fetch-Site"] = &HttpRequest::set_sec_fetch_site;
-	this->_field_name_parse["Sec-Fetch-User"] = &HttpRequest::set_sec_fetch_user;
-	this->_field_name_parse["Sec-Purpose"] = &HttpRequest::set_sec_purpose;
-	this->_field_name_parse["Sec-WebSocket-Accept"] = &HttpRequest::set_sec_websocket_accept;
-	this->_field_name_parse["Server"] = &HttpRequest::set_server;
-	// this->_field_name_parse["Server-Timing"] = this->set_server_timing;
-	this->_field_name_parse["Service-Worker-Navigation-Preload"] = &HttpRequest::set_service_worker_navigation_preload;
-	this->_field_name_parse["Set-Cookie"] = &HttpRequest::set_cookie;
-	this->_field_name_parse["SourceMap"] = &HttpRequest::set_sourcemap;
-	this->_field_name_parse["Strict-Transport-Security"] = &HttpRequest::set_strict_transport_security;
-	this->_field_name_parse["TE"] = &HttpRequest::set_te;
-	this->_field_name_parse["Timing-Allow-Origin"] = &HttpRequest::set_timing_allow_origin;
-	this->_field_name_parse["Trailer"] = &HttpRequest::set_trailer;
-	this->_field_name_parse["Transfer-Encoding"] = &HttpRequest::set_transfer_encoding;
-	this->_field_name_parse["Upgrade"] = &HttpRequest::set_upgrade;
-	this->_field_name_parse["Upgrade-Insecure-Requests"] = &HttpRequest::set_upgrade_insecure_requests;
-	this->_field_name_parse["User-Agent"] = &HttpRequest::set_user_agent;
-	this->_field_name_parse["Vary"] = &HttpRequest::set_vary;
-	this->_field_name_parse["Via"] = &HttpRequest::set_via;
-	this->_field_name_parse["WWW-Authenticate"] = &HttpRequest::set_www_authenticate;
-	// this->_field_name_parse["X-Custom-Header"] = &HttpRequest::set_x_custom_header;
+	this->_field_value_parse["Accept"] = &HttpRequest::set_accept;
+	this->_field_value_parse["Accept-CH"] = &HttpRequest::set_accept_ch;
+	this->_field_value_parse["Accept-Charset"] = &HttpRequest::set_accept_charset;
+	this->_field_value_parse["Accept-Encoding"] = &HttpRequest::set_accept_encoding;
+	this->_field_value_parse["Accept-Language"] = &HttpRequest::set_accept_language;
+	// this->_field_value_parse["Accept-Patch"] = this->set_accept_patch;
+	this->_field_value_parse["Accept-Post"] = &HttpRequest::set_accept_post;
+	this->_field_value_parse["Accept-Ranges"] = &HttpRequest::set_accept_ranges;
+	this->_field_value_parse["Access-Control-Allow-Credentials"] = &HttpRequest::set_access_control_allow_credentials;
+	this->_field_value_parse["Access-Control-Allow-Headers"] = &HttpRequest::set_access_control_allow_headers;
+	this->_field_value_parse["Access-Control-Allow-Methods"] = &HttpRequest::set_access_control_allow_methods;
+	this->_field_value_parse["Access-Control-Allow-Origin"] = &HttpRequest::set_access_control_allow_origin;
+	this->_field_value_parse["Access-Control-Expose-Headers"] = &HttpRequest::set_access_control_expose_headers;
+	this->_field_value_parse["Access-Control-Max-Age"] = &HttpRequest::set_access_control_max_age;
+	this->_field_value_parse["Access-Control-Request-Headers"] = &HttpRequest::set_access_control_request_headers;
+	this->_field_value_parse["Access-Control-Request-Method"] = &HttpRequest::set_access_control_request_method;
+	this->_field_value_parse["Age"] = &HttpRequest::set_age;
+	this->_field_value_parse["Allow"] = &HttpRequest::set_allow;
+	this->_field_value_parse["Alt-Svc"] = &HttpRequest::set_alt_svc;
+	this->_field_value_parse["Alt-Used"] = &HttpRequest::set_alt_used;
+	this->_field_value_parse["Authorization"] = &HttpRequest::set_authorization;
+	this->_field_value_parse["Cache-Control"] =  &HttpRequest::set_cache_control;
+	this->_field_value_parse["Clear-Site-Data"] = &HttpRequest::set_clear_site_data;
+	this->_field_value_parse["Connection"] = &HttpRequest::set_connection;
+	this->_field_value_parse["Content-Disposition"] = &HttpRequest::set_content_disponesition;
+	this->_field_value_parse["Content-Encoding"] = &HttpRequest::set_content_encoding;
+	this->_field_value_parse["Content-Language"] = &HttpRequest::set_content_language;
+	this->_field_value_parse["Content-Length"] = &HttpRequest::set_content_length;
+	this->_field_value_parse["Content-Location"] = &HttpRequest::set_content_location;
+	this->_field_value_parse["Content-Range"] = &HttpRequest::set_content_range;
+	this->_field_value_parse["Content-Security-Policy"] = &HttpRequest::set_content_security_policy;
+	this->_field_value_parse["Content-Security-Policy-Report-Only"] = &HttpRequest::set_content_security_policy_report_only;
+	this->_field_value_parse["Content-Type"] = &HttpRequest::set_content_type;
+	this->_field_value_parse["Cookie"] = &HttpRequest::set_cookie;
+	this->_field_value_parse["Cross-Origin-Embedder-Policy"] = &HttpRequest::set_cross_origin_embedder_policy;
+	this->_field_value_parse["Cross-Origin-Opener-Policy"] = &HttpRequest::set_cross_origin_opener_policy;
+	this->_field_value_parse["Cross-Origin-Resource-Policy"] = &HttpRequest::set_cross_origin_resource_policy;
+	this->_field_value_parse["Date"] = &HttpRequest::set_date;
+	this->_field_value_parse["ETag"] = &HttpRequest::set_etag;
+	this->_field_value_parse["Expect"] = &HttpRequest::set_expect;
+	// this->_field_value_parse["Expect-CT"] = this->set_expect_ct;
+	this->_field_value_parse["Expires"] = &HttpRequest::set_expires;
+	this->_field_value_parse["Forwarded"] = &HttpRequest::set_forwarded;
+	this->_field_value_parse["From"] = &HttpRequest::set_from;
+	this->_field_value_parse["Host"] = &HttpRequest::set_host;
+	this->_field_value_parse["If-Match"] = &HttpRequest::set_if_match;
+	this->_field_value_parse["If-Modified-Since"] = &HttpRequest::set_if_modified_since;
+	this->_field_value_parse["If-None-Match"] = &HttpRequest::set_if_none_match;
+	this->_field_value_parse["If-Range"] = &HttpRequest::set_if_range;
+	this->_field_value_parse["If-Unmodified-Since"] = &HttpRequest::set_if_unmodified_since;
+	this->_field_value_parse["Keep-Alive"] = &HttpRequest::set_keep_alive;
+	this->_field_value_parse["Last-Modified"] = &HttpRequest::set_last_modified;
+	this->_field_value_parse["Link"] = &HttpRequest::set_link;
+	this->_field_value_parse["Location"] = &HttpRequest::set_location;
+	this->_field_value_parse["Max-Forwards"] = &HttpRequest::set_max_forwards;
+	this->_field_value_parse["Origin"] = &HttpRequest::set_origin;
+	this->_field_value_parse["Permission-Policy"] = &HttpRequest::set_permission_policy;
+	this->_field_value_parse["Proxy-Authenticate"] = &HttpRequest::set_proxy_authenticate;
+	this->_field_value_parse["Proxy-Authorization"] = &HttpRequest::set_proxy_authorization;
+	// this->_field_value_parse["Range"] = this->set_range;
+	this->_field_value_parse["Referer"] = &HttpRequest::set_referer;
+	this->_field_value_parse["Retry-After"] = &HttpRequest::set_retry_after;
+	this->_field_value_parse["Sec-Fetch-Dest"] = &HttpRequest::set_sec_fetch_dest;
+	this->_field_value_parse["Sec-Fetch-Mode"] = &HttpRequest::set_sec_fetch_mode;
+	this->_field_value_parse["Sec-Fetch-Site"] = &HttpRequest::set_sec_fetch_site;
+	this->_field_value_parse["Sec-Fetch-User"] = &HttpRequest::set_sec_fetch_user;
+	this->_field_value_parse["Sec-Purpose"] = &HttpRequest::set_sec_purpose;
+	this->_field_value_parse["Sec-WebSocket-Accept"] = &HttpRequest::set_sec_websocket_accept;
+	this->_field_value_parse["Server"] = &HttpRequest::set_server;
+	// this->_field_value_parse["Server-Timing"] = this->set_server_timing;
+	this->_field_value_parse["Service-Worker-Navigation-Preload"] = &HttpRequest::set_service_worker_navigation_preload;
+	this->_field_value_parse["Set-Cookie"] = &HttpRequest::set_cookie;
+	this->_field_value_parse["SourceMap"] = &HttpRequest::set_sourcemap;
+	this->_field_value_parse["Strict-Transport-Security"] = &HttpRequest::set_strict_transport_security;
+	this->_field_value_parse["TE"] = &HttpRequest::set_te;
+	this->_field_value_parse["Timing-Allow-Origin"] = &HttpRequest::set_timing_allow_origin;
+	this->_field_value_parse["Trailer"] = &HttpRequest::set_trailer;
+	this->_field_value_parse["Transfer-Encoding"] = &HttpRequest::set_transfer_encoding;
+	this->_field_value_parse["Upgrade"] = &HttpRequest::set_upgrade;
+	this->_field_value_parse["Upgrade-Insecure-Requests"] = &HttpRequest::set_upgrade_insecure_requests;
+	this->_field_value_parse["User-Agent"] = &HttpRequest::set_user_agent;
+	this->_field_value_parse["Vary"] = &HttpRequest::set_vary;
+	this->_field_value_parse["Via"] = &HttpRequest::set_via;
+	this->_field_value_parse["WWW-Authenticate"] = &HttpRequest::set_www_authenticate;
+	// this->_field_value_parse["X-Custom-Header"] = &HttpRequest::set_x_custom_header;
 }
 
 std::string HttpRequest::get_method() const {
