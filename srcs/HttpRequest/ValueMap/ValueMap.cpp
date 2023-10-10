@@ -1,8 +1,8 @@
 #include "ValueMap.hpp"
 
-ValueMap::ValueMap():BaseKeyValueMap(){}
+ValueMap::ValueMap():FieldValues(){}
 
-ValueMap::ValueMap(const std::string &value, std::map<std::string, std::string> value_map):BaseKeyValueMap()
+ValueMap::ValueMap(const std::string &value, std::map<std::string, std::string> value_map):FieldValues()
 {
 	this->_only_value = value;
 	this->_value_map = value_map;
@@ -13,7 +13,7 @@ ValueMap::ValueMap(std::map<std::string, std::string> value_map)
 	this->_value_map = value_map;
 }
 
-ValueMap::ValueMap(const ValueMap &other):BaseKeyValueMap(other)
+ValueMap::ValueMap(const ValueMap &other):FieldValues(other)
 {
 	this->_value_map = other.get_value_map();
 }

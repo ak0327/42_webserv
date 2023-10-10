@@ -68,5 +68,5 @@ void	HttpRequest::set_link(const std::string &key, const std::string &value)
 		mapping_value = HttpMessageParser::obtain_word_after_delimiter(without_ows_line, ';');
 		value_map[uri] = this->ready_mappingvalue(mapping_value);
 	}
-	this->_request_keyvalue_map[key] = this->ready_LinkClass(value_map);
+	this->_request_header_fields[key] = this->ready_LinkClass(value_map);
 }

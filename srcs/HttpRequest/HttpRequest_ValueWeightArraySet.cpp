@@ -63,7 +63,7 @@ void HttpRequest::set_accept(const std::string &key, const std::string &value)
 				return;
 		}
 	}
-	this->_request_keyvalue_map[key] = this->ready_ValueWeightArraySet(value);
+	this->_request_header_fields[key] = this->ready_ValueWeightArraySet(value);
 }
 
 void	HttpRequest::set_accept_charset(const std::string &key, const std::string &value)
@@ -86,7 +86,7 @@ void	HttpRequest::set_accept_charset(const std::string &key, const std::string &
 				return;
 		}
 	}
-	this->_request_keyvalue_map[key] = this->ready_ValueWeightArraySet(value);
+	this->_request_header_fields[key] = this->ready_ValueWeightArraySet(value);
 }
 
 void	HttpRequest::set_accept_encoding(const std::string &key, const std::string &value)
@@ -124,7 +124,7 @@ void	HttpRequest::set_accept_encoding(const std::string &key, const std::string 
 				skipping_nokeyword = skipping_nokeyword + line + ',';
 		}
 	}
-	this->_request_keyvalue_map[key] = this->ready_ValueWeightArraySet(skipping_nokeyword.substr(0, skipping_nokeyword.length() - 1));
+	this->_request_header_fields[key] = this->ready_ValueWeightArraySet(skipping_nokeyword.substr(0, skipping_nokeyword.length() - 1));
 }
 
 void	HttpRequest::set_accept_language(const std::string &key, const std::string &value)
@@ -149,7 +149,7 @@ void	HttpRequest::set_accept_language(const std::string &key, const std::string 
 			}
 		}
 	}
-	this->_request_keyvalue_map[key] = this->ready_ValueWeightArraySet(value);
+	this->_request_header_fields[key] = this->ready_ValueWeightArraySet(value);
 }
 
 void	HttpRequest::set_te(const std::string &key, const std::string &value)
@@ -180,5 +180,5 @@ void	HttpRequest::set_te(const std::string &key, const std::string &value)
 				return;
 		}
 	}
-	this->_request_keyvalue_map[key] = this->ready_ValueWeightArraySet(value);
+	this->_request_header_fields[key] = this->ready_ValueWeightArraySet(value);
 }

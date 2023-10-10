@@ -5,9 +5,9 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "../BaseKeyValueMap/BaseKeyValueMap.hpp"
+#include "FieldValues.hpp"
 
-class SecurityPolicy: public BaseKeyValueMap
+class SecurityPolicy: public FieldValues
 {
 	private:
 		std::string											_report_url;

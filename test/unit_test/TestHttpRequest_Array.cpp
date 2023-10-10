@@ -23,8 +23,8 @@
 
 bool	same_class_test_array(int line, const char *key, HttpRequest &target) // 同名関数の使い回しがわからず
 {
-	std::map<std::string, BaseKeyValueMap*>keyvaluemap = target.get_request_keyvalue_map();
-	std::map<std::string, BaseKeyValueMap*>::iterator itr_now = keyvaluemap.begin();
+	std::map<std::string, FieldValues*>keyvaluemap = target.get_request_header_fields();
+	std::map<std::string, FieldValues*>::iterator itr_now = keyvaluemap.begin();
 	while (itr_now != keyvaluemap.end())
 	{
 		if (itr_now->first == key)
@@ -41,8 +41,8 @@ bool	same_class_test_array(int line, const char *key, HttpRequest &target) // �
 
 bool	is_not_exist_array(int line, const char *key, HttpRequest &target) // 同名関数の使い回しがわからず
 {
-	std::map<std::string, BaseKeyValueMap*>keyvaluemap = target.get_request_keyvalue_map();
-	std::map<std::string, BaseKeyValueMap*>::iterator itr_now = keyvaluemap.begin();
+	std::map<std::string, FieldValues*>keyvaluemap = target.get_request_header_fields();
+	std::map<std::string, FieldValues*>::iterator itr_now = keyvaluemap.begin();
 	while (itr_now != keyvaluemap.end())
 	{
 		if (itr_now->first == key)
@@ -89,7 +89,8 @@ TEST(Array, Array_TEST)
 	HttpRequest httprequest_test1(TEST_REQUEST);
 	if (same_class_test_array(__LINE__, "Access-Control-Allow-Methods", httprequest_test1) == true)
 	{
-		ValueArraySet* val7 = static_cast<ValueArraySet*>(httprequest_test1.return_value("Access-Control-Allow-Methods"));
+		ValueArraySet* val7 = static_cast<ValueArraySet*>(httprequest_test1.get_field_values(
+				"Access-Control-Allow-Methods"));
 		std::vector<std::string> vector7;
 		// GET, POST, PUT, DELETE
 		vector7.push_back("GET");

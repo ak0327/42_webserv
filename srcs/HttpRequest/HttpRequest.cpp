@@ -74,10 +74,10 @@ HttpRequest::HttpRequest(const std::string &input) {
 
 HttpRequest::~HttpRequest()
 {
-	std::map<std::string, BaseKeyValueMap*>::iterator itr;
+	std::map<std::string, FieldValues*>::iterator itr;
 
-	itr = this->_request_keyvalue_map.begin();
-	while (itr != this->_request_keyvalue_map.end()) {
+	itr = this->_request_header_fields.begin();
+	while (itr != this->_request_header_fields.end()) {
 		delete itr->second;
 		++itr;
 	}
@@ -276,7 +276,7 @@ void HttpRequest::set_cache_control(const std::string &key, const std::string &v
 	(void)value;
 	// Digest username=<username>,realm="<realm>",uri="<url>",algorithm=<algorithm>,nonce="<nonce>",
 	// ValueMapに変更
-	// this->_request_keyvalue_map[key] = ready_ValueWeightArraySet(value);
+	// this->_request_header_fields[key] = ready_ValueWeightArraySet(value);
 }
 
 void HttpRequest::set_content_security_policy_report_only(const std::string &key, const std::string &value)
@@ -284,13 +284,13 @@ void HttpRequest::set_content_security_policy_report_only(const std::string &key
 	(void)key;
 	(void)value;
 	// std::cout << key << " and " << "value is " << value << std::endl;
-	// this->_request_keyvalue_map[key] = ready_SecurityPolicy();
+	// this->_request_header_fields[key] = ready_SecurityPolicy();
 }
 
 void HttpRequest::set_servertiming(const std::string &key, const std::string &value)
 {
 	// cpu;dur=2.4;a=b, cpu; ,,,みたいな感じなのでmapで保持しないほうがいいかもしれない
-	// this->_request_keyvalue_map[key] = ready_ValueMap(value);
+	// this->_request_header_fields[key] = ready_ValueMap(value);
 	(void)key;
 	(void)value;
 }
@@ -402,12 +402,12 @@ std::string HttpRequest::get_http_version() const {
 	return this->_request_line.get_http_version();
 }
 
-BaseKeyValueMap* HttpRequest::return_value(const std::string &key) {
-	return this->_request_keyvalue_map[key];
+FieldValues* HttpRequest::get_field_values(const std::string &key) {
+	return this->_request_header_fields[key];
 }
 
-std::map<std::string, BaseKeyValueMap*> HttpRequest::get_request_keyvalue_map(void) {
-	return this->_request_keyvalue_map;
+std::map<std::string, FieldValues*> HttpRequest::get_request_header_fields(void) {
+	return this->_request_header_fields;
 }
 
 int	HttpRequest::get_status_code() const {

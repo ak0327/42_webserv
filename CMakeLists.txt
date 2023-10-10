@@ -38,7 +38,7 @@ include_directories(
         srcs/Socket
         srcs/StringHandler
         srcs/HttpRequest
-        srcs/HttpRequest/BaseKeyValueMap
+        srcs/HttpRequest/FieldValues
         srcs/HttpRequest/LinkClass
         srcs/HttpRequest/RequestLine
         srcs/HttpRequest/SecurityPolicy
@@ -59,7 +59,7 @@ set(webserv_srcs
         srcs/Socket/Socket.cpp
         srcs/StringHandler/StringHandler.cpp
         srcs/StringHandler/HttpMessageParser.cpp
-        srcs/HttpRequest/BaseKeyValueMap/BaseKeyValueMap.cpp
+        srcs/HttpRequest/FieldValues/FieldValues.cpp
         srcs/HttpRequest/HttpRequest.cpp
         srcs/HttpRequest/HttpRequest_LinkClass.cpp
         srcs/HttpRequest/HttpRequest_SecurityPolicy.cpp

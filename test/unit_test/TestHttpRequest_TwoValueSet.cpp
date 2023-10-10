@@ -29,8 +29,8 @@ void	compair_twovaluemap(const std::string &first_target_word, const std::string
 
 bool	same_class_test_twovalueset(int line, const char *key, HttpRequest &target) // 同名関数の使い回しがわからず、linkを接尾煮付ける
 {
-	std::map<std::string, BaseKeyValueMap*>keyvaluemap = target.get_request_keyvalue_map();
-	std::map<std::string, BaseKeyValueMap*>::iterator itr_now = keyvaluemap.begin();
+	std::map<std::string, FieldValues*>keyvaluemap = target.get_request_header_fields();
+	std::map<std::string, FieldValues*>::iterator itr_now = keyvaluemap.begin();
 	while (itr_now != keyvaluemap.end())
 	{
 		if (itr_now->first == key)
@@ -59,12 +59,14 @@ TEST(TwoValuseSet, TEST1)
 	HttpRequest httprequest_test1(TEST_REQUEST);
 	if (same_class_test_twovalueset(__LINE__, "Host", httprequest_test1) == true)
 	{
-		TwoValueSet* twoval = static_cast<TwoValueSet*>(httprequest_test1.return_value("Host"));
+		TwoValueSet* twoval = static_cast<TwoValueSet*>(httprequest_test1.get_field_values(
+				"Host"));
 		compair_twovaluemap( twoval->get_firstvalue(), twoval->get_secondvalue(), "example.com", "");
 	}
 	if (same_class_test_twovalueset(__LINE__, "Host", httprequest_test1) == true)
 	{
-		TwoValueSet* twoval = static_cast<TwoValueSet*>(httprequest_test1.return_value("Accept-Post"));
+		TwoValueSet* twoval = static_cast<TwoValueSet*>(httprequest_test1.get_field_values(
+				"Accept-Post"));
 		compair_twovaluemap( twoval->get_firstvalue(), twoval->get_secondvalue(), "application/json", "application/xml");
 	}
 }

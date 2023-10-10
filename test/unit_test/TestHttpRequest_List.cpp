@@ -56,8 +56,8 @@ void	compare_inputvalue_truevalue_linkclass_link(std::map<std::string, std::map<
 
 bool	same_class_test_link(int line, const char *key, HttpRequest &target) // 同名関数の使い回しがわからず、linkを接尾煮付ける
 {
-	std::map<std::string, BaseKeyValueMap*>keyvaluemap = target.get_request_keyvalue_map();
-	std::map<std::string, BaseKeyValueMap*>::iterator itr_now = keyvaluemap.begin();
+	std::map<std::string, FieldValues*>keyvaluemap = target.get_request_header_fields();
+	std::map<std::string, FieldValues*>::iterator itr_now = keyvaluemap.begin();
 	while (itr_now != keyvaluemap.end())
 	{
 		if (itr_now->first == key)
@@ -74,8 +74,8 @@ bool	same_class_test_link(int line, const char *key, HttpRequest &target) // 同
 
 bool	is_not_exist_link(int line, const char *key, HttpRequest &target) // 同名関数の使い回しがわからず、linkを接尾煮付ける
 {
-	std::map<std::string, BaseKeyValueMap*>keyvaluemap = target.get_request_keyvalue_map();
-	std::map<std::string, BaseKeyValueMap*>::iterator itr_now = keyvaluemap.begin();
+	std::map<std::string, FieldValues*>keyvaluemap = target.get_request_header_fields();
+	std::map<std::string, FieldValues*>::iterator itr_now = keyvaluemap.begin();
 	while (itr_now != keyvaluemap.end())
 	{
 		if (itr_now->first == key)
@@ -103,7 +103,8 @@ TEST(List, LIST_TEST)
 		map_value_2["rel"] = "\"prev\"";
 		test_map_values["</page1>"] = map_value_1;
 		test_map_values["</page2>"] = map_value_2;
-		LinkClass *linkclass = static_cast<LinkClass*>(httprequest_test1.return_value("Link"));
+		LinkClass *linkclass = static_cast<LinkClass*>(httprequest_test1.get_field_values(
+				"Link"));
 		compare_inputvalue_truevalue_linkclass_link(linkclass->get_link_valuemap(), test_map_values, __LINE__);
 	}
 }

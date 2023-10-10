@@ -43,7 +43,7 @@ void	HttpRequest::set_date(const std::string &key, const std::string &value)
 	std::getline(ssss, second, ':');
 	if (!(0 <= StringHandler::str_to_int(second) || StringHandler::str_to_int(second) <= 60))
 		return;
-	this->_request_keyvalue_map[key] = this->ready_ValueDateSet(value);
+	this->_request_header_fields[key] = this->ready_ValueDateSet(value);
 }
 
 void	HttpRequest::set_if_modified_since(const std::string &key, const std::string &value)
@@ -83,7 +83,7 @@ void	HttpRequest::set_if_modified_since(const std::string &key, const std::strin
 	std::getline(ssss, second, ':');
 	if (!(0 <= StringHandler::str_to_int(second) || StringHandler::str_to_int(second) <= 60))
 		return;
-	this->_request_keyvalue_map[key] = this->ready_ValueDateSet(value);
+	this->_request_header_fields[key] = this->ready_ValueDateSet(value);
 }
 
 void	HttpRequest::set_if_unmodified_since(const std::string &key, const std::string &value)
@@ -123,7 +123,7 @@ void	HttpRequest::set_if_unmodified_since(const std::string &key, const std::str
 	std::getline(ssss, second, ':');
 	if (!(0 <= StringHandler::str_to_int(second) || StringHandler::str_to_int(second) <= 60))
 		return;
-	this->_request_keyvalue_map[key] = this->ready_ValueDateSet(value);
+	this->_request_header_fields[key] = this->ready_ValueDateSet(value);
 }
 
 void	HttpRequest::set_last_modified(const std::string &key, const std::string &value)
@@ -163,5 +163,5 @@ void	HttpRequest::set_last_modified(const std::string &key, const std::string &v
 	std::getline(ssss, second, ':');
 	if (!(0 <= StringHandler::str_to_int(second) || StringHandler::str_to_int(second) <= 60))
 		return;
-	this->_request_keyvalue_map[key] = this->ready_ValueDateSet(value);
+	this->_request_header_fields[key] = this->ready_ValueDateSet(value);
 }

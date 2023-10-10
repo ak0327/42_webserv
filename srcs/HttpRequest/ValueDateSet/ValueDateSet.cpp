@@ -1,8 +1,8 @@
 #include "ValueDateSet.hpp"
 
-ValueDateSet::ValueDateSet():BaseKeyValueMap(){}
+ValueDateSet::ValueDateSet():FieldValues(){}
 
-ValueDateSet::ValueDateSet(const ValueDateSet &other):BaseKeyValueMap(other)
+ValueDateSet::ValueDateSet(const ValueDateSet &other):FieldValues(other)
 {
 	this->_day_name = other._day_name;
 	this->_day = other._day;

@@ -51,5 +51,5 @@ void	HttpRequest::set_content_security_policy(const std::string &key, const std:
 		words = skip_emptyword.substr(empty_position + 1);
 		content_security_map[policy_directive] = securitypolicy_readyvector(words);
 	}
-	this->_request_keyvalue_map[key] = this->ready_SecurityPolicy(content_security_map);
+	this->_request_header_fields[key] = this->ready_SecurityPolicy(content_security_map);
 }

@@ -3,10 +3,10 @@
 
 #include <map>
 #include <string>
-#include "../../StringHandler/StringHandler.hpp"
-#include "../BaseKeyValueMap/BaseKeyValueMap.hpp"
+#include "StringHandler.hpp"
+#include "FieldValues.hpp"
 
-class ValueWeightArraySet: public BaseKeyValueMap
+class ValueWeightArraySet: public FieldValues
 {
 	private:
 		std::map<std::string, double> _valueweight_set;  // map型で入れるが

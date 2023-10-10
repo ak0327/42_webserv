@@ -12,6 +12,8 @@
 !srcs/Socket
 !srcs/StringHandler
 !srcs/HttpRequest
+!srcs/HttpRequest/*/
+
 !www
 !includes
 !test

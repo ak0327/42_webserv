@@ -3,9 +3,9 @@
 
 #include <iostream>
 #include <string>
-#include "../BaseKeyValueMap/BaseKeyValueMap.hpp"
+#include "FieldValues.hpp"
 
-class TwoValueSet: public BaseKeyValueMap
+class TwoValueSet: public FieldValues
 {
 	private:
 		std::string	_firstvalue;

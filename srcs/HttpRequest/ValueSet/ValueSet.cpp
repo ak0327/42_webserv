@@ -1,8 +1,8 @@
 #include "ValueSet.hpp"
 
-ValueSet::ValueSet():BaseKeyValueMap(){}
+ValueSet::ValueSet():FieldValues(){}
 
-ValueSet::ValueSet(const ValueSet &other):BaseKeyValueMap()
+ValueSet::ValueSet(const ValueSet &other):FieldValues()
 {
 	this->_value = other.get_value_set();
 }

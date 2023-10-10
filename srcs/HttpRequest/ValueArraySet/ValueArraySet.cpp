@@ -1,8 +1,8 @@
 #include "ValueArraySet.hpp"
 
-ValueArraySet::ValueArraySet():BaseKeyValueMap(){}
+ValueArraySet::ValueArraySet():FieldValues(){}
 
-ValueArraySet::ValueArraySet(const ValueArraySet &other):BaseKeyValueMap(other)
+ValueArraySet::ValueArraySet(const ValueArraySet &other):FieldValues(other)
 {
 	this->_value_array = other.get_value_array();
 }

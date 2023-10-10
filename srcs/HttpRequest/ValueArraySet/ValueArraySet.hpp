@@ -5,9 +5,9 @@
 #include <string>
 #include <vector>
 
-#include "../BaseKeyValueMap/BaseKeyValueMap.hpp"
+#include "FieldValues.hpp"
 
-class ValueArraySet: public BaseKeyValueMap
+class ValueArraySet: public FieldValues
 {
 	private:
 		std::vector<std::string>	_value_array;

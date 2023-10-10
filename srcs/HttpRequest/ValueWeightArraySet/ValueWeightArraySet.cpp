@@ -1,6 +1,6 @@
 #include "ValueWeightArraySet.hpp"
 
-ValueWeightArraySet::ValueWeightArraySet():BaseKeyValueMap(){}
+ValueWeightArraySet::ValueWeightArraySet():FieldValues(){}
 
 ValueWeightArraySet& ValueWeightArraySet::operator=(const ValueWeightArraySet &other)
 {
@@ -10,7 +10,7 @@ ValueWeightArraySet& ValueWeightArraySet::operator=(const ValueWeightArraySet &o
 	return (*this);
 }
 
-ValueWeightArraySet::ValueWeightArraySet(const ValueWeightArraySet &other):BaseKeyValueMap(other)
+ValueWeightArraySet::ValueWeightArraySet(const ValueWeightArraySet &other):FieldValues(other)
 {
 	this->_valueweight_set = other.get_valueweight_set();
 }

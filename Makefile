@@ -35,17 +35,17 @@ SRCS		+=	$(STR_HANDLER)/HttpMessageParser.cpp \
 
 #httprequest
 REQUEST_DIR	=	HttpRequest
-SRCS		+=	$(REQUEST_DIR)/BaseKeyValueMap/BaseKeyValueMap.cpp \
-				$(REQUEST_DIR)/HttpRequest.cpp \
+SRCS		+=	$(REQUEST_DIR)/HttpRequest.cpp \
 				$(REQUEST_DIR)/HttpRequest_LinkClass.cpp \
 				$(REQUEST_DIR)/HttpRequest_SecurityPolicy.cpp \
 				$(REQUEST_DIR)/HttpRequest_TwoValueSet.cpp \
 				$(REQUEST_DIR)/HttpRequest_ValueArraySet.cpp \
 				$(REQUEST_DIR)/HttpRequest_ValueArraySet.cpp \
 				$(REQUEST_DIR)/HttpRequest_ValueSet.cpp \
+				$(REQUEST_DIR)/HttpRequest_ValueDateSet.cpp \
 				$(REQUEST_DIR)/HttpRequest_ValueMap.cpp \
 				$(REQUEST_DIR)/HttpRequest_ValueWeightArraySet.cpp \
-				$(REQUEST_DIR)/HttpRequest_ValueDateSet.cpp \
+				$(REQUEST_DIR)/FieldValues/FieldValues.cpp \
 				$(REQUEST_DIR)/LinkClass/LinkClass.cpp \
 				$(REQUEST_DIR)/RequestLine/RequestLine.cpp \
 				$(REQUEST_DIR)/SecurityPolicy/SecurityPolicy.cpp \
@@ -74,7 +74,7 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(SOCKET_DIR) \
 				$(SRCS_DIR)/$(STR_HANDLER) \
 				$(SRCS_DIR)/$(REQUEST_DIR) \
-				$(SRCS_DIR)/$(REQUEST_DIR)/BaseKeyValueMap \
+				$(SRCS_DIR)/$(REQUEST_DIR)/FieldValues \
 				$(SRCS_DIR)/$(REQUEST_DIR)/LinkClass \
 				$(SRCS_DIR)/$(REQUEST_DIR)/RequestLine \
 				$(SRCS_DIR)/$(REQUEST_DIR)/SecurityPolicy \

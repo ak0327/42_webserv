@@ -6,7 +6,7 @@
 # include <sstream>
 # include <vector>
 
-# include "BaseKeyValueMap.hpp"
+# include "FieldValues.hpp"
 # include "StringHandler.hpp"
 # include "RequestLine.hpp"
 # include "ValueWeightArraySet.hpp"
@@ -19,7 +19,7 @@
 # include "LinkClass.hpp"
 # include "Result.hpp"
 
-class BaseKeyValueMap;
+class FieldValues;
 class RequestLine;
 class TwoValueSet;
 class ValueArraySet;
@@ -33,7 +33,6 @@ class HttpRequest {
 	explicit HttpRequest(const std::string &input);
 	~HttpRequest();
 
-	BaseKeyValueMap* return_value(const std::string &key);
 	bool is_accept_langage_valueword(const std::string &value);
 
 	int get_status_code() const;
@@ -41,12 +40,13 @@ class HttpRequest {
 	std::string get_request_target() const;
 	std::string	get_http_version() const;
 
-	std::map<std::string, BaseKeyValueMap*> get_request_keyvalue_map(void);
+	std::map<std::string, FieldValues*> get_request_header_fields(void);
+	FieldValues* get_field_values(const std::string &field_name);
 
  private:
 	int _status_code;
 	RequestLine _request_line;
-	std::map<std::string, BaseKeyValueMap*> _request_keyvalue_map;
+	std::map<std::string, FieldValues*> _request_header_fields;
 	std::string _message_body;
 
 	typedef void (HttpRequest::*func_ptr)(const std::string&, const std::string&);

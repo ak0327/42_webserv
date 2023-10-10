@@ -4,9 +4,9 @@
 # include <iostream>
 # include <map>
 # include <string>
-# include "../BaseKeyValueMap/BaseKeyValueMap.hpp"
+# include "FieldValues.hpp"
 
-class ValueMap: public BaseKeyValueMap
+class ValueMap: public FieldValues
 {
 	private:
 		std::string							_only_value;

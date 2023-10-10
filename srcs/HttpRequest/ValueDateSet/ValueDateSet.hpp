@@ -4,9 +4,9 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include "../BaseKeyValueMap/BaseKeyValueMap.hpp"
+#include "FieldValues.hpp"
 
-class ValueDateSet: public BaseKeyValueMap
+class ValueDateSet: public FieldValues
 {
 	private:
 		std::string	_day_name;
