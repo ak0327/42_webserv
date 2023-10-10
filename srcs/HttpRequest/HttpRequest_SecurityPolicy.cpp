@@ -30,6 +30,7 @@ SecurityPolicy* HttpRequest::ready_SecurityPolicy(std::map<std::string, std::vec
 	return (new SecurityPolicy(_policy_directive));
 }
 
+// todo: Content-Security-Policy
 void	HttpRequest::set_content_security_policy(const std::string &key, const std::string &value)
 {
 	std::map<std::string, std::vector<std::string> > content_security_map;

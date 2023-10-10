@@ -3,10 +3,12 @@
 # include <map>
 # include <string>
 
-class	FieldValues
-{
-	public:
-		FieldValues(void);
-		FieldValues(const FieldValues &other);
-		virtual ~FieldValues();
+class FieldValues {
+ public:
+	FieldValues();
+	// FieldValues(const FieldValues &other);
+	virtual ~FieldValues();
+
+ private:
+
 };

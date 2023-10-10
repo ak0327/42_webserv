@@ -47,6 +47,7 @@ bool	is_list_form(const std::string &field_value_without_ows)
 	return (true);
 }
 
+// todo: Link
 void	HttpRequest::set_link(const std::string &key, const std::string &value)
 {
 	std::map<std::string, std::map<std::string, std::string> >	value_map;

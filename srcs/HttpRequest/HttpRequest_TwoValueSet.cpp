@@ -26,6 +26,7 @@ TwoValueSet* HttpRequest::ready_TwoValueSet(const std::string &value, char delim
 }
 
 // authorizationはちょっと格納方法変えるかもしれない
+// todo: Authorization
 void	HttpRequest::set_authorization(const std::string &key, const std::string &value)
 {
 	// Digest username=<username>,realm="<realm>",uri="<url>",algorithm=<algorithm>,nonce="<nonce>",
@@ -33,6 +34,7 @@ void	HttpRequest::set_authorization(const std::string &key, const std::string &v
 	this->_request_header_fields[key] = this->ready_TwoValueSet(value, ' ');
 }
 
+// todo: Accept-Post
 void	HttpRequest::set_accept_post(const std::string &key, const std::string &value)
 {
 	if (std::count(value.begin(), value.end(), ',') == 1)
@@ -53,6 +55,7 @@ void	HttpRequest::set_accept_post(const std::string &key, const std::string &val
 	this->_request_header_fields[key] = this->ready_TwoValueSet(value, ',');
 }
 
+// todo: Host
 void	HttpRequest::set_host(const std::string &key, const std::string &value)
 {
 	std::string	first_value;
@@ -76,6 +79,7 @@ void	HttpRequest::set_host(const std::string &key, const std::string &value)
 	this->_request_header_fields[key] = this->ready_TwoValueSet(value, ':');
 }
 
+// todo: Permission-Policy
 void	HttpRequest::set_permission_policy(const std::string &key, const std::string &value)
 {
 	if (std::count(value.begin(), value.end(), ',') == 1)
@@ -96,6 +100,7 @@ void	HttpRequest::set_permission_policy(const std::string &key, const std::strin
 	this->_request_header_fields[key] = this->ready_TwoValueSet(value, ',');
 }
 
+// todo: Proxy-Authorization
 void	HttpRequest::set_proxy_authorization(const std::string &key, const std::string &value)
 {
 	if (std::count(value.begin(), value.end(), ' ') == 1)

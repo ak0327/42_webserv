@@ -152,7 +152,7 @@ class HttpRequest {
 	void set_proxy_authorization(const std::string &key, const std::string &value);
 	// void	set//れどれが当てはまるかわからん
 	void set_referer(const std::string &key, const std::string &value);
-	void set_referrer_policy(const std::string &key, const std::string &value);
+	// void set_referrer_policy(const std::string &key, const std::string &value); todo: ??
 	void set_retry_after(const std::string &key, const std::string &value);
 	void set_sec_fetch_dest(const std::string &key, const std::string &value);
 	void set_sec_fetch_mode(const std::string &key, const std::string &value);

@@ -1,7 +1,6 @@
 #include "HttpRequest.hpp"
 
-ValueMap* HttpRequest::ready_ValueMap(const std::string &value, char delimiter)
-{
+ValueMap* HttpRequest::ready_ValueMap(const std::string &value, char delimiter) {
 	std::map<std::string, std::string>	value_map;
 	std::stringstream					ss(value);
 	std::string							line;
@@ -12,8 +11,7 @@ ValueMap* HttpRequest::ready_ValueMap(const std::string &value, char delimiter)
 	return (new ValueMap(value_map));
 }
 
-ValueMap* HttpRequest::ready_ValueMap(const std::string &value)
-{
+ValueMap* HttpRequest::ready_ValueMap(const std::string &value) {
 	std::map<std::string, std::string> value_map;
 	std::stringstream	ss(value);
 	std::string			line;
@@ -24,8 +22,7 @@ ValueMap* HttpRequest::ready_ValueMap(const std::string &value)
 	return (new ValueMap(value_map));
 }
 
-ValueMap* HttpRequest::ready_ValueMap(const std::string &only_value, const std::string &value)
-{
+ValueMap* HttpRequest::ready_ValueMap(const std::string &only_value, const std::string &value) {
 	std::map<std::string, std::string>	value_map;
 	std::stringstream					ss(value);
 	std::string							line;
@@ -42,13 +39,23 @@ ValueMap* HttpRequest::ready_ValueMap(const std::string &only_value, const std::
 
 // map準備関数
 
-void	HttpRequest::set_alt_svc(const std::string &key, const std::string &value)
-{
-	this->_request_header_fields[key] = this->ready_ValueMap(value);
+/*
+ Alt-Svc       = clear / 1#alt-value
+
+ clear         = %s"clear"; "clear", case-sensitive
+ alt-value     = alternative *( OWS ";" OWS parameter )
+ alternative   = protocol-id "=" alt-authority
+ protocol-id   = token ; percent-encoded ALPN protocol name
+ alt-authority = quoted-string ; containing [ uri-host ] ":" port
+ parameter     = token "=" ( token / quoted-string )
+ */
+// todo: alt-svc
+void	HttpRequest::set_alt_svc(const std::string &key, const std::string &value) {
+	_request_header_fields[key] = this->ready_ValueMap(value);
 }
 
-void	HttpRequest::set_content_disponesition(const std::string &key, const std::string &value)
-{
+// todo: Content-Disposition
+void	HttpRequest::set_content_disponesition(const std::string &key, const std::string &value) {
 	std::stringstream	ss(value);
 	std::string			only_value;
 	std::string			except_onlyvalue_line;
@@ -57,11 +64,11 @@ void	HttpRequest::set_content_disponesition(const std::string &key, const std::s
 	std::getline(ss, only_value, ';');
 	while (std::getline(ss, line, ';'))
 		except_onlyvalue_line = except_onlyvalue_line + line;
-	this->_request_header_fields[key] = this->ready_ValueMap(only_value, except_onlyvalue_line);
+	_request_header_fields[key] = this->ready_ValueMap(only_value, except_onlyvalue_line);
 }
 
-void	HttpRequest::set_content_type(const std::string &key, const std::string &value)
-{
+// todo: Content-Type
+void	HttpRequest::set_content_type(const std::string &key, const std::string &value) {
 	std::stringstream	ss(value);
 	std::string			only_value;
 	std::string			except_onlyvalue_line;
@@ -70,40 +77,40 @@ void	HttpRequest::set_content_type(const std::string &key, const std::string &va
 	std::getline(ss, only_value, ',');
 	while (std::getline(ss, line, ','))
 		except_onlyvalue_line = except_onlyvalue_line + line;
-	this->_request_header_fields[key] = this->ready_ValueMap(only_value, except_onlyvalue_line);
+	_request_header_fields[key] = this->ready_ValueMap(only_value, except_onlyvalue_line);
 }
 
-void	HttpRequest::set_cookie(const std::string &key, const std::string &value)
-{
-	this->_request_header_fields[key] = this->ready_ValueMap(value);
+// todo: Cookie
+void	HttpRequest::set_cookie(const std::string &key, const std::string &value) {
+	_request_header_fields[key] = this->ready_ValueMap(value);
 }
 
-void	HttpRequest::set_forwarded(const std::string &key, const std::string &value)
-{
-	this->_request_header_fields[key] = this->ready_ValueMap(value);
+// todo: Forwarded
+void	HttpRequest::set_forwarded(const std::string &key, const std::string &value) {
+	_request_header_fields[key] = this->ready_ValueMap(value);
 }
 
-void	HttpRequest::set_keep_alive(const std::string &key, const std::string &value)
-{
-	this->_request_header_fields[key] = this->ready_ValueMap(value, ',');
+// todo: Keep-Alive
+void	HttpRequest::set_keep_alive(const std::string &key, const std::string &value) {
+	_request_header_fields[key] = this->ready_ValueMap(value, ',');
 }
 
-void	HttpRequest::set_proxy_authenticate(const std::string &key, const std::string &value)
-{
+// todo: Proxy-Authenticate
+void	HttpRequest::set_proxy_authenticate(const std::string &key, const std::string &value) {
 	std::string re_line = value.substr(1);
 	size_t	empty_position = re_line.find(' ');
 	std::string	before_space_word = re_line.substr(0, empty_position);
 	std::string	after_space_word = re_line.substr(empty_position + 1, re_line.length());
 
-	this->_request_header_fields[key] = this->ready_ValueMap(before_space_word, after_space_word);
+	_request_header_fields[key] = this->ready_ValueMap(before_space_word, after_space_word);
 }
 
-void	HttpRequest::set_set_cookie(const std::string &key, const std::string &value)
-{
-	this->_request_header_fields[key] = this->ready_ValueMap(value);
+// todo: Set-Cookie
+void	HttpRequest::set_set_cookie(const std::string &key, const std::string &value) {
+	_request_header_fields[key] = this->ready_ValueMap(value);
 }
 
-void	HttpRequest::set_strict_transport_security(const std::string &key, const std::string &value)
-{
-	this->_request_header_fields[key] = this->ready_ValueMap(value);
+// todo: Strict-Transport-Security
+void	HttpRequest::set_strict_transport_security(const std::string &key, const std::string &value) {
+	_request_header_fields[key] = this->ready_ValueMap(value);
 }

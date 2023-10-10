@@ -6,6 +6,7 @@ ValueDateSet* HttpRequest::ready_ValueDateSet(const std::string &value)
 }
 
 // dateクラス
+// todo: Date
 void	HttpRequest::set_date(const std::string &key, const std::string &value)
 {
 	std::stringstream	ss(value);
@@ -46,6 +47,7 @@ void	HttpRequest::set_date(const std::string &key, const std::string &value)
 	this->_request_header_fields[key] = this->ready_ValueDateSet(value);
 }
 
+// todo: If-Modified-Since
 void	HttpRequest::set_if_modified_since(const std::string &key, const std::string &value)
 {
 	std::stringstream	ss(value);
@@ -86,6 +88,7 @@ void	HttpRequest::set_if_modified_since(const std::string &key, const std::strin
 	this->_request_header_fields[key] = this->ready_ValueDateSet(value);
 }
 
+// todo: If-Unmodified-Since
 void	HttpRequest::set_if_unmodified_since(const std::string &key, const std::string &value)
 {
 	std::stringstream	ss(value);
@@ -126,6 +129,7 @@ void	HttpRequest::set_if_unmodified_since(const std::string &key, const std::str
 	this->_request_header_fields[key] = this->ready_ValueDateSet(value);
 }
 
+// todo: Last-Modified
 void	HttpRequest::set_last_modified(const std::string &key, const std::string &value)
 {
 	std::stringstream	ss(value);

@@ -24,6 +24,7 @@ ValueWeightArraySet*	HttpRequest::ready_ValueWeightArraySet(const std::string &v
 	return (new ValueWeightArraySet(value_map));
 }
 
+// todo: Accept
 void HttpRequest::set_accept(const std::string &key, const std::string &value)
 {
 	size_t							value_length = value.size();
@@ -66,6 +67,7 @@ void HttpRequest::set_accept(const std::string &key, const std::string &value)
 	this->_request_header_fields[key] = this->ready_ValueWeightArraySet(value);
 }
 
+// todo: Accept-Charset
 void	HttpRequest::set_accept_charset(const std::string &key, const std::string &value)
 {
 	std::stringstream				splited_by_commma(value);
@@ -89,6 +91,7 @@ void	HttpRequest::set_accept_charset(const std::string &key, const std::string &
 	this->_request_header_fields[key] = this->ready_ValueWeightArraySet(value);
 }
 
+// todo: Accept-Encoding
 void	HttpRequest::set_accept_encoding(const std::string &key, const std::string &value)
 {
 	std::stringstream 	splited_by_commma(value);
@@ -127,6 +130,7 @@ void	HttpRequest::set_accept_encoding(const std::string &key, const std::string 
 	this->_request_header_fields[key] = this->ready_ValueWeightArraySet(skipping_nokeyword.substr(0, skipping_nokeyword.length() - 1));
 }
 
+// todo: Accept-Language
 void	HttpRequest::set_accept_language(const std::string &key, const std::string &value)
 {
 	std::stringstream 	splited_by_commma(value);
@@ -152,6 +156,7 @@ void	HttpRequest::set_accept_language(const std::string &key, const std::string 
 	this->_request_header_fields[key] = this->ready_ValueWeightArraySet(value);
 }
 
+// todo: TE
 void	HttpRequest::set_te(const std::string &key, const std::string &value)
 {
 	std::stringstream				splited_by_commma(value);

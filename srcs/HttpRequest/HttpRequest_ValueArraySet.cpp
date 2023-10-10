@@ -12,11 +12,13 @@ ValueArraySet* HttpRequest::ready_ValueArraySet(const std::string &all_value)
 	return (new ValueArraySet(value_array));
 }
 
+// todo: Accept-CH
 void	HttpRequest::set_accept_ch(const std::string &key, const std::string &value)
 {
 	this->_request_header_fields[key] = this->ready_ValueArraySet(value);
 }
 
+// todo: Access-Control-Allow-Headers
 void	HttpRequest::set_access_control_allow_headers(const std::string &key, const std::string &value)
 {
 	std::vector<std::string>	value_array;
@@ -32,6 +34,7 @@ void	HttpRequest::set_access_control_allow_headers(const std::string &key, const
 	this->_request_header_fields[key] = this->ready_ValueArraySet(value);
 }
 
+// todo: Access-Control-Allow-Methods
 void	HttpRequest::set_access_control_allow_methods(const std::string &key, const std::string &value)
 {
 	std::stringstream	ss(value);
@@ -48,11 +51,13 @@ void	HttpRequest::set_access_control_allow_methods(const std::string &key, const
 	this->_request_header_fields[key] = this->ready_ValueArraySet(value);
 }
 
+// todo: Access-Control-Expose-Headers
 void	HttpRequest::set_access_control_expose_headers(const std::string &key, const std::string &value)
 {
 	this->_request_header_fields[key] = this->ready_ValueArraySet(value);
 }
 
+// todo: Access-Control-Request-Headers
 void	HttpRequest::set_access_control_request_headers(const std::string &key, const std::string &value)
 {
 	std::vector<std::string>	value_array;
@@ -69,6 +74,7 @@ void	HttpRequest::set_access_control_request_headers(const std::string &key, con
 	this->_request_header_fields[key] = this->ready_ValueArraySet(value);
 }
 
+// todo: Allow
 void	HttpRequest::set_allow(const std::string &key, const std::string &value)
 {
 	std::stringstream	ss(value);
@@ -85,12 +91,14 @@ void	HttpRequest::set_allow(const std::string &key, const std::string &value)
 	this->_request_header_fields[key] = this->ready_ValueArraySet(value);
 }
 
+// todo: Clear-Site-Data
 void	HttpRequest::set_clear_site_data(const std::string &key, const std::string &value)
 {
 	// ダブルクオーテーションで囲う必要性があるようだが、"aaaa"", "bbb"みたいなことをされたとする、チェックは誰がする
 	this->_request_header_fields[key] = this->ready_ValueArraySet(value);
 }
 
+// todo: Content-Encoding
 void	HttpRequest::set_content_encoding(const std::string &key, const std::string &value)
 {
 	std::stringstream	ss(value);
@@ -104,21 +112,25 @@ void	HttpRequest::set_content_encoding(const std::string &key, const std::string
 	this->_request_header_fields[key] = this->ready_ValueArraySet(value);
 }
 
+// todo: Content-Language
 void	HttpRequest::set_content_language(const std::string &key, const std::string &value)
 {
 	this->_request_header_fields[key] = this->ready_ValueArraySet(value);
 }
 
+// todo: If-Match
 void	HttpRequest::set_if_match(const std::string &key, const std::string &value)
 {
 	this->_request_header_fields[key] = this->ready_ValueArraySet(value);
 }
 
+// todo: If-None-Match
 void	HttpRequest::set_if_none_match(const std::string &key, const std::string &value)
 {
 	this->_request_header_fields[key] = this->ready_ValueArraySet(value);
 }
 
+// todo: Transfer-Encoding
 void	HttpRequest::set_transfer_encoding(const std::string &key, const std::string &value)
 {
 	std::stringstream	ss(value);
@@ -135,17 +147,20 @@ void	HttpRequest::set_transfer_encoding(const std::string &key, const std::strin
 	this->_request_header_fields[key] = this->ready_ValueArraySet(value);
 }
 
+// todo: Upgrade
 void	HttpRequest::set_upgrade(const std::string &key, const std::string &value)
 {
 	this->_request_header_fields[key] = this->ready_ValueArraySet(value);
 }
 
+// todo: Vary
 void	HttpRequest::set_vary(const std::string &key, const std::string &value)
 {
 	// headerのみしか許可しないのでは
 	this->_request_header_fields[key] = this->ready_ValueArraySet(value);
 }
 
+// todo: WWW-Authenticate
 void	HttpRequest::set_www_authenticate(const std::string &key, const std::string &value)
 {
 	this->_request_header_fields[key] = this->ready_ValueArraySet(value);
