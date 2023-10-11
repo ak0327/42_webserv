@@ -188,10 +188,17 @@ long stol(const std::string &str, std::size_t *idx, bool *overflow) {
 	return num;
 }
 
+std::string to_string(int num) {
+	std::ostringstream oss;
+	oss << num;
+	return oss.str();
+}
 
-
-
-
+std::string to_string(long num) {
+	std::ostringstream oss;
+	oss << num;
+	return oss.str();
+}
 
 double str_to_double(const std::string &num_str)
 {

@@ -8,6 +8,9 @@ bool is_quoted(const std::string &value);
 int stoi(const std::string &str, std::size_t *idx, bool *overflow);
 long stol(const std::string &str, std::size_t *idx, bool *overflow);
 
+std::string to_string(int num);
+std::string to_string(long num);
+
 int to_digit(const char &c);
 
 
