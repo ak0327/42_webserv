@@ -6,15 +6,26 @@
 // serverblockの情報の取得→locationblockの情報を取得
 // 上記の流れを行いたい場合どうしても二回開く必要がある（要相談
 
+void	Config::set_serverconfig_ready_next_serverconfig(AllConfig *Configs, ServerConfig *serverconfig, \
+std::vector<std::string> *fieldkey_map, std::vector<std::vector<std::string> > *servername_list)
+{
+	Configs->set_host_config(*serverconfig);
+	servername_list->push_back(serverconfig->get_server_name());
+	this->_all_configs[serverconfig->get_server_name()] = Configs;
+	Configs.clear_information();
+	serverconfig->clear_serverconfig();
+	fieldkey_map->clear();
+}
+
 bool	Config::ready_server_config_format(const std::string &config_file_name, \
 std::vector<std::vector<std::string> > *servername_list)
 {
-	std::ifstream				config_lines(config_file_name.c_str());
-	std::string					config_line;
-	ServerConfig				serverconfig;
 	AllConfig					Configs;  // 現状ここに対する適切な変数が見つかっていない
 	bool						in_server_block = false;
 	bool						in_location_block = false;
+	ServerConfig				serverconfig;
+	std::ifstream				config_lines(config_file_name.c_str());
+	std::string					config_line;
 	std::string					location_path;
 	std::vector<std::string>	fieldkey_map;
 
@@ -30,14 +41,7 @@ std::vector<std::vector<std::string> > *servername_list)
 			if (IsConfigFormat::is_start_locationblock(config_line))
 				in_location_block = true;
 			else if (HandlingString::obtain_without_ows_value(config_line) == "}")
-			{
-				Configs.set_host_config(serverconfig);
-				servername_list->push_back(serverconfig.get_server_name());
-				this->_all_configs[serverconfig.get_server_name()] = Configs;
-				Configs.clear_information();
-				serverconfig.clear_serverconfig();
-				fieldkey_map.clear();
-			}
+				set_serverconfig_ready_next_serverconfig(&Configs, &serverconfig, &fieldkey_map, servername_list);
 		}
 		else if (in_server_block == true && in_location_block == true && \
 		IsConfigFormat::is_locationblock_config(config_line, &in_location_block))

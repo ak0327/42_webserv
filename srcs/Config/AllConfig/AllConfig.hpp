@@ -3,16 +3,14 @@
 
 #include <map>
 #include <string>
-#include "../ServerConfig/ServerConfig.hpp"
 #include "../LocationConfig/LocationConfig.hpp"
+#include "../ServerConfig/ServerConfig.hpp"
 
 
 class	AllConfig
 {
 	private:
 		ServerConfig							_host_config;
-		// host名が存在しないと、テンプレートのhostみたいに扱われる port番号が左の値になる
-		// portは一つ確定なので特段mapで持つ必要はない
 		std::map<std::string, LocationConfig>	_location_config;
 	public:
 		AllConfig(const ServerConfig &host_configs, const std::map<std::string, LocationConfig> &_location_config);

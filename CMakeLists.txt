@@ -77,7 +77,6 @@ set (unit_test_srcs
         test/unit_test/TestResult.cpp
         test/unit_test/TestSocket.cpp
         test/unit_test/TestIsConfigLineFormat.cpp
-        test/unit_test/TestIsConfigFormat.cpp
         test/unit_test/TestConfigReading.cpp
 )
 

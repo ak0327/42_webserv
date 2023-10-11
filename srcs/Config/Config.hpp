@@ -2,15 +2,15 @@
 #define SRCS_CONFIG_CONFIG_HPP_
 
 #include <fstream>
+#include <map>
 #include <sstream>
 #include <string>
-#include <map>
 #include <vector>
 #include "../HandlingString/HandlingString.hpp"
+#include "AllConfig/AllConfig.hpp"
 #include "ConfigHandlingString/ConfigHandlingString.hpp"
 #include "IsConfigFormat/IsConfigFormat.hpp"
 #include "ServerConfig/ServerConfig.hpp"
-#include "AllConfig/AllConfig.hpp"
 
 // 以下のような配置構成にする必要がある　命名は最適解分からず
 // 何かしらのクラス -> AllConfigと仮称
@@ -36,7 +36,8 @@ class	Config
 		~Config();
 		bool											ready_server_config_format(const std::string &config_file_name, std::vector<std::vector<std::string> > *servername_list);
 		bool											ready_location_config(const std::string &config_file_name, std::vector<std::vector<std::string> > servername_list);
-
+		void											set_serverconfig_ready_next_serverconfig(AllConfig *Configs, \
+		ServerConfig *serverconfig, std::vector<std::string> *fieldkey_map, std::vector<std::vector<std::string> > *servername_list)
 		bool											get_is_config_format(void){ return this->_is_config_format; }
 		std::map<std::vector<std::string>, AllConfig>	get_all_configs(void);
 		AllConfig										get_same_allconfig(const std::vector<std::string> servername);

@@ -2,9 +2,9 @@
 #define SRCS_CONFIG_ISCONFIGFORMAT_ISCONFIGFORMAT_HPP_
 
 #include <string>
-#include "../../HandlingString/HandlingString.hpp"
-#include "../ServerConfig/ServerConfig.hpp"
 #include "../LocationConfig/LocationConfig.hpp"
+#include "../ServerConfig/ServerConfig.hpp"
+#include "../../HandlingString/HandlingString.hpp"
 
 class IsConfigFormat
 {

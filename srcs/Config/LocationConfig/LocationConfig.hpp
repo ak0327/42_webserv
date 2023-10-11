@@ -1,14 +1,14 @@
 #ifndef SRCS_CONFIG_LOCATIONCONFIG_LOCATIONCONFIG_HPP_
 #define	SRCS_CONFIG_LOCATIONCONFIG_LOCATIONCONFIG_HPP_
 
-#include <string>
-#include <sstream>
 #include <iostream>
+#include <sstream>
+#include <string>
 #include <vector>
-#include "../ServerConfig/ServerConfig.hpp"
+#include "../ConfigHandlingString/ConfigHandlingString.hpp"
 #include "../HandlingString/HandlingString.hpp"
 #include "../NumericHandle/NumericHandle.hpp"
-#include "../ConfigHandlingString/ConfigHandlingString.hpp"
+#include "../ServerConfig/ServerConfig.hpp"
 
 class LocationConfig
 {
