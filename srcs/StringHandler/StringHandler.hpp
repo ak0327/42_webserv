@@ -6,6 +6,8 @@ namespace StringHandler {
 
 bool is_quoted(const std::string &value);
 int stoi(const std::string &str, std::size_t *idx, bool *overflow);
+long stol(const std::string &str, std::size_t *idx, bool *overflow);
+
 int to_digit(const char &c);
 
 

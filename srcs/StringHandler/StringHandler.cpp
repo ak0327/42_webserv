@@ -34,6 +34,29 @@ bool is_in_int_range(int before_x10_num,
 	return false;
 }
 
+bool is_in_long_range(long before_x10_num,
+					  long add_num) {
+	long max_div, max_mod;
+
+	if (before_x10_num == LONG_MAX || before_x10_num == LONG_MIN) {
+		return false;
+	}
+	if (before_x10_num > 0) {
+		max_div = LONG_MAX / 10;
+		max_mod = LONG_MAX % 10;
+	} else {
+		max_div = -(LONG_MIN / 10);
+		max_mod = -(LONG_MIN % 10);
+	}
+	if (std::abs(before_x10_num) < max_div) {
+		return true;
+	}
+	if (std::abs(before_x10_num) == max_div && max_mod == add_num) {
+		return true;
+	}
+	return false;
+}
+
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -127,6 +150,43 @@ int stoi(const std::string &str, std::size_t *idx, bool *overflow) {
 	return num;
 }
 
+long stol(const std::string &str, std::size_t *idx, bool *overflow) {
+	std::size_t	i;
+	long 		num;
+	int			digit, sign;
+
+	if (overflow) { *overflow = false; }
+	if (idx) { *idx = 0; }
+
+	i = 0;
+	while (std::isspace(str[i])) {
+		i++;
+	}
+
+	sign = 1;
+	if (str[i] == SIGN_PLUS || str[i] == SIGN_MINUS) {
+		if (str[i] == SIGN_MINUS) {
+			sign = -1;
+		}
+		i++;
+	}
+
+	num = 0;
+	while (std::isdigit(str[i])) {
+		digit = to_digit(str[i]);
+		if (!is_in_long_range(num, digit)) {
+			num = (sign == 1) ? LONG_MAX : LONG_MIN;
+			if (overflow) { *overflow = true; }
+			if (idx) { *idx = i; }
+			return num;
+		}
+		num = num * 10 + sign * digit;
+		i++;
+	}
+
+	if (idx) { *idx = i; }
+	return num;
+}
 
 
 
