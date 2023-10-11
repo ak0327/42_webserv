@@ -116,7 +116,7 @@ bool	IsConfigFormat::is_locationblock_config(const std::string &line, bool *in_l
 
 // location -> <OWS> (文字列->header) <OWS> {文字列->value}; <OWS>
 // もしくは終了を表す　}　元のOWSはなくても許容
-bool	IsConfigFormat::ready_locationblock_config(const std::string &line, bool *in_location_block, LocationConfig *locationconfig)
+bool	IsConfigFormat::ready_locationblock_config(const std::string &line, bool *in_location_block, LocationConfig *locationconfig, std::vector<std::string> *fieldkey_map)
 {
 	std::string		line_without_ows = HandlingString::obtain_without_ows_value(line);
 	// (文字列->header) <OWS> {文字列->value};
@@ -150,6 +150,9 @@ bool	IsConfigFormat::ready_locationblock_config(const std::string &line, bool *i
 	if (line_without_ows.length() == end_pos || line_without_ows.length() != end_pos + 1)
 		return (false);
 	field_value = line_without_ows.substr(start_pos, end_pos - start_pos);
+	if (std::find(fieldkey_map->begin(), fieldkey_map->end(), field_header) != fieldkey_map->end())
+		return (false);
+	fieldkey_map->push_back(field_header);
 	if (locationconfig->ready_locationblock_keyword(field_header, field_value) == false)
 		return (false);
 	return (true);

@@ -6,8 +6,8 @@
 // serverblockの情報の取得→locationblockの情報を取得
 // 上記の流れを行いたい場合どうしても二回開く必要がある（要相談
 
-bool	Config::ready_server_config_format(const std::string &config_file_name, std::vector<std::vector<std::string> > *servername_list, \
-std::map<std::vector<std::string>, std::vector<std::string> > *server_fieldkey_maps)
+bool	Config::ready_server_config_format(const std::string &config_file_name, \
+std::vector<std::vector<std::string> > *servername_list)
 {
 	std::ifstream				config_lines(config_file_name.c_str());
 	std::string					config_line;
@@ -31,7 +31,6 @@ std::map<std::vector<std::string>, std::vector<std::string> > *server_fieldkey_m
 				in_location_block = true;
 			else if (HandlingString::obtain_without_ows_value(config_line) == "}")
 			{
-				(*server_fieldkey_maps)[serverconfig.get_server_name()] = fieldkey_map;
 				Configs.set_host_config(serverconfig);
 				servername_list->push_back(serverconfig.get_server_name());
 				this->_all_configs[serverconfig.get_server_name()] = Configs;
@@ -52,9 +51,11 @@ std::map<std::vector<std::string>, std::vector<std::string> > *server_fieldkey_m
 	return (true);
 }
 
-void	Config::ready_location_config(const std::string &config_file_name, std::vector<std::vector<std::string> > servername_list)
+bool	Config::ready_location_config(const std::string &config_file_name, \
+std::vector<std::vector<std::string> > servername_list)
 {
 	std::vector<std::vector<std::string> >::iterator	servername_itr = servername_list.begin();
+	std::vector<std::string>							location_fieldkey_map;
 	std::ifstream										config_lines(config_file_name.c_str());  // 変更が反映されない
 	std::string											config_line;
 	std::string											location_path;
@@ -81,30 +82,40 @@ void	Config::ready_location_config(const std::string &config_file_name, std::vec
 				servername_itr++;
 		}
 		else if (in_server_block == true && in_location_block == true && \
-		IsConfigFormat::ready_locationblock_config(config_line, &in_location_block, &locationconfig))
+		IsConfigFormat::ready_locationblock_config(config_line, &in_location_block, &locationconfig, &location_fieldkey_map))
 		{
 			if (HandlingString::obtain_without_ows_value(config_line) == "}")
 			{
 				this->_all_configs[*servername_itr].set_location_config(location_path, locationconfig);
+				location_fieldkey_map.clear();
 				locationconfig.clear_location_keyword();
 				locationconfig.set_serverblock_infs(this->get_same_allconfig(*servername_itr).get_host_config());
 			}
 		}
+		else
+		{
+			std::cout << "Server Config Error config line is -> |" << config_line << "|" << std::endl;
+			return (false);
+		}
 	}
+	return (true);
 }
 
 Config::Config(const std::string &config_file_name): _is_config_format(true)
 {
-	std::ifstream										test_open(config_file_name.c_str());
-	std::vector<std::vector<std::string> >				servername_list;
-	std::map<std::vector<std::string>, std::vector<std::string> >	server_fieldkey_map;
+	std::ifstream													test_open(config_file_name.c_str());
+	std::vector<std::vector<std::string> >							servername_list;
 
-	if (!(test_open.is_open() && this->ready_server_config_format(config_file_name, &servername_list, &server_fieldkey_map)))
+	if (!(test_open.is_open() && this->ready_server_config_format(config_file_name, &servername_list)))
 	{
 		this->_is_config_format = false;
 		return;
 	}
-	ready_location_config(config_file_name, servername_list);
+	if (!(ready_location_config(config_file_name, servername_list)))
+	{
+		this->_is_config_format = false;
+		return;
+	}
 }
 
 Config::~Config(){}

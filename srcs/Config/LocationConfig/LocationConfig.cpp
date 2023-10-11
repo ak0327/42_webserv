@@ -44,7 +44,6 @@ bool	LocationConfig::ready_locationblock_keyword(const std::string &field_key, c
 	field_keys.push_back("client_max_body_size");
 	field_keys.push_back("keepaliverequests");
 	field_keys.push_back("keepalive_timeout");
-	field_keys.push_back("listen");
 	field_keys.push_back("maxBodySize");
 	field_keys.push_back("accesslog");
 	field_keys.push_back("default_type");
@@ -64,6 +63,10 @@ bool	LocationConfig::ready_locationblock_keyword(const std::string &field_key, c
 	// {
 	// 	return false;
 	// } 当てはまらないものをfalseにするかどうか
+	if (field_key == "listen")  // location内で認められていないワードはここではじく？
+	{
+		return (false);
+	}
     if (field_key == "autoindex")
     {
 		if (!(field_value == "on" || field_value == "off"))

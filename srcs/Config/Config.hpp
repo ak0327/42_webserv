@@ -34,8 +34,8 @@ class	Config
 	public:
 		explicit Config(const std::string &config_file_name);
 		~Config();
-		bool											ready_server_config_format(const std::string &config_file_name, std::vector<std::vector<std::string> > *servername_list, std::map<std::vector<std::string>, std::vector<std::string> > *server_fieldkey_map);
-		void											ready_location_config(const std::string &config_file_name, std::vector<std::vector<std::string> > servername_list);
+		bool											ready_server_config_format(const std::string &config_file_name, std::vector<std::vector<std::string> > *servername_list);
+		bool											ready_location_config(const std::string &config_file_name, std::vector<std::vector<std::string> > servername_list);
 
 		bool											get_is_config_format(void){ return this->_is_config_format; }
 		std::map<std::vector<std::string>, AllConfig>	get_all_configs(void);

@@ -40,33 +40,35 @@ TEST(IsConfigLineTest, is_start_location_block_false)
 
 TEST(IsConfigLineTest, is_location_block_format_true) 
 {
-	bool			test_boolean = true;
-	LocationConfig	test;
+	bool						test_boolean = true;
+	LocationConfig				test;
+	std::vector<std::string>	test_fieldkey_map;
 
-	EXPECT_EQ(true, IsConfigFormat::ready_locationblock_config("key val; ", &test_boolean, &test));
-	EXPECT_EQ(true, IsConfigFormat::ready_locationblock_config("	 key val    val     val;          ", &test_boolean, &test));
-	EXPECT_EQ(true, IsConfigFormat::ready_locationblock_config(" key val    val     val          val;", &test_boolean, &test));
-	EXPECT_EQ(true, IsConfigFormat::ready_locationblock_config("	 key val    val   	 val;", &test_boolean, &test));
-	EXPECT_EQ(true, IsConfigFormat::ready_locationblock_config("  key val    val   	 val;    ", &test_boolean, &test));
-	EXPECT_EQ(true, IsConfigFormat::ready_locationblock_config("  } ", &test_boolean, &test));
-	EXPECT_EQ(true, IsConfigFormat::ready_locationblock_config("  			 } ", &test_boolean, &test));
-	EXPECT_EQ(true, IsConfigFormat::ready_locationblock_config("key val    val     val	;          ", &test_boolean, &test));
-	EXPECT_EQ(true, IsConfigFormat::ready_locationblock_config("}", &test_boolean, &test));
+	EXPECT_EQ(true, IsConfigFormat::ready_locationblock_config("key val; ", &test_boolean, &test, &test_fieldkey_map));
+	EXPECT_EQ(true, IsConfigFormat::ready_locationblock_config("	 key val    val     val;          ", &test_boolean, &test, &test_fieldkey_map));
+	EXPECT_EQ(true, IsConfigFormat::ready_locationblock_config(" key val    val     val          val;", &test_boolean, &test, &test_fieldkey_map));
+	EXPECT_EQ(true, IsConfigFormat::ready_locationblock_config("	 key val    val   	 val;", &test_boolean, &test, &test_fieldkey_map));
+	EXPECT_EQ(true, IsConfigFormat::ready_locationblock_config("  key val    val   	 val;    ", &test_boolean, &test, &test_fieldkey_map));
+	EXPECT_EQ(true, IsConfigFormat::ready_locationblock_config("  } ", &test_boolean, &test, &test_fieldkey_map));
+	EXPECT_EQ(true, IsConfigFormat::ready_locationblock_config("  			 } ", &test_boolean, &test, &test_fieldkey_map));
+	EXPECT_EQ(true, IsConfigFormat::ready_locationblock_config("key val    val     val	;          ", &test_boolean, &test, &test_fieldkey_map));
+	EXPECT_EQ(true, IsConfigFormat::ready_locationblock_config("}", &test_boolean, &test, &test_fieldkey_map));
 }
 
 TEST(IsConfigLineTest, is_location_block_format_false) 
 {
-	bool			test_boolean = true;
-	LocationConfig	test;
+	bool						test_boolean = true;
+	LocationConfig				test;
+	std::vector<std::string> 	test_fieldkey_map;
 
-	EXPECT_EQ(false, IsConfigFormat::ready_locationblock_config("keyval;", &test_boolean, &test));
-	EXPECT_EQ(false, IsConfigFormat::ready_locationblock_config("key			val ", &test_boolean, &test));
-	EXPECT_EQ(false, IsConfigFormat::ready_locationblock_config("", &test_boolean, &test));
-	EXPECT_EQ(false, IsConfigFormat::ready_locationblock_config("	 key ", &test_boolean, &test));
-	EXPECT_EQ(false, IsConfigFormat::ready_locationblock_config("  key ; ", &test_boolean, &test));
-	EXPECT_EQ(false, IsConfigFormat::ready_locationblock_config("  }; ", &test_boolean, &test));
-	EXPECT_EQ(false, IsConfigFormat::ready_locationblock_config("  		} a aaaa aaaa ", &test_boolean, &test));
-	EXPECT_EQ(false, IsConfigFormat::ready_locationblock_config("key val; ;", &test_boolean, &test));
+	EXPECT_EQ(false, IsConfigFormat::ready_locationblock_config("keyval;", &test_boolean, &test, &test_fieldkey_map));
+	EXPECT_EQ(false, IsConfigFormat::ready_locationblock_config("key			val ", &test_boolean, &test, &test_fieldkey_map));
+	EXPECT_EQ(false, IsConfigFormat::ready_locationblock_config("", &test_boolean, &test, &test_fieldkey_map));
+	EXPECT_EQ(false, IsConfigFormat::ready_locationblock_config("	 key ", &test_boolean, &test, &test_fieldkey_map));
+	EXPECT_EQ(false, IsConfigFormat::ready_locationblock_config("  key ; ", &test_boolean, &test, &test_fieldkey_map));
+	EXPECT_EQ(false, IsConfigFormat::ready_locationblock_config("  }; ", &test_boolean, &test, &test_fieldkey_map));
+	EXPECT_EQ(false, IsConfigFormat::ready_locationblock_config("  		} a aaaa aaaa ", &test_boolean, &test, &test_fieldkey_map));
+	EXPECT_EQ(false, IsConfigFormat::ready_locationblock_config("key val; ;", &test_boolean, &test, &test_fieldkey_map));
 }
 
 TEST(IsConfigLineTest, is_start_server_block_true) 
