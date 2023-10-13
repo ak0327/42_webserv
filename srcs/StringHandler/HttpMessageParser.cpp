@@ -1,11 +1,15 @@
 #include <ctype.h>
 #include <algorithm>
+#include <iostream>
 #include <limits>
+#include <map>
 #include <string>
+#include <vector>
 #include "Color.hpp"
 #include "Constant.hpp"
 #include "HttpMessageParser.hpp"
 #include "StringHandler.hpp"
+#include "Result.hpp"
 
 namespace {
 
@@ -34,6 +38,32 @@ double get_fractional_part(const std::string &str_after_decimal_point,
 	*precision_idx = idx;
 	num /= digit;
 	return num;
+}
+
+std::size_t count(const std::vector<std::string> &vec, const std::string &target) {
+	return std::count(vec.begin(), vec.end(), target);
+}
+
+// Zeller's congruence
+std::string calculate_day_name(int year, int month, int day) {
+	if (month < 3) {
+		month += 12;
+		year -= 1;
+	}
+	int c = year / 100;
+	int y = year % 100;
+	int h = (day + 13 * (month + 1) / 5 + y + y / 4 + 5 * c + c / 4) % 7;
+
+	std::vector<std::string> day_names;
+	day_names.push_back("Sat");
+	day_names.push_back("Sun");
+	day_names.push_back("Mon");
+	day_names.push_back("Tue");
+	day_names.push_back("Wed");
+	day_names.push_back("Thu");
+	day_names.push_back("Fri");
+
+	return day_names[h];
 }
 
 }  // namespace
@@ -235,6 +265,268 @@ bool is_whitespace(char c) {
 
 bool is_end_with_cr(const std::string &str) {
 	return (!str.empty() && str[str.length() - 1] == CR);
+}
+
+Result<int, int> parse_http_date(const std::string &http_date,
+								 std::string *day_name,
+								 std::string *day,
+								 std::string *month,
+								 std::string *year,
+								 std::string *hour,
+								 std::string *minute,
+								 std::string *second,
+								 std::string *gmt) {
+	std::size_t pos, end_pos;
+	Result<std::string, int> day_name_result, day_result, month_result, year_result;
+	Result<std::string, int> hour_result, minute_result, second_result, gmt_result;
+
+
+	if (!day_name || !day || !month || !year || !hour || !minute || !second || !gmt) {
+		return Result<int, int>::err(NG);
+	}
+
+	// day_name
+	pos = 0;
+	day_name_result = StringHandler::parse_pos_to_delimiter(http_date, pos, COMMA, &end_pos);
+	if (day_name_result.is_err()) {
+		return Result<int, int>::err(NG);
+	}
+	pos = end_pos;
+
+	// COMMA
+	if (http_date[pos] != COMMA) {
+		return Result<int, int>::err(NG);
+	}
+	pos++;
+
+	// SP
+	if (http_date[pos] != SP) {
+		return Result<int, int>::err(NG);
+	}
+	pos++;
+
+	/* day1 */
+	// day
+	day_result = StringHandler::parse_pos_to_delimiter(http_date, pos, SP, &end_pos);
+	if (day_result.is_err()) {
+		return Result<int, int>::err(NG);
+	}
+	pos = end_pos;
+
+	// SP
+	if (http_date[pos] != SP) {
+		return Result<int, int>::err(NG);
+	}
+	pos++;
+
+	// month
+	month_result = StringHandler::parse_pos_to_delimiter(http_date, pos, SP, &end_pos);
+	if (month_result.is_err()) {
+		return Result<int, int>::err(NG);
+	}
+	pos = end_pos;
+
+	// SP
+	if (http_date[pos] != SP) {
+		return Result<int, int>::err(NG);
+	}
+	pos++;
+
+	// year
+	year_result = StringHandler::parse_pos_to_delimiter(http_date, pos, SP, &end_pos);
+	if (year_result.is_err()) {
+		return Result<int, int>::err(NG);
+	}
+	pos = end_pos;
+
+	// SP
+	if (http_date[pos] != SP) {
+		return Result<int, int>::err(NG);
+	}
+	pos++;
+
+	/* time-of-day */
+	// hour
+	hour_result = StringHandler::parse_pos_to_delimiter(http_date, pos, COLON, &end_pos);
+	if (hour_result.is_err()) {
+		return Result<int, int>::err(NG);
+	}
+	pos = end_pos;
+
+	// COLON
+	if (http_date[pos] != COLON) {
+		return Result<int, int>::err(NG);
+	}
+	pos++;
+
+	// minute
+	minute_result = StringHandler::parse_pos_to_delimiter(http_date, pos, COLON, &end_pos);
+	if (minute_result.is_err()) {
+		return Result<int, int>::err(NG);
+	}
+	pos = end_pos;
+
+	// COLON
+	if (http_date[pos] != COLON) {
+		return Result<int, int>::err(NG);
+	}
+	pos++;
+
+	// second
+	second_result = StringHandler::parse_pos_to_delimiter(http_date, pos, SP, &end_pos);
+	if (second_result.is_err()) {
+		return Result<int, int>::err(NG);
+	}
+	pos = end_pos;
+
+	// SP
+	if (http_date[pos] != SP) {
+		return Result<int, int>::err(NG);
+	}
+	pos++;
+
+	// GMT
+	gmt_result = StringHandler::parse_pos_to_delimiter(http_date, pos, '\0', NULL);
+	if (gmt_result.is_err()) {
+		return Result<int, int>::err(NG);
+	}
+
+	*day_name = day_name_result.get_ok_value();
+	*day = day_result.get_ok_value();
+	*month = month_result.get_ok_value();
+	*year = year_result.get_ok_value();
+	*hour = hour_result.get_ok_value();
+	*minute = minute_result.get_ok_value();
+	*second = second_result.get_ok_value();
+	*gmt = gmt_result.get_ok_value();
+
+	return Result<int, int>::ok(OK);
+}
+
+bool is_leap_year(int year) {
+	if (year % 4 != 0) {
+		return false;
+	}
+	if (year % 100 == 0 && year % 400 != 0) {
+		return false;
+	}
+	return true;
+}
+
+bool is_valid_day1(int year, int month, int day) {
+	int month_idx;
+	int days_in_month[12];
+	const int jan_idx = 0, feb_idx = 1, mar_idx = 2, apr_idx = 3,
+			  may_idx = 4, jun_idx = 5, jul_idx = 6, aug_idx = 7,
+			  sep_idx = 8, oct_idx = 9, nov_idx = 10, dec_idx = 11;
+
+	if (year < GREGORIAN_CALENDAR || month < 1 || 12 < month) {
+		return false;
+	}
+	month_idx = month - 1;
+
+	days_in_month[jan_idx] = 31;
+	days_in_month[feb_idx] = is_leap_year(year) ? 29 : 28;
+	days_in_month[mar_idx] = 31;
+	days_in_month[apr_idx] = 30;
+	days_in_month[may_idx] = 31;
+	days_in_month[jun_idx] = 30;
+	days_in_month[jul_idx] = 31;
+	days_in_month[aug_idx] = 31;
+	days_in_month[sep_idx] = 30;
+	days_in_month[oct_idx] = 31;
+	days_in_month[nov_idx] = 30;
+	days_in_month[dec_idx] = 31;
+
+	return 1 <= day && day <= days_in_month[month_idx];
+}
+
+bool is_valid_time_of_day(int hour, int minute, int second) {
+	if (hour < 0 || 23 < hour) {
+		return false;
+	}
+	if (minute < 0 || 59 <minute) {
+		return false;
+	}
+	if (second < 0 || 59 < second) {
+		return false;
+	}
+	return true;
+}
+
+bool is_valid_day_name(const std::string &day_name, int year, int month, int day) {
+	std::string zellers_day_name = calculate_day_name(year, month, day);
+
+	return day_name == zellers_day_name;
+}
+
+Result<int, int> validate_http_date(const std::string &day_name,
+									const std::string &day,
+									const std::string &month,
+									const std::string &year,
+									const std::string &hour,
+									const std::string &minute,
+									const std::string &second,
+									const std::string &gmt) {
+	int day_num, month_num, year_num, hour_num, minute_num, second_num;
+	std::vector<std::string>::const_iterator month_itr;
+	bool succeed;
+
+	// day1
+	day_num = to_integer_num(day, &succeed);
+	if (day.length() != 2 || !succeed) {
+		return Result<int, int>::err(NG);
+	}
+
+	month_itr = std::find(MONTHS.begin(), MONTHS.end(), month);
+	if (month_itr == MONTHS.end()) {
+		return Result<int, int>::err(NG);
+	}
+	month_num = static_cast<int>(std::distance(MONTHS.begin(), month_itr)) + 1;
+
+	year_num = to_integer_num(year, &succeed);
+	if (year.length() != 4 || !succeed) {
+		return Result<int, int>::err(NG);
+	}
+
+	if (!is_valid_day1(year_num, month_num, day_num)) {
+		return Result<int, int>::err(NG);
+	}
+
+	// time-of-date
+	hour_num = to_integer_num(hour, &succeed);
+	if (hour.length() != 2 || !succeed) {
+		return Result<int, int>::err(NG);
+	}
+
+	minute_num = to_integer_num(minute, &succeed);
+	if (minute.length() != 2 || !succeed) {
+		return Result<int, int>::err(NG);
+	}
+
+	second_num = to_integer_num(second, &succeed);
+	if (second.length() != 2 || !succeed) {
+		return Result<int, int>::err(NG);
+	}
+
+	if (!is_valid_time_of_day(hour_num, minute_num, second_num)) {
+		return Result<int, int>::err(NG);
+	}
+
+	// day_name
+	if (std::find(DAY_NAMES.begin(), DAY_NAMES.end(), day_name) == DAY_NAMES.end()) {
+		return Result<int, int>::err(NG);
+	}
+	if (!is_valid_day_name(day_name, year_num, month_num, day_num)) {
+		return Result<int, int>::err(NG);
+	}
+
+	// gmt
+	if (gmt != std::string(GMT)) {
+		return Result<int, int>::err(NG);
+	}
+
+	return Result<int, int>::ok(OK);
 }
 
 }  // namespace HttpMessageParser

@@ -125,16 +125,12 @@ Result<int, int> RequestLine::parse(const std::string &line_wo_end_lf) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/* validate */
-bool RequestLine::is_valid_request_target(const std::string &request_target) {
-	return HttpMessageParser::is_printable(request_target);
-}
 
 Result<int, int> RequestLine::validate() const {
 	if (!HttpMessageParser::is_valid_method(this->_method)) {
 		return Result<int, int>::err(NG);
 	}
-	if (!is_valid_request_target(this->_request_target)) {
+	if (!HttpMessageParser::is_valid_request_target(this->_request_target)) {
 		return Result<int, int>::err(NG);
 	}
 	if (!HttpMessageParser::is_valid_http_version(this->_http_version)) {
