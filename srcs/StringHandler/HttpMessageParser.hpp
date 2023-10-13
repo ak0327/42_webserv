@@ -1,6 +1,7 @@
 #pragma once
 
 # include <string>
+# include "Result.hpp"
 
 namespace HttpMessageParser {
 
@@ -34,4 +35,26 @@ bool is_whitespace(char c);
 bool is_valid_method(const std::string &method);
 bool is_valid_request_target(const std::string &request_target);
 bool is_valid_http_version(const std::string &http_version);
+bool is_valid_day1(int year, int month, int day);
+bool is_valid_time_of_day(int hour, int minute, int second);
+bool is_valid_day_name(const std::string &day_name, int year, int month, int day);
+
+Result<int, int> parse_http_date(const std::string &http_date,
+								 std::string *day_name,
+								 std::string *day,
+								 std::string *month,
+								 std::string *year,
+								 std::string *hour,
+								 std::string *minute,
+								 std::string *second,
+								 std::string *gmt);
+
+Result<int, int> validate_http_date(const std::string &day_name,
+									const std::string &day,
+									const std::string &month,
+									const std::string &year,
+									const std::string &hour,
+									const std::string &minute,
+									const std::string &second,
+									const std::string &gmt);
 }  // namespace HttpMessageParser

@@ -14,8 +14,7 @@
 # include "ValueSet.hpp"
 # include "TwoValueSet.hpp"
 # include "ValueMap.hpp"
-# include "ValueDateSet.hpp"
-# include "SecurityPolicy.hpp"
+# include "Date.hpp"
 # include "LinkClass.hpp"
 # include "Result.hpp"
 
@@ -23,7 +22,7 @@ class FieldValues;
 class RequestLine;
 class TwoValueSet;
 class ValueArraySet;
-class ValueDateSet;
+class Date;
 class ValueMap;
 class ValueSet;
 class ValueWeightArraySet;
@@ -70,6 +69,8 @@ class HttpRequest {
 	bool is_valid_field_name(const std::string &field_name);
 
 
+	Result<int, int> set_valid_http_date(const std::string &field_name,
+										 const std::string &field_value);
 
 	bool is_weightformat(const std::string &value);
 	LinkClass *ready_LinkClass(std::map<std::string, std::map<std::string, std::string> > link_valuemap);

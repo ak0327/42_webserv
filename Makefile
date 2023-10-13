@@ -205,4 +205,20 @@ run_http_request_test    :
 	cmake --build build
 	./build/unit_test --gtest_filter=TestHttpRequest*
 
+
+.PHONY    : run_single_field_value_test
+run_single_field_value_test    :
+#rm -rf build
+	cmake -S . -B build
+	cmake --build build
+	./build/unit_test --gtest_filter=TestSingleFieldValue*
+
+
+.PHONY    : run_date_test
+run_date_test    :
+#rm -rf build
+	cmake -S . -B build
+	cmake --build build
+	./build/unit_test --gtest_filter=TestDate*
+
 -include $(DEPS)

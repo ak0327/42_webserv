@@ -55,14 +55,17 @@ std::string calculate_day_name(int year, int month, int day) {
 	int h = (day + 13 * (month + 1) / 5 + y + y / 4 + 5 * c + c / 4) % 7;
 
 	std::vector<std::string> day_names;
-	day_names.push_back("Sat");
-	day_names.push_back("Sun");
-	day_names.push_back("Mon");
-	day_names.push_back("Tue");
-	day_names.push_back("Wed");
-	day_names.push_back("Thu");
-	day_names.push_back("Fri");
+	day_names.push_back(std::string(SAT));
+	day_names.push_back(std::string(SUN));
+	day_names.push_back(std::string(MON));
+	day_names.push_back(std::string(TUE));
+	day_names.push_back(std::string(WED));
+	day_names.push_back(std::string(THU));
+	day_names.push_back(std::string(FRI));
 
+	if (0 < h || h < static_cast<int>(day_names.size())) {
+		return std::string(EMPTY);
+	}
 	return day_names[h];
 }
 
