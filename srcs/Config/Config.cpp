@@ -123,7 +123,7 @@ std::map<std::vector<std::string>, AllConfig>	Config::get_all_configs()
 	return (this->_all_configs);
 }
 
-AllConfig Config::get_same_allconfig(const std::vector<std::string> servername)
+AllConfig Config::get_same_allconfig(const std::vector<std::string> &servername)
 {
 	return (this->_all_configs[servername]);
 }
