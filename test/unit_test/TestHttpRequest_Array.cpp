@@ -1,16 +1,16 @@
-#include "../../srcs/StringHandler/StringHandler.hpp"
+#include "StringHandler.hpp"
 #include "SingleFieldValue.hpp"
-#include "../../srcs/HttpRequest/TwoValueSet/TwoValueSet.hpp"
-#include "../../srcs/HttpRequest/RequestLine/RequestLine.hpp"
-#include "../../srcs/HttpRequest/ValueArraySet/ValueArraySet.hpp"
+#include "TwoValueSet.hpp"
+#include "RequestLine.hpp"
+#include "MultiFieldValues.hpp"
 #include "Date.hpp"
-#include "../../srcs/HttpRequest/ValueMap/ValueMap.hpp"
-#include "../../srcs/HttpRequest/ValueWeightArraySet/ValueWeightArraySet.hpp"
-#include "../../srcs/HttpRequest/HttpRequest.hpp"
+#include "ValueMap.hpp"
+#include "ValueWeightArraySet.hpp"
+#include "HttpRequest.hpp"
 #include "gtest/gtest.h"
-#include "../../includes/Color.hpp"
-#include "../../srcs/Error/Error.hpp"
-#include "../../srcs/Debug/Debug.hpp"
+#include "Color.hpp"
+#include "Error.hpp"
+#include "Debug.hpp"
 #include "Result.hpp"
 #include <string>
 #include <algorithm>
@@ -68,12 +68,14 @@ bool	is_not_exist_array(int line, const char *key, HttpRequest &target) // ÂêåÂê
 // Upgrade: WebSocket\r\nVary: User-Agent\r\n
 // WWW-Authenticate: Basic realm=\"Secure Area\"\r\n
 
-void	compare_vectors_report_array(std::vector<std::string> target_vector, std::vector<std::string> subject_vector, size_t line)
+void	compare_vectors_report_array(std::set<std::string> target_vector,
+									 std::set<std::string> subject_vector,
+									 size_t line)
 {
-	std::vector<std::string>::iterator itr_now = target_vector.begin();
+	std::set<std::string>::iterator itr_now = target_vector.begin();
 	while (itr_now != target_vector.end())
 	{
-		if (std::find(subject_vector.begin(), subject_vector.end(), *itr_now) == subject_vector.end())
+		if (subject_vector.find(*itr_now) == subject_vector.end())
 		{
 			std::cout << *itr_now << " is not exist" << std::endl;
 			ADD_FAILURE_AT(__FILE__, line);
@@ -88,13 +90,13 @@ TEST(Array, Array_TEST)
 	HttpRequest httprequest_test1(TEST_REQUEST);
 	if (same_class_test_array(__LINE__, "Access-Control-Allow-Methods", httprequest_test1) == true)
 	{
-		ValueArraySet* val7 = static_cast<ValueArraySet*>(httprequest_test1.get_field_values(
+		MultiFieldValues* val7 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
 				"Access-Control-Allow-Methods"));
-		std::vector<std::string> vector7;
+		std::set<std::string> vector7;
 		// GET, POST, PUT, DELETE
-		vector7.push_back("GET");
-		vector7.push_back("POST");
-		vector7.push_back("PUT");
-		compare_vectors_report_array(val7->get_value_array(), vector7, 117);
+		vector7.insert("GET");
+		vector7.insert("POST");
+		vector7.insert("PUT");
+		compare_vectors_report_array(val7->get_values(), vector7, 117);
 	}
 }

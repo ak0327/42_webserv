@@ -1,19 +1,19 @@
-#include "../../srcs/StringHandler/StringHandler.hpp"
-#include "SingleFieldValue.hpp"
-#include "../../srcs/HttpRequest/TwoValueSet/TwoValueSet.hpp"
-#include "../../srcs/HttpRequest/RequestLine/RequestLine.hpp"
-#include "../../srcs/HttpRequest/ValueArraySet/ValueArraySet.hpp"
-#include "Date.hpp"
-#include "../../srcs/HttpRequest/ValueMap/ValueMap.hpp"
-#include "../../srcs/HttpRequest/ValueWeightArraySet/ValueWeightArraySet.hpp"
-#include "../../srcs/HttpRequest/HttpRequest.hpp"
-#include "gtest/gtest.h"
-#include "../../includes/Color.hpp"
-#include "../../srcs/Error/Error.hpp"
-#include "../../srcs/Debug/Debug.hpp"
-#include "Result.hpp"
-#include <string>
 #include <algorithm>
+#include <string>
+#include "StringHandler.hpp"
+#include "SingleFieldValue.hpp"
+#include "TwoValueSet.hpp"
+#include "RequestLine.hpp"
+#include "MultiFieldValues.hpp"
+#include "Date.hpp"
+#include "ValueMap.hpp"
+#include "ValueWeightArraySet.hpp"
+#include "HttpRequest.hpp"
+#include "gtest/gtest.h"
+#include "Color.hpp"
+#include "Error.hpp"
+#include "Debug.hpp"
+#include "Result.hpp"
 
 // GET /example-page HTTP/1.1
 // Host: example.com
