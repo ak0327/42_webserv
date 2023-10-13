@@ -310,6 +310,10 @@ bool is_valid_http_version(const std::string &http_version) {
 	itr = std::find(HTTP_VERSIONS.begin(), HTTP_VERSIONS.end(), http_version);
 	return itr != HTTP_VERSIONS.end();
 }
+
+bool is_header_body_separator(const std::string &line_end_with_cr) {
+	return line_end_with_cr == std::string(1, CR);
+}
 bool is_trailer_allowed_field_name(const std::string &field_name) {
 	if (count(MESSAGE_FRAMING_HEADERS, field_name) != 0) {
 		return false;
