@@ -41,7 +41,6 @@ include_directories(
         srcs/HttpRequest/FieldValues
         srcs/HttpRequest/LinkClass
         srcs/HttpRequest/RequestLine
-        srcs/HttpRequest/SecurityPolicy
         srcs/HttpRequest/TwoValueSet
         srcs/HttpRequest/ValueArraySet
         srcs/HttpRequest/Date
@@ -62,7 +61,6 @@ set(webserv_srcs
         srcs/HttpRequest/FieldValues/FieldValues.cpp
         srcs/HttpRequest/HttpRequest.cpp
         srcs/HttpRequest/HttpRequest_LinkClass.cpp
-        srcs/HttpRequest/HttpRequest_SecurityPolicy.cpp
         srcs/HttpRequest/HttpRequest_TwoValueSet.cpp
         srcs/HttpRequest/HttpRequest_ValueArraySet.cpp
         srcs/HttpRequest/HttpRequest_Date.cpp
@@ -76,7 +74,6 @@ set(webserv_srcs
         srcs/HttpRequest/ValueMap/ValueMap.cpp
         srcs/HttpRequest/ValueSet/ValueSet.cpp
         srcs/HttpRequest/ValueWeightArraySet/ValueWeightArraySet.cpp
-        srcs/HttpRequest/SecurityPolicy/SecurityPolicy.cpp
         srcs/HttpRequest/LinkClass/LinkClass.cpp
 )
 

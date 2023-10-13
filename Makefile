@@ -37,7 +37,6 @@ SRCS		+=	$(STR_HANDLER)/HttpMessageParser.cpp \
 REQUEST_DIR	=	HttpRequest
 SRCS		+=	$(REQUEST_DIR)/HttpRequest.cpp \
 				$(REQUEST_DIR)/HttpRequest_LinkClass.cpp \
-				$(REQUEST_DIR)/HttpRequest_SecurityPolicy.cpp \
 				$(REQUEST_DIR)/HttpRequest_TwoValueSet.cpp \
 				$(REQUEST_DIR)/HttpRequest_ValueArraySet.cpp \
 				$(REQUEST_DIR)/HttpRequest_ValueArraySet.cpp \
@@ -48,7 +47,6 @@ SRCS		+=	$(REQUEST_DIR)/HttpRequest.cpp \
 				$(REQUEST_DIR)/FieldValues/FieldValues.cpp \
 				$(REQUEST_DIR)/LinkClass/LinkClass.cpp \
 				$(REQUEST_DIR)/RequestLine/RequestLine.cpp \
-				$(REQUEST_DIR)/SecurityPolicy/SecurityPolicy.cpp \
 				$(REQUEST_DIR)/TwoValueSet/TwoValueSet.cpp \
 				$(REQUEST_DIR)/ValueArraySet/ValueArraySet.cpp \
 				$(REQUEST_DIR)/ValueDateSet/ValueDateSet.cpp \
@@ -77,7 +75,6 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(REQUEST_DIR)/FieldValues \
 				$(SRCS_DIR)/$(REQUEST_DIR)/LinkClass \
 				$(SRCS_DIR)/$(REQUEST_DIR)/RequestLine \
-				$(SRCS_DIR)/$(REQUEST_DIR)/SecurityPolicy \
 				$(SRCS_DIR)/$(REQUEST_DIR)/TwoValueSet \
 				$(SRCS_DIR)/$(REQUEST_DIR)/ValueArraySet \
 				$(SRCS_DIR)/$(REQUEST_DIR)/Date \

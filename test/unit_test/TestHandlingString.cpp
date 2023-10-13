@@ -9,7 +9,6 @@
 #include "../../srcs/HttpRequest/ValueMap/ValueMap.hpp"
 #include "../../srcs/HttpRequest/ValueWeightArraySet/ValueWeightArraySet.hpp"
 #include "../../srcs/HttpRequest/HttpRequest.hpp"
-#include "../../srcs/HttpRequest/SecurityPolicy/SecurityPolicy.hpp"
 #include "gtest/gtest.h"
 #include "../../includes/Color.hpp"
 #include "../../srcs/Error/Error.hpp"
