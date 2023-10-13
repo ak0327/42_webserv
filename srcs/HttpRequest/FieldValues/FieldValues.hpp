@@ -8,7 +8,4 @@ class FieldValues {
 	FieldValues();
 	// FieldValues(const FieldValues &other);
 	virtual ~FieldValues();
-
- private:
-
 };
