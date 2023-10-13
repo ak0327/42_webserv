@@ -44,7 +44,7 @@ include_directories(
         srcs/HttpRequest/SecurityPolicy
         srcs/HttpRequest/TwoValueSet
         srcs/HttpRequest/ValueArraySet
-        srcs/HttpRequest/ValueDateSet
+        srcs/HttpRequest/Date
         srcs/HttpRequest/ValueMap
         srcs/HttpRequest/ValueSet
         srcs/HttpRequest/ValueWeightArraySet
@@ -65,14 +65,14 @@ set(webserv_srcs
         srcs/HttpRequest/HttpRequest_SecurityPolicy.cpp
         srcs/HttpRequest/HttpRequest_TwoValueSet.cpp
         srcs/HttpRequest/HttpRequest_ValueArraySet.cpp
-        srcs/HttpRequest/HttpRequest_ValueDateSet.cpp
+        srcs/HttpRequest/HttpRequest_Date.cpp
         srcs/HttpRequest/HttpRequest_ValueMap.cpp
         srcs/HttpRequest/HttpRequest_ValueSet.cpp
         srcs/HttpRequest/HttpRequest_ValueWeightArraySet.cpp
         srcs/HttpRequest/RequestLine/RequestLine.cpp
         srcs/HttpRequest/TwoValueSet/TwoValueSet.cpp
         srcs/HttpRequest/ValueArraySet/ValueArraySet.cpp
-        srcs/HttpRequest/ValueDateSet/ValueDateSet.cpp
+        srcs/HttpRequest/Date/Date.cpp
         srcs/HttpRequest/ValueMap/ValueMap.cpp
         srcs/HttpRequest/ValueSet/ValueSet.cpp
         srcs/HttpRequest/ValueWeightArraySet/ValueWeightArraySet.cpp
@@ -102,6 +102,10 @@ set (unit_test_srcs
         test/unit_test/TestStringHandler.cpp
         test/unit_test/TestHttpMessageParser.cpp
         test/unit_test/TestRequestLine.cpp
+        test/unit_test/TestDate/TestDate.cpp
+        test/unit_test/TestDate/TestIfModifiedSince.cpp
+        test/unit_test/TestDate/TestIfUnmodifiedSince.cpp
+        test/unit_test/TestDate/TestLastModified.cpp
 )
 
 add_executable(unit_test

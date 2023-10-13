@@ -42,7 +42,7 @@ SRCS		+=	$(REQUEST_DIR)/HttpRequest.cpp \
 				$(REQUEST_DIR)/HttpRequest_ValueArraySet.cpp \
 				$(REQUEST_DIR)/HttpRequest_ValueArraySet.cpp \
 				$(REQUEST_DIR)/HttpRequest_ValueSet.cpp \
-				$(REQUEST_DIR)/HttpRequest_ValueDateSet.cpp \
+				$(REQUEST_DIR)/HttpRequest_Date.cpp \
 				$(REQUEST_DIR)/HttpRequest_ValueMap.cpp \
 				$(REQUEST_DIR)/HttpRequest_ValueWeightArraySet.cpp \
 				$(REQUEST_DIR)/FieldValues/FieldValues.cpp \
@@ -80,7 +80,7 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(REQUEST_DIR)/SecurityPolicy \
 				$(SRCS_DIR)/$(REQUEST_DIR)/TwoValueSet \
 				$(SRCS_DIR)/$(REQUEST_DIR)/ValueArraySet \
-				$(SRCS_DIR)/$(REQUEST_DIR)/ValueDateSet \
+				$(SRCS_DIR)/$(REQUEST_DIR)/Date \
 				$(SRCS_DIR)/$(REQUEST_DIR)/ValueMap \
 				$(SRCS_DIR)/$(REQUEST_DIR)/ValueSet \
 				$(SRCS_DIR)/$(REQUEST_DIR)/ValueWeightArraySet

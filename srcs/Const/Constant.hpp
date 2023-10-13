@@ -4,17 +4,36 @@
 # include <vector>
 
 ////////////////////////////////////////////////////////////////////////////////
+/* return value */
 
 extern const int OK;
 extern const int NG;
 
 ////////////////////////////////////////////////////////////////////////////////
+/* initial value */
+
+extern const int COUNTER_INIT;
+
+////////////////////////////////////////////////////////////////////////////////
+
+/* num */
+extern const int SINGLE_FIELD_NAME;
+
+////////////////////////////////////////////////////////////////////////////////
+/* status */
 
 extern const int STATUS_OK;
 extern const int STATUS_BAD_REQUEST;
 extern const int STATUS_SERVER_ERROR;
 
 ////////////////////////////////////////////////////////////////////////////////
+/* char */
+
+extern const char COMMA;
+extern const char COLON;
+
+////////////////////////////////////////////////////////////////////////////////
+/* http message */
 
 extern const char DECIMAL_POINT;
 extern const char SIGN_PLUS;
@@ -30,6 +49,7 @@ extern const char CRLF[];
 extern const char DELIMITERS[];
 
 ////////////////////////////////////////////////////////////////////////////////
+/* method */
 
 extern const char GET_METHOD[];
 extern const char POST_METHOD[];
@@ -40,6 +60,7 @@ extern const std::vector<std::string> METHODS;
 std::vector<std::string> init_methods();
 
 ////////////////////////////////////////////////////////////////////////////////
+/* http version */
 
 extern const char HTTP_1_1[];
 extern const char HTTP_2_0[];
@@ -50,6 +71,7 @@ extern const std::vector<std::string> HTTP_VERSIONS;
 std::vector<std::string> init_http_versions();
 
 ////////////////////////////////////////////////////////////////////////////////
+/* field name */
 
 extern const char ACCEPT[];
 extern const char ACCEPT_CH[];
@@ -136,3 +158,49 @@ extern const char VARY[];
 extern const char VIA[];
 extern const char WWW_AUTHENTICATE[];
 extern const char X_CUSTOM_HEADER[];
+
+extern const std::vector<std::string> FIELD_NAMES;
+extern const std::vector<std::string> MESSAGE_FRAMING_HEADERS;
+extern const std::vector<std::string> ROUTING_HEADERS;
+extern const std::vector<std::string> REQUEST_MODIFIERS;
+extern const std::vector<std::string> AUTHENTICATION_HEADERS;
+
+std::vector<std::string> init_field_names();
+std::vector<std::string> init_message_framing_headers();
+std::vector<std::string> init_routing_headers();
+std::vector<std::string> init_request_modifiers();
+std::vector<std::string> init_authentication_headers();
+
+////////////////////////////////////////////////////////////////////////////////
+/* date */
+
+extern const char GMT[];
+
+extern const char MON[];
+extern const char TUE[];
+extern const char WED[];
+extern const char THU[];
+extern const char FRI[];
+extern const char SAT[];
+extern const char SUN[];
+
+extern const char JAN[];
+extern const char FEB[];
+extern const char MAR[];
+extern const char APR[];
+extern const char MAY[];
+extern const char JUN[];
+extern const char JUL[];
+extern const char AUG[];
+extern const char SEP[];
+extern const char OCT[];
+extern const char NOV[];
+extern const char DEC[];
+
+extern const int GREGORIAN_CALENDAR;
+
+extern const std::vector<std::string> DAY_NAMES;
+extern const std::vector<std::string> MONTHS;
+
+std::vector<std::string> init_day_names();
+std::vector<std::string> init_months();
