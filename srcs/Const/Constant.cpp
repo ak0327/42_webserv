@@ -29,6 +29,7 @@ const int STATUS_SERVER_ERROR = 500;
 
 const char COMMA = ',';
 const char COLON = ':';
+const char SEMICOLON = ';';
 
 const char EMPTY[] = "";
 

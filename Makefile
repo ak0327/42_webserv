@@ -38,8 +38,7 @@ REQUEST_DIR	=	HttpRequest
 SRCS		+=	$(REQUEST_DIR)/HttpRequest.cpp \
 				$(REQUEST_DIR)/HttpRequest_LinkClass.cpp \
 				$(REQUEST_DIR)/HttpRequest_TwoValueSet.cpp \
-				$(REQUEST_DIR)/HttpRequest_ValueArraySet.cpp \
-				$(REQUEST_DIR)/HttpRequest_ValueArraySet.cpp \
+				$(REQUEST_DIR)/HttpRequest_MultiFieldValues.cpp \
 				$(REQUEST_DIR)/HttpRequest_SingleFieldValue.cpp \
 				$(REQUEST_DIR)/HttpRequest_Date.cpp \
 				$(REQUEST_DIR)/HttpRequest_ValueMap.cpp \
@@ -48,7 +47,7 @@ SRCS		+=	$(REQUEST_DIR)/HttpRequest.cpp \
 				$(REQUEST_DIR)/LinkClass/LinkClass.cpp \
 				$(REQUEST_DIR)/RequestLine/RequestLine.cpp \
 				$(REQUEST_DIR)/TwoValueSet/TwoValueSet.cpp \
-				$(REQUEST_DIR)/ValueArraySet/ValueArraySet.cpp \
+				$(REQUEST_DIR)/MultiFieldValues/MultiFieldValues.cpp \
 				$(REQUEST_DIR)/ValueDateSet/ValueDateSet.cpp \
 				$(REQUEST_DIR)/ValueMap/ValueMap.cpp \
 				$(REQUEST_DIR)/ValueSet/ValueSet.cpp \
@@ -76,7 +75,7 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(REQUEST_DIR)/LinkClass \
 				$(SRCS_DIR)/$(REQUEST_DIR)/RequestLine \
 				$(SRCS_DIR)/$(REQUEST_DIR)/TwoValueSet \
-				$(SRCS_DIR)/$(REQUEST_DIR)/ValueArraySet \
+				$(SRCS_DIR)/$(REQUEST_DIR)/MultiFieldValues \
 				$(SRCS_DIR)/$(REQUEST_DIR)/Date \
 				$(SRCS_DIR)/$(REQUEST_DIR)/ValueMap \
 				$(SRCS_DIR)/$(REQUEST_DIR)/SingleFieldValue \
@@ -209,6 +208,14 @@ run_single_field_value_test    :
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestSingleFieldValue*
+
+
+.PHONY    : run_multi_field_values_test
+run_multi_field_values_test    :
+#rm -rf build
+	cmake -S . -B build
+	cmake --build build
+	./build/unit_test --gtest_filter=TestMultiFieldValues*
 
 
 .PHONY    : run_date_test

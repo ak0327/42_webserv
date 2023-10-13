@@ -42,7 +42,7 @@ include_directories(
         srcs/HttpRequest/LinkClass
         srcs/HttpRequest/RequestLine
         srcs/HttpRequest/TwoValueSet
-        srcs/HttpRequest/ValueArraySet
+        srcs/HttpRequest/MultiFieldValues
         srcs/HttpRequest/Date
         srcs/HttpRequest/ValueMap
         srcs/HttpRequest/SingleFieldValue
@@ -62,14 +62,14 @@ set(webserv_srcs
         srcs/HttpRequest/HttpRequest.cpp
         srcs/HttpRequest/HttpRequest_LinkClass.cpp
         srcs/HttpRequest/HttpRequest_TwoValueSet.cpp
-        srcs/HttpRequest/HttpRequest_ValueArraySet.cpp
+        srcs/HttpRequest/HttpRequest_MultiFieldValues.cpp
         srcs/HttpRequest/HttpRequest_Date.cpp
         srcs/HttpRequest/HttpRequest_ValueMap.cpp
         srcs/HttpRequest/HttpRequest_SingleFieldValue.cpp
         srcs/HttpRequest/HttpRequest_ValueWeightArraySet.cpp
         srcs/HttpRequest/RequestLine/RequestLine.cpp
         srcs/HttpRequest/TwoValueSet/TwoValueSet.cpp
-        srcs/HttpRequest/ValueArraySet/ValueArraySet.cpp
+        srcs/HttpRequest/MultiFieldValues/MultiFieldValues.cpp
         srcs/HttpRequest/Date/Date.cpp
         srcs/HttpRequest/ValueMap/ValueMap.cpp
         srcs/HttpRequest/SingleFieldValue/SingleFieldValue.cpp
@@ -112,10 +112,16 @@ set (unit_test_srcs
         test/unit_test/TestSingleFieldValue/TestTrailer.cpp
         test/unit_test/TestSingleFieldValue/TestUpgradeInsecureRequests.cpp
 
+        test/unit_test/TestMultiFieldValues/TestContentEncoding.cpp
+        test/unit_test/TestMultiFieldValues/TestIfMatch.cpp
+        test/unit_test/TestMultiFieldValues/TestIfNoneMatch.cpp
+        test/unit_test/TestMultiFieldValues/TestTransferEncoding.cpp
+
         test/unit_test/TestDate/TestDate.cpp
         test/unit_test/TestDate/TestIfModifiedSince.cpp
         test/unit_test/TestDate/TestIfUnmodifiedSince.cpp
         test/unit_test/TestDate/TestLastModified.cpp
+
 )
 
 add_executable(unit_test

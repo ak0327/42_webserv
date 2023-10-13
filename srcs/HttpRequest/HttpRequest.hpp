@@ -10,7 +10,7 @@
 # include "StringHandler.hpp"
 # include "RequestLine.hpp"
 # include "ValueWeightArraySet.hpp"
-# include "ValueArraySet.hpp"
+# include "MultiFieldValues.hpp"
 # include "SingleFieldValue.hpp"
 # include "TwoValueSet.hpp"
 # include "ValueMap.hpp"
@@ -21,7 +21,7 @@
 class FieldValues;
 class RequestLine;
 class TwoValueSet;
-class ValueArraySet;
+class MultiFieldValues;
 class Date;
 class ValueMap;
 class SingleFieldValue;
@@ -43,8 +43,6 @@ class HttpRequest {
 	bool has_multiple_field_names(const std::string &field_name);
 	std::map<std::string, FieldValues*> get_request_header_fields(void);
 	FieldValues *get_field_values(const std::string &field_name);
-
-	void increment_field_name_counter(const std::string &field_name);
 
 private:
 	int _status_code;
@@ -84,7 +82,7 @@ private:
 	std::vector<std::string> securitypolicy_readyvector(const std::string &words);
 	TwoValueSet *ready_TwoValueSet(const std::string &value);
 	TwoValueSet *ready_TwoValueSet(const std::string &value, char delimiter);
-	ValueArraySet *ready_ValueArraySet(const std::string &value);
+	MultiFieldValues *ready_ValueArraySet(const std::string &value);
 	Date *ready_ValueDateSet(const std::string &value);
 	ValueMap *ready_ValueMap(const std::string &value);
 	ValueMap *ready_ValueMap(const std::string &value, char delimiter);
@@ -94,6 +92,10 @@ private:
 
 	void init_field_name_counter();
 	void init_field_name_parser(void);
+
+	Result<int, int> set_multi_field_values(const std::string &field_name,
+											const std::string &field_value,
+											bool (*is_valid_syntax)(const std::string &));
 
 	Result<int, int> set_accept(const std::string &key, const std::string &value);
 	Result<int, int> set_accept_charset(const std::string &key, const std::string &value);

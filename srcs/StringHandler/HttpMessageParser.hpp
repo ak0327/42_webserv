@@ -30,12 +30,16 @@ double to_floating_num(const std::string &str,
 bool is_delimiters(char c);
 bool is_vchar(char c);
 bool is_field_vchar(char c);
-bool is_field_content(const std::string &str);
 bool is_obs_text(char c);
 bool is_tchar(char c);
-bool is_token(const std::string &str);
 bool is_whitespace(char c);
 
+bool is_field_content(const std::string &str);
+bool is_token(const std::string &str);
+bool is_language_tag(const std::string &str);
+bool is_etag(char c);
+bool is_entity_tag(const std::string &str);
+bool is_transfer_coding(const std::string &str);
 bool is_base_64_value_non_empty(const std::string &str);
 
 bool is_valid_method(const std::string &method);

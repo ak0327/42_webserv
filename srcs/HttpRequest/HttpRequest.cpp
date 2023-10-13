@@ -385,7 +385,7 @@ void HttpRequest::init_field_name_parser() {
 	// map[std::string(CACHE_CONTROL)] =  &HttpRequest::set_cache_control;  // todo:
 	map[std::string(CONNECTION)] = &HttpRequest::set_connection;
 	map[std::string(CONTENT_DISPOSITION)] = &HttpRequest::set_content_disponesition;  // todo: Content-Disposition
-	map[std::string(CONTENT_ENCODING)] = &HttpRequest::set_content_encoding;  // todo: Content-Encoding
+	map[std::string(CONTENT_ENCODING)] = &HttpRequest::set_content_encoding;
 	map[std::string(CONTENT_LANGUAGE)] = &HttpRequest::set_content_language;  // todo: Content-Language
 	map[std::string(CONTENT_LENGTH)] = &HttpRequest::set_content_length;
 	map[std::string(CONTENT_LOCATION)] = &HttpRequest::set_content_location;  // todo: Content-Location
@@ -400,9 +400,9 @@ void HttpRequest::init_field_name_parser() {
 	map[std::string(FORWARDED)] = &HttpRequest::set_forwarded;  // todo: Forwarded
 	map[std::string(FROM)] = &HttpRequest::set_from;  // todo: From
 	map[std::string(HOST)] = &HttpRequest::set_host;  // todo: Host
-	map[std::string(IF_MATCH)] = &HttpRequest::set_if_match;  // todo: If-Match
+	map[std::string(IF_MATCH)] = &HttpRequest::set_if_match;
 	map[std::string(IF_MODIFIED_SINCE)] = &HttpRequest::set_if_modified_since;
-	map[std::string(IF_NONE_MATCH)] = &HttpRequest::set_if_none_match;  // todo: If-None-Match
+	map[std::string(IF_NONE_MATCH)] = &HttpRequest::set_if_none_match;
 	map[std::string(IF_RANGE)] = &HttpRequest::set_if_range;  // todo: If-Range
 	map[std::string(IF_UNMODIFIED_SINCE)] = &HttpRequest::set_if_unmodified_since;
 	map[std::string(KEEP_ALIVE)] = &HttpRequest::set_keep_alive;  // todo: Keep-Alive
@@ -423,7 +423,7 @@ void HttpRequest::init_field_name_parser() {
 	map[std::string(SET_COOKIE)] = &HttpRequest::set_set_cookie;  // todo: Set-Cookie
 	map[std::string(TE)] = &HttpRequest::set_te;  // todo: TE
 	map[std::string(TRAILER)] = &HttpRequest::set_trailer;
-	map[std::string(TRANSFER_ENCODING)] = &HttpRequest::set_transfer_encoding;  // todo: Transfer-Encoding
+	map[std::string(TRANSFER_ENCODING)] = &HttpRequest::set_transfer_encoding;
 	map[std::string(UPGRADE)] = &HttpRequest::set_upgrade;  // todo: Upgrade
 	map[std::string(UPGRADE_INSECURE_REQUESTS)] = &HttpRequest::set_upgrade_insecure_requests;
 	map[std::string(USER_AGENT)] = &HttpRequest::set_user_agent;  // todo: User-Agent

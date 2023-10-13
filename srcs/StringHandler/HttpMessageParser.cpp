@@ -526,6 +526,10 @@ bool is_tchar(char c) {
 bool is_token(const std::string &str) {
 	std::size_t pos;
 
+	if (str.empty()) {
+		return false;
+	}
+
 	pos = 0;
 	while (str[pos]) {
 		if (!is_tchar(str[pos])) {
@@ -534,6 +538,249 @@ bool is_token(const std::string &str) {
 		++pos;
 	}
 	return true;
+}
+
+/*
+ Language-Tag  = langtag             ; normal language tags
+               / privateuse          ; private use tag
+               / grandfathered       ; grandfathered tags
+
+ langtag       = language
+                 ["-" script]
+                 ["-" region]
+                 *("-" variant)
+                 *("-" extension)
+                 ["-" privateuse]
+
+ language      = 2*3ALPHA            ; shortest ISO 639 code
+                 ["-" extlang]       ; sometimes followed by
+                                     ; extended language subtags
+               / 4ALPHA              ; or reserved for future use
+               / 5*8ALPHA            ; or registered language subtag
+
+ extlang       = 3ALPHA              ; selected ISO 639 codes
+                 *2("-" 3ALPHA)      ; permanently reserved
+
+
+ script = 4ALPHA ; ISO 15924 code
+
+ region        = 2ALPHA              ; ISO 3166-1 code
+               / 3DIGIT              ; UN M.49 code
+
+ variant       = 5*8alphanum         ; registered variants
+               / (DIGIT 3alphanum)
+ alphanum      = (ALPHA / DIGIT)     ; letters and numbers
+
+ extension     = singleton 1*("-" (2*8alphanum))
+
+ singleton     = DIGIT               ; 0 - 9
+               / %x41-57             ; A - W
+               / %x59-5A             ; Y - Z
+               / %x61-77             ; a - w
+               / %x79-7A             ; y - z
+
+ privateuse    = "x" 1*("-" (1*8alphanum))
+
+ grandfathered = irregular           ; non-redundant tags registered
+               / regular             ; during the RFC 3066 era
+
+ irregular     = "en-GB-oed"         ; irregular tags do not match
+               / "i-ami"             ; the 'langtag' production and
+               / "i-bnn"             ; would not otherwise be
+               / "i-default"         ; considered 'well-formed'
+               / "i-enochian"        ; These tags are all valid,
+               / "i-hak"             ; but most are deprecated
+               / "i-klingon"         ; in favor of more modern
+               / "i-lux"             ; subtags or subtag
+               / "i-mingo"           ; combination
+
+               / "i-navajo"
+               / "i-pwn"
+               / "i-tao"
+               / "i-tay"
+               / "i-tsu"
+               / "sgn-BE-FR"
+               / "sgn-BE-NL"
+               / "sgn-CH-DE"
+
+ regular       = "art-lojban"        ; these tags match the 'langtag'
+               / "cel-gaulish"       ; production, but their subtags
+               / "no-bok"            ; are not extended language
+               / "no-nyn"            ; or variant subtags: their meaning
+               / "zh-guoyu"          ; is defined by their registration
+               / "zh-hakka"          ; and all of these are deprecated
+               / "zh-min"            ; in favor of a more modern
+               / "zh-min-nan"        ; subtag or sequence of subtags
+               / "zh-xiang"
+
+ https://tex2e.github.io/rfc-translater/html/rfc5646.html
+ */
+bool is_language_tag(const std::string &str) {
+	// todo
+	return HttpMessageParser::is_token(str);
+}
+
+/*
+ etagc = "!" / %x23-7E ; '#'-'~' / obs-text
+ */
+bool is_etag(char c) {
+	return (c == '!' || ('#' <= c && c <= '~') || is_obs_text(c));
+}
+
+/*
+ opaque-tag = DQUOTE *etagc DQUOTE
+ */
+bool is_opaque_tag(const std::string &str) {
+	std::size_t pos;
+
+	if (str.empty()) { return false; }
+
+	pos = 0;
+	if (str[pos] != '"') { return false; }
+	pos++;
+
+	while (str[pos] && is_etag(str[pos])) { pos++; }
+
+	if (str[pos] != '"') { return false; }
+	pos++;
+
+	return pos == str.length();
+}
+
+
+/*
+ entity-tag = [ weak ] opaque-tag
+ weak = %x57.2F ; W/
+ https://www.rfc-editor.org/rfc/rfc9110#name-collected-abnf
+ */
+bool is_entity_tag(const std::string &str) {
+	std::size_t pos;
+
+	if (str[0] != 'W' && str[0] != '"') { return false; }
+
+	pos = 0;
+	if (str[0] == 'W' && str[1] == '/') { pos += 2; }
+
+	return is_opaque_tag(&str[pos]);
+}
+
+void skip_ows(const std::string &str, std::size_t *pos) {
+	while (is_whitespace(str[*pos])) {
+		*pos += 1;
+	}
+}
+
+bool is_qdtext(char c) {
+	if (c == HT || c == SP || c == 0x21) { return true; }
+	if (0x23 <= c && c <= 0x5B) { return true; }
+	if (0x5D <= c && c <= 0x7E) { return true; }
+	if (is_obs_text(c)) { return true; }
+	return false;
+}
+
+bool is_quoted_pair(const std::string &str, std::size_t pos) {
+	if (str[pos] != '\\') { return false; }
+
+	return (str[pos] == HT
+			|| str[pos] == SP
+			|| is_vchar(str[pos])
+			|| is_obs_text(str[pos]));
+}
+
+/*
+ transfer-parameter = token BWS "=" BWS ( token / quoted-string )
+
+ quoted-string  = DQUOTE *( qdtext / quoted-pair ) DQUOTE
+ qdtext         = HTAB / SP / %x21 / %x23-5B / %x5D-7E / obs-text
+ quoted-pair    = "\" ( HTAB / SP / VCHAR / obs-text )
+ */
+void skip_transfer_parameter(const std::string &str,
+							 std::size_t *pos,
+							 bool *succeed) {
+	if (!succeed) { return; }
+
+	*succeed = false;
+
+	// token
+	if (!is_tchar(str[*pos])) { return; }
+	while (is_tchar(str[*pos])) { *pos += 1; }
+
+	// BWS
+	skip_ows(str, &*pos);
+
+	// '='
+	if (str[*pos] != '=') { return; }
+	*pos += 1;
+
+	// BWS
+	skip_ows(str, &*pos);
+
+	if (is_tchar(str[*pos])) {
+		// token
+		while (str[*pos] && is_tchar(str[*pos])) {
+			*pos += 1;
+		}
+	} else if (str[*pos] == '\"') {
+		// quoted-string
+		*pos += 1;
+		while (str[*pos]) {
+			if (is_qdtext(str[*pos])) {
+				*pos += 1;
+			} else if (is_quoted_pair(str, *pos)) {
+				*pos += 2;
+			} else {
+				return;
+			}  // error
+			if (str[*pos] == '\"') {
+				*pos += 1;
+			}
+		}
+	} else { return; }  // error
+	*succeed = true;
+}
+
+/*
+ transfer-coding    = token *( OWS ";" OWS transfer-parameter )
+
+  Transfer-Encoding
+  = [ transfer-coding *( OWS "," OWS transfer-coding ) ]
+  = [ token *( OWS ";" OWS transfer-parameter ) *( OWS "," OWS token *( OWS ";" OWS transfer-parameter ) )
+ */
+bool is_transfer_coding(const std::string &str) {
+	std::size_t pos;
+	bool		succeed;
+
+	if (str.empty()) {
+		return false;
+	}
+
+	pos = 0;
+	// token
+	while (is_tchar(str[pos])) { pos++; }
+
+	if (str[pos] == '\0') {
+		return true;
+	}
+
+	// *( OWS ";" OWS transfer-parameter )
+	while (str[pos]) {
+		skip_ows(str, &pos);
+		if (str[pos] != SEMICOLON) {
+			return false;
+		}
+		pos++;
+
+		skip_ows(str, &pos);
+		if (str[pos] == '\0') {
+			return false;
+		}
+
+		skip_transfer_parameter(str, &pos, &succeed);
+		if (!succeed) {
+			return false;
+		}
+	}
+	return str[pos] == '\0';
 }
 
 bool is_whitespace(char c) {

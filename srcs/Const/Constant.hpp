@@ -31,6 +31,7 @@ extern const int STATUS_SERVER_ERROR;
 
 extern const char COMMA;
 extern const char COLON;
+extern const char SEMICOLON;
 
 extern const char EMPTY[];
 

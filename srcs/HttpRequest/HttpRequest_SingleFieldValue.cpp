@@ -57,7 +57,7 @@ Result<int, int> HttpRequest::set_content_length(const std::string &field_name,
 	long length;
 	std::string num_str;
 
-	if (is_valid_field_name_registered(field_name)) {
+	if (has_multiple_field_names(field_name)) {
 		return Result<int, int>::err(STATUS_BAD_REQUEST);
 	}
 
@@ -101,7 +101,7 @@ Result<int, int> HttpRequest::set_expect(const std::string &field_name,
 										 const std::string &field_value) {
 	std::string lower_field_value;
 
-	if (is_valid_field_name_registered(field_name)) {
+	if (has_multiple_field_names(field_name)) {
 		return Result<int, int>::err(STATUS_BAD_REQUEST);
 	}
 
