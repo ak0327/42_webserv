@@ -77,7 +77,7 @@ std::vector<std::vector<std::string> >::iterator servername_itr)
 			ready_next_locationconfig(&locationconfig, *servername_itr, &in_server_block);
 		else if (in_server_block == true && in_location_block == false)
 		{
-			if (IsConfigFormat::is_start_locationblock(config_line))
+			if (IsConfigFormat::is_start_locationblock(config_line, &location_path))
 				in_location_block = true;
 			else if (ConfigHandlingString::is_block_end(config_line))
 				servername_itr++;
