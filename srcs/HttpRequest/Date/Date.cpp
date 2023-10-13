@@ -6,7 +6,9 @@
 
 Date::Date(const std::string &http_date) {
 	std::string day_name, day, month, year, hour, minute, second, gmt;
-	Result<int, int> parse_result, validate_result;
+	Result<date_format, int> parse_result;
+	Result<int, int> validate_result;
+	date_format format;
 
 	parse_result = HttpMessageParser::parse_http_date(http_date,
 													  &day_name,
@@ -17,10 +19,13 @@ Date::Date(const std::string &http_date) {
 		this->_result = Result<int, int>::err(NG);
 		return;
 	}
-	validate_result = HttpMessageParser::validate_http_date(day_name,
-														  day, month, year,
-														  hour, minute, second,
-														  gmt);
+	format = parse_result.get_ok_value();
+
+	validate_result = HttpMessageParser::validate_http_date(format,
+															day_name,
+															day, month, year,
+															hour, minute, second,
+															gmt);
 	if (validate_result.is_err()) {
 		this->_result = Result<int, int>::err(NG);
 		return;
@@ -34,6 +39,7 @@ Date::Date(const std::string &http_date) {
 	this->_minute = minute;
 	this->_second = second;
 	this->_gmt = gmt;
+	this->_format = format;
 
 	this->_result = Result<int, int>::ok(OK);
 }
@@ -68,5 +74,6 @@ std::string Date::get_hour() const { return this->_hour; }
 std::string Date::get_minute() const { return this->_minute; }
 std::string Date::get_second() const { return this->_second; }
 std::string Date::get_gmt() const { return this->_gmt; }
+date_format Date::get_format() const { return this->_format; }
 bool Date::is_ok() const { return this->_result.is_ok(); }
 bool Date::is_err() const { return this->_result.is_err(); }

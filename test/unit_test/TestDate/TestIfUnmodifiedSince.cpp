@@ -28,6 +28,8 @@ TEST(TestDate, IfUnmodifiedSinceOK1) {
 		EXPECT_EQ("28", date->get_minute());
 		EXPECT_EQ("00", date->get_second());
 		EXPECT_EQ("GMT", date->get_gmt());
+		EXPECT_EQ(IMF_FIXDATE, date->get_format());
+		EXPECT_EQ(true, date->is_ok());
 	} else {
 		ADD_FAILURE() << "Date not found";
 	}
@@ -59,6 +61,7 @@ TEST(TestDate, IfUnmodifiedSinceOK2) {
 		EXPECT_EQ("21", date->get_minute());
 		EXPECT_EQ("45", date->get_second());
 		EXPECT_EQ("GMT", date->get_gmt());
+		EXPECT_EQ(IMF_FIXDATE, date->get_format());
 		EXPECT_EQ(true, date->is_ok());
 	} else {
 		ADD_FAILURE() << "Date not found";
@@ -91,6 +94,7 @@ TEST(TestDate, IfUnmodifiedSinceOK3) {
 		EXPECT_EQ("21", date->get_minute());
 		EXPECT_EQ("45", date->get_second());
 		EXPECT_EQ("GMT", date->get_gmt());
+		EXPECT_EQ(IMF_FIXDATE, date->get_format());
 		EXPECT_EQ(true, date->is_ok());
 	} else {
 		ADD_FAILURE() << "Date not found";

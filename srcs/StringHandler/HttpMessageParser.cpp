@@ -63,11 +63,195 @@ std::string calculate_day_name(int year, int month, int day) {
 	day_names.push_back(std::string(THU));
 	day_names.push_back(std::string(FRI));
 
-	if (0 < h || h < static_cast<int>(day_names.size())) {
+	if (h < 0 || static_cast<int>(day_names.size()) <= h) {
 		return std::string(EMPTY);
 	}
 	return day_names[h];
 }
+
+/*
+  day-name     = %s"Mon" / %s"Tue" / %s"Wed"
+               / %s"Thu" / %s"Fri" / %s"Sat" / %s"Sun"
+
+  date1        = day SP month SP year
+               ; e.g., 02 Jun 1982
+
+  day          = 2DIGIT
+  month        = %s"Jan" / %s"Feb" / %s"Mar" / %s"Apr"
+               / %s"May" / %s"Jun" / %s"Jul" / %s"Aug"
+               / %s"Sep" / %s"Oct" / %s"Nov" / %s"Dec"
+  year         = 4DIGIT
+ */
+Result<int, int> parse_date1(const std::string &http_date,
+							 std::string *day,
+							 std::string *month,
+							 std::string *year,
+							 std::size_t start_pos,
+							 std::size_t *end_pos) {
+	Result<std::string, int> day_result, month_result, year_result;
+	std::size_t pos, end;
+
+	if (!day || !month || !year || !end_pos) {
+		return Result<int, int>::err(NG);
+	}
+
+	pos = start_pos;
+	day_result = StringHandler::parse_pos_to_delimiter(http_date, pos, SP, &end);
+	if (day_result.is_err()) {
+		return Result<int, int>::err(NG);
+	}
+	*day = day_result.get_ok_value();
+	pos = end;
+
+	if (http_date[pos] != SP) {
+		return Result<int, int>::err(NG);
+	}
+	pos++;
+
+	month_result = StringHandler::parse_pos_to_delimiter(http_date, pos, SP, &end);
+	if (month_result.is_err()) {
+		return Result<int, int>::err(NG);
+	}
+	*month = month_result.get_ok_value();
+	pos = end;
+
+	if (http_date[pos] != SP) {
+		return Result<int, int>::err(NG);
+	}
+	pos++;
+
+	year_result = StringHandler::parse_pos_to_delimiter(http_date, pos, SP, &end);
+	if (year_result.is_err()) {
+		return Result<int, int>::err(NG);
+	}
+	*year = year_result.get_ok_value();
+
+	*end_pos = end;
+	return Result<int, int>::ok(OK);
+}
+
+/*
+  time-of-day  = hour ":" minute ":" second
+               ; 00:00:00 - 23:59:60 (leap second)
+
+  hour         = 2DIGIT
+  minute       = 2DIGIT
+  second       = 2DIGIT
+ */
+Result<int, int> parse_time_of_day(const std::string &http_date,
+								   std::string *hour,
+								   std::string *minute,
+								   std::string *second,
+								   std::size_t start_pos,
+								   std::size_t *end_pos) {
+	Result<std::string, int> hour_result, minute_result, second_result;
+	std::size_t pos, end;
+
+	if (!hour || !minute || !second || !end_pos) {
+		return Result<int, int>::err(NG);
+	}
+
+	pos = start_pos;
+	hour_result = StringHandler::parse_pos_to_delimiter(http_date, pos, COLON, &end);
+	if (hour_result.is_err()) {
+		return Result<int, int>::err(NG);
+	}
+	*hour = hour_result.get_ok_value();
+	pos = end;
+
+	if (http_date[pos] != COLON) { return Result<int, int>::err(NG); }
+	pos++;
+
+	minute_result = StringHandler::parse_pos_to_delimiter(http_date, pos, COLON, &end);
+	if (minute_result.is_err()) {
+		return Result<int, int>::err(NG);
+	}
+	*minute = minute_result.get_ok_value();
+	pos = end;
+
+	if (http_date[pos] != COLON) { return Result<int, int>::err(NG); }
+	pos++;
+
+	second_result = StringHandler::parse_pos_to_delimiter(http_date, pos, SP, &end);
+	if (second_result.is_err()) {
+		return Result<int, int>::err(NG);
+	}
+	*second = second_result.get_ok_value();
+
+	*end_pos = end;
+	return Result<int, int>::ok(OK);
+}
+
+/*
+ IMF-fixdate  = day-name "," SP date1 SP time-of-day SP GMT
+  ; fixed length/zone/capitalization subset of the format
+  ; see Section 3.3 of [RFC5322]
+
+  IMF-fixdate  = day-name "," SP date1 SP time-of-day SP GMT
+
+ GMT          = %s"GMT"
+ */
+Result<int, int> parse_imf_fixdate(const std::string &http_date,
+								   std::string *day_name,
+								   std::string *day,
+								   std::string *month,
+								   std::string *year,
+								   std::string *hour,
+								   std::string *minute,
+								   std::string *second,
+								   std::string *gmt) {
+	std::size_t pos, end_pos;
+	Result<std::string, int> day_name_result, gmt_result;
+	Result<int, int> day1_result, time_of_day_result;
+
+
+	if (!day_name || !day || !month || !year || !hour || !minute || !second || !gmt) {
+		return Result<int, int>::err(NG);
+	}
+
+	pos = 0;
+	day_name_result = StringHandler::parse_pos_to_delimiter(http_date, pos, COMMA, &end_pos);
+	if (day_name_result.is_err()) {
+		return Result<int, int>::err(NG);
+	}
+	*day_name = day_name_result.get_ok_value();
+	pos = end_pos;
+
+	if (http_date[pos] != COMMA) { return Result<int, int>::err(NG); }
+	pos++;
+
+	if (http_date[pos] != SP) { return Result<int, int>::err(NG); }
+	pos++;
+
+	day1_result = parse_date1(http_date, day, month, year, pos, &end_pos);
+	if (day1_result.is_err()) {
+		return Result<int, int>::err(NG);
+	}
+	pos = end_pos;
+
+	if (http_date[pos] != SP) { return Result<int, int>::err(NG); }
+	pos++;
+
+	time_of_day_result = parse_time_of_day(http_date, hour, minute, second, pos, &end_pos);
+	if (time_of_day_result.is_err()) {
+		return Result<int, int>::err(NG);
+	}
+	pos = end_pos;
+
+	// SP
+	if (http_date[pos] != SP) { return Result<int, int>::err(NG); }
+	pos++;
+
+	// GMT
+	gmt_result = StringHandler::parse_pos_to_delimiter(http_date, pos, '\0', NULL);
+	if (gmt_result.is_err()) {
+		return Result<int, int>::err(NG);
+	}
+	*gmt = gmt_result.get_ok_value();
+
+	return Result<int, int>::ok(OK);
+}
+
 
 }  // namespace
 
@@ -167,8 +351,6 @@ long to_long_num(const std::string &str, bool *succeed) {
 long to_length(const std::string &str, bool *succeed) {
 	return to_long_num(str, succeed);
 }
-
-
 
 // HTTP-version	= HTTP-name "/" DIGIT "." DIGIT
 // qvalue = ( "0" [ "." 0*3DIGIT ] )
@@ -362,131 +544,22 @@ Result<int, int> parse_http_date(const std::string &http_date,
 								 std::string *minute,
 								 std::string *second,
 								 std::string *gmt) {
-	std::size_t pos, end_pos;
-	Result<std::string, int> day_name_result, day_result, month_result, year_result;
-	Result<std::string, int> hour_result, minute_result, second_result, gmt_result;
+	Result<int, int> imf_fixdate_result;
+	// Result<int, int> rfc850_date_result, asctime_date_result;  // todo
 
-
-	if (!day_name || !day || !month || !year || !hour || !minute || !second || !gmt) {
-		return Result<int, int>::err(NG);
+	imf_fixdate_result = parse_imf_fixdate(http_date,
+										   day_name,
+										   day, month, year,
+										   hour, minute, second,
+										   gmt);
+	if (imf_fixdate_result.is_ok()) {
+		return Result<int, int>::ok(OK);
 	}
 
-	// day_name
-	pos = 0;
-	day_name_result = StringHandler::parse_pos_to_delimiter(http_date, pos, COMMA, &end_pos);
-	if (day_name_result.is_err()) {
-		return Result<int, int>::err(NG);
-	}
-	pos = end_pos;
+	// todo: parse_rfc850_date()
+	// todo: parse_asctime_date()
 
-	// COMMA
-	if (http_date[pos] != COMMA) {
-		return Result<int, int>::err(NG);
-	}
-	pos++;
-
-	// SP
-	if (http_date[pos] != SP) {
-		return Result<int, int>::err(NG);
-	}
-	pos++;
-
-	/* day1 */
-	// day
-	day_result = StringHandler::parse_pos_to_delimiter(http_date, pos, SP, &end_pos);
-	if (day_result.is_err()) {
-		return Result<int, int>::err(NG);
-	}
-	pos = end_pos;
-
-	// SP
-	if (http_date[pos] != SP) {
-		return Result<int, int>::err(NG);
-	}
-	pos++;
-
-	// month
-	month_result = StringHandler::parse_pos_to_delimiter(http_date, pos, SP, &end_pos);
-	if (month_result.is_err()) {
-		return Result<int, int>::err(NG);
-	}
-	pos = end_pos;
-
-	// SP
-	if (http_date[pos] != SP) {
-		return Result<int, int>::err(NG);
-	}
-	pos++;
-
-	// year
-	year_result = StringHandler::parse_pos_to_delimiter(http_date, pos, SP, &end_pos);
-	if (year_result.is_err()) {
-		return Result<int, int>::err(NG);
-	}
-	pos = end_pos;
-
-	// SP
-	if (http_date[pos] != SP) {
-		return Result<int, int>::err(NG);
-	}
-	pos++;
-
-	/* time-of-day */
-	// hour
-	hour_result = StringHandler::parse_pos_to_delimiter(http_date, pos, COLON, &end_pos);
-	if (hour_result.is_err()) {
-		return Result<int, int>::err(NG);
-	}
-	pos = end_pos;
-
-	// COLON
-	if (http_date[pos] != COLON) {
-		return Result<int, int>::err(NG);
-	}
-	pos++;
-
-	// minute
-	minute_result = StringHandler::parse_pos_to_delimiter(http_date, pos, COLON, &end_pos);
-	if (minute_result.is_err()) {
-		return Result<int, int>::err(NG);
-	}
-	pos = end_pos;
-
-	// COLON
-	if (http_date[pos] != COLON) {
-		return Result<int, int>::err(NG);
-	}
-	pos++;
-
-	// second
-	second_result = StringHandler::parse_pos_to_delimiter(http_date, pos, SP, &end_pos);
-	if (second_result.is_err()) {
-		return Result<int, int>::err(NG);
-	}
-	pos = end_pos;
-
-	// SP
-	if (http_date[pos] != SP) {
-		return Result<int, int>::err(NG);
-	}
-	pos++;
-
-	// GMT
-	gmt_result = StringHandler::parse_pos_to_delimiter(http_date, pos, '\0', NULL);
-	if (gmt_result.is_err()) {
-		return Result<int, int>::err(NG);
-	}
-
-	*day_name = day_name_result.get_ok_value();
-	*day = day_result.get_ok_value();
-	*month = month_result.get_ok_value();
-	*year = year_result.get_ok_value();
-	*hour = hour_result.get_ok_value();
-	*minute = minute_result.get_ok_value();
-	*second = second_result.get_ok_value();
-	*gmt = gmt_result.get_ok_value();
-
-	return Result<int, int>::ok(OK);
+	return Result<int, int>::err(NG);
 }
 
 bool is_leap_year(int year) {
@@ -614,5 +687,6 @@ Result<int, int> validate_http_date(const std::string &day_name,
 
 	return Result<int, int>::ok(OK);
 }
+
 
 }  // namespace HttpMessageParser

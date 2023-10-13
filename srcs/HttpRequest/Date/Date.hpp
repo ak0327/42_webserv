@@ -1,6 +1,7 @@
 #pragma once
 
 # include <string>
+# include "Constant.hpp"
 # include "FieldValues.hpp"
 # include "Result.hpp"
 
@@ -19,6 +20,7 @@ class Date : public FieldValues {
 	std::string get_minute() const;
 	std::string get_second() const;
 	std::string get_gmt() const;
+	date_format get_format() const;
 	bool is_ok() const;
 	bool is_err() const;
 
@@ -31,5 +33,6 @@ class Date : public FieldValues {
 	std::string _minute;
 	std::string _second;
 	std::string _gmt;
+	date_format _format;
 	Result<int, int> _result;
 };
