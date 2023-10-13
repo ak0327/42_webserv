@@ -14,7 +14,7 @@
 #include "ValueArraySet.hpp"
 #include "Date.hpp"
 #include "ValueMap.hpp"
-#include "ValueSet.hpp"
+#include "SingleFieldValue.hpp"
 #include "ValueWeightArraySet.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////

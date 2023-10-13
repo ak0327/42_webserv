@@ -45,7 +45,7 @@ include_directories(
         srcs/HttpRequest/ValueArraySet
         srcs/HttpRequest/Date
         srcs/HttpRequest/ValueMap
-        srcs/HttpRequest/ValueSet
+        srcs/HttpRequest/SingleFieldValue
         srcs/HttpRequest/ValueWeightArraySet
 )
 
@@ -72,7 +72,7 @@ set(webserv_srcs
         srcs/HttpRequest/ValueArraySet/ValueArraySet.cpp
         srcs/HttpRequest/Date/Date.cpp
         srcs/HttpRequest/ValueMap/ValueMap.cpp
-        srcs/HttpRequest/ValueSet/ValueSet.cpp
+        srcs/HttpRequest/SingleFieldValue/SingleFieldValue.cpp
         srcs/HttpRequest/ValueWeightArraySet/ValueWeightArraySet.cpp
         srcs/HttpRequest/LinkClass/LinkClass.cpp
 )
