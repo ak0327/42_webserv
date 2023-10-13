@@ -310,6 +310,28 @@ bool is_valid_http_version(const std::string &http_version) {
 	itr = std::find(HTTP_VERSIONS.begin(), HTTP_VERSIONS.end(), http_version);
 	return itr != HTTP_VERSIONS.end();
 }
+bool is_trailer_allowed_field_name(const std::string &field_name) {
+	if (count(MESSAGE_FRAMING_HEADERS, field_name) != 0) {
+		return false;
+	}
+	if (count(ROUTING_HEADERS, field_name) != 0) {
+		return false;
+	}
+	if (count(REQUEST_MODIFIERS, field_name) != 0) {
+		return false;
+	}
+	if (count(AUTHENTICATION_HEADERS, field_name) != 0) {
+		return false;
+	}
+	if (field_name == CONTENT_ENCODING
+		|| field_name == CONTENT_TYPE
+		|| field_name == CONTENT_RANGE
+		|| field_name == TRAILER) {
+		return false;
+	}
+	return true;
+}
+
 Result<int, int> parse_http_date(const std::string &http_date,
 								 std::string *day_name,
 								 std::string *day,

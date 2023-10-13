@@ -38,6 +38,9 @@ bool is_whitespace(char c);
 bool is_valid_method(const std::string &method);
 bool is_valid_request_target(const std::string &request_target);
 bool is_valid_http_version(const std::string &http_version);
+
+bool is_trailer_allowed_field_name(const std::string &field_name);
+
 bool is_valid_day1(int year, int month, int day);
 bool is_valid_time_of_day(int hour, int minute, int second);
 bool is_valid_day_name(const std::string &day_name, int year, int month, int day);
