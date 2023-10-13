@@ -1,3 +1,4 @@
+#include <climits>
 #include "StringHandler.hpp"
 #include "gtest/gtest.h"
 
