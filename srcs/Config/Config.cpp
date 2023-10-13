@@ -11,8 +11,8 @@ std::vector<std::string> *fieldkey_map, std::vector<std::vector<std::string> > *
 {
 	Configs->set_host_config(*serverconfig);
 	servername_list->push_back(serverconfig->get_server_name());
-	this->_all_configs[serverconfig->get_server_name()] = Configs;
-	Configs.clear_information();
+	this->_all_configs[serverconfig->get_server_name()] = *Configs;
+	Configs->clear_information();
 	serverconfig->clear_serverconfig();
 	fieldkey_map->clear();
 }
@@ -26,7 +26,6 @@ std::vector<std::vector<std::string> > *servername_list)
 	ServerConfig				serverconfig;
 	std::ifstream				config_lines(config_file_name.c_str());
 	std::string					config_line;
-	std::string					location_path;
 	std::vector<std::string>	fieldkey_map;
 
 	while (std::getline(config_lines, config_line, '\n'))
@@ -40,31 +39,33 @@ std::vector<std::vector<std::string> > *servername_list)
 		{
 			if (IsConfigFormat::is_start_locationblock(config_line))
 				in_location_block = true;
-			else if (HandlingString::obtain_without_ows_value(config_line) == "}")
+			else if (ConfigHandlingString::is_block_end(config_line))
 				set_serverconfig_ready_next_serverconfig(&Configs, &serverconfig, &fieldkey_map, servername_list);
 		}
 		else if (in_server_block == true && in_location_block == true && \
 		IsConfigFormat::is_locationblock_config(config_line, &in_location_block))
 			continue;
 		else  // 上記3つ以外の場合、状況としてはありえないためfalseになる
-		{
-			std::cout << "Server Config Error config line is -> |" << config_line << "|" << std::endl;
-			return (false);
-		}
+			return this->report_errorline(config_line);
 	}
 	return (true);
 }
 
-bool	Config::ready_location_config(const std::string &config_file_name, \
-std::vector<std::vector<std::string> > servername_list)
+void	Config::ready_next_locationconfig(LocationConfig *locationconfig, const std::vector<std::string> &server_name, bool *in_server_block)
 {
-	std::vector<std::vector<std::string> >::iterator	servername_itr = servername_list.begin();
+	locationconfig->clear_location_keyword();
+	locationconfig->set_serverblock_infs(this->get_same_allconfig(server_name).get_host_config());
+	*in_server_block = true;
+}
+
+bool	Config::ready_location_config(const std::string &config_file_name, \
+std::vector<std::vector<std::string> >::iterator servername_itr)
+{
 	std::vector<std::string>							location_fieldkey_map;
-	std::ifstream										config_lines(config_file_name.c_str());  // 変更が反映されない
+	std::ifstream										config_lines(config_file_name.c_str());
 	std::string											config_line;
 	std::string											location_path;
 	LocationConfig										locationconfig;
-	AllConfig											Configs;  // 現状ここに対する適切な変数が見つかっていない
 	bool												in_server_block = false;
 	bool												in_location_block = false;
 
@@ -73,22 +74,18 @@ std::vector<std::vector<std::string> > servername_list)
 		if ((ConfigHandlingString::is_nomeanig_line(config_line)))
 			continue;
 		if (in_server_block == false && in_location_block == false && IsConfigFormat::is_start_serverblock(config_line))
-		{
-			locationconfig.clear_location_keyword();
-			locationconfig.set_serverblock_infs(this->get_same_allconfig(*servername_itr).get_host_config());
-			in_server_block = true;
-		}
+			ready_next_locationconfig(&locationconfig, *servername_itr, &in_server_block);
 		else if (in_server_block == true && in_location_block == false)
 		{
 			if (IsConfigFormat::is_start_locationblock(config_line))
 				in_location_block = true;
-			else if (HandlingString::obtain_without_ows_value(config_line) == "}")
+			else if (ConfigHandlingString::is_block_end(config_line))
 				servername_itr++;
 		}
 		else if (in_server_block == true && in_location_block == true && \
 		IsConfigFormat::ready_locationblock_config(config_line, &in_location_block, &locationconfig, &location_fieldkey_map))
 		{
-			if (HandlingString::obtain_without_ows_value(config_line) == "}")
+			if (ConfigHandlingString::is_block_end(config_line))
 			{
 				this->_all_configs[*servername_itr].set_location_config(location_path, locationconfig);
 				location_fieldkey_map.clear();
@@ -97,10 +94,7 @@ std::vector<std::vector<std::string> > servername_list)
 			}
 		}
 		else
-		{
-			std::cout << "Server Config Error config line is -> |" << config_line << "|" << std::endl;
-			return (false);
-		}
+			return this->report_errorline(config_line);
 	}
 	return (true);
 }
@@ -115,7 +109,7 @@ Config::Config(const std::string &config_file_name): _is_config_format(true)
 		this->_is_config_format = false;
 		return;
 	}
-	if (!(ready_location_config(config_file_name, servername_list)))
+	if (!(ready_location_config(config_file_name, servername_list.begin())))
 	{
 		this->_is_config_format = false;
 		return;
@@ -132,4 +126,13 @@ std::map<std::vector<std::string>, AllConfig>	Config::get_all_configs()
 AllConfig Config::get_same_allconfig(const std::vector<std::string> servername)
 {
 	return (this->_all_configs[servername]);
+}
+
+bool Config::report_errorline(const std::string &line)
+{
+	std::cerr << "FORMAT ERROR OCURED" << std::endl;
+	std::cerr << "|====== TARGET LINE ======|" << std::endl;
+	std::cerr << "|" << line << std::endl;
+	std::cerr << "|=========================|" << std::endl;
+	return (false);
 }

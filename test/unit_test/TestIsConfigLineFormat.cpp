@@ -45,13 +45,21 @@ TEST(IsConfigLineTest, is_location_block_format_true)
 	std::vector<std::string>	test_fieldkey_map;
 
 	EXPECT_EQ(true, IsConfigFormat::ready_locationblock_config("key val; ", &test_boolean, &test, &test_fieldkey_map));
+	test_fieldkey_map.clear();
 	EXPECT_EQ(true, IsConfigFormat::ready_locationblock_config("	 key val    val     val;          ", &test_boolean, &test, &test_fieldkey_map));
+	test_fieldkey_map.clear();
 	EXPECT_EQ(true, IsConfigFormat::ready_locationblock_config(" key val    val     val          val;", &test_boolean, &test, &test_fieldkey_map));
+	test_fieldkey_map.clear();
 	EXPECT_EQ(true, IsConfigFormat::ready_locationblock_config("	 key val    val   	 val;", &test_boolean, &test, &test_fieldkey_map));
+	test_fieldkey_map.clear();
 	EXPECT_EQ(true, IsConfigFormat::ready_locationblock_config("  key val    val   	 val;    ", &test_boolean, &test, &test_fieldkey_map));
+	test_fieldkey_map.clear();
 	EXPECT_EQ(true, IsConfigFormat::ready_locationblock_config("  } ", &test_boolean, &test, &test_fieldkey_map));
+	test_fieldkey_map.clear();
 	EXPECT_EQ(true, IsConfigFormat::ready_locationblock_config("  			 } ", &test_boolean, &test, &test_fieldkey_map));
+	test_fieldkey_map.clear();
 	EXPECT_EQ(true, IsConfigFormat::ready_locationblock_config("key val    val     val	;          ", &test_boolean, &test, &test_fieldkey_map));
+	test_fieldkey_map.clear();
 	EXPECT_EQ(true, IsConfigFormat::ready_locationblock_config("}", &test_boolean, &test, &test_fieldkey_map));
 }
 
@@ -74,10 +82,8 @@ TEST(IsConfigLineTest, is_location_block_format_false)
 TEST(IsConfigLineTest, is_start_server_block_true) 
 {
 	EXPECT_EQ(true, IsConfigFormat::is_start_serverblock("server {"));
-	EXPECT_EQ(true, IsConfigFormat::is_start_serverblock("server{"));
 	EXPECT_EQ(true, IsConfigFormat::is_start_serverblock("	server {	"));
 	EXPECT_EQ(true, IsConfigFormat::is_start_serverblock("server		{	"));
-	EXPECT_EQ(true, IsConfigFormat::is_start_serverblock("     server{"));
 	EXPECT_EQ(true, IsConfigFormat::is_start_serverblock("      server 		 {		   "));
 }
 
@@ -90,6 +96,8 @@ TEST(IsConfigLineTest, is_start_server_block_false)
 	EXPECT_EQ(false, IsConfigFormat::is_start_serverblock("serve {"));
 	EXPECT_EQ(false, IsConfigFormat::is_start_serverblock("{"));
 	EXPECT_EQ(false, IsConfigFormat::is_start_serverblock("server aaa {"));
+	EXPECT_EQ(false, IsConfigFormat::is_start_serverblock("server{"));
+	EXPECT_EQ(false, IsConfigFormat::is_start_serverblock("     server{"));
 }
 
 
@@ -101,13 +109,21 @@ TEST(IsConfigLineTest, is_server_block_format_true)
 	std::vector<std::string>	header_maps;
 
 	EXPECT_EQ(true, IsConfigFormat::ready_serverblock_format("location aaa { ", &test_boolean, &test, &header_maps));
+	header_maps.clear();
 	EXPECT_EQ(true, IsConfigFormat::ready_serverblock_format("		location aaa { ", &test_boolean, &test, &header_maps));
+	header_maps.clear();
 	EXPECT_EQ(true, IsConfigFormat::ready_serverblock_format("		location aaa 	{", &test_boolean, &test, &header_maps));
+	header_maps.clear();
 	EXPECT_EQ(true, IsConfigFormat::ready_serverblock_format("		key value;", &test_boolean, &test, &header_maps));
+	header_maps.clear();
 	EXPECT_EQ(true, IsConfigFormat::ready_serverblock_format("		key value		;", &test_boolean, &test, &header_maps));
+	header_maps.clear();
 	EXPECT_EQ(true, IsConfigFormat::ready_serverblock_format("		key value			;	 ", &test_boolean, &test, &header_maps));
+	header_maps.clear();
 	EXPECT_EQ(true, IsConfigFormat::ready_serverblock_format("		key value	value  value		;	 ", &test_boolean, &test, &header_maps));
+	header_maps.clear();
 	EXPECT_EQ(true, IsConfigFormat::ready_serverblock_format("}", &test_boolean, &test, &header_maps));
+	header_maps.clear();
 	EXPECT_EQ(true, IsConfigFormat::ready_serverblock_format("			} ", &test_boolean, &test, &header_maps));
 }
 

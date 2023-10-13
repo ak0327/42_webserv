@@ -111,6 +111,13 @@ run_is_config_format_test :
 	cmake --build build
 	./build/unit_test --gtest_filter=IsConfigFormatTest*
 
+.PHONY	: run_utils_test
+run_utils_test :
+	#rm -rf build
+	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
+	cmake --build build
+	./build/unit_test --gtest_filter=UtilsTest*
+
 .PHONY	: run_ready_config_test
 run_ready_config_test	:
 	#rm -rf build

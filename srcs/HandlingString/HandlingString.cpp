@@ -63,3 +63,28 @@ std::string HandlingString::obtain_without_ows_value(const std::string &field_va
 		return "";
 	return (field_value_with_ows.substr(before_pos, after_pos - before_pos + 1));
 }
+
+void HandlingString::skip_ows(const std::string &line, size_t *pos)
+{
+	while (HandlingString::is_ows(line[*pos]) && line[*pos] != '\0')
+		*pos = *pos + 1;
+}
+
+void HandlingString::skip_no_ows(const std::string &line, size_t *pos)
+{
+	while (!(HandlingString::is_ows(line[*pos])) && line[*pos] != '\0')
+		*pos = *pos + 1;
+}
+
+bool HandlingString::is_field_value(const std::string &line, size_t *pos)
+{
+	if (line.length() == 0 || line == ";")
+		return (false);
+	if (std::count(line.begin(), line.end(), ';') != 1)
+		return (false);
+	if (line[line.length() - 1] != ';')
+		return (false);
+	while (line[*pos] != ';')  // valueの終了条件は必ずセミコロンが存在しているかどうかになる
+		*pos = *pos + 1;
+	return (true);
+}

@@ -4,6 +4,7 @@
 # include <ctype.h>
 # include <cctype>
 # include <climits>
+# include <algorithm>
 # include <fstream>
 # include <iostream>
 # include <limits>
@@ -23,6 +24,9 @@ class HandlingString
 		static	std::string					obtain_unquote_str(const std::string &quoted_str);
 		static	std::string					obtain_without_ows_value(const std::string &field_value_with_ows);
 		static	std::string					skip_lastsemicolon(const std::string &word);
+		static	void						skip_ows(const std::string &line, size_t *pos);
+		static	void						skip_no_ows(const std::string &line, size_t *pos);
+		static	bool						is_field_value(const std::string &line, size_t *pos);
 };
 
 #endif  // SRCS_HANDLINGSTRING_HANDLINGSTRING_HPP_

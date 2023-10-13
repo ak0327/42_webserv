@@ -5,6 +5,7 @@
 #include "../LocationConfig/LocationConfig.hpp"
 #include "../ServerConfig/ServerConfig.hpp"
 #include "../../HandlingString/HandlingString.hpp"
+#include "../ConfigHandlingString/ConfigHandlingString.hpp"
 
 class IsConfigFormat
 {
