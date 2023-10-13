@@ -1,6 +1,7 @@
 #include <ctype.h>
 #include <algorithm>
 #include <climits>
+#include <iostream>
 #include <limits>
 #include <sstream>
 #include "Color.hpp"
@@ -321,13 +322,34 @@ std::string to_lower(const std::string &str) {
 
 	for (std::size_t pos = 0; pos < str.length(); ++pos) {
 		c = static_cast<char>(
-				std::tolower(static_cast<unsigned char>(str[pos]))
-				);
+				std::tolower(static_cast<unsigned char>(str[pos])));
 		lower_str += c;
 	}
 	return lower_str;
 }
 
+Result<std::string, int> parse_pos_to_delimiter(const std::string &src_str,
+												std::size_t pos,
+												char tail_delimiter,
+												std::size_t *end_pos) {
+	std::size_t delim_pos, len;
+	std::string	ret_str;
 
+	if (tail_delimiter == '\0') {
+		ret_str = src_str.substr(pos);
+		if (end_pos) { *end_pos = src_str.length(); }
+		return Result<std::string, int>::ok(ret_str);
+	}
+
+	delim_pos = src_str.find(tail_delimiter, pos);
+	if (delim_pos == std::string::npos) {
+		return Result<std::string, int>::err(NG);
+	}
+	len = delim_pos - pos;
+
+	ret_str = src_str.substr(pos, len);
+	if (end_pos) { *end_pos = pos + len; }
+	return Result<std::string, int>::ok(ret_str);
+}
 
 }  // namespace StringHandler

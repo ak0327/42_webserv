@@ -1,6 +1,7 @@
 #pragma once
 
 # include <string>
+# include "Result.hpp"
 
 namespace StringHandler {
 
@@ -16,7 +17,6 @@ int to_digit(const char &c);
 
 bool	is_positive_under_intmax_double(const std::string &value);
 bool	is_positive_and_under_intmax(const std::string &num_str);
-
 
 
 std::string	skip_lastsemicolon(const std::string &word);
@@ -35,5 +35,10 @@ std::string obtain_unquote_str(const std::string &quoted_str);
 double str_to_double(const std::string &num_str);
 
 std::string to_lower(const std::string &str);
+
+Result<std::string, int> parse_pos_to_delimiter(const std::string &src_str,
+												std::size_t pos,
+												char tail_delimiter,
+												std::size_t *end_pos);
 
 }  // namespace StringHandler
