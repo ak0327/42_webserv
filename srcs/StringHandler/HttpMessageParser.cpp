@@ -314,6 +314,23 @@ bool is_valid_http_version(const std::string &http_version) {
 bool is_header_body_separator(const std::string &line_end_with_cr) {
 	return line_end_with_cr == std::string(1, CR);
 }
+
+bool is_base_64_value_non_empty(const std::string &str) {
+	char c;
+
+	if (str.empty()) {
+		return false;
+	}
+	for (size_t pos = 0; pos < str.length(); ++pos) {
+		c = str[pos];
+		if (std::isalnum(c) || c == '+' || c == '/' || c == '=') {
+			continue;
+		}
+		return false;
+	}
+	return true;
+}
+
 bool is_trailer_allowed_field_name(const std::string &field_name) {
 	if (count(MESSAGE_FRAMING_HEADERS, field_name) != 0) {
 		return false;
