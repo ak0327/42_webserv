@@ -1,3 +1,4 @@
+#include "Constant.hpp"
 #include "HttpRequest.hpp"
 
 ValueMap* HttpRequest::ready_ValueMap(const std::string &value, char delimiter) {
