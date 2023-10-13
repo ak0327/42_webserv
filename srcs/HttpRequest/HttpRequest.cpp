@@ -31,6 +31,22 @@ Result<std::string, int> parse_field_name(const std::string &field_line,
 	return Result<std::string, int>::ok(field_name);
 }
 
+void skip_whitespace(const std::string &str, std::size_t *pos) {
+	if (!pos) { return; }
+
+	while (HttpMessageParser::is_whitespace(str[*pos])) {
+		(*pos)++;
+	}
+}
+
+void skip_non_whitespace(const std::string &str, std::size_t *pos) {
+	if (!pos) { return; }
+
+	while (str[*pos] && !HttpMessageParser::is_whitespace(str[*pos])) {
+		(*pos)++;
+	}
+}
+
 // field-line CRLF
 // field-line = field-name ":" OWS field-value OWS
 //                                 ^head
@@ -43,14 +59,11 @@ Result<std::string, int> parse_field_value(const std::string &field_line,
 
 	len = 0;
 	while (field_line[*head_pos + len]) {
-		while (field_line[*head_pos + len]
-			   && !HttpMessageParser::is_whitespace(field_line[*head_pos + len])) {
-			++len;
-		}
+		skip_non_whitespace(&field_line[*head_pos], &len);
+
 		ws_len = 0;
-		while (HttpMessageParser::is_whitespace(field_line[*head_pos + len + ws_len])) {
-			++ws_len;
-		}
+		skip_whitespace(&field_line[*head_pos + len], &ws_len);
+
 		if (field_line[*head_pos + len + ws_len] == '\0') {
 			break;
 		}
@@ -62,6 +75,21 @@ Result<std::string, int> parse_field_value(const std::string &field_line,
 	return Result<std::string, int>::ok(field_value);
 }
 
+void restore_crlf_to_ss(std::stringstream *ss) {
+	std::streampos current_pos = ss->tellg();
+	ss->seekg(current_pos - std::streamoff(std::string(CRLF).length()));
+}
+
+Result<std::string, int> get_field_line_by_remove_cr(const std::string &line_end_with_cr) {
+	std::string field_line;
+
+	if (!HttpMessageParser::is_end_with_cr(line_end_with_cr)) {
+		return Result<std::string, int>::err(NG);
+	}
+	field_line = line_end_with_cr.substr(0, line_end_with_cr.length() - 1);
+	return Result<std::string, int>::ok(field_line);
+}
+
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -69,6 +97,7 @@ Result<std::string, int> parse_field_value(const std::string &field_line,
 
 HttpRequest::HttpRequest(const std::string &input) {
 	init_field_name_parser();
+	init_field_name_counter();
 	this->_status_code = parse_and_validate_http_request(input);
 }
 
@@ -80,6 +109,13 @@ HttpRequest::~HttpRequest()
 	while (itr != this->_request_header_fields.end()) {
 		delete itr->second;
 		++itr;
+	}
+}
+
+void HttpRequest::clear_field_values_of(const std::string &field_name) {
+	if (is_valid_field_name_registered(field_name)) {
+		delete this->_request_header_fields[field_name];
+		this->_request_header_fields.erase(field_name);
 	}
 }
 
@@ -138,24 +174,25 @@ int HttpRequest::parse_and_validate_http_request(const std::string &input) {
  field-line = field-name ":" OWS field-value OWS
  */
 Result<int, int> HttpRequest::parse_and_validate_field_lines(std::stringstream *ss) {
-	std::string			line_end_with_cr, field_line, field_name, field_value;
-	Result<int, int> 	parse_result;
+	std::string	line_end_with_cr, field_line, field_name, field_value;
+	Result<std::string, int> field_line_result;
+	Result<int, int> parse_result;
 
 	while (true) {
 		std::getline(*ss, line_end_with_cr, LF);
 		if (ss->eof()) {
 			return Result<int, int>::err(NG);
 		}
-		if (line_end_with_cr == std::string(CRLF)) {
-			std::streampos current_pos = ss->tellg();
-			ss->seekg(current_pos - std::streamoff(std::string(CRLF).length()));
+		if (HttpMessageParser::is_header_body_separator(line_end_with_cr)) {
+			restore_crlf_to_ss(ss);
 			break;
 		}
 
-		if (!HttpMessageParser::is_end_with_cr(line_end_with_cr)) {
+		field_line_result = get_field_line_by_remove_cr(line_end_with_cr);
+		if (field_line_result.is_err()) {
 			return Result<int, int>::err(NG);
 		}
-		field_line = line_end_with_cr.substr(0, line_end_with_cr.length() - 1);
+		field_line = field_line_result.get_ok_value();
 
 		parse_result = parse_field_line(field_line, &field_name, &field_value);
 		if (parse_result.is_err()) {
@@ -167,8 +204,15 @@ Result<int, int> HttpRequest::parse_and_validate_field_lines(std::stringstream *
 			return Result<int, int>::err(NG);
 		}
 
+		field_name = StringHandler::to_lower(field_name);
 		if (is_valid_field_name(field_name)) {
-			(this->*_field_value_parser[field_name])(field_name, field_value);
+			increment_field_name_counter(field_name);
+
+			parse_result = (this->*_field_value_parser[field_name])(field_name, field_value);
+			if (parse_result.is_err()) {
+				return Result<int, int>::err(NG);
+			}
+			continue;
 		}
 	}
 
@@ -248,7 +292,20 @@ std::string HttpRequest::parse_message_body(std::stringstream *ss) {
 }
 
 bool HttpRequest::is_valid_field_name(const std::string &field_name) {
-	 return (this->_field_value_parser.count(field_name) > 0);
+	 return this->_field_value_parser.count(field_name) != 0;
+}
+
+bool HttpRequest::is_valid_field_name_registered(const std::string &field_name) {
+	return this->_request_header_fields.count(field_name) != 0;
+}
+
+// call this function after increment
+bool HttpRequest::has_multiple_field_names(const std::string &field_name) {
+	return SINGLE_FIELD_NAME < this->_field_name_counter[field_name];
+}
+
+void HttpRequest::increment_field_name_counter(const std::string &field_name) {
+	this->_field_name_counter[field_name]++;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -302,6 +359,18 @@ void HttpRequest::set_x_xss_protection(const std::string &key, const std::string
 	(void)key;
 	(void)value;
 }
+*/
+
+void HttpRequest::init_field_name_counter() {
+	std::vector<std::string>::const_iterator itr;
+
+	for (itr = FIELD_NAMES.begin(); itr != FIELD_NAMES.end(); ++itr) {
+		this->_field_name_counter[*itr] = COUNTER_INIT;
+	}
+}
+
+void HttpRequest::init_field_name_parser() {
+	std::map<std::string, func_ptr> map;
 
 void HttpRequest::init_field_name_parser()
 {

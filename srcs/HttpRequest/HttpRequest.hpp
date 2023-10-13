@@ -11,7 +11,7 @@
 # include "RequestLine.hpp"
 # include "ValueWeightArraySet.hpp"
 # include "ValueArraySet.hpp"
-# include "ValueSet.hpp"
+# include "SingleFieldValue.hpp"
 # include "TwoValueSet.hpp"
 # include "ValueMap.hpp"
 # include "Date.hpp"
@@ -24,7 +24,7 @@ class TwoValueSet;
 class ValueArraySet;
 class Date;
 class ValueMap;
-class ValueSet;
+class SingleFieldValue;
 class ValueWeightArraySet;
 
 class HttpRequest {
@@ -39,17 +39,22 @@ class HttpRequest {
 	std::string get_request_target() const;
 	std::string	get_http_version() const;
 
+	bool is_valid_field_name_registered(const std::string &field_name);
+	bool has_multiple_field_names(const std::string &field_name);
 	std::map<std::string, FieldValues*> get_request_header_fields(void);
-	FieldValues* get_field_values(const std::string &field_name);
+	FieldValues *get_field_values(const std::string &field_name);
 
- private:
+	void increment_field_name_counter(const std::string &field_name);
+
+private:
 	int _status_code;
 	RequestLine _request_line;
 	std::map<std::string, FieldValues*> _request_header_fields;
 	std::string _message_body;
 
-	typedef void (HttpRequest::*func_ptr)(const std::string&, const std::string&);
+	typedef Result<int, int> (HttpRequest::*func_ptr)(const std::string&, const std::string&);
 	std::map<std::string, func_ptr> _field_value_parser;
+	std::map<std::string, int> _field_name_counter;
 
 	HttpRequest();
 	HttpRequest(const HttpRequest &request);
@@ -68,6 +73,7 @@ class HttpRequest {
 	bool is_valid_field_value_syntax(const std::string &field_value);
 	bool is_valid_field_name(const std::string &field_name);
 
+	void clear_field_values_of(const std::string &field_name);
 
 	Result<int, int> set_valid_http_date(const std::string &field_name,
 										 const std::string &field_value);
@@ -88,6 +94,7 @@ class HttpRequest {
 	ValueSet *ready_ValueSet(const std::string &value);
 	ValueWeightArraySet*ready_ValueWeightArraySet(const std::string &value);
 
+	void init_field_name_counter();
 	void init_field_name_parser(void);
 
 	void set_accept(const std::string &key, const std::string &value);
