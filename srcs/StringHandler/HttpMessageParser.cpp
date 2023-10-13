@@ -267,6 +267,23 @@ bool is_end_with_cr(const std::string &str) {
 	return (!str.empty() && str[str.length() - 1] == CR);
 }
 
+bool is_valid_method(const std::string &method) {
+	std::vector<std::string>::const_iterator itr;
+
+	itr = std::find(METHODS.begin(), METHODS.end(), method);
+	return itr != METHODS.end();
+}
+
+bool is_valid_request_target(const std::string &request_target) {
+	return HttpMessageParser::is_printable(request_target);
+}
+
+bool is_valid_http_version(const std::string &http_version) {
+	std::vector<std::string>::const_iterator itr;
+
+	itr = std::find(HTTP_VERSIONS.begin(), HTTP_VERSIONS.end(), http_version);
+	return itr != HTTP_VERSIONS.end();
+}
 Result<int, int> parse_http_date(const std::string &http_date,
 								 std::string *day_name,
 								 std::string *day,

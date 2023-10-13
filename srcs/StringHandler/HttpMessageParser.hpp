@@ -31,4 +31,7 @@ bool is_tchar(char c);
 bool is_token(const std::string &str);
 bool is_whitespace(char c);
 
+bool is_valid_method(const std::string &method);
+bool is_valid_request_target(const std::string &request_target);
+bool is_valid_http_version(const std::string &http_version);
 }  // namespace HttpMessageParser
