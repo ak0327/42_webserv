@@ -15,7 +15,10 @@ bool	LocationConfig::ready_boolean_fieldvalue(const std::string &field_value)
 
 int		LocationConfig::ready_int_fieldvalue(const std::string &field_value){ return (NumericHandle::str_to_int(field_value)); }
 
-size_t	LocationConfig::ready_size_t_fieldvalue(const std::string &field_value){ return (static_cast<size_t>(NumericHandle::str_to_int(field_value))); }
+size_t	LocationConfig::ready_size_t_fieldvalue(const std::string &field_value)
+{
+	return (static_cast<size_t>(NumericHandle::str_to_int(field_value)));
+}
 
 std::string		LocationConfig::ready_string_fieldvalue(const std::string &field_value){ return (field_value); }
 

@@ -56,8 +56,8 @@ bool	IsConfigFormat::is_start_serverblock(const std::string &line)
 // もしくは終了を表す　}　元のOWSはなくても許容 このis_型ではチェックのみ行う
 bool	IsConfigFormat::is_locationblock_config(const std::string &line, bool *in_location_block)
 {
-	std::string		line_without_ows = HandlingString::obtain_without_ows_value(line);
 	// (文字列->header) <OWS> {文字列->value};
+	std::string		line_without_ows = HandlingString::obtain_without_ows_value(line);
 	size_t			end_pos = 0;
 
 	if (ConfigHandlingString::is_block_end(line_without_ows))
@@ -77,7 +77,8 @@ bool	IsConfigFormat::is_locationblock_config(const std::string &line, bool *in_l
 
 // location -> <OWS> (文字列->header) <OWS> {文字列->value}; <OWS>
 // もしくは終了を表す　}　元のOWSはなくても許容
-bool	IsConfigFormat::ready_locationblock_config(const std::string &line, bool *in_location_block, LocationConfig *locationconfig, std::vector<std::string> *fieldkey_map)
+bool	IsConfigFormat::ready_locationblock_config(const std::string &line, bool *in_location_block, \
+LocationConfig *locationconfig, std::vector<std::string> *fieldkey_map)
 {
 	std::string		line_without_ows = HandlingString::obtain_without_ows_value(line);
 	// (文字列->header) <OWS> {文字列->value};
@@ -92,7 +93,7 @@ bool	IsConfigFormat::ready_locationblock_config(const std::string &line, bool *i
 	}
 	if (!(ConfigHandlingString::ready_field_header(line_without_ows, &end_pos, &field_header)))
 		return (false);
-	HandlingString::skip_ows(line_without_ows, &end_pos);  //field headerの後の空白を飛ばす
+	HandlingString::skip_ows(line_without_ows, &end_pos);
 	if (ConfigHandlingString::ready_field_value(line_without_ows, &end_pos, &field_value) == false)
 		return (false);
 	if (std::find(fieldkey_map->begin(), fieldkey_map->end(), field_header) != fieldkey_map->end())
