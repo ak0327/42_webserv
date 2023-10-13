@@ -67,7 +67,7 @@ set(webserv_srcs
         srcs/HttpRequest/HttpRequest_ValueArraySet.cpp
         srcs/HttpRequest/HttpRequest_Date.cpp
         srcs/HttpRequest/HttpRequest_ValueMap.cpp
-        srcs/HttpRequest/HttpRequest_ValueSet.cpp
+        srcs/HttpRequest/HttpRequest_SingleFieldValue.cpp
         srcs/HttpRequest/HttpRequest_ValueWeightArraySet.cpp
         srcs/HttpRequest/RequestLine/RequestLine.cpp
         srcs/HttpRequest/TwoValueSet/TwoValueSet.cpp
@@ -102,6 +102,19 @@ set (unit_test_srcs
         test/unit_test/TestStringHandler.cpp
         test/unit_test/TestHttpMessageParser.cpp
         test/unit_test/TestRequestLine.cpp
+        test/unit_test/TestSingleFieldValue/TestAccessControlRequestMethod.cpp
+        test/unit_test/TestSingleFieldValue/TestConnection.cpp
+        test/unit_test/TestSingleFieldValue/TestContentLength.cpp
+        test/unit_test/TestSingleFieldValue/TestExpect.cpp
+        test/unit_test/TestSingleFieldValue/TestMaxForwards.cpp
+        test/unit_test/TestSingleFieldValue/TestSecFetchMode.cpp
+        test/unit_test/TestSingleFieldValue/TestSecFetchSite.cpp
+        test/unit_test/TestSingleFieldValue/TestSecFetchUser.cpp
+        test/unit_test/TestSingleFieldValue/TestSecPurpose.cpp
+        test/unit_test/TestSingleFieldValue/TestServiceWorkerNavigationPreload.cpp
+        test/unit_test/TestSingleFieldValue/TestTrailer.cpp
+        test/unit_test/TestSingleFieldValue/TestUpgradeInsecureRequests.cpp
+
         test/unit_test/TestDate/TestDate.cpp
         test/unit_test/TestDate/TestIfModifiedSince.cpp
         test/unit_test/TestDate/TestIfUnmodifiedSince.cpp
