@@ -19,6 +19,9 @@ std::string	obtain_word_before_delimiter(const std::string &field_value, const c
 int to_integer_num(const std::string &str, bool *succeed);
 int to_delta_seconds(const std::string &str, bool *succeed);
 
+long to_long_num(const std::string &str, bool *succeed);
+long to_length(const std::string &str, bool *succeed);
+
 double to_floating_num(const std::string &str,
 					   size_t precision_digit,
 					   bool *succeed);

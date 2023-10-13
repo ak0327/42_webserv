@@ -133,7 +133,7 @@ int to_integer_num(const std::string &str, bool *succeed) {
 	if (!std::isdigit(str[idx])) {
 		return num;
 	}
-	num = StringHandler::stoi(str, &idx, &is_overflow);  // todo: int? long?
+	num = StringHandler::stoi(str, &idx, &is_overflow);
 	if (str[idx] == '\0' && !is_overflow) {
 		is_success = true;
 	}
@@ -142,9 +142,32 @@ int to_integer_num(const std::string &str, bool *succeed) {
 }
 
 // delta-seconds = 1*DIGIT
+// The delta-seconds rule specifies a non-negative integer
 int to_delta_seconds(const std::string &str, bool *succeed) {
 	return to_integer_num(str, succeed);
 }
+
+long to_long_num(const std::string &str, bool *succeed) {
+	bool		is_success = false, is_overflow;
+	long		num = 0;
+	std::size_t	idx = 0;
+
+	if (succeed) { *succeed = is_success; }
+	if (!std::isdigit(str[idx])) {
+		return num;
+	}
+	num = StringHandler::stol(str, &idx, &is_overflow);
+	if (str[idx] == '\0' && !is_overflow) {
+		is_success = true;
+	}
+	if (succeed && !is_overflow) { *succeed = is_success; }
+	return num;
+}
+
+long to_length(const std::string &str, bool *succeed) {
+	return to_long_num(str, succeed);
+}
+
 
 
 // HTTP-version	= HTTP-name "/" DIGIT "." DIGIT
