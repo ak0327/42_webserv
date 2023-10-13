@@ -33,12 +33,12 @@ Result<int, int> RequestLine::parse_and_validate(const std::string &line) {
 
 	parse_result = this->parse(line);
 	if (parse_result.is_err()) {
-		return Result<int, int>::err(NG);
+		return Result<int, int>::err(ERR);
 	}
 
 	validate_result = this->validate();
 	if (validate_result.is_err()) {
-		return Result<int, int>::err(NG);
+		return Result<int, int>::err(ERR);
 	}
 
 	return Result<int, int>::ok(OK);
@@ -78,14 +78,14 @@ Result<int, int> RequestLine::parse(const std::string &line_wo_end_lf) {
 														  SP,
 														  &end_pos);
 	if (method_result.is_err()) {
-		return Result<int, int>::err(NG);
+		return Result<int, int>::err(ERR);
 	}
 	this->_method = method_result.get_ok_value();
 	pos = end_pos;
 
 	// SP
 	if (line_wo_end_lf[pos] != SP) {
-		return Result<int, int>::err(NG);
+		return Result<int, int>::err(ERR);
 	}
 	pos++;
 
@@ -95,14 +95,14 @@ Result<int, int> RequestLine::parse(const std::string &line_wo_end_lf) {
 																  SP,
 																  &end_pos);
 	if (request_target_result.is_err()) {
-		return Result<int, int>::err(NG);
+		return Result<int, int>::err(ERR);
 	}
 	this->_request_target = request_target_result.get_ok_value();
 	pos = end_pos;
 
 	// SP
 	if (line_wo_end_lf[pos] != SP) {
-		return Result<int, int>::err(NG);
+		return Result<int, int>::err(ERR);
 	}
 	pos++;
 
@@ -112,14 +112,14 @@ Result<int, int> RequestLine::parse(const std::string &line_wo_end_lf) {
 																CR,
 																&end_pos);
 	if (http_version_result.is_err()) {
-		return Result<int, int>::err(NG);
+		return Result<int, int>::err(ERR);
 	}
 	this->_http_version = http_version_result.get_ok_value();
 	pos = end_pos;
 
 	// CR
 	if (!(line_wo_end_lf[pos] == CR && line_wo_end_lf[pos + 1] == '\0')) {
-		return Result<int, int>::err(NG);
+		return Result<int, int>::err(ERR);
 	}
 	return Result<int, int>::ok(OK);
 }
@@ -128,13 +128,13 @@ Result<int, int> RequestLine::parse(const std::string &line_wo_end_lf) {
 
 Result<int, int> RequestLine::validate() const {
 	if (!HttpMessageParser::is_valid_method(this->_method)) {
-		return Result<int, int>::err(NG);
+		return Result<int, int>::err(ERR);
 	}
 	if (!HttpMessageParser::is_valid_request_target(this->_request_target)) {
-		return Result<int, int>::err(NG);
+		return Result<int, int>::err(ERR);
 	}
 	if (!HttpMessageParser::is_valid_http_version(this->_http_version)) {
-		return Result<int, int>::err(NG);
+		return Result<int, int>::err(ERR);
 	}
 	return Result<int, int>::ok(OK);
 }

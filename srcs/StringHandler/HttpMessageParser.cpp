@@ -15,7 +15,7 @@ namespace {
 
 double get_integer_part(const std::string &str, size_t idx) {
 	if (str.length() < idx) {
-		return NG;
+		return ERR;
 	}
 	return StringHandler::to_digit(str[idx]);
 }
@@ -92,37 +92,37 @@ Result<int, int> parse_date1(const std::string &http_date,
 	std::size_t pos, end;
 
 	if (!day || !month || !year || !end_pos) {
-		return Result<int, int>::err(NG);
+		return Result<int, int>::err(ERR);
 	}
 
 	pos = start_pos;
 	day_result = StringHandler::parse_pos_to_delimiter(http_date, pos, SP, &end);
 	if (day_result.is_err()) {
-		return Result<int, int>::err(NG);
+		return Result<int, int>::err(ERR);
 	}
 	*day = day_result.get_ok_value();
 	pos = end;
 
 	if (http_date[pos] != SP) {
-		return Result<int, int>::err(NG);
+		return Result<int, int>::err(ERR);
 	}
 	pos++;
 
 	month_result = StringHandler::parse_pos_to_delimiter(http_date, pos, SP, &end);
 	if (month_result.is_err()) {
-		return Result<int, int>::err(NG);
+		return Result<int, int>::err(ERR);
 	}
 	*month = month_result.get_ok_value();
 	pos = end;
 
 	if (http_date[pos] != SP) {
-		return Result<int, int>::err(NG);
+		return Result<int, int>::err(ERR);
 	}
 	pos++;
 
 	year_result = StringHandler::parse_pos_to_delimiter(http_date, pos, SP, &end);
 	if (year_result.is_err()) {
-		return Result<int, int>::err(NG);
+		return Result<int, int>::err(ERR);
 	}
 	*year = year_result.get_ok_value();
 
@@ -148,33 +148,33 @@ Result<int, int> parse_time_of_day(const std::string &http_date,
 	std::size_t pos, end;
 
 	if (!hour || !minute || !second || !end_pos) {
-		return Result<int, int>::err(NG);
+		return Result<int, int>::err(ERR);
 	}
 
 	pos = start_pos;
 	hour_result = StringHandler::parse_pos_to_delimiter(http_date, pos, COLON, &end);
 	if (hour_result.is_err()) {
-		return Result<int, int>::err(NG);
+		return Result<int, int>::err(ERR);
 	}
 	*hour = hour_result.get_ok_value();
 	pos = end;
 
-	if (http_date[pos] != COLON) { return Result<int, int>::err(NG); }
+	if (http_date[pos] != COLON) { return Result<int, int>::err(ERR); }
 	pos++;
 
 	minute_result = StringHandler::parse_pos_to_delimiter(http_date, pos, COLON, &end);
 	if (minute_result.is_err()) {
-		return Result<int, int>::err(NG);
+		return Result<int, int>::err(ERR);
 	}
 	*minute = minute_result.get_ok_value();
 	pos = end;
 
-	if (http_date[pos] != COLON) { return Result<int, int>::err(NG); }
+	if (http_date[pos] != COLON) { return Result<int, int>::err(ERR); }
 	pos++;
 
 	second_result = StringHandler::parse_pos_to_delimiter(http_date, pos, SP, &end);
 	if (second_result.is_err()) {
-		return Result<int, int>::err(NG);
+		return Result<int, int>::err(ERR);
 	}
 	*second = second_result.get_ok_value();
 
@@ -206,48 +206,117 @@ Result<int, int> parse_imf_fixdate(const std::string &http_date,
 
 
 	if (!day_name || !day || !month || !year || !hour || !minute || !second || !gmt) {
-		return Result<int, int>::err(NG);
+		return Result<int, int>::err(ERR);
 	}
 
 	pos = 0;
 	day_name_result = StringHandler::parse_pos_to_delimiter(http_date, pos, COMMA, &end_pos);
 	if (day_name_result.is_err()) {
-		return Result<int, int>::err(NG);
+		return Result<int, int>::err(ERR);
 	}
 	*day_name = day_name_result.get_ok_value();
 	pos = end_pos;
 
-	if (http_date[pos] != COMMA) { return Result<int, int>::err(NG); }
+	if (http_date[pos] != COMMA) { return Result<int, int>::err(ERR); }
 	pos++;
 
-	if (http_date[pos] != SP) { return Result<int, int>::err(NG); }
+	if (http_date[pos] != SP) { return Result<int, int>::err(ERR); }
 	pos++;
 
 	day1_result = parse_date1(http_date, day, month, year, pos, &end_pos);
 	if (day1_result.is_err()) {
-		return Result<int, int>::err(NG);
+		return Result<int, int>::err(ERR);
 	}
 	pos = end_pos;
 
-	if (http_date[pos] != SP) { return Result<int, int>::err(NG); }
+	if (http_date[pos] != SP) { return Result<int, int>::err(ERR); }
 	pos++;
 
 	time_of_day_result = parse_time_of_day(http_date, hour, minute, second, pos, &end_pos);
 	if (time_of_day_result.is_err()) {
-		return Result<int, int>::err(NG);
+		return Result<int, int>::err(ERR);
 	}
 	pos = end_pos;
 
 	// SP
-	if (http_date[pos] != SP) { return Result<int, int>::err(NG); }
+	if (http_date[pos] != SP) { return Result<int, int>::err(ERR); }
 	pos++;
 
 	// GMT
 	gmt_result = StringHandler::parse_pos_to_delimiter(http_date, pos, '\0', NULL);
 	if (gmt_result.is_err()) {
-		return Result<int, int>::err(NG);
+		return Result<int, int>::err(ERR);
 	}
 	*gmt = gmt_result.get_ok_value();
+
+	return Result<int, int>::ok(OK);
+}
+
+Result <int, int> validate_imf_fixdate(const std::string &day_name,
+									   const std::string &day,
+									   const std::string &month,
+									   const std::string &year,
+									   const std::string &hour,
+									   const std::string &minute,
+									   const std::string &second,
+									   const std::string &gmt) {
+	int day_num, month_num, year_num, hour_num, minute_num, second_num;
+	std::vector<std::string>::const_iterator month_itr;
+	bool succeed;
+
+	// day1
+	day_num = HttpMessageParser::to_integer_num(day, &succeed);
+	if (day.length() != 2 || !succeed) {
+		return Result<int, int>::err(ERR);
+	}
+
+	month_itr = std::find(MONTHS.begin(), MONTHS.end(), month);
+	if (month_itr == MONTHS.end()) {
+		return Result<int, int>::err(ERR);
+	}
+	month_num = static_cast<int>(std::distance(MONTHS.begin(), month_itr)) + 1;
+
+	year_num = HttpMessageParser::to_integer_num(year, &succeed);
+	if (year.length() != 4 || !succeed) {
+		return Result<int, int>::err(ERR);
+	}
+
+	if (!HttpMessageParser::is_valid_day1(year_num, month_num, day_num)) {
+		return Result<int, int>::err(ERR);
+	}
+
+	// time-of-date
+	hour_num = HttpMessageParser::to_integer_num(hour, &succeed);
+	if (hour.length() != 2 || !succeed) {
+		return Result<int, int>::err(ERR);
+	}
+
+	minute_num = HttpMessageParser::to_integer_num(minute, &succeed);
+	if (minute.length() != 2 || !succeed) {
+		return Result<int, int>::err(ERR);
+	}
+
+	second_num = HttpMessageParser::to_integer_num(second, &succeed);
+	if (second.length() != 2 || !succeed) {
+		return Result<int, int>::err(ERR);
+	}
+
+	if (!HttpMessageParser::is_valid_time_of_day(hour_num, minute_num, second_num)) {
+		return Result<int, int>::err(ERR);
+	}
+
+	// day_name
+	if (std::find(DAY_NAMES.begin(), DAY_NAMES.end(), day_name) == DAY_NAMES.end()) {
+		return Result<int, int>::err(ERR);
+	}
+	if (!HttpMessageParser::is_valid_day_name(day_name, year_num, month_num, day_num)) {
+		return Result<int, int>::err(ERR);
+	}
+
+	// gmt
+	if (gmt != std::string(GMT)) {
+		return Result<int, int>::err(ERR);
+	}
 
 	return Result<int, int>::ok(OK);
 }
@@ -535,15 +604,109 @@ bool is_trailer_allowed_field_name(const std::string &field_name) {
 	return true;
 }
 
-Result<int, int> parse_http_date(const std::string &http_date,
-								 std::string *day_name,
-								 std::string *day,
-								 std::string *month,
-								 std::string *year,
-								 std::string *hour,
-								 std::string *minute,
-								 std::string *second,
-								 std::string *gmt) {
+/*
+ absolute-URI  = scheme ":" hier-part [ "?" query ]
+
+ hier-part     = "//" authority path-abempty
+              / path-absolute
+              / path-rootless
+              / path-empty
+
+ scheme        = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
+ path-rootless = segment-nz *( "/" segment )
+
+ https://datatracker.ietf.org/doc/html/rfc3986#appendix-A
+ */
+// todo
+bool is_absolute_uri(const std::string &field_value) {
+	(void)field_value;
+	return true;
+}
+
+/*
+// partial-URI   = relative-part [ "?" query ]
+// relative-part = "//" authority path-abempty
+//                  / path-absolute
+//                  / path-noscheme
+//                  / path-empty
+
+ authority   = [ userinfo "@" ] host [ ":" port ]
+
+ query         = *( pchar / "/" / "?" )
+ path-abempty  = *( "/" segment )
+
+ path-absolute = "/" [ segment-nz *( "/" segment ) ]
+ path-noscheme = segment-nz-nc *( "/" segment )
+ path-empty    = 0<pchar>
+
+ segment       = *pchar
+ segment-nz    = 1*pchar
+ pchar         = unreserved / pct-encoded / sub-delims / ":" / "@"
+
+ unreserved    = ALPHA / DIGIT / "-" / "." / "_" / "~"
+ reserved      = gen-delims / sub-delims
+ gen-delims    = ":" / "/" / "?" / "#" / "[" / "]" / "@"
+ sub-delims    = "!" / "$" / "&" / "'" / "(" / ")"
+               / "*" / "+" / "," / ";" / "="
+
+ pct-encoded = "%" HEXDIG HEXDIG; HEXDIG = hexadecimal digits
+
+ https://datatracker.ietf.org/doc/html/rfc3986#section-3.3
+*/
+// todo
+bool is_partial_uri(const std::string &field_value) {
+	(void)field_value;
+	return true;
+}
+
+std::string parse_uri_host(const std::string &str,
+						   std::size_t start_pos,
+						   std::size_t *end_pos) {
+	(void)str;
+	(void)start_pos;
+	(void)end_pos;
+	return "";
+}
+
+std::string parse_port(const std::string &str,
+					   std::size_t start_pos,
+					   std::size_t *end_pos) {
+	(void)str;
+	(void)start_pos;
+	(void)end_pos;
+	return "";
+}
+
+/*
+ Date = HTTP-date
+
+ HTTP-date    = IMF-fixdate / obs-date
+
+ obs-date     = rfc850-date / asctime-date
+  rfc850-date  = day-name-l "," SP date2 SP time-of-day SP GMT
+
+  day-name-l   = %s"Monday" / %s"Tuesday" / %s"Wednesday"
+               / %s"Thursday" / %s"Friday" / %s"Saturday"
+               / %s"Sunday"
+
+  date2        = day "-" month "-" 2DIGIT
+               ; e.g., 02-Jun-82
+
+  asctime-date = day-name SP date3 SP time-of-day SP year
+  date3        = month SP ( 2DIGIT / ( SP 1DIGIT ))
+               ; e.g., Jun  2
+
+ https://www.rfc-editor.org/rfc/rfc9110#field.date
+ */
+Result<date_format, int> parse_http_date(const std::string &http_date,
+										 std::string *day_name,
+										 std::string *day,
+										 std::string *month,
+										 std::string *year,
+										 std::string *hour,
+										 std::string *minute,
+										 std::string *second,
+										 std::string *gmt) {
 	Result<int, int> imf_fixdate_result;
 	// Result<int, int> rfc850_date_result, asctime_date_result;  // todo
 
@@ -553,13 +716,13 @@ Result<int, int> parse_http_date(const std::string &http_date,
 										   hour, minute, second,
 										   gmt);
 	if (imf_fixdate_result.is_ok()) {
-		return Result<int, int>::ok(OK);
+		return Result<date_format, int>::ok(IMF_FIXDATE);
 	}
 
 	// todo: parse_rfc850_date()
 	// todo: parse_asctime_date()
 
-	return Result<int, int>::err(NG);
+	return Result<date_format, int>::err(ERR);
 }
 
 bool is_leap_year(int year) {
@@ -619,7 +782,8 @@ bool is_valid_day_name(const std::string &day_name, int year, int month, int day
 	return day_name == zellers_day_name;
 }
 
-Result<int, int> validate_http_date(const std::string &day_name,
+Result<int, int> validate_http_date(date_format format,
+									const std::string &day_name,
 									const std::string &day,
 									const std::string &month,
 									const std::string &year,
@@ -627,62 +791,22 @@ Result<int, int> validate_http_date(const std::string &day_name,
 									const std::string &minute,
 									const std::string &second,
 									const std::string &gmt) {
-	int day_num, month_num, year_num, hour_num, minute_num, second_num;
-	std::vector<std::string>::const_iterator month_itr;
-	bool succeed;
+	Result<int, int> validate_result;
 
-	// day1
-	day_num = to_integer_num(day, &succeed);
-	if (day.length() != 2 || !succeed) {
-		return Result<int, int>::err(NG);
+	if (format == IMF_FIXDATE) {
+		validate_result = validate_imf_fixdate(day_name,
+											   day, month, year,
+											   hour, minute, second,
+											   gmt);
 	}
+	// else if (format == RFC850_DATE) {
+	// 	// todo
+	// } else {
+	// 	// todo
+	// }
 
-	month_itr = std::find(MONTHS.begin(), MONTHS.end(), month);
-	if (month_itr == MONTHS.end()) {
-		return Result<int, int>::err(NG);
-	}
-	month_num = static_cast<int>(std::distance(MONTHS.begin(), month_itr)) + 1;
-
-	year_num = to_integer_num(year, &succeed);
-	if (year.length() != 4 || !succeed) {
-		return Result<int, int>::err(NG);
-	}
-
-	if (!is_valid_day1(year_num, month_num, day_num)) {
-		return Result<int, int>::err(NG);
-	}
-
-	// time-of-date
-	hour_num = to_integer_num(hour, &succeed);
-	if (hour.length() != 2 || !succeed) {
-		return Result<int, int>::err(NG);
-	}
-
-	minute_num = to_integer_num(minute, &succeed);
-	if (minute.length() != 2 || !succeed) {
-		return Result<int, int>::err(NG);
-	}
-
-	second_num = to_integer_num(second, &succeed);
-	if (second.length() != 2 || !succeed) {
-		return Result<int, int>::err(NG);
-	}
-
-	if (!is_valid_time_of_day(hour_num, minute_num, second_num)) {
-		return Result<int, int>::err(NG);
-	}
-
-	// day_name
-	if (std::find(DAY_NAMES.begin(), DAY_NAMES.end(), day_name) == DAY_NAMES.end()) {
-		return Result<int, int>::err(NG);
-	}
-	if (!is_valid_day_name(day_name, year_num, month_num, day_num)) {
-		return Result<int, int>::err(NG);
-	}
-
-	// gmt
-	if (gmt != std::string(GMT)) {
-		return Result<int, int>::err(NG);
+	if (validate_result.is_err()) {
+		return Result<int, int>::err(ERR);
 	}
 
 	return Result<int, int>::ok(OK);

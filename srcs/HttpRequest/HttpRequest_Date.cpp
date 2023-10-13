@@ -12,7 +12,7 @@ Result<Date *, int> create_valid_http_date(const std::string &field_value) {
 	date =  new Date(field_value);
 	if (date->is_err()) {
 		delete date;
-		return Result<Date *, int>::err(NG);
+		return Result<Date *, int>::err(ERR);
 	}
 	return Result<Date *, int>::ok(date);
 }
@@ -30,7 +30,7 @@ Result<int, int> HttpRequest::set_valid_http_date(const std::string &field_name,
 
 	date_result = create_valid_http_date(field_value);
 	if (date_result.is_err()) {
-		return Result<int, int>::err(NG);
+		return Result<int, int>::err(ERR);
 	}
 
 	date = date_result.get_ok_value();
@@ -49,7 +49,7 @@ Result<int, int> HttpRequest::set_date(const std::string &field_name,
 Result<int, int> HttpRequest::set_if_modified_since(const std::string &field_name,
 													const std::string &field_value) {
 	if (has_multiple_field_names(field_name)) {
-		return Result<int, int>::err(NG);
+		return Result<int, int>::err(ERR);
 	}
 	return set_valid_http_date(field_name, field_value);
 }
@@ -59,7 +59,7 @@ Result<int, int> HttpRequest::set_if_modified_since(const std::string &field_nam
 Result<int, int> HttpRequest::set_if_unmodified_since(const std::string &field_name,
 													  const std::string &field_value) {
 	if (has_multiple_field_names(field_name)) {
-		return Result<int, int>::err(NG);
+		return Result<int, int>::err(ERR);
 	}
 	return set_valid_http_date(field_name, field_value);
 }

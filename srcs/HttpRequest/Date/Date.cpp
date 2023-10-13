@@ -16,7 +16,7 @@ Date::Date(const std::string &http_date) {
 													  &hour, &minute, &second,
 													  &gmt);
 	if (parse_result.is_err()) {
-		this->_result = Result<int, int>::err(NG);
+		this->_result = Result<int, int>::err(ERR);
 		return;
 	}
 	format = parse_result.get_ok_value();
@@ -27,7 +27,7 @@ Date::Date(const std::string &http_date) {
 															hour, minute, second,
 															gmt);
 	if (validate_result.is_err()) {
-		this->_result = Result<int, int>::err(NG);
+		this->_result = Result<int, int>::err(ERR);
 		return;
 	}
 

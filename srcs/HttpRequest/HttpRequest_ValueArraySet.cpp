@@ -13,56 +13,17 @@ ValueArraySet* HttpRequest::ready_ValueArraySet(const std::string &all_value)
 	return (new ValueArraySet(value_array));
 }
 
-// todo: Accept-CH
-void	HttpRequest::set_accept_ch(const std::string &key, const std::string &value)
-{
-	this->_request_header_fields[key] = this->ready_ValueArraySet(value);
-}
-
-// todo: Access-Control-Allow-Headers
-void	HttpRequest::set_access_control_allow_headers(const std::string &key, const std::string &value)
-{
-	std::vector<std::string>	value_array;
-	std::stringstream			ss(value);
-	std::string					line;
-
-	while(std::getline(ss, line, ','))
-	{
-		if (this->is_valid_field_name(
-				HttpMessageParser::obtain_withoutows_value(line)) == false)
-			return;
-	}
-	this->_request_header_fields[key] = this->ready_ValueArraySet(value);
-}
-
-// todo: Access-Control-Allow-Methods
-void	HttpRequest::set_access_control_allow_methods(const std::string &key, const std::string &value)
-{
-	std::stringstream	ss(value);
-	std::string			line;
-	std::string			word;
-
-	while(std::getline(ss, line, ','))
-	{
-		word = HttpMessageParser::obtain_withoutows_value(line);
-		if (word != "GET" && word != "HEAD" && word != "POST" && word != "PUT" && word != "PUT" && word != "DELETE" \
-		&& word != "CONNECT" && word != "OPTIONS" && word != "TRACE" && word != "PATCH")
-			return;
-	}
-	this->_request_header_fields[key] = this->ready_ValueArraySet(value);
-}
-
-// todo: Access-Control-Expose-Headers
-void	HttpRequest::set_access_control_expose_headers(const std::string &key, const std::string &value)
-{
-	this->_request_header_fields[key] = this->ready_ValueArraySet(value);
-}
-
 // todo: Access-Control-Request-Headers
-void	HttpRequest::set_access_control_request_headers(const std::string &key, const std::string &value)
+// Access-Control-Request-Headers: <header-name>, <header-name>, ...
+/*
+ Access-Control-Request-Headers: "Access-Control-Request-Headers" ":" #field-name
+ */
+// todo: bnf ????
+Result<int, int> HttpRequest::set_access_control_request_headers(const std::string &field_name,
+																 const std::string &field_value)
 {
 	std::vector<std::string>	value_array;
-	std::stringstream			ss(value);
+	std::stringstream			ss(field_value);
 	std::string					line;
 	std::string					word;
 
@@ -70,71 +31,89 @@ void	HttpRequest::set_access_control_request_headers(const std::string &key, con
 	{
 		if (this->is_valid_field_name(
 				HttpMessageParser::obtain_withoutows_value(line)) == false)
-			return;
+			// return;
+			return Result<int, int>::ok(STATUS_OK);
 	}
-	this->_request_header_fields[key] = this->ready_ValueArraySet(value);
+	this->_request_header_fields[field_name] = this->ready_ValueArraySet(field_value);
+	return Result<int, int>::ok(STATUS_OK);
 }
 
-// todo: Allow
-void	HttpRequest::set_allow(const std::string &key, const std::string &value)
-{
-	std::stringstream	ss(value);
-	std::string			line;
-	std::string			word;
-
-	while(std::getline(ss, line, ','))
-	{
-		word = HttpMessageParser::obtain_withoutows_value(line);
-		if (word != "GET" && word != "HEAD" && word != "POST" && word != "PUT" && word != "PUT" && word != "DELETE" \
-		&& word != "CONNECT" && word != "OPTIONS" && word != "TRACE" && word != "PATCH")
-			return;
-	}
-	this->_request_header_fields[key] = this->ready_ValueArraySet(value);
-}
-
-// todo: Clear-Site-Data
-void	HttpRequest::set_clear_site_data(const std::string &key, const std::string &value)
-{
-	// ダブルクオーテーションで囲う必要性があるようだが、"aaaa"", "bbb"みたいなことをされたとする、チェックは誰がする
-	this->_request_header_fields[key] = this->ready_ValueArraySet(value);
-}
 
 // todo: Content-Encoding
-void	HttpRequest::set_content_encoding(const std::string &key, const std::string &value)
+// Content-Encoding = [ content-coding *( OWS "," OWS content-coding )
+// content-coding   = token
+// https://www.rfc-editor.org/rfc/rfc9110#name-collected-abnf
+//
+// todo: vector
+Result<int, int> HttpRequest::set_content_encoding(const std::string &field_name,
+												   const std::string &field_value)
 {
-	std::stringstream	ss(value);
+	std::stringstream	ss(field_value);
 	std::string			line;
 
 	while(std::getline(ss, line, ','))
 	{
 		if (line != "gzip" && line != "compress" && line != "deflate" && line != "br")
-			return;
+			// return;
+			return Result<int, int>::ok(STATUS_OK);
 	}
-	this->_request_header_fields[key] = this->ready_ValueArraySet(value);
+	this->_request_header_fields[field_name] = this->ready_ValueArraySet(field_value);
+	return Result<int, int>::ok(STATUS_OK);
 }
 
 // todo: Content-Language
-void	HttpRequest::set_content_language(const std::string &key, const std::string &value)
+// Content-Language = [ language-tag *( OWS "," OWS language-tag ) ]
+// https://www.rfc-editor.org/rfc/rfc9110#name-collected-abnf
+// todo: vector
+Result<int, int> HttpRequest::set_content_language(const std::string &field_name,
+												   const std::string &field_value)
 {
-	this->_request_header_fields[key] = this->ready_ValueArraySet(value);
+	this->_request_header_fields[field_name] = this->ready_ValueArraySet(field_value);
+	return Result<int, int>::ok(STATUS_OK);
 }
 
 // todo: If-Match
-void	HttpRequest::set_if_match(const std::string &key, const std::string &value)
+/*
+ If-Match = "*" / [ entity-tag *( OWS "," OWS entity-tag ) ]
+ entity-tag = [ weak ] opaque-tag
+ weak = %x57.2F ; W/
+ opaque-tag = DQUOTE *etagc DQUOTE
+ etagc = "!" / %x23-7E ; '#'-'~' / obs-text
+ https://www.rfc-editor.org/rfc/rfc9110#name-collected-abnf
+ */
+// todo: vector
+Result<int, int> HttpRequest::set_if_match(const std::string &field_name,
+										   const std::string &field_value)
 {
-	this->_request_header_fields[key] = this->ready_ValueArraySet(value);
+	this->_request_header_fields[field_name] = this->ready_ValueArraySet(field_value);
+	return Result<int, int>::ok(STATUS_OK);
 }
 
 // todo: If-None-Match
-void	HttpRequest::set_if_none_match(const std::string &key, const std::string &value)
+/*
+ If-None-Match = "*" / [ entity-tag *( OWS "," OWS entity-tag ) ]
+
+ https://www.rfc-editor.org/rfc/rfc9110#name-collected-abnf
+ */
+// todo: vector
+Result<int, int> HttpRequest::set_if_none_match(const std::string &field_name,
+												const std::string &field_value)
 {
-	this->_request_header_fields[key] = this->ready_ValueArraySet(value);
+	this->_request_header_fields[field_name] = this->ready_ValueArraySet(field_value);
+	return Result<int, int>::ok(STATUS_OK);
 }
 
 // todo: Transfer-Encoding
-void	HttpRequest::set_transfer_encoding(const std::string &key, const std::string &value)
+/*
+ Transfer-Encoding = [ transfer-coding *( OWS "," OWS transfer-coding ) ]
+ transfer-coding    = token *( OWS ";" OWS transfer-parameter )
+ transfer-parameter = token BWS "=" BWS ( token / quoted-string )
+ */
+// todo: vector
+Result<int, int> HttpRequest::set_transfer_encoding(const std::string &field_name,
+													const std::string &field_value)
 {
-	std::stringstream	ss(value);
+	std::stringstream	ss(field_value);
 	std::string			line;
 	std::string			line_without_ows;
 
@@ -143,26 +122,25 @@ void	HttpRequest::set_transfer_encoding(const std::string &key, const std::strin
 		line_without_ows = HttpMessageParser::obtain_withoutows_value(line);
 		if (line_without_ows != "gzip" && line_without_ows != "compress" && line_without_ows \
 		!= "deflate" && line_without_ows != "gzip" && line_without_ows != "chunked")
-			return;
+			// return;
+			return Result<int, int>::ok(STATUS_OK);
 	}
-	this->_request_header_fields[key] = this->ready_ValueArraySet(value);
+	this->_request_header_fields[field_name] = this->ready_ValueArraySet(field_value);
+	return Result<int, int>::ok(STATUS_OK);
 }
 
 // todo: Upgrade
-void	HttpRequest::set_upgrade(const std::string &key, const std::string &value)
+/*
+ Upgrade          = #protocol
+ protocol         = protocol-name ["/" protocol-version]
+ protocol-name    = token
+ protocol-version = token
+ */
+// todo: map
+//  map[name], map[version]
+Result<int, int> HttpRequest::set_upgrade(const std::string &field_name,
+										  const std::string &field_value)
 {
-	this->_request_header_fields[key] = this->ready_ValueArraySet(value);
-}
-
-// todo: Vary
-void	HttpRequest::set_vary(const std::string &key, const std::string &value)
-{
-	// headerのみしか許可しないのでは
-	this->_request_header_fields[key] = this->ready_ValueArraySet(value);
-}
-
-// todo: WWW-Authenticate
-void	HttpRequest::set_www_authenticate(const std::string &key, const std::string &value)
-{
-	this->_request_header_fields[key] = this->ready_ValueArraySet(value);
+	this->_request_header_fields[field_name] = this->ready_ValueArraySet(field_value);
+	return Result<int, int>::ok(STATUS_OK);
 }

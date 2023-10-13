@@ -3,7 +3,7 @@
 
 // TEST(Test, Test) {
 // 	EXPECT_EQ("OK", "OK");
-// 	EXPECT_EQ("NG", "OK");
+// 	EXPECT_EQ("ERR", "OK");
 // 	EXPECT_EQ(1, func(1));
 // 	EXPECT_EQ(2, func(2));
 // 	EXPECT_EQ(3, func(3));

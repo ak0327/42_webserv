@@ -49,7 +49,7 @@ bool	is_list_form(const std::string &field_value_without_ows)
 }
 
 // todo: Link
-void	HttpRequest::set_link(const std::string &key, const std::string &value)
+Result<int, int> HttpRequest::set_link(const std::string &key, const std::string &value)
 {
 	std::map<std::string, std::map<std::string, std::string> >	value_map;
 	std::stringstream											ss(value);
@@ -64,11 +64,13 @@ void	HttpRequest::set_link(const std::string &key, const std::string &value)
 		if (is_list_form(without_ows_line) == false)
 		{
 			this->_status_code = 400;
-			return;
+			// return;
+			return Result<int, int>::err(STATUS_BAD_REQUEST);
 		}
 		uri = HttpMessageParser::obtain_word_before_delimiter(without_ows_line, ';');
 		mapping_value = HttpMessageParser::obtain_word_after_delimiter(without_ows_line, ';');
 		value_map[uri] = this->ready_mappingvalue(mapping_value);
 	}
 	this->_request_header_fields[key] = this->ready_LinkClass(value_map);
+	return Result<int, int>::ok(STATUS_OK);
 }

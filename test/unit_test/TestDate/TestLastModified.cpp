@@ -145,7 +145,7 @@ TEST(TestDate, LastModifiedOK4) {
 TEST(TestDate, LastModifiedNG1) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Last-Modified: Wed,  21  Oct  2015  07:28:00  GMT\r\n"  // NG
+									 "Last-Modified: Wed,  21  Oct  2015  07:28:00  GMT\r\n"  // ERR
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
@@ -160,7 +160,7 @@ TEST(TestDate, LastModifiedNG1) {
 TEST(TestDate, LastModifiedNG2) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Last-Modified: Wed, 21 Oct 2015 7:28:00 GMT\r\n"  // NG
+									 "Last-Modified: Wed, 21 Oct 2015 7:28:00 GMT\r\n"  // ERR
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
@@ -175,7 +175,7 @@ TEST(TestDate, LastModifiedNG2) {
 TEST(TestDate, LastModifiedNG3) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Last-Modified: Mon, 21 Oct 2015 07:28:00 GMT\r\n"  // NG
+									 "Last-Modified: Mon, 21 Oct 2015 07:28:00 GMT\r\n"  // ERR
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
@@ -190,7 +190,7 @@ TEST(TestDate, LastModifiedNG3) {
 TEST(TestDate, LastModifiedNG4) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Last-Modified: WED, 21 Oct 2015 07:28:00 GMT\r\n"  // NG
+									 "Last-Modified: WED, 21 Oct 2015 07:28:00 GMT\r\n"  // ERR
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
@@ -205,7 +205,7 @@ TEST(TestDate, LastModifiedNG4) {
 TEST(TestDate, LastModifiedNG5) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Last-Modified: Wed, 21 Oct 2015 07:28:00 UTC\r\n"  // NG
+									 "Last-Modified: Wed, 21 Oct 2015 07:28:00 UTC\r\n"  // ERR
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
@@ -220,7 +220,7 @@ TEST(TestDate, LastModifiedNG5) {
 TEST(TestDate, LastModifiedNG6) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Last-Modified: Thu, 1 Jan 1581 00:00:00 GMT\r\n"  // NG
+									 "Last-Modified: Thu, 1 Jan 1581 00:00:00 GMT\r\n"  // ERR
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
@@ -235,7 +235,7 @@ TEST(TestDate, LastModifiedNG6) {
 TEST(TestDate, LastModifiedNG7) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Last-Modified: Wed, 21 Oct -2015 07:28:00 GMT\r\n"  // NG
+									 "Last-Modified: Wed, 21 Oct -2015 07:28:00 GMT\r\n"  // ERR
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
@@ -250,7 +250,7 @@ TEST(TestDate, LastModifiedNG7) {
 TEST(TestDate, LastModifiedNG8) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Last-Modified: Wed, 21 Oct 2015 07:60:00 GMT\r\n"  // NG
+									 "Last-Modified: Wed, 21 Oct 2015 07:60:00 GMT\r\n"  // ERR
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
@@ -265,7 +265,7 @@ TEST(TestDate, LastModifiedNG8) {
 TEST(TestDate, LastModifiedNG9) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Last-Modified: Hog, 21 Oct 2015 07:28:00 GMT\r\n"  // NG
+									 "Last-Modified: Hog, 21 Oct 2015 07:28:00 GMT\r\n"  // ERR
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
@@ -280,7 +280,7 @@ TEST(TestDate, LastModifiedNG9) {
 TEST(TestDate, LastModifiedNG10) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Last-Modified: Wed, 29 Feb 2021 07:28:00 GMT\r\n"  // NG
+									 "Last-Modified: Wed, 29 Feb 2021 07:28:00 GMT\r\n"  // ERR
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
@@ -310,7 +310,7 @@ TEST(TestDate, LastModifiedNG11) {
 TEST(TestDate, LastModifiedNG12) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Last-Modified: Wed, 21 Oct 2015 07:28:00: GMT\r\n"  // NG
+									 "Last-Modified: Wed, 21 Oct 2015 07:28:00: GMT\r\n"  // ERR
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
@@ -325,7 +325,7 @@ TEST(TestDate, LastModifiedNG12) {
 TEST(TestDate, LastModifiedNG13) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Last-Modified: Wed, 21 Oct 2015 07;28:00 GMT\r\n"  // NG
+									 "Last-Modified: Wed, 21 Oct 2015 07;28:00 GMT\r\n"  // ERR
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
@@ -341,7 +341,7 @@ TEST(TestDate, LastModifiedNG14) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Last-Modified: Thu, 29 Feb 2024 00:21:45 GMT\r\n"  // OK
-									 "Last-Modified: Wed, 21 Oct 2015 07::28:00 GMT\r\n"  // NG
+									 "Last-Modified: Wed, 21 Oct 2015 07::28:00 GMT\r\n"  // ERR
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;

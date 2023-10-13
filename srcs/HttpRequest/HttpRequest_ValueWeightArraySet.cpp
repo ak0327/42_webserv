@@ -26,7 +26,7 @@ ValueWeightArraySet*	HttpRequest::ready_ValueWeightArraySet(const std::string &v
 }
 
 // todo: Accept
-void HttpRequest::set_accept(const std::string &key, const std::string &value)
+Result<int, int> HttpRequest::set_accept(const std::string &key, const std::string &value)
 {
 	size_t							value_length = value.size();
 	size_t							now_location = 0;
@@ -48,7 +48,7 @@ void HttpRequest::set_accept(const std::string &key, const std::string &value)
 	while (now_location != value_length - 1)
 	{
 		if (not_accept_keyset.count(value[now_location]) > 0)
-			return;
+			return Result<int, int>::ok(STATUS_OK);
 		now_location++;
 	}
 	while(std::getline(splited_by_commma, line, ','))
@@ -62,14 +62,15 @@ void HttpRequest::set_accept(const std::string &key, const std::string &value)
 			if (StringHandler::is_positive_under_intmax_double(
 					StringHandler::obtain_weight(StringHandler::obtain_word_after_delimiter(
 							changed_line, ';'))) == false)
-				return;
+				return Result<int, int>::ok(STATUS_OK);
 		}
 	}
 	this->_request_header_fields[key] = this->ready_ValueWeightArraySet(value);
+	return Result<int, int>::ok(STATUS_OK);
 }
 
 // todo: Accept-Charset
-void	HttpRequest::set_accept_charset(const std::string &key, const std::string &value)
+Result<int, int> HttpRequest::set_accept_charset(const std::string &key, const std::string &value)
 {
 	std::stringstream				splited_by_commma(value);
 	std::string						line;
@@ -86,14 +87,15 @@ void	HttpRequest::set_accept_charset(const std::string &key, const std::string &
 			if (StringHandler::is_positive_under_intmax_double(
 					StringHandler::obtain_weight(
 							StringHandler::obtain_word_after_delimiter(changed_line, ';'))) == false)
-				return;
+				return Result<int, int>::ok(STATUS_OK);
 		}
 	}
 	this->_request_header_fields[key] = this->ready_ValueWeightArraySet(value);
+	return Result<int, int>::ok(STATUS_OK);
 }
 
 // todo: Accept-Encoding
-void	HttpRequest::set_accept_encoding(const std::string &key, const std::string &value)
+Result<int, int> HttpRequest::set_accept_encoding(const std::string &key, const std::string &value)
 {
 	std::stringstream 	splited_by_commma(value);
 	std::string			skipping_nokeyword;
@@ -117,7 +119,7 @@ void	HttpRequest::set_accept_encoding(const std::string &key, const std::string 
 				if (std::count(line.begin(), line.end(), ';') != 1 || this->is_weightformat(line) == false)
 				{
 					this->_status_code = 400;
-					return;
+					return Result<int, int>::ok(STATUS_OK);
 				}
 				keyword = StringHandler::obtain_word_before_delimiter(line, ';');
 			}
@@ -129,10 +131,11 @@ void	HttpRequest::set_accept_encoding(const std::string &key, const std::string 
 		}
 	}
 	this->_request_header_fields[key] = this->ready_ValueWeightArraySet(skipping_nokeyword.substr(0, skipping_nokeyword.length() - 1));
+	return Result<int, int>::ok(STATUS_OK);
 }
 
 // todo: Accept-Language
-void	HttpRequest::set_accept_language(const std::string &key, const std::string &value)
+Result<int, int> HttpRequest::set_accept_language(const std::string &key, const std::string &value)
 {
 	std::stringstream 	splited_by_commma(value);
 	std::string			skipping_nokeyword;
@@ -148,17 +151,18 @@ void	HttpRequest::set_accept_language(const std::string &key, const std::string 
 				if (std::count(line.begin(), line.end(), ';') != 1 || this->is_weightformat(line) == false)
 				{
 					this->_status_code = 400;
-					return;
+					return Result<int, int>::ok(STATUS_OK);
 				}
 				keyword = StringHandler::obtain_word_before_delimiter(line, ';');
 			}
 		}
 	}
 	this->_request_header_fields[key] = this->ready_ValueWeightArraySet(value);
+	return Result<int, int>::ok(STATUS_OK);
 }
 
 // todo: TE
-void	HttpRequest::set_te(const std::string &key, const std::string &value)
+Result<int, int> HttpRequest::set_te(const std::string &key, const std::string &value)
 {
 	std::stringstream				splited_by_commma(value);
 	std::string						line;
@@ -174,17 +178,18 @@ void	HttpRequest::set_te(const std::string &key, const std::string &value)
 			target_key = StringHandler::obtain_word_before_delimiter(line, ';');
 			target_value = StringHandler::obtain_weight(StringHandler::obtain_word_after_delimiter(line, ';'));
 			if (!(target_key == "compress" || target_key == "deflate" || target_key == "gzip" || target_key == "trailers"))
-				return;
+				return Result<int, int>::ok(STATUS_OK);
 			if (StringHandler::is_positive_under_intmax_double(target_value) == false)
-				return;
+				return Result<int, int>::ok(STATUS_OK);
 		}
 		else
 		{
 			if (line[0] == ' ')
 				line = line.substr(1);
 			if (!(line == "compress" || line == "deflate" || line == "gzip" || line == "trailers"))
-				return;
+				return Result<int, int>::ok(STATUS_OK);
 		}
 	}
 	this->_request_header_fields[key] = this->ready_ValueWeightArraySet(value);
+	return Result<int, int>::ok(STATUS_OK);
 }

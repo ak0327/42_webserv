@@ -343,7 +343,7 @@ Result<std::string, int> parse_pos_to_delimiter(const std::string &src_str,
 
 	delim_pos = src_str.find(tail_delimiter, pos);
 	if (delim_pos == std::string::npos) {
-		return Result<std::string, int>::err(NG);
+		return Result<std::string, int>::err(ERR);
 	}
 	len = delim_pos - pos;
 

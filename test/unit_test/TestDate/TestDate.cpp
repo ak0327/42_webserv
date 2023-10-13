@@ -146,7 +146,7 @@ TEST(TestDate, DateOK4) {
 TEST(TestDate, DateNG1) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Date: Wed,  21  Oct  2015  07:28:00  GMT\r\n"  // NG
+									 "Date: Wed,  21  Oct  2015  07:28:00  GMT\r\n"  // ERR
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
@@ -161,7 +161,7 @@ TEST(TestDate, DateNG1) {
 TEST(TestDate, DateNG2) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Date: Wed, 21 Oct 2015 7:28:00 GMT\r\n"  // NG
+									 "Date: Wed, 21 Oct 2015 7:28:00 GMT\r\n"  // ERR
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
@@ -176,7 +176,7 @@ TEST(TestDate, DateNG2) {
 TEST(TestDate, DateNG3) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Date: Mon, 21 Oct 2015 07:28:00 GMT\r\n"  // NG
+									 "Date: Mon, 21 Oct 2015 07:28:00 GMT\r\n"  // ERR
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
@@ -191,7 +191,7 @@ TEST(TestDate, DateNG3) {
 TEST(TestDate, DateNG4) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Date: WED, 21 Oct 2015 07:28:00 GMT\r\n"  // NG
+									 "Date: WED, 21 Oct 2015 07:28:00 GMT\r\n"  // ERR
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
@@ -206,7 +206,7 @@ TEST(TestDate, DateNG4) {
 TEST(TestDate, DateNG5) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Date: Wed, 21 Oct 2015 07:28:00 UTC\r\n"  // NG
+									 "Date: Wed, 21 Oct 2015 07:28:00 UTC\r\n"  // ERR
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
@@ -221,7 +221,7 @@ TEST(TestDate, DateNG5) {
 TEST(TestDate, DateNG6) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Date: Thu, 1 Jan 1581 00:00:00 GMT\r\n"  // NG
+									 "Date: Thu, 1 Jan 1581 00:00:00 GMT\r\n"  // ERR
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
@@ -236,7 +236,7 @@ TEST(TestDate, DateNG6) {
 TEST(TestDate, DateNG7) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Date: Wed, 21 Oct -2015 07:28:00 GMT\r\n"  // NG
+									 "Date: Wed, 21 Oct -2015 07:28:00 GMT\r\n"  // ERR
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
@@ -251,7 +251,7 @@ TEST(TestDate, DateNG7) {
 TEST(TestDate, DateNG8) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Date: Wed, 21 Oct 2015 07:60:00 GMT\r\n"  // NG
+									 "Date: Wed, 21 Oct 2015 07:60:00 GMT\r\n"  // ERR
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
@@ -266,7 +266,7 @@ TEST(TestDate, DateNG8) {
 TEST(TestDate, DateNG9) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Date: Hog, 21 Oct 2015 07:28:00 GMT\r\n"  // NG
+									 "Date: Hog, 21 Oct 2015 07:28:00 GMT\r\n"  // ERR
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
@@ -281,7 +281,7 @@ TEST(TestDate, DateNG9) {
 TEST(TestDate, DateNG10) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Date: Wed, 29 Feb 2021 07:28:00 GMT\r\n"  // NG
+									 "Date: Wed, 29 Feb 2021 07:28:00 GMT\r\n"  // ERR
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
@@ -311,7 +311,7 @@ TEST(TestDate, DateNG11) {
 TEST(TestDate, DateNG12) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Date: Wed, 21 Oct 2015 07:28:00: GMT\r\n"  // NG
+									 "Date: Wed, 21 Oct 2015 07:28:00: GMT\r\n"  // ERR
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
@@ -326,7 +326,7 @@ TEST(TestDate, DateNG12) {
 TEST(TestDate, DateNG13) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Date: Wed, 21 Oct 2015 07;28:00 GMT\r\n"  // NG
+									 "Date: Wed, 21 Oct 2015 07;28:00 GMT\r\n"  // ERR
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
@@ -342,7 +342,7 @@ TEST(TestDate, DateNG14) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Date: Thu, 29 Feb 2024 00:21:45 GMT\r\n"  // OK
-									 "Date: Wed, 21 Oct 2015 07::28:00 GMT\r\n"  // NG
+									 "Date: Wed, 21 Oct 2015 07::28:00 GMT\r\n"  // ERR
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;

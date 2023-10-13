@@ -108,7 +108,7 @@ TEST(TestDate, IfUnmodifiedSinceOK3) {
 TEST(TestDate, IfUnmodifiedSinceNG1) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "If-Unmodified-Since: Wed,  21  Oct  2015  07:28:00  GMT\r\n"  // NG
+									 "If-Unmodified-Since: Wed,  21  Oct  2015  07:28:00  GMT\r\n"  // ERR
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
@@ -123,7 +123,7 @@ TEST(TestDate, IfUnmodifiedSinceNG1) {
 TEST(TestDate, IfUnmodifiedSinceNG2) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "If-Unmodified-Since: NG-dayo-\r\n"  // NG
+									 "If-Unmodified-Since: ERR-dayo-\r\n"  // ERR
 									 "If-Unmodified-Since: Thu, 29 Feb 2024 00:21:45 GMT\r\n"  // OK
 									 "\r\n";
 	HttpRequest request(request_line);

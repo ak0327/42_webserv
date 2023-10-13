@@ -1,6 +1,7 @@
 #pragma once
 
 # include <string>
+# include "Constant.hpp"
 # include "Result.hpp"
 
 namespace HttpMessageParser {
@@ -45,21 +46,32 @@ bool is_header_body_separator(const std::string &line_end_with_cr);
 
 bool is_trailer_allowed_field_name(const std::string &field_name);
 
+bool is_absolute_uri(const std::string &field_value);
+bool is_partial_uri(const std::string &field_value);
+
 bool is_valid_day1(int year, int month, int day);
 bool is_valid_time_of_day(int hour, int minute, int second);
 bool is_valid_day_name(const std::string &day_name, int year, int month, int day);
 
-Result<int, int> parse_http_date(const std::string &http_date,
-								 std::string *day_name,
-								 std::string *day,
-								 std::string *month,
-								 std::string *year,
-								 std::string *hour,
-								 std::string *minute,
-								 std::string *second,
-								 std::string *gmt);
+std::string parse_uri_host(const std::string &str,
+						   std::size_t start_pos,
+						   std::size_t *end_pos);
+std::string parse_port(const std::string &str,
+					   std::size_t start_pos,
+					   std::size_t *end_pos);
 
-Result<int, int> validate_http_date(const std::string &day_name,
+Result<date_format, int> parse_http_date(const std::string &http_date,
+										 std::string *day_name,
+										 std::string *day,
+										 std::string *month,
+										 std::string *year,
+										 std::string *hour,
+										 std::string *minute,
+										 std::string *second,
+										 std::string *gmt);
+
+Result<int, int> validate_http_date(date_format format,
+									const std::string &day_name,
 									const std::string &day,
 									const std::string &month,
 									const std::string &year,

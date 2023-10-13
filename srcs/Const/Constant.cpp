@@ -5,7 +5,7 @@
 /* return value */
 
 const int OK = 0;
-const int NG = 1;
+const int ERR = 1;
 
 ////////////////////////////////////////////////////////////////////////////////
 /* initial value */
@@ -305,6 +305,8 @@ std::vector<std::string> init_authentication_headers() {
 
 ////////////////////////////////////////////////////////////////////////////////
 /* date */
+
+
 
 const char GMT[] = "GMT";
 

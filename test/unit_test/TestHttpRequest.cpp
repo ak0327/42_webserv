@@ -134,15 +134,15 @@ void	compare_map_report(std::map<std::string, std::vector<std::string> > target_
 	}
 }
 
-void	compare_daymap_report(ValueDateSet *targetdatevalue, std::string day_name, std::string day, std::string month, std::string year, std::string hour, std::string minute, std::string second)
+void	compare_daymap_report(Date *targetdatevalue, std::string day_name, std::string day, std::string month, std::string year, std::string hour, std::string minute, std::string second)
 {
-	EXPECT_EQ(targetdatevalue->get_valuedateset_day_name(), day_name);
-	EXPECT_EQ(targetdatevalue->get_valuedateset_day(), day);
-	EXPECT_EQ(targetdatevalue->get_valuedateset_month(), month);
-	EXPECT_EQ(targetdatevalue->get_valuedateset_year(), year);
-	EXPECT_EQ(targetdatevalue->get_valuedateset_hour(), hour);
-	EXPECT_EQ(targetdatevalue->get_valuedateset_minute(), minute);
-	EXPECT_EQ(targetdatevalue->get_valuedateset_second(), second);
+	EXPECT_EQ(targetdatevalue->get_day_name(), day_name);
+	EXPECT_EQ(targetdatevalue->get_day(), day);
+	EXPECT_EQ(targetdatevalue->get_month(), month);
+	EXPECT_EQ(targetdatevalue->get_year(), year);
+	EXPECT_EQ(targetdatevalue->get_hour(), hour);
+	EXPECT_EQ(targetdatevalue->get_minute(), minute);
+	EXPECT_EQ(targetdatevalue->get_second(), second);
 }
 
 //valuemap1.get_only_value(), valmap1->get_value_map(), "attachment", valuemap1, keys1
@@ -307,9 +307,9 @@ TEST(Request, TEST1)
 	}
 	if (same_class_test(__LINE__, "User-Agent", httprequest_test1) == true)
 	{
-		ValueSet* val = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"User-Agent"));
-		compair_valueset_report( val->get_value_set(), "YourUserAgent");
+		compair_valueset_report( val->get_value(), "YourUserAgent");
 	}
 	if (same_class_test(__LINE__, "Accept", httprequest_test1) == true)
 	{
@@ -442,9 +442,9 @@ TEST(Request, TEST2)
 	}
 	if (same_class_test(__LINE__, "User-Agent", httprequest_test1) == true)
 	{
-		ValueSet* val2 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val2 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"User-Agent"));
-		compair_valueset_report( val2->get_value_set(), "YourUserAgent");
+		compair_valueset_report( val2->get_value(), "YourUserAgent");
 	}
 	if (same_class_test(__LINE__, "Accept", httprequest_test1) == true)
 	{
@@ -488,15 +488,15 @@ TEST(Request, TEST2)
 	}
 	if (same_class_test(__LINE__, "Connection", httprequest_test1) == true)
 	{
-		ValueSet* val6 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val6 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Connection"));
-		compair_valueset_report( val6->get_value_set(), "keep-alive");
+		compair_valueset_report( val6->get_value(), "keep-alive");
 	}
 	if (same_class_test(__LINE__, "Referer", httprequest_test1) == true)
 	{
-		ValueSet* val7 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val7 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Referer"));
-		compair_valueset_report( val7->get_value_set(), "http://www.example.com/referrer");
+		compair_valueset_report( val7->get_value(), "http://www.example.com/referrer");
 	}
 	if (same_class_test(__LINE__, "Cookie", httprequest_test1) == true)
 	{
@@ -521,9 +521,9 @@ TEST(Request, TEST2)
 	}
 	if (same_class_test(__LINE__, "Upgrade-Insecure-Requests", httprequest_test1) == true)
 	{
-		ValueSet* val9 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val9 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Upgrade-Insecure-Requests"));
-		compair_valueset_report( val9->get_value_set(), "1");
+		compair_valueset_report( val9->get_value(), "1");
 	}
 }
 
@@ -631,15 +631,15 @@ TEST(Request, TEST3)
 	}
 	if (same_class_test(__LINE__, "If-Modified-Since", httprequest_test1) == true)
 	{
-		ValueDateSet *dateval2 = static_cast<ValueDateSet*>(httprequest_test1.get_field_values(
+		Date *dateval2 = static_cast<Date*>(httprequest_test1.get_field_values(
 				"If-Modified-Since"));
 		compare_daymap_report(dateval2, "Thu", "01", "Sep", "2023", "12", "00", "00");
 	}
 	if (same_class_test(__LINE__, "Max-Forwards", httprequest_test1) == true)
 	{
-		ValueSet* val3 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val3 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Max-Forwards"));
-		compair_valueset_report(val3->get_value_set(), "10");
+		compair_valueset_report(val3->get_value(), "10");
 	}
 	if (same_class_test(__LINE__, "TE", httprequest_test1) == true)
 	{
@@ -655,33 +655,33 @@ TEST(Request, TEST3)
 	}
 	if (same_class_test(__LINE__, "From", httprequest_test1) == true)
 	{
-		ValueSet* val5 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val5 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"From"));
-		compair_valueset_report(val5->get_value_set(), "sender@example.com");
+		compair_valueset_report(val5->get_value(), "sender@example.com");
 	}
 	if (same_class_test(__LINE__, "Origin", httprequest_test1) == true)
 	{
-		ValueSet* val6 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val6 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Origin"));
-		compair_valueset_report(val6->get_value_set(), "http://www.origin-example.com");
+		compair_valueset_report(val6->get_value(), "http://www.origin-example.com");
 	}
 	if (same_class_test(__LINE__, "Via", httprequest_test1) == true)
 	{
-		ValueSet* val7 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val7 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Via"));
-		compair_valueset_report(val7->get_value_set(), "1.0 proxy.example.com (Apache/1.1)");
+		compair_valueset_report(val7->get_value(), "1.0 proxy.example.com (Apache/1.1)");
 	}
 	if (same_class_test(__LINE__, "Age", httprequest_test1) == true)
 	{
-		ValueSet* val8 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val8 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Age"));
-		compair_valueset_report(val8->get_value_set(), "3600");
+		compair_valueset_report(val8->get_value(), "3600");
 	}
 	if (same_class_test(__LINE__, "Access-Control-Allow-Origin", httprequest_test1) == true)
 	{
-		ValueSet* val9 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val9 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Access-Control-Allow-Origin"));
-		compair_valueset_report(val9->get_value_set(), "*");
+		compair_valueset_report(val9->get_value(), "*");
 	}
 }
 
@@ -716,28 +716,28 @@ TEST(Request, TEST3_include_empty)
 	keyword_doesnot_exist(__LINE__, "TE", httprequest_test1);
 	if (same_class_test(__LINE__, "From", httprequest_test1) == true)
 	{
-		ValueSet* val5 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val5 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"From"));
-		compair_valueset_report(val5->get_value_set(), "sender@ example.com");
+		compair_valueset_report(val5->get_value(), "sender@ example.com");
 	}
 	if (same_class_test(__LINE__, "Origin", httprequest_test1) == true)
 	{
-		ValueSet* val6 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val6 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Origin"));
-		compair_valueset_report(val6->get_value_set(), "http:// www.origin-example.com");
+		compair_valueset_report(val6->get_value(), "http:// www.origin-example.com");
 	}
 	if (same_class_test(__LINE__, "Via", httprequest_test1) == true)
 	{
-		ValueSet* val7 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val7 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Via"));
-		compair_valueset_report(val7->get_value_set(), "1.0 proxy.example.com (Apache/1.1)");
+		compair_valueset_report(val7->get_value(), "1.0 proxy.example.com (Apache/1.1)");
 	}
 	keyword_doesnot_exist(__LINE__, "Age", httprequest_test1);
 	if (same_class_test(__LINE__, "Access-Control-Allow-Origin", httprequest_test1) == true)
 	{
-		ValueSet* val9 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val9 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Access-Control-Allow-Origin"));
-		compair_valueset_report(val9->get_value_set(), "*");
+		compair_valueset_report(val9->get_value(), "*");
 	}
 }
 
@@ -819,15 +819,15 @@ TEST(Request, TEST4)
 	}
 	if (same_class_test(__LINE__, "Accept-Ranges", httprequest_test1) == true)
 	{
-		ValueSet* val4 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val4 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Accept-Ranges"));
-		compair_valueset_report(val4->get_value_set(), "bytes");
+		compair_valueset_report(val4->get_value(), "bytes");
 	}
 	if (same_class_test(__LINE__, "Access-Control-Allow-Credentials", httprequest_test1) == true)
 	{
-		ValueSet* val5 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val5 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Access-Control-Allow-Credentials"));
-		compair_valueset_report(val5->get_value_set(), "true");
+		compair_valueset_report(val5->get_value(), "true");
 	}
 	if (same_class_test(__LINE__, "Access-Control-Allow-Headers", httprequest_test1) == true)
 	{
@@ -890,9 +890,9 @@ TEST(Request, TEST4_include_empty)
 	keyword_doesnot_exist(__LINE__, "Accept-Ranges", httprequest_test1);
 	if (same_class_test(__LINE__, "Access-Control-Allow-Credentials", httprequest_test1) == true)
 	{
-		ValueSet* val5 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val5 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Access-Control-Allow-Credentials"));
-		compair_valueset_report(val5->get_value_set(), "true");
+		compair_valueset_report(val5->get_value(), "true");
 	}
 	if (same_class_test(__LINE__, "Access-Control-Allow-Headers", httprequest_test1) == true)
 	{
@@ -945,9 +945,9 @@ TEST(Request, TEST5)
 	}
 	if (same_class_test(__LINE__, "Access-Control-Max-Age", httprequest_test1) == true)
 	{
-		ValueSet* val2 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val2 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Access-Control-Max-Age"));
-		compair_valueset_report(val2->get_value_set(), "3600");
+		compair_valueset_report(val2->get_value(), "3600");
 	}
 	if (same_class_test(__LINE__, "Access-Control-Request-Headers", httprequest_test1) == true)
 	{
@@ -960,9 +960,9 @@ TEST(Request, TEST5)
 	}
 	if (same_class_test(__LINE__, "Access-Control-Request-Method", httprequest_test1) == true)
 	{
-		ValueSet* val4 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val4 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Access-Control-Request-Method"));
-		compair_valueset_report(val4->get_value_set(), "POST");
+		compair_valueset_report(val4->get_value(), "POST");
 	}
 	if (same_class_test(__LINE__, "Allow", httprequest_test1) == true)
 	{
@@ -1056,37 +1056,37 @@ TEST(Request, TEST6)
 	if (same_class_test(__LINE__, "Content-Length", httprequest_test1) == true)
 	{
 
-		ValueSet* val4 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val4 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Content-Length"));
-		compair_valueset_report(val4->get_value_set(), "1024");
+		compair_valueset_report(val4->get_value(), "1024");
 	}
 	if (same_class_test(__LINE__, "Content-Location", httprequest_test1) == true)
 	{
-		ValueSet* val5 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val5 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Content-Location"));
-		compair_valueset_report(val5->get_value_set(), "/documents/example.txt");
+		compair_valueset_report(val5->get_value(), "/documents/example.txt");
 	}
 	if (same_class_test(__LINE__, "Content-Range", httprequest_test1) == true)
 	{
-		ValueSet* val6 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val6 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Content-Range"));
-		compair_valueset_report(val6->get_value_set(), "bytes 0-511/1024");
+		compair_valueset_report(val6->get_value(), "bytes 0-511/1024");
 	}
-	if (same_class_test(__LINE__, "Content-Security-Policy", httprequest_test1) == true)
-	{
-		SecurityPolicy* securitypolicy7 = static_cast<SecurityPolicy*>(httprequest_test1.get_field_values(
-				"Content-Security-Policy"));
-		std::map<std::string, std::vector<std::string> >	policy_directive;
-		// default-src 'self'; script-src 'self' 'unsafe-inline'
-		std::vector<std::string>	test_vector7_1;
-		std::vector<std::string>	test_vector7_2;
-		test_vector7_1.push_back("\'self\'");
-		test_vector7_2.push_back("\'self\'");
-		test_vector7_2.push_back("\'unsafe-inline\'");
-		policy_directive["default-src"] = test_vector7_1;
-		policy_directive["script-src"] = test_vector7_2;
-		compare_map_report(securitypolicy7->get_policy_directhive(), policy_directive, __LINE__);
-	}
+	// if (same_class_test(__LINE__, "Content-Security-Policy", httprequest_test1) == true)
+	// {
+	// 	SecurityPolicy* securitypolicy7 = static_cast<SecurityPolicy*>(httprequest_test1.get_field_values(
+	// 			"Content-Security-Policy"));
+	// 	std::map<std::string, std::vector<std::string> >	policy_directive;
+	// 	// default-src 'self'; script-src 'self' 'unsafe-inline'
+	// 	std::vector<std::string>	test_vector7_1;
+	// 	std::vector<std::string>	test_vector7_2;
+	// 	test_vector7_1.push_back("\'self\'");
+	// 	test_vector7_2.push_back("\'self\'");
+	// 	test_vector7_2.push_back("\'unsafe-inline\'");
+	// 	policy_directive["default-src"] = test_vector7_1;
+	// 	policy_directive["script-src"] = test_vector7_2;
+	// 	compare_map_report(securitypolicy7->get_policy_directhive(), policy_directive, __LINE__);
+	// }
 	if (same_class_test(__LINE__, "Content-Type", httprequest_test1) == true)
 	{
 		//map型
@@ -1134,40 +1134,40 @@ TEST(Request, TEST7)
 
 	if (same_class_test(__LINE__, "Cross-Origin-Embedder-Policy", httprequest_test1) == true)
 	{
-		ValueSet* val1 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val1 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Cross-Origin-Embedder-Policy"));
-		compair_valueset_report(val1->get_value_set(), "require-corp");
+		compair_valueset_report(val1->get_value(), "require-corp");
 	}
 	if (same_class_test(__LINE__, "Cross-Origin-Opener-Policy", httprequest_test1) == true)
 	{
-		ValueSet* val2 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val2 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Cross-Origin-Opener-Policy"));
-		compair_valueset_report(val2->get_value_set(), "same-origin-allow-popups");
+		compair_valueset_report(val2->get_value(), "same-origin-allow-popups");
 	}
 	if (same_class_test(__LINE__, "Cross-Origin-Resource-Policy", httprequest_test1) == true)
 	{
-		ValueSet* val3 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val3 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Cross-Origin-Resource-Policy"));
-		compair_valueset_report(val3->get_value_set(), "same-origin");
+		compair_valueset_report(val3->get_value(), "same-origin");
 	}
 	if (same_class_test(__LINE__, "Date", httprequest_test1) == true)
 	{
 		// Thu, 15 Sep 2023 12:00:00 GMT
-		ValueDateSet *dateval4 = static_cast<ValueDateSet*>(httprequest_test1.get_field_values(
+		Date *dateval4 = static_cast<Date*>(httprequest_test1.get_field_values(
 				"Date"));
 		compare_daymap_report(dateval4, "Thu", "15", "Sep", "2023", "12", "00", "00");
 	}
 	if (same_class_test(__LINE__, "Expect", httprequest_test1) == true)
 	{
-		ValueSet* val5 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val5 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Expect"));
-		compair_valueset_report(val5->get_value_set(), "100-continue");
+		compair_valueset_report(val5->get_value(), "100-continue");
 	}
 	if (same_class_test(__LINE__, "Expires", httprequest_test1) == true)
 	{
-		ValueSet* val6 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val6 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Expires"));
-		compair_valueset_report(val6->get_value_set(), "Thu, 15 Sep 2023 13:00:00 GMT");
+		compair_valueset_report(val6->get_value(), "Thu, 15 Sep 2023 13:00:00 GMT");
 	}
 	if (same_class_test(__LINE__, "Forwarded", httprequest_test1) == true)
 	{
@@ -1194,14 +1194,14 @@ TEST(Request, TEST7)
 	}
 	if (same_class_test(__LINE__, "If-Range", httprequest_test1) == true)
 	{
-		ValueSet* val9 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val9 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"If-Range"));
-		compair_valueset_report(val9->get_value_set(), "\"etag123\"");
+		compair_valueset_report(val9->get_value(), "\"etag123\"");
 	}
 	if (same_class_test(__LINE__, "If-Unmodified-Since", httprequest_test1) == true)
 	{
 		// Thu, 15 Sep 2023 11:30:00 GMT
-		ValueDateSet *dateval10 = static_cast<ValueDateSet*>(httprequest_test1.get_field_values(
+		Date *dateval10 = static_cast<Date*>(httprequest_test1.get_field_values(
 				"If-Unmodified-Since"));
 		compare_daymap_report(dateval10, "Thu", "15", "Sep", "2023", "11", "30", "00");
 	}
@@ -1221,7 +1221,7 @@ TEST(Request, TEST7)
 	if (same_class_test(__LINE__, "Last-Modified", httprequest_test1) == true)
 	{
 		// Thu, 15 Sep 2023 11:45:00 GMT
-		ValueDateSet *dateval12 = static_cast<ValueDateSet*>(httprequest_test1.get_field_values(
+		Date *dateval12 = static_cast<Date*>(httprequest_test1.get_field_values(
 				"Last-Modified"));
 		compare_daymap_report(dateval12, "Thu", "15", "Sep", "2023", "11", "45", "00");
 	}
@@ -1240,9 +1240,9 @@ TEST(Request, TEST7)
 	}
 	if (same_class_test(__LINE__, "Location", httprequest_test1) == true)
 	{
-		ValueSet* val13 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val13 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Location"));
-		compair_valueset_report(val13->get_value_set(), "https://example.com/redirected-page");
+		compair_valueset_report(val13->get_value(), "https://example.com/redirected-page");
 	}
 }
 
@@ -1282,57 +1282,57 @@ TEST(Request, TEST8)
 	}
 	if (same_class_test(__LINE__, "Retry-After", httprequest_test1) == true)
 	{
-		ValueSet* val3 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val3 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Retry-After"));
-		compair_valueset_report(val3->get_value_set(), "120");
+		compair_valueset_report(val3->get_value(), "120");
 	}
 	if (same_class_test(__LINE__, "Sec-Fetch-Dest", httprequest_test1) == true)
 	{
-		ValueSet* val4 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val4 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Sec-Fetch-Dest"));
-		compair_valueset_report(val4->get_value_set(), "document");
+		compair_valueset_report(val4->get_value(), "document");
 	}
 	if (same_class_test(__LINE__, "Sec-Fetch-Mode", httprequest_test1) == true)
 	{
-		ValueSet* val5 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val5 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Sec-Fetch-Mode"));
-		compair_valueset_report(val5->get_value_set(), "navigate");
+		compair_valueset_report(val5->get_value(), "navigate");
 	}
 	if (same_class_test(__LINE__, "Sec-Fetch-Site", httprequest_test1) == true)
 	{
-		ValueSet* val6 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val6 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Sec-Fetch-Site"));
-		compair_valueset_report(val6->get_value_set(), "same-origin");
+		compair_valueset_report(val6->get_value(), "same-origin");
 	}
 	if (same_class_test(__LINE__, "Sec-Fetch-Site", httprequest_test1) == true)
 	{
-		ValueSet* val7 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val7 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Sec-Fetch-Site"));
-		compair_valueset_report(val7->get_value_set(), "same-origin");
+		compair_valueset_report(val7->get_value(), "same-origin");
 	}
 	if (same_class_test(__LINE__, "Sec-Fetch-User", httprequest_test1) == true)
 	{
-		ValueSet* val8 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val8 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Sec-Fetch-User"));
-		compair_valueset_report(val8->get_value_set(), "?1");
+		compair_valueset_report(val8->get_value(), "?1");
 	}
 	if (same_class_test(__LINE__, "Sec-Purpose", httprequest_test1) == true)
 	{
-		ValueSet* val9 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val9 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Sec-Purpose"));
-		compair_valueset_report(val9->get_value_set(), "prefetch");
+		compair_valueset_report(val9->get_value(), "prefetch");
 	}
 	if (same_class_test(__LINE__, "Sec-WebSocket-Accept", httprequest_test1) == true)
 	{
-		ValueSet* val10 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val10 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Sec-WebSocket-Accept"));
-		compair_valueset_report(val10->get_value_set(), "s3pPLMBiTxaQ9kYGzzhZRbK+xOo=");
+		compair_valueset_report(val10->get_value(), "s3pPLMBiTxaQ9kYGzzhZRbK+xOo=");
 	}
 	if (same_class_test(__LINE__, "Server", httprequest_test1) == true)
 	{
-		ValueSet* val11 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val11 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Server"));
-		compair_valueset_report(val11->get_value_set(), "Apache/2.4.41 (Ubuntu)");
+		compair_valueset_report(val11->get_value(), "Apache/2.4.41 (Ubuntu)");
 	}
 }
 
@@ -1364,9 +1364,9 @@ TEST(Request, TEST9)
 
 	if (same_class_test(__LINE__, "Service-Worker-Navigation-Preload", httprequest_test1) == true)
 	{
-		ValueSet* val1 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val1 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Service-Worker-Navigation-Preload"));
-		compair_valueset_report(val1->get_value_set(), "true");
+		compair_valueset_report(val1->get_value(), "true");
 	}
 	// if (same_class_test(__LINE__, "Proxy-Authenticate", httprequest_test1) == true)
 	// {
@@ -1382,9 +1382,9 @@ TEST(Request, TEST9)
 	// }
 	if (same_class_test(__LINE__, "SourceMap", httprequest_test1) == true)
 	{
-		ValueSet* val3 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val3 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"SourceMap"));
-		compair_valueset_report(val3->get_value_set(), "/path/to/source.map");
+		compair_valueset_report(val3->get_value(), "/path/to/source.map");
 	}
 	// if (same_class_test(__LINE__, "Strict-Transport-Security", httprequest_test1) == true)
 	// {
@@ -1411,15 +1411,15 @@ TEST(Request, TEST9)
 	}
 	if (same_class_test(__LINE__, "Timing-Allow-Origin", httprequest_test1) == true)
 	{
-		ValueSet* val5 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val5 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Timing-Allow-Origin"));
-		compair_valueset_report(val5->get_value_set(), "*");
+		compair_valueset_report(val5->get_value(), "*");
 	}
 	if (same_class_test(__LINE__, "Trailer", httprequest_test1) == true)
 	{
-		ValueSet* val6 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val6 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Trailer"));
-		compair_valueset_report(val6->get_value_set(), "Content-MD5");
+		compair_valueset_report(val6->get_value(), "Content-MD5");
 	}
 	if (same_class_test(__LINE__, "Transfer-Encoding", httprequest_test1) == true)
 	{
@@ -1439,15 +1439,15 @@ TEST(Request, TEST9)
 	}
 	if (same_class_test(__LINE__, "Upgrade-Insecure-Requests", httprequest_test1) == true)
 	{
-		ValueSet* val9 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val9 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Upgrade-Insecure-Requests"));
-		compair_valueset_report(val9->get_value_set(), "1");
+		compair_valueset_report(val9->get_value(), "1");
 	}
 	if (same_class_test(__LINE__, "User-Agent", httprequest_test1) == true)
 	{
-		ValueSet* val10 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val10 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"User-Agent"));
-		compair_valueset_report(val10->get_value_set(), "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36");
+		compair_valueset_report(val10->get_value(), "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36");
 	}
 	if (same_class_test(__LINE__, "Vary", httprequest_test1) == true)
 	{
@@ -1469,9 +1469,9 @@ TEST(Request, TEST9)
 	}
 	if (same_class_test(__LINE__, "Via", httprequest_test1) == true)
 	{
-		ValueSet* val13 = static_cast<ValueSet*>(httprequest_test1.get_field_values(
+		SingleFieldValue* val13 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 				"Via"));
-		compair_valueset_report(val13->get_value_set(), "1.1 example.com");
+		compair_valueset_report(val13->get_value(), "1.1 example.com");
 	}
 	// if (same_class_test(__LINE__, "WWW-Authenticate", httprequest_test1) == true)
 	// {

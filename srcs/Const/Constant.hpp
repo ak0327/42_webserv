@@ -7,7 +7,7 @@
 /* return value */
 
 extern const int OK;
-extern const int NG;
+extern const int ERR;
 
 ////////////////////////////////////////////////////////////////////////////////
 /* initial value */
@@ -201,6 +201,12 @@ extern const char NOV[];
 extern const char DEC[];
 
 extern const int GREGORIAN_CALENDAR;
+
+enum date_format {
+	IMF_FIXDATE,
+	RFC850_DATE,
+	ASCTIME_DATE
+};
 
 extern const std::vector<std::string> DAY_NAMES;
 extern const std::vector<std::string> MONTHS;
