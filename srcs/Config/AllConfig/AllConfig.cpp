@@ -2,6 +2,12 @@
 
 AllConfig::AllConfig(){}
 
+AllConfig::AllConfig(const AllConfig &other)
+{
+	this->_host_config = other._host_config;
+	this->_location_config = other._location_config;
+}
+
 AllConfig::AllConfig(const ServerConfig &host_config, const std::map<std::string, LocationConfig> &_location_config)
 {
 	this->_host_config = host_config;

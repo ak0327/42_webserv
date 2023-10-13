@@ -14,6 +14,7 @@ class	AllConfig
 		std::map<std::string, LocationConfig>	_location_config;
 	public:
 		AllConfig(const ServerConfig &host_configs, const std::map<std::string, LocationConfig> &_location_config);
+		AllConfig(const AllConfig &other);
 		AllConfig& operator=(const AllConfig &other);
 		AllConfig();
 		~AllConfig();
