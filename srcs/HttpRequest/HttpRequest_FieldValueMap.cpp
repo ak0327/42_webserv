@@ -26,7 +26,7 @@ bool is_auth_param(const std::string &str) {
 }
 
 // credentials   = auth-scheme [ 1*SP ( token68 / #auth-param ) ]
-//                                     ^^^^^^^^^^^^^^^^^^^^^^
+//                                     ^^^^^^^^^^^^^^^^^^^^^^ auth_param
 bool is_valid_auth_param(const std::string &auth_param) {
 	return (HttpMessageParser::is_token68(auth_param)
 			|| is_auth_param(auth_param));
@@ -169,8 +169,109 @@ Result<std::map<std::string, std::string>, int> parse_and_validate_credentials(
 	return Result<std::map<std::string, std::string>, int>::ok(credentials);
 }
 
+Result<std::string, int> parse_forwarded_value(const std::string &field_value,
+											   std::size_t start_pos,
+											   std::size_t *end_pos) {
+	std::size_t len, end;
+	std::string value;
+
+	if (field_value.empty()) {
+		return Result<std::string, int>::err(ERR);
+	}
+	len = 0;
+	if (HttpMessageParser::is_tchar(field_value[start_pos])) {
+		while (HttpMessageParser::is_tchar(field_value[start_pos + len])) {
+			++len;
+		}
+	} else if (field_value[start_pos] == '"') {
+		HttpMessageParser::skip_quoted_string(field_value, start_pos, &end);
+		if (start_pos == end) {
+			return Result<std::string, int>::err(ERR);
+		}
+		len = end - start_pos;
+	} else {
+		return Result<std::string, int>::err(ERR);
+	}
+
+	value = field_value.substr(start_pos, len);
+	*end_pos = start_pos + len;
+	return Result<std::string, int>::ok(value);
+}
+
+/*
+ forwarded-pair = token "=" value
+ value          = token / quoted-string
+ */
+Result<int, int> parse_forwarded_pair(const std::string &field_value,
+									  std::size_t start_pos,
+									  std::size_t *end_pos,
+									  std::string *token,
+									  std::string *value) {
+	std::size_t pos, end;
+	Result<std::string, int> token_result, value_result;
+
+	if (!end_pos || !token || !value) { return Result<int, int>::err(ERR); }
+
+	pos = start_pos;
+	token_result = StringHandler::parse_pos_to_delimiter(field_value,
+														 pos, '=', &end);
+	if (token_result.is_err()) {
+		return Result<int, int>::err(ERR);
+	}
+	*token = token_result.get_ok_value();
+	pos = end;
+
+	if (field_value[pos] != '=') {
+		return Result<int, int>::err(ERR);
+	}
+	++pos;
+
+	value_result = parse_forwarded_value(field_value, pos, &end);
+	if (value_result.is_err()) {
+		return Result<int, int>::err(ERR);
+	}
+	*value = value_result.get_ok_value();
+
+	*end_pos = end;
+	return Result<int, int>::ok(OK);
+}
+
+/*
+ forwarded-element = [ forwarded-pair ] *( ";" [ forwarded-pair ] )
+ */
+Result<std::map<std::string, std::string>, int> parse_and_validate_forwarded_element(const std::string &field_value) {
+	std::map<std::string, std::string> forwarded_element;
+	Result<int, int> parse_result, validate_result;
+	std::string token, value;
+	std::size_t pos, end_pos;
+
+	if (field_value.empty()) {
+		return Result<std::map<std::string, std::string>, int>::err(ERR);
+	}
+
+	pos = 0;
+	while (true) {
+		parse_result = parse_forwarded_pair(field_value, pos, &end_pos, &token, &value);
+		if (parse_result.is_err()) {
+			return Result<std::map<std::string, std::string>, int>::err(ERR);
+		}
+		pos = end_pos;
+		forwarded_element[token] = value;
+
+		if (field_value[pos] == '\0') {
+			break;
+		} else if (field_value[pos] == ';' && field_value[pos + 1] != '\0') {
+			++pos;
+		} else {
+			return Result<std::map<std::string, std::string>, int>::err(ERR);
+		}
+	}
+	return Result<std::map<std::string, std::string>, int>::ok(forwarded_element);
+}
 
 }  // namespace
+
+////////////////////////////////////////////////////////////////////////////////
 
 FieldValueMap* HttpRequest::ready_ValueMap(const std::string &field_value, char delimiter) {
 	std::map<std::string, std::string>	value_map;
@@ -220,7 +321,7 @@ FieldValueMap* HttpRequest::ready_ValueMap(const std::string &only_value, const 
 Result<int, int> HttpRequest::set_authorization(const std::string &field_name,
 												const std::string &field_value) {
 	std::map<std::string, std::string> credentials;
-	Result<std::map<std::string, std::string> , int> result;
+	Result<std::map<std::string, std::string>, int> result;
 
 	if (is_valid_field_name_registered(field_name)) {
 		return Result<int, int>::err(ERR);
@@ -251,17 +352,43 @@ Result<int, int> HttpRequest::set_content_disponesition(const std::string &field
 }
 
 // todo: Cookie
+/*
+ cookie-header = "Cookie:" OWS cookie-string OWS
+ cookie-string = cookie-pair *( ";" SP cookie-pair )
+
+ cookie-pair       = cookie-name "=" cookie-value
+ cookie-name       = token
+ cookie-value      = *cookie-octet / ( DQUOTE *cookie-octet DQUOTE )
+ cookie-octet      = %x21 / %x23-2B / %x2D-3A / %x3C-5B / %x5D-7E
+                       ; US-ASCII characters excluding CTLs,
+                       ; whitespace DQUOTE, comma, semicolon,
+                       ; and backslash
+ https://tex2e.github.io/rfc-translater/html/rfc6265.html#4-2-1--Syntax
+ */
 Result<int, int> HttpRequest::set_cookie(const std::string &field_name, const std::string &field_value) {
 	_request_header_fields[field_name] = this->ready_ValueMap(field_value);
 	return Result<int, int>::ok(STATUS_OK);
 }
 
-// todo: Forwarded
-Result<int, int> HttpRequest::set_forwarded(const std::string &field_name, const std::string &field_value) {
-	_request_header_fields[field_name] = this->ready_ValueMap(field_value);
+/*
+ Forwarded   = 1#forwarded-element
+ forwarded-element = [ forwarded-pair ] *( ";" [ forwarded-pair ] )
+ https://www.rfc-editor.org/rfc/rfc7239#section-4
+ */
+Result<int, int> HttpRequest::set_forwarded(const std::string &field_name,
+											const std::string &field_value) {
+	std::map<std::string, std::string> forwarded_element;
+	Result<std::map<std::string, std::string>, int> result;
+
+	clear_field_values_of(field_name);
+
+	result = parse_and_validate_forwarded_element(field_value);
+	if (result.is_ok()) {
+		forwarded_element = result.get_ok_value();
+		this->_request_header_fields[field_name] = new FieldValueMap(forwarded_element);
+	}
 	return Result<int, int>::ok(STATUS_OK);
 }
-
 
 // todo: Host
 // Host: <host>:<port>
@@ -341,6 +468,31 @@ Result<int, int> HttpRequest::set_keep_alive(const std::string &field_name, cons
 }
 
 // todo: Set-Cookie
+/*
+ set-cookie-header = "Set-Cookie:" SP set-cookie-string
+ set-cookie-string = cookie-pair *( ";" SP cookie-av )
+
+ cookie-av         = expires-av / max-age-av / domain-av /
+                     path-av / secure-av / httponly-av /
+                     extension-av
+ expires-av        = "Expires=" sane-cookie-date
+ sane-cookie-date  = <rfc1123-date, defined in [RFC2616], Section 3.3.1>
+ max-age-av        = "Max-Age=" non-zero-digit *DIGIT
+                       ; In practice, both expires-av and max-age-av
+                       ; are limited to dates representable by the
+                       ; user agent.
+ non-zero-digit    = %x31-39
+                       ; digits 1 through 9
+ domain-av         = "Domain=" domain-value
+ domain-value      = <subdomain>
+                       ; defined in [RFC1034], Section 3.5, as
+                       ; enhanced by [RFC1123], Section 2.1
+ path-av           = "Path=" path-value
+ path-value        = <any CHAR except CTLs or ";">
+ secure-av         = "Secure"
+ httponly-av       = "HttpOnly"
+ extension-av      = <any CHAR except CTLs or ";">
+ */
 Result<int, int> HttpRequest::set_set_cookie(const std::string &field_name, const std::string &field_value) {
 	_request_header_fields[field_name] = this->ready_ValueMap(field_value);
 	return Result<int, int>::ok(STATUS_OK);
