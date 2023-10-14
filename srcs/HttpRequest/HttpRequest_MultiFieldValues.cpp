@@ -236,9 +236,13 @@ Result<int, int> HttpRequest::set_if_match(const std::string &field_name,
 	}
 
 	if (field_value == "*") {
-		return set_multi_field_values(field_name, field_value, HttpMessageParser::is_token);
+		return set_multi_field_values(field_name,
+									  field_value,
+									  HttpMessageParser::is_token);
 	} else {
-		return set_multi_field_values(field_name, field_value, HttpMessageParser::is_entity_tag);
+		return set_multi_field_values(field_name,
+									  field_value,
+									  HttpMessageParser::is_entity_tag);
 	}
 }
 
@@ -253,9 +257,13 @@ Result<int, int> HttpRequest::set_if_none_match(const std::string &field_name,
 	}
 
 	if (field_value == "*") {
-		return set_multi_field_values(field_name, field_value, HttpMessageParser::is_token);
+		return set_multi_field_values(field_name,
+									  field_value,
+									  HttpMessageParser::is_token);
 	} else {
-		return set_multi_field_values(field_name, field_value, HttpMessageParser::is_entity_tag);
+		return set_multi_field_values(field_name,
+									  field_value,
+									  HttpMessageParser::is_entity_tag);
 	}
 }
 
@@ -268,22 +276,9 @@ Result<int, int> HttpRequest::set_transfer_encoding(const std::string &field_nam
 		return Result<int, int>::err(STATUS_BAD_REQUEST);
 	}
 
-	return set_multi_field_values(field_name, field_value, is_transfer_coding);
-
-	// std::stringstream	ss(field_value);
-	// std::string			line;
-	// std::string			line_without_ows;
-	//
-	// while(std::getline(ss, line, ','))
-	// {
-	// 	line_without_ows = HttpMessageParser::obtain_withoutows_value(line);
-	// 	if (line_without_ows != "gzip" && line_without_ows != "compress" && line_without_ows \
-	// 	!= "deflate" && line_without_ows != "gzip" && line_without_ows != "chunked")
-	// 		// return;
-	// 		return Result<int, int>::ok(STATUS_OK);
-	// }
-	// this->_request_header_fields[field_name] = this->ready_ValueArraySet(field_value);
-	// return Result<int, int>::ok(STATUS_OK);
+	return set_multi_field_values(field_name,
+								  field_value,
+								  is_transfer_coding);
 }
 
 // todo: Upgrade

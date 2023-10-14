@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "Color.hpp"
 #include "Constant.hpp"
 #include "HttpRequest.hpp"

@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <vector>
 #include "Constant.hpp"
@@ -91,6 +92,62 @@ bool is_valid_day_name(const std::string &day_name, int year, int month, int day
 	return day_name == zellers_day_name;
 }
 
+Result <int, int> to_integer_valid_day1_str(const std::string &day,
+											const std::string &month,
+											const std::string &year,
+											int *day_num,
+											int *month_num,
+											int *year_num) {
+	std::vector<std::string>::const_iterator month_itr;
+	bool succeed;
+
+	if (!day_num || !month_num || !year_num) {
+		return Result<int, int>::err(ERR);
+	}
+	*day_num = HttpMessageParser::to_integer_num(day, &succeed);
+	if (day.length() != 2 || !succeed) {
+		return Result<int, int>::err(ERR);
+	}
+
+	month_itr = std::find(MONTHS.begin(), MONTHS.end(), month);
+	if (month_itr == MONTHS.end()) {
+		return Result<int, int>::err(ERR);
+	}
+	*month_num = static_cast<int>(std::distance(MONTHS.begin(), month_itr)) + 1;
+
+	*year_num = HttpMessageParser::to_integer_num(year, &succeed);
+	if (year.length() != 4 || !succeed) {
+		return Result<int, int>::err(ERR);
+	}
+	return Result<int, int>::ok(OK);
+}
+
+Result <int, int> to_integer_valid_time_of_day_str(const std::string &hour,
+												   const std::string &minute,
+												   const std::string &second,
+												   int *hour_num,
+												   int *minute_num,
+												   int *second_num) {
+	bool succeed;
+
+	*hour_num = HttpMessageParser::to_integer_num(hour, &succeed);
+	if (hour.length() != 2 || !succeed) {
+		return Result<int, int>::err(ERR);
+	}
+
+	*minute_num = HttpMessageParser::to_integer_num(minute, &succeed);
+	if (minute.length() != 2 || !succeed) {
+		return Result<int, int>::err(ERR);
+	}
+
+	*second_num = HttpMessageParser::to_integer_num(second, &succeed);
+	if (second.length() != 2 || !succeed) {
+		return Result<int, int>::err(ERR);
+	}
+	return Result<int, int>::ok(OK);
+}
+
+
 Result <int, int> validate_imf_fixdate(const std::string &day_name,
 									   const std::string &day,
 									   const std::string &month,
@@ -100,23 +157,12 @@ Result <int, int> validate_imf_fixdate(const std::string &day_name,
 									   const std::string &second,
 									   const std::string &gmt) {
 	int day_num, month_num, year_num, hour_num, minute_num, second_num;
-	std::vector<std::string>::const_iterator month_itr;
-	bool succeed;
+	Result<int, int> day1_result, time_of_day_result;
 
 	// day1
-	day_num = HttpMessageParser::to_integer_num(day, &succeed);
-	if (day.length() != 2 || !succeed) {
-		return Result<int, int>::err(ERR);
-	}
-
-	month_itr = std::find(MONTHS.begin(), MONTHS.end(), month);
-	if (month_itr == MONTHS.end()) {
-		return Result<int, int>::err(ERR);
-	}
-	month_num = static_cast<int>(std::distance(MONTHS.begin(), month_itr)) + 1;
-
-	year_num = HttpMessageParser::to_integer_num(year, &succeed);
-	if (year.length() != 4 || !succeed) {
+	day1_result = to_integer_valid_day1_str(day, month, year,
+											&day_num, &month_num, &year_num);
+	if (day1_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}
 
@@ -125,18 +171,9 @@ Result <int, int> validate_imf_fixdate(const std::string &day_name,
 	}
 
 	// time-of-date
-	hour_num = HttpMessageParser::to_integer_num(hour, &succeed);
-	if (hour.length() != 2 || !succeed) {
-		return Result<int, int>::err(ERR);
-	}
-
-	minute_num = HttpMessageParser::to_integer_num(minute, &succeed);
-	if (minute.length() != 2 || !succeed) {
-		return Result<int, int>::err(ERR);
-	}
-
-	second_num = HttpMessageParser::to_integer_num(second, &succeed);
-	if (second.length() != 2 || !succeed) {
+	time_of_day_result = to_integer_valid_time_of_day_str(hour, minute, second,
+														  &hour_num, &minute_num, &second_num);
+	if (time_of_day_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}
 

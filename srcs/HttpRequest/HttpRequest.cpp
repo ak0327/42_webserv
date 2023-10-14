@@ -196,7 +196,6 @@ Result<int, int> HttpRequest::parse_and_validate_field_lines(std::stringstream *
 
 		parse_result = parse_field_line(field_line, &field_name, &field_value);
 		if (parse_result.is_err()) {
-
 			return Result<int, int>::err(ERR);
 		}
 
