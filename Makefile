@@ -36,25 +36,27 @@ SRCS		+=	$(STR_HANDLER)/HttpMessageParser.cpp \
 #httprequest
 REQUEST_DIR	=	HttpRequest
 SRCS		+=	$(REQUEST_DIR)/HttpRequest.cpp \
-				$(REQUEST_DIR)/HttpRequest_LinkClass.cpp \
-				$(REQUEST_DIR)/HttpRequest_TwoValueSet.cpp \
-				$(REQUEST_DIR)/HttpRequest_MultiFieldValues.cpp \
-				$(REQUEST_DIR)/HttpRequest_SingleFieldValue.cpp \
 				$(REQUEST_DIR)/HttpRequest_Date.cpp \
-				$(REQUEST_DIR)/HttpRequest_FieldFieldValueMap.cpp \
-				$(REQUEST_DIR)/HttpRequest_ValueWeightArraySet.cpp \
+				$(REQUEST_DIR)/HttpRequest_FieldValueMap.cpp \
+				$(REQUEST_DIR)/HttpRequest_LinkClass.cpp \
 				$(REQUEST_DIR)/HttpRequest_MediaType.cpp \
+				$(REQUEST_DIR)/HttpRequest_MultiFieldValues.cpp \
+				$(REQUEST_DIR)/RequestLine/RequestLine.cpp \
+				$(REQUEST_DIR)/HttpRequest_SingleFieldValue.cpp \
+				$(REQUEST_DIR)/HttpRequest_TwoValueSet.cpp \
+				$(REQUEST_DIR)/HttpRequest_ValueWeightArraySet.cpp
+
+SRCS		+= 	$(REQUEST_DIR)/Date/Date.cpp \
+				$(REQUEST_DIR)/FieldValues/FieldValues.cpp \
+				$(REQUEST_DIR)/FieldValueMap/FieldValueMap.cpp \
 				$(REQUEST_DIR)/FieldValues/FieldValues.cpp \
 				$(REQUEST_DIR)/LinkClass/LinkClass.cpp \
-				$(REQUEST_DIR)/RequestLine/RequestLine.cpp \
-				$(REQUEST_DIR)/TwoValueSet/TwoValueSet.cpp \
-				$(REQUEST_DIR)/MultiFieldValues/MultiFieldValues.cpp \
-				$(REQUEST_DIR)/ValueDateSet/ValueDateSet.cpp \
-				$(REQUEST_DIR)/FieldValueMap/FieldValueMap.cpp \
-				$(REQUEST_DIR)/ValueSet/ValueSet.cpp \
-				$(REQUEST_DIR)/ValueWeightArraySet/ValueWeightArraySet.cpp \
 				$(REQUEST_DIR)/MediaType/MediaType.cpp \
-				$(REQUEST_DIR)/Date/Date.cpp
+				$(REQUEST_DIR)/MultiFieldValues/MultiFieldValues.cpp \
+				$(REQUEST_DIR)/RequestLine/RequestLine.cpp \
+				$(REQUEST_DIR)/SingleFieldValue/SingleFieldValue.cpp \
+				$(REQUEST_DIR)/TwoValueSet/TwoValueSet.cpp \
+				$(REQUEST_DIR)/ValueWeightArraySet/ValueWeightArraySet.cpp
 
 
 # OBJS -------------------------------------------------------------------------
@@ -74,16 +76,16 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(SOCKET_DIR) \
 				$(SRCS_DIR)/$(STR_HANDLER) \
 				$(SRCS_DIR)/$(REQUEST_DIR) \
-				$(SRCS_DIR)/$(REQUEST_DIR)/FieldValues \
-				$(SRCS_DIR)/$(REQUEST_DIR)/LinkClass \
-				$(SRCS_DIR)/$(REQUEST_DIR)/RequestLine \
-				$(SRCS_DIR)/$(REQUEST_DIR)/TwoValueSet \
-				$(SRCS_DIR)/$(REQUEST_DIR)/MultiFieldValues \
 				$(SRCS_DIR)/$(REQUEST_DIR)/Date \
 				$(SRCS_DIR)/$(REQUEST_DIR)/FieldValueMap \
+				$(SRCS_DIR)/$(REQUEST_DIR)/FieldValues \
+				$(SRCS_DIR)/$(REQUEST_DIR)/LinkClass \
+				$(SRCS_DIR)/$(REQUEST_DIR)/MediaType \
+				$(SRCS_DIR)/$(REQUEST_DIR)/MultiFieldValues \
+				$(SRCS_DIR)/$(REQUEST_DIR)/RequestLine \
 				$(SRCS_DIR)/$(REQUEST_DIR)/SingleFieldValue \
-				$(SRCS_DIR)/$(REQUEST_DIR)/ValueWeightArraySet \
-				$(SRCS_DIR)/$(REQUEST_DIR)/MediaType
+				$(SRCS_DIR)/$(REQUEST_DIR)/TwoValueSet \
+				$(SRCS_DIR)/$(REQUEST_DIR)/ValueWeightArraySet
 
 INCLUDES	 =	$(addprefix -I, $(INCLUDES_DIR))
 
