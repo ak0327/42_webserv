@@ -10,7 +10,7 @@ class Date : public FieldValues {
 	explicit Date(const std::string &http_date);
 	Date(const Date &other);
 	Date &operator=(const Date &rhs);
-	~Date();
+	virtual ~Date();
 
 	std::string get_day_name() const;
 	std::string get_day() const;
