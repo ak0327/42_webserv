@@ -240,10 +240,13 @@ Result<int, int> HttpRequest::set_referrer_policy(const std::string &field_name,
 Result<int, int> HttpRequest::set_sec_fetch_dest(const std::string &field_name,
 												 const std::string &field_value)
 {
-	if (field_value == "audio" || field_value == "audioworklet" || field_value == "document" || field_value == "embed" || \
-	field_value == "empty" || field_value == "font" || field_value == "frame" || field_value == "iframe" || field_value == "image" || field_value == "manifest" || \
-	field_value == "object" || field_value == "paintworklet" || field_value == "report" || field_value == "script" || field_value == "serviceworker" || \
-	field_value == "sharedworker" || field_value == "style" || field_value == "track" || field_value == "video" || field_value == "worker" || field_value == "xslt")
+	if (field_value == "audio" || field_value == "audioworklet" || field_value == "document"
+	|| field_value == "embed" || field_value == "empty" || field_value == "font"
+	|| field_value == "frame" || field_value == "iframe" || field_value == "image"
+	|| field_value == "manifest" || field_value == "object" || field_value == "paintworklet"
+	|| field_value == "report" || field_value == "script" || field_value == "serviceworker"
+	|| field_value == "sharedworker" || field_value == "style" || field_value == "track"
+	|| field_value == "video" || field_value == "worker" || field_value == "xslt")
 		this->_request_header_fields[field_name] = new SingleFieldValue(field_value);
 	// else
 	// 	return;

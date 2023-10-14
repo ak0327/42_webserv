@@ -198,7 +198,6 @@ Result<int, int> HttpRequest::set_access_control_request_headers(const std::stri
 Result<int, int> HttpRequest::set_multi_field_values(const std::string &field_name,
 													 const std::string &field_value,
 													 bool (*is_valid_syntax)(const std::string &)) {
-
 	std::set<std::string> field_values;
 
 	field_values = parse_field_values(field_value);
@@ -238,8 +237,7 @@ Result<int, int> HttpRequest::set_if_match(const std::string &field_name,
 
 	if (field_value == "*") {
 		return set_multi_field_values(field_name, field_value, HttpMessageParser::is_token);
-	}
-	else {
+	} else {
 		return set_multi_field_values(field_name, field_value, HttpMessageParser::is_entity_tag);
 	}
 }
@@ -256,8 +254,7 @@ Result<int, int> HttpRequest::set_if_none_match(const std::string &field_name,
 
 	if (field_value == "*") {
 		return set_multi_field_values(field_name, field_value, HttpMessageParser::is_token);
-	}
-	else {
+	} else {
 		return set_multi_field_values(field_name, field_value, HttpMessageParser::is_entity_tag);
 	}
 }

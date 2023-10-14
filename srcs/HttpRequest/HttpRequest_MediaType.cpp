@@ -43,6 +43,5 @@ Result<int, int> HttpRequest::set_valid_media_type(const std::string &field_name
  */
 Result<int, int> HttpRequest::set_content_type(const std::string &field_name,
 											   const std::string &field_value) {
-
 	return set_valid_media_type(field_name, field_value);
 }
