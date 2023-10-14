@@ -22,7 +22,7 @@ TEST(TestSingleFieldValue, AccessControlRequestMethod1) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("GET", value->get_value());
 	} else {
-		ADD_FAILURE() << "Access-Control-Request-Method not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -45,7 +45,7 @@ TEST(TestSingleFieldValue, AccessControlRequestMethod2) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("POST", value->get_value());
 	} else {
-		ADD_FAILURE() << "Access-Control-Request-Method not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -68,7 +68,7 @@ TEST(TestSingleFieldValue, AccessControlRequestMethod3) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("DELETE", value->get_value());
 	} else {
-		ADD_FAILURE() << "Access-Control-Request-Method not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());

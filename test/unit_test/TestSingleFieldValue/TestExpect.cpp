@@ -22,7 +22,7 @@ TEST(TestSingleFieldValue, ExpectOK1) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("100-continue", value->get_value());
 	} else {
-		ADD_FAILURE() << "Expect not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -45,7 +45,7 @@ TEST(TestSingleFieldValue, ExpectOK2) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("100-continue", value->get_value());
 	} else {
-		ADD_FAILURE() << "Expect not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -101,7 +101,7 @@ TEST(TestSingleFieldValue, ExpectNG3) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("100-continue", value->get_value());
 	} else {
-		ADD_FAILURE() << "Expect not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
@@ -125,7 +125,7 @@ TEST(TestSingleFieldValue, ExpectOK4) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("100-continue", value->get_value());
 	} else {
-		ADD_FAILURE() << "Expect not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());

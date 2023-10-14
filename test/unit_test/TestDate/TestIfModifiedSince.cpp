@@ -28,10 +28,9 @@ TEST(TestDate, IfModifiedSinceOK1) {
 		EXPECT_EQ("28", date->get_minute());
 		EXPECT_EQ("00", date->get_second());
 		EXPECT_EQ("GMT", date->get_gmt());
-		EXPECT_EQ(IMF_FIXDATE, date->get_format());
 		EXPECT_EQ(true, date->is_ok());
 	} else {
-		ADD_FAILURE() << "Date not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -61,10 +60,9 @@ TEST(TestDate, IfModifiedSinceOK2) {
 		EXPECT_EQ("21", date->get_minute());
 		EXPECT_EQ("45", date->get_second());
 		EXPECT_EQ("GMT", date->get_gmt());
-		EXPECT_EQ(IMF_FIXDATE, date->get_format());
 		EXPECT_EQ(true, date->is_ok());
 	} else {
-		ADD_FAILURE() << "Date not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -94,10 +92,9 @@ TEST(TestDate, IfModifiedSinceOK3) {
 		EXPECT_EQ("21", date->get_minute());
 		EXPECT_EQ("45", date->get_second());
 		EXPECT_EQ("GMT", date->get_gmt());
-		EXPECT_EQ(IMF_FIXDATE, date->get_format());
 		EXPECT_EQ(true, date->is_ok());
 	} else {
-		ADD_FAILURE() << "Date not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());

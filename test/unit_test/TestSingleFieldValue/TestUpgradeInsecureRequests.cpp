@@ -22,7 +22,7 @@ TEST(TestSingleFieldValue, UpgradeInsecureRequestsOK1) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("1", value->get_value());
 	} else {
-		ADD_FAILURE() << "Trailer not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -45,7 +45,7 @@ TEST(TestSingleFieldValue, UpgradeInsecureRequestsOK2) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("1", value->get_value());
 	} else {
-		ADD_FAILURE() << "Trailer not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());

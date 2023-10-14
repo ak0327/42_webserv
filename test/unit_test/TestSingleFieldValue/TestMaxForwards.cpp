@@ -22,7 +22,7 @@ TEST(TestSingleFieldValue, MaxForwardsOK1) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("100", value->get_value());
 	} else {
-		ADD_FAILURE() << "MaxForwards not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -46,7 +46,7 @@ TEST(TestSingleFieldValue, MaxForwardsOK2) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("100", value->get_value());
 	} else {
-		ADD_FAILURE() << "MaxForwards not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -69,7 +69,7 @@ TEST(TestSingleFieldValue, MaxForwardsOK3) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("0", value->get_value());
 	} else {
-		ADD_FAILURE() << "MaxForwards not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -92,7 +92,7 @@ TEST(TestSingleFieldValue, MaxForwardsOK4) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("2147483647", value->get_value());
 	} else {
-		ADD_FAILURE() << "MaxForwards not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());

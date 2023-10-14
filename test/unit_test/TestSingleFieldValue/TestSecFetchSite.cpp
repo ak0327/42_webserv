@@ -22,7 +22,7 @@ TEST(TestSingleFieldValue, SecFetchSiteOK1) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("cross-site", value->get_value());
 	} else {
-		ADD_FAILURE() << "SecFetchSite not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -45,7 +45,7 @@ TEST(TestSingleFieldValue, SecFetchSiteOK2) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("same-origin", value->get_value());
 	} else {
-		ADD_FAILURE() << "SecFetchSite not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -68,7 +68,7 @@ TEST(TestSingleFieldValue, SecFetchSiteOK3) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("same-site", value->get_value());
 	} else {
-		ADD_FAILURE() << "SecFetchSite not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -91,7 +91,7 @@ TEST(TestSingleFieldValue, SecFetchSiteOK4) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("none", value->get_value());
 	} else {
-		ADD_FAILURE() << "SecFetchSite not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -114,7 +114,7 @@ TEST(TestSingleFieldValue, SecFetchSiteOK5) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("none", value->get_value());
 	} else {
-		ADD_FAILURE() << "SecFetchSite not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -139,7 +139,7 @@ TEST(TestSingleFieldValue, SecFetchSiteOK6) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("cross-site", value->get_value());
 	} else {
-		ADD_FAILURE() << "SecFetchSite not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());

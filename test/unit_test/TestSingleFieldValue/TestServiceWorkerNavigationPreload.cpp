@@ -22,7 +22,7 @@ TEST(TestSingleFieldValue, ServiceWorkerNavigationPreloadOK1) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("s3pPLMBiTxaQ9kYGzzhZRbK+xOo=", value->get_value());
 	} else {
-		ADD_FAILURE() << "ServiceWorkerNavigationPreload not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -45,7 +45,7 @@ TEST(TestSingleFieldValue, ServiceWorkerNavigationPreloadOK2) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("abc123", value->get_value());
 	} else {
-		ADD_FAILURE() << "ServiceWorkerNavigationPreload not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -69,7 +69,7 @@ TEST(TestSingleFieldValue, ServiceWorkerNavigationPreloadOK3) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("123", value->get_value());
 	} else {
-		ADD_FAILURE() << "ServiceWorkerNavigationPreload not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());

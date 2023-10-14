@@ -31,7 +31,7 @@ TEST(TestDate, DateOK1) {
 		EXPECT_EQ(IMF_FIXDATE, date->get_format());
 		EXPECT_EQ(true, date->is_ok());
 	} else {
-		ADD_FAILURE() << "Date not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -64,7 +64,7 @@ TEST(TestDate, DateOK2) {
 		EXPECT_EQ(IMF_FIXDATE, date->get_format());
 		EXPECT_EQ(true, date->is_ok());
 	} else {
-		ADD_FAILURE() << "Date not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -97,7 +97,7 @@ TEST(TestDate, DateOK3) {
 		EXPECT_EQ(IMF_FIXDATE, date->get_format());
 		EXPECT_EQ(true, date->is_ok());
 	} else {
-		ADD_FAILURE() << "Date not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -135,7 +135,7 @@ TEST(TestDate, DateOK4) {
 		EXPECT_EQ(IMF_FIXDATE, date->get_format());
 		EXPECT_EQ(true, date->is_ok());
 	} else {
-		ADD_FAILURE() << "Date not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());

@@ -22,7 +22,7 @@ TEST(TestSingleFieldValue, SecFetchModeOK1) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("cors", value->get_value());
 	} else {
-		ADD_FAILURE() << "SecFetchMode not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -45,7 +45,7 @@ TEST(TestSingleFieldValue, SecFetchModeOK2) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("navigate", value->get_value());
 	} else {
-		ADD_FAILURE() << "SecFetchMode not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -68,7 +68,7 @@ TEST(TestSingleFieldValue, SecFetchModeOK3) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("no-cors", value->get_value());
 	} else {
-		ADD_FAILURE() << "SecFetchMode not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -91,7 +91,7 @@ TEST(TestSingleFieldValue, SecFetchModeOK4) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("same-origin", value->get_value());
 	} else {
-		ADD_FAILURE() << "SecFetchMode not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -114,7 +114,7 @@ TEST(TestSingleFieldValue, SecFetchModeOK5) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("websocket", value->get_value());
 	} else {
-		ADD_FAILURE() << "SecFetchMode not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -139,7 +139,7 @@ TEST(TestSingleFieldValue, SecFetchModeOK6) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("cors", value->get_value());
 	} else {
-		ADD_FAILURE() << "SecFetchMode not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());

@@ -37,7 +37,7 @@ TEST(TestMultiFieldValues, ContentEncodingOK1) {
 		EXPECT_TRUE(ans_itr == ans.end());
 
 	} else {
-		ADD_FAILURE() << "Content-Encoding not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -75,7 +75,7 @@ TEST(TestMultiFieldValues, ContentEncodingOK2) {
 		EXPECT_TRUE(ans_itr == ans.end());
 
 	} else {
-		ADD_FAILURE() << "Content-Encoding not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -113,7 +113,7 @@ TEST(TestMultiFieldValues, ContentEncodingOK3) {
 		EXPECT_TRUE(ans_itr == ans.end());
 
 	} else {
-		ADD_FAILURE() << "Content-Encoding not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());

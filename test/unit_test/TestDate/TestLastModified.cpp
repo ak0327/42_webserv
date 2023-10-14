@@ -30,7 +30,7 @@ TEST(TestDate, LastModifiedOK1) {
 		EXPECT_EQ("GMT", date->get_gmt());
 		EXPECT_EQ(true, date->is_ok());
 	} else {
-		ADD_FAILURE() << "Date not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -63,7 +63,7 @@ TEST(TestDate, LastModifiedOK2) {
 		EXPECT_EQ(IMF_FIXDATE, date->get_format());
 		EXPECT_EQ(true, date->is_ok());
 	} else {
-		ADD_FAILURE() << "Date not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -96,7 +96,7 @@ TEST(TestDate, LastModifiedOK3) {
 		EXPECT_EQ(IMF_FIXDATE, date->get_format());
 		EXPECT_EQ(true, date->is_ok());
 	} else {
-		ADD_FAILURE() << "Date not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -134,7 +134,7 @@ TEST(TestDate, LastModifiedOK4) {
 		EXPECT_EQ(IMF_FIXDATE, date->get_format());
 		EXPECT_EQ(true, date->is_ok());
 	} else {
-		ADD_FAILURE() << "Date not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());

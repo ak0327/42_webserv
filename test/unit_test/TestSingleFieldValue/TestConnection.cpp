@@ -22,7 +22,7 @@ TEST(TestSingleFieldValue, Connection1) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("close", value->get_value());
 	} else {
-		ADD_FAILURE() << "Connection not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -45,7 +45,7 @@ TEST(TestSingleFieldValue, Connection2) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("close", value->get_value());
 	} else {
-		ADD_FAILURE() << "Connection not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -68,7 +68,7 @@ TEST(TestSingleFieldValue, Connection3) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("close", value->get_value());
 	} else {
-		ADD_FAILURE() << "Connection not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -91,7 +91,7 @@ TEST(TestSingleFieldValue, Connection4) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("keep-alive", value->get_value());
 	} else {
-		ADD_FAILURE() << "Connection not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -114,7 +114,7 @@ TEST(TestSingleFieldValue, Connection5) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("keep-alive", value->get_value());
 	} else {
-		ADD_FAILURE() << "Connection not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -138,7 +138,7 @@ TEST(TestSingleFieldValue, Connection6) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("keep-alive", value->get_value());
 	} else {
-		ADD_FAILURE() << "Connection not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());

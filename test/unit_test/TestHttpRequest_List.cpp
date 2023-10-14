@@ -4,7 +4,7 @@
 #include "RequestLine.hpp"
 #include "MultiFieldValues.hpp"
 #include "Date.hpp"
-#include "ValueMap.hpp"
+#include "FieldValueMap.hpp"
 #include "ValueWeightArraySet.hpp"
 #include "HttpRequest.hpp"
 #include "gtest/gtest.h"

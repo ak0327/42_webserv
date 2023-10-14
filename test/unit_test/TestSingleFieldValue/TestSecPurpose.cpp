@@ -22,7 +22,7 @@ TEST(TestSingleFieldValue, SecPurposeOK1) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("prefetch", value->get_value());
 	} else {
-		ADD_FAILURE() << "SecPurpose not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
@@ -46,7 +46,7 @@ TEST(TestSingleFieldValue, SecPurposeOK2) {
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("prefetch", value->get_value());
 	} else {
-		ADD_FAILURE() << "SecPurpose not found";
+		ADD_FAILURE() << field_name << " not found";
 	}
 
 	EXPECT_EQ(STATUS_OK, request.get_status_code());

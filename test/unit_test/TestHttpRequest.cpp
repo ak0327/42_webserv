@@ -13,7 +13,7 @@
 #include "TwoValueSet.hpp"
 #include "MultiFieldValues.hpp"
 #include "Date.hpp"
-#include "ValueMap.hpp"
+#include "FieldValueMap.hpp"
 #include "SingleFieldValue.hpp"
 #include "ValueWeightArraySet.hpp"
 
@@ -31,7 +31,8 @@ TEST(TestHttpRequest, NgCaseRequestOnly) {
 }
 
 TEST(TestHttpRequest, NgInvalidMethod) {
-	const std::string TEST_REQUEST = "get /index.html HTTP/1.1\r\n\r\n";
+	const std::string TEST_REQUEST = "get /index.html HTTP/1.1\r\n"
+									 "\r\n";
 	HttpRequest request(TEST_REQUEST);
 
 	EXPECT_EQ("get", request.get_method());
@@ -41,7 +42,8 @@ TEST(TestHttpRequest, NgInvalidMethod) {
 }
 
 TEST(TestHttpRequest, NgNoHeaders) {
-	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\n\r\n";
+	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\n"
+									 "\r\n";
 	HttpRequest request(TEST_REQUEST);
 
 	EXPECT_EQ("GET", request.get_method());
@@ -513,7 +515,7 @@ TEST(Request, TEST2)
 	if (same_class_test(__LINE__, "Cookie", httprequest_test1) == true)
 	{
 		//map型
-		ValueMap* valmap8 = static_cast<ValueMap*>(httprequest_test1.get_field_values(
+		FieldValueMap* valmap8 = static_cast<FieldValueMap*>(httprequest_test1.get_field_values(
 				"Cookie"));
 		std::map<std::string, std::string> valuemap8;
 		std::set<std::string> keys8;
@@ -990,7 +992,7 @@ TEST(Request, TEST5)
 	if (same_class_test(__LINE__, "Alt-Svc", httprequest_test1) == true)
 	{
 		//map型
-		ValueMap* valmap6 = static_cast<ValueMap*>(httprequest_test1.get_field_values(
+		FieldValueMap* valmap6 = static_cast<FieldValueMap*>(httprequest_test1.get_field_values(
 				"Alt-Svc"));
 		std::map<std::string, std::string> valuemap6;
 		std::set<std::string> keys6;
@@ -1041,7 +1043,7 @@ TEST(Request, TEST6)
 	if (same_class_test(__LINE__, "Content-Disposition", httprequest_test1) == true)
 	{
 		//map型
-		ValueMap* valmap1 = static_cast<ValueMap*>(httprequest_test1.get_field_values(
+		FieldValueMap* valmap1 = static_cast<FieldValueMap*>(httprequest_test1.get_field_values(
 				"Content-Disposition"));
 		std::map<std::string, std::string> valuemap1;
 		std::set<std::string> keys1;
@@ -1102,7 +1104,7 @@ TEST(Request, TEST6)
 	if (same_class_test(__LINE__, "Content-Type", httprequest_test1) == true)
 	{
 		//map型
-		ValueMap* valmap8 = static_cast<ValueMap*>(httprequest_test1.get_field_values(
+		FieldValueMap* valmap8 = static_cast<FieldValueMap*>(httprequest_test1.get_field_values(
 				"Content-Type"));
 		EXPECT_EQ(valmap8->get_only_value(), "application/json");
 	}
@@ -1184,7 +1186,7 @@ TEST(Request, TEST7)
 	if (same_class_test(__LINE__, "Forwarded", httprequest_test1) == true)
 	{
 		//map型
-		ValueMap* valmap7 = static_cast<ValueMap*>(httprequest_test1.get_field_values(
+		FieldValueMap* valmap7 = static_cast<FieldValueMap*>(httprequest_test1.get_field_values(
 				"Forwarded"));
 		std::map<std::string, std::string> valuemap7;
 		std::set<std::string> keys7;
@@ -1220,7 +1222,7 @@ TEST(Request, TEST7)
 	if (same_class_test(__LINE__, "Keep-Alive", httprequest_test1) == true)
 	{
 		//map型
-		ValueMap* valmap11 = static_cast<ValueMap*>(httprequest_test1.get_field_values(
+		FieldValueMap* valmap11 = static_cast<FieldValueMap*>(httprequest_test1.get_field_values(
 				"Keep-Alive"));
 		std::map<std::string, std::string> valuemap11;
 		std::set<std::string> keys11;
@@ -1284,7 +1286,7 @@ TEST(Request, TEST8)
 	if (same_class_test(__LINE__, "Proxy-Authenticate", httprequest_test1) == true)
 	{
 		//map型
-		ValueMap* valmap2 = static_cast<ValueMap*>(httprequest_test1.get_field_values(
+		FieldValueMap* valmap2 = static_cast<FieldValueMap*>(httprequest_test1.get_field_values(
 				"Proxy-Authenticate"));
 		std::map<std::string, std::string> valuemap2;
 		std::set<std::string> keys2;
@@ -1383,7 +1385,7 @@ TEST(Request, TEST9)
 	// if (same_class_test(__LINE__, "Proxy-Authenticate", httprequest_test1) == true)
 	// {
 	// 	//map型
-	// 	ValueMap* valmap2 = static_cast<ValueMap*>(httprequest_test1.get_field_values("Proxy-Authenticate"));
+	// 	FieldValueMap* valmap2 = static_cast<FieldValueMap*>(httprequest_test1.get_field_values("Proxy-Authenticate"));
 	// 	std::map<std::string, std::string> valuemap2;
 	// 	std::set<std::string> keys2;
 	// 	valuemap2["sessionId"] = "12345";
@@ -1400,7 +1402,7 @@ TEST(Request, TEST9)
 	}
 	// if (same_class_test(__LINE__, "Strict-Transport-Security", httprequest_test1) == true)
 	// {
-	// 	ValueMap* valmap2 = static_cast<ValueMap*>(httprequest_test1.get_field_values("Strict-Transport-Security"));
+	// 	FieldValueMap* valmap2 = static_cast<FieldValueMap*>(httprequest_test1.get_field_values("Strict-Transport-Security"));
 	// 	std::map<std::string, std::string> valuemap2;
 	// 	std::set<std::string> keys2;
 	// 	valuemap2["max-age"] = "31536000";
