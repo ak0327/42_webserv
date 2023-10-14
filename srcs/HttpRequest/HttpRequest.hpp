@@ -13,7 +13,7 @@
 # include "MultiFieldValues.hpp"
 # include "SingleFieldValue.hpp"
 # include "TwoValueSet.hpp"
-# include "ValueMap.hpp"
+# include "FieldValueMap.hpp"
 # include "Date.hpp"
 # include "LinkClass.hpp"
 # include "Result.hpp"
@@ -23,7 +23,7 @@ class RequestLine;
 class TwoValueSet;
 class MultiFieldValues;
 class Date;
-class ValueMap;
+class FieldValueMap;
 class SingleFieldValue;
 class ValueWeightArraySet;
 
@@ -44,7 +44,7 @@ class HttpRequest {
 	std::map<std::string, FieldValues*> get_request_header_fields(void);
 	FieldValues *get_field_values(const std::string &field_name);
 
-private:
+ private:
 	int _status_code;
 	RequestLine _request_line;
 	std::map<std::string, FieldValues*> _request_header_fields;
@@ -88,9 +88,9 @@ private:
 	TwoValueSet *ready_TwoValueSet(const std::string &value, char delimiter);
 	MultiFieldValues *ready_ValueArraySet(const std::string &value);
 	Date *ready_ValueDateSet(const std::string &value);
-	ValueMap *ready_ValueMap(const std::string &value);
-	ValueMap *ready_ValueMap(const std::string &value, char delimiter);
-	ValueMap *ready_ValueMap(const std::string &only_value, const std::string &value);
+	FieldValueMap *ready_ValueMap(const std::string &value);
+	FieldValueMap *ready_ValueMap(const std::string &value, char delimiter);
+	FieldValueMap *ready_ValueMap(const std::string &only_value, const std::string &value);
 	SingleFieldValue *ready_ValueSet(const std::string &value);
 	ValueWeightArraySet*ready_ValueWeightArraySet(const std::string &value);
 

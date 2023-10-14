@@ -176,6 +176,12 @@ std::vector<std::string> init_request_modifiers();
 std::vector<std::string> init_authentication_headers();
 
 ////////////////////////////////////////////////////////////////////////////////
+/* field value */
+
+extern const char AUTH_SCHEME[];
+extern const char AUTH_PARAM[];
+
+////////////////////////////////////////////////////////////////////////////////
 /* date */
 
 extern const char GMT[];

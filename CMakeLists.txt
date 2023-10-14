@@ -44,7 +44,7 @@ include_directories(
         srcs/HttpRequest/TwoValueSet
         srcs/HttpRequest/MultiFieldValues
         srcs/HttpRequest/Date
-        srcs/HttpRequest/ValueMap
+        srcs/HttpRequest/FieldValueMap
         srcs/HttpRequest/SingleFieldValue
         srcs/HttpRequest/ValueWeightArraySet
         srcs/HttpRequest/MediaType
@@ -65,7 +65,7 @@ set(webserv_srcs
         srcs/HttpRequest/HttpRequest_TwoValueSet.cpp
         srcs/HttpRequest/HttpRequest_MultiFieldValues.cpp
         srcs/HttpRequest/HttpRequest_Date.cpp
-        srcs/HttpRequest/HttpRequest_ValueMap.cpp
+        srcs/HttpRequest/HttpRequest_FieldValueMap.cpp
         srcs/HttpRequest/HttpRequest_SingleFieldValue.cpp
         srcs/HttpRequest/HttpRequest_ValueWeightArraySet.cpp
         srcs/HttpRequest/HttpRequest_MediaType.cpp
@@ -74,7 +74,7 @@ set(webserv_srcs
         srcs/HttpRequest/TwoValueSet/TwoValueSet.cpp
         srcs/HttpRequest/MultiFieldValues/MultiFieldValues.cpp
         srcs/HttpRequest/Date/Date.cpp
-        srcs/HttpRequest/ValueMap/ValueMap.cpp
+        srcs/HttpRequest/FieldValueMap/FieldValueMap.cpp
         srcs/HttpRequest/SingleFieldValue/SingleFieldValue.cpp
         srcs/HttpRequest/ValueWeightArraySet/ValueWeightArraySet.cpp
         srcs/HttpRequest/LinkClass/LinkClass.cpp
@@ -120,6 +120,8 @@ set (unit_test_srcs
         test/unit_test/TestMultiFieldValues/TestIfMatch.cpp
         test/unit_test/TestMultiFieldValues/TestIfNoneMatch.cpp
         test/unit_test/TestMultiFieldValues/TestTransferEncoding.cpp
+
+        test/unit_test/TestFieldValueMap/TestAuthorization.cpp
 
         test/unit_test/TestDate/TestDate.cpp
         test/unit_test/TestDate/TestIfModifiedSince.cpp

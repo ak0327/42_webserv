@@ -305,9 +305,13 @@ std::vector<std::string> init_authentication_headers() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+/* field value */
+
+const char AUTH_SCHEME[] = "auth_scheme";
+const char AUTH_PARAM[] = "auth_param";
+
+////////////////////////////////////////////////////////////////////////////////
 /* date */
-
-
 
 const char GMT[] = "GMT";
 
