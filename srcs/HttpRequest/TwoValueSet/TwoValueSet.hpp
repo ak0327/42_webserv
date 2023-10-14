@@ -9,7 +9,7 @@ class TwoValueSet : public FieldValues {
 	TwoValueSet(const TwoValueSet &other);
 	TwoValueSet& operator=(const TwoValueSet &rhs);
 
-	~TwoValueSet();
+	virtual ~TwoValueSet();
 	std::string	get_firstvalue(void) const;
 	std::string get_secondvalue(void) const;
 

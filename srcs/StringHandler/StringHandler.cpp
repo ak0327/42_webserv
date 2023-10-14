@@ -210,8 +210,6 @@ double str_to_double(const std::string &num_str)
 	return result;
 }
 
-
-
 int	str_to_int(const std::string &word)
 {
 	size_t	pos = 0;

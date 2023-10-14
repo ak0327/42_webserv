@@ -11,7 +11,7 @@ class MultiFieldValues : public FieldValues {
 	explicit MultiFieldValues(const std::set<std::string> &values);
 	MultiFieldValues(const MultiFieldValues &other);
 	MultiFieldValues &operator=(const MultiFieldValues &rhs);
-	~MultiFieldValues();
+	virtual ~MultiFieldValues();
 
 	std::set<std::string> get_values() const;
 

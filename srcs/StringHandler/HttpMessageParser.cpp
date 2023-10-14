@@ -40,288 +40,6 @@ double get_fractional_part(const std::string &str_after_decimal_point,
 	return num;
 }
 
-std::size_t count(const std::vector<std::string> &vec, const std::string &target) {
-	return std::count(vec.begin(), vec.end(), target);
-}
-
-// Zeller's congruence
-std::string calculate_day_name(int year, int month, int day) {
-	if (month < 3) {
-		month += 12;
-		year -= 1;
-	}
-	int c = year / 100;
-	int y = year % 100;
-	int h = (day + 13 * (month + 1) / 5 + y + y / 4 + 5 * c + c / 4) % 7;
-
-	std::vector<std::string> day_names;
-	day_names.push_back(std::string(SAT));
-	day_names.push_back(std::string(SUN));
-	day_names.push_back(std::string(MON));
-	day_names.push_back(std::string(TUE));
-	day_names.push_back(std::string(WED));
-	day_names.push_back(std::string(THU));
-	day_names.push_back(std::string(FRI));
-
-	if (h < 0 || static_cast<int>(day_names.size()) <= h) {
-		return std::string(EMPTY);
-	}
-	return day_names[h];
-}
-
-/*
-  day-name     = %s"Mon" / %s"Tue" / %s"Wed"
-               / %s"Thu" / %s"Fri" / %s"Sat" / %s"Sun"
-
-  date1        = day SP month SP year
-               ; e.g., 02 Jun 1982
-
-  day          = 2DIGIT
-  month        = %s"Jan" / %s"Feb" / %s"Mar" / %s"Apr"
-               / %s"May" / %s"Jun" / %s"Jul" / %s"Aug"
-               / %s"Sep" / %s"Oct" / %s"Nov" / %s"Dec"
-  year         = 4DIGIT
- */
-Result<int, int> parse_date1(const std::string &http_date,
-							 std::string *day,
-							 std::string *month,
-							 std::string *year,
-							 std::size_t start_pos,
-							 std::size_t *end_pos) {
-	Result<std::string, int> day_result, month_result, year_result;
-	std::size_t pos, end;
-
-	if (!day || !month || !year || !end_pos) {
-		return Result<int, int>::err(ERR);
-	}
-
-	pos = start_pos;
-	day_result = StringHandler::parse_pos_to_delimiter(http_date, pos, SP, &end);
-	if (day_result.is_err()) {
-		return Result<int, int>::err(ERR);
-	}
-	*day = day_result.get_ok_value();
-	pos = end;
-
-	if (http_date[pos] != SP) {
-		return Result<int, int>::err(ERR);
-	}
-	pos++;
-
-	month_result = StringHandler::parse_pos_to_delimiter(http_date, pos, SP, &end);
-	if (month_result.is_err()) {
-		return Result<int, int>::err(ERR);
-	}
-	*month = month_result.get_ok_value();
-	pos = end;
-
-	if (http_date[pos] != SP) {
-		return Result<int, int>::err(ERR);
-	}
-	pos++;
-
-	year_result = StringHandler::parse_pos_to_delimiter(http_date, pos, SP, &end);
-	if (year_result.is_err()) {
-		return Result<int, int>::err(ERR);
-	}
-	*year = year_result.get_ok_value();
-
-	*end_pos = end;
-	return Result<int, int>::ok(OK);
-}
-
-/*
-  time-of-day  = hour ":" minute ":" second
-               ; 00:00:00 - 23:59:60 (leap second)
-
-  hour         = 2DIGIT
-  minute       = 2DIGIT
-  second       = 2DIGIT
- */
-Result<int, int> parse_time_of_day(const std::string &http_date,
-								   std::string *hour,
-								   std::string *minute,
-								   std::string *second,
-								   std::size_t start_pos,
-								   std::size_t *end_pos) {
-	Result<std::string, int> hour_result, minute_result, second_result;
-	std::size_t pos, end;
-
-	if (!hour || !minute || !second || !end_pos) {
-		return Result<int, int>::err(ERR);
-	}
-
-	pos = start_pos;
-	hour_result = StringHandler::parse_pos_to_delimiter(http_date, pos, COLON, &end);
-	if (hour_result.is_err()) {
-		return Result<int, int>::err(ERR);
-	}
-	*hour = hour_result.get_ok_value();
-	pos = end;
-
-	if (http_date[pos] != COLON) { return Result<int, int>::err(ERR); }
-	pos++;
-
-	minute_result = StringHandler::parse_pos_to_delimiter(http_date, pos, COLON, &end);
-	if (minute_result.is_err()) {
-		return Result<int, int>::err(ERR);
-	}
-	*minute = minute_result.get_ok_value();
-	pos = end;
-
-	if (http_date[pos] != COLON) { return Result<int, int>::err(ERR); }
-	pos++;
-
-	second_result = StringHandler::parse_pos_to_delimiter(http_date, pos, SP, &end);
-	if (second_result.is_err()) {
-		return Result<int, int>::err(ERR);
-	}
-	*second = second_result.get_ok_value();
-
-	*end_pos = end;
-	return Result<int, int>::ok(OK);
-}
-
-/*
- IMF-fixdate  = day-name "," SP date1 SP time-of-day SP GMT
-  ; fixed length/zone/capitalization subset of the format
-  ; see Section 3.3 of [RFC5322]
-
-  IMF-fixdate  = day-name "," SP date1 SP time-of-day SP GMT
-
- GMT          = %s"GMT"
- */
-Result<int, int> parse_imf_fixdate(const std::string &http_date,
-								   std::string *day_name,
-								   std::string *day,
-								   std::string *month,
-								   std::string *year,
-								   std::string *hour,
-								   std::string *minute,
-								   std::string *second,
-								   std::string *gmt) {
-	std::size_t pos, end_pos;
-	Result<std::string, int> day_name_result, gmt_result;
-	Result<int, int> day1_result, time_of_day_result;
-
-
-	if (!day_name || !day || !month || !year || !hour || !minute || !second || !gmt) {
-		return Result<int, int>::err(ERR);
-	}
-
-	pos = 0;
-	day_name_result = StringHandler::parse_pos_to_delimiter(http_date, pos, COMMA, &end_pos);
-	if (day_name_result.is_err()) {
-		return Result<int, int>::err(ERR);
-	}
-	*day_name = day_name_result.get_ok_value();
-	pos = end_pos;
-
-	if (http_date[pos] != COMMA) { return Result<int, int>::err(ERR); }
-	pos++;
-
-	if (http_date[pos] != SP) { return Result<int, int>::err(ERR); }
-	pos++;
-
-	day1_result = parse_date1(http_date, day, month, year, pos, &end_pos);
-	if (day1_result.is_err()) {
-		return Result<int, int>::err(ERR);
-	}
-	pos = end_pos;
-
-	if (http_date[pos] != SP) { return Result<int, int>::err(ERR); }
-	pos++;
-
-	time_of_day_result = parse_time_of_day(http_date, hour, minute, second, pos, &end_pos);
-	if (time_of_day_result.is_err()) {
-		return Result<int, int>::err(ERR);
-	}
-	pos = end_pos;
-
-	// SP
-	if (http_date[pos] != SP) { return Result<int, int>::err(ERR); }
-	pos++;
-
-	// GMT
-	gmt_result = StringHandler::parse_pos_to_delimiter(http_date, pos, '\0', NULL);
-	if (gmt_result.is_err()) {
-		return Result<int, int>::err(ERR);
-	}
-	*gmt = gmt_result.get_ok_value();
-
-	return Result<int, int>::ok(OK);
-}
-
-Result <int, int> validate_imf_fixdate(const std::string &day_name,
-									   const std::string &day,
-									   const std::string &month,
-									   const std::string &year,
-									   const std::string &hour,
-									   const std::string &minute,
-									   const std::string &second,
-									   const std::string &gmt) {
-	int day_num, month_num, year_num, hour_num, minute_num, second_num;
-	std::vector<std::string>::const_iterator month_itr;
-	bool succeed;
-
-	// day1
-	day_num = HttpMessageParser::to_integer_num(day, &succeed);
-	if (day.length() != 2 || !succeed) {
-		return Result<int, int>::err(ERR);
-	}
-
-	month_itr = std::find(MONTHS.begin(), MONTHS.end(), month);
-	if (month_itr == MONTHS.end()) {
-		return Result<int, int>::err(ERR);
-	}
-	month_num = static_cast<int>(std::distance(MONTHS.begin(), month_itr)) + 1;
-
-	year_num = HttpMessageParser::to_integer_num(year, &succeed);
-	if (year.length() != 4 || !succeed) {
-		return Result<int, int>::err(ERR);
-	}
-
-	if (!HttpMessageParser::is_valid_day1(year_num, month_num, day_num)) {
-		return Result<int, int>::err(ERR);
-	}
-
-	// time-of-date
-	hour_num = HttpMessageParser::to_integer_num(hour, &succeed);
-	if (hour.length() != 2 || !succeed) {
-		return Result<int, int>::err(ERR);
-	}
-
-	minute_num = HttpMessageParser::to_integer_num(minute, &succeed);
-	if (minute.length() != 2 || !succeed) {
-		return Result<int, int>::err(ERR);
-	}
-
-	second_num = HttpMessageParser::to_integer_num(second, &succeed);
-	if (second.length() != 2 || !succeed) {
-		return Result<int, int>::err(ERR);
-	}
-
-	if (!HttpMessageParser::is_valid_time_of_day(hour_num, minute_num, second_num)) {
-		return Result<int, int>::err(ERR);
-	}
-
-	// day_name
-	if (std::find(DAY_NAMES.begin(), DAY_NAMES.end(), day_name) == DAY_NAMES.end()) {
-		return Result<int, int>::err(ERR);
-	}
-	if (!HttpMessageParser::is_valid_day_name(day_name, year_num, month_num, day_num)) {
-		return Result<int, int>::err(ERR);
-	}
-
-	// gmt
-	if (gmt != std::string(GMT)) {
-		return Result<int, int>::err(ERR);
-	}
-
-	return Result<int, int>::ok(OK);
-}
-
-
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -513,13 +231,19 @@ bool is_field_content(const std::string &str) {
 //      / DIGIT / ALPHA
 //      ; any VCHAR, except delimiters
 bool is_tchar(char c) {
-	if (!is_vchar(c)) {
-		return false;
-	}
-	if (is_delimiters(c)) {
-		return false;
-	}
-	return true;
+	return (std::isalnum(c)
+			|| c == '!' || c == '#' || c == '$' || c == '%'
+			|| c == '&' || c == '\'' || c == '*' || c == '+'
+			|| c == '-' || c == '.' || c == '^' || c == '_'
+			|| c == '`' || c == '|' || c == '|' || c == '~');
+
+	// if (!is_vchar(c)) {
+	// 	return false;
+	// }
+	// if (is_delimiters(c) || is_whitespace(c)) {
+	// 	return false;
+	// }
+	// return true;
 }
 
 // token = 1*tchar
@@ -538,6 +262,27 @@ bool is_token(const std::string &str) {
 		++pos;
 	}
 	return true;
+}
+
+// token68       = 1*( ALPHA / DIGIT / "-" / "." / "_" / "~" / "+" / "/" ) *"="
+bool is_token68(const std::string &str) {
+	std::size_t pos;
+
+	if (str.empty()) { return false; }
+
+	pos = 0;
+	while (std::isalnum(str[pos])
+		   || str[pos] == '-' || str[pos] == '.' || str[pos] == '_'
+		   || str[pos] == '~'|| str[pos] == '+' || str[pos] == '/') {
+		++pos;
+	}
+	if (pos == 0) { return false; }
+
+	while (str[pos] == '=') {
+		++pos;
+	}
+
+	return str[pos] == '\0';
 }
 
 /*
@@ -681,105 +426,59 @@ bool is_qdtext(char c) {
 bool is_quoted_pair(const std::string &str, std::size_t pos) {
 	if (str[pos] != '\\') { return false; }
 
-	return (str[pos] == HT
-			|| str[pos] == SP
-			|| is_vchar(str[pos])
-			|| is_obs_text(str[pos]));
+	return (str[pos + 1] == HT
+			|| str[pos + 1] == SP
+			|| is_vchar(str[pos + 1])
+			|| is_obs_text(str[pos + 1]));
 }
 
 /*
- transfer-parameter = token BWS "=" BWS ( token / quoted-string )
-
  quoted-string  = DQUOTE *( qdtext / quoted-pair ) DQUOTE
  qdtext         = HTAB / SP / %x21 / %x23-5B / %x5D-7E / obs-text
  quoted-pair    = "\" ( HTAB / SP / VCHAR / obs-text )
  */
-void skip_transfer_parameter(const std::string &str,
-							 std::size_t *pos,
-							 bool *succeed) {
-	if (!succeed) { return; }
 
-	*succeed = false;
+void skip_quoted_string(const std::string &str,
+						std::size_t start_pos,
+						std::size_t *end_pos) {
+	std::size_t len;
 
-	// token
-	if (!is_tchar(str[*pos])) { return; }
-	while (is_tchar(str[*pos])) { *pos += 1; }
+	if (!end_pos) { return; }
 
-	// BWS
-	skip_ows(str, &*pos);
+	*end_pos = start_pos;
+	len = 0;
 
-	// '='
-	if (str[*pos] != '=') { return; }
-	*pos += 1;
+	if (str[start_pos + len] != '"') { return; }
+	len += 1;
 
-	// BWS
-	skip_ows(str, &*pos);
-
-	if (is_tchar(str[*pos])) {
-		// token
-		while (str[*pos] && is_tchar(str[*pos])) {
-			*pos += 1;
+	while (str[start_pos + len]) {
+		if (is_qdtext(str[start_pos + len])) {
+			len += 1;
+		} else if (is_quoted_pair(str, start_pos + len)) {
+			len += 2;
+		} else {
+			return;
 		}
-	} else if (str[*pos] == '\"') {
-		// quoted-string
-		*pos += 1;
-		while (str[*pos]) {
-			if (is_qdtext(str[*pos])) {
-				*pos += 1;
-			} else if (is_quoted_pair(str, *pos)) {
-				*pos += 2;
-			} else {
-				return;
-			}  // error
-			if (str[*pos] == '\"') {
-				*pos += 1;
-			}
+
+		if (str[start_pos + len] == '"') {
+			len += 1;
+			break;
 		}
-	} else { return; }  // error
-	*succeed = true;
+	}
+	*end_pos = start_pos + len;
 }
 
-/*
- transfer-coding    = token *( OWS ";" OWS transfer-parameter )
+bool is_quoted_string(const std::string &str) {
+	std::size_t pos, end;
 
-  Transfer-Encoding
-  = [ transfer-coding *( OWS "," OWS transfer-coding ) ]
-  = [ token *( OWS ";" OWS transfer-parameter ) *( OWS "," OWS token *( OWS ";" OWS transfer-parameter ) )
- */
-bool is_transfer_coding(const std::string &str) {
-	std::size_t pos;
-	bool		succeed;
-
-	if (str.empty()) {
-		return false;
-	}
+	if (str.empty()) { return false; }
 
 	pos = 0;
-	// token
-	while (is_tchar(str[pos])) { pos++; }
-
-	if (str[pos] == '\0') {
-		return true;
+	skip_quoted_string(str, pos, &end);
+	if (pos == end) {
+		return false;
 	}
-
-	// *( OWS ";" OWS transfer-parameter )
-	while (str[pos]) {
-		skip_ows(str, &pos);
-		if (str[pos] != SEMICOLON) {
-			return false;
-		}
-		pos++;
-
-		skip_ows(str, &pos);
-		if (str[pos] == '\0') {
-			return false;
-		}
-
-		skip_transfer_parameter(str, &pos, &succeed);
-		if (!succeed) {
-			return false;
-		}
-	}
+	pos = end;
 	return str[pos] == '\0';
 }
 
@@ -829,28 +528,6 @@ bool is_base_64_value_non_empty(const std::string &str) {
 	return true;
 }
 
-bool is_trailer_allowed_field_name(const std::string &field_name) {
-	if (count(MESSAGE_FRAMING_HEADERS, field_name) != 0) {
-		return false;
-	}
-	if (count(ROUTING_HEADERS, field_name) != 0) {
-		return false;
-	}
-	if (count(REQUEST_MODIFIERS, field_name) != 0) {
-		return false;
-	}
-	if (count(AUTHENTICATION_HEADERS, field_name) != 0) {
-		return false;
-	}
-	if (field_name == CONTENT_ENCODING
-		|| field_name == CONTENT_TYPE
-		|| field_name == CONTENT_RANGE
-		|| field_name == TRAILER) {
-		return false;
-	}
-	return true;
-}
-
 /*
  absolute-URI  = scheme ":" hier-part [ "?" query ]
 
@@ -864,9 +541,9 @@ bool is_trailer_allowed_field_name(const std::string &field_name) {
 
  https://datatracker.ietf.org/doc/html/rfc3986#appendix-A
  */
-// todo
-bool is_absolute_uri(const std::string &field_value) {
-	(void)field_value;
+bool is_absolute_uri(const std::string &str) {
+	(void)str;
+	// todo
 	return true;
 }
 
@@ -900,9 +577,9 @@ bool is_absolute_uri(const std::string &field_value) {
 
  https://datatracker.ietf.org/doc/html/rfc3986#section-3.3
 */
-// todo
-bool is_partial_uri(const std::string &field_value) {
-	(void)field_value;
+bool is_partial_uri(const std::string &str) {
+	(void)str;
+	// todo
 	return true;
 }
 
@@ -912,6 +589,7 @@ std::string parse_uri_host(const std::string &str,
 	(void)str;
 	(void)start_pos;
 	(void)end_pos;
+	// todo
 	return "";
 }
 
@@ -921,143 +599,8 @@ std::string parse_port(const std::string &str,
 	(void)str;
 	(void)start_pos;
 	(void)end_pos;
+	// todo
 	return "";
 }
-
-/*
- Date = HTTP-date
-
- HTTP-date    = IMF-fixdate / obs-date
-
- obs-date     = rfc850-date / asctime-date
-  rfc850-date  = day-name-l "," SP date2 SP time-of-day SP GMT
-
-  day-name-l   = %s"Monday" / %s"Tuesday" / %s"Wednesday"
-               / %s"Thursday" / %s"Friday" / %s"Saturday"
-               / %s"Sunday"
-
-  date2        = day "-" month "-" 2DIGIT
-               ; e.g., 02-Jun-82
-
-  asctime-date = day-name SP date3 SP time-of-day SP year
-  date3        = month SP ( 2DIGIT / ( SP 1DIGIT ))
-               ; e.g., Jun  2
-
- https://www.rfc-editor.org/rfc/rfc9110#field.date
- */
-Result<date_format, int> parse_http_date(const std::string &http_date,
-										 std::string *day_name,
-										 std::string *day,
-										 std::string *month,
-										 std::string *year,
-										 std::string *hour,
-										 std::string *minute,
-										 std::string *second,
-										 std::string *gmt) {
-	Result<int, int> imf_fixdate_result;
-	// Result<int, int> rfc850_date_result, asctime_date_result;  // todo
-
-	imf_fixdate_result = parse_imf_fixdate(http_date,
-										   day_name,
-										   day, month, year,
-										   hour, minute, second,
-										   gmt);
-	if (imf_fixdate_result.is_ok()) {
-		return Result<date_format, int>::ok(IMF_FIXDATE);
-	}
-
-	// todo: parse_rfc850_date()
-	// todo: parse_asctime_date()
-
-	return Result<date_format, int>::err(ERR);
-}
-
-bool is_leap_year(int year) {
-	if (year % 4 != 0) {
-		return false;
-	}
-	if (year % 100 == 0 && year % 400 != 0) {
-		return false;
-	}
-	return true;
-}
-
-bool is_valid_day1(int year, int month, int day) {
-	int month_idx;
-	int days_in_month[12];
-	const int jan_idx = 0, feb_idx = 1, mar_idx = 2, apr_idx = 3,
-			  may_idx = 4, jun_idx = 5, jul_idx = 6, aug_idx = 7,
-			  sep_idx = 8, oct_idx = 9, nov_idx = 10, dec_idx = 11;
-
-	if (year < GREGORIAN_CALENDAR || month < 1 || 12 < month) {
-		return false;
-	}
-	month_idx = month - 1;
-
-	days_in_month[jan_idx] = 31;
-	days_in_month[feb_idx] = is_leap_year(year) ? 29 : 28;
-	days_in_month[mar_idx] = 31;
-	days_in_month[apr_idx] = 30;
-	days_in_month[may_idx] = 31;
-	days_in_month[jun_idx] = 30;
-	days_in_month[jul_idx] = 31;
-	days_in_month[aug_idx] = 31;
-	days_in_month[sep_idx] = 30;
-	days_in_month[oct_idx] = 31;
-	days_in_month[nov_idx] = 30;
-	days_in_month[dec_idx] = 31;
-
-	return 1 <= day && day <= days_in_month[month_idx];
-}
-
-bool is_valid_time_of_day(int hour, int minute, int second) {
-	if (hour < 0 || 23 < hour) {
-		return false;
-	}
-	if (minute < 0 || 59 <minute) {
-		return false;
-	}
-	if (second < 0 || 59 < second) {
-		return false;
-	}
-	return true;
-}
-
-bool is_valid_day_name(const std::string &day_name, int year, int month, int day) {
-	std::string zellers_day_name = calculate_day_name(year, month, day);
-
-	return day_name == zellers_day_name;
-}
-
-Result<int, int> validate_http_date(date_format format,
-									const std::string &day_name,
-									const std::string &day,
-									const std::string &month,
-									const std::string &year,
-									const std::string &hour,
-									const std::string &minute,
-									const std::string &second,
-									const std::string &gmt) {
-	Result<int, int> validate_result;
-
-	if (format == IMF_FIXDATE) {
-		validate_result = validate_imf_fixdate(day_name,
-											   day, month, year,
-											   hour, minute, second,
-											   gmt);
-	}
-	// else if (format == RFC850_DATE) {
-	// 	// todo
-	// } else {
-	// 	// todo
-	// }
-
-	if (validate_result.is_err()) {
-		return Result<int, int>::err(ERR);
-	}
-
-	return Result<int, int>::ok(OK);
-}
-
 
 }  // namespace HttpMessageParser

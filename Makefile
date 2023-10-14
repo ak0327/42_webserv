@@ -41,7 +41,7 @@ SRCS		+=	$(REQUEST_DIR)/HttpRequest.cpp \
 				$(REQUEST_DIR)/HttpRequest_MultiFieldValues.cpp \
 				$(REQUEST_DIR)/HttpRequest_SingleFieldValue.cpp \
 				$(REQUEST_DIR)/HttpRequest_Date.cpp \
-				$(REQUEST_DIR)/HttpRequest_ValueMap.cpp \
+				$(REQUEST_DIR)/HttpRequest_FieldFieldValueMap.cpp \
 				$(REQUEST_DIR)/HttpRequest_ValueWeightArraySet.cpp \
 				$(REQUEST_DIR)/HttpRequest_MediaType.cpp \
 				$(REQUEST_DIR)/FieldValues/FieldValues.cpp \
@@ -50,9 +50,11 @@ SRCS		+=	$(REQUEST_DIR)/HttpRequest.cpp \
 				$(REQUEST_DIR)/TwoValueSet/TwoValueSet.cpp \
 				$(REQUEST_DIR)/MultiFieldValues/MultiFieldValues.cpp \
 				$(REQUEST_DIR)/ValueDateSet/ValueDateSet.cpp \
-				$(REQUEST_DIR)/ValueMap/ValueMap.cpp \
+				$(REQUEST_DIR)/FieldValueMap/FieldValueMap.cpp \
 				$(REQUEST_DIR)/ValueSet/ValueSet.cpp \
-				$(REQUEST_DIR)/ValueWeightArraySet/ValueWeightArraySet.cpp
+				$(REQUEST_DIR)/ValueWeightArraySet/ValueWeightArraySet.cpp \
+				$(REQUEST_DIR)/MediaType/MediaType.cpp \
+				$(REQUEST_DIR)/Date/Date.cpp
 
 
 # OBJS -------------------------------------------------------------------------
@@ -78,7 +80,7 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(REQUEST_DIR)/TwoValueSet \
 				$(SRCS_DIR)/$(REQUEST_DIR)/MultiFieldValues \
 				$(SRCS_DIR)/$(REQUEST_DIR)/Date \
-				$(SRCS_DIR)/$(REQUEST_DIR)/ValueMap \
+				$(SRCS_DIR)/$(REQUEST_DIR)/FieldValueMap \
 				$(SRCS_DIR)/$(REQUEST_DIR)/SingleFieldValue \
 				$(SRCS_DIR)/$(REQUEST_DIR)/ValueWeightArraySet \
 				$(SRCS_DIR)/$(REQUEST_DIR)/MediaType
@@ -166,8 +168,8 @@ run_httprequest_list_test    :
 	cmake --build build
 	./build/unit_test --gtest_filter=List*
 
-.PHONY    : run_httprequest_twovaluemap_test
-run_httprequest_twovaluemap_test    :
+.PHONY    : run_httprequest_twoValueMap_test
+run_httprequest_twoValueMap_test    :
 #rm -rf build
 	cmake -S . -B build
 	cmake --build build
@@ -218,6 +220,22 @@ run_multi_field_values_test    :
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestMultiFieldValues*
+
+
+.PHONY    : run_field_value_map_test
+run_field_value_map_test    :
+#rm -rf build
+	cmake -S . -B build
+	cmake --build build
+	./build/unit_test --gtest_filter=TestFieldValueMap*
+
+
+.PHONY    : run_media_test
+run_media_test    :
+#rm -rf build
+	cmake -S . -B build
+	cmake --build build
+	./build/unit_test --gtest_filter=TestMediaType*
 
 
 .PHONY    : run_date_test

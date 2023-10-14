@@ -4,6 +4,37 @@
 #include "HttpMessageParser.hpp"
 #include "StringHandler.hpp"
 
+namespace {
+
+std::size_t count(const std::vector<std::string> &vec,
+				  const std::string &target) {
+	return std::count(vec.begin(), vec.end(), target);
+}
+
+bool is_trailer_allowed_field_name(const std::string &field_name) {
+	if (count(MESSAGE_FRAMING_HEADERS, field_name) != 0) {
+		return false;
+	}
+	if (count(ROUTING_HEADERS, field_name) != 0) {
+		return false;
+	}
+	if (count(REQUEST_MODIFIERS, field_name) != 0) {
+		return false;
+	}
+	if (count(AUTHENTICATION_HEADERS, field_name) != 0) {
+		return false;
+	}
+	if (field_name == CONTENT_ENCODING
+		|| field_name == CONTENT_TYPE
+		|| field_name == CONTENT_RANGE
+		|| field_name == TRAILER) {
+		return false;
+	}
+	return true;
+}
+
+}  // namespace
+
 // Access-Control-Request-Method: <method>
 Result<int, int> HttpRequest::set_access_control_request_method(const std::string &field_name,
 																const std::string &field_value) {
@@ -297,12 +328,11 @@ Result<int, int> HttpRequest::set_trailer(const std::string &field_name,
 	clear_field_values_of(field_name);
 
 	lower_field_value = StringHandler::to_lower(field_value);
-	if (HttpMessageParser::is_trailer_allowed_field_name(lower_field_value)) {
+	if (is_trailer_allowed_field_name(lower_field_value)) {
 		this->_request_header_fields[field_name] = new SingleFieldValue(lower_field_value);
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }
-
 
 // Upgrade-Insecure-Requests: 1
 Result<int, int> HttpRequest::set_upgrade_insecure_requests(const std::string &field_name,

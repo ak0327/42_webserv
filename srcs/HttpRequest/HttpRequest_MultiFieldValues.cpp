@@ -68,6 +68,93 @@ bool is_valid_field_values(const std::set<std::string> &field_values,
 	return true;
 }
 
+/*
+ transfer-parameter = token BWS "=" BWS ( token / quoted-string )
+
+ quoted-string  = DQUOTE *( qdtext / quoted-pair ) DQUOTE
+ qdtext         = HTAB / SP / %x21 / %x23-5B / %x5D-7E / obs-text
+ quoted-pair    = "\" ( HTAB / SP / VCHAR / obs-text )
+ */
+void skip_transfer_parameter(const std::string &str,
+							 std::size_t *pos,
+							 bool *succeed) {
+	std::size_t end_pos;
+
+	if (!succeed) { return; }
+
+	*succeed = false;
+
+	// token
+	if (!HttpMessageParser::is_tchar(str[*pos])) { return; }
+	while (HttpMessageParser::is_tchar(str[*pos])) { *pos += 1; }
+
+	// BWS
+	HttpMessageParser::skip_ows(str, &*pos);
+
+	// '='
+	if (str[*pos] != '=') { return; }
+	*pos += 1;
+
+	// BWS
+	HttpMessageParser::skip_ows(str, &*pos);
+
+	if (HttpMessageParser::is_tchar(str[*pos])) {
+		// token
+		while (str[*pos] && HttpMessageParser::is_tchar(str[*pos])) {
+			*pos += 1;
+		}
+	} else if (str[*pos] == '"') {
+		HttpMessageParser::skip_quoted_string(str, *pos, &end_pos);
+		if (*pos == end_pos) { return; }
+		*pos = end_pos;
+	} else { return; }  // error
+	*succeed = true;
+}
+
+/*
+ transfer-coding    = token *( OWS ";" OWS transfer-parameter )
+
+  Transfer-Encoding
+  = [ transfer-coding *( OWS "," OWS transfer-coding ) ]
+  = [ token *( OWS ";" OWS transfer-parameter ) *( OWS "," OWS token *( OWS ";" OWS transfer-parameter ) )
+ */
+bool is_transfer_coding(const std::string &str) {
+	std::size_t pos;
+	bool		succeed;
+
+	if (str.empty()) {
+		return false;
+	}
+
+	pos = 0;
+	// token
+	while (HttpMessageParser::is_tchar(str[pos])) { pos++; }
+
+	if (str[pos] == '\0') {
+		return true;
+	}
+
+	// *( OWS ";" OWS transfer-parameter )
+	while (str[pos]) {
+		HttpMessageParser::skip_ows(str, &pos);
+		if (str[pos] != SEMICOLON) {
+			return false;
+		}
+		pos++;
+
+		HttpMessageParser::skip_ows(str, &pos);
+		if (str[pos] == '\0') {
+			return false;
+		}
+
+		skip_transfer_parameter(str, &pos, &succeed);
+		if (!succeed) {
+			return false;
+		}
+	}
+	return str[pos] == '\0';
+}
+
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -184,7 +271,7 @@ Result<int, int> HttpRequest::set_transfer_encoding(const std::string &field_nam
 		return Result<int, int>::err(STATUS_BAD_REQUEST);
 	}
 
-	return set_multi_field_values(field_name, field_value, HttpMessageParser::is_transfer_coding);
+	return set_multi_field_values(field_name, field_value, is_transfer_coding);
 
 	// std::stringstream	ss(field_value);
 	// std::string			line;

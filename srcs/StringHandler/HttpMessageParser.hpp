@@ -33,25 +33,29 @@ bool is_field_vchar(char c);
 bool is_obs_text(char c);
 bool is_tchar(char c);
 bool is_whitespace(char c);
+bool is_qdtext(char c);
 
 bool is_field_content(const std::string &str);
 bool is_token(const std::string &str);
+bool is_token68(const std::string &str);
 bool is_language_tag(const std::string &str);
 bool is_etag(char c);
 bool is_entity_tag(const std::string &str);
-bool is_transfer_coding(const std::string &str);
 bool is_base_64_value_non_empty(const std::string &str);
 
+bool is_absolute_uri(const std::string &str);
+bool is_partial_uri(const std::string &str);
+
+bool is_header_body_separator(const std::string &line_end_with_cr);
+
+bool is_quoted_string(const std::string &str);
+bool is_quoted_pair(const std::string &str, std::size_t pos);
+
+/* validate */
 bool is_valid_method(const std::string &method);
 bool is_valid_request_target(const std::string &request_target);
 bool is_valid_http_version(const std::string &http_version);
 
-bool is_header_body_separator(const std::string &line_end_with_cr);
-
-bool is_trailer_allowed_field_name(const std::string &field_name);
-
-bool is_absolute_uri(const std::string &field_value);
-bool is_partial_uri(const std::string &field_value);
 
 bool is_valid_day1(int year, int month, int day);
 bool is_valid_time_of_day(int hour, int minute, int second);
@@ -83,4 +87,11 @@ Result<int, int> validate_http_date(date_format format,
 									const std::string &minute,
 									const std::string &second,
 									const std::string &gmt);
+
+void skip_ows(const std::string &str, std::size_t *pos);
+void skip_quoted_string(const std::string &str,
+						std::size_t start_pos,
+						std::size_t *end_pos);
+
+
 }  // namespace HttpMessageParser
