@@ -9,6 +9,14 @@ SRCS_DIR	=	srcs
 SRCS		=	main.cpp \
 				get_valid_config_file_path.cpp
 
+#numeric系の関数
+NUMERIHANDLE_DIR =	NumericHandle
+SRCS		+=	$(NUMERIHANDLE_DIR)/NumericHandle.cpp
+
+#string系の関数
+HandlingString_DIR = HandlingString
+SRCS		+=	$(HandlingString_DIR)/HandlingString.cpp
+
 #error
 ERROR_DIR	=	Error
 SRCS		+=	$(ERROR_DIR)/Error.cpp

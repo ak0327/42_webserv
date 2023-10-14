@@ -11,9 +11,9 @@ namespace {
 	std::string INVALID_ARGUMENT_ERROR_MSG = "[Error] invalid argument";
 
 	void validate_argc(int argc) {
-		if (argc == EXECUTABLE_FILE_ONLY_ARGC) {
-			return;
-		}
+		// if (argc == EXECUTABLE_FILE_ONLY_ARGC) {
+		// 	return;
+		// }
 		if (argc == CONFIG_FILE_GIVEN_ARGC) {
 			return;
 		}
