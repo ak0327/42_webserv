@@ -75,6 +75,10 @@ private:
 
 	Result<int, int> set_valid_http_date(const std::string &field_name,
 										 const std::string &field_value);
+	Result<int, int> set_valid_media_type(const std::string &field_name,
+										  const std::string &field_value);
+
+	void increment_field_name_counter(const std::string &field_name);
 
 	bool is_weightformat(const std::string &value);
 	LinkClass *ready_LinkClass(std::map<std::string, std::map<std::string, std::string> > link_valuemap);

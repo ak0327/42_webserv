@@ -47,6 +47,7 @@ include_directories(
         srcs/HttpRequest/ValueMap
         srcs/HttpRequest/SingleFieldValue
         srcs/HttpRequest/ValueWeightArraySet
+        srcs/HttpRequest/MediaType
 )
 
 # webserv_srcs -----------------------------------------------------------------
@@ -67,6 +68,8 @@ set(webserv_srcs
         srcs/HttpRequest/HttpRequest_ValueMap.cpp
         srcs/HttpRequest/HttpRequest_SingleFieldValue.cpp
         srcs/HttpRequest/HttpRequest_ValueWeightArraySet.cpp
+        srcs/HttpRequest/HttpRequest_MediaType.cpp
+
         srcs/HttpRequest/RequestLine/RequestLine.cpp
         srcs/HttpRequest/TwoValueSet/TwoValueSet.cpp
         srcs/HttpRequest/MultiFieldValues/MultiFieldValues.cpp
@@ -75,6 +78,7 @@ set(webserv_srcs
         srcs/HttpRequest/SingleFieldValue/SingleFieldValue.cpp
         srcs/HttpRequest/ValueWeightArraySet/ValueWeightArraySet.cpp
         srcs/HttpRequest/LinkClass/LinkClass.cpp
+        srcs/HttpRequest/MediaType/MediaType.cpp
 )
 
 add_executable(webserv
@@ -122,6 +126,7 @@ set (unit_test_srcs
         test/unit_test/TestDate/TestIfUnmodifiedSince.cpp
         test/unit_test/TestDate/TestLastModified.cpp
 
+        test/unit_test/TestMediaType/TestContentType.cpp
 )
 
 add_executable(unit_test

@@ -43,6 +43,7 @@ SRCS		+=	$(REQUEST_DIR)/HttpRequest.cpp \
 				$(REQUEST_DIR)/HttpRequest_Date.cpp \
 				$(REQUEST_DIR)/HttpRequest_ValueMap.cpp \
 				$(REQUEST_DIR)/HttpRequest_ValueWeightArraySet.cpp \
+				$(REQUEST_DIR)/HttpRequest_MediaType.cpp \
 				$(REQUEST_DIR)/FieldValues/FieldValues.cpp \
 				$(REQUEST_DIR)/LinkClass/LinkClass.cpp \
 				$(REQUEST_DIR)/RequestLine/RequestLine.cpp \
@@ -79,7 +80,8 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(REQUEST_DIR)/Date \
 				$(SRCS_DIR)/$(REQUEST_DIR)/ValueMap \
 				$(SRCS_DIR)/$(REQUEST_DIR)/SingleFieldValue \
-				$(SRCS_DIR)/$(REQUEST_DIR)/ValueWeightArraySet
+				$(SRCS_DIR)/$(REQUEST_DIR)/ValueWeightArraySet \
+				$(SRCS_DIR)/$(REQUEST_DIR)/MediaType
 
 INCLUDES	 =	$(addprefix -I, $(INCLUDES_DIR))
 
