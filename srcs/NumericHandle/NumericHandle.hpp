@@ -2,8 +2,8 @@
 #define SRCS_NUMERICHANDLE_NUMERICHANDLE_HPP_
 
 #include <climits>
-#include <string>
 #include <sstream>
+#include <string>
 
 class NumericHandle
 {

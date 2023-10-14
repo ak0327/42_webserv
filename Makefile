@@ -21,6 +21,14 @@ SRCS		+=	$(DEBUG_DIR)/Debug.cpp
 SOCKET_DIR	=	Socket
 SRCS		+=	$(SOCKET_DIR)/Socket.cpp
 
+#config
+CONFIG_DIR	=	Config
+SRCS		+=	$(CONFIG_DIR)/AllConfig/AllConfig.cpp \
+				$(CONFIG_DIR)/ConfigHandlingString/ConfigHandlingString.cpp \
+				$(CONFIG_DIR)/IsConfigFormat/IsConfigFormat.cpp \
+				$(CONFIG_DIR)/LocationConfig/LocationConfig.cpp \
+				$(CONFIG_DIR)/ServerConfig/ServerConfig.cpp \
+				$(CONFIG_DIR)/Config.cpp
 
 # OBJS -------------------------------------------------------------------------
 OBJS_DIR	=	objs
@@ -31,9 +39,9 @@ OBJS		=	$(SRCS:%.cpp=$(OBJS_DIR)/%.o)
 DEPS		=	$(OBJS:%.o=%.d)
 
 # todo: srcs/includes -> includes
-INCLUDES_DIR = srcs/includes
+INCLUDES_DIR = includes $(SRCS_DIR)/$(ERROR_DIR) $(SRCS_DIR)/$(DEBUG_DIR) $(SRCS_DIR)/$(SOCKET_DIR) \
+				$(SRCS_DIR)/$(CONFIG_DIR)
 INCLUDES	= $(addprefix -I, $(INCLUDES_DIR))
-
 
 .PHONY	: all
 all		: $(NAME)
@@ -41,13 +49,13 @@ all		: $(NAME)
 $(NAME)	: $(OBJS)
 	$(CXX) $(OBJS) $(CXXFLAGS) -o $(NAME)
 
-$(OBJ_DIR)/%.o : %.cpp
+$(OBJS_DIR)/%.o : $(SRCS_DIR)/%.cpp
 	@mkdir -p $$(dirname $@)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
 .PHONY	: clean
 clean	:
-	rm -rf $(OBJ_DIR)
+	rm -rf $(OBJS_DIR)
 
 .PHONY	: fclean
 fclean	: clean
