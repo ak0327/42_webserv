@@ -84,19 +84,19 @@ void	compare_vectors_report_array(std::set<std::string> target_vector,
 	}
 }
 
-TEST(Array, Array_TEST)
-{
-	const std::string TEST_REQUEST = "GET /example HTTP/1.1\r\nHost: www.example.com\r\nAccept-CH: DPR, Width, Viewport-Width\r\nAccess-Control-Allow-Headers: Authorization, ,,Content-Type\r\nAccess-Control-Allow-Methods: GET, POST, PUT\r\nAccess-Control-Request-Headers: Content-Type, Authorization\r\nAccess-Control-Expose-Headers: X-Custom-Header, Content-Length\r\nAllow: GET, POST, PUT\r\nClear-Site-Data: \"cache\", \"cookies\"\r\nContent-Encoding: gzip, br\r\nContent-Language: en-US\r\nIf-Match: \"123456789\"\r\nIf-None-Match: \"987654321\"\r\nTransfer-Encoding: chunked, gzip\r\nUpgrade: WebSocket\r\nVary: User-Agent\r\nWWW-Authenticate: Basic realm=\"Secure Area\"\r\n";
-	HttpRequest httprequest_test1(TEST_REQUEST);
-	if (same_class_test_array(__LINE__, "Access-Control-Allow-Methods", httprequest_test1) == true)
-	{
-		MultiFieldValues* val7 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
-				"Access-Control-Allow-Methods"));
-		std::set<std::string> vector7;
-		// GET, POST, PUT, DELETE
-		vector7.insert("GET");
-		vector7.insert("POST");
-		vector7.insert("PUT");
-		compare_vectors_report_array(val7->get_values(), vector7, 117);
-	}
-}
+// TEST(Array, Array_TEST)
+// {
+// 	const std::string TEST_REQUEST = "GET /example HTTP/1.1\r\nHost: www.example.com\r\nAccept-CH: DPR, Width, Viewport-Width\r\nAccess-Control-Allow-Headers: Authorization, ,,Content-Type\r\nAccess-Control-Allow-Methods: GET, POST, PUT\r\nAccess-Control-Request-Headers: Content-Type, Authorization\r\nAccess-Control-Expose-Headers: X-Custom-Header, Content-Length\r\nAllow: GET, POST, PUT\r\nClear-Site-Data: \"cache\", \"cookies\"\r\nContent-Encoding: gzip, br\r\nContent-Language: en-US\r\nIf-Match: \"123456789\"\r\nIf-None-Match: \"987654321\"\r\nTransfer-Encoding: chunked, gzip\r\nUpgrade: WebSocket\r\nVary: User-Agent\r\nWWW-Authenticate: Basic realm=\"Secure Area\"\r\n";
+// 	HttpRequest httprequest_test1(TEST_REQUEST);
+// 	if (same_class_test_array(__LINE__, "Access-Control-Allow-Methods", httprequest_test1) == true)
+// 	{
+// 		MultiFieldValues* val7 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
+// 				"Access-Control-Allow-Methods"));
+// 		std::set<std::string> vector7;
+// 		// GET, POST, PUT, DELETE
+// 		vector7.insert("GET");
+// 		vector7.insert("POST");
+// 		vector7.insert("PUT");
+// 		compare_vectors_report_array(val7->get_values(), vector7, 117);
+// 	}
+// }

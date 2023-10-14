@@ -91,7 +91,7 @@ TEST(List, LIST_TEST)
 {
 	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\nLink: </page1>; rel=\"next\", </page2>; rel=\"prev\"\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
-	if (same_class_test_link(__LINE__, "Link", httprequest_test1) == true)
+	if (same_class_test_link(__LINE__, "link", httprequest_test1) == true)
 	{
 		// Thu, 15 Sep 2023 11:45:00 GMT
 		// <https://example.com/style.css>; rel=preload; as=style\r\n
@@ -103,7 +103,7 @@ TEST(List, LIST_TEST)
 		test_map_values["</page1>"] = map_value_1;
 		test_map_values["</page2>"] = map_value_2;
 		LinkClass *linkclass = static_cast<LinkClass*>(httprequest_test1.get_field_values(
-				"Link"));
+				"link"));
 		compare_inputvalue_truevalue_linkclass_link(linkclass->get_link_valuemap(), test_map_values, __LINE__);
 	}
 }
@@ -112,7 +112,7 @@ TEST(List, LIST_TEST_ERROR_HEADER)
 {
 	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\nL ink: </page1>; rel=\"next\", </page2>; rel=\"prev\"\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
-	is_not_exist_link(__LINE__, "Link", httprequest_test1);
+	is_not_exist_link(__LINE__, "link", httprequest_test1);
 }
 
 TEST(List, LIST_TEST_ERROR)

@@ -196,6 +196,7 @@ Result<int, int> HttpRequest::parse_and_validate_field_lines(std::stringstream *
 
 		parse_result = parse_field_line(field_line, &field_name, &field_value);
 		if (parse_result.is_err()) {
+
 			return Result<int, int>::err(ERR);
 		}
 
@@ -218,6 +219,7 @@ Result<int, int> HttpRequest::parse_and_validate_field_lines(std::stringstream *
 
 	// todo: validate field_names, such as 'must' header,...
 	if (!is_valid_field_name_registered(std::string(HOST))) {
+		std::cout << MAGENTA << "1" << RESET << std::endl;
 		return Result<int, int>::err(ERR);
 	}
 	return Result<int, int>::ok(OK);
