@@ -162,6 +162,8 @@ TEST(TestFieldValueMap, ForwardedOK4) {
 TEST(TestFieldValueMap, ForwardedOK5) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
+									 "forwarded: for=aaa\r\n"
+									 "forwarded: a=hoge; a=huge\r\n"
 									 "forwarded: for=192.0.2.43; a=b; c=d; a=A\r\n"
 									 "\r\n";
 	HttpRequest request(request_line);

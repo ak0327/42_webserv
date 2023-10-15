@@ -5,14 +5,14 @@
 #include "MultiFieldValues.hpp"
 #include "gtest/gtest.h"
 
-TEST(TestFieldValueMap, AuthorizationOK1) {
+TEST(TestFieldValueMap, ProxyAuthorizationOK1) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Authorization: Basic YWxhZGRpbjpvcGVuc2VzYW1l \r\n"
+									 "Proxy-Authorization: Basic YWxhZGRpbjpvcGVuc2VzYW1l \r\n"
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
-	std::string field_name = std::string(AUTHORIZATION);
+	std::string field_name = std::string(PROXY_AUTHORIZATION);
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_TRUE(has_field_name);
@@ -44,14 +44,16 @@ TEST(TestFieldValueMap, AuthorizationOK1) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, AuthorizationOK2) {
+TEST(TestFieldValueMap, ProxyAuthorizationOK2) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Authorization: Basic\r\n"
+									 "Proxy-Authorization: basic\r\n"
+									 "proxy-authorization: a\r\n"
+									 "Proxy-Authorization: Basic\r\n"
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
-	std::string field_name = std::string(AUTHORIZATION);
+	std::string field_name = std::string(PROXY_AUTHORIZATION);
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_TRUE(has_field_name);
@@ -85,46 +87,30 @@ TEST(TestFieldValueMap, AuthorizationOK2) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TEST(TestFieldValueMap, AuthorizationNG1) {
+TEST(TestFieldValueMap, ProxyAuthorizationNG1) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Authorization: Basic    YWxhZGRpbjpvcGVuc2VzYW1l \r\n"
+									 "Proxy-Authorization: Basic    YWxhZGRpbjpvcGVuc2VzYW1l \r\n"
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
-	std::string field_name = std::string(AUTHORIZATION);
+	std::string field_name = std::string(PROXY_AUTHORIZATION);
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, AuthorizationNG2) {
+TEST(TestFieldValueMap, ProxyAuthorizationNG2) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Authorization: Basic aaa==hoge\r\n"
+									 "Proxy-Authorization: Basic aaa==hoge\r\n"
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
-	std::string field_name = std::string(AUTHORIZATION);
+	std::string field_name = std::string(PROXY_AUTHORIZATION);
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
-}
-
-TEST(TestFieldValueMap, AuthorizationNG3) {
-	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
-									 "Host: example.com\r\n"
-									 "Authorization: Basic\r\n"
-									 "Authorization: Basic\r\n"
-									 "Authorization: Basic\r\n"
-									 "\r\n";
-	HttpRequest request(request_line);
-	bool has_field_name;
-	std::string field_name = std::string(AUTHORIZATION);
-
-	has_field_name = request.is_valid_field_name_registered(field_name);
-	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
 }

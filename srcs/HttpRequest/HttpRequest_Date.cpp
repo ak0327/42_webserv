@@ -48,7 +48,8 @@ Result<int, int> HttpRequest::set_date(const std::string &field_name,
 // https://www.rfc-editor.org/rfc/rfc9110#field.if-modified-since
 Result<int, int> HttpRequest::set_if_modified_since(const std::string &field_name,
 													const std::string &field_value) {
-	if (has_multiple_field_names(field_name)) {
+	if (is_field_name_repeated_in_request(field_name)) {
+		clear_field_values_of(field_name);
 		return Result<int, int>::err(ERR);
 	}
 	return set_valid_http_date(field_name, field_value);
@@ -58,7 +59,8 @@ Result<int, int> HttpRequest::set_if_modified_since(const std::string &field_nam
 // https://www.rfc-editor.org/rfc/rfc9110#field.if-unmodified-since
 Result<int, int> HttpRequest::set_if_unmodified_since(const std::string &field_name,
 													  const std::string &field_value) {
-	if (has_multiple_field_names(field_name)) {
+	if (is_field_name_repeated_in_request(field_name)) {
+		clear_field_values_of(field_name);
 		return Result<int, int>::err(ERR);
 	}
 	return set_valid_http_date(field_name, field_value);

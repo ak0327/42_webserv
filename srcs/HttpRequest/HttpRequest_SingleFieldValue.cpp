@@ -88,7 +88,7 @@ Result<int, int> HttpRequest::set_content_length(const std::string &field_name,
 	long length;
 	std::string num_str;
 
-	if (has_multiple_field_names(field_name)) {
+	if (is_field_name_repeated_in_request(field_name)) {
 		return Result<int, int>::err(STATUS_BAD_REQUEST);
 	}
 
@@ -132,7 +132,8 @@ Result<int, int> HttpRequest::set_expect(const std::string &field_name,
 										 const std::string &field_value) {
 	std::string lower_field_value;
 
-	if (has_multiple_field_names(field_name)) {
+	if (is_field_name_repeated_in_request(field_name)) {
+		clear_field_values_of(field_name);
 		return Result<int, int>::err(STATUS_BAD_REQUEST);
 	}
 

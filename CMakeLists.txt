@@ -124,6 +124,7 @@ set (unit_test_srcs
         test/unit_test/TestFieldValueMap/TestAuthorization.cpp
         test/unit_test/TestFieldValueMap/TestForwarded.cpp
         test/unit_test/TestFieldValueMap/TestKeepAlive.cpp
+        test/unit_test/TestFieldValueMap/TestProxyAuthorization.cpp
 
         test/unit_test/TestDate/TestDate.cpp
         test/unit_test/TestDate/TestIfModifiedSince.cpp

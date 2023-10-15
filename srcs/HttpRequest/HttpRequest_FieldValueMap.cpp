@@ -526,7 +526,8 @@ Result<int, int> HttpRequest::set_authorization(const std::string &field_name,
 	std::map<std::string, std::string> credentials;
 	Result<std::map<std::string, std::string>, int> result;
 
-	if (is_valid_field_name_registered(field_name)) {
+	if (is_field_name_repeated_in_request(field_name)) {
+		clear_field_values_of(field_name);
 		return Result<int, int>::err(ERR);
 	}
 
@@ -718,26 +719,22 @@ Result<int, int> HttpRequest::set_set_cookie(const std::string &field_name,
 	return Result<int, int>::ok(STATUS_OK);
 }
 
-// todo: Proxy-Authorization
-// Proxy-Authorization: <type> <credentials>
+/*
+ Proxy-Authorization = credentials
+ credentials = auth-scheme [ 1*SP ( token68 / #auth-param ) ]
+ https://httpwg.org/specs/rfc9110.html#field.proxy-authorization
+ */
 Result<int, int> HttpRequest::set_proxy_authorization(const std::string &field_name,
-													  const std::string &field_value)
-{
-	if (std::count(field_value.begin(), field_value.end(), ' ') == 1)
-	{
-		std::string	first_value = HttpMessageParser::obtain_withoutows_value(HttpMessageParser::obtain_word_before_delimiter(field_value, ' '));
-		std::string	second_value = HttpMessageParser::obtain_withoutows_value(HttpMessageParser::obtain_word_after_delimiter(field_value, ' '));
-		if (first_value == "" || second_value == "")
-		{
-			this->_status_code = 400;
-			return Result<int, int>::err(STATUS_BAD_REQUEST);
-		}
+													  const std::string &field_value) {
+	std::map<std::string, std::string> credentials;
+	Result<std::map<std::string, std::string>, int> result;
+
+	clear_field_values_of(field_name);
+
+	result = parse_and_validate_credentials(field_value);
+	if (result.is_ok()) {
+		credentials = result.get_ok_value();
+		this->_request_header_fields[field_name] = new FieldValueMap(credentials);
 	}
-	else if (std::count(field_value.begin(), field_value.end(), ' ') > 1)
-	{
-		this->_status_code = 400;
-		return Result<int, int>::err(STATUS_BAD_REQUEST);
-	}
-	this->_request_header_fields[field_name] = this->ready_TwoValueSet(field_value, ' ');
 	return Result<int, int>::ok(STATUS_OK);
 }

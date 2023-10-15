@@ -304,8 +304,8 @@ bool HttpRequest::is_valid_field_name_registered(const std::string &field_name) 
 }
 
 // call this function after increment
-bool HttpRequest::has_multiple_field_names(const std::string &field_name) {
-	return SINGLE_FIELD_NAME < this->_field_name_counter[field_name];
+bool HttpRequest::is_field_name_repeated_in_request(const std::string &field_name) {
+	return SINGLE_OCCURRENCE_LIMIT < this->_field_name_counter[field_name];
 }
 
 void HttpRequest::increment_field_name_counter(const std::string &field_name) {
@@ -414,7 +414,7 @@ void HttpRequest::init_field_name_parser() {
 	map[std::string(LINK)] = &HttpRequest::set_link;  // todo: Link
 	map[std::string(MAX_FORWARDS)] = &HttpRequest::set_max_forwards;  // todo: Max-Forwards
 	map[std::string(ORIGIN)] = &HttpRequest::set_origin;  // todo: Origin
-	map[std::string(PROXY_AUTHORIZATION)] = &HttpRequest::set_proxy_authorization;  // todo: Proxy-Authorization
+	map[std::string(PROXY_AUTHORIZATION)] = &HttpRequest::set_proxy_authorization;
 	// map[std::string(RANGE)] = set_range;  // todo:
 	map[std::string(REFERER)] = &HttpRequest::set_referer;  // todo: Referer
 	map[std::string(SEC_FETCH_DEST)] = &HttpRequest::set_sec_fetch_dest;  // todo: Sec-Fetch-Dest

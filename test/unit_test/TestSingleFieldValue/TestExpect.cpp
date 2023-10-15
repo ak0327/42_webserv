@@ -94,15 +94,7 @@ TEST(TestSingleFieldValue, ExpectNG3) {
 	std::string field_name = std::string(EXPECT);
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
-	EXPECT_TRUE(has_field_name);
-
-	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
-		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
-		EXPECT_EQ("100-continue", value->get_value());
-	} else {
-		ADD_FAILURE() << field_name << " not found";
-	}
+	EXPECT_FALSE(has_field_name);
 
 	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
 }
@@ -118,15 +110,7 @@ TEST(TestSingleFieldValue, ExpectOK4) {
 	std::string field_name = std::string(EXPECT);
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
-	EXPECT_TRUE(has_field_name);
-
-	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
-		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
-		EXPECT_EQ("100-continue", value->get_value());
-	} else {
-		ADD_FAILURE() << field_name << " not found";
-	}
+	EXPECT_FALSE(has_field_name);
 
 	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
 }

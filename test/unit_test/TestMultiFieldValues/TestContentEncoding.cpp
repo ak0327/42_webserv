@@ -84,6 +84,8 @@ TEST(TestMultiFieldValues, ContentEncodingOK2) {
 TEST(TestMultiFieldValues, ContentEncodingOK3) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
+									 "Content-Encoding: gzip\r\n"
+									 "Content-Encoding: GZIP   \r\n"
 									 "Content-Encoding: a, b, c, a,a,b,c  , d,123,* \r\n"
 									 "\r\n";
 	HttpRequest request(request_line);

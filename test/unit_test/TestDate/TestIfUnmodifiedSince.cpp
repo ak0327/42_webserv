@@ -151,7 +151,7 @@ TEST(TestDate, IfUnmodifiedSinceNG3) {
 	std::string field_name = std::string(IF_UNMODIFIED_SINCE);
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
-	EXPECT_TRUE(has_field_name);
+	EXPECT_FALSE(has_field_name);
 
 	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
 }

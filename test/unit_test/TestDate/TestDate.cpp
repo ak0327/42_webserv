@@ -353,3 +353,21 @@ TEST(TestDate, DateNG14) {
 
 	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
 }
+
+TEST(TestDate, DateNG15) {
+	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
+									 "Host: example.com\r\n"
+									 "Date: Thu, 29 Feb 2024 00:21:45 GMT\r\n"  // OK
+									 "Date: Thu, 29 Feb 2024 00:21:45 GMT\r\n"  // OK
+									 "Date: Thu, 29 Feb 2024 00:21:45 GMT\r\n"  // OK
+									 "Date: Thu, 29 Feb 2024 00:21:45 GMT\r\n"  // OK
+									 "\r\n";
+	HttpRequest request(request_line);
+	bool has_field_name;
+	std::string field_name = std::string(DATE);
+
+	has_field_name = request.is_valid_field_name_registered(field_name);
+	EXPECT_TRUE(has_field_name);
+
+	EXPECT_EQ(STATUS_OK, request.get_status_code());
+}

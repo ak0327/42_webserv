@@ -231,7 +231,8 @@ Result<int, int> HttpRequest::set_content_language(const std::string &field_name
  */
 Result<int, int> HttpRequest::set_if_match(const std::string &field_name,
 										   const std::string &field_value) {
-	if (has_multiple_field_names(field_name)) {
+	if (is_field_name_repeated_in_request(field_name)) {
+		clear_field_values_of(field_name);
 		return Result<int, int>::err(STATUS_BAD_REQUEST);
 	}
 
@@ -252,7 +253,8 @@ Result<int, int> HttpRequest::set_if_match(const std::string &field_name,
  */
 Result<int, int> HttpRequest::set_if_none_match(const std::string &field_name,
 												const std::string &field_value) {
-	if (has_multiple_field_names(field_name)) {
+	if (is_field_name_repeated_in_request(field_name)) {
+		clear_field_values_of(field_name);
 		return Result<int, int>::err(STATUS_BAD_REQUEST);
 	}
 
@@ -272,7 +274,8 @@ Result<int, int> HttpRequest::set_if_none_match(const std::string &field_name,
  */
 Result<int, int> HttpRequest::set_transfer_encoding(const std::string &field_name,
 													const std::string &field_value) {
-	if (has_multiple_field_names(field_name)) {
+	if (is_field_name_repeated_in_request(field_name)) {
+		clear_field_values_of(field_name);
 		return Result<int, int>::err(STATUS_BAD_REQUEST);
 	}
 

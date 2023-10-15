@@ -40,7 +40,7 @@ class HttpRequest {
 	std::string	get_http_version() const;
 
 	bool is_valid_field_name_registered(const std::string &field_name);
-	bool has_multiple_field_names(const std::string &field_name);
+	bool is_field_name_repeated_in_request(const std::string &field_name);
 	std::map<std::string, FieldValues*> get_request_header_fields(void);
 	FieldValues *get_field_values(const std::string &field_name);
 
