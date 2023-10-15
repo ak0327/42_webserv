@@ -183,6 +183,7 @@ const std::vector<std::string> MESSAGE_FRAMING_HEADERS = init_message_framing_he
 const std::vector<std::string> ROUTING_HEADERS = init_routing_headers();
 const std::vector<std::string> REQUEST_MODIFIERS = init_request_modifiers();
 const std::vector<std::string> AUTHENTICATION_HEADERS = init_authentication_headers();
+const std::vector<std::string> IGNORE_HEADERS = init_ignore_headers();
 
 std::vector<std::string> init_field_names() {
 	std::vector<std::string> field_names;
@@ -305,6 +306,13 @@ std::vector<std::string> init_authentication_headers() {
 	authentication_headers.push_back(AUTHORIZATION);
 	authentication_headers.push_back(SET_COOKIE);
 	return authentication_headers;
+}
+
+std::vector<std::string> init_ignore_headers() {
+	std::vector<std::string> ignore_headers;
+
+	ignore_headers.push_back(ACCEPT_CHARSET);
+	return ignore_headers;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

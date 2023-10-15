@@ -172,12 +172,14 @@ extern const std::vector<std::string> MESSAGE_FRAMING_HEADERS;
 extern const std::vector<std::string> ROUTING_HEADERS;
 extern const std::vector<std::string> REQUEST_MODIFIERS;
 extern const std::vector<std::string> AUTHENTICATION_HEADERS;
+extern const std::vector<std::string> IGNORE_HEADERS;
 
 std::vector<std::string> init_field_names();
 std::vector<std::string> init_message_framing_headers();
 std::vector<std::string> init_routing_headers();
 std::vector<std::string> init_request_modifiers();
 std::vector<std::string> init_authentication_headers();
+std::vector<std::string> init_ignore_headers();
 
 ////////////////////////////////////////////////////////////////////////////////
 /* field value */

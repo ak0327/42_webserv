@@ -461,10 +461,13 @@ void skip_quoted_string(const std::string &str,
 		}
 
 		if (str[start_pos + len] == '"') {
-			len += 1;
 			break;
 		}
 	}
+	if (str[start_pos + len] != '"') {
+		return;
+	}
+	++len;
 	*end_pos = start_pos + len;
 }
 

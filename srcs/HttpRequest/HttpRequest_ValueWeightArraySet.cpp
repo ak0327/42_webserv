@@ -26,6 +26,13 @@ ValueWeightArraySet*	HttpRequest::ready_ValueWeightArraySet(const std::string &v
 }
 
 // todo: Accept
+
+//  Accept = #( media-range [ weight ] )
+//  media-range    = ( "*/*"
+//                     / ( type "/" "*" )
+//                     / ( type "/" subtype )
+//                    ) parameters
+// https://www.rfc-editor.org/rfc/rfc9110#field.accept
 Result<int, int> HttpRequest::set_accept(const std::string &key, const std::string &value)
 {
 	size_t							value_length = value.size();
@@ -69,32 +76,14 @@ Result<int, int> HttpRequest::set_accept(const std::string &key, const std::stri
 	return Result<int, int>::ok(STATUS_OK);
 }
 
-// todo: Accept-Charset
-Result<int, int> HttpRequest::set_accept_charset(const std::string &key, const std::string &value)
-{
-	std::stringstream				splited_by_commma(value);
-	std::string						line;
-	std::string						changed_line;
-
-	while(std::getline(splited_by_commma, line, ','))
-	{
-		if (line[0] == ' ')
-			changed_line = line.substr(1);
-		else
-			changed_line = line;
-		if (changed_line.find(';') != std::string::npos)
-		{
-			if (StringHandler::is_positive_under_intmax_double(
-					StringHandler::obtain_weight(
-							StringHandler::obtain_word_after_delimiter(changed_line, ';'))) == false)
-				return Result<int, int>::ok(STATUS_OK);
-		}
-	}
-	this->_request_header_fields[key] = this->ready_ValueWeightArraySet(value);
-	return Result<int, int>::ok(STATUS_OK);
-}
-
 // todo: Accept-Encoding
+/*
+ Accept-Encoding  = [ ( codings [ weight ] ) *( OWS "," OWS ( codings [ weight ] ) ) ]
+ Accept-Encoding  = #( codings [ weight ] )
+ codings          = content-coding / "identity" / "*"
+ content-coding   = token
+ https://www.rfc-editor.org/rfc/rfc9110#field.accept-encoding
+ */
 Result<int, int> HttpRequest::set_accept_encoding(const std::string &key, const std::string &value)
 {
 	std::stringstream 	splited_by_commma(value);
@@ -135,6 +124,13 @@ Result<int, int> HttpRequest::set_accept_encoding(const std::string &key, const 
 }
 
 // todo: Accept-Language
+/*
+ Accept-Language = [ ( language-range [ weight ] ) *( OWS "," OWS ( language-range [ weight ] ) ) ]
+ Accept-Language = #( language-range [ weight ] )
+ language-range  = (1*8ALPHA *("-" 1*8alphanum)) / "*"
+ alphanum        = ALPHA / DIGIT
+ https://datatracker.ietf.org/doc/html/rfc4647#section-2.1
+ */
 Result<int, int> HttpRequest::set_accept_language(const std::string &key, const std::string &value)
 {
 	std::stringstream 	splited_by_commma(value);
@@ -162,6 +158,13 @@ Result<int, int> HttpRequest::set_accept_language(const std::string &key, const 
 }
 
 // todo: TE
+/*
+ TE                 = #t-codings
+ t-codings          = "trailers" / ( transfer-coding [ weight ] )
+ transfer-coding    = token *( OWS ";" OWS transfer-parameter )
+ transfer-parameter = token BWS "=" BWS ( token / quoted-string )
+ https://www.rfc-editor.org/rfc/rfc9110#field.te
+ */
 Result<int, int> HttpRequest::set_te(const std::string &key, const std::string &value)
 {
 	std::stringstream				splited_by_commma(value);

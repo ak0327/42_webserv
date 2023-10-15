@@ -70,6 +70,7 @@ class HttpRequest {
 	bool is_valid_field_name_syntax(const std::string &field_name);
 	bool is_valid_field_value_syntax(const std::string &field_value);
 	bool is_valid_field_name(const std::string &field_name);
+	bool is_ignore_field_name(const std::string &field_name);
 
 	void clear_field_values_of(const std::string &field_name);
 
@@ -100,7 +101,6 @@ class HttpRequest {
 											bool (*is_valid_syntax)(const std::string &));
 
 	Result<int, int> set_accept(const std::string &field_name, const std::string &field_value);
-	Result<int, int> set_accept_charset(const std::string &field_name, const std::string &field_value);
 	Result<int, int> set_accept_encoding(const std::string &field_name, const std::string &field_value);
 	Result<int, int> set_accept_language(const std::string &field_name, const std::string &field_value);
 	Result<int, int> set_access_control_request_headers(const std::string &field_name, const std::string &field_value);
@@ -133,7 +133,6 @@ class HttpRequest {
 	Result<int, int> set_link(const std::string &field_name, const std::string &field_value);
 	Result<int, int> set_max_forwards(const std::string &field_name, const std::string &field_value);
 	Result<int, int> set_origin(const std::string &field_name, const std::string &field_value);
-	Result<int, int> set_proxy_authenticate(const std::string &field_name, const std::string &field_value);
 	Result<int, int> set_proxy_authorization(const std::string &field_name, const std::string &field_value);
 	Result<int, int> set_range(const std::string &field_name, const std::string &field_value);
 	Result<int, int> set_referer(const std::string &field_name, const std::string &field_value);
@@ -143,7 +142,6 @@ class HttpRequest {
 	Result<int, int> set_sec_fetch_user(const std::string &field_name, const std::string &field_value);
 	Result<int, int> set_sec_purpose(const std::string &field_name, const std::string &field_value);
 	Result<int, int> set_service_worker_navigation_preload(const std::string &field_name, const std::string &field_value);
-	Result<int, int> set_set_cookie(const std::string &field_name, const std::string &field_value);
 	Result<int, int> set_te(const std::string &field_name, const std::string &field_value);
 	Result<int, int> set_trailer(const std::string &field_name, const std::string &field_value);
 	Result<int, int> set_transfer_encoding(const std::string &field_name, const std::string &field_value);

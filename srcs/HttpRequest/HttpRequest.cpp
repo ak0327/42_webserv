@@ -295,8 +295,18 @@ std::string HttpRequest::parse_message_body(std::stringstream *ss) {
 	return ss->str();
 }
 
+bool HttpRequest::is_ignore_field_name(const std::string &field_name) {
+	std::vector<std::string>::const_iterator itr;
+
+	itr = std::find(IGNORE_HEADERS.begin(), IGNORE_HEADERS.end(), field_name);
+	return itr != IGNORE_HEADERS.end();
+}
+
 bool HttpRequest::is_valid_field_name(const std::string &field_name) {
-	 return this->_field_value_parser.count(field_name) != 0;
+	if (is_ignore_field_name(field_name)) {
+		return false;
+	}
+	return this->_field_value_parser.count(field_name) != 0;
 }
 
 bool HttpRequest::is_valid_field_name_registered(const std::string &field_name) {
@@ -332,18 +342,6 @@ bool HttpRequest::is_weightformat(const std::string &value)
 	return StringHandler::is_positive_under_intmax_double(weight_num);
 }
 
-
-Result<int, int> HttpRequest::set_cache_control(const std::string &key,
-												const std::string &value)
-{
-	(void)key;
-	(void)value;
-	// Digest username=<username>,realm="<realm>",uri="<url>",algorithm=<algorithm>,nonce="<nonce>",
-	// ValueMapに変更
-	// this->_request_header_fields[key] = ready_ValueWeightArraySet(value);
-	return Result<int, int>::ok(OK);
-}
-
 Result<int, int> HttpRequest::set_range(const std::string &key,
 												const std::string &value)
 {
@@ -367,7 +365,6 @@ void HttpRequest::init_field_name_parser() {
 	std::map<std::string, func_ptr> map;
 
 	map[std::string(ACCEPT)] = &HttpRequest::set_accept;  // todo: Accept
-	map[std::string(ACCEPT_CHARSET)] = &HttpRequest::set_accept_charset;  // todo: Accept-Charset
 	map[std::string(ACCEPT_ENCODING)] = &HttpRequest::set_accept_encoding;  // todo: Accept-Encoding
 	map[std::string(ACCEPT_LANGUAGE)] = &HttpRequest::set_accept_language;  // todo: Accept-Language
 	map[std::string(ACCESS_CONTROL_REQUEST_HEADERS)] = &HttpRequest::set_access_control_request_headers;  // todo: Access-Control-Request-Headers
@@ -409,7 +406,6 @@ void HttpRequest::init_field_name_parser() {
 	map[std::string(SEC_FETCH_USER)] = &HttpRequest::set_sec_fetch_user;
 	map[std::string(SEC_PURPOSE)] = &HttpRequest::set_sec_purpose;
 	map[std::string(SERVICE_WORKER_NAVIGATION_PRELOAD)] = &HttpRequest::set_service_worker_navigation_preload;
-	map[std::string(SET_COOKIE)] = &HttpRequest::set_set_cookie;  // todo: Set-Cookie
 	map[std::string(TE)] = &HttpRequest::set_te;  // todo: TE
 	map[std::string(TRAILER)] = &HttpRequest::set_trailer;
 	map[std::string(TRANSFER_ENCODING)] = &HttpRequest::set_transfer_encoding;

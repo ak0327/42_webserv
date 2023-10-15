@@ -175,7 +175,6 @@ MultiFieldValues* HttpRequest::ready_ValueArraySet(const std::string &all_value)
 /*
  Access-Control-Request-Headers: "Access-Control-Request-Headers" ":" #field-name
  */
-// todo: bnf ????
 Result<int, int> HttpRequest::set_access_control_request_headers(const std::string &field_name,
 																 const std::string &field_value)
 {
