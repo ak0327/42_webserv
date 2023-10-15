@@ -396,7 +396,7 @@ void HttpRequest::init_field_name_parser() {
 	map[std::string(CONTENT_RANGE)] = &HttpRequest::set_content_range;  // todo: Content-Range
 	// map[std::string(CONTENT_SECURITY_POLICY_REPORT_ONLY)] = &HttpRequest::set_content_security_policy_report_only;
 	map[std::string(CONTENT_TYPE)] = &HttpRequest::set_content_type;
-	map[std::string(COOKIE)] = &HttpRequest::set_cookie;    // todo: Cookie
+	map[std::string(COOKIE)] = &HttpRequest::set_cookie;
 	map[std::string(DATE)] = &HttpRequest::set_date;
 	map[std::string(EXPECT)] = &HttpRequest::set_expect;
 	// map[std::string(EXPECT_CT)] = set_expect_ct;  // todo:

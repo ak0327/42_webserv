@@ -103,6 +103,8 @@ set (unit_test_srcs
         test/unit_test/TestStringHandler.cpp
         test/unit_test/TestHttpMessageParser.cpp
         test/unit_test/TestRequestLine.cpp
+
+        # single field value
         test/unit_test/TestSingleFieldValue/TestAccessControlRequestMethod.cpp
         test/unit_test/TestSingleFieldValue/TestConnection.cpp
         test/unit_test/TestSingleFieldValue/TestContentLength.cpp
@@ -116,21 +118,26 @@ set (unit_test_srcs
         test/unit_test/TestSingleFieldValue/TestTrailer.cpp
         test/unit_test/TestSingleFieldValue/TestUpgradeInsecureRequests.cpp
 
+        # multi field value
         test/unit_test/TestMultiFieldValues/TestContentEncoding.cpp
         test/unit_test/TestMultiFieldValues/TestIfMatch.cpp
         test/unit_test/TestMultiFieldValues/TestIfNoneMatch.cpp
         test/unit_test/TestMultiFieldValues/TestTransferEncoding.cpp
 
+        # field value map
         test/unit_test/TestFieldValueMap/TestAuthorization.cpp
         test/unit_test/TestFieldValueMap/TestForwarded.cpp
         test/unit_test/TestFieldValueMap/TestKeepAlive.cpp
         test/unit_test/TestFieldValueMap/TestProxyAuthorization.cpp
+        test/unit_test/TestFieldValueMap/TestCookie.cpp
 
+        # date
         test/unit_test/TestDate/TestDate.cpp
         test/unit_test/TestDate/TestIfModifiedSince.cpp
         test/unit_test/TestDate/TestIfUnmodifiedSince.cpp
         test/unit_test/TestDate/TestLastModified.cpp
 
+        # media type
         test/unit_test/TestMediaType/TestContentType.cpp
 )
 
