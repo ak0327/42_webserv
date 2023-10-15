@@ -731,8 +731,8 @@ Result<int, int> HttpRequest::set_authorization(const std::string &field_name,
 // 複数OK
 // todo: Content-Disposition
 // bnf??
-Result<int, int> HttpRequest::set_content_disponesition(const std::string &field_name,
-														const std::string &field_value) {
+Result<int, int> HttpRequest::set_content_disposition(const std::string &field_name,
+													  const std::string &field_value) {
 	std::stringstream	ss(field_value);
 	std::string			only_value;
 	std::string			except_onlyvalue_line;

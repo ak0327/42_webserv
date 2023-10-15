@@ -332,39 +332,28 @@ bool HttpRequest::is_weightformat(const std::string &value)
 	return StringHandler::is_positive_under_intmax_double(weight_num);
 }
 
-// まだできてない
-/*
-Result<int, int> HttpRequest::set_cache_control(const std::string &key, const std::string &value)
+
+Result<int, int> HttpRequest::set_cache_control(const std::string &key,
+												const std::string &value)
 {
 	(void)key;
 	(void)value;
 	// Digest username=<username>,realm="<realm>",uri="<url>",algorithm=<algorithm>,nonce="<nonce>",
 	// ValueMapに変更
 	// this->_request_header_fields[key] = ready_ValueWeightArraySet(value);
+	return Result<int, int>::ok(OK);
 }
 
-Result<int, int> HttpRequest::set_content_security_policy_report_only(const std::string &key, const std::string &value)
+Result<int, int> HttpRequest::set_range(const std::string &key,
+												const std::string &value)
 {
 	(void)key;
 	(void)value;
-	// std::cout << key << " and " << "value is " << value << std::endl;
-	// this->_request_header_fields[key] = ready_SecurityPolicy();
+	// Digest username=<username>,realm="<realm>",uri="<url>",algorithm=<algorithm>,nonce="<nonce>",
+	// ValueMapに変更
+	// this->_request_header_fields[key] = ready_ValueWeightArraySet(value);
+	return Result<int, int>::ok(OK);
 }
-
-Result<int, int> HttpRequest::set_servertiming(const std::string &key, const std::string &value)
-{
-	// cpu;dur=2.4;a=b, cpu; ,,,みたいな感じなのでmapで保持しないほうがいいかもしれない
-	// this->_request_header_fields[key] = ready_ValueMap(value);
-	(void)key;
-	(void)value;
-}
-
-Result<int, int> HttpRequest::set_x_xss_protection(const std::string &key, const std::string &value)
-{
-	(void)key;
-	(void)value;
-}
-*/
 
 void HttpRequest::init_field_name_counter() {
 	std::vector<std::string>::const_iterator itr;
@@ -381,25 +370,22 @@ void HttpRequest::init_field_name_parser() {
 	map[std::string(ACCEPT_CHARSET)] = &HttpRequest::set_accept_charset;  // todo: Accept-Charset
 	map[std::string(ACCEPT_ENCODING)] = &HttpRequest::set_accept_encoding;  // todo: Accept-Encoding
 	map[std::string(ACCEPT_LANGUAGE)] = &HttpRequest::set_accept_language;  // todo: Accept-Language
-	// map[std::string(ACCEPT_PATCH)] = set_accept_patch;  // todo:
 	map[std::string(ACCESS_CONTROL_REQUEST_HEADERS)] = &HttpRequest::set_access_control_request_headers;  // todo: Access-Control-Request-Headers
 	map[std::string(ACCESS_CONTROL_REQUEST_METHOD)] = &HttpRequest::set_access_control_request_method;
 	map[std::string(ALT_USED)] = &HttpRequest::set_alt_used;  // todo: Alt-Used
 	map[std::string(AUTHORIZATION)] = &HttpRequest::set_authorization;
-	// map[std::string(CACHE_CONTROL)] =  &HttpRequest::set_cache_control;  // todo:
+	map[std::string(CACHE_CONTROL)] =  &HttpRequest::set_cache_control;  // todo:
 	map[std::string(CONNECTION)] = &HttpRequest::set_connection;
-	map[std::string(CONTENT_DISPOSITION)] = &HttpRequest::set_content_disponesition;  // todo: Content-Disposition
+	map[std::string(CONTENT_DISPOSITION)] = &HttpRequest::set_content_disposition;  // todo: Content-Disposition
 	map[std::string(CONTENT_ENCODING)] = &HttpRequest::set_content_encoding;
 	map[std::string(CONTENT_LANGUAGE)] = &HttpRequest::set_content_language;  // todo: Content-Language
 	map[std::string(CONTENT_LENGTH)] = &HttpRequest::set_content_length;
 	map[std::string(CONTENT_LOCATION)] = &HttpRequest::set_content_location;  // todo: Content-Location
 	map[std::string(CONTENT_RANGE)] = &HttpRequest::set_content_range;  // todo: Content-Range
-	// map[std::string(CONTENT_SECURITY_POLICY_REPORT_ONLY)] = &HttpRequest::set_content_security_policy_report_only;
 	map[std::string(CONTENT_TYPE)] = &HttpRequest::set_content_type;
 	map[std::string(COOKIE)] = &HttpRequest::set_cookie;
 	map[std::string(DATE)] = &HttpRequest::set_date;
 	map[std::string(EXPECT)] = &HttpRequest::set_expect;
-	// map[std::string(EXPECT_CT)] = set_expect_ct;  // todo:
 	map[std::string(EXPIRES)] = &HttpRequest::set_expires;  // todo: Expires
 	map[std::string(FORWARDED)] = &HttpRequest::set_forwarded;  // todo: Forwarded
 	map[std::string(FROM)] = &HttpRequest::set_from;  // todo: From
@@ -415,14 +401,13 @@ void HttpRequest::init_field_name_parser() {
 	map[std::string(MAX_FORWARDS)] = &HttpRequest::set_max_forwards;  // todo: Max-Forwards
 	map[std::string(ORIGIN)] = &HttpRequest::set_origin;  // todo: Origin
 	map[std::string(PROXY_AUTHORIZATION)] = &HttpRequest::set_proxy_authorization;
-	// map[std::string(RANGE)] = set_range;  // todo:
+	map[std::string(RANGE)] = &HttpRequest::set_range;  // todo:
 	map[std::string(REFERER)] = &HttpRequest::set_referer;  // todo: Referer
 	map[std::string(SEC_FETCH_DEST)] = &HttpRequest::set_sec_fetch_dest;  // todo: Sec-Fetch-Dest
 	map[std::string(SEC_FETCH_MODE)] = &HttpRequest::set_sec_fetch_mode;
 	map[std::string(SEC_FETCH_SITE)] = &HttpRequest::set_sec_fetch_site;
 	map[std::string(SEC_FETCH_USER)] = &HttpRequest::set_sec_fetch_user;
 	map[std::string(SEC_PURPOSE)] = &HttpRequest::set_sec_purpose;
-	// map[std::string(SERVER_TIMING)] = set_server_timing;  // todo:
 	map[std::string(SERVICE_WORKER_NAVIGATION_PRELOAD)] = &HttpRequest::set_service_worker_navigation_preload;
 	map[std::string(SET_COOKIE)] = &HttpRequest::set_set_cookie;  // todo: Set-Cookie
 	map[std::string(TE)] = &HttpRequest::set_te;  // todo: TE
@@ -432,7 +417,6 @@ void HttpRequest::init_field_name_parser() {
 	map[std::string(UPGRADE_INSECURE_REQUESTS)] = &HttpRequest::set_upgrade_insecure_requests;
 	map[std::string(USER_AGENT)] = &HttpRequest::set_user_agent;  // todo: User-Agent
 	map[std::string(VIA)] = &HttpRequest::set_via;  // todo: Via
-	// this->_field_value_parser[std::string(X_CUSTOM_HEADER)] = &HttpRequest::set_x_custom_header;  // todo:
 
 	this->_field_value_parser = map;
 }
