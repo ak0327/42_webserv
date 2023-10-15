@@ -109,7 +109,7 @@ Result<int, int> parse_parameter(const std::string &field_value,
 	// parameter-value
 	len = 0;
 	if (HttpMessageParser::is_tchar(field_value[pos])) {
-		while (HttpMessageParser::is_tchar(field_value[pos + len])) {
+		while (field_value[pos + len] && HttpMessageParser::is_tchar(field_value[pos + len])) {
 			++len;
 		}
 	} else if (field_value[pos] == '"') {
@@ -122,12 +122,6 @@ Result<int, int> parse_parameter(const std::string &field_value,
 		return Result<int, int>::err(ERR);
 	}
 
-	// while (true) {
-	// 	if (field_value[pos + len] == '\0') { break; }
-	// 	if (field_value[pos + len] == SP) { break; }
-	// 	if (field_value[pos + len] == ';') { break; }
-	// 	++len;
-	// }
 	if (len == 0) {
 		return Result<int, int>::err(ERR);
 	}
