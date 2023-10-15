@@ -36,27 +36,37 @@ SRCS		+=	$(STR_HANDLER)/HttpMessageParser.cpp \
 #httprequest
 REQUEST_DIR	=	HttpRequest
 SRCS		+=	$(REQUEST_DIR)/HttpRequest.cpp \
-				$(REQUEST_DIR)/HttpRequest_Date.cpp \
 				$(REQUEST_DIR)/HttpRequest_FieldValueMap.cpp \
-				$(REQUEST_DIR)/HttpRequest_LinkClass.cpp \
-				$(REQUEST_DIR)/HttpRequest_MediaType.cpp \
-				$(REQUEST_DIR)/HttpRequest_MultiFieldValues.cpp \
 				$(REQUEST_DIR)/RequestLine/RequestLine.cpp \
 				$(REQUEST_DIR)/HttpRequest_SingleFieldValue.cpp \
 				$(REQUEST_DIR)/HttpRequest_TwoValueSet.cpp \
 				$(REQUEST_DIR)/HttpRequest_ValueWeightArraySet.cpp
 
-SRCS		+= 	$(REQUEST_DIR)/Date/Date.cpp \
-				$(REQUEST_DIR)/FieldValues/FieldValues.cpp \
-				$(REQUEST_DIR)/FieldValueMap/FieldValueMap.cpp \
-				$(REQUEST_DIR)/FieldValues/FieldValues.cpp \
+SRCS		+= 	$(REQUEST_DIR)/FieldValues/FieldValues.cpp \
 				$(REQUEST_DIR)/LinkClass/LinkClass.cpp \
+				$(REQUEST_DIR)/LinkClass/set_link.cpp \
 				$(REQUEST_DIR)/MediaType/MediaType.cpp \
+				$(REQUEST_DIR)/MediaType/set_media_type.cpp \
 				$(REQUEST_DIR)/MultiFieldValues/MultiFieldValues.cpp \
+				$(REQUEST_DIR)/MultiFieldValues/set_multi_field_values.cpp \
 				$(REQUEST_DIR)/RequestLine/RequestLine.cpp \
 				$(REQUEST_DIR)/SingleFieldValue/SingleFieldValue.cpp \
 				$(REQUEST_DIR)/TwoValueSet/TwoValueSet.cpp \
 				$(REQUEST_DIR)/ValueWeightArraySet/ValueWeightArraySet.cpp
+
+DATE_DIR	= 	$(REQUEST_DIR)/Date
+SRCS		+=	$(DATE_DIR)/Date.cpp \
+				$(DATE_DIR)/set_date.cpp
+
+
+FIELD_VALUE_MAP_DIR = $(REQUEST_DIR)/FieldValueMap
+SRCS		+=	$(FIELD_VALUE_MAP_DIR)/FieldValueMap.cpp \
+				$(FIELD_VALUE_MAP_DIR)/set_authorization.cpp \
+				$(FIELD_VALUE_MAP_DIR)/set_cache_control.cpp \
+				$(FIELD_VALUE_MAP_DIR)/set_cookie.cpp \
+				$(FIELD_VALUE_MAP_DIR)/set_forwarded.cpp \
+				$(FIELD_VALUE_MAP_DIR)/set_host.cpp \
+				$(FIELD_VALUE_MAP_DIR)/set_keep_alive.cpp
 
 
 # OBJS -------------------------------------------------------------------------
@@ -76,8 +86,8 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(SOCKET_DIR) \
 				$(SRCS_DIR)/$(STR_HANDLER) \
 				$(SRCS_DIR)/$(REQUEST_DIR) \
-				$(SRCS_DIR)/$(REQUEST_DIR)/Date \
-				$(SRCS_DIR)/$(REQUEST_DIR)/FieldValueMap \
+				$(SRCS_DIR)/$(DATE_DIR) \
+				$(SRCS_DIR)/$(FIELD_VALUE_MAP_DIR) \
 				$(SRCS_DIR)/$(REQUEST_DIR)/FieldValues \
 				$(SRCS_DIR)/$(REQUEST_DIR)/LinkClass \
 				$(SRCS_DIR)/$(REQUEST_DIR)/MediaType \

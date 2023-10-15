@@ -37,7 +37,6 @@ Result<int, int> HttpRequest::set_valid_media_type(const std::string &field_name
 	return Result<int, int>::ok(OK);
 }
 
-// todo: Content-Type
 /*
  Content-Type = media-type
  */

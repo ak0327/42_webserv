@@ -59,33 +59,81 @@ set(webserv_srcs
         srcs/Socket/Socket.cpp
         srcs/StringHandler/StringHandler.cpp
         srcs/StringHandler/HttpMessageParser.cpp
-        srcs/HttpRequest/FieldValues/FieldValues.cpp
+)
+
+# request_srcs -----------------------------------------------------------------
+
+set(http_request_srcs
         srcs/HttpRequest/HttpRequest.cpp
-        srcs/HttpRequest/HttpRequest_LinkClass.cpp
         srcs/HttpRequest/HttpRequest_TwoValueSet.cpp
-        srcs/HttpRequest/HttpRequest_MultiFieldValues.cpp
-        srcs/HttpRequest/HttpRequest_Date.cpp
-        srcs/HttpRequest/HttpRequest_FieldValueMap.cpp
         srcs/HttpRequest/HttpRequest_SingleFieldValue.cpp
         srcs/HttpRequest/HttpRequest_ValueWeightArraySet.cpp
-        srcs/HttpRequest/HttpRequest_MediaType.cpp
 
         srcs/HttpRequest/RequestLine/RequestLine.cpp
         srcs/HttpRequest/TwoValueSet/TwoValueSet.cpp
-        srcs/HttpRequest/MultiFieldValues/MultiFieldValues.cpp
-        srcs/HttpRequest/Date/Date.cpp
-        srcs/HttpRequest/FieldValueMap/FieldValueMap.cpp
         srcs/HttpRequest/SingleFieldValue/SingleFieldValue.cpp
         srcs/HttpRequest/ValueWeightArraySet/ValueWeightArraySet.cpp
         srcs/HttpRequest/LinkClass/LinkClass.cpp
+        srcs/HttpRequest/LinkClass/set_link.cpp
+        )
+
+# Date
+set(date_srcs
+        srcs/HttpRequest/Date/Date.cpp
+        srcs/HttpRequest/Date/set_date.cpp
+        )
+
+# FieldValueMap
+set(field_value_map_srcs
+        srcs/HttpRequest/HttpRequest_FieldValueMap.cpp
+        srcs/HttpRequest/FieldValueMap/FieldValueMap.cpp
+        srcs/HttpRequest/FieldValueMap/set_authorization.cpp
+        srcs/HttpRequest/FieldValueMap/set_cache_control.cpp
+        srcs/HttpRequest/FieldValueMap/set_cookie.cpp
+        srcs/HttpRequest/FieldValueMap/set_forwarded.cpp
+        srcs/HttpRequest/FieldValueMap/set_host.cpp
+        srcs/HttpRequest/FieldValueMap/set_keep_alive.cpp
+        )
+
+# FieldValues
+set(field_values_srcs
+        srcs/HttpRequest/FieldValues/FieldValues.cpp
+        )
+
+# MediaType
+set(media_type_srcs
         srcs/HttpRequest/MediaType/MediaType.cpp
-)
+        srcs/HttpRequest/MediaType/set_media_type.cpp
+        )
+
+
+# MultiFieldValues
+set(multi_field_values_srcs
+        srcs/HttpRequest/MultiFieldValues/MultiFieldValues.cpp
+        srcs/HttpRequest/MultiFieldValues/set_multi_field_values.cpp
+        )
+
+
+list(APPEND http_request_srcs
+        ${date_srcs}
+        ${field_value_map_srcs}
+        ${field_values_srcs}
+        ${media_type_srcs}
+        ${multi_field_values_srcs}
+        )
+
+list(APPEND webserv_srcs
+        ${http_request_srcs}
+        )
+
+# request_srcs -----------------------------------------------------------------
 
 add_executable(webserv
         srcs/main.cpp
         ${webserv_srcs}
         )
 
+################################################################################
 # unit_test_srcs ---------------------------------------------------------------
 set (unit_test_srcs
         test/unit_test/is_valid_file_path/test_get_valid_config_file_path.cpp
