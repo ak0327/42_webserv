@@ -33,7 +33,11 @@ extern const char COMMA;
 extern const char COLON;
 extern const char SEMICOLON;
 
+extern const char ELEMENT_SEPARATOR;
+
 extern const char EMPTY[];
+
+extern const char TIMEOUT[];
 
 
 ////////////////////////////////////////////////////////////////////////////////

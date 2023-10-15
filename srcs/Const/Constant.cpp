@@ -31,8 +31,11 @@ const char COMMA = ',';
 const char COLON = ':';
 const char SEMICOLON = ';';
 
+const char ELEMENT_SEPARATOR = COMMA;
+
 const char EMPTY[] = "";
 
+const char TIMEOUT[] = "timeout";
 
 ////////////////////////////////////////////////////////////////////////////////
 /* http message */

@@ -6,6 +6,7 @@
 
 namespace {
 
+/* Authorization */
 // auth-param    = token BWS "=" BWS ( token / quoted-string )
 bool is_auth_param(const std::string &str) {
 	std::size_t pos;
@@ -170,6 +171,9 @@ Result<std::map<std::string, std::string>, int> parse_and_validate_credentials(
 	return Result<std::map<std::string, std::string>, int>::ok(credentials);
 }
 
+//------------------------------------------------------------------------------
+/* Forwarded */
+
 Result<std::string, int> parse_forwarded_value(const std::string &field_value,
 											   std::size_t start_pos,
 											   std::size_t *end_pos) {
@@ -240,7 +244,8 @@ Result<int, int> parse_forwarded_pair(const std::string &field_value,
 /*
  forwarded-element = [ forwarded-pair ] *( ";" [ forwarded-pair ] )
  */
-Result<std::map<std::string, std::string>, int> parse_and_validate_forwarded_element(const std::string &field_value) {
+Result<std::map<std::string, std::string>, int> parse_and_validate_forwarded_element(
+													const std::string &field_value) {
 	std::map<std::string, std::string> forwarded_element;
 	Result<int, int> parse_result, validate_result;
 	std::string token, value;
@@ -269,6 +274,203 @@ Result<std::map<std::string, std::string>, int> parse_and_validate_forwarded_ele
 	}
 	return Result<std::map<std::string, std::string>, int>::ok(forwarded_element);
 }
+
+//------------------------------------------------------------------------------
+/* Keep-Alive */
+
+/*
+ Keep-Alive           = "Keep-Alive" ":" 1#keep-alive-info
+ keep-alive-info      =   "timeout" "=" delta-seconds
+                        / keep-alive-extension
+ keep-alive-extension = token [ "=" ( token / quoted-string ) ]
+ 1#element => element *( OWS "," OWS element )
+
+ key "=" value *(OWS "," OWS key "=" value)
+ ^^^     ^^^^^
+ */
+Result<int, int> parse_keep_alive_info_pair(const std::string &field_value,
+											std::size_t start_pos,
+											std::size_t *end_pos,
+											std::string *key,
+											std::string *value) {
+	std::size_t pos, end, len;
+
+	if (!end_pos || !key || !value) {
+		return Result<int, int>::err(ERR);
+	}
+	if (field_value.empty()) {
+		return Result<int, int>::err(ERR);
+	}
+
+	// key
+	pos = start_pos;
+	end = field_value.find('=', pos);
+	if (end == std::string::npos) {
+		return Result<int, int>::err(ERR);
+	}
+	len = end - pos;
+	*key = field_value.substr(pos, len);
+	pos = end;
+
+	// =
+	if (field_value[pos] != '=') { return Result<int, int>::err(ERR); }
+	++pos;
+
+	// value
+	len = 0;
+	if (std::isdigit(field_value[pos])) {
+		while (field_value[pos + len] && std::isdigit(field_value[pos + len])) {
+			++len;
+		}
+	} else if (HttpMessageParser::is_tchar(field_value[pos])) {
+		while (field_value[pos + len] && HttpMessageParser::is_tchar(field_value[pos + len])) {
+			++len;
+		}
+	} else if (field_value[pos] == '"') {
+		HttpMessageParser::skip_quoted_string(field_value, pos, &end);
+		if (pos == end) {
+			return Result<int, int>::err(ERR);
+		}
+		len = end - pos;
+	} else {
+		return Result<int, int>::err(ERR);
+	}
+	if (len == 0) {
+		return Result<int, int>::err(ERR);
+	}
+	*value = field_value.substr(pos, len);
+
+	*end_pos = pos + len;
+	return Result<int, int>::ok(OK);
+}
+
+Result<std::map<std::string, std::string>, int> parse_keep_alive_info(const std::string &field_value) {
+	std::map<std::string, std::string> keep_alive_info;
+	Result<int, int> parse_result;
+	std::string key, value;
+	std::size_t pos, end;
+
+	if (field_value.empty()) {
+		return Result<std::map<std::string, std::string>, int>::err(ERR);
+	}
+
+	pos = 0;
+	while (true) {
+		parse_result = parse_keep_alive_info_pair(field_value, pos, &end, &key, &value);
+		if (parse_result.is_err()) {
+			return Result<std::map<std::string, std::string>, int>::err(ERR);
+		}
+		pos = end;
+		keep_alive_info[key] = value;
+		// std::cout << CYAN << "key:[" << key << "], value:[" << value << "]" << RESET << std::endl;
+
+		if (field_value[pos] == '\0') { break; }
+
+		HttpMessageParser::skip_ows(field_value, &pos);
+		if (field_value[pos] != ELEMENT_SEPARATOR) {
+			// std::cout << CYAN << "err pos:" << pos << ", &str[pos]:[" << &field_value[pos] << "]" << RESET << std::endl;
+			return Result<std::map<std::string, std::string>, int>::err(ERR);
+		}
+		++pos;
+		HttpMessageParser::skip_ows(field_value, &pos);
+
+		if (field_value[pos] == '\0') {
+			return Result<std::map<std::string, std::string>, int>::err(ERR);
+		}
+	}
+
+	return Result<std::map<std::string, std::string>, int>::ok(keep_alive_info);
+}
+
+Result<int, int> validate_keep_alive_info(const std::map<std::string, std::string> &keep_alive_info) {
+	std::map<std::string, std::string>::const_iterator itr;
+	std::string key, value;
+	bool succeed;
+
+	if (keep_alive_info.empty()) {
+		return Result<int, int>::err(ERR);
+	}
+
+	for (itr = keep_alive_info.begin(); itr != keep_alive_info.end(); ++itr) {
+		key = itr->first;
+		value = itr->second;
+
+		if (key == std::string(TIMEOUT)) {
+			HttpMessageParser::to_delta_seconds(value, &succeed);
+			if (succeed) { continue; }
+		} else if (HttpMessageParser::is_token(key)) {
+			if (HttpMessageParser::is_token(value)) { continue; }
+			if (HttpMessageParser::is_quoted_string(value)) { continue; }
+		}
+		return Result<int, int>::err(ERR);
+	}
+
+	return Result<int, int>::ok(OK);
+}
+
+Result<int, int> reformat_delta_seconds(std::map<std::string, std::string> *keep_alive_info) {
+	std::map<std::string, std::string>::iterator itr;
+	std::string key, value;
+	int delta_seconds;
+	bool succeed;
+
+	if (!keep_alive_info || keep_alive_info->empty()) {
+		return Result<int, int>::err(ERR);
+	}
+
+	for (itr = keep_alive_info->begin(); itr != keep_alive_info->end(); ++itr) {
+		key = itr->first;
+		value = itr->second;
+
+		if (key != std::string(TIMEOUT)) { continue; }
+
+		delta_seconds = HttpMessageParser::to_delta_seconds(value, &succeed);
+		if (!succeed) {
+			return Result<int, int>::err(ERR);
+		}
+		itr->second = StringHandler::to_string(delta_seconds);
+	}
+
+	return Result<int, int>::ok(OK);
+}
+
+/*
+ keep-alive-info      =   "timeout" "=" delta-seconds
+                        / keep-alive-extension
+ keep-alive-extension = token [ "=" ( token / quoted-string ) ]
+ https://datatracker.ietf.org/doc/html/draft-thomson-hybi-http-timeout-03#section-2
+
+ 1#element => element *( OWS "," OWS element )
+ https://triple-underscore.github.io/RFC7230-ja.html#abnf.extension
+
+ */
+Result<std::map<std::string, std::string>, int> parse_and_validate_keep_alive_info(
+		const std::string &field_value) {
+	std::map<std::string, std::string> keep_alive_info;
+	Result<std::map<std::string, std::string>, int> parse_result;
+	Result<int, int> validate_result, reformat_result;
+
+	parse_result = parse_keep_alive_info(field_value);
+	if (parse_result.is_err()) {
+		return Result<std::map<std::string, std::string>, int>::err(ERR);
+	}
+	keep_alive_info = parse_result.get_ok_value();
+
+	validate_result = validate_keep_alive_info(keep_alive_info);
+	if (validate_result.is_err()) {
+		return Result<std::map<std::string, std::string>, int>::err(ERR);
+	}
+
+	reformat_result = reformat_delta_seconds(&keep_alive_info);
+	if (reformat_result.is_err()) {
+		return Result<std::map<std::string, std::string>, int>::err(ERR);
+	}
+
+	return Result<std::map<std::string, std::string>, int>::ok(keep_alive_info);
+}
+
+//------------------------------------------------------------------------------
+
 
 }  // namespace
 
@@ -339,7 +541,8 @@ Result<int, int> HttpRequest::set_authorization(const std::string &field_name,
 // 複数OK
 // todo: Content-Disposition
 // bnf??
-Result<int, int> HttpRequest::set_content_disponesition(const std::string &field_name, const std::string &field_value) {
+Result<int, int> HttpRequest::set_content_disponesition(const std::string &field_name,
+														const std::string &field_value) {
 	std::stringstream	ss(field_value);
 	std::string			only_value;
 	std::string			except_onlyvalue_line;
@@ -366,7 +569,8 @@ Result<int, int> HttpRequest::set_content_disponesition(const std::string &field
                        ; and backslash
  https://tex2e.github.io/rfc-translater/html/rfc6265.html#4-2-1--Syntax
  */
-Result<int, int> HttpRequest::set_cookie(const std::string &field_name, const std::string &field_value) {
+Result<int, int> HttpRequest::set_cookie(const std::string &field_name,
+										 const std::string &field_value) {
 	_request_header_fields[field_name] = this->ready_ValueMap(field_value);
 	return Result<int, int>::ok(STATUS_OK);
 }
@@ -461,10 +665,24 @@ Result<int, int> HttpRequest::set_host(const std::string &field_name, const std:
 	return Result<int, int>::ok(STATUS_OK);
 }
 
+/*
+ Keep-Alive           = "Keep-Alive" ":" 1#keep-alive-info
+ https://datatracker.ietf.org/doc/html/draft-thomson-hybi-http-timeout-03#section-2
 
-// todo: Keep-Alive
-Result<int, int> HttpRequest::set_keep_alive(const std::string &field_name, const std::string &field_value) {
-	_request_header_fields[field_name] = this->ready_ValueMap(field_value, ',');
+ 1#element => element *( OWS "," OWS element )
+ https://triple-underscore.github.io/RFC7230-ja.html#abnf.extension
+ */
+Result<int, int> HttpRequest::set_keep_alive(const std::string &field_name,
+											 const std::string &field_value) {
+	std::map<std::string, std::string> keep_alive_info;
+	Result<std::map<std::string, std::string>, int> result;
+
+	clear_field_values_of(field_name);
+	result = parse_and_validate_keep_alive_info(field_value);
+	if (result.is_ok()) {
+		keep_alive_info = result.get_ok_value();
+		this->_request_header_fields[field_name] = new FieldValueMap(keep_alive_info);
+	}
 	return Result<int, int>::ok(STATUS_OK);
 }
 
@@ -494,14 +712,16 @@ Result<int, int> HttpRequest::set_keep_alive(const std::string &field_name, cons
  httponly-av       = "HttpOnly"
  extension-av      = <any CHAR except CTLs or ";">
  */
-Result<int, int> HttpRequest::set_set_cookie(const std::string &field_name, const std::string &field_value) {
+Result<int, int> HttpRequest::set_set_cookie(const std::string &field_name,
+											 const std::string &field_value) {
 	_request_header_fields[field_name] = this->ready_ValueMap(field_value);
 	return Result<int, int>::ok(STATUS_OK);
 }
 
 // todo: Proxy-Authorization
 // Proxy-Authorization: <type> <credentials>
-Result<int, int> HttpRequest::set_proxy_authorization(const std::string &field_name, const std::string &field_value)
+Result<int, int> HttpRequest::set_proxy_authorization(const std::string &field_name,
+													  const std::string &field_value)
 {
 	if (std::count(field_value.begin(), field_value.end(), ' ') == 1)
 	{
