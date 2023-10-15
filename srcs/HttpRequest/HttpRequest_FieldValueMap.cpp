@@ -192,7 +192,8 @@ Result<std::string, int> parse_auth_param(const std::string &field_value,
 // Authorization = credentials
 // credentials   = auth-scheme [ 1*SP ( token68 / #auth-param ) ]
 // https://datatracker.ietf.org/doc/html/rfc7235#section-4.2
-Result<std::map<std::string, std::string>, int> parse_credentials(const std::string &field_value) {
+Result<std::map<std::string, std::string>, int> parse_credentials(
+												const std::string &field_value) {
 	std::map<std::string, std::string> credentials;
 	std::string auth_scheme, auth_param;
 	Result<std::string, int> auth_scheme_result, auth_param_result;
@@ -843,7 +844,6 @@ Result<int, int> HttpRequest::set_authorization(const std::string &field_name,
  */
 Result<int, int> HttpRequest::set_cache_control(const std::string &field_name,
 												const std::string &field_value) {
-
 	std::map<std::string, std::string> cache_directive;
 	Result<std::map<std::string, std::string>, int> result;
 
