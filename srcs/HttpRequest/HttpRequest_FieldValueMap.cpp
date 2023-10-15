@@ -73,6 +73,10 @@ Result<int, int> parse_map_element(const std::string &field_value,
 	return Result<int, int>::ok(OK);
 }
 
+bool is_key_only(const std::string &value) {
+	return value.empty();
+}
+
 //------------------------------------------------------------------------------
 
 /* Authorization */
@@ -396,6 +400,7 @@ Result<int, int> validate_keep_alive_info(const std::map<std::string, std::strin
 			HttpMessageParser::to_delta_seconds(value, &succeed);
 			if (succeed) { continue; }
 		} else if (HttpMessageParser::is_token(key)) {
+			if (is_key_only(value)) { continue; }
 			if (HttpMessageParser::is_token(value)) { continue; }
 			if (HttpMessageParser::is_quoted_string(value)) { continue; }
 		}
@@ -698,10 +703,6 @@ Result<std::map<std::string, std::string> , int> parse_cache_directive(
 	}
 
 	return Result<std::map<std::string, std::string>, int>::ok(cache_directive);
-}
-
-bool is_key_only(const std::string &value) {
-	return value.empty();
 }
 
 /*
