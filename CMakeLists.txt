@@ -126,10 +126,11 @@ set (unit_test_srcs
 
         # field value map
         test/unit_test/TestFieldValueMap/TestAuthorization.cpp
+        test/unit_test/TestFieldValueMap/TestCacheControl.cpp
+        test/unit_test/TestFieldValueMap/TestCookie.cpp
         test/unit_test/TestFieldValueMap/TestForwarded.cpp
         test/unit_test/TestFieldValueMap/TestKeepAlive.cpp
         test/unit_test/TestFieldValueMap/TestProxyAuthorization.cpp
-        test/unit_test/TestFieldValueMap/TestCookie.cpp
 
         # date
         test/unit_test/TestDate/TestDate.cpp

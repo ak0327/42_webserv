@@ -6,6 +6,75 @@
 
 namespace {
 
+/*
+ FIELD_NAME   = #MAP_ELEMENT
+ MAP_ELEMENT  = token [ "=" ( token / quoted-string ) ]
+ 1#element => element *( OWS "," OWS element )
+ */
+Result<int, int> parse_map_element(const std::string &field_value,
+								   std::size_t start_pos,
+								   std::size_t *end_pos,
+								   std::string *key,
+								   std::string *value) {
+	std::size_t pos, end, len;
+
+	if (!end_pos || !key || !value) {
+		return Result<int, int>::err(ERR);
+	}
+	if (field_value.empty()) {
+		return Result<int, int>::err(ERR);
+	}
+
+	// key
+	pos = start_pos;
+	len = 0;
+	while (field_value[pos + len]
+		   && HttpMessageParser::is_tchar(field_value[pos + len])) {
+		++len;
+	}
+	*key = field_value.substr(pos, len);
+	pos += len;
+
+	// =
+	if (field_value[pos] == ELEMENT_SEPARATOR || field_value[pos] == '\0') {
+		*value = std::string(EMPTY);
+		*end_pos = pos;
+		return Result<int, int>::ok(OK);
+	}
+	if (field_value[pos] != '=') { return Result<int, int>::err(ERR); }
+	++pos;
+
+	// value
+	len = 0;
+	if (std::isdigit(field_value[pos])) {
+		while (field_value[pos + len] && std::isdigit(field_value[pos + len])) {
+			++len;
+		}
+	} else if (HttpMessageParser::is_tchar(field_value[pos])) {
+		while (field_value[pos + len]
+				&& HttpMessageParser::is_tchar(field_value[pos + len])) {
+			++len;
+		}
+	} else if (field_value[pos] == '"') {
+		HttpMessageParser::skip_quoted_string(field_value, pos, &end);
+		if (pos == end) {
+			return Result<int, int>::err(ERR);
+		}
+		len = end - pos;
+	} else {
+		return Result<int, int>::err(ERR);
+	}
+	if (len == 0) {
+		return Result<int, int>::err(ERR);
+	}
+	*value = field_value.substr(pos, len);
+
+	*end_pos = pos + len;
+	return Result<int, int>::ok(OK);
+}
+
+//------------------------------------------------------------------------------
+
 /* Authorization */
 // auth-param    = token BWS "=" BWS ( token / quoted-string )
 bool is_auth_param(const std::string &str) {
@@ -131,9 +200,6 @@ Result<std::map<std::string, std::string>, int> parse_credentials(const std::str
 		return Result<std::map<std::string, std::string>, int>::err(ERR);
 	}
 	credentials[std::string(AUTH_SCHEME)] = auth_scheme_result.get_ok_value();
-	// std::cout << YELLOW << " auth_scheme:[" << auth_scheme_result.get_ok_value() << "]" << RESET << std::endl;
-	// std::cout << YELLOW << " &str[pos]:[" << &field_value[pos] << "]" << RESET << std::endl;
-	// std::cout << YELLOW << " &str[end]:[" << &field_value[end_pos] << "]" << RESET << std::endl;
 	pos = end_pos;
 
 	if (field_value[pos] != '\0') {
@@ -142,7 +208,6 @@ Result<std::map<std::string, std::string>, int> parse_credentials(const std::str
 			return Result<std::map<std::string, std::string>, int>::err(ERR);
 		}
 		credentials[std::string(AUTH_PARAM)] = auth_param_result.get_ok_value();
-		// std::cout << YELLOW << " auth_param:[" << auth_param_result.get_ok_value() << "]" << RESET << std::endl;
 	}
 	pos = end_pos;
 
@@ -278,72 +343,6 @@ Result<std::map<std::string, std::string>, int> parse_and_validate_forwarded_ele
 //------------------------------------------------------------------------------
 /* Keep-Alive */
 
-/*
- Keep-Alive           = "Keep-Alive" ":" 1#keep-alive-info
- keep-alive-info      =   "timeout" "=" delta-seconds
-                        / keep-alive-extension
- keep-alive-extension = token [ "=" ( token / quoted-string ) ]
- 1#element => element *( OWS "," OWS element )
-
- key "=" value *(OWS "," OWS key "=" value)
- ^^^     ^^^^^
- */
-Result<int, int> parse_keep_alive_info_pair(const std::string &field_value,
-											std::size_t start_pos,
-											std::size_t *end_pos,
-											std::string *key,
-											std::string *value) {
-	std::size_t pos, end, len;
-
-	if (!end_pos || !key || !value) {
-		return Result<int, int>::err(ERR);
-	}
-	if (field_value.empty()) {
-		return Result<int, int>::err(ERR);
-	}
-
-	// key
-	pos = start_pos;
-	end = field_value.find('=', pos);
-	if (end == std::string::npos) {
-		return Result<int, int>::err(ERR);
-	}
-	len = end - pos;
-	*key = field_value.substr(pos, len);
-	pos = end;
-
-	// =
-	if (field_value[pos] != '=') { return Result<int, int>::err(ERR); }
-	++pos;
-
-	// value
-	len = 0;
-	if (std::isdigit(field_value[pos])) {
-		while (field_value[pos + len] && std::isdigit(field_value[pos + len])) {
-			++len;
-		}
-	} else if (HttpMessageParser::is_tchar(field_value[pos])) {
-		while (field_value[pos + len] && HttpMessageParser::is_tchar(field_value[pos + len])) {
-			++len;
-		}
-	} else if (field_value[pos] == '"') {
-		HttpMessageParser::skip_quoted_string(field_value, pos, &end);
-		if (pos == end) {
-			return Result<int, int>::err(ERR);
-		}
-		len = end - pos;
-	} else {
-		return Result<int, int>::err(ERR);
-	}
-	if (len == 0) {
-		return Result<int, int>::err(ERR);
-	}
-	*value = field_value.substr(pos, len);
-
-	*end_pos = pos + len;
-	return Result<int, int>::ok(OK);
-}
-
 Result<std::map<std::string, std::string>, int> parse_keep_alive_info(const std::string &field_value) {
 	std::map<std::string, std::string> keep_alive_info;
 	Result<int, int> parse_result;
@@ -356,19 +355,17 @@ Result<std::map<std::string, std::string>, int> parse_keep_alive_info(const std:
 
 	pos = 0;
 	while (true) {
-		parse_result = parse_keep_alive_info_pair(field_value, pos, &end, &key, &value);
+		parse_result = parse_map_element(field_value, pos, &end, &key, &value);
 		if (parse_result.is_err()) {
 			return Result<std::map<std::string, std::string>, int>::err(ERR);
 		}
 		pos = end;
 		keep_alive_info[key] = value;
-		// std::cout << CYAN << "key:[" << key << "], value:[" << value << "]" << RESET << std::endl;
 
 		if (field_value[pos] == '\0') { break; }
 
 		HttpMessageParser::skip_ows(field_value, &pos);
 		if (field_value[pos] != ELEMENT_SEPARATOR) {
-			// std::cout << CYAN << "err pos:" << pos << ", &str[pos]:[" << &field_value[pos] << "]" << RESET << std::endl;
 			return Result<std::map<std::string, std::string>, int>::err(ERR);
 		}
 		++pos;
@@ -655,6 +652,116 @@ Result<std::map<std::string, std::string>, int> parse_and_validate_cookie_string
 }
 
 //------------------------------------------------------------------------------
+/* Cache-Control */
+
+/*
+ Cache-Control   = #cache-directive
+ cache-directive = token [ "=" ( token / quoted-string ) ]
+ https://www.rfc-editor.org/rfc/rfc9111#field.cache-control
+
+ 1#element => element *( OWS "," OWS element )
+ https://triple-underscore.github.io/RFC7230-ja.html#abnf.extension
+ */
+Result<std::map<std::string, std::string> , int> parse_cache_directive(
+		const std::string &field_value) {
+	std::map<std::string, std::string> cache_directive;
+	Result<int, int> parse_result;
+	std::string key, value;
+	std::size_t pos, end;
+
+	if (field_value.empty()) {
+		return Result<std::map<std::string, std::string>, int>::err(ERR);
+	}
+
+	pos = 0;
+	while (true) {
+		parse_result = parse_map_element(field_value, pos, &end, &key, &value);
+		if (parse_result.is_err()) {
+			std::cout << YELLOW << "2" << RESET << std::endl;
+			return Result<std::map<std::string, std::string>, int>::err(ERR);
+		}
+		pos = end;
+		cache_directive[key] = value;
+
+		if (field_value[pos] == '\0') { break; }
+
+		HttpMessageParser::skip_ows(field_value, &pos);
+		if (field_value[pos] != ELEMENT_SEPARATOR) {
+			return Result<std::map<std::string, std::string>, int>::err(ERR);
+		}
+		++pos;
+		HttpMessageParser::skip_ows(field_value, &pos);
+
+		if (field_value[pos] == '\0') {
+			return Result<std::map<std::string, std::string>, int>::err(ERR);
+		}
+	}
+
+	return Result<std::map<std::string, std::string>, int>::ok(cache_directive);
+}
+
+bool is_key_only(const std::string &value) {
+	return value.empty();
+}
+
+/*
+ cache-directive = token [ "=" ( token / quoted-string ) ]
+ */
+Result<int, int> validate_cache_directive(
+		const std::map<std::string, std::string> &cache_directive) {
+	std::map<std::string, std::string>::const_iterator itr;
+	std::string key, value;
+
+	if (cache_directive.empty()) {
+		return Result<int, int>::err(ERR);
+	}
+
+	for (itr = cache_directive.begin(); itr != cache_directive.end(); ++itr) {
+		key = itr->first;
+		value = itr->second;
+
+		std::cout << "key:[" << key << "], value:[" << value << "]" << std::endl;
+
+		if (!HttpMessageParser::is_token(key)) {
+			return Result<int, int>::err(ERR);
+		}
+
+		if (is_key_only(value)) { continue; }
+		if (HttpMessageParser::is_token(value)) {
+			std::cout << CYAN << " token ok" << RESET << std::endl;
+			continue; }
+		if (HttpMessageParser::is_quoted_string(value)) {
+			std::cout << CYAN << " quoted ok" << RESET << std::endl;
+			continue; }
+
+		return Result<int, int>:: err(ERR);
+	}
+
+	return Result<int, int>::ok(OK);
+}
+
+Result<std::map<std::string, std::string>, int> parse_and_validate_cache_directive(
+		const std::string &field_value) {
+	Result<std::map<std::string, std::string> , int> parse_result;
+	Result<int, int> validate_result;
+	std::map<std::string, std::string> cache_directive;
+
+	parse_result = parse_cache_directive(field_value);
+	if (parse_result.is_err()) {
+		std::cout << CYAN << "parse ng" << RESET << std::endl;
+		return Result<std::map<std::string, std::string>, int>::err(ERR);
+	}
+	std::cout << CYAN << "parse ok" << RESET << std::endl;
+	cache_directive = parse_result.get_ok_value();
+
+	validate_result = validate_cache_directive(cache_directive);
+	if (validate_result.is_err()) {
+		std::cout << CYAN << "validate ng" << RESET << std::endl;
+		return Result<std::map<std::string, std::string>, int>::err(ERR);
+	}
+	std::cout << CYAN << "validate ok" << RESET << std::endl;
+	return Result<std::map<std::string, std::string>, int>::ok(cache_directive);
+}
 
 //------------------------------------------------------------------------------
 
@@ -728,6 +835,28 @@ Result<int, int> HttpRequest::set_authorization(const std::string &field_name,
 	return Result<int, int>::ok(STATUS_OK);
 }
 
+/*
+ Cache-Control   = #cache-directive
+ cache-directive = token [ "=" ( token / quoted-string ) ]
+ https://www.rfc-editor.org/rfc/rfc9111#field.cache-control
+ */
+Result<int, int> HttpRequest::set_cache_control(const std::string &field_name,
+												const std::string &field_value) {
+
+	std::map<std::string, std::string> cache_directive;
+	Result<std::map<std::string, std::string>, int> result;
+
+	clear_field_values_of(field_name);
+
+	result = parse_and_validate_cache_directive(field_value);
+	if (result.is_ok()) {
+		cache_directive = result.get_ok_value();
+		this->_request_header_fields[field_name] = new FieldValueMap(cache_directive);
+	}
+	return Result<int, int>::ok(STATUS_OK);
+}
+
+
 // 複数OK
 // todo: Content-Disposition
 // bnf??
@@ -741,7 +870,8 @@ Result<int, int> HttpRequest::set_content_disposition(const std::string &field_n
 	std::getline(ss, only_value, ';');
 	while (std::getline(ss, line, ';'))
 		except_onlyvalue_line = except_onlyvalue_line + line;
-	_request_header_fields[field_name] = this->ready_ValueMap(only_value, except_onlyvalue_line);
+	_request_header_fields[field_name] = this->ready_ValueMap(only_value,
+															  except_onlyvalue_line);
 	return Result<int, int>::ok(STATUS_OK);
 }
 
@@ -837,7 +967,8 @@ https://datatracker.ietf.org/doc/html/rfc3986#appendix-A
  */
 
 // 0 <= port <= 65535
-Result<int, int> HttpRequest::set_host(const std::string &field_name, const std::string &field_value)
+Result<int, int> HttpRequest::set_host(const std::string &field_name,
+									   const std::string &field_value)
 {
 	// std::string	first_value;
 	// std::string	second_value;
@@ -879,38 +1010,6 @@ Result<int, int> HttpRequest::set_keep_alive(const std::string &field_name,
 		keep_alive_info = result.get_ok_value();
 		this->_request_header_fields[field_name] = new FieldValueMap(keep_alive_info);
 	}
-	return Result<int, int>::ok(STATUS_OK);
-}
-
-// todo: Set-Cookie
-/*
- set-cookie-header = "Set-Cookie:" SP set-cookie-string
- set-cookie-string = cookie-pair *( ";" SP cookie-av )
-
- cookie-av         = expires-av / max-age-av / domain-av /
-                     path-av / secure-av / httponly-av /
-                     extension-av
- expires-av        = "Expires=" sane-cookie-date
- sane-cookie-date  = <rfc1123-date, defined in [RFC2616], Section 3.3.1>
- max-age-av        = "Max-Age=" non-zero-digit *DIGIT
-                       ; In practice, both expires-av and max-age-av
-                       ; are limited to dates representable by the
-                       ; user agent.
- non-zero-digit    = %x31-39
-                       ; digits 1 through 9
- domain-av         = "Domain=" domain-value
- domain-value      = <subdomain>
-                       ; defined in [RFC1034], Section 3.5, as
-                       ; enhanced by [RFC1123], Section 2.1
- path-av           = "Path=" path-value
- path-value        = <any CHAR except CTLs or ";">
- secure-av         = "Secure"
- httponly-av       = "HttpOnly"
- extension-av      = <any CHAR except CTLs or ";">
- */
-Result<int, int> HttpRequest::set_set_cookie(const std::string &field_name,
-											 const std::string &field_value) {
-	_request_header_fields[field_name] = this->ready_ValueMap(field_value);
 	return Result<int, int>::ok(STATUS_OK);
 }
 
