@@ -157,8 +157,11 @@ set (unit_test_srcs
 
         # add
         test/unit_test/TestStringHandler.cpp
-        test/unit_test/TestHttpMessageParser.cpp
         test/unit_test/TestRequestLine.cpp
+
+        # http message parser
+        test/unit_test/TestHttpMessageParser/TestStrToNum.cpp
+        test/unit_test/TestHttpMessageParser/TestIs.cpp
 
         # single field value
         test/unit_test/TestSingleFieldValue/TestAccessControlRequestMethod.cpp

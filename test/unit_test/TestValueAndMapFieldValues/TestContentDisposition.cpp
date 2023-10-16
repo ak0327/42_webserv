@@ -144,6 +144,52 @@ TEST(TestValueAndMapFieldValues, ContentDispositionOK3) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
+TEST(TestValueAndMapFieldValues, ContentDispositionOK4) {
+	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
+									 "Host: example.com\r\n"
+									 "Content-Disposition: attachment;filename=\"example.txt\"\r\n"
+									 "\r\n";
+	HttpRequest request(request_line);
+	bool has_field_name;
+	std::string field_name = std::string(CONTENT_DISPOSITION);
+
+	has_field_name = request.is_valid_field_name_registered(field_name);
+	EXPECT_TRUE(has_field_name);
+
+	if (has_field_name) {
+		FieldValueBase *field_values = request.get_field_values(field_name);
+		ValueAndMapFieldValues *value_and_map = dynamic_cast<ValueAndMapFieldValues *>(field_values);
+		std::string actual_value = value_and_map->get_value();
+		std::map<std::string, std::string> actual_map = value_and_map->get_value_map();
+
+		// expected
+		std::string expected_value = "attachment";
+		std::map<std::string, std::string> expected_map = {{"filename", "\"example.txt\""}};
+
+		// value
+		EXPECT_EQ(expected_value, actual_value);
+
+		// value_map
+		EXPECT_EQ(true, actual_map.size() == expected_map.size());
+
+		std::map<std::string, std::string>::iterator actual_itr, expected_itr;
+		actual_itr = actual_map.begin();
+		expected_itr = expected_map.begin();
+		while (actual_itr != actual_map.end() && expected_itr != expected_map.end()) {
+			EXPECT_EQ(expected_itr->second, actual_itr->second);
+			++actual_itr;
+			++expected_itr;
+		}
+		EXPECT_TRUE(actual_itr == actual_map.end());
+		EXPECT_TRUE(expected_itr == expected_map.end());
+
+	} else {
+		ADD_FAILURE() << field_name << " not found";
+	}
+
+	EXPECT_EQ(STATUS_OK, request.get_status_code());
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

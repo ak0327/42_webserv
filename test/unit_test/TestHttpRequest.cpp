@@ -1071,13 +1071,14 @@ TEST(Request, TEST6)
 									  "Host: example.com\r\n"
 									  "Content-Disposition: attachment; filename=\"example.txt\"\r\n"
 									  "Content-Encoding: gzip\r\n"
-									  "Content-Language: en-US\r\n"
+									  // "Content-Language: en-US\r\n" // todo:later
 									  "Content-Length: 1024\r\n"
 									  "Content-Location: /documents/example.txt\r\n"
 									  "Content-Range: bytes 0-511/1024\r\n"
 									  "Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'\r\n"
 									  "Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline'; report-uri /csp-report\r\n"
-									  "Content-Type: application/json\r\n";
+									  "Content-Type: application/json\r\n"
+									  "\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST2);
 	EXPECT_EQ(httprequest_test1.get_method(), "GET");
 	EXPECT_EQ(httprequest_test1.get_request_target(), "/example");

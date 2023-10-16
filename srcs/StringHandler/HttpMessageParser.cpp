@@ -46,6 +46,7 @@ double get_fractional_part(const std::string &str_after_decimal_point,
 
 namespace HttpMessageParser {
 
+// todo: test
 bool is_printable(const std::string &str)
 {
 	std::size_t pos;
@@ -61,21 +62,25 @@ bool is_printable(const std::string &str)
 	return true;
 }
 
+// todo: test
 std::string obtain_word_before_delimiter(const std::string &field_value, const char &delimiter)
 {
 	return field_value.substr(0, field_value.find(delimiter));
 }
 
+// todo: test
 std::string obtain_word_after_delimiter(const std::string &str, char delimiter)
 {
 	return str.substr(str.find(delimiter) + 1);
 }
 
+// todo: test
 std::string	obtain_weight(const std::string &field_value)
 {
 	return (obtain_word_after_delimiter(field_value, '='));
 }
 
+// todo: test
 std::string obtain_withoutows_value(const std::string &field_value_with_ows)
 {
 	size_t		before_pos = 0;
@@ -91,7 +96,6 @@ std::string obtain_withoutows_value(const std::string &field_value_with_ows)
 		return "";
 	return (field_value_with_ows.substr(before_pos, after_pos - before_pos + 1));
 }
-
 
 // DIGIT = %x30-39; 10 進数字（ 0-9 ）
 // sign, space is not allowed for Request message
@@ -112,12 +116,14 @@ int to_integer_num(const std::string &str, bool *succeed) {
 	return num;
 }
 
+// todo: test
 // delta-seconds = 1*DIGIT
 // The delta-seconds rule specifies a non-negative integer
 int to_delta_seconds(const std::string &str, bool *succeed) {
 	return to_integer_num(str, succeed);
 }
 
+// todo: test
 long to_long_num(const std::string &str, bool *succeed) {
 	bool		is_success = false, is_overflow;
 	long		num = 0;
@@ -135,6 +141,7 @@ long to_long_num(const std::string &str, bool *succeed) {
 	return num;
 }
 
+// todo: test
 long to_length(const std::string &str, bool *succeed) {
 	return to_long_num(str, succeed);
 }
@@ -146,8 +153,8 @@ long to_length(const std::string &str, bool *succeed) {
 //  1.234
 //    ^^^ precision_digit = 3
 double to_floating_num(const std::string &str,
-										  size_t precision_digit,
-										  bool *succeed) {
+					   size_t precision_digit,
+					   bool *succeed) {
 	bool		is_success;
 	double 		num, precision_num;
 	std::size_t	idx, precision_idx;
@@ -189,7 +196,7 @@ bool is_delimiters(char c) {
 
 // VCHAR = %x21-7E ; (any visible [USASCII] character).
 bool is_vchar(char c) {
-	return std::isprint(c);
+	return 0x21 <= c && c <= 0x7E;
 }
 
 // obs-text = %x80-FF
@@ -200,6 +207,7 @@ bool is_obs_text(char c) {
 }
 
 // field-vchar = VCHAR / obs-text
+// todo: test
 bool is_field_vchar(char c) {
 	return (is_vchar(c) || is_obs_text(c));
 }
@@ -228,7 +236,7 @@ bool is_field_content(const std::string &str) {
 
 // tchar = "!" / "#" / "$" / "%" / "&" / "'" / "*"
 //      / "+" / "-" / "." / "^" / "_" / "`" / "|" / "~"
-//      / DIGIT / ALPHAo
+//      / DIGIT / ALPHA
 //      ; any VCHAR, except delimiters
 // https://datatracker.ietf.org/doc/html/rfc7230#ref-USASCII
 bool is_tchar(char c) {
@@ -290,19 +298,21 @@ bool is_token68(const std::string &str) {
  ext-token  = <the characters in token, followed by "*">
  https://httpwg.org/specs/rfc6266.html#n-grammar
  */
-bool is_ext_token(const std::string &key) {
+bool is_ext_token(const std::string &str) {
 	std::size_t pos;
 
-	if (key.empty()) { return false; }
+	if (str.empty()) { return false; }
 	pos = 0;
-	while (key[pos] && HttpMessageParser::is_tchar(key[pos])) {
+	while (str[pos] && HttpMessageParser::is_tchar(str[pos])) {
 		++pos;
 	}
-	if (pos == 0 || key[pos] != '*') { return false; }
-	++pos;
-	return key[pos] == '\0';
+	if (pos < 2 || str[pos - 1] != '*') {
+		return false;
+	}
+	return str[pos] == '\0';
 }
 
+// todo: test
 bool is_langtag(const std::string &str) {
 	std::size_t pos, end;
 
@@ -314,6 +324,7 @@ bool is_langtag(const std::string &str) {
 	return str[pos] == '\0';
 }
 
+// todo: test
 bool is_privateuse(const std::string &str) {
 	std::size_t pos, end;
 
@@ -325,6 +336,7 @@ bool is_privateuse(const std::string &str) {
 	return str[pos] == '\0';
 }
 
+// todo: test
 bool is_grandfathered(const std::string &str) {
 	std::size_t pos, end;
 
@@ -342,6 +354,7 @@ bool is_grandfathered(const std::string &str) {
                / grandfathered       ; grandfathered tags
   https://tex2e.github.io/rfc-translater/html/rfc5646.html
  */
+// todo: test
 bool is_language_tag(const std::string &str) {
 	return (is_langtag(str)
 			|| is_printable(str)
@@ -352,13 +365,14 @@ bool is_language_tag(const std::string &str) {
  extlang       = 3ALPHA              ; selected ISO 639 codes
                  *2("-" 3ALPHA)      ; permanently reserved
  */
+// todo: test
 void skip_extlang(const std::string &str,
 				  std::size_t start_pos,
 				  std::size_t *end_pos) {
 	std::size_t pos, len, cnt;
 
 	if (!end_pos) { return; }
-	if (str.empty()) { return; }
+	if (str.empty() || str.length() < start_pos) { return; }
 
 	pos = start_pos;
 	len = 0;
@@ -391,13 +405,14 @@ void skip_extlang(const std::string &str,
                / 4ALPHA              ; or reserved for future use
                / 5*8ALPHA            ; or registered language subtag
  */
+// todo: test
 void skip_language(const std::string &str,
 				  std::size_t start_pos,
 				  std::size_t *end_pos) {
 	std::size_t pos, end, len;
 
 	if (!end_pos) { return; }
-	if (str.empty()) { return; }
+	if (str.empty() || str.length() < start_pos) { return; }
 
 	pos = start_pos;
 	len = 0;
@@ -423,13 +438,14 @@ void skip_language(const std::string &str,
 /*
  script = 4ALPHA ; ISO 15924 code
  */
+// todo: test
 void skip_script(const std::string &str,
 				 std::size_t start_pos,
 				 std::size_t *end_pos) {
 	std::size_t pos, len;
 
 	if (!end_pos) { return; }
-	if (str.empty()) { return; }
+	if (str.empty() || str.length() < start_pos) { return; }
 
 	pos = start_pos;
 	len = 0;
@@ -445,13 +461,14 @@ void skip_script(const std::string &str,
  region        = 2ALPHA              ; ISO 3166-1 code
                / 3DIGIT              ; UN M.49 code
  */
+// todo: test
 void skip_region(const std::string &str,
 				 std::size_t start_pos,
 				 std::size_t *end_pos) {
 	std::size_t pos, len;
 
 	if (!end_pos) { return; }
-	if (str.empty()) { return; }
+	if (str.empty() || str.length() < start_pos) { return; }
 
 	pos = start_pos;
 	len = 0;
@@ -477,13 +494,14 @@ void skip_region(const std::string &str,
  variant       = 5*8alphanum         ; registered variants
                / (DIGIT 3alphanum)
  */
+// todo: test
 void skip_variant(const std::string &str,
 				  std::size_t start_pos,
 				  std::size_t *end_pos) {
 	std::size_t pos, len;
 
 	if (!end_pos) { return; }
-	if (str.empty()) { return; }
+	if (str.empty() || str.length() < start_pos) { return; }
 
 	pos = start_pos;
 	len = 0;
@@ -520,7 +538,7 @@ void skip_extension(const std::string &str,
 	std::size_t pos, len, cnt;
 
 	if (!end_pos) { return; }
-	if (str.empty()) { return; }
+	if (str.empty() || str.length() < start_pos) { return; }
 
 	pos = start_pos;
 	if (!is_singleton(str[pos])) { return; }
@@ -545,12 +563,15 @@ void skip_extension(const std::string &str,
 }
 
 
-bool is_option(const std::string &str,
-			   std::size_t start_pos,
-			   void (*skip_func)(const std::string &, std::size_t, std::size_t *)) {
+// todo: test
+bool is_langtag_option(const std::string &str,
+					   std::size_t start_pos,
+					   void (*skip_func)(const std::string &,
+							   			 std::size_t,
+										 std::size_t *)) {
 	std::size_t pos, end;
 
-	if (str.empty()) { return false; }
+	if (str.empty() || str.length() < start_pos) { return false; }
 
 	pos = start_pos;
 	if (str[pos] != '-') { return false; }
@@ -568,13 +589,14 @@ bool is_option(const std::string &str,
                  *("-" extension)
                  ["-" privateuse]
  */
+// todo: test
 void skip_langtag(const std::string &str,
 				  std::size_t start_pos,
 				  std::size_t *end_pos) {
 	std::size_t pos, end;
 
 	if (!end_pos) { return; }
-	if (str.empty()) { return; }
+	if (str.empty() || str.length() < start_pos) { return; }
 
 	// language
 	pos = start_pos;
@@ -583,14 +605,14 @@ void skip_langtag(const std::string &str,
 	pos = end;
 
 	// ["-" script]
-	if (is_option(str, pos, skip_script)) {
+	if (is_langtag_option(str, pos, skip_script)) {
 		++pos;
 		skip_script(str, pos, &end);
 		pos = end;
 	}
 
 	// ["-" region]
-	if (is_option(str, pos, skip_region)) {
+	if (is_langtag_option(str, pos, skip_region)) {
 		++pos;
 		skip_region(str, pos, &end);
 		pos = end;
@@ -598,7 +620,7 @@ void skip_langtag(const std::string &str,
 
 	// *("-" variant)
 	while (true) {
-		if (is_option(str, pos, skip_variant)) {
+		if (is_langtag_option(str, pos, skip_variant)) {
 			++pos;
 			skip_variant(str, pos, &end);
 			pos = end;
@@ -609,7 +631,7 @@ void skip_langtag(const std::string &str,
 
 	// *("-" extension)
 	while (true) {
-		if (is_option(str, pos, skip_extension)) {
+		if (is_langtag_option(str, pos, skip_extension)) {
 			++pos;
 			skip_extension(str, pos, &end);
 			pos = end;
@@ -619,7 +641,7 @@ void skip_langtag(const std::string &str,
 	}
 
 	// ["-" privateuse]
-	if (is_option(str, pos, skip_privateuse)) {
+	if (is_langtag_option(str, pos, skip_privateuse)) {
 		++pos;
 		skip_privateuse(str, pos, &end);
 		pos = end;
@@ -633,13 +655,14 @@ void skip_langtag(const std::string &str,
 /*
  privateuse    = "x" 1*("-" (1*8alphanum))
  */
+// todo: test
 void skip_privateuse(const std::string &str,
 					 std::size_t start_pos,
 					 std::size_t *end_pos) {
 	std::size_t pos, len;
 
 	if (!end_pos) { return; }
-	if (str.empty()) { return; }
+	if (str.empty() || str.length() < start_pos) { return; }
 
 	pos = start_pos;
 	if (str[pos] != 'x') { return; }
@@ -683,6 +706,7 @@ void skip_privateuse(const std::string &str,
                / "sgn-BE-NL"
                / "sgn-CH-DE"
  */
+// todo: test
 bool is_irregular(const std::string &str) {
 	return ((str == "en-GB-oed")
 			|| (str == "i-ami")
@@ -714,6 +738,7 @@ bool is_irregular(const std::string &str) {
                / "zh-min-nan"        ; subtag or sequence of subtags
                / "zh-xiang"
  */
+// todo: test
 bool is_regular(const std::string &str) {
 	return ((str == "art-lojban")
 			|| (str == "cel-gaulish")
@@ -731,6 +756,7 @@ bool is_regular(const std::string &str) {
                / regular             ; during the RFC 3066 era
  https://tex2e.github.io/rfc-translater/html/rfc5646.html
  */
+// todo: test
 void skip_grandfathered(const std::string &str,
 						std::size_t start_pos,
 						std::size_t *end_pos) {
@@ -738,7 +764,7 @@ void skip_grandfathered(const std::string &str,
 	std::string value;
 
 	if (!end_pos) { return; }
-	if (str.empty()) { return; }
+	if (str.empty() || str.length() < start_pos) { return; }
 
 	pos = start_pos;
 	len = 0;
@@ -754,9 +780,13 @@ void skip_grandfathered(const std::string &str,
 	*end_pos = pos + len;
 }
 
+// todo: test
 void skip_language_tag(const std::string &str,
 					   std::size_t start_pos,
 					   std::size_t *end_pos) {
+	if (!end_pos) { return; }
+	if (str.empty() || str.length() < start_pos) { return; }
+
 	if (is_langtag(str)) {
 		skip_langtag(str, start_pos, end_pos);
 	} else if (is_privateuse(str)) {
@@ -769,6 +799,7 @@ void skip_language_tag(const std::string &str,
 /*
  etagc = "!" / %x23-7E ; '#'-'~' / obs-text
  */
+// todo: test
 bool is_etag(char c) {
 	return (c == '!' || ('#' <= c && c <= '~') || is_obs_text(c));
 }
@@ -776,6 +807,7 @@ bool is_etag(char c) {
 /*
  opaque-tag = DQUOTE *etagc DQUOTE
  */
+// todo: test
 bool is_opaque_tag(const std::string &str) {
 	std::size_t pos;
 
@@ -799,6 +831,7 @@ bool is_opaque_tag(const std::string &str) {
  weak = %x57.2F ; W/
  https://www.rfc-editor.org/rfc/rfc9110#name-collected-abnf
  */
+// todo: test
 bool is_entity_tag(const std::string &str) {
 	std::size_t pos;
 
@@ -810,12 +843,17 @@ bool is_entity_tag(const std::string &str) {
 	return is_opaque_tag(&str[pos]);
 }
 
+// todo: test
 void skip_ows(const std::string &str, std::size_t *pos) {
+	if (!pos) { return; }
+	if (str.empty() || str.length() < *pos) { return; }
+
 	while (is_whitespace(str[*pos])) {
 		*pos += 1;
 	}
 }
 
+// todo: test
 bool is_qdtext(char c) {
 	if (c == HT || c == SP || c == 0x21) { return true; }
 	if (0x23 <= c && c <= 0x5B) { return true; }
@@ -825,6 +863,7 @@ bool is_qdtext(char c) {
 }
 
 // hexadecimal 0-9/A-F/a-f
+// todo: test
 bool is_hexdig(char c) {
 	return (('0' <= c && c <= '9')
 			|| ('A' <= c && c <= 'F')
@@ -838,6 +877,7 @@ bool is_hexdig(char c) {
 			   ; token except ( "*" / "'" / "%" )
  https://www.rfc-editor.org/rfc/rfc5987.html#section-3.2
  */
+// todo: test
 bool is_attr_char(char c) {
 	if (!is_tchar(c)) {
 		return false;
@@ -855,6 +895,7 @@ bool is_attr_char(char c) {
                / %x61-77             ; a - w
                / %x79-7A             ; y - z
  */
+// todo: test
 bool is_singleton(char c) {
 	if (!std::isalnum(c)) {
 		return false;
@@ -867,6 +908,7 @@ bool is_singleton(char c) {
 
 
 bool is_quoted_pair(const std::string &str, std::size_t pos) {
+	if (str.empty() || str.length() < pos) { return false; }
 	if (str[pos] != '\\') { return false; }
 
 	return (str[pos + 1] == HT
@@ -881,7 +923,8 @@ bool is_quoted_pair(const std::string &str, std::size_t pos) {
  https://www.rfc-editor.org/rfc/rfc3986#section-2.1
  */
 bool is_pct_encoded(const std::string &str, std::size_t pos) {
-	if (str.empty()) { return false; }
+	if (str.empty() || str.length() < pos) { return false; }
+
 	return (str[pos] == '%'
 			&& is_hexdig(str[pos + 1])
 			&& is_hexdig(str[pos + 2]));
@@ -892,13 +935,13 @@ bool is_pct_encoded(const std::string &str, std::size_t pos) {
  qdtext         = HTAB / SP / %x21 / %x23-5B / %x5D-7E / obs-text
  quoted-pair    = "\" ( HTAB / SP / VCHAR / obs-text )
  */
-
 void skip_quoted_string(const std::string &str,
 						std::size_t start_pos,
 						std::size_t *end_pos) {
 	std::size_t len;
 
 	if (!end_pos) { return; }
+	if (str.length() < start_pos) { return; }
 
 	*end_pos = start_pos;
 	len = 0;
@@ -956,6 +999,9 @@ bool is_valid_method(const std::string &method) {
 }
 
 bool is_valid_request_target(const std::string &request_target) {
+	if (request_target.empty()) {
+		return false;
+	}
 	return HttpMessageParser::is_printable(request_target);
 }
 
@@ -970,6 +1016,7 @@ bool is_header_body_separator(const std::string &line_end_with_cr) {
 	return line_end_with_cr == std::string(1, CR);
 }
 
+// todo: test
 bool is_base_64_value_non_empty(const std::string &str) {
 	char c;
 
@@ -999,6 +1046,7 @@ bool is_base_64_value_non_empty(const std::string &str) {
 
  https://datatracker.ietf.org/doc/html/rfc3986#appendix-A
  */
+// todo: test
 bool is_absolute_uri(const std::string &str) {
 	(void)str;
 	// todo
@@ -1035,12 +1083,14 @@ bool is_absolute_uri(const std::string &str) {
 
  https://datatracker.ietf.org/doc/html/rfc3986#section-3.3
 */
+// todo: test
 bool is_partial_uri(const std::string &str) {
 	(void)str;
 	// todo
 	return true;
 }
 
+// todo: test
 std::string parse_uri_host(const std::string &str,
 						   std::size_t start_pos,
 						   std::size_t *end_pos) {
@@ -1051,6 +1101,7 @@ std::string parse_uri_host(const std::string &str,
 	return "";
 }
 
+// todo: test
 std::string parse_port(const std::string &str,
 					   std::size_t start_pos,
 					   std::size_t *end_pos) {

@@ -72,6 +72,8 @@ TEST(TestHttpMessageParser, ToIntegerNumFailure) {
 	EXPECT_EQ(false, succeed);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 TEST(TestHttpMessageParser, ToFloatingNumSuccess) {
 	double ret;
 	bool succeed;

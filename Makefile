@@ -203,7 +203,7 @@ run_string_test    :
 #rm -rf build
 	cmake -S . -B build
 	cmake --build build
-	./build/unit_test --gtest_filter=TestStringHandler*
+	./build/unit_test --gtest_filter=TestStringHandler*:TestHttpMessageParser*
 
 .PHONY    : run_rl_test
 run_rl_test    :
