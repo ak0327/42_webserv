@@ -373,7 +373,7 @@ void HttpRequest::init_field_name_parser() {
 	map[std::string(AUTHORIZATION)] = &HttpRequest::set_authorization;
 	map[std::string(CACHE_CONTROL)] =  &HttpRequest::set_cache_control;  // todo:
 	map[std::string(CONNECTION)] = &HttpRequest::set_connection;
-	map[std::string(CONTENT_DISPOSITION)] = &HttpRequest::set_content_disposition;  // todo: Content-Disposition
+	map[std::string(CONTENT_DISPOSITION)] = &HttpRequest::set_content_disposition;
 	map[std::string(CONTENT_ENCODING)] = &HttpRequest::set_content_encoding;
 	map[std::string(CONTENT_LANGUAGE)] = &HttpRequest::set_content_language;  // todo: Content-Language
 	map[std::string(CONTENT_LENGTH)] = &HttpRequest::set_content_length;

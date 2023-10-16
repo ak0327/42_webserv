@@ -36,6 +36,7 @@ bool is_whitespace(char c);
 bool is_qdtext(char c);
 bool is_hexdig(char c);
 bool is_attr_char(char c);
+bool is_singleton(char c);
 
 bool is_field_content(const std::string &str);
 bool is_token(const std::string &str);
@@ -102,5 +103,26 @@ void skip_quoted_string(const std::string &str,
 void skip_language_tag(const std::string &str,
 					   std::size_t start_pos,
 					   std::size_t *end_pos);
+void skip_langtag(const std::string &str,
+				  std::size_t start_pos,
+				  std::size_t *end_pos);
+void skip_privateuse(const std::string &str,
+					 std::size_t start_pos,
+					 std::size_t *end_pos);
+void skip_grandfathered(const std::string &str,
+						std::size_t start_pos,
+						std::size_t *end_pos);
+void skip_script(const std::string &str,
+				 std::size_t start_pos,
+				 std::size_t *end_pos);
+void skip_region(const std::string &str,
+				 std::size_t start_pos,
+				 std::size_t *end_pos);
+void skip_variant(const std::string &str,
+				  std::size_t start_pos,
+				  std::size_t *end_pos);
+void skip_extension(const std::string &str,
+					std::size_t start_pos,
+					std::size_t *end_pos);
 
 }  // namespace HttpMessageParser

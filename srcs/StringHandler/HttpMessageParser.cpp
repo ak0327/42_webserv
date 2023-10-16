@@ -228,8 +228,9 @@ bool is_field_content(const std::string &str) {
 
 // tchar = "!" / "#" / "$" / "%" / "&" / "'" / "*"
 //      / "+" / "-" / "." / "^" / "_" / "`" / "|" / "~"
-//      / DIGIT / ALPHA
+//      / DIGIT / ALPHAo
 //      ; any VCHAR, except delimiters
+// https://datatracker.ietf.org/doc/html/rfc7230#ref-USASCII
 bool is_tchar(char c) {
 	return (std::isalnum(c)
 			|| c == '!' || c == '#' || c == '$' || c == '%'
@@ -302,50 +303,367 @@ bool is_ext_token(const std::string &key) {
 	return key[pos] == '\0';
 }
 
+bool is_langtag(const std::string &str) {
+	std::size_t pos, end;
+
+	pos = 0;
+	skip_langtag(str, pos, &end);
+	if (pos == end) {
+		return false;
+	}
+	return str[pos] == '\0';
+}
+
+bool is_privateuse(const std::string &str) {
+	std::size_t pos, end;
+
+	pos = 0;
+	skip_privateuse(str, pos, &end);
+	if (pos == end) {
+		return false;
+	}
+	return str[pos] == '\0';
+}
+
+bool is_grandfathered(const std::string &str) {
+	std::size_t pos, end;
+
+	pos = 0;
+	skip_grandfathered(str, pos, &end);
+	if (pos == end) {
+		return false;
+	}
+	return str[pos] == '\0';
+}
+
 /*
  Language-Tag  = langtag             ; normal language tags
                / privateuse          ; private use tag
                / grandfathered       ; grandfathered tags
+  https://tex2e.github.io/rfc-translater/html/rfc5646.html
+ */
+bool is_language_tag(const std::string &str) {
+	return (is_langtag(str)
+			|| is_printable(str)
+			|| is_grandfathered(str));
+}
 
+/*
+ extlang       = 3ALPHA              ; selected ISO 639 codes
+                 *2("-" 3ALPHA)      ; permanently reserved
+ */
+void skip_extlang(const std::string &str,
+				  std::size_t start_pos,
+				  std::size_t *end_pos) {
+	std::size_t pos, len, cnt;
+
+	if (!end_pos) { return; }
+	if (str.empty()) { return; }
+
+	pos = start_pos;
+	len = 0;
+	while (str[pos + len] && std::isalpha(str[pos + len])) {
+		++len;
+	}
+	if (len != 3) { return; }
+	pos += len;
+
+	cnt = 0;
+	while (str[pos]) {
+		if (str[pos] != '-') { break; }  // Followed by a non-extlang string
+		len = 0;
+		if (str[pos + len] && std::isalpha(str[pos + len])) {
+			++len;
+		}
+		if (len != 3) { return; }
+		pos += len;
+		++cnt;
+	}
+
+	if (2 < cnt) { return ; }
+	*end_pos = pos;
+}
+
+/*
+ language      = 2*3ALPHA            ; shortest ISO 639 code
+                 ["-" extlang]       ; sometimes followed by
+                                     ; extended language subtags
+               / 4ALPHA              ; or reserved for future use
+               / 5*8ALPHA            ; or registered language subtag
+ */
+void skip_language(const std::string &str,
+				  std::size_t start_pos,
+				  std::size_t *end_pos) {
+	std::size_t pos, end, len;
+
+	if (!end_pos) { return; }
+	if (str.empty()) { return; }
+
+	pos = start_pos;
+	len = 0;
+	while (str[pos + len] && std::isalpha(str[pos + len])) {
+		++len;
+	}
+	if (2 <= len && len <= 3) {
+		pos += len;
+		if (str[pos] == '-') {
+			++pos;
+			skip_extlang(str, pos, &end);
+			if (pos == end) { return; }
+			pos = end;
+		}
+	} else if (len == 4 || (5 <= len && len <= 8)) {
+		pos += len;
+	} else {
+		return;
+	}
+	*end_pos = pos;
+}
+
+/*
+ script = 4ALPHA ; ISO 15924 code
+ */
+void skip_script(const std::string &str,
+				 std::size_t start_pos,
+				 std::size_t *end_pos) {
+	std::size_t pos, len;
+
+	if (!end_pos) { return; }
+	if (str.empty()) { return; }
+
+	pos = start_pos;
+	len = 0;
+	while (str[pos + len] && std::isalpha(str[pos + len])) {
+		++len;
+	}
+	if (len != 4) { return; }
+	pos += len;
+	*end_pos = pos;
+}
+
+/*
+ region        = 2ALPHA              ; ISO 3166-1 code
+               / 3DIGIT              ; UN M.49 code
+ */
+void skip_region(const std::string &str,
+				 std::size_t start_pos,
+				 std::size_t *end_pos) {
+	std::size_t pos, len;
+
+	if (!end_pos) { return; }
+	if (str.empty()) { return; }
+
+	pos = start_pos;
+	len = 0;
+	if (std::isalpha(str[pos])) {
+		while (str[pos + len] && std::isalpha(str[pos = len])) {
+			++len;
+		}
+		if (len != 2) { return; }
+		pos += len;
+	} else if (std::isdigit(str[pos])) {
+		while (str[pos + len] && std::isdigit(str[pos = len])) {
+			++len;
+		}
+		if (len != 3) { return; }
+		pos += len;
+	} else {
+		return;
+	}
+	*end_pos = pos;
+}
+
+/*
+ variant       = 5*8alphanum         ; registered variants
+               / (DIGIT 3alphanum)
+ */
+void skip_variant(const std::string &str,
+				  std::size_t start_pos,
+				  std::size_t *end_pos) {
+	std::size_t pos, len;
+
+	if (!end_pos) { return; }
+	if (str.empty()) { return; }
+
+	pos = start_pos;
+	len = 0;
+	if (std::isalnum(str[pos])) {
+		while (str[pos + len] && std::isalnum(str[pos = len])) {
+			++len;
+		}
+		if (len < 5 || 8 < len) { return; }
+		pos += len;
+	} else if (std::isdigit(str[pos])) {
+		++pos;
+		while (str[pos + len] && std::isalnum(str[pos = len])) {
+			++len;
+		}
+		if (len != 3) { return; }
+		pos += len;
+	} else {
+		return;
+	}
+	*end_pos = pos;
+}
+
+/*
+ extension     = singleton 1*("-" (2*8alphanum))
+ singleton     = DIGIT               ; 0 - 9
+               / %x41-57             ; A - W
+               / %x59-5A             ; Y - Z
+               / %x61-77             ; a - w
+               / %x79-7A             ; y - z
+ */
+void skip_extension(const std::string &str,
+					std::size_t start_pos,
+					std::size_t *end_pos) {
+	std::size_t pos, len, cnt;
+
+	if (!end_pos) { return; }
+	if (str.empty()) { return; }
+
+	pos = start_pos;
+	if (!is_singleton(str[pos])) { return; }
+	++pos;
+
+	cnt = 0;
+	while (true) {
+		if (str[pos] != '-') { break; }
+		len = 0;
+		while (str[pos + len] && std::isalnum(str[pos + len])) {
+			++len;
+		}
+		if (len < 2 || 8 <= len) { return; }
+		pos += len;
+		++cnt;
+	}
+
+	if (cnt == 0) {
+		return;
+	}
+	*end_pos = pos;
+}
+
+
+bool is_option(const std::string &str,
+			   std::size_t start_pos,
+			   void (*skip_func)(const std::string &, std::size_t, std::size_t *)) {
+	std::size_t pos, end;
+
+	if (str.empty()) { return false; }
+
+	pos = start_pos;
+	if (str[pos] != '-') { return false; }
+	++pos;
+
+	skip_func(str, pos, &end);
+	return pos != end;
+}
+
+/*
  langtag       = language
                  ["-" script]
                  ["-" region]
                  *("-" variant)
                  *("-" extension)
                  ["-" privateuse]
+ */
+void skip_langtag(const std::string &str,
+				  std::size_t start_pos,
+				  std::size_t *end_pos) {
+	std::size_t pos, end;
 
- language      = 2*3ALPHA            ; shortest ISO 639 code
-                 ["-" extlang]       ; sometimes followed by
-                                     ; extended language subtags
-               / 4ALPHA              ; or reserved for future use
-               / 5*8ALPHA            ; or registered language subtag
+	if (!end_pos) { return; }
+	if (str.empty()) { return; }
 
- extlang       = 3ALPHA              ; selected ISO 639 codes
-                 *2("-" 3ALPHA)      ; permanently reserved
+	// language
+	pos = start_pos;
+	skip_language(str, pos, &end);
+	if (pos == end) { return; }
+	pos = end;
 
+	// ["-" script]
+	if (is_option(str, pos, skip_script)) {
+		++pos;
+		skip_script(str, pos, &end);
+		pos = end;
+	}
 
- script = 4ALPHA ; ISO 15924 code
+	// ["-" region]
+	if (is_option(str, pos, skip_region)) {
+		++pos;
+		skip_region(str, pos, &end);
+		pos = end;
+	}
 
- region        = 2ALPHA              ; ISO 3166-1 code
-               / 3DIGIT              ; UN M.49 code
+	// *("-" variant)
+	while (true) {
+		if (is_option(str, pos, skip_variant)) {
+			++pos;
+			skip_variant(str, pos, &end);
+			pos = end;
+			continue;
+		}
+		break;
+	}
 
- variant       = 5*8alphanum         ; registered variants
-               / (DIGIT 3alphanum)
- alphanum      = (ALPHA / DIGIT)     ; letters and numbers
+	// *("-" extension)
+	while (true) {
+		if (is_option(str, pos, skip_extension)) {
+			++pos;
+			skip_extension(str, pos, &end);
+			pos = end;
+			continue;
+		}
+		break;
+	}
 
- extension     = singleton 1*("-" (2*8alphanum))
+	// ["-" privateuse]
+	if (is_option(str, pos, skip_privateuse)) {
+		++pos;
+		skip_privateuse(str, pos, &end);
+		pos = end;
+	}
 
- singleton     = DIGIT               ; 0 - 9
-               / %x41-57             ; A - W
-               / %x59-5A             ; Y - Z
-               / %x61-77             ; a - w
-               / %x79-7A             ; y - z
+	if (str[pos] != '-') {  // todo
+		*end_pos = pos;
+	}
+}
 
+/*
  privateuse    = "x" 1*("-" (1*8alphanum))
+ */
+void skip_privateuse(const std::string &str,
+					 std::size_t start_pos,
+					 std::size_t *end_pos) {
+	std::size_t pos, len;
 
- grandfathered = irregular           ; non-redundant tags registered
-               / regular             ; during the RFC 3066 era
+	if (!end_pos) { return; }
+	if (str.empty()) { return; }
 
+	pos = start_pos;
+	if (str[pos] != 'x') { return; }
+	++pos;
+
+	while (str[pos]) {
+		if (str[pos] != '-') { return; }
+		++pos;
+
+		len = 0;
+		while (str[pos + len]
+				&& std::isalnum(str[pos + len])) {
+			len++;
+		}
+		if (1 <= len && len <= 8) {
+			pos += len;
+			*end_pos = pos;
+			continue;
+		}
+		return;
+	}
+}
+
+/*
  irregular     = "en-GB-oed"         ; irregular tags do not match
                / "i-ami"             ; the 'langtag' production and
                / "i-bnn"             ; would not otherwise be
@@ -364,7 +682,28 @@ bool is_ext_token(const std::string &key) {
                / "sgn-BE-FR"
                / "sgn-BE-NL"
                / "sgn-CH-DE"
+ */
+bool is_irregular(const std::string &str) {
+	return ((str == "en-GB-oed")
+			|| (str == "i-ami")
+			|| (str == "i-bnn")
+			|| (str == "i-default")
+			|| (str == "i-enochian")
+			|| (str == "i-hak")
+			|| (str == "i-klingon")
+			|| (str == "i-lux")
+			|| (str == "i-mingo")
+			|| (str == "i-navajo")
+			|| (str == "i-pwn")
+			|| (str == "i-tao")
+			|| (str == "i-tay")
+			|| (str == "i-tsu")
+			|| (str == "sgn-BE-FR")
+			|| (str == "sgn-BE-NL")
+			|| (str == "sgn-CH-DE"));
+}
 
+/*
  regular       = "art-lojban"        ; these tags match the 'langtag'
                / "cel-gaulish"       ; production, but their subtags
                / "no-bok"            ; are not extended language
@@ -374,23 +713,57 @@ bool is_ext_token(const std::string &key) {
                / "zh-min"            ; in favor of a more modern
                / "zh-min-nan"        ; subtag or sequence of subtags
                / "zh-xiang"
+ */
+bool is_regular(const std::string &str) {
+	return ((str == "art-lojban")
+			|| (str == "cel-gaulish")
+			|| (str == "no-bok")
+			|| (str == "no-nyn")
+			|| (str == "zh-guoyu")
+			|| (str == "zh-hakka")
+			|| (str == "zh-min")
+			|| (str == "zh-min-nan")
+			|| (str == "zh-xiang"));
+}
 
+/*
+ grandfathered = irregular           ; non-redundant tags registered
+               / regular             ; during the RFC 3066 era
  https://tex2e.github.io/rfc-translater/html/rfc5646.html
  */
-bool is_language_tag(const std::string &str) {
-	(void)str;
-	// todo
-	return true;
+void skip_grandfathered(const std::string &str,
+						std::size_t start_pos,
+						std::size_t *end_pos) {
+	std::size_t pos, len;
+	std::string value;
+
+	if (!end_pos) { return; }
+	if (str.empty()) { return; }
+
+	pos = start_pos;
+	len = 0;
+	while (str[pos + len]
+			&& !is_delimiters(str[pos + len])
+			&& !is_whitespace(str[pos + len])) {
+		++len;
+	}
+	value = str.substr(pos, len);
+	if (!is_irregular(value) && !is_regular(value)) {
+		return;
+	}
+	*end_pos = pos + len;
 }
 
 void skip_language_tag(const std::string &str,
 					   std::size_t start_pos,
 					   std::size_t *end_pos) {
-	(void)str;
-	(void)start_pos;
-	(void)end_pos;
-
-	// todo
+	if (is_langtag(str)) {
+		skip_langtag(str, start_pos, end_pos);
+	} else if (is_privateuse(str)) {
+		skip_privateuse(str, start_pos, end_pos);
+	} else if (is_grandfathered(str)) {
+		skip_grandfathered(str, start_pos, end_pos);
+	}
 }
 
 /*
@@ -474,6 +847,24 @@ bool is_attr_char(char c) {
 	}
 	return true;
 }
+
+/*
+ singleton     = DIGIT               ; 0 - 9
+               / %x41-57             ; A - W
+               / %x59-5A             ; Y - Z
+               / %x61-77             ; a - w
+               / %x79-7A             ; y - z
+ */
+bool is_singleton(char c) {
+	if (!std::isalnum(c)) {
+		return false;
+	}
+	if (c == 'X' || c == 'x') {
+		return false;
+	}
+	return true;
+}
+
 
 bool is_quoted_pair(const std::string &str, std::size_t pos) {
 	if (str[pos] != '\\') { return false; }

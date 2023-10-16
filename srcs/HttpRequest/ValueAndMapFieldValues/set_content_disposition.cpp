@@ -3,7 +3,7 @@
 #include "Constant.hpp"
 #include "HttpRequest.hpp"
 #include "HttpMessageParser.hpp"
-#include "MapFieldValues.hpp"
+#include "ValueAndMapFieldValues.hpp"
 
 namespace {
 
@@ -29,12 +29,11 @@ Result<std::string, int> parse_disposition_type(const std::string &field_value,
 
 	pos = 0;
 	end = field_value.find(';', pos);
-	if (pos == std::string::npos) {
+	if (end == std::string::npos) {
 		len = field_value.length();
 	} else {
 		len = end - pos;
 	}
-
 	disposition_type = field_value.substr(pos, len);
 	pos += len;
 
@@ -112,7 +111,7 @@ Result<int, int> parse_param(const std::string &field_value,
 	++pos;
 
 	// value
-	end = field_value.find('=', pos);
+	end = field_value.find(';', pos);
 	if (end == std::string::npos) {
 		end = field_value.length();
 	}
@@ -146,27 +145,34 @@ Result<std::map<std::string, std::string>, int> parse_disposition_param(
 	std::size_t pos, end;
 	std::string key, value;
 
+	// std::cout << MAGENTA << "  &field_value[start]:[" << &field_value[start_pos] << "]" << RESET << std::endl;
+
 	if (!end_pos) {
 		return Result<std::map<std::string, std::string>, int>::err(ERR);
 	}
 	if (field_value.empty()) {
+		// std::cout << MAGENTA << "  err 1" << RESET << std::endl;
 		return Result<std::map<std::string, std::string>, int>::err(ERR);
 	}
 
 	pos = start_pos;
 	while (field_value[pos]) {
 		if (field_value[pos] != ';') {
+			// std::cout << MAGENTA << "  err 2" << RESET << std::endl;
 			return Result<std::map<std::string, std::string>, int>::err(ERR);
 		}
+		++pos;
 
 		parse_result = parse_param(field_value, pos, &end, &key, &value);
 		if (parse_result.is_err()) {
+			// std::cout << MAGENTA << "  err 3" << RESET << std::endl;
 			return Result<std::map<std::string, std::string>, int>::err(ERR);
 		}
 		disposition_param[key] = value;
+		// std::cout << MAGENTA << "  key:[" << key << "], value:[" << value << "]" << RESET << std::endl;
 		pos = end;
 	}
-
+	*end_pos = pos;
 	return Result<std::map<std::string, std::string>, int>::ok(disposition_param);
 }
 
@@ -215,7 +221,6 @@ bool is_ext_param_value(const std::string &value) {
 	++pos;
 
 	HttpMessageParser::skip_language_tag(value, pos, &end);
-	if (pos == end) { return false; }
 	pos = end;
 
 	if (value[pos] != '\'') { return false; }
@@ -241,7 +246,8 @@ bool is_ext_param_value(const std::string &value) {
   disp-ext-parm       = token "=" value
                       | ext-token "=" ext-value
  */
-Result<int, int> validate_disposition_param(const std::map<std::string, std::string> &disposition_param) {
+Result<int, int> validate_disposition_param(
+					const std::map<std::string, std::string> &disposition_param) {
 	std::map<std::string, std::string>::const_iterator itr;
 	std::string key, value;
 
@@ -273,26 +279,24 @@ Result<std::map<std::string, std::string>, int> parse_and_validate_disposition_p
 	Result<int, int> validate_result;
 
 	if (!end_pos) {
+		// std::cout << YELLOW << " err 1" << RESET << std::endl;
 		return Result<std::map<std::string, std::string> , int>::err(ERR);
 	}
 
 	parse_result = parse_disposition_param(field_value, start_pos, end_pos);
 	if (parse_result.is_err()) {
+		// std::cout << YELLOW << " err 2" << RESET << std::endl;
 		return Result<std::map<std::string, std::string> , int>::err(ERR);
 	}
 	disposition_param = parse_result.get_ok_value();
 
 	validate_result = validate_disposition_param(disposition_param);
 	if (validate_result.is_err()) {
+		// std::cout << YELLOW << " err 3" << RESET << std::endl;
 		return Result<std::map<std::string, std::string> , int>::err(ERR);
 	}
 	return Result<std::map<std::string, std::string> , int>::ok(disposition_param);
 }
-
-
-}  // namespace
-
-////////////////////////////////////////////////////////////////////////////////
 
 /*
  content-disposition = "Content-Disposition" ":"
@@ -313,49 +317,52 @@ Result<std::map<std::string, std::string>, int> parse_and_validate_disposition_p
  https://httpwg.org/specs/rfc6266.html#header.field.definition
  */
 
-Result<int, int> parse_and_validate_content_disposition(const std::string &field_value,
-														std::string *disposition_type,
-														std::map<std::string, std::string> *disposition_param) {
+Result<int, int> parse_and_validate_content_disposition(
+								const std::string &field_value,
+								std::string *disposition_type,
+								std::map<std::string, std::string> *disposition_param) {
 	Result<std::string, int> type_result;
 	Result<std::map<std::string, std::string>, int> param_result;
 	std::size_t pos, end;
 
 	type_result = parse_and_validate_disposition_type(field_value, &end);
 	if (type_result.is_err()) {
+		// std::cout << CYAN << "err 1" << RESET << std::endl;
 		return Result<int, int>::err(ERR);
 	}
 	*disposition_type = type_result.get_ok_value();
+	// std::cout << CYAN << "type:[" << *disposition_type << "]" << RESET << std::endl;
+
 	pos = end;
 
 	if (field_value[pos] == '\0') {
-		// save data
 		return Result<int, int>::ok(OK);
 	}
-	if (field_value[pos] != ELEMENT_SEPARATOR) {
+	if (field_value[pos] != ';') {
+		// std::cout << CYAN << "err 2" << RESET << std::endl;
 		return Result<int, int>::err(ERR);
 	}
-	++pos;
 
 	param_result = parse_and_validate_disposition_param(field_value, pos, &end);
 	if (param_result.is_err()) {
+		// std::cout << CYAN << "err 3" << RESET << std::endl;
 		return Result<int, int>::err(ERR);
 	}
 	*disposition_param = param_result.get_ok_value();
 	pos = end;
 
 	if (field_value[pos] != '\0') {
+		// std::cout << CYAN << "err 4, &field_value[pos]:[" << &field_value[pos] << "]" << RESET << std::endl;
 		return Result<int, int>::err(ERR);
 	}
 	return Result<int, int>::ok(OK);
 }
 
-// todo: Content-Disposition
 
-//  map["disposition-type"] = disposition-type
-//  map["filename"] = value
-//  map["filename*"] = ext-value
-//  map[token] = value
-//  map[ext-token] = ext-value
+}  // namespace
+
+////////////////////////////////////////////////////////////////////////////////
+
 Result<int, int> HttpRequest::set_content_disposition(const std::string &field_name,
 													  const std::string &field_value) {
 	std::string disposition_type;
@@ -367,11 +374,9 @@ Result<int, int> HttpRequest::set_content_disposition(const std::string &field_n
 	result = parse_and_validate_content_disposition(field_value,
 													&disposition_type,
 													&disposition_param);
-	if (result.is_err()) {
-		return Result<int, int>::err(ERR);
+	if (result.is_ok()) {
+		this->_request_header_fields[field_name] = new ValueAndMapFieldValues(disposition_type,
+																			  disposition_param);
 	}
-
-	// save data
-
 	return Result<int, int>::ok(STATUS_OK);
 }

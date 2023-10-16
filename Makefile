@@ -47,11 +47,14 @@ SRCS		+= 	$(REQUEST_DIR)/FieldValueBase/FieldValueBase.cpp \
 				$(REQUEST_DIR)/MediaType/MediaType.cpp \
 				$(REQUEST_DIR)/MediaType/set_media_type.cpp \
 				$(REQUEST_DIR)/SetFieldValues/SetFieldValues.cpp \
-				$(REQUEST_DIR)/SetFieldValues/set_multi_field_values.cpp \
+				$(REQUEST_DIR)/SetFieldValues/set_set_field_values.cpp \
 				$(REQUEST_DIR)/RequestLine/RequestLine.cpp \
 				$(REQUEST_DIR)/SingleFieldValue/SingleFieldValue.cpp \
 				$(REQUEST_DIR)/TwoValueSet/TwoValueSet.cpp \
-				$(REQUEST_DIR)/ValueWeightArraySet/ValueWeightArraySet.cpp
+				$(REQUEST_DIR)/ValueWeightArraySet/ValueWeightArraySet.cpp \
+				$(REQUEST_DIR)/ValueAndMapFieldValues/ValueAndMapFieldValues.cpp \
+				$(REQUEST_DIR)/ValueAndMapFieldValues/set_content_disposition.cpp \
+
 
 DATE_DIR	= 	$(REQUEST_DIR)/Date
 SRCS		+=	$(DATE_DIR)/Date.cpp \
@@ -62,7 +65,6 @@ MAP_FIELD_VALUES_DIR = $(REQUEST_DIR)/MapFieldValues
 SRCS		+=	$(MAP_FIELD_VALUES_DIR)/MapFieldValues.cpp \
 				$(MAP_FIELD_VALUES_DIR)/set_authorization.cpp \
 				$(MAP_FIELD_VALUES_DIR)/set_cache_control.cpp \
-				$(MAP_FIELD_VALUES_DIR)/set_content_disposition.cpp \
 				$(MAP_FIELD_VALUES_DIR)/set_cookie.cpp \
 				$(MAP_FIELD_VALUES_DIR)/set_forwarded.cpp \
 				$(MAP_FIELD_VALUES_DIR)/set_host.cpp \
@@ -240,6 +242,14 @@ run_map_field_values_test    :
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestMapFieldValues*
+
+
+.PHONY    : run_value_and_map_test
+run_value_and_map_test    :
+#rm -rf build
+	cmake -S . -B build
+	cmake --build build
+	./build/unit_test --gtest_filter=TestValueAndMapFieldValues*
 
 
 .PHONY    : run_media_test

@@ -48,6 +48,7 @@ include_directories(
         srcs/HttpRequest/SingleFieldValue
         srcs/HttpRequest/ValueWeightArraySet
         srcs/HttpRequest/MediaType
+        srcs/HttpRequest/ValueAndMapFieldValues
 )
 
 # webserv_srcs -----------------------------------------------------------------
@@ -88,7 +89,6 @@ set(field_value_map_srcs
         srcs/HttpRequest/MapFieldValues/MapFieldValues.cpp
         srcs/HttpRequest/MapFieldValues/set_authorization.cpp
         srcs/HttpRequest/MapFieldValues/set_cache_control.cpp
-        srcs/HttpRequest/MapFieldValues/set_content_disposition.cpp
         srcs/HttpRequest/MapFieldValues/set_cookie.cpp
         srcs/HttpRequest/MapFieldValues/set_forwarded.cpp
         srcs/HttpRequest/MapFieldValues/set_host.cpp
@@ -108,9 +108,16 @@ set(media_type_srcs
 
 
 # SetFieldValues
-set(multi_field_values_srcs
+set(set_field_values_srcs
         srcs/HttpRequest/SetFieldValues/SetFieldValues.cpp
         srcs/HttpRequest/SetFieldValues/set_set_field_values.cpp
+        )
+
+
+# FieldValueBase
+set(value_and_map_field_values_srcs
+        srcs/HttpRequest/ValueAndMapFieldValues/ValueAndMapFieldValues.cpp
+        srcs/HttpRequest/ValueAndMapFieldValues/set_content_disposition.cpp
         )
 
 
@@ -119,7 +126,8 @@ list(APPEND http_request_srcs
         ${field_value_map_srcs}
         ${field_values_srcs}
         ${media_type_srcs}
-        ${multi_field_values_srcs}
+        ${set_field_values_srcs}
+        ${value_and_map_field_values_srcs}
         )
 
 list(APPEND webserv_srcs
@@ -166,7 +174,7 @@ set (unit_test_srcs
         test/unit_test/TestSingleFieldValue/TestTrailer.cpp
         test/unit_test/TestSingleFieldValue/TestUpgradeInsecureRequests.cpp
 
-        # multi field value
+        # set field value
         test/unit_test/TestSetFieldValues/TestContentEncoding.cpp
         test/unit_test/TestSetFieldValues/TestIfMatch.cpp
         test/unit_test/TestSetFieldValues/TestIfNoneMatch.cpp
@@ -179,6 +187,9 @@ set (unit_test_srcs
         test/unit_test/TestMapFieldValues/TestForwarded.cpp
         test/unit_test/TestMapFieldValues/TestKeepAlive.cpp
         test/unit_test/TestMapFieldValues/TestProxyAuthorization.cpp
+
+        # value and map field values
+        test/unit_test/TestValueAndMapFieldValues/TestContentDisposition.cpp
 
         # date
         test/unit_test/TestDate/TestDate.cpp
