@@ -286,6 +286,23 @@ bool is_token68(const std::string &str) {
 }
 
 /*
+ ext-token  = <the characters in token, followed by "*">
+ https://httpwg.org/specs/rfc6266.html#n-grammar
+ */
+bool is_ext_token(const std::string &key) {
+	std::size_t pos;
+
+	if (key.empty()) { return false; }
+	pos = 0;
+	while (key[pos] && HttpMessageParser::is_tchar(key[pos])) {
+		++pos;
+	}
+	if (pos == 0 || key[pos] != '*') { return false; }
+	++pos;
+	return key[pos] == '\0';
+}
+
+/*
  Language-Tag  = langtag             ; normal language tags
                / privateuse          ; private use tag
                / grandfathered       ; grandfathered tags
@@ -361,8 +378,19 @@ bool is_token68(const std::string &str) {
  https://tex2e.github.io/rfc-translater/html/rfc5646.html
  */
 bool is_language_tag(const std::string &str) {
+	(void)str;
 	// todo
-	return HttpMessageParser::is_token(str);
+	return true;
+}
+
+void skip_language_tag(const std::string &str,
+					   std::size_t start_pos,
+					   std::size_t *end_pos) {
+	(void)str;
+	(void)start_pos;
+	(void)end_pos;
+
+	// todo
 }
 
 /*
@@ -423,6 +451,30 @@ bool is_qdtext(char c) {
 	return false;
 }
 
+// hexadecimal 0-9/A-F/a-f
+bool is_hexdig(char c) {
+	return (('0' <= c && c <= '9')
+			|| ('A' <= c && c <= 'F')
+			|| ('a' <= c && c <= 'f'));
+}
+
+/*
+ attr-char     = ALPHA / DIGIT
+			   / "!" / "#" / "$" / "&" / "+" / "-" / "."
+			   / "^" / "_" / "`" / "|" / "~"
+			   ; token except ( "*" / "'" / "%" )
+ https://www.rfc-editor.org/rfc/rfc5987.html#section-3.2
+ */
+bool is_attr_char(char c) {
+	if (!is_tchar(c)) {
+		return false;
+	}
+	if (c == '*' || c == '\'' || c == '%') {
+		return false;
+	}
+	return true;
+}
+
 bool is_quoted_pair(const std::string &str, std::size_t pos) {
 	if (str[pos] != '\\') { return false; }
 
@@ -430,6 +482,18 @@ bool is_quoted_pair(const std::string &str, std::size_t pos) {
 			|| str[pos + 1] == SP
 			|| is_vchar(str[pos + 1])
 			|| is_obs_text(str[pos + 1]));
+}
+
+/*
+ pct-encoded   = "%" HEXDIG HEXDIG
+			   ; see [RFC3986], Section 2.1
+ https://www.rfc-editor.org/rfc/rfc3986#section-2.1
+ */
+bool is_pct_encoded(const std::string &str, std::size_t pos) {
+	if (str.empty()) { return false; }
+	return (str[pos] == '%'
+			&& is_hexdig(str[pos + 1])
+			&& is_hexdig(str[pos + 2]));
 }
 
 /*

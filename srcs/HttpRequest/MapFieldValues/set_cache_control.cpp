@@ -3,7 +3,7 @@
 #include "Constant.hpp"
 #include "HttpRequest.hpp"
 #include "HttpMessageParser.hpp"
-#include "FieldValueMap.hpp"
+#include "MapFieldValues.hpp"
 
 namespace {
 
@@ -30,7 +30,7 @@ Result<std::map<std::string, std::string> , int> parse_cache_directive(
 
 	pos = 0;
 	while (true) {
-		parse_result = FieldValueMap::parse_map_element(field_value, pos, &end, &key, &value);
+		parse_result = MapFieldValues::parse_map_element(field_value, pos, &end, &key, &value);
 		if (parse_result.is_err()) {
 			std::cout << YELLOW << "2" << RESET << std::endl;
 			return Result<std::map<std::string, std::string>, int>::err(ERR);
@@ -75,7 +75,7 @@ Result<int, int> validate_cache_directive(
 			return Result<int, int>::err(ERR);
 		}
 
-		if (FieldValueMap::is_key_only(value)) { continue; }
+		if (MapFieldValues::is_key_only(value)) { continue; }
 		if (HttpMessageParser::is_token(value)) {
 			continue; }
 		if (HttpMessageParser::is_quoted_string(value)) {
@@ -125,7 +125,7 @@ Result<int, int> HttpRequest::set_cache_control(const std::string &field_name,
 	result = parse_and_validate_cache_directive(field_value);
 	if (result.is_ok()) {
 		cache_directive = result.get_ok_value();
-		this->_request_header_fields[field_name] = new FieldValueMap(cache_directive);
+		this->_request_header_fields[field_name] = new MapFieldValues(cache_directive);
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }
