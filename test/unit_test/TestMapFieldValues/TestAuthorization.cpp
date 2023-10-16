@@ -2,10 +2,10 @@
 #include "Constant.hpp"
 #include "HttpRequest.hpp"
 #include "RequestLine.hpp"
-#include "MultiFieldValues.hpp"
+#include "SetFieldValues.hpp"
 #include "gtest/gtest.h"
 
-TEST(TestFieldValueMap, AuthorizationOK1) {
+TEST(TestMapFieldValues, AuthorizationOK1) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Authorization: Basic YWxhZGRpbjpvcGVuc2VzYW1l \r\n"
@@ -18,8 +18,8 @@ TEST(TestFieldValueMap, AuthorizationOK1) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
-		FieldValueMap *multi_field_values = dynamic_cast<FieldValueMap *>(field_values);
+		FieldValueBase *field_values = request.get_field_values(field_name);
+		MapFieldValues *multi_field_values = dynamic_cast<MapFieldValues *>(field_values);
 		std::map<std::string, std::string> values = multi_field_values->get_value_map();
 		std::map<std::string, std::string> ans = {{std::string(AUTH_SCHEME), "Basic"},
 												  {std::string(AUTH_PARAM), "YWxhZGRpbjpvcGVuc2VzYW1l"}};
@@ -44,7 +44,7 @@ TEST(TestFieldValueMap, AuthorizationOK1) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, AuthorizationOK2) {
+TEST(TestMapFieldValues, AuthorizationOK2) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Authorization: Basic\r\n"
@@ -57,8 +57,8 @@ TEST(TestFieldValueMap, AuthorizationOK2) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
-		FieldValueMap *multi_field_values = dynamic_cast<FieldValueMap *>(field_values);
+		FieldValueBase *field_values = request.get_field_values(field_name);
+		MapFieldValues *multi_field_values = dynamic_cast<MapFieldValues *>(field_values);
 		std::map<std::string, std::string> values = multi_field_values->get_value_map();
 		std::map<std::string, std::string> ans = {{std::string(AUTH_SCHEME), "Basic"}};
 
@@ -85,7 +85,7 @@ TEST(TestFieldValueMap, AuthorizationOK2) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TEST(TestFieldValueMap, AuthorizationNG1) {
+TEST(TestMapFieldValues, AuthorizationNG1) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Authorization: Basic    YWxhZGRpbjpvcGVuc2VzYW1l \r\n"
@@ -99,7 +99,7 @@ TEST(TestFieldValueMap, AuthorizationNG1) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, AuthorizationNG2) {
+TEST(TestMapFieldValues, AuthorizationNG2) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Authorization: Basic aaa==hoge\r\n"
@@ -113,7 +113,7 @@ TEST(TestFieldValueMap, AuthorizationNG2) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, AuthorizationNG3) {
+TEST(TestMapFieldValues, AuthorizationNG3) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Authorization: Basic\r\n"

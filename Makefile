@@ -36,19 +36,18 @@ SRCS		+=	$(STR_HANDLER)/HttpMessageParser.cpp \
 #httprequest
 REQUEST_DIR	=	HttpRequest
 SRCS		+=	$(REQUEST_DIR)/HttpRequest.cpp \
-				$(REQUEST_DIR)/HttpRequest_FieldValueMap.cpp \
 				$(REQUEST_DIR)/RequestLine/RequestLine.cpp \
 				$(REQUEST_DIR)/HttpRequest_SingleFieldValue.cpp \
 				$(REQUEST_DIR)/HttpRequest_TwoValueSet.cpp \
 				$(REQUEST_DIR)/HttpRequest_ValueWeightArraySet.cpp
 
-SRCS		+= 	$(REQUEST_DIR)/FieldValues/FieldValues.cpp \
+SRCS		+= 	$(REQUEST_DIR)/FieldValueBase/FieldValueBase.cpp \
 				$(REQUEST_DIR)/LinkClass/LinkClass.cpp \
 				$(REQUEST_DIR)/LinkClass/set_link.cpp \
 				$(REQUEST_DIR)/MediaType/MediaType.cpp \
 				$(REQUEST_DIR)/MediaType/set_media_type.cpp \
-				$(REQUEST_DIR)/MultiFieldValues/MultiFieldValues.cpp \
-				$(REQUEST_DIR)/MultiFieldValues/set_multi_field_values.cpp \
+				$(REQUEST_DIR)/SetFieldValues/SetFieldValues.cpp \
+				$(REQUEST_DIR)/SetFieldValues/set_multi_field_values.cpp \
 				$(REQUEST_DIR)/RequestLine/RequestLine.cpp \
 				$(REQUEST_DIR)/SingleFieldValue/SingleFieldValue.cpp \
 				$(REQUEST_DIR)/TwoValueSet/TwoValueSet.cpp \
@@ -59,14 +58,15 @@ SRCS		+=	$(DATE_DIR)/Date.cpp \
 				$(DATE_DIR)/set_date.cpp
 
 
-FIELD_VALUE_MAP_DIR = $(REQUEST_DIR)/FieldValueMap
-SRCS		+=	$(FIELD_VALUE_MAP_DIR)/FieldValueMap.cpp \
-				$(FIELD_VALUE_MAP_DIR)/set_authorization.cpp \
-				$(FIELD_VALUE_MAP_DIR)/set_cache_control.cpp \
-				$(FIELD_VALUE_MAP_DIR)/set_cookie.cpp \
-				$(FIELD_VALUE_MAP_DIR)/set_forwarded.cpp \
-				$(FIELD_VALUE_MAP_DIR)/set_host.cpp \
-				$(FIELD_VALUE_MAP_DIR)/set_keep_alive.cpp
+MAP_FIELD_VALUES_DIR = $(REQUEST_DIR)/MapFieldValues
+SRCS		+=	$(MAP_FIELD_VALUES_DIR)/MapFieldValues.cpp \
+				$(MAP_FIELD_VALUES_DIR)/set_authorization.cpp \
+				$(MAP_FIELD_VALUES_DIR)/set_cache_control.cpp \
+				$(MAP_FIELD_VALUES_DIR)/set_content_disposition.cpp \
+				$(MAP_FIELD_VALUES_DIR)/set_cookie.cpp \
+				$(MAP_FIELD_VALUES_DIR)/set_forwarded.cpp \
+				$(MAP_FIELD_VALUES_DIR)/set_host.cpp \
+				$(MAP_FIELD_VALUES_DIR)/set_keep_alive.cpp
 
 
 # OBJS -------------------------------------------------------------------------
@@ -87,11 +87,11 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(STR_HANDLER) \
 				$(SRCS_DIR)/$(REQUEST_DIR) \
 				$(SRCS_DIR)/$(DATE_DIR) \
-				$(SRCS_DIR)/$(FIELD_VALUE_MAP_DIR) \
-				$(SRCS_DIR)/$(REQUEST_DIR)/FieldValues \
+				$(SRCS_DIR)/$(MAP_FIELD_VALUES_DIR) \
+				$(SRCS_DIR)/$(REQUEST_DIR)/FieldValueBase \
 				$(SRCS_DIR)/$(REQUEST_DIR)/LinkClass \
 				$(SRCS_DIR)/$(REQUEST_DIR)/MediaType \
-				$(SRCS_DIR)/$(REQUEST_DIR)/MultiFieldValues \
+				$(SRCS_DIR)/$(REQUEST_DIR)/SetFieldValues \
 				$(SRCS_DIR)/$(REQUEST_DIR)/RequestLine \
 				$(SRCS_DIR)/$(REQUEST_DIR)/SingleFieldValue \
 				$(SRCS_DIR)/$(REQUEST_DIR)/TwoValueSet \
@@ -226,20 +226,20 @@ run_single_field_value_test    :
 	./build/unit_test --gtest_filter=TestSingleFieldValue*
 
 
-.PHONY    : run_multi_field_values_test
-run_multi_field_values_test    :
+.PHONY    : run_set_field_values_test
+run_set_field_values_test    :
 #rm -rf build
 	cmake -S . -B build
 	cmake --build build
-	./build/unit_test --gtest_filter=TestMultiFieldValues*
+	./build/unit_test --gtest_filter=TestSetFieldValues*
 
 
-.PHONY    : run_field_value_map_test
-run_field_value_map_test    :
+.PHONY    : run_map_field_values_test
+run_map_field_values_test    :
 #rm -rf build
 	cmake -S . -B build
 	cmake --build build
-	./build/unit_test --gtest_filter=TestFieldValueMap*
+	./build/unit_test --gtest_filter=TestMapFieldValues*
 
 
 .PHONY    : run_media_test

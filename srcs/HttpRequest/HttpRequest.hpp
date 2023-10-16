@@ -6,24 +6,24 @@
 # include <sstream>
 # include <vector>
 
-# include "FieldValues.hpp"
+# include "FieldValueBase.hpp"
 # include "StringHandler.hpp"
 # include "RequestLine.hpp"
 # include "ValueWeightArraySet.hpp"
-# include "MultiFieldValues.hpp"
+# include "SetFieldValues.hpp"
 # include "SingleFieldValue.hpp"
 # include "TwoValueSet.hpp"
-# include "FieldValueMap.hpp"
+# include "MapFieldValues.hpp"
 # include "Date.hpp"
 # include "LinkClass.hpp"
 # include "Result.hpp"
 
-class FieldValues;
+class FieldValueBase;
 class RequestLine;
 class TwoValueSet;
-class MultiFieldValues;
+class SetFieldValues;
 class Date;
-class FieldValueMap;
+class MapFieldValues;
 class SingleFieldValue;
 class ValueWeightArraySet;
 
@@ -41,13 +41,13 @@ class HttpRequest {
 
 	bool is_valid_field_name_registered(const std::string &field_name);
 	bool is_field_name_repeated_in_request(const std::string &field_name);
-	std::map<std::string, FieldValues*> get_request_header_fields(void);
-	FieldValues *get_field_values(const std::string &field_name);
+	std::map<std::string, FieldValueBase*> get_request_header_fields(void);
+	FieldValueBase *get_field_values(const std::string &field_name);
 
  private:
 	int _status_code;
 	RequestLine _request_line;
-	std::map<std::string, FieldValues*> _request_header_fields;
+	std::map<std::string, FieldValueBase*> _request_header_fields;
 	std::string _message_body;
 
 	typedef Result<int, int> (HttpRequest::*func_ptr)(const std::string&, const std::string&);
@@ -85,11 +85,11 @@ class HttpRequest {
 	std::vector<std::string> securitypolicy_readyvector(const std::string &words);
 	TwoValueSet *ready_TwoValueSet(const std::string &value);
 	TwoValueSet *ready_TwoValueSet(const std::string &value, char delimiter);
-	MultiFieldValues *ready_ValueArraySet(const std::string &value);
+	SetFieldValues *ready_ValueArraySet(const std::string &value);
 	Date *ready_ValueDateSet(const std::string &value);
-	FieldValueMap *ready_ValueMap(const std::string &value);
-	FieldValueMap *ready_ValueMap(const std::string &value, char delimiter);
-	FieldValueMap *ready_ValueMap(const std::string &only_value, const std::string &value);
+	MapFieldValues *ready_ValueMap(const std::string &value);
+	MapFieldValues *ready_ValueMap(const std::string &value, char delimiter);
+	MapFieldValues *ready_ValueMap(const std::string &only_value, const std::string &value);
 	SingleFieldValue *ready_ValueSet(const std::string &value);
 	ValueWeightArraySet*ready_ValueWeightArraySet(const std::string &value);
 

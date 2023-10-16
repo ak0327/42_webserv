@@ -2,20 +2,20 @@
 
 # include <map>
 # include <string>
-# include "FieldValues.hpp"
+# include "FieldValueBase.hpp"
 # include "Result.hpp"
 
-class FieldValueMap : public FieldValues {
+class MapFieldValues : public FieldValueBase {
  public:
-	explicit FieldValueMap(const std::map<std::string, std::string> &value_map);
+	explicit MapFieldValues(const std::map<std::string, std::string> &value_map);
 
-	FieldValueMap(const FieldValueMap &other);
-	FieldValueMap(const std::string &value,
-				  const std::map<std::string, std::string> &value_map);
+	MapFieldValues(const MapFieldValues &other);
+	MapFieldValues(const std::string &value,
+				   const std::map<std::string, std::string> &value_map);
 
-	virtual ~FieldValueMap();
+	virtual ~MapFieldValues();
 
-	FieldValueMap& operator=(const FieldValueMap &other);
+	MapFieldValues& operator=(const MapFieldValues &other);
 
 	std::map<std::string, std::string> get_value_map() const;
 	std::string get_value(const std::string &map_key) const;

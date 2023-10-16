@@ -103,7 +103,7 @@ HttpRequest::HttpRequest(const std::string &input) {
 
 HttpRequest::~HttpRequest()
 {
-	std::map<std::string, FieldValues*>::iterator itr;
+	std::map<std::string, FieldValueBase*>::iterator itr;
 
 	itr = this->_request_header_fields.begin();
 	while (itr != this->_request_header_fields.end()) {
@@ -429,11 +429,11 @@ std::string HttpRequest::get_http_version() const {
 	return this->_request_line.get_http_version();
 }
 
-FieldValues* HttpRequest::get_field_values(const std::string &key) {
+FieldValueBase* HttpRequest::get_field_values(const std::string &key) {
 	return this->_request_header_fields[key];
 }
 
-std::map<std::string, FieldValues*> HttpRequest::get_request_header_fields(void) {
+std::map<std::string, FieldValueBase*> HttpRequest::get_request_header_fields(void) {
 	return this->_request_header_fields;
 }
 

@@ -2,9 +2,9 @@
 #include "SingleFieldValue.hpp"
 #include "TwoValueSet.hpp"
 #include "RequestLine.hpp"
-#include "MultiFieldValues.hpp"
+#include "SetFieldValues.hpp"
 #include "Date.hpp"
-#include "FieldValueMap.hpp"
+#include "MapFieldValues.hpp"
 #include "ValueWeightArraySet.hpp"
 #include "HttpRequest.hpp"
 #include "gtest/gtest.h"
@@ -22,8 +22,8 @@
 
 bool	same_class_test_array(int line, const char *key, HttpRequest &target) // 同名関数の使い回しがわからず
 {
-	std::map<std::string, FieldValues*>keyvaluemap = target.get_request_header_fields();
-	std::map<std::string, FieldValues*>::iterator itr_now = keyvaluemap.begin();
+	std::map<std::string, FieldValueBase*>keyvaluemap = target.get_request_header_fields();
+	std::map<std::string, FieldValueBase*>::iterator itr_now = keyvaluemap.begin();
 	while (itr_now != keyvaluemap.end())
 	{
 		if (itr_now->first == key)
@@ -40,8 +40,8 @@ bool	same_class_test_array(int line, const char *key, HttpRequest &target) // �
 
 bool	is_not_exist_array(int line, const char *key, HttpRequest &target) // 同名関数の使い回しがわからず
 {
-	std::map<std::string, FieldValues*>keyvaluemap = target.get_request_header_fields();
-	std::map<std::string, FieldValues*>::iterator itr_now = keyvaluemap.begin();
+	std::map<std::string, FieldValueBase*>keyvaluemap = target.get_request_header_fields();
+	std::map<std::string, FieldValueBase*>::iterator itr_now = keyvaluemap.begin();
 	while (itr_now != keyvaluemap.end())
 	{
 		if (itr_now->first == key)
@@ -90,7 +90,7 @@ void	compare_vectors_report_array(std::set<std::string> target_vector,
 // 	HttpRequest httprequest_test1(TEST_REQUEST);
 // 	if (same_class_test_array(__LINE__, "Access-Control-Allow-Methods", httprequest_test1) == true)
 // 	{
-// 		MultiFieldValues* val7 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
+// 		SetFieldValues* val7 = static_cast<SetFieldValues*>(httprequest_test1.get_field_values(
 // 				"Access-Control-Allow-Methods"));
 // 		std::set<std::string> vector7;
 // 		// GET, POST, PUT, DELETE

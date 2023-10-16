@@ -2,10 +2,10 @@
 #include "Constant.hpp"
 #include "HttpRequest.hpp"
 #include "RequestLine.hpp"
-#include "MultiFieldValues.hpp"
+#include "SetFieldValues.hpp"
 #include "gtest/gtest.h"
 
-TEST(TestMultiFieldValues, TransferEncodingOK1) {
+TEST(TestSetFieldValues, TransferEncodingOK1) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Transfer-Encoding: chunked\r\n"
@@ -18,8 +18,8 @@ TEST(TestMultiFieldValues, TransferEncodingOK1) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
-		MultiFieldValues *multi_field_values = dynamic_cast<MultiFieldValues *>(field_values);
+		FieldValueBase *field_values = request.get_field_values(field_name);
+		SetFieldValues *multi_field_values = dynamic_cast<SetFieldValues *>(field_values);
 		std::set<std::string> values = multi_field_values->get_values();
 		std::set<std::string> ans = {"chunked"};
 
@@ -43,7 +43,7 @@ TEST(TestMultiFieldValues, TransferEncodingOK1) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestMultiFieldValues, TransferEncodingOK2) {
+TEST(TestSetFieldValues, TransferEncodingOK2) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Transfer-Encoding: gzip, chunked \r\n"
@@ -56,8 +56,8 @@ TEST(TestMultiFieldValues, TransferEncodingOK2) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
-		MultiFieldValues *multi_field_values = dynamic_cast<MultiFieldValues *>(field_values);
+		FieldValueBase *field_values = request.get_field_values(field_name);
+		SetFieldValues *multi_field_values = dynamic_cast<SetFieldValues *>(field_values);
 		std::set<std::string> values = multi_field_values->get_values();
 		std::set<std::string> ans = {"gzip", "chunked"};
 
@@ -81,7 +81,7 @@ TEST(TestMultiFieldValues, TransferEncodingOK2) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestMultiFieldValues, TransferEncodingOK3) {
+TEST(TestSetFieldValues, TransferEncodingOK3) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Transfer-Encoding: a, hoge; param=\"value with space\" \r\n"
@@ -94,8 +94,8 @@ TEST(TestMultiFieldValues, TransferEncodingOK3) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
-		MultiFieldValues *multi_field_values = dynamic_cast<MultiFieldValues *>(field_values);
+		FieldValueBase *field_values = request.get_field_values(field_name);
+		SetFieldValues *multi_field_values = dynamic_cast<SetFieldValues *>(field_values);
 		std::set<std::string> values = multi_field_values->get_values();
 		std::set<std::string> ans = {"a", "hoge; param=\"value with space\""};
 
@@ -119,7 +119,7 @@ TEST(TestMultiFieldValues, TransferEncodingOK3) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestMultiFieldValues, TransferEncodingOK4) {
+TEST(TestSetFieldValues, TransferEncodingOK4) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Transfer-Encoding: chunked; param1=value1,"
@@ -134,8 +134,8 @@ TEST(TestMultiFieldValues, TransferEncodingOK4) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
-		MultiFieldValues *multi_field_values = dynamic_cast<MultiFieldValues *>(field_values);
+		FieldValueBase *field_values = request.get_field_values(field_name);
+		SetFieldValues *multi_field_values = dynamic_cast<SetFieldValues *>(field_values);
 		std::set<std::string> values = multi_field_values->get_values();
 		std::set<std::string> ans = {"chunked; param1=value1",
 									 "hoge; param2=\"value with space and \'quote\'\"",
@@ -162,7 +162,7 @@ TEST(TestMultiFieldValues, TransferEncodingOK4) {
 }
 
 
-TEST(TestMultiFieldValues, TransferEncodingNG1) {
+TEST(TestSetFieldValues, TransferEncodingNG1) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Transfer-Encoding: ,,a \r\n"
@@ -177,7 +177,7 @@ TEST(TestMultiFieldValues, TransferEncodingNG1) {
 }
 
 
-TEST(TestMultiFieldValues, TransferEncodingNG2) {
+TEST(TestSetFieldValues, TransferEncodingNG2) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Transfer-Encoding: a=b \r\n"
@@ -191,7 +191,7 @@ TEST(TestMultiFieldValues, TransferEncodingNG2) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestMultiFieldValues, TransferEncodingNG3) {
+TEST(TestSetFieldValues, TransferEncodingNG3) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Transfer-Encoding: hoge;;hoge\t \r\n"

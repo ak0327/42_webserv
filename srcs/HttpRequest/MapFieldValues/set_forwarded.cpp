@@ -3,7 +3,7 @@
 #include "Constant.hpp"
 #include "HttpRequest.hpp"
 #include "HttpMessageParser.hpp"
-#include "FieldValueMap.hpp"
+#include "MapFieldValues.hpp"
 
 namespace {
 
@@ -129,7 +129,7 @@ Result<int, int> HttpRequest::set_forwarded(const std::string &field_name,
 	result = parse_and_validate_forwarded_element(field_value);
 	if (result.is_ok()) {
 		forwarded_element = result.get_ok_value();
-		this->_request_header_fields[field_name] = new FieldValueMap(forwarded_element);
+		this->_request_header_fields[field_name] = new MapFieldValues(forwarded_element);
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }

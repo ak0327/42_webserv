@@ -193,7 +193,7 @@ Result<int, int> HttpRequest::set_authorization(const std::string &field_name,
 	result = parse_and_validate_credentials(field_value);
 	if (result.is_ok()) {
 		credentials = result.get_ok_value();
-		this->_request_header_fields[field_name] = new FieldValueMap(credentials);
+		this->_request_header_fields[field_name] = new MapFieldValues(credentials);
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }
@@ -213,7 +213,7 @@ Result<int, int> HttpRequest::set_proxy_authorization(const std::string &field_n
 	result = parse_and_validate_credentials(field_value);
 	if (result.is_ok()) {
 		credentials = result.get_ok_value();
-		this->_request_header_fields[field_name] = new FieldValueMap(credentials);
+		this->_request_header_fields[field_name] = new MapFieldValues(credentials);
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }

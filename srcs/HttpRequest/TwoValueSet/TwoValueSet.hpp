@@ -1,9 +1,9 @@
 #pragma once
 
 # include <string>
-# include "FieldValues.hpp"
+# include "FieldValueBase.hpp"
 
-class TwoValueSet : public FieldValues {
+class TwoValueSet : public FieldValueBase {
  public:
 	TwoValueSet(const std::string &first_value, const std::string &second_value);
 	TwoValueSet(const TwoValueSet &other);

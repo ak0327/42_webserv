@@ -3,7 +3,7 @@
 #include "Constant.hpp"
 #include "HttpRequest.hpp"
 #include "HttpMessageParser.hpp"
-#include "FieldValueMap.hpp"
+#include "MapFieldValues.hpp"
 
 namespace {
 
@@ -218,7 +218,7 @@ Result<int, int> HttpRequest::set_cookie(const std::string &field_name,
 	result = parse_and_validate_cookie_string(field_value);
 	if (result.is_ok()) {
 		cookie_string = result.get_ok_value();
-		this->_request_header_fields[field_name] = new FieldValueMap(cookie_string);
+		this->_request_header_fields[field_name] = new MapFieldValues(cookie_string);
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }

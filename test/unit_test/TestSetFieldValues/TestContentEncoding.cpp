@@ -2,10 +2,10 @@
 #include "Constant.hpp"
 #include "HttpRequest.hpp"
 #include "RequestLine.hpp"
-#include "MultiFieldValues.hpp"
+#include "SetFieldValues.hpp"
 #include "gtest/gtest.h"
 
-TEST(TestMultiFieldValues, ContentEncodingOK1) {
+TEST(TestSetFieldValues, ContentEncodingOK1) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Content-Encoding: gzip\r\n"
@@ -18,8 +18,8 @@ TEST(TestMultiFieldValues, ContentEncodingOK1) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
-		MultiFieldValues *multi_field_values = dynamic_cast<MultiFieldValues *>(field_values);
+		FieldValueBase *field_values = request.get_field_values(field_name);
+		SetFieldValues *multi_field_values = dynamic_cast<SetFieldValues *>(field_values);
 		std::set<std::string> values = multi_field_values->get_values();
 		std::set<std::string> ans = {"gzip"};
 
@@ -43,7 +43,7 @@ TEST(TestMultiFieldValues, ContentEncodingOK1) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestMultiFieldValues, ContentEncodingOK2) {
+TEST(TestSetFieldValues, ContentEncodingOK2) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Content-Encoding: gzip,compress, deflate ,br \r\n"
@@ -56,8 +56,8 @@ TEST(TestMultiFieldValues, ContentEncodingOK2) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
-		MultiFieldValues *multi_field_values = dynamic_cast<MultiFieldValues *>(field_values);
+		FieldValueBase *field_values = request.get_field_values(field_name);
+		SetFieldValues *multi_field_values = dynamic_cast<SetFieldValues *>(field_values);
 		std::set<std::string> values = multi_field_values->get_values();
 		std::set<std::string> ans = {"gzip", "compress", "deflate", "br"};
 
@@ -81,7 +81,7 @@ TEST(TestMultiFieldValues, ContentEncodingOK2) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestMultiFieldValues, ContentEncodingOK3) {
+TEST(TestSetFieldValues, ContentEncodingOK3) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Content-Encoding: gzip\r\n"
@@ -96,8 +96,8 @@ TEST(TestMultiFieldValues, ContentEncodingOK3) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
-		MultiFieldValues *multi_field_values = dynamic_cast<MultiFieldValues *>(field_values);
+		FieldValueBase *field_values = request.get_field_values(field_name);
+		SetFieldValues *multi_field_values = dynamic_cast<SetFieldValues *>(field_values);
 		std::set<std::string> values = multi_field_values->get_values();
 		std::set<std::string> ans = {"a", "b", "c", "a", "a", "b", "c", "d", "123", "*"};
 
@@ -122,7 +122,7 @@ TEST(TestMultiFieldValues, ContentEncodingOK3) {
 }
 
 
-TEST(TestMultiFieldValues, ContentEncodingNG1) {
+TEST(TestSetFieldValues, ContentEncodingNG1) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Content-Encoding: ,,a \r\n"
@@ -137,7 +137,7 @@ TEST(TestMultiFieldValues, ContentEncodingNG1) {
 }
 
 
-TEST(TestMultiFieldValues, ContentEncodingNG2) {
+TEST(TestSetFieldValues, ContentEncodingNG2) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Content-Encoding: a,b, \r\n"

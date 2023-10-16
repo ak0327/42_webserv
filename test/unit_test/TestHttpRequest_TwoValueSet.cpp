@@ -4,9 +4,9 @@
 #include "SingleFieldValue.hpp"
 #include "TwoValueSet.hpp"
 #include "RequestLine.hpp"
-#include "MultiFieldValues.hpp"
+#include "SetFieldValues.hpp"
 #include "Date.hpp"
-#include "FieldValueMap.hpp"
+#include "MapFieldValues.hpp"
 #include "ValueWeightArraySet.hpp"
 #include "HttpRequest.hpp"
 #include "gtest/gtest.h"
@@ -28,8 +28,8 @@ void	compair_twovaluemap(const std::string &first_target_word, const std::string
 
 bool	same_class_test_twovalueset(int line, const char *key, HttpRequest &target) // 同名関数の使い回しがわからず、linkを接尾煮付ける
 {
-	std::map<std::string, FieldValues*>keyvaluemap = target.get_request_header_fields();
-	std::map<std::string, FieldValues*>::iterator itr_now = keyvaluemap.begin();
+	std::map<std::string, FieldValueBase*>keyvaluemap = target.get_request_header_fields();
+	std::map<std::string, FieldValueBase*>::iterator itr_now = keyvaluemap.begin();
 	while (itr_now != keyvaluemap.end())
 	{
 		if (itr_now->first == key)

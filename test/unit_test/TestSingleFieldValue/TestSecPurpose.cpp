@@ -18,7 +18,7 @@ TEST(TestSingleFieldValue, SecPurposeOK1) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("prefetch", value->get_value());
 	} else {
@@ -42,7 +42,7 @@ TEST(TestSingleFieldValue, SecPurposeOK2) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("prefetch", value->get_value());
 	} else {

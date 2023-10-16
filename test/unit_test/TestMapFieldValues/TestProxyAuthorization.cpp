@@ -2,10 +2,10 @@
 #include "Constant.hpp"
 #include "HttpRequest.hpp"
 #include "RequestLine.hpp"
-#include "MultiFieldValues.hpp"
+#include "SetFieldValues.hpp"
 #include "gtest/gtest.h"
 
-TEST(TestFieldValueMap, ProxyAuthorizationOK1) {
+TEST(TestMapFieldValues, ProxyAuthorizationOK1) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Proxy-Authorization: Basic YWxhZGRpbjpvcGVuc2VzYW1l \r\n"
@@ -18,8 +18,8 @@ TEST(TestFieldValueMap, ProxyAuthorizationOK1) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
-		FieldValueMap *multi_field_values = dynamic_cast<FieldValueMap *>(field_values);
+		FieldValueBase *field_values = request.get_field_values(field_name);
+		MapFieldValues *multi_field_values = dynamic_cast<MapFieldValues *>(field_values);
 		std::map<std::string, std::string> values = multi_field_values->get_value_map();
 		std::map<std::string, std::string> ans = {{std::string(AUTH_SCHEME), "Basic"},
 												  {std::string(AUTH_PARAM), "YWxhZGRpbjpvcGVuc2VzYW1l"}};
@@ -44,7 +44,7 @@ TEST(TestFieldValueMap, ProxyAuthorizationOK1) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, ProxyAuthorizationOK2) {
+TEST(TestMapFieldValues, ProxyAuthorizationOK2) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Proxy-Authorization: basic\r\n"
@@ -59,8 +59,8 @@ TEST(TestFieldValueMap, ProxyAuthorizationOK2) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
-		FieldValueMap *multi_field_values = dynamic_cast<FieldValueMap *>(field_values);
+		FieldValueBase *field_values = request.get_field_values(field_name);
+		MapFieldValues *multi_field_values = dynamic_cast<MapFieldValues *>(field_values);
 		std::map<std::string, std::string> values = multi_field_values->get_value_map();
 		std::map<std::string, std::string> ans = {{std::string(AUTH_SCHEME), "Basic"}};
 
@@ -87,7 +87,7 @@ TEST(TestFieldValueMap, ProxyAuthorizationOK2) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TEST(TestFieldValueMap, ProxyAuthorizationNG1) {
+TEST(TestMapFieldValues, ProxyAuthorizationNG1) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Proxy-Authorization: Basic    YWxhZGRpbjpvcGVuc2VzYW1l \r\n"
@@ -101,7 +101,7 @@ TEST(TestFieldValueMap, ProxyAuthorizationNG1) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, ProxyAuthorizationNG2) {
+TEST(TestMapFieldValues, ProxyAuthorizationNG2) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Proxy-Authorization: Basic aaa==hoge\r\n"

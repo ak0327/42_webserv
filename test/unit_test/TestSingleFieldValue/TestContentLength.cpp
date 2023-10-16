@@ -18,7 +18,7 @@ TEST(TestSingleFieldValue, ContentLengthOK1) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("100", value->get_value());
 	} else {
@@ -41,7 +41,7 @@ TEST(TestSingleFieldValue, ContentLengthOK2) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("1", value->get_value());
 	} else {
@@ -64,7 +64,7 @@ TEST(TestSingleFieldValue, ContentLengthOK3) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("1", value->get_value());
 	} else {
@@ -87,7 +87,7 @@ TEST(TestSingleFieldValue, ContentLengthOK4) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("1", value->get_value());
 	} else {
@@ -110,7 +110,7 @@ TEST(TestSingleFieldValue, ContentLengthOK5) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("1", value->get_value());
 	} else {
@@ -134,7 +134,7 @@ TEST(TestSingleFieldValue, ContentLengthOK6) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("2147483647", value->get_value());
 	} else {
@@ -158,7 +158,7 @@ TEST(TestSingleFieldValue, ContentLengthOK7) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("2147483648", value->get_value());
 	} else {
@@ -182,7 +182,7 @@ TEST(TestSingleFieldValue, ContentLengthOK8) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("9223372036854775807", value->get_value());
 	} else {
@@ -205,7 +205,7 @@ TEST(TestSingleFieldValue, ContentLengthOK9) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("1", value->get_value());
 	} else {
@@ -228,7 +228,7 @@ TEST(TestSingleFieldValue, ContentLengthOK10) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("0", value->get_value());
 	} else {

@@ -2,10 +2,10 @@
 
 # include <map>
 # include <string>
-# include "FieldValues.hpp"
+# include "FieldValueBase.hpp"
 # include "Result.hpp"
 
-class MediaType : public FieldValues {
+class MediaType : public FieldValueBase {
  public:
 	explicit MediaType(const std::string &field_value);
 	// MediaType(const std::string &type,

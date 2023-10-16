@@ -38,13 +38,13 @@ include_directories(
         srcs/Socket
         srcs/StringHandler
         srcs/HttpRequest
-        srcs/HttpRequest/FieldValues
+        srcs/HttpRequest/FieldValueBase
         srcs/HttpRequest/LinkClass
         srcs/HttpRequest/RequestLine
         srcs/HttpRequest/TwoValueSet
-        srcs/HttpRequest/MultiFieldValues
+        srcs/HttpRequest/SetFieldValues
         srcs/HttpRequest/Date
-        srcs/HttpRequest/FieldValueMap
+        srcs/HttpRequest/MapFieldValues
         srcs/HttpRequest/SingleFieldValue
         srcs/HttpRequest/ValueWeightArraySet
         srcs/HttpRequest/MediaType
@@ -83,21 +83,21 @@ set(date_srcs
         srcs/HttpRequest/Date/set_date.cpp
         )
 
-# FieldValueMap
+# MapFieldValues
 set(field_value_map_srcs
-        srcs/HttpRequest/HttpRequest_FieldValueMap.cpp
-        srcs/HttpRequest/FieldValueMap/FieldValueMap.cpp
-        srcs/HttpRequest/FieldValueMap/set_authorization.cpp
-        srcs/HttpRequest/FieldValueMap/set_cache_control.cpp
-        srcs/HttpRequest/FieldValueMap/set_cookie.cpp
-        srcs/HttpRequest/FieldValueMap/set_forwarded.cpp
-        srcs/HttpRequest/FieldValueMap/set_host.cpp
-        srcs/HttpRequest/FieldValueMap/set_keep_alive.cpp
+        srcs/HttpRequest/MapFieldValues/MapFieldValues.cpp
+        srcs/HttpRequest/MapFieldValues/set_authorization.cpp
+        srcs/HttpRequest/MapFieldValues/set_cache_control.cpp
+        srcs/HttpRequest/MapFieldValues/set_content_disposition.cpp
+        srcs/HttpRequest/MapFieldValues/set_cookie.cpp
+        srcs/HttpRequest/MapFieldValues/set_forwarded.cpp
+        srcs/HttpRequest/MapFieldValues/set_host.cpp
+        srcs/HttpRequest/MapFieldValues/set_keep_alive.cpp
         )
 
-# FieldValues
+# FieldValueBase
 set(field_values_srcs
-        srcs/HttpRequest/FieldValues/FieldValues.cpp
+        srcs/HttpRequest/FieldValueBase/FieldValueBase.cpp
         )
 
 # MediaType
@@ -107,10 +107,10 @@ set(media_type_srcs
         )
 
 
-# MultiFieldValues
+# SetFieldValues
 set(multi_field_values_srcs
-        srcs/HttpRequest/MultiFieldValues/MultiFieldValues.cpp
-        srcs/HttpRequest/MultiFieldValues/set_multi_field_values.cpp
+        srcs/HttpRequest/SetFieldValues/SetFieldValues.cpp
+        srcs/HttpRequest/SetFieldValues/set_set_field_values.cpp
         )
 
 
@@ -167,18 +167,18 @@ set (unit_test_srcs
         test/unit_test/TestSingleFieldValue/TestUpgradeInsecureRequests.cpp
 
         # multi field value
-        test/unit_test/TestMultiFieldValues/TestContentEncoding.cpp
-        test/unit_test/TestMultiFieldValues/TestIfMatch.cpp
-        test/unit_test/TestMultiFieldValues/TestIfNoneMatch.cpp
-        test/unit_test/TestMultiFieldValues/TestTransferEncoding.cpp
+        test/unit_test/TestSetFieldValues/TestContentEncoding.cpp
+        test/unit_test/TestSetFieldValues/TestIfMatch.cpp
+        test/unit_test/TestSetFieldValues/TestIfNoneMatch.cpp
+        test/unit_test/TestSetFieldValues/TestTransferEncoding.cpp
 
         # field value map
-        test/unit_test/TestFieldValueMap/TestAuthorization.cpp
-        test/unit_test/TestFieldValueMap/TestCacheControl.cpp
-        test/unit_test/TestFieldValueMap/TestCookie.cpp
-        test/unit_test/TestFieldValueMap/TestForwarded.cpp
-        test/unit_test/TestFieldValueMap/TestKeepAlive.cpp
-        test/unit_test/TestFieldValueMap/TestProxyAuthorization.cpp
+        test/unit_test/TestMapFieldValues/TestAuthorization.cpp
+        test/unit_test/TestMapFieldValues/TestCacheControl.cpp
+        test/unit_test/TestMapFieldValues/TestCookie.cpp
+        test/unit_test/TestMapFieldValues/TestForwarded.cpp
+        test/unit_test/TestMapFieldValues/TestKeepAlive.cpp
+        test/unit_test/TestMapFieldValues/TestProxyAuthorization.cpp
 
         # date
         test/unit_test/TestDate/TestDate.cpp

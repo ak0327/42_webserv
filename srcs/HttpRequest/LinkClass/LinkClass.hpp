@@ -3,9 +3,9 @@
 
 # include <map>
 # include <string>
-# include "FieldValues.hpp"
+# include "FieldValueBase.hpp"
 
-class LinkClass: public FieldValues
+class LinkClass: public FieldValueBase
 {
 	private:
 		std::map<std::string, std::map<std::string, std::string> > _link_valuemap;

@@ -18,7 +18,7 @@ TEST(TestDate, LastModifiedOK1) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		Date *date = dynamic_cast<Date *>(field_values);
 		EXPECT_EQ("Wed", date->get_day_name());
 		EXPECT_EQ("21", date->get_day());
@@ -49,7 +49,7 @@ TEST(TestDate, LastModifiedOK2) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		Date *date = dynamic_cast<Date *>(field_values);
 
 		EXPECT_EQ("Fri", date->get_day_name());
@@ -82,7 +82,7 @@ TEST(TestDate, LastModifiedOK3) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		Date *date = dynamic_cast<Date *>(field_values);
 
 		EXPECT_EQ("Sun", date->get_day_name());
@@ -120,7 +120,7 @@ TEST(TestDate, LastModifiedOK4) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		Date *date = dynamic_cast<Date *>(field_values);
 
 		EXPECT_EQ("Thu", date->get_day_name());

@@ -2,10 +2,10 @@
 
 # include <string>
 # include "Constant.hpp"
-# include "FieldValues.hpp"
+# include "FieldValueBase.hpp"
 # include "Result.hpp"
 
-class Date : public FieldValues {
+class Date : public FieldValueBase {
  public:
 	explicit Date(const std::string &http_date);
 	Date(const Date &other);

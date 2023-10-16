@@ -18,7 +18,7 @@ TEST(TestSingleFieldValue, SecFetchSiteOK1) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("cross-site", value->get_value());
 	} else {
@@ -41,7 +41,7 @@ TEST(TestSingleFieldValue, SecFetchSiteOK2) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("same-origin", value->get_value());
 	} else {
@@ -64,7 +64,7 @@ TEST(TestSingleFieldValue, SecFetchSiteOK3) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("same-site", value->get_value());
 	} else {
@@ -87,7 +87,7 @@ TEST(TestSingleFieldValue, SecFetchSiteOK4) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("none", value->get_value());
 	} else {
@@ -110,7 +110,7 @@ TEST(TestSingleFieldValue, SecFetchSiteOK5) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("none", value->get_value());
 	} else {
@@ -135,7 +135,7 @@ TEST(TestSingleFieldValue, SecFetchSiteOK6) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("cross-site", value->get_value());
 	} else {

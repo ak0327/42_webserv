@@ -3,7 +3,7 @@
 #include "Constant.hpp"
 #include "HttpRequest.hpp"
 #include "HttpMessageParser.hpp"
-#include "FieldValueMap.hpp"
+#include "MapFieldValues.hpp"
 
 namespace {
 
@@ -20,7 +20,7 @@ Result<std::map<std::string, std::string>, int> parse_keep_alive_info(const std:
 
 	pos = 0;
 	while (true) {
-		parse_result = FieldValueMap::parse_map_element(field_value, pos, &end, &key, &value);
+		parse_result = MapFieldValues::parse_map_element(field_value, pos, &end, &key, &value);
 		if (parse_result.is_err()) {
 			return Result<std::map<std::string, std::string>, int>::err(ERR);
 		}
@@ -61,7 +61,7 @@ Result<int, int> validate_keep_alive_info(const std::map<std::string, std::strin
 			HttpMessageParser::to_delta_seconds(value, &succeed);
 			if (succeed) { continue; }
 		} else if (HttpMessageParser::is_token(key)) {
-			if (FieldValueMap::is_key_only(value)) { continue; }
+			if (MapFieldValues::is_key_only(value)) { continue; }
 			if (HttpMessageParser::is_token(value)) { continue; }
 			if (HttpMessageParser::is_quoted_string(value)) { continue; }
 		}
@@ -152,7 +152,7 @@ Result<int, int> HttpRequest::set_keep_alive(const std::string &field_name,
 	result = parse_and_validate_keep_alive_info(field_value);
 	if (result.is_ok()) {
 		keep_alive_info = result.get_ok_value();
-		this->_request_header_fields[field_name] = new FieldValueMap(keep_alive_info);
+		this->_request_header_fields[field_name] = new MapFieldValues(keep_alive_info);
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }

@@ -2,10 +2,10 @@
 #include "Constant.hpp"
 #include "HttpRequest.hpp"
 #include "RequestLine.hpp"
-#include "MultiFieldValues.hpp"
+#include "SetFieldValues.hpp"
 #include "gtest/gtest.h"
 
-TEST(TestFieldValueMap, CookieOK1) {
+TEST(TestMapFieldValues, CookieOK1) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Cookie: PHPSESSID=298zf09hf012fh2 \r\n"
@@ -18,8 +18,8 @@ TEST(TestFieldValueMap, CookieOK1) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
-		FieldValueMap *multi_field_values = dynamic_cast<FieldValueMap *>(field_values);
+		FieldValueBase *field_values = request.get_field_values(field_name);
+		MapFieldValues *multi_field_values = dynamic_cast<MapFieldValues *>(field_values);
 		std::map<std::string, std::string> values = multi_field_values->get_value_map();
 		std::map<std::string, std::string> ans = {{"PHPSESSID", "298zf09hf012fh2"}};
 
@@ -43,7 +43,7 @@ TEST(TestFieldValueMap, CookieOK1) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, CookieOK2) {
+TEST(TestMapFieldValues, CookieOK2) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Cookie: PHPSESSID=298zf09hf012fh2; csrftoken=u32t4o3tb3gg43; _gat=1\r\n"
@@ -56,8 +56,8 @@ TEST(TestFieldValueMap, CookieOK2) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
-		FieldValueMap *multi_field_values = dynamic_cast<FieldValueMap *>(field_values);
+		FieldValueBase *field_values = request.get_field_values(field_name);
+		MapFieldValues *multi_field_values = dynamic_cast<MapFieldValues *>(field_values);
 		std::map<std::string, std::string> values = multi_field_values->get_value_map();
 		std::map<std::string, std::string> ans = {{"PHPSESSID", "298zf09hf012fh2"},
 												  {"csrftoken", "u32t4o3tb3gg43"},
@@ -83,7 +83,7 @@ TEST(TestFieldValueMap, CookieOK2) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, CookieOK3) {
+TEST(TestMapFieldValues, CookieOK3) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Cookie: a=b \r\n"
@@ -97,8 +97,8 @@ TEST(TestFieldValueMap, CookieOK3) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
-		FieldValueMap *multi_field_values = dynamic_cast<FieldValueMap *>(field_values);
+		FieldValueBase *field_values = request.get_field_values(field_name);
+		MapFieldValues *multi_field_values = dynamic_cast<MapFieldValues *>(field_values);
 		std::map<std::string, std::string> values = multi_field_values->get_value_map();
 		std::map<std::string, std::string> ans = {{"PHPSESSID", "298zf09hf012fh2"},
 												  {"csrftoken", "u32t4o3tb3gg43"},
@@ -124,7 +124,7 @@ TEST(TestFieldValueMap, CookieOK3) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, CookieOK4) {
+TEST(TestMapFieldValues, CookieOK4) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Cookie: a=b \r\n"
@@ -138,8 +138,8 @@ TEST(TestFieldValueMap, CookieOK4) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
-		FieldValueMap *multi_field_values = dynamic_cast<FieldValueMap *>(field_values);
+		FieldValueBase *field_values = request.get_field_values(field_name);
+		MapFieldValues *multi_field_values = dynamic_cast<MapFieldValues *>(field_values);
 		std::map<std::string, std::string> values = multi_field_values->get_value_map();
 		std::map<std::string, std::string> ans = {{"PHPSESSID", "\"298zf09hf012fh2\""}};
 
@@ -163,7 +163,7 @@ TEST(TestFieldValueMap, CookieOK4) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, CookieOK5) {
+TEST(TestMapFieldValues, CookieOK5) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Cookie: a=b \r\n"
@@ -177,8 +177,8 @@ TEST(TestFieldValueMap, CookieOK5) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
-		FieldValueMap *multi_field_values = dynamic_cast<FieldValueMap *>(field_values);
+		FieldValueBase *field_values = request.get_field_values(field_name);
+		MapFieldValues *multi_field_values = dynamic_cast<MapFieldValues *>(field_values);
 		std::map<std::string, std::string> values = multi_field_values->get_value_map();
 		std::map<std::string, std::string> ans = {{"PHPSESSID", "!#$%&'()*+-./012345689:<=>?@[]^_`{|}~"}};
 
@@ -202,7 +202,7 @@ TEST(TestFieldValueMap, CookieOK5) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, CookieOK6) {
+TEST(TestMapFieldValues, CookieOK6) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Cookie: a=b \r\n"
@@ -218,8 +218,8 @@ TEST(TestFieldValueMap, CookieOK6) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
-		FieldValueMap *multi_field_values = dynamic_cast<FieldValueMap *>(field_values);
+		FieldValueBase *field_values = request.get_field_values(field_name);
+		MapFieldValues *multi_field_values = dynamic_cast<MapFieldValues *>(field_values);
 		std::map<std::string, std::string> values = multi_field_values->get_value_map();
 		std::map<std::string, std::string> ans = {{"a", "E"}};
 
@@ -245,7 +245,7 @@ TEST(TestFieldValueMap, CookieOK6) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TEST(TestFieldValueMap, CookieNG1) {
+TEST(TestMapFieldValues, CookieNG1) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Cookie: PHPSESSID=298zf09hf012fh2;\r\n"
@@ -259,7 +259,7 @@ TEST(TestFieldValueMap, CookieNG1) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, CookieNG2) {
+TEST(TestMapFieldValues, CookieNG2) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Cookie: PHPSESSID=298zf09hf012fh2;     csrftoken=u32t4o3tb3gg43\r\n"
@@ -273,7 +273,7 @@ TEST(TestFieldValueMap, CookieNG2) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, CookieNG3) {
+TEST(TestMapFieldValues, CookieNG3) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Cookie: PHPSESSID=\"298zf09hf012fh2\r\n"
@@ -287,7 +287,7 @@ TEST(TestFieldValueMap, CookieNG3) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, CookieNG4) {
+TEST(TestMapFieldValues, CookieNG4) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Cookie: PHPSESSID=298zf09hf012fh2\"\r\n"
@@ -301,7 +301,7 @@ TEST(TestFieldValueMap, CookieNG4) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, CookieNG5) {
+TEST(TestMapFieldValues, CookieNG5) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Cookie: PHPSESSID=298zf09hf012 fh2\r\n"
@@ -315,7 +315,7 @@ TEST(TestFieldValueMap, CookieNG5) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, CookieNG6) {
+TEST(TestMapFieldValues, CookieNG6) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Cookie: PHPSESSID=298zf09hf012,fh2\r\n"
@@ -329,7 +329,7 @@ TEST(TestFieldValueMap, CookieNG6) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, CookieNG7) {
+TEST(TestMapFieldValues, CookieNG7) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Cookie: PHPSESSID=298zf09hf012\"fh2\r\n"
@@ -343,7 +343,7 @@ TEST(TestFieldValueMap, CookieNG7) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, CookieNG8) {
+TEST(TestMapFieldValues, CookieNG8) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Cookie: PHPSESSID=298zf09hf012;fh2\r\n"
@@ -357,7 +357,7 @@ TEST(TestFieldValueMap, CookieNG8) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, CookieNG9) {
+TEST(TestMapFieldValues, CookieNG9) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Cookie: PHPSESSID=298zf09hf012\\fh2\r\n"
@@ -371,7 +371,7 @@ TEST(TestFieldValueMap, CookieNG9) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, CookieNG10) {
+TEST(TestMapFieldValues, CookieNG10) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Cookie: a=\r\n"
@@ -385,7 +385,7 @@ TEST(TestFieldValueMap, CookieNG10) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, CookieNG11) {
+TEST(TestMapFieldValues, CookieNG11) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Cookie: a=b ; ;\r\n"
@@ -399,7 +399,7 @@ TEST(TestFieldValueMap, CookieNG11) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, CookieNG12) {
+TEST(TestMapFieldValues, CookieNG12) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Cookie: a=b;;;;;\r\n"

@@ -18,7 +18,7 @@ TEST(TestMediaType, ContentTypeOK1) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		MediaType *data = dynamic_cast<MediaType *>(field_values);
 
 		//----------------------------------------------------------------------
@@ -67,7 +67,7 @@ TEST(TestMediaType, ContentTypeOK2) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		MediaType *data = dynamic_cast<MediaType *>(field_values);
 
 		//----------------------------------------------------------------------
@@ -116,7 +116,7 @@ TEST(TestMediaType, ContentTypeOK3) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		MediaType *data = dynamic_cast<MediaType *>(field_values);
 
 		//----------------------------------------------------------------------
@@ -166,7 +166,7 @@ TEST(TestMediaType, ContentTypeOK4) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		MediaType *data = dynamic_cast<MediaType *>(field_values);
 
 		//----------------------------------------------------------------------

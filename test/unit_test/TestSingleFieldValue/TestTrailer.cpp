@@ -18,7 +18,7 @@ TEST(TestSingleFieldValue, TrailerOK1) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ(std::string(ACCEPT), value->get_value());
 	} else {
@@ -41,7 +41,7 @@ TEST(TestSingleFieldValue, TrailerOK2) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ(std::string(ACCEPT_CH), value->get_value());
 	} else {

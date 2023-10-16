@@ -2,10 +2,10 @@
 #include "Constant.hpp"
 #include "HttpRequest.hpp"
 #include "RequestLine.hpp"
-#include "MultiFieldValues.hpp"
+#include "SetFieldValues.hpp"
 #include "gtest/gtest.h"
 
-TEST(TestFieldValueMap, KeepAlilveOK1) {
+TEST(TestMapFieldValues, KeepAlilveOK1) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Keep-Alive: timeout=5, max=1000\r\n"
@@ -18,8 +18,8 @@ TEST(TestFieldValueMap, KeepAlilveOK1) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
-		FieldValueMap *multi_field_values = dynamic_cast<FieldValueMap *>(field_values);
+		FieldValueBase *field_values = request.get_field_values(field_name);
+		MapFieldValues *multi_field_values = dynamic_cast<MapFieldValues *>(field_values);
 		std::map<std::string, std::string> values = multi_field_values->get_value_map();
 		std::map<std::string, std::string> ans = {{"timeout", "5"},
 												  {"max", "1000"}};
@@ -44,7 +44,7 @@ TEST(TestFieldValueMap, KeepAlilveOK1) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, KeepAlilveOK2) {
+TEST(TestMapFieldValues, KeepAlilveOK2) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Keep-Alive: timeout=0000005, max=0001000\r\n"
@@ -57,8 +57,8 @@ TEST(TestFieldValueMap, KeepAlilveOK2) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
-		FieldValueMap *multi_field_values = dynamic_cast<FieldValueMap *>(field_values);
+		FieldValueBase *field_values = request.get_field_values(field_name);
+		MapFieldValues *multi_field_values = dynamic_cast<MapFieldValues *>(field_values);
 		std::map<std::string, std::string> values = multi_field_values->get_value_map();
 		std::map<std::string, std::string> ans = {{"timeout", "5"},
 												  {"max", "0001000"}};
@@ -83,7 +83,7 @@ TEST(TestFieldValueMap, KeepAlilveOK2) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, KeepAlilveOK3) {
+TEST(TestMapFieldValues, KeepAlilveOK3) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Keep-Alive: timeout=0  ,  a=\" SP OK\"\r\n"
@@ -96,8 +96,8 @@ TEST(TestFieldValueMap, KeepAlilveOK3) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
-		FieldValueMap *multi_field_values = dynamic_cast<FieldValueMap *>(field_values);
+		FieldValueBase *field_values = request.get_field_values(field_name);
+		MapFieldValues *multi_field_values = dynamic_cast<MapFieldValues *>(field_values);
 		std::map<std::string, std::string> values = multi_field_values->get_value_map();
 		std::map<std::string, std::string> ans = {{"timeout", "0"},
 												  {"a", "\" SP OK\""}};
@@ -122,7 +122,7 @@ TEST(TestFieldValueMap, KeepAlilveOK3) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, KeepAlilveOK4) {
+TEST(TestMapFieldValues, KeepAlilveOK4) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Keep-Alive: a=a, a=b, a=c\r\n"
@@ -135,8 +135,8 @@ TEST(TestFieldValueMap, KeepAlilveOK4) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
-		FieldValueMap *multi_field_values = dynamic_cast<FieldValueMap *>(field_values);
+		FieldValueBase *field_values = request.get_field_values(field_name);
+		MapFieldValues *multi_field_values = dynamic_cast<MapFieldValues *>(field_values);
 		std::map<std::string, std::string> values = multi_field_values->get_value_map();
 		std::map<std::string, std::string> ans = {{"a", "c"}};
 
@@ -160,7 +160,7 @@ TEST(TestFieldValueMap, KeepAlilveOK4) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, KeepAlilveOK5) {
+TEST(TestMapFieldValues, KeepAlilveOK5) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Keep-Alive: a=a\r\n"
@@ -176,8 +176,8 @@ TEST(TestFieldValueMap, KeepAlilveOK5) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
-		FieldValueMap *multi_field_values = dynamic_cast<FieldValueMap *>(field_values);
+		FieldValueBase *field_values = request.get_field_values(field_name);
+		MapFieldValues *multi_field_values = dynamic_cast<MapFieldValues *>(field_values);
 		std::map<std::string, std::string> values = multi_field_values->get_value_map();
 		std::map<std::string, std::string> ans = {{"timeout", "5"},
 												  {"max", "1000"}};
@@ -203,7 +203,7 @@ TEST(TestFieldValueMap, KeepAlilveOK5) {
 }
 
 
-TEST(TestFieldValueMap, KeepAlilveOK6) {
+TEST(TestMapFieldValues, KeepAlilveOK6) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "KEEP-ALIVE: timeout=5, max=1000, a, b, c=d\r\n"
@@ -216,8 +216,8 @@ TEST(TestFieldValueMap, KeepAlilveOK6) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
-		FieldValueMap *multi_field_values = dynamic_cast<FieldValueMap *>(field_values);
+		FieldValueBase *field_values = request.get_field_values(field_name);
+		MapFieldValues *multi_field_values = dynamic_cast<MapFieldValues *>(field_values);
 		std::map<std::string, std::string> values = multi_field_values->get_value_map();
 		std::map<std::string, std::string> ans = {{"timeout", "5"},
 												  {"max", "1000"},
@@ -247,7 +247,7 @@ TEST(TestFieldValueMap, KeepAlilveOK6) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TEST(TestFieldValueMap, KeepAlilveNG1) {
+TEST(TestMapFieldValues, KeepAlilveNG1) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Keep-Alive: =\r\n"
@@ -261,7 +261,7 @@ TEST(TestFieldValueMap, KeepAlilveNG1) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, KeepAlilveNG2) {
+TEST(TestMapFieldValues, KeepAlilveNG2) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Keep-Alive: timeout=\r\n"
@@ -275,7 +275,7 @@ TEST(TestFieldValueMap, KeepAlilveNG2) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, KeepAlilveNG3) {
+TEST(TestMapFieldValues, KeepAlilveNG3) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Keep-Alive: timeout=+0;\r\n"
@@ -289,7 +289,7 @@ TEST(TestFieldValueMap, KeepAlilveNG3) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, KeepAlilveNG4) {
+TEST(TestMapFieldValues, KeepAlilveNG4) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Keep-Alive: timeout=10,\r\n"
@@ -303,7 +303,7 @@ TEST(TestFieldValueMap, KeepAlilveNG4) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, KeepAlilveNG5) {
+TEST(TestMapFieldValues, KeepAlilveNG5) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Keep-Alive: timeout=10; a=b\r\n"
@@ -317,7 +317,7 @@ TEST(TestFieldValueMap, KeepAlilveNG5) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestFieldValueMap, KeepAlilveNG6) {
+TEST(TestMapFieldValues, KeepAlilveNG6) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Keep-Alive: timeout=10; a=b\r\n"

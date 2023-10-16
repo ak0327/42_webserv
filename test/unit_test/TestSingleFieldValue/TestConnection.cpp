@@ -18,7 +18,7 @@ TEST(TestSingleFieldValue, Connection1) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("close", value->get_value());
 	} else {
@@ -41,7 +41,7 @@ TEST(TestSingleFieldValue, Connection2) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("close", value->get_value());
 	} else {
@@ -64,7 +64,7 @@ TEST(TestSingleFieldValue, Connection3) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("close", value->get_value());
 	} else {
@@ -87,7 +87,7 @@ TEST(TestSingleFieldValue, Connection4) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("keep-alive", value->get_value());
 	} else {
@@ -110,7 +110,7 @@ TEST(TestSingleFieldValue, Connection5) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("keep-alive", value->get_value());
 	} else {
@@ -134,7 +134,7 @@ TEST(TestSingleFieldValue, Connection6) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("keep-alive", value->get_value());
 	} else {

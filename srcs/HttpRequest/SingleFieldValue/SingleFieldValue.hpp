@@ -3,9 +3,9 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "FieldValues.hpp"
+#include "FieldValueBase.hpp"
 
-class SingleFieldValue: public FieldValues {
+class SingleFieldValue: public FieldValueBase {
  public:
 	explicit SingleFieldValue(const std::string &value);
 	SingleFieldValue(const SingleFieldValue &other);

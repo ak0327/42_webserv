@@ -18,7 +18,7 @@ TEST(TestSingleFieldValue, ServiceWorkerNavigationPreloadOK1) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("s3pPLMBiTxaQ9kYGzzhZRbK+xOo=", value->get_value());
 	} else {
@@ -41,7 +41,7 @@ TEST(TestSingleFieldValue, ServiceWorkerNavigationPreloadOK2) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("abc123", value->get_value());
 	} else {
@@ -65,7 +65,7 @@ TEST(TestSingleFieldValue, ServiceWorkerNavigationPreloadOK3) {
 	EXPECT_TRUE(has_field_name);
 
 	if (has_field_name) {
-		FieldValues *field_values = request.get_field_values(field_name);
+		FieldValueBase *field_values = request.get_field_values(field_name);
 		SingleFieldValue *value = dynamic_cast<SingleFieldValue *>(field_values);
 		EXPECT_EQ("123", value->get_value());
 	} else {
