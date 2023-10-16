@@ -160,8 +160,9 @@ set (unit_test_srcs
         test/unit_test/TestRequestLine.cpp
 
         # http message parser
-        test/unit_test/TestHttpMessageParser/TestStrToNum.cpp
         test/unit_test/TestHttpMessageParser/TestIs.cpp
+        test/unit_test/TestHttpMessageParser/TestSkip.cpp
+        test/unit_test/TestHttpMessageParser/TestStrToNum.cpp
 
         # single field value
         test/unit_test/TestSingleFieldValue/TestAccessControlRequestMethod.cpp

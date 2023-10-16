@@ -333,6 +333,10 @@ Result<std::string, int> parse_pos_to_delimiter(const std::string &src_str,
 	std::size_t delim_pos, len;
 	std::string	ret_str;
 
+	if (!end_pos) {
+		return Result<std::string, int>::err(ERR);
+	}
+	*end_pos = start_pos;
 	if (src_str.empty() || src_str.length() < start_pos) {
 		return Result<std::string, int>::err(ERR);
 	}

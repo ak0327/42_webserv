@@ -374,10 +374,14 @@ Result<int, int> parse_imf_fixdate(const std::string &http_date,
 	*day_name = day_name_result.get_ok_value();
 	pos = end_pos;
 
-	if (http_date[pos] != COMMA) { return Result<int, int>::err(ERR); }
+	if (http_date[pos] != COMMA) {
+		return Result<int, int>::err(ERR);
+	}
 	pos++;
 
-	if (http_date[pos] != SP) { return Result<int, int>::err(ERR); }
+	if (http_date[pos] != SP) {
+		return Result<int, int>::err(ERR);
+	}
 	pos++;
 
 	day1_result = parse_date1(http_date, day, month, year, pos, &end_pos);
@@ -386,7 +390,9 @@ Result<int, int> parse_imf_fixdate(const std::string &http_date,
 	}
 	pos = end_pos;
 
-	if (http_date[pos] != SP) { return Result<int, int>::err(ERR); }
+	if (http_date[pos] != SP) {
+		return Result<int, int>::err(ERR);
+	}
 	pos++;
 
 	time_of_day_result = parse_time_of_day(http_date, hour, minute, second, pos, &end_pos);
@@ -396,11 +402,13 @@ Result<int, int> parse_imf_fixdate(const std::string &http_date,
 	pos = end_pos;
 
 	// SP
-	if (http_date[pos] != SP) { return Result<int, int>::err(ERR); }
+	if (http_date[pos] != SP) {
+		return Result<int, int>::err(ERR);
+	}
 	pos++;
 
 	// GMT
-	gmt_result = StringHandler::parse_pos_to_delimiter(http_date, pos, '\0', NULL);
+	gmt_result = StringHandler::parse_pos_to_delimiter(http_date, pos, '\0', &end_pos);
 	if (gmt_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}

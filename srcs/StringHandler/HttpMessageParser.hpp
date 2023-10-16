@@ -43,14 +43,26 @@ bool is_token(const std::string &str);
 bool is_token68(const std::string &str);
 bool is_ext_token(const std::string &str);
 
+bool is_langtag(const std::string &str);
+bool is_privateuse(const std::string &str);
+bool is_grandfathered(const std::string &str);
 bool is_language_tag(const std::string &str);
+bool is_language(const std::string &str);
+bool is_script(const std::string &str);
+bool is_region(const std::string &str);
+bool is_variant(const std::string &str);
+bool is_extension(const std::string &str);
+
 bool is_etag(char c);
+bool is_opaque_tag(const std::string &str);
 bool is_entity_tag(const std::string &str);
 bool is_base_64_value_non_empty(const std::string &str);
 
-
 bool is_absolute_uri(const std::string &str);
 bool is_partial_uri(const std::string &str);
+
+bool is_irregular(const std::string &str);
+bool is_regular(const std::string &str);
 
 bool is_header_body_separator(const std::string &line_end_with_cr);
 
@@ -124,5 +136,10 @@ void skip_variant(const std::string &str,
 void skip_extension(const std::string &str,
 					std::size_t start_pos,
 					std::size_t *end_pos);
-
+void skip_extlang(const std::string &str,
+				  std::size_t start_pos,
+				  std::size_t *end_pos);
+void skip_language(const std::string &str,
+				   std::size_t start_pos,
+				   std::size_t *end_pos);
 }  // namespace HttpMessageParser
