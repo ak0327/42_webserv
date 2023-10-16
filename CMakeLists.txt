@@ -180,6 +180,7 @@ set (unit_test_srcs
 
         # set field value
         test/unit_test/TestSetFieldValues/TestContentEncoding.cpp
+        test/unit_test/TestSetFieldValues/TestContentLanguage.cpp
         test/unit_test/TestSetFieldValues/TestIfMatch.cpp
         test/unit_test/TestSetFieldValues/TestIfNoneMatch.cpp
         test/unit_test/TestSetFieldValues/TestTransferEncoding.cpp

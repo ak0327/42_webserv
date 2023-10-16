@@ -375,7 +375,7 @@ void HttpRequest::init_field_name_parser() {
 	map[std::string(CONNECTION)] = &HttpRequest::set_connection;
 	map[std::string(CONTENT_DISPOSITION)] = &HttpRequest::set_content_disposition;
 	map[std::string(CONTENT_ENCODING)] = &HttpRequest::set_content_encoding;
-	map[std::string(CONTENT_LANGUAGE)] = &HttpRequest::set_content_language;  // todo: Content-Language
+	map[std::string(CONTENT_LANGUAGE)] = &HttpRequest::set_content_language;
 	map[std::string(CONTENT_LENGTH)] = &HttpRequest::set_content_length;
 	map[std::string(CONTENT_LOCATION)] = &HttpRequest::set_content_location;  // todo: Content-Location
 	map[std::string(CONTENT_RANGE)] = &HttpRequest::set_content_range;  // todo: Content-Range

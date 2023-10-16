@@ -35,7 +35,6 @@ std::set<std::string> parse_field_values(const std::string &field_value) {
 	std::string value;
 	std::set<std::string> field_values;
 
-
 	pos = 0;
 	while (field_value[pos]) {
 		len = get_value_len(&field_value[pos], SP, COMMA);
@@ -213,16 +212,19 @@ Result<int, int> HttpRequest::set_multi_field_values(const std::string &field_na
 Result<int, int> HttpRequest::set_content_encoding(const std::string &field_name,
 												   const std::string &field_value) {
 	clear_field_values_of(field_name);
-	return set_multi_field_values(field_name, field_value, HttpMessageParser::is_token);
+	return set_multi_field_values(field_name,
+								  field_value,
+								  HttpMessageParser::is_token);
 }
 
-// todo: Content-Language
 // Content-Language = [ language-tag *( OWS "," OWS language-tag ) ]
 // https://www.rfc-editor.org/rfc/rfc9110#name-collected-abnf
 Result<int, int> HttpRequest::set_content_language(const std::string &field_name,
 												   const std::string &field_value) {
 	clear_field_values_of(field_name);
-	return set_multi_field_values(field_name, field_value, HttpMessageParser::is_language_tag);
+	return set_multi_field_values(field_name,
+								  field_value,
+								  HttpMessageParser::is_language_tag);
 }
 
 /*
