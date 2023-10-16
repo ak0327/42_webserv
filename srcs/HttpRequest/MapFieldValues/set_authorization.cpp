@@ -77,6 +77,7 @@ Result<std::string, int> parse_auth_scheme(const std::string &field_value,
 
 	if (!end_pos) { return Result<std::string, int>::err(ERR); }
 	if (field_value.empty()) { return Result<std::string, int>::err(ERR); }
+	if (field_value.length() < start_pos) { return Result<std::string, int>::err(ERR); }
 
 	len = 0;
 	while (HttpMessageParser::is_tchar(field_value[start_pos + len])) {
@@ -103,6 +104,7 @@ Result<std::string, int> parse_auth_param(const std::string &field_value,
 
 	if (!end_pos) { return Result<std::string, int>::err(ERR); }
 	if (field_value.empty()) { return Result<std::string, int>::err(ERR); }
+	if (field_value.length() < start_pos) { return Result<std::string, int>::err(ERR); }
 
 	pos = start_pos;
 	if (field_value[pos] != SP) { return Result<std::string, int>::err(ERR); }
@@ -119,8 +121,8 @@ Result<std::string, int> parse_auth_param(const std::string &field_value,
 // Authorization = credentials
 // credentials   = auth-scheme [ 1*SP ( token68 / #auth-param ) ]
 // https://datatracker.ietf.org/doc/html/rfc7235#section-4.2
-Result<std::map<std::string, std::string>, int> parse_credentials(
-		const std::string &field_value) {
+Result<std::map<std::string, std::string>, int>
+parse_credentials(const std::string &field_value) {
 	std::map<std::string, std::string> credentials;
 	std::string auth_scheme, auth_param;
 	Result<std::string, int> auth_scheme_result, auth_param_result;
@@ -149,8 +151,8 @@ Result<std::map<std::string, std::string>, int> parse_credentials(
 	return Result<std::map<std::string, std::string>, int>::ok(credentials);
 }
 
-Result<std::map<std::string, std::string>, int> parse_and_validate_credentials(
-		const std::string &field_value) {
+Result<std::map<std::string, std::string>, int>
+parse_and_validate_credentials(const std::string &field_value) {
 	Result<std::map<std::string, std::string> , int> parse_result;
 	Result<int, int> validate_result;
 	std::map<std::string, std::string> credentials;

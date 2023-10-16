@@ -8,7 +8,8 @@
 namespace {
 
 /* Keep-Alive */
-Result<std::map<std::string, std::string>, int> parse_keep_alive_info(const std::string &field_value) {
+Result<std::map<std::string, std::string>, int>
+parse_keep_alive_info(const std::string &field_value) {
 	std::map<std::string, std::string> keep_alive_info;
 	Result<int, int> parse_result;
 	std::string key, value;
@@ -44,7 +45,8 @@ Result<std::map<std::string, std::string>, int> parse_keep_alive_info(const std:
 	return Result<std::map<std::string, std::string>, int>::ok(keep_alive_info);
 }
 
-Result<int, int> validate_keep_alive_info(const std::map<std::string, std::string> &keep_alive_info) {
+Result<int, int>
+validate_keep_alive_info(const std::map<std::string, std::string> &keep_alive_info) {
 	std::map<std::string, std::string>::const_iterator itr;
 	std::string key, value;
 	bool succeed;
@@ -107,8 +109,8 @@ Result<int, int> reformat_delta_seconds(std::map<std::string, std::string> *keep
  https://triple-underscore.github.io/RFC7230-ja.html#abnf.extension
 
  */
-Result<std::map<std::string, std::string>, int> parse_and_validate_keep_alive_info(
-		const std::string &field_value) {
+Result<std::map<std::string, std::string>, int>
+parse_and_validate_keep_alive_info(const std::string &field_value) {
 	std::map<std::string, std::string> keep_alive_info;
 	Result<std::map<std::string, std::string>, int> parse_result;
 	Result<int, int> validate_result, reformat_result;

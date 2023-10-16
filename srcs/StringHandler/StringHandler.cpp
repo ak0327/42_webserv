@@ -327,26 +327,30 @@ std::string to_lower(const std::string &str) {
 }
 
 Result<std::string, int> parse_pos_to_delimiter(const std::string &src_str,
-												std::size_t pos,
+												std::size_t start_pos,
 												char tail_delimiter,
 												std::size_t *end_pos) {
 	std::size_t delim_pos, len;
 	std::string	ret_str;
 
+	if (src_str.empty() || src_str.length() < start_pos) {
+		return Result<std::string, int>::err(ERR);
+	}
+
 	if (tail_delimiter == '\0') {
-		ret_str = src_str.substr(pos);
+		ret_str = src_str.substr(start_pos);
 		if (end_pos) { *end_pos = src_str.length(); }
 		return Result<std::string, int>::ok(ret_str);
 	}
 
-	delim_pos = src_str.find(tail_delimiter, pos);
+	delim_pos = src_str.find(tail_delimiter, start_pos);
 	if (delim_pos == std::string::npos) {
 		return Result<std::string, int>::err(ERR);
 	}
-	len = delim_pos - pos;
+	len = delim_pos - start_pos;
 
-	ret_str = src_str.substr(pos, len);
-	if (end_pos) { *end_pos = pos + len; }
+	ret_str = src_str.substr(start_pos, len);
+	if (end_pos) { *end_pos = start_pos + len; }
 	return Result<std::string, int>::ok(ret_str);
 }
 

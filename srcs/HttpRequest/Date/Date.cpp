@@ -362,7 +362,6 @@ Result<int, int> parse_imf_fixdate(const std::string &http_date,
 	Result<std::string, int> day_name_result, gmt_result;
 	Result<int, int> day1_result, time_of_day_result;
 
-
 	if (!day_name || !day || !month || !year || !hour || !minute || !second || !gmt) {
 		return Result<int, int>::err(ERR);
 	}

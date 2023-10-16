@@ -80,9 +80,10 @@ void skip_transfer_parameter(const std::string &str,
 							 bool *succeed) {
 	std::size_t end_pos;
 
-	if (!succeed) { return; }
+	if (!succeed || !pos) { return; }
 
 	*succeed = false;
+	if (str.empty() || str.length() < *pos) { return; }
 
 	// token
 	if (!HttpMessageParser::is_tchar(str[*pos])) { return; }

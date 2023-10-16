@@ -14,7 +14,11 @@ Result<std::string, int> parse_forwarded_value(const std::string &field_value,
 	std::size_t len, end;
 	std::string value;
 
-	if (field_value.empty()) {
+	if (!end_pos) {
+		return Result<std::string, int>::err(ERR);
+	}
+	*end_pos = start_pos;
+	if (field_value.empty() || field_value.length() < start_pos) {
 		return Result<std::string, int>::err(ERR);
 	}
 	len = 0;
@@ -50,6 +54,9 @@ Result<int, int> parse_forwarded_pair(const std::string &field_value,
 	Result<std::string, int> token_result, value_result;
 
 	if (!end_pos || !token || !value) { return Result<int, int>::err(ERR); }
+	if (field_value.empty() || field_value.length() < start_pos) {
+		return Result<int, int>::err(ERR);
+	}
 
 	pos = start_pos;
 	token_result = StringHandler::parse_pos_to_delimiter(field_value,
@@ -78,8 +85,8 @@ Result<int, int> parse_forwarded_pair(const std::string &field_value,
 /*
  forwarded-element = [ forwarded-pair ] *( ";" [ forwarded-pair ] )
  */
-Result<std::map<std::string, std::string>, int> parse_and_validate_forwarded_element(
-		const std::string &field_value) {
+Result<std::map<std::string, std::string>, int>
+parse_and_validate_forwarded_element(const std::string &field_value) {
 	std::map<std::string, std::string> forwarded_element;
 	Result<int, int> parse_result, validate_result;
 	std::string token, value;

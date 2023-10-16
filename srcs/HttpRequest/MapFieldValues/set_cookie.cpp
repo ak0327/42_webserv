@@ -68,7 +68,9 @@ Result<int, int> parse_cookie_pair(const std::string &field_value,
 	std::size_t pos, end, len;
 
 	if (!end_pos || !cookie_name || !cookie_value) { return Result<int, int>::err(ERR); }
-	if (field_value.empty()) { return Result<int, int>::err(ERR); }
+	if (field_value.empty() || field_value.length() < start_pos) {
+		return Result<int, int>::err(ERR);
+	}
 
 	// cookie-name
 	pos = start_pos;
@@ -98,7 +100,8 @@ Result<int, int> parse_cookie_pair(const std::string &field_value,
  cookie-string = cookie-pair *( ";" SP cookie-pair )
  cookie-pair   = cookie-name "=" cookie-value
  */
-Result<std::map<std::string, std::string>, int> parse_cookie_string(const std::string &field_value) {
+Result<std::map<std::string, std::string>, int>
+parse_cookie_string(const std::string &field_value) {
 	Result<int, int> parse_result;
 	std::string cookie_name, cookie_value;
 	std::map<std::string, std::string> cookie_string;
@@ -151,7 +154,8 @@ bool is_valid_cookie_value(const std::string &cookie_value) {
 	return cookie_value[end] == '\0';
 }
 
-Result<int, int> validate_cookie_string(const std::map<std::string, std::string> &cookie_string) {
+Result<int, int>
+validate_cookie_string(const std::map<std::string, std::string> &cookie_string) {
 	std::map<std::string, std::string>::const_iterator itr;
 	std::string cookie_name, cookie_value;
 
@@ -172,8 +176,8 @@ Result<int, int> validate_cookie_string(const std::map<std::string, std::string>
 }
 
 
-Result<std::map<std::string, std::string>, int> parse_and_validate_cookie_string(
-		const std::string &field_value) {
+Result<std::map<std::string, std::string>, int>
+parse_and_validate_cookie_string(const std::string &field_value) {
 	std::map<std::string, std::string> cookie_string;
 	Result<std::map<std::string, std::string>, int> parse_result;
 	Result<int, int> validate_result;

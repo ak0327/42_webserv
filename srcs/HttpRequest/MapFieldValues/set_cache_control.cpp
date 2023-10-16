@@ -17,8 +17,8 @@ namespace {
  1#element => element *( OWS "," OWS element )
  https://triple-underscore.github.io/RFC7230-ja.html#abnf.extension
  */
-Result<std::map<std::string, std::string> , int> parse_cache_directive(
-		const std::string &field_value) {
+Result<std::map<std::string, std::string> , int>
+parse_cache_directive(const std::string &field_value) {
 	std::map<std::string, std::string> cache_directive;
 	Result<int, int> parse_result;
 	std::string key, value;
@@ -87,8 +87,8 @@ Result<int, int> validate_cache_directive(
 	return Result<int, int>::ok(OK);
 }
 
-Result<std::map<std::string, std::string>, int> parse_and_validate_cache_directive(
-		const std::string &field_value) {
+Result<std::map<std::string, std::string>, int>
+parse_and_validate_cache_directive(const std::string &field_value) {
 	Result<std::map<std::string, std::string> , int> parse_result;
 	Result<int, int> validate_result;
 	std::map<std::string, std::string> cache_directive;

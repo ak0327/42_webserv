@@ -79,7 +79,8 @@ Result<int, int> MapFieldValues::parse_map_element(const std::string &field_valu
 	if (!end_pos || !key || !value) {
 		return Result<int, int>::err(ERR);
 	}
-	if (field_value.empty()) {
+	*end_pos = start_pos;
+	if (field_value.empty() || field_value.length() < start_pos) {
 		return Result<int, int>::err(ERR);
 	}
 

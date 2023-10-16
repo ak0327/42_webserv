@@ -57,6 +57,9 @@ Result<std::string, int> parse_subtype(const std::string &field_value,
 	std::string subtype;
 
 	if (!end_pos) { return Result<std::string, int>::err(ERR); }
+	if (field_value.empty() || field_value.length() < start_pos) {
+		return Result<std::string, int>::err(ERR);
+	}
 
 	len = 0;
 	while (true) {
@@ -87,6 +90,9 @@ Result<int, int> parse_parameter(const std::string &field_value,
 	Result<std::string, int> parse_name_result;
 
 	if (!end_pos || !parameter_name || !parameter_value) {
+		return Result<int, int>::err(ERR);
+	}
+	if (field_value.empty() || field_value.length() < start_pos) {
 		return Result<int, int>::err(ERR);
 	}
 
@@ -148,6 +154,9 @@ Result<std::map<std::string, std::string>, int> parse_parameters(const std::stri
 
 	if (!end_pos) {
 		return Result<std::map<std::string, std::string>, int>::err(ERR);
+	}
+	if (field_value.empty() || field_value.length() < start_pos) {
+		return Result<std::map<std::string, std::string>, int>::ok(parameters);
 	}
 
 	if (field_value[start_pos] == '\0') {

@@ -23,6 +23,7 @@ Result<std::string, int> parse_disposition_type(const std::string &field_value,
 	if (!end_pos) {
 		return Result<std::string, int>::err(ERR);
 	}
+	*end_pos = 0;
 	if (field_value.empty()) {
 		return Result<std::string, int>::err(ERR);
 	}
@@ -92,7 +93,9 @@ Result<int, int> parse_param(const std::string &field_value,
 	std::size_t pos, end, len;
 
 	if (!end_pos || !key || !value) { return Result<int, int>::err(ERR); }
+	*end_pos = start_pos;
 	if (field_value.empty())  { return Result<int, int>::err(ERR); }
+	if (field_value.length() < start_pos)  { return Result<int, int>::err(ERR); }
 
 	// key
 	pos = start_pos;
@@ -150,7 +153,8 @@ Result<std::map<std::string, std::string>, int> parse_disposition_param(
 	if (!end_pos) {
 		return Result<std::map<std::string, std::string>, int>::err(ERR);
 	}
-	if (field_value.empty()) {
+	*end_pos = start_pos;
+	if (field_value.empty() || field_value.length() < start_pos) {
 		// std::cout << MAGENTA << "  err 1" << RESET << std::endl;
 		return Result<std::map<std::string, std::string>, int>::err(ERR);
 	}
@@ -280,6 +284,10 @@ Result<std::map<std::string, std::string>, int> parse_and_validate_disposition_p
 
 	if (!end_pos) {
 		// std::cout << YELLOW << " err 1" << RESET << std::endl;
+		return Result<std::map<std::string, std::string> , int>::err(ERR);
+	}
+	*end_pos = start_pos;
+	if (field_value.empty() || field_value.length() < start_pos) {
 		return Result<std::map<std::string, std::string> , int>::err(ERR);
 	}
 
