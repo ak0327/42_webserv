@@ -10,6 +10,7 @@ SRCS_DIR	=	srcs
 #main
 SRCS		=	main.cpp \
 				get_valid_config_file_path.cpp
+
 #debug
 DEBUG_DIR	=	Debug
 SRCS		+=	$(DEBUG_DIR)/Debug.cpp
@@ -19,6 +20,18 @@ RESPONSE_DIR	=	HttpResponse
 RESPONSE_DELETE_DIR	=	HttpResponse/DELETE
 RESPONSE_DELETE_TESTCONFIG_DIR	=	HttpResponse/DELETE/TestConfig
 SRCS		+=	$(RESPONSE_DELETE_TESTCONFIG_DIR)/.cpp $(RESPONSE_DELETE_DIR)/check_statuscode_delete
+#error
+ERROR_DIR	=	Error
+SRCS		+=	$(ERROR_DIR)/Error.cpp
+
+#HttpResponse
+RESPONSE_DIR =	HttpResponse
+SRCS		+=	$(RESPONSE_DIR)/HttpResponse.cpp \
+				$(RESPONSE_DIR)/GET/get_request_body.cpp
+
+#socket
+SOCKET_DIR	=	Socket
+SRCS		+=	$(SOCKET_DIR)/Socket.cpp
 
 
 # OBJS -------------------------------------------------------------------------
@@ -34,6 +47,8 @@ DEPS		=	$(OBJS:%.o=%.d)
 INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(DEBUG_DIR) \
 				$(SRCS_DIR)/$(ERROR_DIR) \
+				$(SRCS_DIR)/$(RESPONSE_DIR) \
+				$(SRCS_DIR)/$(SOCKET_DIR)
 
 INCLUDES	 =	$(addprefix -I, $(INCLUDES_DIR))
 
@@ -64,7 +79,6 @@ re		: fclean all
 lint	:
 	cpplint --recursive srcs
 
-
 .PHONY	: run_unit_test
 run_unit_test	:
 	#rm -rf build
@@ -73,7 +87,6 @@ run_unit_test	:
 	cmake --build build
 	./build/unit_test 2>/dev/null
 	#./build/unit_test
-
 
 .PHONY	: run_result_test
 run_result_test	:
@@ -89,11 +102,19 @@ run_err_test	:
 	cmake --build build
 	./build/unit_test --gtest_filter=ErrorMessage*
 
+
 .PHONY	: run_delete_test
 run_delete_test	:
 	#rm -rf build
 	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
 	cmake --build build
 	./build/unit_test --gtest_filter=DeleteMethod*
+
+.PHONY	: run_socket_test
+run_socket_test	:
+	#rm -rf build
+	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
+	cmake --build build
+	./build/unit_test --gtest_filter=SocketUnitTest.*:SocketIntegrationTest.*
 
 -include $(DEPS)
