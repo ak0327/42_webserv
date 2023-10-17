@@ -382,3 +382,34 @@ std::vector<std::string> init_months() {
 	months.push_back(std::string(DEC));
 	return months;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+const std::vector<std::string> SH_TOKENS = init_sh_tokens();
+
+std::vector<std::string> init_sh_tokens() {
+	std::vector<std::string> sh_tokens;
+
+	sh_tokens.push_back("audio");
+	sh_tokens.push_back("audioworklet");
+	sh_tokens.push_back("document");
+	sh_tokens.push_back("embed");
+	sh_tokens.push_back("empty");
+	sh_tokens.push_back("font");
+	sh_tokens.push_back("frame");
+	sh_tokens.push_back("iframe");
+	sh_tokens.push_back("image");
+	sh_tokens.push_back("manifest");
+	sh_tokens.push_back("object");
+	sh_tokens.push_back("paintworklet");
+	sh_tokens.push_back("report");
+	sh_tokens.push_back("script");
+	sh_tokens.push_back("serviceworker");
+	sh_tokens.push_back("sharedworker");
+	sh_tokens.push_back("style");
+	sh_tokens.push_back("track");
+	sh_tokens.push_back("video");
+	sh_tokens.push_back("worker");
+	sh_tokens.push_back("xslt");
+	return sh_tokens;
+}

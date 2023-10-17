@@ -226,3 +226,10 @@ extern const std::vector<std::string> MONTHS;
 
 std::vector<std::string> init_day_names();
 std::vector<std::string> init_months();
+
+////////////////////////////////////////////////////////////////////////////////
+/* sh-tokens */
+
+extern const std::vector<std::string> SH_TOKENS;
+
+std::vector<std::string> init_sh_tokens();

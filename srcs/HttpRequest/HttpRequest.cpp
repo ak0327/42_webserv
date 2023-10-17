@@ -364,7 +364,7 @@ void HttpRequest::init_field_name_parser() {
 	map[std::string(PROXY_AUTHORIZATION)] = &HttpRequest::set_proxy_authorization;
 	map[std::string(RANGE)] = &HttpRequest::set_range;
 	map[std::string(REFERER)] = &HttpRequest::set_referer;  // todo: Referer
-	map[std::string(SEC_FETCH_DEST)] = &HttpRequest::set_sec_fetch_dest;  // todo: Sec-Fetch-Dest
+	map[std::string(SEC_FETCH_DEST)] = &HttpRequest::set_sec_fetch_dest;
 	map[std::string(SEC_FETCH_MODE)] = &HttpRequest::set_sec_fetch_mode;
 	map[std::string(SEC_FETCH_SITE)] = &HttpRequest::set_sec_fetch_site;
 	map[std::string(SEC_FETCH_USER)] = &HttpRequest::set_sec_fetch_user;

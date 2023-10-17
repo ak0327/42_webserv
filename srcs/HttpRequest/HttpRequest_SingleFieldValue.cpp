@@ -227,32 +227,26 @@ Result<int, int> HttpRequest::set_referer(const std::string &field_name,
 	return Result<int, int>::ok(STATUS_OK);
 }
 
-// todo: ??
-/*
-Result<int, int> HttpRequest::set_referrer_policy(const std::string &field_name, const std::string &field_value)
-{
-	if (field_value == "no-referrer" || field_value == "no-referrer-when-downgrade" || field_value == "origin" || field_value == "origin-when-cross-origin" || \
-	field_value == "same-origin" || field_value == "strict-origin" || field_value == "strict-origin-when-cross-origin" || field_value == "unsafe-url")
-		this->_request_header_fields[field_name] = new SingleFieldValue(field_value);
-	else
-		return;
-}
- */
-
 // todo: Sec-Fetch-Dest
+/*
+ Sec-Fetch-Dest = sh-token
+ "audio", "audioworklet", "document", "embed", "empty", "font",
+ "frame", "iframe", "image", "manifest", "object", "paintworklet",
+ "report", "script", "serviceworker", "sharedworker", "style",
+ "track", "video", "worker", "xslt".
+ https://w3c.github.io/webappsec-fetch-metadata/#sec-fetch-dest-header
+ https://triple-underscore.github.io/webappsec-fetch-metadata-ja.html#sec-fetch-dest-header
+ */
 Result<int, int> HttpRequest::set_sec_fetch_dest(const std::string &field_name,
-												 const std::string &field_value)
-{
-	if (field_value == "audio" || field_value == "audioworklet" || field_value == "document"
-	|| field_value == "embed" || field_value == "empty" || field_value == "font"
-	|| field_value == "frame" || field_value == "iframe" || field_value == "image"
-	|| field_value == "manifest" || field_value == "object" || field_value == "paintworklet"
-	|| field_value == "report" || field_value == "script" || field_value == "serviceworker"
-	|| field_value == "sharedworker" || field_value == "style" || field_value == "track"
-	|| field_value == "video" || field_value == "worker" || field_value == "xslt")
+												 const std::string &field_value) {
+	std::vector<std::string>::const_iterator itr;
+
+	clear_field_values_of(field_name);
+
+	itr = std::find(SH_TOKENS.begin(), SH_TOKENS.end(), field_value);
+	if (itr != SH_TOKENS.end()) {
 		this->_request_header_fields[field_name] = new SingleFieldValue(field_value);
-	// else
-	// 	return;
+	}
 	return Result<int, int>::ok(STATUS_OK);
 }
 

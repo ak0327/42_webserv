@@ -171,6 +171,7 @@ set (unit_test_srcs
         test/unit_test/SingleFieldValue/TestContentLength.cpp
         test/unit_test/SingleFieldValue/TestExpect.cpp
         test/unit_test/SingleFieldValue/TestMaxForwards.cpp
+        test/unit_test/SingleFieldValue/TestSecFetchDest.cpp
         test/unit_test/SingleFieldValue/TestSecFetchMode.cpp
         test/unit_test/SingleFieldValue/TestSecFetchSite.cpp
         test/unit_test/SingleFieldValue/TestSecFetchUser.cpp
