@@ -50,8 +50,6 @@ set(webserv_srcs
 
 # httpresponse -----------------------------------------------------------------
 set(webserv_srcs
-srcs/HttpResponse/DELETE/TestConfig/TestConfig.cpp
-srcs/HttpResponse/DELETE/check_statuscode_delete.cpp
 srcs/Debug/Debug.cpp
 srcs/Error/Error.cpp
 )
