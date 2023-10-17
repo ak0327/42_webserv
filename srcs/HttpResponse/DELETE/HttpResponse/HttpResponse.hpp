@@ -1,6 +1,10 @@
+#ifndef SRCS_HTTPRESPONSE_DELETE_HTTPRESPONSE_HTTPRESPONSE_HPP_
+#define SRCS_HTTPRESPONSE_DELETE_HTTPRESPONSE_HTTPRESPONSE_HPP_
+
 #include <algorithm>
-#include <string>
 #include <map>
+#include <string>
+#include <vector>
 #include "../StatusText/StatusText.hpp"
 
 class HttpResponse
@@ -20,3 +24,5 @@ class HttpResponse
 		HttpResponse();
 		~HttpResponse();
 }
+
+#endif  // SRCS_HTTPRESPONSE_DELETE_HTTPRESPONSE_HTTPRESPONSE_HPP_

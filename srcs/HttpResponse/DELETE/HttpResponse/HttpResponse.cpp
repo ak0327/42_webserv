@@ -1,13 +1,9 @@
-//100statuscode
-
-#include "testclasss.hpp"
 #include <algorithm>
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
-#include "HttpResponse.hpp"
-
 #include "../TestConfig.hpp"
+#include "HttpResponse.hpp"
 
 #define	EXIST 		0
 #define	NO_EXIST	1
@@ -19,7 +15,7 @@
 namespace Config
 {
 	bool	_autoindex = true;
-	bool    _chunked_transferencoding_allow = false; //現状使い方わかってない
+	bool    _chunked_transferencoding_allow = false;  // 現状使い方わかってない
 	int     _server_tokens = 1;
 	size_t 	_client_body_buffer_size = 1000;
 	size_t  _client_body_timeout = 60;
@@ -29,15 +25,15 @@ namespace Config
 	size_t  _keepaliverequests = 10;
 	size_t  _keepalive_timeout = 60;
 	size_t  _maxBodySize = 2048;
-	std::string  _alias = "/www/images"; // 共通 読み込んでくるフォルダを変える
-	std::string  _accesslog = ""; // 共通
-	std::string  _cgi_path = ""; // 共通
-	std::string  _default_type = "text/plain"; // 共通
+	std::string  _alias = "/www/images";  // 共通 読み込んでくるフォルダを変える
+	std::string  _accesslog = "";  // 共通
+	std::string  _cgi_path = "";  // 共通
+	std::string  _default_type = "text/plain";  // 共通
 	std::string  _errorlog = "";
-	std::string  _root = "/www"; // 共通　aliasより優先度は低い
+	std::string  _root = "/www";  // 共通aliasより優先度は低い
 	std::vector<std::string>	_allowmethod;
 	_allowmethod.push_back("GET");
-}
+}  // namespace Config
 
 namespace Request
 {
@@ -48,14 +44,12 @@ namespace Request
 	std::string	_method = "GET";
 	std::string	_request_path = "/www";
 	std::string	_http_version = "1";
-
 	// header
 	std::string	_header_text = "";
-
 	// body
 	std::string	_body_text = "";
 	std::string	_request_body = "";
-}
+}  // namespace Request
 
 bool	HttpResponse::is_request_under_maxsize(const std::string &request_text, const size_t &maxsize)
 {
@@ -87,8 +81,8 @@ bool	HttpResponse::is_body_under_maxsize(const std::string &body_text, const siz
 	return (true);
 }
 
-bool	HttpResponse::is_method_allowed(const std::vector<std::string> &allowed_method, const std::string &target)
-{	
+bool HttpResponse::is_method_allowed(const std::vector<std::string> &allowed_method, const std::string &target)
+{
 	return (std::count(allowed_method.begin(), allowed_method.end(), target) != 0);
 }
 
@@ -104,20 +98,21 @@ std::string	HttpResponse::ready_now_time() const
 {
 	char buffer[128];
 	time_t	nowtime = time(nullptr);
-    tm*		nowtimestruct = gmtime(&nowtime);
+    tm*		nowtimestruct = gmtime_r(&nowtime);
 
     strftime(buffer, sizeof(buffer), "%a, %d %b %Y %H:%M:%S GMT", nowtimestruct);
     return static_cast<std::string>(buffer);
 }
 
-void	HttpResponse::make_response(const std::string &status_code) //status_codeを
+void	HttpResponse::make_response(const std::string &status_code)
 {
 	this->_response = "HTTP/1.1 " + status_code + " " + this->_status_text_map[status_code].get_status_text() + '\r\n';
 	this->_response = this->_response + "Date: " + this->ready_now_time() + '\r\n';
 	this->_response = this->_response + "Server: wevserv==^^==\r\n";
 	this->_response = this->_response + "Content-Type: text/html;\r\n";
 	this->_response = this->_response + "charset=UTF-8\r\n";
-	this->_response = this->_response + "Content-Length: 60;\r\n";  // 本当は　this->_status_text_map[status_code].get_body_text().length()
+	this->_response = this->_response + "Content-Length: 60;\r\n";
+	// 本当は　this->_status_text_map[status_code].get_body_text().length()
 	this->_response = this->_response + "Connection: close\r\n";
 	this->_response = this->_response + "\r\n";
 	this->_response = this->_response + this->_status_text_map[status_code].get_body_text()
@@ -126,10 +121,9 @@ void	HttpResponse::make_response(const std::string &status_code) //status_code�
 HttpResponse::HttpResponse()
 {
 	this->_statuscode = 200;
-
-	//該当のconfigをとってくる関数は切り分けてしまう //
-	//以下正しいconfigをとってきたものと仮定する
-	if (!(Config::_accesslog != "")) // これが何よりも早いのはエラーが起きた際に全てのエラーを返す必要があると考えているから
+	// 該当のconfigをとってくる関数は切り分けてしまう //
+	// 以下正しいconfigをとってきたものと仮定する
+	if (!(Config::_accesslog != ""))
 		ready_access_log(const std::string &access_log);
 	if (!(Config::_errorlog != ""))
 		ready_error_log(const std::string &error_log);
@@ -146,10 +140,6 @@ HttpResponse::HttpResponse()
 	}
 	// if (!(Config::_server_tokens != ))http_versionの比較　数値を扱う方が必要　1.1だけなら確認する必要はない。。。？
 	// バージョン対応していないというステータスコード があったと思うのでそれを置くのもいいかもしれない
-
 }
 
-void	HttpResponse::make_response()
-{
-
-}
+void	HttpResponse::make_response(){}

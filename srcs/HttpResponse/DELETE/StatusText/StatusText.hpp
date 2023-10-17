@@ -1,5 +1,5 @@
-#ifndef	StatusText_HPP
-#define StatusText_HPP
+#ifndef	SRCS_HTTPRESPONSE_DELETE_STATUSTEXT_STATUSTEXT_HPP_
+#define SRCS_HTTPRESPONSE_DELETE_STATUSTEXT_STATUSTEXT_HPP_
 
 #include <string>
 
@@ -15,4 +15,4 @@ class StatusText
 		std::string	get_body_text(void) const;
 }
 
-#endif
+#endif  // SRCS_HTTPRESPONSE_DELETE_STATUSTEXT_STATUSTEXT_HPP_
