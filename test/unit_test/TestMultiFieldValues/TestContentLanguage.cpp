@@ -2,10 +2,10 @@
 #include "Constant.hpp"
 #include "HttpRequest.hpp"
 #include "RequestLine.hpp"
-#include "SetFieldValues.hpp"
+#include "MultiFieldValues.hpp"
 #include "gtest/gtest.h"
 
-TEST(TestSetFieldValues, ContentLanguageOK1) {
+TEST(TestMultiFieldValues, ContentLanguageOK1) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Content-Language: de-DE\r\n"
@@ -19,7 +19,7 @@ TEST(TestSetFieldValues, ContentLanguageOK1) {
 
 	if (has_field_name) {
 		FieldValueBase *field_values = request.get_field_values(field_name);
-		SetFieldValues *multi_field_values = dynamic_cast<SetFieldValues *>(field_values);
+		MultiFieldValues *multi_field_values = dynamic_cast<MultiFieldValues *>(field_values);
 		std::set<std::string> actual_set = multi_field_values->get_values();
 		std::set<std::string> expected_set = {"de-DE"};
 
@@ -43,7 +43,7 @@ TEST(TestSetFieldValues, ContentLanguageOK1) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestSetFieldValues, ContentLanguageOK2) {
+TEST(TestMultiFieldValues, ContentLanguageOK2) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Content-Language: de-DE, en-CA\r\n"
@@ -57,7 +57,7 @@ TEST(TestSetFieldValues, ContentLanguageOK2) {
 
 	if (has_field_name) {
 		FieldValueBase *field_values = request.get_field_values(field_name);
-		SetFieldValues *multi_field_values = dynamic_cast<SetFieldValues *>(field_values);
+		MultiFieldValues *multi_field_values = dynamic_cast<MultiFieldValues *>(field_values);
 		std::set<std::string> actual_set = multi_field_values->get_values();
 		std::set<std::string> expected_set = {"de-DE", "en-CA"};
 
@@ -81,7 +81,7 @@ TEST(TestSetFieldValues, ContentLanguageOK2) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestSetFieldValues, ContentLanguageOK3) {
+TEST(TestMultiFieldValues, ContentLanguageOK3) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Content-Language: AAA-CCCC-123-12345-a-12-1234bbbb-1212-x-12345678-aaaa-12ab\r\n"
@@ -95,7 +95,7 @@ TEST(TestSetFieldValues, ContentLanguageOK3) {
 
 	if (has_field_name) {
 		FieldValueBase *field_values = request.get_field_values(field_name);
-		SetFieldValues *multi_field_values = dynamic_cast<SetFieldValues *>(field_values);
+		MultiFieldValues *multi_field_values = dynamic_cast<MultiFieldValues *>(field_values);
 		std::set<std::string> actual_set = multi_field_values->get_values();
 		std::set<std::string> expected_set = {"AAA-CCCC-123-12345-a-12-1234bbbb-1212-x-12345678-aaaa-12ab"};
 
@@ -119,7 +119,7 @@ TEST(TestSetFieldValues, ContentLanguageOK3) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestSetFieldValues, ContentLanguageOK4) {
+TEST(TestMultiFieldValues, ContentLanguageOK4) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Content-Language: en-GB-oed, i-hak\r\n"
@@ -133,7 +133,7 @@ TEST(TestSetFieldValues, ContentLanguageOK4) {
 
 	if (has_field_name) {
 		FieldValueBase *field_values = request.get_field_values(field_name);
-		SetFieldValues *multi_field_values = dynamic_cast<SetFieldValues *>(field_values);
+		MultiFieldValues *multi_field_values = dynamic_cast<MultiFieldValues *>(field_values);
 		std::set<std::string> actual_set = multi_field_values->get_values();
 		std::set<std::string> expected_set = {"en-GB-oed", "i-hak"};
 
@@ -160,7 +160,7 @@ TEST(TestSetFieldValues, ContentLanguageOK4) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TEST(TestSetFieldValues, ContentLanguageNG1) {
+TEST(TestMultiFieldValues, ContentLanguageNG1) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Content-Language: ,,a \r\n"
@@ -175,7 +175,7 @@ TEST(TestSetFieldValues, ContentLanguageNG1) {
 }
 
 
-TEST(TestSetFieldValues, ContentLanguageNG2) {
+TEST(TestMultiFieldValues, ContentLanguageNG2) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Content-Language: a,b, \r\n"
@@ -189,7 +189,7 @@ TEST(TestSetFieldValues, ContentLanguageNG2) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestSetFieldValues, ContentLanguageNG3) {
+TEST(TestMultiFieldValues, ContentLanguageNG3) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Content-Language: a-b-c \r\n"

@@ -159,7 +159,7 @@ bool is_transfer_coding(const std::string &str) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SetFieldValues* HttpRequest::ready_ValueArraySet(const std::string &all_value)
+MultiFieldValues* HttpRequest::ready_ValueArraySet(const std::string &all_value)
 {
 	std::set<std::string>	value_array;
 	std::stringstream			ss(all_value);
@@ -167,7 +167,7 @@ SetFieldValues* HttpRequest::ready_ValueArraySet(const std::string &all_value)
 
 	while(std::getline(ss, line, ','))
 		value_array.insert(HttpMessageParser::obtain_withoutows_value(line));
-	return (new SetFieldValues(value_array));
+	return (new MultiFieldValues(value_array));
 }
 
 // todo: Access-Control-Request-Headers
@@ -175,9 +175,9 @@ SetFieldValues* HttpRequest::ready_ValueArraySet(const std::string &all_value)
 /*
  Access-Control-Request-Headers: "Access-Control-Request-Headers" ":" #field-name
  */
+// field-name *( OWS "," OWS field-name )
 Result<int, int> HttpRequest::set_access_control_request_headers(const std::string &field_name,
-																 const std::string &field_value)
-{
+																 const std::string &field_value) {
 	std::set<std::string>	value_array;
 	std::stringstream			ss(field_value);
 	std::string					line;
@@ -201,7 +201,7 @@ Result<int, int> HttpRequest::set_multi_field_values(const std::string &field_na
 
 	field_values = parse_field_values(field_value);
 	if (is_valid_field_values(field_values, is_valid_syntax)) {
-		this->_request_header_fields[field_name] = new SetFieldValues(field_values);
+		this->_request_header_fields[field_name] = new MultiFieldValues(field_values);
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }

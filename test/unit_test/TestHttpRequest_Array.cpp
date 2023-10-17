@@ -2,7 +2,7 @@
 #include "SingleFieldValue.hpp"
 #include "TwoValueSet.hpp"
 #include "RequestLine.hpp"
-#include "SetFieldValues.hpp"
+#include "MultiFieldValues.hpp"
 #include "Date.hpp"
 #include "MapFieldValues.hpp"
 #include "ValueWeightArraySet.hpp"
@@ -90,7 +90,7 @@ void	compare_vectors_report_array(std::set<std::string> target_vector,
 // 	HttpRequest httprequest_test1(TEST_REQUEST);
 // 	if (same_class_test_array(__LINE__, "Access-Control-Allow-Methods", httprequest_test1) == true)
 // 	{
-// 		SetFieldValues* val7 = static_cast<SetFieldValues*>(httprequest_test1.get_field_values(
+// 		MultiFieldValues* val7 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
 // 				"Access-Control-Allow-Methods"));
 // 		std::set<std::string> vector7;
 // 		// GET, POST, PUT, DELETE

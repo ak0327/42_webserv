@@ -46,8 +46,8 @@ SRCS		+= 	$(REQUEST_DIR)/FieldValueBase/FieldValueBase.cpp \
 				$(REQUEST_DIR)/LinkClass/set_link.cpp \
 				$(REQUEST_DIR)/MediaType/MediaType.cpp \
 				$(REQUEST_DIR)/MediaType/set_media_type.cpp \
-				$(REQUEST_DIR)/SetFieldValues/SetFieldValues.cpp \
-				$(REQUEST_DIR)/SetFieldValues/set_set_field_values.cpp \
+				$(REQUEST_DIR)/MultiFieldValues/MultiFieldValues.cpp \
+				$(REQUEST_DIR)/MultiFieldValues/set_multi_field_values.cpp \
 				$(REQUEST_DIR)/RequestLine/RequestLine.cpp \
 				$(REQUEST_DIR)/SingleFieldValue/SingleFieldValue.cpp \
 				$(REQUEST_DIR)/TwoValueSet/TwoValueSet.cpp \
@@ -93,7 +93,7 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(REQUEST_DIR)/FieldValueBase \
 				$(SRCS_DIR)/$(REQUEST_DIR)/LinkClass \
 				$(SRCS_DIR)/$(REQUEST_DIR)/MediaType \
-				$(SRCS_DIR)/$(REQUEST_DIR)/SetFieldValues \
+				$(SRCS_DIR)/$(REQUEST_DIR)/MultiFieldValues \
 				$(SRCS_DIR)/$(REQUEST_DIR)/RequestLine \
 				$(SRCS_DIR)/$(REQUEST_DIR)/SingleFieldValue \
 				$(SRCS_DIR)/$(REQUEST_DIR)/TwoValueSet \
@@ -228,12 +228,12 @@ run_single_field_value_test    :
 	./build/unit_test --gtest_filter=TestSingleFieldValue*
 
 
-.PHONY    : run_set_field_values_test
-run_set_field_values_test    :
+.PHONY    : run_multi_field_values_test
+run_multi_field_values_test    :
 #rm -rf build
 	cmake -S . -B build
 	cmake --build build
-	./build/unit_test --gtest_filter=TestSetFieldValues*
+	./build/unit_test --gtest_filter=TestMultiFieldValues*
 
 
 .PHONY    : run_map_field_values_test

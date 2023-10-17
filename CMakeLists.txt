@@ -42,7 +42,7 @@ include_directories(
         srcs/HttpRequest/LinkClass
         srcs/HttpRequest/RequestLine
         srcs/HttpRequest/TwoValueSet
-        srcs/HttpRequest/SetFieldValues
+        srcs/HttpRequest/MultiFieldValues
         srcs/HttpRequest/Date
         srcs/HttpRequest/MapFieldValues
         srcs/HttpRequest/SingleFieldValue
@@ -107,10 +107,10 @@ set(media_type_srcs
         )
 
 
-# SetFieldValues
+# MultiFieldValues
 set(set_field_values_srcs
-        srcs/HttpRequest/SetFieldValues/SetFieldValues.cpp
-        srcs/HttpRequest/SetFieldValues/set_set_field_values.cpp
+        srcs/HttpRequest/MultiFieldValues/MultiFieldValues.cpp
+        srcs/HttpRequest/MultiFieldValues/set_multi_field_values.cpp
         )
 
 
@@ -179,11 +179,11 @@ set (unit_test_srcs
         test/unit_test/TestSingleFieldValue/TestUpgradeInsecureRequests.cpp
 
         # set field value
-        test/unit_test/TestSetFieldValues/TestContentEncoding.cpp
-        test/unit_test/TestSetFieldValues/TestContentLanguage.cpp
-        test/unit_test/TestSetFieldValues/TestIfMatch.cpp
-        test/unit_test/TestSetFieldValues/TestIfNoneMatch.cpp
-        test/unit_test/TestSetFieldValues/TestTransferEncoding.cpp
+        test/unit_test/TestMultiFieldValues/TestContentEncoding.cpp
+        test/unit_test/TestMultiFieldValues/TestContentLanguage.cpp
+        test/unit_test/TestMultiFieldValues/TestIfMatch.cpp
+        test/unit_test/TestMultiFieldValues/TestIfNoneMatch.cpp
+        test/unit_test/TestMultiFieldValues/TestTransferEncoding.cpp
 
         # field value map
         test/unit_test/TestMapFieldValues/TestAuthorization.cpp

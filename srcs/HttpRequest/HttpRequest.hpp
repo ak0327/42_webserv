@@ -10,7 +10,7 @@
 # include "StringHandler.hpp"
 # include "RequestLine.hpp"
 # include "ValueWeightArraySet.hpp"
-# include "SetFieldValues.hpp"
+# include "MultiFieldValues.hpp"
 # include "SingleFieldValue.hpp"
 # include "TwoValueSet.hpp"
 # include "MapFieldValues.hpp"
@@ -21,7 +21,7 @@
 class FieldValueBase;
 class RequestLine;
 class TwoValueSet;
-class SetFieldValues;
+class MultiFieldValues;
 class Date;
 class MapFieldValues;
 class SingleFieldValue;
@@ -85,7 +85,7 @@ class HttpRequest {
 	std::vector<std::string> securitypolicy_readyvector(const std::string &words);
 	TwoValueSet *ready_TwoValueSet(const std::string &value);
 	TwoValueSet *ready_TwoValueSet(const std::string &value, char delimiter);
-	SetFieldValues *ready_ValueArraySet(const std::string &value);
+	MultiFieldValues *ready_ValueArraySet(const std::string &value);
 	Date *ready_ValueDateSet(const std::string &value);
 	MapFieldValues *ready_ValueMap(const std::string &value);
 	MapFieldValues *ready_ValueMap(const std::string &value, char delimiter);

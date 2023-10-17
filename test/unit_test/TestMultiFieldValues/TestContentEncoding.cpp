@@ -2,7 +2,7 @@
 #include "Constant.hpp"
 #include "HttpRequest.hpp"
 #include "RequestLine.hpp"
-#include "SetFieldValues.hpp"
+#include "MultiFieldValues.hpp"
 #include "gtest/gtest.h"
 
 TEST(TestSetFieldValues, ContentEncodingOK1) {
@@ -19,7 +19,7 @@ TEST(TestSetFieldValues, ContentEncodingOK1) {
 
 	if (has_field_name) {
 		FieldValueBase *field_values = request.get_field_values(field_name);
-		SetFieldValues *multi_field_values = dynamic_cast<SetFieldValues *>(field_values);
+		MultiFieldValues *multi_field_values = dynamic_cast<MultiFieldValues *>(field_values);
 		std::set<std::string> values = multi_field_values->get_values();
 		std::set<std::string> ans = {"gzip"};
 
@@ -57,7 +57,7 @@ TEST(TestSetFieldValues, ContentEncodingOK2) {
 
 	if (has_field_name) {
 		FieldValueBase *field_values = request.get_field_values(field_name);
-		SetFieldValues *multi_field_values = dynamic_cast<SetFieldValues *>(field_values);
+		MultiFieldValues *multi_field_values = dynamic_cast<MultiFieldValues *>(field_values);
 		std::set<std::string> values = multi_field_values->get_values();
 		std::set<std::string> ans = {"gzip", "compress", "deflate", "br"};
 
@@ -97,7 +97,7 @@ TEST(TestSetFieldValues, ContentEncodingOK3) {
 
 	if (has_field_name) {
 		FieldValueBase *field_values = request.get_field_values(field_name);
-		SetFieldValues *multi_field_values = dynamic_cast<SetFieldValues *>(field_values);
+		MultiFieldValues *multi_field_values = dynamic_cast<MultiFieldValues *>(field_values);
 		std::set<std::string> values = multi_field_values->get_values();
 		std::set<std::string> ans = {"a", "b", "c", "a", "a", "b", "c", "d", "123", "*"};
 

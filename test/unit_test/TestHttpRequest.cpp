@@ -11,7 +11,7 @@
 #include "Result.hpp"
 #include "StringHandler.hpp"
 #include "TwoValueSet.hpp"
-#include "SetFieldValues.hpp"
+#include "MultiFieldValues.hpp"
 #include "Date.hpp"
 #include "MapFieldValues.hpp"
 #include "SingleFieldValue.hpp"
@@ -653,7 +653,7 @@ TEST(Request, TEST3)
 	// todo: later
 	// if (same_class_test(__LINE__, "if-none-match", httprequest_test1) == true)
 	// {
-	// 	SetFieldValues* val1 = static_cast<SetFieldValues*>(httprequest_test1.get_field_values(
+	// 	MultiFieldValues* val1 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
 	// 			"if-none-match"));
 	// 	std::set<std::string> vector1;
 	// 	vector1.insert("some_etag");
@@ -746,7 +746,7 @@ TEST(Request, TEST3_include_empty)
 	// todo: later
 	// if (same_class_test(__LINE__, "if-none-match", httprequest_test1) == true)
 	// {
-	// 	SetFieldValues* val1 = static_cast<SetFieldValues*>(httprequest_test1.get_field_values(
+	// 	MultiFieldValues* val1 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
 	// 			"if-none-match"));
 	// 	std::set<std::string> vector1;
 	// 	vector1.insert("some  _etag");
@@ -839,7 +839,7 @@ TEST(Request, TEST4)
 	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
 	// if (same_class_test(__LINE__, "Accept-CH", httprequest_test1) == true)
 	// {
-	// 	SetFieldValues* val1 = static_cast<SetFieldValues*>(httprequest_test1.get_field_values(
+	// 	MultiFieldValues* val1 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
 	// 			"Accept-CH"));
 	// 	std::set<std::string> vector1;
 	// 	vector1.insert("viewport-width");
@@ -880,7 +880,7 @@ TEST(Request, TEST4)
 	// }
 	// if (same_class_test(__LINE__, "Access-Control-Allow-Headers", httprequest_test1) == true)
 	// {
-	// 	SetFieldValues* val6 = static_cast<SetFieldValues*>(httprequest_test1.get_field_values(
+	// 	MultiFieldValues* val6 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
 	// 			"Access-Control-Allow-Headers"));
 	// 	std::set<std::string> vector6;
 	// 	vector6.insert("Content-Type");
@@ -889,7 +889,7 @@ TEST(Request, TEST4)
 	// }
 	// if (same_class_test(__LINE__, "Access-Control-Allow-Methods", httprequest_test1) == true)
 	// {
-	// 	SetFieldValues* val7 = static_cast<SetFieldValues*>(httprequest_test1.get_field_values(
+	// 	MultiFieldValues* val7 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
 	// 			"Access-Control-Allow-Methods"));
 	// 	std::set<std::string> vector7;
 	// 	// GET, POST, PUT, DELETE
@@ -918,7 +918,7 @@ TEST(Request, TEST4_include_empty)
 	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
 	// if (same_class_test(__LINE__, "Accept-CH", httprequest_test1) == true)
 	// {
-	// 	SetFieldValues* val1 = static_cast<SetFieldValues*>(httprequest_test1.get_field_values(
+	// 	MultiFieldValues* val1 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
 	// 			"Accept-CH"));
 	// 	std::set<std::string> vector1;
 	// 	vector1.insert("viewpor  t-width");
@@ -948,7 +948,7 @@ TEST(Request, TEST4_include_empty)
 	// }
 	// if (same_class_test(__LINE__, "Access-Control-Allow-Headers", httprequest_test1) == true)
 	// {
-	// 	SetFieldValues* val6 = static_cast<SetFieldValues*>(httprequest_test1.get_field_values(
+	// 	MultiFieldValues* val6 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
 	// 			"Access-Control-Allow-Headers"));
 	// 	std::set<std::string> vector6;
 	// 	vector6.insert("Content-Type");
@@ -988,7 +988,7 @@ TEST(Request, TEST5)
 	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
 	// if (same_class_test(__LINE__, "Access-Control-Expose-Headers", httprequest_test1) == true)
 	// {
-	// 	SetFieldValues* val1 = static_cast<SetFieldValues*>(httprequest_test1.get_field_values(
+	// 	MultiFieldValues* val1 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
 	// 			"Access-Control-Expose-Headers"));
 	// 	std::set<std::string> vector1;
 	// 	vector1.insert("X-Custom-Header");
@@ -1005,7 +1005,7 @@ TEST(Request, TEST5)
 	// todo: later
 	// if (same_class_test(__LINE__, "access-control-request-headers", httprequest_test1) == true)
 	// {
-	// 	SetFieldValues* val3 = static_cast<SetFieldValues*>(httprequest_test1.get_field_values(
+	// 	MultiFieldValues* val3 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
 	// 			"access-control-request-headers"));
 	// 	std::set<std::string> vector3;
 	// 	vector3.insert("authorization");
@@ -1022,7 +1022,7 @@ TEST(Request, TEST5)
 
 	// if (same_class_test(__LINE__, "Allow", httprequest_test1) == true)
 	// {
-	// 	SetFieldValues* val5 = static_cast<SetFieldValues*>(httprequest_test1.get_field_values(
+	// 	MultiFieldValues* val5 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
 	// 			"Allow"));
 	// 	std::set<std::string> vector5;
 	// 	vector5.insert("GET");
@@ -1044,7 +1044,7 @@ TEST(Request, TEST5)
 	// }
 	// if (same_class_test(__LINE__, "clear-site-data", httprequest_test1) == true)
 	// {
-	// 	SetFieldValues* val7 = static_cast<SetFieldValues*>(httprequest_test1.get_field_values(
+	// 	MultiFieldValues* val7 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
 	// 			"clear-site-data"));
 	// 	std::set<std::string> vector7;
 	// 	vector7.insert("\"cache\"");
@@ -1097,7 +1097,7 @@ TEST(Request, TEST6)
 	// }
 	// if (same_class_test(__LINE__, "content-encoding", httprequest_test1) == true)
 	// {
-	// 	SetFieldValues* val2 = static_cast<SetFieldValues*>(httprequest_test1.get_field_values(
+	// 	MultiFieldValues* val2 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
 	// 			"content-encoding"));
 	// 	std::set<std::string> vector2;
 	// 	vector2.insert("gzip");
@@ -1105,7 +1105,7 @@ TEST(Request, TEST6)
 	// }
 	// if (same_class_test(__LINE__, "content-language", httprequest_test1) == true)
 	// {
-	// 	SetFieldValues* val3 = static_cast<SetFieldValues*>(httprequest_test1.get_field_values(
+	// 	MultiFieldValues* val3 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
 	// 			"content-language"));
 	// 	std::set<std::string> vector3;
 	// 	vector3.insert("en-US");
@@ -1263,7 +1263,7 @@ TEST(Request, TEST7)
 	}
 	if (same_class_test(__LINE__, "if-match", httprequest_test1) == true)
 	{
-		SetFieldValues* val8 = static_cast<SetFieldValues*>(httprequest_test1.get_field_values(
+		MultiFieldValues* val8 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
 				"if-match"));
 		std::set<std::string> vector8;
 		vector8.insert("\"etag123\"");
@@ -1518,7 +1518,7 @@ TEST(Request, TEST9)
 	}
 	if (same_class_test(__LINE__, "transfer-encoding", httprequest_test1) == true)
 	{
-		SetFieldValues* val7 = static_cast<SetFieldValues*>(httprequest_test1.get_field_values(
+		MultiFieldValues* val7 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
 				"transfer-encoding"));
 		std::set<std::string> vector7;
 		vector7.insert("chunked");
@@ -1526,7 +1526,7 @@ TEST(Request, TEST9)
 	}
 	if (same_class_test(__LINE__, "upgrade", httprequest_test1) == true)
 	{
-		SetFieldValues* val8 = static_cast<SetFieldValues*>(httprequest_test1.get_field_values(
+		MultiFieldValues* val8 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
 				"upgrade"));
 		std::set<std::string> vector8;
 		vector8.insert("websocket");
@@ -1546,7 +1546,7 @@ TEST(Request, TEST9)
 	}
 	// if (same_class_test(__LINE__, "Vary", httprequest_test1) == true)
 	// {
-	// 	SetFieldValues* val11 = static_cast<SetFieldValues*>(httprequest_test1.get_field_values(
+	// 	MultiFieldValues* val11 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
 	// 			"Vary"));
 	// 	std::set<std::string> vector11;
 	// 	vector11.insert("Accept-Encoding");
@@ -1555,7 +1555,7 @@ TEST(Request, TEST9)
 	// }
 	// if (same_class_test(__LINE__, "Vary", httprequest_test1) == true)
 	// {
-	// 	SetFieldValues* val12 = static_cast<SetFieldValues*>(httprequest_test1.get_field_values(
+	// 	MultiFieldValues* val12 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
 	// 			"Vary"));
 	// 	std::set<std::string> vector12;
 	// 	vector12.insert("Accept-Encoding");
@@ -1570,7 +1570,7 @@ TEST(Request, TEST9)
 	// }
 	// if (same_class_test(__LINE__, "WWW-Authenticate", httprequest_test1) == true)
 	// {
-	// 	SetFieldValues* val1 = static_cast<SetFieldValues*>(httprequest_test1.get_field_values("WWW-Authenticate"));
+	// 	MultiFieldValues* val1 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values("WWW-Authenticate"));
 	// 	std::set<std::string> vector1;
 	// 	vector1.insert("Accept-Encoding");
 	// 	vector1.insert("User-Agent");

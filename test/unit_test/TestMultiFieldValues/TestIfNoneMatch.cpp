@@ -2,10 +2,10 @@
 #include "Constant.hpp"
 #include "HttpRequest.hpp"
 #include "RequestLine.hpp"
-#include "SetFieldValues.hpp"
+#include "MultiFieldValues.hpp"
 #include "gtest/gtest.h"
 
-TEST(TestSetFieldValues, IfNoneMatchOK1) {
+TEST(TestMultiFieldValues, IfNoneMatchOK1) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "If-None-Match: \"bfc13a64729c4290ef5b2c2730249c88ca92d82d\"\r\n"
@@ -19,7 +19,7 @@ TEST(TestSetFieldValues, IfNoneMatchOK1) {
 
 	if (has_field_name) {
 		FieldValueBase *field_values = request.get_field_values(field_name);
-		SetFieldValues *multi_field_values = dynamic_cast<SetFieldValues *>(field_values);
+		MultiFieldValues *multi_field_values = dynamic_cast<MultiFieldValues *>(field_values);
 		std::set<std::string> values = multi_field_values->get_values();
 		std::set<std::string> ans = {"\"bfc13a64729c4290ef5b2c2730249c88ca92d82d\""};
 
@@ -43,7 +43,7 @@ TEST(TestSetFieldValues, IfNoneMatchOK1) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestSetFieldValues, IfNoneMatchOK2) {
+TEST(TestMultiFieldValues, IfNoneMatchOK2) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "If-None-Match: W/\"67ab43\", \"54ed21\", \"7892dd\" \r\n"
@@ -57,7 +57,7 @@ TEST(TestSetFieldValues, IfNoneMatchOK2) {
 
 	if (has_field_name) {
 		FieldValueBase *field_values = request.get_field_values(field_name);
-		SetFieldValues *multi_field_values = dynamic_cast<SetFieldValues *>(field_values);
+		MultiFieldValues *multi_field_values = dynamic_cast<MultiFieldValues *>(field_values);
 		std::set<std::string> values = multi_field_values->get_values();
 		std::set<std::string> ans = {"W/\"67ab43\"", "\"54ed21\"", "\"7892dd\""};
 
@@ -81,7 +81,7 @@ TEST(TestSetFieldValues, IfNoneMatchOK2) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestSetFieldValues, IfNoneMatchOK3) {
+TEST(TestMultiFieldValues, IfNoneMatchOK3) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "If-None-Match: * \r\n"
@@ -95,7 +95,7 @@ TEST(TestSetFieldValues, IfNoneMatchOK3) {
 
 	if (has_field_name) {
 		FieldValueBase *field_values = request.get_field_values(field_name);
-		SetFieldValues *multi_field_values = dynamic_cast<SetFieldValues *>(field_values);
+		MultiFieldValues *multi_field_values = dynamic_cast<MultiFieldValues *>(field_values);
 		std::set<std::string> values = multi_field_values->get_values();
 		std::set<std::string> ans = {"*"};
 
@@ -120,7 +120,7 @@ TEST(TestSetFieldValues, IfNoneMatchOK3) {
 }
 
 
-TEST(TestSetFieldValues, IfNoneMatchNG1) {
+TEST(TestMultiFieldValues, IfNoneMatchNG1) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "If-None-Match: ,,a \r\n"
@@ -135,7 +135,7 @@ TEST(TestSetFieldValues, IfNoneMatchNG1) {
 }
 
 
-TEST(TestSetFieldValues, IfNoneMatchNG2) {
+TEST(TestMultiFieldValues, IfNoneMatchNG2) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "If-None-Match: *, *, * \r\n"
@@ -149,7 +149,7 @@ TEST(TestSetFieldValues, IfNoneMatchNG2) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestSetFieldValues, IfNoneMatchNG3) {
+TEST(TestMultiFieldValues, IfNoneMatchNG3) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "If-None-Match: \"67ab43 \r\n"
@@ -163,7 +163,7 @@ TEST(TestSetFieldValues, IfNoneMatchNG3) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestSetFieldValues, IfNoneMatchNG4) {
+TEST(TestMultiFieldValues, IfNoneMatchNG4) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "If-None-Match: W\"67ab43\" \r\n"
@@ -177,7 +177,7 @@ TEST(TestSetFieldValues, IfNoneMatchNG4) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestSetFieldValues, IfNoneMatchNG5) {
+TEST(TestMultiFieldValues, IfNoneMatchNG5) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "If-None-Match: W/W/\"67ab43\" \r\n"
