@@ -69,7 +69,8 @@ SRCS		+=	$(MAP_FIELD_VALUES_DIR)/MapFieldValues.cpp \
 				$(MAP_FIELD_VALUES_DIR)/set_forwarded.cpp \
 				$(MAP_FIELD_VALUES_DIR)/set_host.cpp \
 				$(MAP_FIELD_VALUES_DIR)/set_keep_alive.cpp \
-				$(MAP_FIELD_VALUES_DIR)/set_range.cpp
+				$(MAP_FIELD_VALUES_DIR)/set_range.cpp \
+				$(MAP_FIELD_VALUES_DIR)/set_upgrade.cpp
 
 
 # OBJS -------------------------------------------------------------------------

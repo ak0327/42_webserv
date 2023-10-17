@@ -94,6 +94,7 @@ set(field_value_map_srcs
         srcs/HttpRequest/MapFieldValues/set_host.cpp
         srcs/HttpRequest/MapFieldValues/set_keep_alive.cpp
         srcs/HttpRequest/MapFieldValues/set_range.cpp
+        srcs/HttpRequest/MapFieldValues/set_upgrade.cpp
         )
 
 # FieldValueBase
@@ -197,6 +198,7 @@ set (unit_test_srcs
         test/unit_test/MapFieldValues/TestKeepAlive.cpp
         test/unit_test/MapFieldValues/TestProxyAuthorization.cpp
         test/unit_test/MapFieldValues/TestRange.cpp
+        test/unit_test/MapFieldValues/TestUpgrade.cpp
 
         # value and map field values
         test/unit_test/ValueAndMapFieldValues/TestContentDisposition.cpp

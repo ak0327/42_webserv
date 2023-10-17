@@ -373,7 +373,7 @@ void HttpRequest::init_field_name_parser() {
 	map[std::string(TE)] = &HttpRequest::set_te;  // todo: TE
 	map[std::string(TRAILER)] = &HttpRequest::set_trailer;
 	map[std::string(TRANSFER_ENCODING)] = &HttpRequest::set_transfer_encoding;
-	map[std::string(UPGRADE)] = &HttpRequest::set_upgrade;  // todo: Upgrade
+	map[std::string(UPGRADE)] = &HttpRequest::set_upgrade;
 	map[std::string(UPGRADE_INSECURE_REQUESTS)] = &HttpRequest::set_upgrade_insecure_requests;
 	map[std::string(USER_AGENT)] = &HttpRequest::set_user_agent;  // todo: User-Agent
 	map[std::string(VIA)] = &HttpRequest::set_via;  // todo: Via

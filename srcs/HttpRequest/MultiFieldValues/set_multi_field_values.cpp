@@ -280,19 +280,3 @@ Result<int, int> HttpRequest::set_transfer_encoding(const std::string &field_nam
 								  field_value,
 								  is_transfer_coding);
 }
-
-// todo: Upgrade
-/*
- Upgrade          = #protocol
- protocol         = protocol-name ["/" protocol-version]
- protocol-name    = token
- protocol-version = token
- */
-// todo: map
-//  map[name], map[version]
-Result<int, int> HttpRequest::set_upgrade(const std::string &field_name,
-										  const std::string &field_value)
-{
-	this->_request_header_fields[field_name] = this->ready_ValueArraySet(field_value);
-	return Result<int, int>::ok(STATUS_OK);
-}

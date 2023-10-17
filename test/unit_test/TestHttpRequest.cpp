@@ -1524,14 +1524,14 @@ TEST(Request, TEST9)
 		vector7.insert("chunked");
 		compare_vectors_report(val7->get_values(), vector7, 310);
 	}
-	if (same_class_test(__LINE__, "upgrade", httprequest_test1) == true)
-	{
-		MultiFieldValues* val8 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
-				"upgrade"));
-		std::set<std::string> vector8;
-		vector8.insert("websocket");
-		compare_vectors_report(val8->get_values(), vector8, 310);
-	}
+	// if (same_class_test(__LINE__, "upgrade", httprequest_test1) == true)
+	// {
+	// 	MultiFieldValues* val8 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
+	// 			"upgrade"));
+	// 	std::set<std::string> vector8;
+	// 	vector8.insert("websocket");
+	// 	compare_vectors_report(val8->get_values(), vector8, 310);
+	// }
 	if (same_class_test(__LINE__, "upgrade-insecure-requests", httprequest_test1) == true)
 	{
 		SingleFieldValue* val9 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
