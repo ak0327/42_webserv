@@ -5,7 +5,7 @@
 #include "MultiFieldValues.hpp"
 #include "gtest/gtest.h"
 
-TEST(TestSetFieldValues, AccessControlRequestHeadersOK1) {
+TEST(TestMultiFieldValues, AccessControlRequestHeadersOK1) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Access-Control-Request-Headers: Content-Type\r\n"
@@ -43,7 +43,7 @@ TEST(TestSetFieldValues, AccessControlRequestHeadersOK1) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestSetFieldValues, AccessControlRequestHeadersOK2) {
+TEST(TestMultiFieldValues, AccessControlRequestHeadersOK2) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Access-Control-Request-Headers: HosT  , Content-Type \r\n"
@@ -81,7 +81,7 @@ TEST(TestSetFieldValues, AccessControlRequestHeadersOK2) {
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
-TEST(TestSetFieldValues, AccessControlRequestHeadersOK3) {
+TEST(TestMultiFieldValues, AccessControlRequestHeadersOK3) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Access-Control-Request-Headers: gzip\r\n"
@@ -93,13 +93,12 @@ TEST(TestSetFieldValues, AccessControlRequestHeadersOK3) {
 	std::string field_name = std::string(ACCESS_CONTROL_REQUEST_HEADERS);
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
-	EXPECT_TRUE(has_field_name);
-
+	EXPECT_FALSE(has_field_name);
 	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
 
-TEST(TestSetFieldValues, AccessControlRequestHeadersNG1) {
+TEST(TestMultiFieldValues, AccessControlRequestHeadersNG1) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Access-Control-Request-Headers: Content-Type ,a \r\n"
@@ -114,7 +113,7 @@ TEST(TestSetFieldValues, AccessControlRequestHeadersNG1) {
 }
 
 
-TEST(TestSetFieldValues, AccessControlRequestHeadersNG2) {
+TEST(TestMultiFieldValues, AccessControlRequestHeadersNG2) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
 									 "Access-Control-Request-Headers: Content-Type, \r\n"

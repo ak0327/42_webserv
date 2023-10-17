@@ -20,22 +20,22 @@ TEST(TestMapFieldValues, KeepAlilveOK1) {
 	if (has_field_name) {
 		FieldValueBase *field_values = request.get_field_values(field_name);
 		MapFieldValues *multi_field_values = dynamic_cast<MapFieldValues *>(field_values);
-		std::map<std::string, std::string> values = multi_field_values->get_value_map();
-		std::map<std::string, std::string> ans = {{"timeout", "5"},
-												  {"max", "1000"}};
+		std::map<std::string, std::string> actual_map = multi_field_values->get_value_map();
+		std::map<std::string, std::string> expected_map = {{"timeout", "5"},
+														   {"max", "1000"}};
 
-		EXPECT_EQ(true, values.size() == ans.size());
+		EXPECT_EQ(actual_map.size(), expected_map.size());
 
-		std::map<std::string, std::string>::iterator value_itr, ans_itr;
-		value_itr = values.begin();
-		ans_itr = ans.begin();
-		while (value_itr != values.end() && ans_itr != ans.end()) {
-			EXPECT_EQ(ans_itr->second, value_itr->second);
-			++value_itr;
-			++ans_itr;
+		std::map<std::string, std::string>::iterator actual_itr, expected_itr;
+		actual_itr = actual_map.begin();
+		expected_itr = expected_map.begin();
+		while (actual_itr != actual_map.end() && expected_itr != expected_map.end()) {
+			EXPECT_EQ(expected_itr->second, actual_itr->second);
+			++actual_itr;
+			++expected_itr;
 		}
-		EXPECT_TRUE(value_itr == values.end());
-		EXPECT_TRUE(ans_itr == ans.end());
+		EXPECT_TRUE(actual_itr == actual_map.end());
+		EXPECT_TRUE(expected_itr == expected_map.end());
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -59,22 +59,22 @@ TEST(TestMapFieldValues, KeepAlilveOK2) {
 	if (has_field_name) {
 		FieldValueBase *field_values = request.get_field_values(field_name);
 		MapFieldValues *multi_field_values = dynamic_cast<MapFieldValues *>(field_values);
-		std::map<std::string, std::string> values = multi_field_values->get_value_map();
-		std::map<std::string, std::string> ans = {{"timeout", "5"},
-												  {"max", "0001000"}};
+		std::map<std::string, std::string> actual_map = multi_field_values->get_value_map();
+		std::map<std::string, std::string> expected_map = {{"timeout", "5"},
+														   {"max", "0001000"}};
 
-		EXPECT_EQ(true, values.size() == ans.size());
+		EXPECT_EQ(actual_map.size(), expected_map.size());
 
-		std::map<std::string, std::string>::iterator value_itr, ans_itr;
-		value_itr = values.begin();
-		ans_itr = ans.begin();
-		while (value_itr != values.end() && ans_itr != ans.end()) {
-			EXPECT_EQ(ans_itr->second, value_itr->second);
-			++value_itr;
-			++ans_itr;
+		std::map<std::string, std::string>::iterator actual_itr, expected_itr;
+		actual_itr = actual_map.begin();
+		expected_itr = expected_map.begin();
+		while (actual_itr != actual_map.end() && expected_itr != expected_map.end()) {
+			EXPECT_EQ(expected_itr->second, actual_itr->second);
+			++actual_itr;
+			++expected_itr;
 		}
-		EXPECT_TRUE(value_itr == values.end());
-		EXPECT_TRUE(ans_itr == ans.end());
+		EXPECT_TRUE(actual_itr == actual_map.end());
+		EXPECT_TRUE(expected_itr == expected_map.end());
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -98,22 +98,22 @@ TEST(TestMapFieldValues, KeepAlilveOK3) {
 	if (has_field_name) {
 		FieldValueBase *field_values = request.get_field_values(field_name);
 		MapFieldValues *multi_field_values = dynamic_cast<MapFieldValues *>(field_values);
-		std::map<std::string, std::string> values = multi_field_values->get_value_map();
-		std::map<std::string, std::string> ans = {{"timeout", "0"},
-												  {"a", "\" SP OK\""}};
+		std::map<std::string, std::string> actual_map = multi_field_values->get_value_map();
+		std::map<std::string, std::string> expected_map = {{"timeout", "0"},
+														   {"a", "\" SP OK\""}};
 
-		EXPECT_EQ(true, values.size() == ans.size());
+		EXPECT_EQ(actual_map.size(), expected_map.size());
 
-		std::map<std::string, std::string>::iterator value_itr, ans_itr;
-		value_itr = values.begin();
-		ans_itr = ans.begin();
-		while (value_itr != values.end() && ans_itr != ans.end()) {
-			EXPECT_EQ(ans_itr->second, value_itr->second);
-			++value_itr;
-			++ans_itr;
+		std::map<std::string, std::string>::iterator actual_itr, expected_itr;
+		actual_itr = actual_map.begin();
+		expected_itr = expected_map.begin();
+		while (actual_itr != actual_map.end() && expected_itr != expected_map.end()) {
+			EXPECT_EQ(expected_itr->second, actual_itr->second);
+			++actual_itr;
+			++expected_itr;
 		}
-		EXPECT_TRUE(value_itr == values.end());
-		EXPECT_TRUE(ans_itr == ans.end());
+		EXPECT_TRUE(actual_itr == actual_map.end());
+		EXPECT_TRUE(expected_itr == expected_map.end());
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -137,21 +137,21 @@ TEST(TestMapFieldValues, KeepAlilveOK4) {
 	if (has_field_name) {
 		FieldValueBase *field_values = request.get_field_values(field_name);
 		MapFieldValues *multi_field_values = dynamic_cast<MapFieldValues *>(field_values);
-		std::map<std::string, std::string> values = multi_field_values->get_value_map();
-		std::map<std::string, std::string> ans = {{"a", "c"}};
+		std::map<std::string, std::string> actual_map = multi_field_values->get_value_map();
+		std::map<std::string, std::string> expected_map = {{"a", "c"}};
 
-		EXPECT_EQ(true, values.size() == ans.size());
+		EXPECT_EQ(actual_map.size(), expected_map.size());
 
-		std::map<std::string, std::string>::iterator value_itr, ans_itr;
-		value_itr = values.begin();
-		ans_itr = ans.begin();
-		while (value_itr != values.end() && ans_itr != ans.end()) {
-			EXPECT_EQ(ans_itr->second, value_itr->second);
-			++value_itr;
-			++ans_itr;
+		std::map<std::string, std::string>::iterator actual_itr, expected_itr;
+		actual_itr = actual_map.begin();
+		expected_itr = expected_map.begin();
+		while (actual_itr != actual_map.end() && expected_itr != expected_map.end()) {
+			EXPECT_EQ(expected_itr->second, actual_itr->second);
+			++actual_itr;
+			++expected_itr;
 		}
-		EXPECT_TRUE(value_itr == values.end());
-		EXPECT_TRUE(ans_itr == ans.end());
+		EXPECT_TRUE(actual_itr == actual_map.end());
+		EXPECT_TRUE(expected_itr == expected_map.end());
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -178,22 +178,22 @@ TEST(TestMapFieldValues, KeepAlilveOK5) {
 	if (has_field_name) {
 		FieldValueBase *field_values = request.get_field_values(field_name);
 		MapFieldValues *multi_field_values = dynamic_cast<MapFieldValues *>(field_values);
-		std::map<std::string, std::string> values = multi_field_values->get_value_map();
-		std::map<std::string, std::string> ans = {{"timeout", "5"},
-												  {"max", "1000"}};
+		std::map<std::string, std::string> actual_map = multi_field_values->get_value_map();
+		std::map<std::string, std::string> expected_map = {{"timeout", "5"},
+														   {"max", "1000"}};
 
-		EXPECT_EQ(true, values.size() == ans.size());
+		EXPECT_EQ(actual_map.size(), expected_map.size());
 
-		std::map<std::string, std::string>::iterator value_itr, ans_itr;
-		value_itr = values.begin();
-		ans_itr = ans.begin();
-		while (value_itr != values.end() && ans_itr != ans.end()) {
-			EXPECT_EQ(ans_itr->second, value_itr->second);
-			++value_itr;
-			++ans_itr;
+		std::map<std::string, std::string>::iterator actual_itr, expected_itr;
+		actual_itr = actual_map.begin();
+		expected_itr = expected_map.begin();
+		while (actual_itr != actual_map.end() && expected_itr != expected_map.end()) {
+			EXPECT_EQ(expected_itr->second, actual_itr->second);
+			++actual_itr;
+			++expected_itr;
 		}
-		EXPECT_TRUE(value_itr == values.end());
-		EXPECT_TRUE(ans_itr == ans.end());
+		EXPECT_TRUE(actual_itr == actual_map.end());
+		EXPECT_TRUE(expected_itr == expected_map.end());
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -218,25 +218,25 @@ TEST(TestMapFieldValues, KeepAlilveOK6) {
 	if (has_field_name) {
 		FieldValueBase *field_values = request.get_field_values(field_name);
 		MapFieldValues *multi_field_values = dynamic_cast<MapFieldValues *>(field_values);
-		std::map<std::string, std::string> values = multi_field_values->get_value_map();
-		std::map<std::string, std::string> ans = {{"timeout", "5"},
-												  {"max", "1000"},
-												  {"a", ""},
-												  {"b", ""},
-												  {"c", "d"}};
+		std::map<std::string, std::string> actual_map = multi_field_values->get_value_map();
+		std::map<std::string, std::string> expected_map = {{"timeout", "5"},
+														   {"max", "1000"},
+														   {"a", ""},
+														   {"b", ""},
+														   {"c", "d"}};
 
-		EXPECT_EQ(true, values.size() == ans.size());
+		EXPECT_EQ(actual_map.size(), expected_map.size());
 
-		std::map<std::string, std::string>::iterator value_itr, ans_itr;
-		value_itr = values.begin();
-		ans_itr = ans.begin();
-		while (value_itr != values.end() && ans_itr != ans.end()) {
-			EXPECT_EQ(ans_itr->second, value_itr->second);
-			++value_itr;
-			++ans_itr;
+		std::map<std::string, std::string>::iterator actual_itr, expected_itr;
+		actual_itr = actual_map.begin();
+		expected_itr = expected_map.begin();
+		while (actual_itr != actual_map.end() && expected_itr != expected_map.end()) {
+			EXPECT_EQ(expected_itr->second, actual_itr->second);
+			++actual_itr;
+			++expected_itr;
 		}
-		EXPECT_TRUE(value_itr == values.end());
-		EXPECT_TRUE(ans_itr == ans.end());
+		EXPECT_TRUE(actual_itr == actual_map.end());
+		EXPECT_TRUE(expected_itr == expected_map.end());
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";

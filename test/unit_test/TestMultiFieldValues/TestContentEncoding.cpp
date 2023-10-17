@@ -20,21 +20,21 @@ TEST(TestSetFieldValues, ContentEncodingOK1) {
 	if (has_field_name) {
 		FieldValueBase *field_values = request.get_field_values(field_name);
 		MultiFieldValues *multi_field_values = dynamic_cast<MultiFieldValues *>(field_values);
-		std::set<std::string> values = multi_field_values->get_values();
-		std::set<std::string> ans = {"gzip"};
+		std::set<std::string> actual_values = multi_field_values->get_values();
+		std::set<std::string> expected_values = {"gzip"};
 
-		EXPECT_EQ(true, values.size() == ans.size());
+		EXPECT_EQ(actual_values.size(), expected_values.size());
 
-		std::set<std::string>::iterator value_itr, ans_itr;
-		value_itr = values.begin();
-		ans_itr = ans.begin();
-		while (value_itr != values.end() && ans_itr != ans.end()) {
-			EXPECT_EQ(*ans_itr, *value_itr);
-			++value_itr;
-			++ans_itr;
+		std::set<std::string>::iterator actual_itr, expected_itr;
+		actual_itr = actual_values.begin();
+		expected_itr = expected_values.begin();
+		while (actual_itr != actual_values.end() && expected_itr != expected_values.end()) {
+			EXPECT_EQ(*expected_itr, *actual_itr);
+			++actual_itr;
+			++expected_itr;
 		}
-		EXPECT_TRUE(value_itr == values.end());
-		EXPECT_TRUE(ans_itr == ans.end());
+		EXPECT_TRUE(actual_itr == actual_values.end());
+		EXPECT_TRUE(expected_itr == expected_values.end());
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -58,21 +58,21 @@ TEST(TestSetFieldValues, ContentEncodingOK2) {
 	if (has_field_name) {
 		FieldValueBase *field_values = request.get_field_values(field_name);
 		MultiFieldValues *multi_field_values = dynamic_cast<MultiFieldValues *>(field_values);
-		std::set<std::string> values = multi_field_values->get_values();
-		std::set<std::string> ans = {"gzip", "compress", "deflate", "br"};
+		std::set<std::string> actual_values = multi_field_values->get_values();
+		std::set<std::string> expected_values = {"gzip", "compress", "deflate", "br"};
 
-		EXPECT_EQ(true, values.size() == ans.size());
+		EXPECT_EQ(actual_values.size(), expected_values.size());
 
-		std::set<std::string>::iterator value_itr, ans_itr;
-		value_itr = values.begin();
-		ans_itr = ans.begin();
-		while (value_itr != values.end() && ans_itr != ans.end()) {
-			EXPECT_EQ(*ans_itr, *value_itr);
-			++value_itr;
-			++ans_itr;
+		std::set<std::string>::iterator actual_itr, expected_itr;
+		actual_itr = actual_values.begin();
+		expected_itr = expected_values.begin();
+		while (actual_itr != actual_values.end() && expected_itr != expected_values.end()) {
+			EXPECT_EQ(*expected_itr, *actual_itr);
+			++actual_itr;
+			++expected_itr;
 		}
-		EXPECT_TRUE(value_itr == values.end());
-		EXPECT_TRUE(ans_itr == ans.end());
+		EXPECT_TRUE(actual_itr == actual_values.end());
+		EXPECT_TRUE(expected_itr == expected_values.end());
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -98,21 +98,21 @@ TEST(TestSetFieldValues, ContentEncodingOK3) {
 	if (has_field_name) {
 		FieldValueBase *field_values = request.get_field_values(field_name);
 		MultiFieldValues *multi_field_values = dynamic_cast<MultiFieldValues *>(field_values);
-		std::set<std::string> values = multi_field_values->get_values();
-		std::set<std::string> ans = {"a", "b", "c", "a", "a", "b", "c", "d", "123", "*"};
+		std::set<std::string> actual_values = multi_field_values->get_values();
+		std::set<std::string> expected_values = {"a", "b", "c", "a", "a", "b", "c", "d", "123", "*"};
 
-		EXPECT_EQ(true, values.size() == ans.size());
+		EXPECT_EQ(actual_values.size(), expected_values.size());
 
-		std::set<std::string>::iterator value_itr, ans_itr;
-		value_itr = values.begin();
-		ans_itr = ans.begin();
-		while (value_itr != values.end() && ans_itr != ans.end()) {
-			EXPECT_EQ(*ans_itr, *value_itr);
-			++value_itr;
-			++ans_itr;
+		std::set<std::string>::iterator actual_itr, expected_itr;
+		actual_itr = actual_values.begin();
+		expected_itr = expected_values.begin();
+		while (actual_itr != actual_values.end() && expected_itr != expected_values.end()) {
+			EXPECT_EQ(*expected_itr, *actual_itr);
+			++actual_itr;
+			++expected_itr;
 		}
-		EXPECT_TRUE(value_itr == values.end());
-		EXPECT_TRUE(ans_itr == ans.end());
+		EXPECT_TRUE(actual_itr == actual_values.end());
+		EXPECT_TRUE(expected_itr == expected_values.end());
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
