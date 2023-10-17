@@ -182,9 +182,20 @@ Result<int, int> HttpRequest::set_from(const std::string &field_name,
 // If-Range	= entity-tag / HTTP-date
 // todo: サーバは、 Range ヘッダを包含しない要請内に受信された If-Range ヘッダを，無視しなければならない。
 Result<int, int> HttpRequest::set_if_range(const std::string &field_name,
-										   const std::string &field_value)
-{
-	this->_request_header_fields[field_name] = new SingleFieldValue(field_value);
+										   const std::string &field_value) {
+	bool is_entity_tag, is_date;
+
+	if (is_field_name_repeated_in_request(field_name)) {
+		clear_field_values_of(field_name);
+		return Result<int, int>::err(STATUS_BAD_REQUEST);
+	}
+
+	is_entity_tag = HttpMessageParser::is_entity_tag(field_value);
+	is_date = HttpMessageParser::is_http_date(field_value);
+
+	if (is_entity_tag || is_date) {
+		this->_request_header_fields[field_name] = new SingleFieldValue(field_value);
+	}
 	return Result<int, int>::ok(STATUS_OK);
 }
 

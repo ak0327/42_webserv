@@ -366,7 +366,7 @@ void HttpRequest::init_field_name_parser() {
 	map[std::string(IF_MATCH)] = &HttpRequest::set_if_match;
 	map[std::string(IF_MODIFIED_SINCE)] = &HttpRequest::set_if_modified_since;
 	map[std::string(IF_NONE_MATCH)] = &HttpRequest::set_if_none_match;
-	map[std::string(IF_RANGE)] = &HttpRequest::set_if_range;  // todo: If-Range
+	map[std::string(IF_RANGE)] = &HttpRequest::set_if_range;
 	map[std::string(IF_UNMODIFIED_SINCE)] = &HttpRequest::set_if_unmodified_since;
 	map[std::string(KEEP_ALIVE)] = &HttpRequest::set_keep_alive;
 	map[std::string(LAST_MODIFIED)] = &HttpRequest::set_last_modified;

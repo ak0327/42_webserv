@@ -7,6 +7,7 @@
 #include <vector>
 #include "Color.hpp"
 #include "Constant.hpp"
+#include "Date.hpp"
 #include "HttpMessageParser.hpp"
 #include "StringHandler.hpp"
 #include "Result.hpp"
@@ -1073,6 +1074,12 @@ bool is_pct_encoded(const std::string &str, std::size_t pos) {
 	return (str[pos] == '%'
 			&& is_hexdig(str[pos + 1])
 			&& is_hexdig(str[pos + 2]));
+}
+
+// todo: test
+bool is_http_date(const std::string &str) {
+	Date date = Date(str);
+	return date.is_ok();
 }
 
 /*

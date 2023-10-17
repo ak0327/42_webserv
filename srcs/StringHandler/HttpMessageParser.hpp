@@ -76,6 +76,7 @@ bool is_quoted_string(const std::string &str);
 bool is_quoted_pair(const std::string &str, std::size_t pos);
 
 bool is_pct_encoded(const std::string &str, std::size_t pos);
+bool is_http_date(const std::string &str);
 
 /* validate */
 bool is_valid_method(const std::string &method);
