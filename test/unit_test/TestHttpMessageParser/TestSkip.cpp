@@ -4,7 +4,9 @@
 
 TEST(TestHttpMessageParser, SkipQuotedString) {
 	std::size_t end;
-	std::string str = "\"abc\"";
+	std::string str;
+
+	str = "\"abc\"";
 	HttpMessageParser::skip_quoted_string(str, 0, &end);
 	EXPECT_EQ(str.length(), end);
 
@@ -40,7 +42,9 @@ TEST(TestHttpMessageParser, SkipQuotedString) {
 
 TEST(TestHttpMessageParser, SkipLanguage) {
 	std::size_t end;
-	std::string str = "aa";
+	std::string str;
+
+	str = "aa";
 	HttpMessageParser::skip_language(str, 0, &end);
 	EXPECT_EQ(str.length(), end);
 
@@ -133,7 +137,9 @@ TEST(TestHttpMessageParser, SkipLanguage) {
 
 TEST(TestHttpMessageParser, SkipScript) {
 	std::size_t end;
-	std::string str = "abcd";
+	std::string str;
+
+	str = "abcd";
 	HttpMessageParser::skip_script(str, 0, &end);
 	EXPECT_EQ(str.length(), end);
 
@@ -170,7 +176,9 @@ TEST(TestHttpMessageParser, SkipScript) {
 
 TEST(TestHttpMessageParser, SkipRegion) {
 	std::size_t end;
-	std::string str = "aa";
+	std::string str;
+
+	str = "aa";
 	HttpMessageParser::skip_region(str, 0, &end);
 	EXPECT_EQ(str.length(), end);
 
@@ -199,7 +207,9 @@ TEST(TestHttpMessageParser, SkipRegion) {
 
 TEST(TestHttpMessageParser, SkipVariant) {
 	std::size_t end;
-	std::string str = "12345";
+	std::string str;
+
+	str = "12345";
 	HttpMessageParser::skip_variant(str, 0, &end);
 	EXPECT_EQ(str.length(), end);
 
@@ -242,7 +252,9 @@ TEST(TestHttpMessageParser, SkipVariant) {
 
 TEST(TestHttpMessageParser, SkipExtension) {
 	std::size_t end;
-	std::string str = "a-12";
+	std::string str;
+
+	str = "a-12";
 	HttpMessageParser::skip_extension(str, 0, &end);
 	EXPECT_EQ(str.length(), end);
 
@@ -289,7 +301,9 @@ TEST(TestHttpMessageParser, SkipExtension) {
 
 TEST(TestHttpMessageParser, SkipPrivateuse) {
 	std::size_t end;
-	std::string str = "x-1";
+	std::string str;
+
+	str = "x-1";
 	HttpMessageParser::skip_privateuse(str, 0, &end);
 	EXPECT_EQ(str.length(), end);
 
@@ -332,7 +346,9 @@ TEST(TestHttpMessageParser, SkipPrivateuse) {
 TEST(TestHttpMessageParser, SkipLangtag) {
 	std::size_t end;
 
-	std::string str = "aa";
+	std::string str;
+
+	str = "aa";
 	//                 aa
 	HttpMessageParser::skip_langtag(str, 0, &end);
 	EXPECT_EQ(str.length(), end);
@@ -453,7 +469,9 @@ TEST(TestHttpMessageParser, SkipLangtag) {
 
 TEST(TestHttpMessageParser, SkipLangage_tag) {
 	std::size_t end;
-	std::string str = "AAA-a-12-1234bbbb-1212-x-12345678-aaaa-12ab";
+	std::string str;
+
+	str = "AAA-a-12-1234bbbb-1212-x-12345678-aaaa-12ab";
 	HttpMessageParser::skip_language_tag(str, 0, &end);
 	EXPECT_EQ(str.length(), end);
 
@@ -479,8 +497,35 @@ TEST(TestHttpMessageParser, SkipLangage_tag) {
 	EXPECT_EQ(9, end);
 }
 
-// TEST(TestHttpMessageParser, ) {
-// }
+TEST(TestHttpMessageParser, SkipOWS) {
+	std::size_t pos;
+	std::string str;
+
+	str = " 123";
+	pos = 0;
+	HttpMessageParser::skip_ows(str, &pos);
+	EXPECT_EQ(1, pos);
+
+	str = "            ";
+	pos = 0;
+	HttpMessageParser::skip_ows(str, &pos);
+	EXPECT_EQ(str.length(), pos);
+
+	str = "            ";
+	pos = 3;
+	HttpMessageParser::skip_ows(str, &pos);
+	EXPECT_EQ(str.length(), pos);
+
+	str = "            ";
+	pos = str.length();
+	HttpMessageParser::skip_ows(str, &pos);
+	EXPECT_EQ(str.length(), pos);
+
+	str = "";
+	pos = 3;
+	HttpMessageParser::skip_ows(str, &pos);
+	EXPECT_EQ(3, pos);
+}
 
 // TEST(TestHttpMessageParser, ) {
 // }

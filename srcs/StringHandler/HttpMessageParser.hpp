@@ -56,6 +56,12 @@ bool is_extension(const std::string &str);
 bool is_etag(char c);
 bool is_opaque_tag(const std::string &str);
 bool is_entity_tag(const std::string &str);
+bool is_langtag_option(const std::string &str,
+					   std::size_t start_pos,
+					   void (*skip_func)(const std::string &,
+										 std::size_t,
+										 std::size_t *));
+
 bool is_base_64_value_non_empty(const std::string &str);
 
 bool is_absolute_uri(const std::string &str);

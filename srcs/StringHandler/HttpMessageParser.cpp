@@ -115,14 +115,12 @@ int to_integer_num(const std::string &str, bool *succeed) {
 	return num;
 }
 
-// todo: test
 // delta-seconds = 1*DIGIT
 // The delta-seconds rule specifies a non-negative integer
 int to_delta_seconds(const std::string &str, bool *succeed) {
 	return to_integer_num(str, succeed);
 }
 
-// todo: test
 long to_long_num(const std::string &str, bool *succeed) {
 	bool		is_success = false, is_overflow;
 	long		num = 0;
@@ -661,7 +659,6 @@ void skip_extension(const std::string &str,
 }
 
 
-// todo: test
 bool is_langtag_option(const std::string &str,
 					   std::size_t start_pos,
 					   void (*skip_func)(const std::string &,
@@ -901,7 +898,6 @@ void skip_grandfathered(const std::string &str,
                / grandfathered       ; grandfathered tags
   https://tex2e.github.io/rfc-translater/html/rfc5646.html
  */
-// todo: test
 void skip_language_tag(const std::string &str,
 					   std::size_t start_pos,
 					   std::size_t *end_pos) {
@@ -966,7 +962,6 @@ bool is_opaque_tag(const std::string &str) {
  weak = %x57.2F ; W/
  https://www.rfc-editor.org/rfc/rfc9110#name-collected-abnf
  */
-// todo: test
 bool is_entity_tag(const std::string &str) {
 	std::size_t pos;
 
@@ -982,7 +977,6 @@ bool is_entity_tag(const std::string &str) {
 	return is_opaque_tag(&str[pos]);
 }
 
-// todo: test
 void skip_ows(const std::string &str, std::size_t *pos) {
 	if (!pos) { return; }
 	if (str.empty() || str.length() < *pos) {
@@ -994,7 +988,6 @@ void skip_ows(const std::string &str, std::size_t *pos) {
 	}
 }
 
-// todo: test
 bool is_qdtext(char c) {
 	if (c == HT || c == SP || c == 0x21) {
 		return true;
@@ -1012,7 +1005,6 @@ bool is_qdtext(char c) {
 }
 
 // hexadecimal 0-9/A-F/a-f
-// todo: test
 bool is_hexdig(char c) {
 	return (('0' <= c && c <= '9')
 			|| ('A' <= c && c <= 'F')
@@ -1026,7 +1018,6 @@ bool is_hexdig(char c) {
 			   ; token except ( "*" / "'" / "%" )
  https://www.rfc-editor.org/rfc/rfc5987.html#section-3.2
  */
-// todo: test
 bool is_attr_char(char c) {
 	if (!is_tchar(c)) {
 		return false;
