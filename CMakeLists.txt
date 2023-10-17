@@ -6,12 +6,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -pedantic")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fsanitize=address,undefined -fno-omit-frame-pointer")
 
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D DEBUG")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D DEBUG")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D USE_SELECT_MULTIPLEXER")
 
 if(DEFINED CUSTOM_FLAGS)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CUSTOM_FLAGS}")
 endif()
-
 
 # google test ------------------------------------------------------------------
 include(FetchContent)
@@ -32,8 +32,11 @@ enable_testing()
 # includes ---------------------------------------------------------------------
 include_directories(
         includes
+        srcs/Client
         srcs/Debug
         srcs/Error
+        srcs/IOMultiplexer
+        srcs/Server
         srcs/Socket
         srcs/Config
         srcs/Config/ConfigHandlingString
@@ -47,10 +50,13 @@ include_directories(
 # webserv_srcs -----------------------------------------------------------------
 set(webserv_srcs
         srcs/get_valid_config_file_path.cpp
+        srcs/Client/Client.cpp
         srcs/Debug/Debug.cpp
         srcs/Error/Error.cpp
+        srcs/IOMultiplexer/IOMultiplexer.cpp
+        srcs/Server/Server.cpp
         srcs/Socket/Socket.cpp
-)
+        )
 
 set(config_srcs
         srcs/HandlingString/HandlingString.cpp
@@ -75,6 +81,7 @@ set (unit_test_srcs
         test/unit_test/TestConfig.cpp
         test/unit_test/TestError.cpp
         test/unit_test/TestResult.cpp
+        test/unit_test/TestServer.cpp
         test/unit_test/TestSocket.cpp
         test/unit_test/TestIsConfigLineFormat.cpp
         test/unit_test/TestConfigReading.cpp
