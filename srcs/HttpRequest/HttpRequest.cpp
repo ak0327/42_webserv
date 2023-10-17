@@ -199,13 +199,13 @@ Result<int, int> HttpRequest::parse_and_validate_field_lines(std::stringstream *
 			return Result<int, int>::err(ERR);
 		}
 
-		if (!is_valid_field_name_syntax(field_name)
-			|| !is_valid_field_value_syntax(field_value)) {
+		if (!HttpMessageParser::is_valid_field_name_syntax(field_name)
+			|| !HttpMessageParser::is_valid_field_value_syntax(field_value)) {
 			return Result<int, int>::err(ERR);
 		}
 
 		field_name = StringHandler::to_lower(field_name);
-		if (is_valid_field_name(field_name)) {
+		if (is_field_name_supported_parsing(field_name)) {
 			increment_field_name_counter(field_name);
 
 			parse_result = (this->*_field_value_parser[field_name])(field_name, field_value);
@@ -223,7 +223,6 @@ Result<int, int> HttpRequest::parse_and_validate_field_lines(std::stringstream *
 	}
 	return Result<int, int>::ok(OK);
 }
-
 
 // field-line = field-name ":" OWS field-value OWS
 Result<int, int> HttpRequest::parse_field_line(const std::string &field_line,
@@ -274,39 +273,9 @@ Result<int, int> HttpRequest::parse_field_line(const std::string &field_line,
 	return Result<int, int>::ok(OK);
 }
 
-// field-name = token
-bool HttpRequest::is_valid_field_name_syntax(const std::string &field_name) {
-	return HttpMessageParser::is_token(field_name);
-}
-
-// field-value = *( field-content )  // todo: empty??
-bool HttpRequest::is_valid_field_value_syntax(const std::string &field_value) {
-	if (field_value.empty()) {
-		return false;
-	}
-	if (!HttpMessageParser::is_field_content(field_value)) {
-		return false;
-	}
-	return true;
-}
-
 // [ message-body ]
 std::string HttpRequest::parse_message_body(std::stringstream *ss) {
 	return ss->str();
-}
-
-bool HttpRequest::is_ignore_field_name(const std::string &field_name) {
-	std::vector<std::string>::const_iterator itr;
-
-	itr = std::find(IGNORE_HEADERS.begin(), IGNORE_HEADERS.end(), field_name);
-	return itr != IGNORE_HEADERS.end();
-}
-
-bool HttpRequest::is_valid_field_name(const std::string &field_name) {
-	if (is_ignore_field_name(field_name)) {
-		return false;
-	}
-	return this->_field_value_parser.count(field_name) != 0;
 }
 
 bool HttpRequest::is_valid_field_name_registered(const std::string &field_name) {
@@ -320,6 +289,13 @@ bool HttpRequest::is_field_name_repeated_in_request(const std::string &field_nam
 
 void HttpRequest::increment_field_name_counter(const std::string &field_name) {
 	this->_field_name_counter[field_name]++;
+}
+
+bool HttpRequest::is_field_name_supported_parsing(const std::string &field_name) {
+	if (HttpMessageParser::is_ignore_field_name(field_name)) {
+		return false;
+	}
+	return this->_field_value_parser.count(field_name) != 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

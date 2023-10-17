@@ -178,12 +178,14 @@ set (unit_test_srcs
         test/unit_test/TestSingleFieldValue/TestTrailer.cpp
         test/unit_test/TestSingleFieldValue/TestUpgradeInsecureRequests.cpp
 
-        # set field value
+        # multi field value
+        test/unit_test/TestMultiFieldValues/TestAccessControlRequestHeaders.cpp
         test/unit_test/TestMultiFieldValues/TestContentEncoding.cpp
         test/unit_test/TestMultiFieldValues/TestContentLanguage.cpp
         test/unit_test/TestMultiFieldValues/TestIfMatch.cpp
         test/unit_test/TestMultiFieldValues/TestIfNoneMatch.cpp
         test/unit_test/TestMultiFieldValues/TestTransferEncoding.cpp
+
 
         # field value map
         test/unit_test/TestMapFieldValues/TestAuthorization.cpp

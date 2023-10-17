@@ -170,30 +170,6 @@ MultiFieldValues* HttpRequest::ready_ValueArraySet(const std::string &all_value)
 	return (new MultiFieldValues(value_array));
 }
 
-// todo: Access-Control-Request-Headers
-// Access-Control-Request-Headers: <header-name>, <header-name>, ...
-/*
- Access-Control-Request-Headers: "Access-Control-Request-Headers" ":" #field-name
- */
-// field-name *( OWS "," OWS field-name )
-Result<int, int> HttpRequest::set_access_control_request_headers(const std::string &field_name,
-																 const std::string &field_value) {
-	std::set<std::string>	value_array;
-	std::stringstream			ss(field_value);
-	std::string					line;
-	std::string					word;
-
-	while(std::getline(ss, line, ','))
-	{
-		if (this->is_valid_field_name(
-				HttpMessageParser::obtain_withoutows_value(line)) == false)
-			// return;
-			return Result<int, int>::ok(STATUS_OK);
-	}
-	this->_request_header_fields[field_name] = this->ready_ValueArraySet(field_value);
-	return Result<int, int>::ok(STATUS_OK);
-}
-
 Result<int, int> HttpRequest::set_multi_field_values(const std::string &field_name,
 													 const std::string &field_value,
 													 bool (*is_valid_syntax)(const std::string &)) {
@@ -204,6 +180,25 @@ Result<int, int> HttpRequest::set_multi_field_values(const std::string &field_na
 		this->_request_header_fields[field_name] = new MultiFieldValues(field_values);
 	}
 	return Result<int, int>::ok(STATUS_OK);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+// todo: Access-Control-Request-Headers
+// Access-Control-Request-Headers: <header-name>, <header-name>, ...
+/*
+ Access-Control-Request-Headers: "Access-Control-Request-Headers" ":" #field-name
+ */
+// field-name *( OWS "," OWS field-name )
+Result<int, int> HttpRequest::set_access_control_request_headers(const std::string &field_name,
+																 const std::string &field_value) {
+	std::string lower_field_value;
+
+	clear_field_values_of(field_name);
+	lower_field_value = StringHandler::to_lower(field_value);
+	return set_multi_field_values(field_name,
+								  lower_field_value,
+								  HttpMessageParser::is_valid_field_name);
 }
 
 // Content-Encoding = [ content-coding *( OWS "," OWS content-coding )

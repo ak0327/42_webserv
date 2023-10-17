@@ -1174,6 +1174,36 @@ bool is_valid_http_version(const std::string &http_version) {
 	return itr != HTTP_VERSIONS.end();
 }
 
+bool is_valid_field_name(const std::string &field_name) {
+	std::vector<std::string>::const_iterator itr;
+
+	itr = std::find(FIELD_NAMES.begin(), FIELD_NAMES.end(), field_name);
+	return itr != FIELD_NAMES.end();
+}
+
+// field-name = token
+bool is_valid_field_name_syntax(const std::string &field_name) {
+	return HttpMessageParser::is_token(field_name);
+}
+
+// field-value = *( field-content )  // todo: empty??
+bool is_valid_field_value_syntax(const std::string &field_value) {
+	if (field_value.empty()) {
+		return false;
+	}
+	if (!HttpMessageParser::is_field_content(field_value)) {
+		return false;
+	}
+	return true;
+}
+
+bool is_ignore_field_name(const std::string &field_name) {
+	std::vector<std::string>::const_iterator itr;
+
+	itr = std::find(IGNORE_HEADERS.begin(), IGNORE_HEADERS.end(), field_name);
+	return itr != IGNORE_HEADERS.end();
+}
+
 bool is_header_body_separator(const std::string &line_end_with_cr) {
 	return line_end_with_cr == std::string(1, CR);
 }

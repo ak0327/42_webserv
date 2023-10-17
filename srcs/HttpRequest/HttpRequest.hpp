@@ -39,8 +39,10 @@ class HttpRequest {
 	std::string get_request_target() const;
 	std::string	get_http_version() const;
 
+	bool is_field_name_supported_parsing(const std::string &field_name);
 	bool is_valid_field_name_registered(const std::string &field_name);
 	bool is_field_name_repeated_in_request(const std::string &field_name);
+
 	std::map<std::string, FieldValueBase*> get_request_header_fields(void);
 	FieldValueBase *get_field_values(const std::string &field_name);
 
@@ -66,11 +68,6 @@ class HttpRequest {
 									  std::string *ret_field_name,
 									  std::string *ret_field_value);
 	std::string parse_message_body(std::stringstream *ss);
-
-	bool is_valid_field_name_syntax(const std::string &field_name);
-	bool is_valid_field_value_syntax(const std::string &field_value);
-	bool is_valid_field_name(const std::string &field_name);
-	bool is_ignore_field_name(const std::string &field_name);
 
 	void clear_field_values_of(const std::string &field_name);
 
