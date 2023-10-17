@@ -14,6 +14,12 @@ SRCS		=	main.cpp \
 DEBUG_DIR	=	Debug
 SRCS		+=	$(DEBUG_DIR)/Debug.cpp
 
+#response
+RESPONSE_DIR	=	HttpResponse
+RESPONSE_DELETE_DIR	=	HttpResponse/DELETE
+RESPONSE_DELETE_TESTCONFIG_DIR	=	HttpResponse/DELETE/TestConfig
+SRCS		+=	$(RESPONSE_DELETE_TESTCONFIG_DIR)/.cpp $(RESPONSE_DELETE_DIR)/check_statuscode_delete
+
 
 # OBJS -------------------------------------------------------------------------
 OBJS_DIR	=	objs
@@ -27,7 +33,8 @@ DEPS		=	$(OBJS:%.o=%.d)
 # INCLUDES ---------------------------------------------------------------------
 INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(DEBUG_DIR) \
-				$(SRCS_DIR)/$(ERROR_DIR)
+				$(SRCS_DIR)/$(ERROR_DIR) \
+
 INCLUDES	 =	$(addprefix -I, $(INCLUDES_DIR))
 
 
@@ -81,5 +88,12 @@ run_err_test	:
 	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
 	cmake --build build
 	./build/unit_test --gtest_filter=ErrorMessage*
+
+.PHONY	: run_delete_test
+run_delete_test	:
+	#rm -rf build
+	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
+	cmake --build build
+	./build/unit_test --gtest_filter=DeleteMethod*
 
 -include $(DEPS)

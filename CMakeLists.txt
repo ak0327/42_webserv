@@ -43,6 +43,14 @@ set(webserv_srcs
         srcs/Error/Error.cpp
         )
 
+# httpresponse -----------------------------------------------------------------
+set(webserv_srcs
+srcs/HttpResponse/DELETE/TestConfig/TestConfig.cpp
+srcs/HttpResponse/DELETE/check_statuscode_delete.cpp
+srcs/Debug/Debug.cpp
+srcs/Error/Error.cpp
+)
+
 add_executable(webserv
         srcs/main.cpp
         ${webserv_srcs}
@@ -53,6 +61,7 @@ set (unit_test_srcs
         test/unit_test/is_valid_file_path/test_get_valid_config_file_path.cpp
         test/unit_test/TestError.cpp
         test/unit_test/TestResult.cpp
+        test/unit_test/TestDelete.cpp
         )
 
 add_executable(unit_test
