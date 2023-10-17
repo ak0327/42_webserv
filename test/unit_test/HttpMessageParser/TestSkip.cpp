@@ -527,12 +527,12 @@ TEST(TestHttpMessageParser, SkipOWS) {
 	EXPECT_EQ(3, pos);
 }
 
-// TEST(TestHttpMessageParser, ) {
+// TEST(HttpMessageParser, ) {
 // }
 
-// TEST(TestHttpMessageParser, ) {
+// TEST(HttpMessageParser, ) {
 // }
 
-// TEST(TestHttpMessageParser, ) {
+// TEST(HttpMessageParser, ) {
 // }
 

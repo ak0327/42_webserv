@@ -160,52 +160,52 @@ set (unit_test_srcs
         test/unit_test/TestRequestLine.cpp
 
         # http message parser
-        test/unit_test/TestHttpMessageParser/TestIs.cpp
-        test/unit_test/TestHttpMessageParser/TestSkip.cpp
-        test/unit_test/TestHttpMessageParser/TestStrToNum.cpp
+        test/unit_test/HttpMessageParser/TestIs.cpp
+        test/unit_test/HttpMessageParser/TestSkip.cpp
+        test/unit_test/HttpMessageParser/TestStrToNum.cpp
 
         # single field value
-        test/unit_test/TestSingleFieldValue/TestAccessControlRequestMethod.cpp
-        test/unit_test/TestSingleFieldValue/TestConnection.cpp
-        test/unit_test/TestSingleFieldValue/TestContentLength.cpp
-        test/unit_test/TestSingleFieldValue/TestExpect.cpp
-        test/unit_test/TestSingleFieldValue/TestMaxForwards.cpp
-        test/unit_test/TestSingleFieldValue/TestSecFetchMode.cpp
-        test/unit_test/TestSingleFieldValue/TestSecFetchSite.cpp
-        test/unit_test/TestSingleFieldValue/TestSecFetchUser.cpp
-        test/unit_test/TestSingleFieldValue/TestSecPurpose.cpp
-        test/unit_test/TestSingleFieldValue/TestServiceWorkerNavigationPreload.cpp
-        test/unit_test/TestSingleFieldValue/TestTrailer.cpp
-        test/unit_test/TestSingleFieldValue/TestUpgradeInsecureRequests.cpp
+        test/unit_test/SingleFieldValue/TestAccessControlRequestMethod.cpp
+        test/unit_test/SingleFieldValue/TestConnection.cpp
+        test/unit_test/SingleFieldValue/TestContentLength.cpp
+        test/unit_test/SingleFieldValue/TestExpect.cpp
+        test/unit_test/SingleFieldValue/TestMaxForwards.cpp
+        test/unit_test/SingleFieldValue/TestSecFetchMode.cpp
+        test/unit_test/SingleFieldValue/TestSecFetchSite.cpp
+        test/unit_test/SingleFieldValue/TestSecFetchUser.cpp
+        test/unit_test/SingleFieldValue/TestSecPurpose.cpp
+        test/unit_test/SingleFieldValue/TestServiceWorkerNavigationPreload.cpp
+        test/unit_test/SingleFieldValue/TestIfRange.cpp
+        test/unit_test/SingleFieldValue/TestTrailer.cpp
+        test/unit_test/SingleFieldValue/TestUpgradeInsecureRequests.cpp
 
         # multi field value
-        test/unit_test/TestMultiFieldValues/TestAccessControlRequestHeaders.cpp
-        test/unit_test/TestMultiFieldValues/TestContentEncoding.cpp
-        test/unit_test/TestMultiFieldValues/TestContentLanguage.cpp
-        test/unit_test/TestMultiFieldValues/TestIfMatch.cpp
-        test/unit_test/TestMultiFieldValues/TestIfNoneMatch.cpp
-        test/unit_test/TestMultiFieldValues/TestTransferEncoding.cpp
-
+        test/unit_test/MultiFieldValues/TestAccessControlRequestHeaders.cpp
+        test/unit_test/MultiFieldValues/TestContentEncoding.cpp
+        test/unit_test/MultiFieldValues/TestContentLanguage.cpp
+        test/unit_test/MultiFieldValues/TestIfMatch.cpp
+        test/unit_test/MultiFieldValues/TestIfNoneMatch.cpp
+        test/unit_test/MultiFieldValues/TestTransferEncoding.cpp
 
         # field value map
-        test/unit_test/TestMapFieldValues/TestAuthorization.cpp
-        test/unit_test/TestMapFieldValues/TestCacheControl.cpp
-        test/unit_test/TestMapFieldValues/TestCookie.cpp
-        test/unit_test/TestMapFieldValues/TestForwarded.cpp
-        test/unit_test/TestMapFieldValues/TestKeepAlive.cpp
-        test/unit_test/TestMapFieldValues/TestProxyAuthorization.cpp
+        test/unit_test/MapFieldValues/TestAuthorization.cpp
+        test/unit_test/MapFieldValues/TestCacheControl.cpp
+        test/unit_test/MapFieldValues/TestCookie.cpp
+        test/unit_test/MapFieldValues/TestForwarded.cpp
+        test/unit_test/MapFieldValues/TestKeepAlive.cpp
+        test/unit_test/MapFieldValues/TestProxyAuthorization.cpp
 
         # value and map field values
-        test/unit_test/TestValueAndMapFieldValues/TestContentDisposition.cpp
+        test/unit_test/ValueAndMapFieldValues/TestContentDisposition.cpp
 
         # date
-        test/unit_test/TestDate/TestDate.cpp
-        test/unit_test/TestDate/TestIfModifiedSince.cpp
-        test/unit_test/TestDate/TestIfUnmodifiedSince.cpp
-        test/unit_test/TestDate/TestLastModified.cpp
+        test/unit_test/Date/TestDate.cpp
+        test/unit_test/Date/TestIfModifiedSince.cpp
+        test/unit_test/Date/TestIfUnmodifiedSince.cpp
+        test/unit_test/Date/TestLastModified.cpp
 
         # media type
-        test/unit_test/TestMediaType/TestContentType.cpp
+        test/unit_test/MediaType/TestContentType.cpp
 )
 
 add_executable(unit_test

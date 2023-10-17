@@ -730,19 +730,19 @@ TEST(TestHttpMessageParser, IsAttrChar) {
 	EXPECT_FALSE(HttpMessageParser::is_attr_char('\t'));
 }
 
-// TEST(TestHttpMessageParser, ) {
+// TEST(HttpMessageParser, ) {
 // 	EXPECT_TRUE(HttpMessageParser::);
 //
 // 	EXPECT_FALSE(HttpMessageParser::);
 // }
 
-// TEST(TestHttpMessageParser, ) {
+// TEST(HttpMessageParser, ) {
 // 	EXPECT_TRUE(HttpMessageParser::);
 //
 // 	EXPECT_FALSE(HttpMessageParser::);
 // }
 
-// TEST(TestHttpMessageParser, ) {
+// TEST(HttpMessageParser, ) {
 // 	EXPECT_TRUE(HttpMessageParser::);
 //
 // 	EXPECT_FALSE(HttpMessageParser::);

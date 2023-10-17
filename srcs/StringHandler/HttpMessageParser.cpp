@@ -63,7 +63,8 @@ bool is_printable(const std::string &str)
 }
 
 // todo: test
-std::string obtain_word_before_delimiter(const std::string &field_value, const char &delimiter)
+std::string obtain_word_before_delimiter(const std::string &field_value,
+										 const char &delimiter)
 {
 	return field_value.substr(0, field_value.find(delimiter));
 }
@@ -88,9 +89,11 @@ std::string obtain_withoutows_value(const std::string &field_value_with_ows)
 
 	if (field_value_with_ows == "")
 		return "";
-	while (is_whitespace(field_value_with_ows[before_pos]) == true && before_pos != field_value_with_ows.length())
+	while (is_whitespace(field_value_with_ows[before_pos]) == true
+			&& before_pos != field_value_with_ows.length())
 		++before_pos;
-	while (is_whitespace(field_value_with_ows[after_pos]) == true && after_pos != 0)
+	while (is_whitespace(field_value_with_ows[after_pos]) == true
+			&& after_pos != 0)
 		--after_pos;
 	if (before_pos > after_pos)
 		return "";
@@ -176,7 +179,8 @@ double to_floating_num(const std::string &str,
 	}
 	++idx;
 
-	precision_num = get_fractional_part(&str[idx], &precision_idx);
+	precision_num = get_fractional_part(&str[idx],
+										&precision_idx);
 	num += precision_num;
 
 	if (str[idx + precision_idx] == '\0' && precision_idx <= precision_digit) {
