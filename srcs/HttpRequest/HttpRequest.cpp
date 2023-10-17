@@ -318,17 +318,6 @@ bool HttpRequest::is_weightformat(const std::string &value)
 	return StringHandler::is_positive_under_intmax_double(weight_num);
 }
 
-Result<int, int> HttpRequest::set_range(const std::string &key,
-												const std::string &value)
-{
-	(void)key;
-	(void)value;
-	// Digest username=<username>,realm="<realm>",uri="<url>",algorithm=<algorithm>,nonce="<nonce>",
-	// ValueMapに変更
-	// this->_request_header_fields[key] = ready_ValueWeightArraySet(value);
-	return Result<int, int>::ok(OK);
-}
-
 void HttpRequest::init_field_name_counter() {
 	std::vector<std::string>::const_iterator itr;
 
@@ -359,8 +348,7 @@ void HttpRequest::init_field_name_parser() {
 	map[std::string(COOKIE)] = &HttpRequest::set_cookie;
 	map[std::string(DATE)] = &HttpRequest::set_date;
 	map[std::string(EXPECT)] = &HttpRequest::set_expect;
-	map[std::string(EXPIRES)] = &HttpRequest::set_expires;  // todo: Expires
-	map[std::string(FORWARDED)] = &HttpRequest::set_forwarded;  // todo: Forwarded
+	map[std::string(FORWARDED)] = &HttpRequest::set_forwarded;
 	map[std::string(FROM)] = &HttpRequest::set_from;  // todo: From
 	map[std::string(HOST)] = &HttpRequest::set_host;  // todo: Host
 	map[std::string(IF_MATCH)] = &HttpRequest::set_if_match;
@@ -371,10 +359,10 @@ void HttpRequest::init_field_name_parser() {
 	map[std::string(KEEP_ALIVE)] = &HttpRequest::set_keep_alive;
 	map[std::string(LAST_MODIFIED)] = &HttpRequest::set_last_modified;
 	map[std::string(LINK)] = &HttpRequest::set_link;  // todo: Link
-	map[std::string(MAX_FORWARDS)] = &HttpRequest::set_max_forwards;  // todo: Max-Forwards
+	map[std::string(MAX_FORWARDS)] = &HttpRequest::set_max_forwards;
 	map[std::string(ORIGIN)] = &HttpRequest::set_origin;  // todo: Origin
 	map[std::string(PROXY_AUTHORIZATION)] = &HttpRequest::set_proxy_authorization;
-	map[std::string(RANGE)] = &HttpRequest::set_range;  // todo:
+	map[std::string(RANGE)] = &HttpRequest::set_range;
 	map[std::string(REFERER)] = &HttpRequest::set_referer;  // todo: Referer
 	map[std::string(SEC_FETCH_DEST)] = &HttpRequest::set_sec_fetch_dest;  // todo: Sec-Fetch-Dest
 	map[std::string(SEC_FETCH_MODE)] = &HttpRequest::set_sec_fetch_mode;

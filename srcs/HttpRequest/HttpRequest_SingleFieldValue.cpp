@@ -144,15 +144,6 @@ Result<int, int> HttpRequest::set_expect(const std::string &field_name,
 	return Result<int, int>::ok(STATUS_OK);
 }
 
-// todo: Expires
-// Expires: <http-date>
-Result<int, int> HttpRequest::set_expires(const std::string &field_name,
-										  const std::string &field_value)
-{
-	this->_request_header_fields[field_name] = new SingleFieldValue(field_value);
-	return Result<int, int>::ok(STATUS_OK);
-}
-
 // todo: From
 // From    = mailbox
 // mailbox         =   name-addr / addr-spec

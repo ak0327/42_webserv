@@ -93,6 +93,7 @@ set(field_value_map_srcs
         srcs/HttpRequest/MapFieldValues/set_forwarded.cpp
         srcs/HttpRequest/MapFieldValues/set_host.cpp
         srcs/HttpRequest/MapFieldValues/set_keep_alive.cpp
+        srcs/HttpRequest/MapFieldValues/set_range.cpp
         )
 
 # FieldValueBase
@@ -187,13 +188,14 @@ set (unit_test_srcs
         test/unit_test/MultiFieldValues/TestIfNoneMatch.cpp
         test/unit_test/MultiFieldValues/TestTransferEncoding.cpp
 
-        # field value map
+        # map field values
         test/unit_test/MapFieldValues/TestAuthorization.cpp
         test/unit_test/MapFieldValues/TestCacheControl.cpp
         test/unit_test/MapFieldValues/TestCookie.cpp
         test/unit_test/MapFieldValues/TestForwarded.cpp
         test/unit_test/MapFieldValues/TestKeepAlive.cpp
         test/unit_test/MapFieldValues/TestProxyAuthorization.cpp
+        test/unit_test/MapFieldValues/TestRange.cpp
 
         # value and map field values
         test/unit_test/ValueAndMapFieldValues/TestContentDisposition.cpp

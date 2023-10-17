@@ -116,7 +116,6 @@ class HttpRequest {
 	Result<int, int> set_cookie(const std::string &field_name, const std::string &field_value);
 	Result<int, int> set_date(const std::string &field_name, const std::string &field_value);
 	Result<int, int> set_expect(const std::string &field_name, const std::string &field_value);
-	Result<int, int> set_expires(const std::string &field_name, const std::string &field_value);
 	Result<int, int> set_forwarded(const std::string &field_name, const std::string &field_value);
 	Result<int, int> set_from(const std::string &field_name, const std::string &field_value);
 	Result<int, int> set_host(const std::string &field_name, const std::string &field_value);
