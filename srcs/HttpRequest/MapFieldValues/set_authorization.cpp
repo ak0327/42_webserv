@@ -39,7 +39,8 @@ bool is_valid_auth_scheme(const std::string &auth_scheme) {
 	return HttpMessageParser::is_token(auth_scheme);
 }
 
-Result<int, int> validate_credentials(const std::map<std::string, std::string> &credentials) {
+Result<int, int>
+validate_credentials(const std::map<std::string, std::string> &credentials) {
 	const std::size_t AUTH_SCHEME_ONLY = 1;
 	std::map<std::string, std::string>::const_iterator itr;
 	std::string auth_scheme, auth_param;
@@ -73,21 +74,19 @@ Result<std::string, int> parse_auth_scheme(const std::string &field_value,
 										   std::size_t start_pos,
 										   std::size_t *end_pos) {
 	std::string auth_scheme;
-	std::size_t len;
+	std::size_t end, len;
 
 	if (!end_pos) { return Result<std::string, int>::err(ERR); }
 	if (field_value.empty()) { return Result<std::string, int>::err(ERR); }
 	if (field_value.length() < start_pos) { return Result<std::string, int>::err(ERR); }
 
-	len = 0;
-	while (HttpMessageParser::is_tchar(field_value[start_pos + len])) {
-		++len;
+	end = field_value.find(SP, start_pos);
+	if (end == std::string::npos) {
+		end = field_value.length();
 	}
-	auth_scheme = field_value.substr(start_pos, len);
+	len = end - start_pos;
 
-	// std::cout << CYAN << "  auth_scheme:[" << auth_scheme << "]" << RESET << std::endl;
-	// std::cout << CYAN << "  start_pos:[" << start_pos << "]" << RESET << std::endl;
-	// std::cout << CYAN << "  len:[" << len << "]" << RESET << std::endl;
+	auth_scheme = field_value.substr(start_pos, len);
 
 	*end_pos = start_pos + len;
 	return Result<std::string, int>::ok(auth_scheme);

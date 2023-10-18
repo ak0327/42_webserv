@@ -218,7 +218,7 @@ Result<int, int> HttpRequest::parse_and_validate_field_lines(std::stringstream *
 
 	// todo: validate field_names, such as 'must' header,...
 	if (!is_valid_field_name_registered(std::string(HOST))) {
-		std::cout << MAGENTA << "1" << RESET << std::endl;
+		// std::cout << MAGENTA << "!is valid field name registered" << RESET << std::endl;
 		return Result<int, int>::err(ERR);
 	}
 	return Result<int, int>::ok(OK);

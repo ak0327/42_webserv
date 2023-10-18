@@ -32,7 +32,6 @@ parse_cache_directive(const std::string &field_value) {
 	while (true) {
 		parse_result = MapFieldValues::parse_map_element(field_value, pos, &end, &key, &value);
 		if (parse_result.is_err()) {
-			std::cout << YELLOW << "2" << RESET << std::endl;
 			return Result<std::map<std::string, std::string>, int>::err(ERR);
 		}
 		pos = end;
@@ -51,7 +50,6 @@ parse_cache_directive(const std::string &field_value) {
 			return Result<std::map<std::string, std::string>, int>::err(ERR);
 		}
 	}
-
 	return Result<std::map<std::string, std::string>, int>::ok(cache_directive);
 }
 

@@ -15,7 +15,6 @@ SRCS		=	main.cpp \
 CONST_DIR	=	Const
 SRCS		+=	$(CONST_DIR)/Constant.cpp
 
-
 #error
 ERROR_DIR	=	Error
 SRCS		+=	$(ERROR_DIR)/Error.cpp
@@ -37,17 +36,12 @@ SRCS		+=	$(STR_HANDLER)/HttpMessageParser.cpp \
 REQUEST_DIR	=	HttpRequest
 SRCS		+=	$(REQUEST_DIR)/HttpRequest.cpp \
 				$(REQUEST_DIR)/RequestLine/RequestLine.cpp \
-				$(REQUEST_DIR)/HttpRequest_SingleFieldValue.cpp \
 				$(REQUEST_DIR)/HttpRequest_TwoValueSet.cpp \
 				$(REQUEST_DIR)/HttpRequest_ValueWeightArraySet.cpp
 
 SRCS		+= 	$(REQUEST_DIR)/FieldValueBase/FieldValueBase.cpp \
 				$(REQUEST_DIR)/LinkClass/LinkClass.cpp \
 				$(REQUEST_DIR)/LinkClass/set_link.cpp \
-				$(REQUEST_DIR)/MediaType/MediaType.cpp \
-				$(REQUEST_DIR)/MediaType/set_media_type.cpp \
-				$(REQUEST_DIR)/MultiFieldValues/MultiFieldValues.cpp \
-				$(REQUEST_DIR)/MultiFieldValues/set_multi_field_values.cpp \
 				$(REQUEST_DIR)/RequestLine/RequestLine.cpp \
 				$(REQUEST_DIR)/SingleFieldValue/SingleFieldValue.cpp \
 				$(REQUEST_DIR)/TwoValueSet/TwoValueSet.cpp \
@@ -55,11 +49,9 @@ SRCS		+= 	$(REQUEST_DIR)/FieldValueBase/FieldValueBase.cpp \
 				$(REQUEST_DIR)/ValueAndMapFieldValues/ValueAndMapFieldValues.cpp \
 				$(REQUEST_DIR)/ValueAndMapFieldValues/set_content_disposition.cpp \
 
-
 DATE_DIR	= 	$(REQUEST_DIR)/Date
 SRCS		+=	$(DATE_DIR)/Date.cpp \
 				$(DATE_DIR)/set_date.cpp
-
 
 MAP_FIELD_VALUES_DIR = $(REQUEST_DIR)/MapFieldValues
 SRCS		+=	$(MAP_FIELD_VALUES_DIR)/MapFieldValues.cpp \
@@ -71,6 +63,18 @@ SRCS		+=	$(MAP_FIELD_VALUES_DIR)/MapFieldValues.cpp \
 				$(MAP_FIELD_VALUES_DIR)/set_keep_alive.cpp \
 				$(MAP_FIELD_VALUES_DIR)/set_range.cpp \
 				$(MAP_FIELD_VALUES_DIR)/set_upgrade.cpp
+
+MEDIA_TYPE_DIR = $(REQUEST_DIR)/MediaType
+SRCS		+=	$(MEDIA_TYPE_DIR)/MediaType.cpp \
+				$(MEDIA_TYPE_DIR)/set_media_type.cpp
+
+MULTI_FIELD_VALUES_DIR = $(REQUEST_DIR)/MultiFieldValues
+SRCS		+=	$(MULTI_FIELD_VALUES_DIR)/MultiFieldValues.cpp \
+				$(MULTI_FIELD_VALUES_DIR)/set_multi_field_values.cpp
+
+SINGLE_FIELD_VALUE_DIR = $(REQUEST_DIR)/SingleFieldValue
+SRCS		+=	$(SINGLE_FIELD_VALUE_DIR)/SingleFieldValue.cpp \
+				$(SINGLE_FIELD_VALUE_DIR)/set_single_field_value.cpp
 
 
 # OBJS -------------------------------------------------------------------------
@@ -92,12 +96,12 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(REQUEST_DIR) \
 				$(SRCS_DIR)/$(DATE_DIR) \
 				$(SRCS_DIR)/$(MAP_FIELD_VALUES_DIR) \
+				$(SRCS_DIR)/$(MEDIA_TYPE_DIR) \
+				$(SRCS_DIR)/$(MULTI_FIELD_VALUES_DIR) \
+				$(SRCS_DIR)/$(SINGLE_FIELD_VALUE_DIR) \
 				$(SRCS_DIR)/$(REQUEST_DIR)/FieldValueBase \
 				$(SRCS_DIR)/$(REQUEST_DIR)/LinkClass \
-				$(SRCS_DIR)/$(REQUEST_DIR)/MediaType \
-				$(SRCS_DIR)/$(REQUEST_DIR)/MultiFieldValues \
 				$(SRCS_DIR)/$(REQUEST_DIR)/RequestLine \
-				$(SRCS_DIR)/$(REQUEST_DIR)/SingleFieldValue \
 				$(SRCS_DIR)/$(REQUEST_DIR)/TwoValueSet \
 				$(SRCS_DIR)/$(REQUEST_DIR)/ValueWeightArraySet
 

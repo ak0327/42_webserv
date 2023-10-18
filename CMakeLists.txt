@@ -67,12 +67,9 @@ set(webserv_srcs
 set(http_request_srcs
         srcs/HttpRequest/HttpRequest.cpp
         srcs/HttpRequest/HttpRequest_TwoValueSet.cpp
-        srcs/HttpRequest/HttpRequest_SingleFieldValue.cpp
         srcs/HttpRequest/HttpRequest_ValueWeightArraySet.cpp
-
         srcs/HttpRequest/RequestLine/RequestLine.cpp
         srcs/HttpRequest/TwoValueSet/TwoValueSet.cpp
-        srcs/HttpRequest/SingleFieldValue/SingleFieldValue.cpp
         srcs/HttpRequest/ValueWeightArraySet/ValueWeightArraySet.cpp
         srcs/HttpRequest/LinkClass/LinkClass.cpp
         srcs/HttpRequest/LinkClass/set_link.cpp
@@ -82,6 +79,11 @@ set(http_request_srcs
 set(date_srcs
         srcs/HttpRequest/Date/Date.cpp
         srcs/HttpRequest/Date/set_date.cpp
+        )
+
+# FieldValueBase
+set(field_values_srcs
+        srcs/HttpRequest/FieldValueBase/FieldValueBase.cpp
         )
 
 # MapFieldValues
@@ -97,39 +99,38 @@ set(field_value_map_srcs
         srcs/HttpRequest/MapFieldValues/set_upgrade.cpp
         )
 
-# FieldValueBase
-set(field_values_srcs
-        srcs/HttpRequest/FieldValueBase/FieldValueBase.cpp
-        )
-
 # MediaType
 set(media_type_srcs
         srcs/HttpRequest/MediaType/MediaType.cpp
         srcs/HttpRequest/MediaType/set_media_type.cpp
         )
 
-
 # MultiFieldValues
-set(set_field_values_srcs
+set(multi_field_values
         srcs/HttpRequest/MultiFieldValues/MultiFieldValues.cpp
         srcs/HttpRequest/MultiFieldValues/set_multi_field_values.cpp
         )
 
+# SingleFieldValue
+set(single_field_value_srcs
+        srcs/HttpRequest/SingleFieldValue/SingleFieldValue.cpp
+        srcs/HttpRequest/SingleFieldValue/set_single_field_value.cpp
+        )
 
-# FieldValueBase
+# ValueAndMapFieldValues
 set(value_and_map_field_values_srcs
         srcs/HttpRequest/ValueAndMapFieldValues/ValueAndMapFieldValues.cpp
         srcs/HttpRequest/ValueAndMapFieldValues/set_content_disposition.cpp
         )
-
 
 list(APPEND http_request_srcs
         ${date_srcs}
         ${field_value_map_srcs}
         ${field_values_srcs}
         ${media_type_srcs}
-        ${set_field_values_srcs}
+        ${multi_field_values}
         ${value_and_map_field_values_srcs}
+        ${single_field_value_srcs}
         )
 
 list(APPEND webserv_srcs
