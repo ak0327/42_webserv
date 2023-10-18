@@ -1,4 +1,5 @@
 #include <algorithm>
+#include "Color.hpp"
 #include "Constant.hpp"
 #include "HttpRequest.hpp"
 #include "HttpMessageParser.hpp"
@@ -33,7 +34,58 @@ bool is_trailer_allowed_field_name(const std::string &field_name) {
 	return true;
 }
 
+/*
+ User-Agent = product *( RWS ( product / comment ) )
+ product         = token ["/" product-version]
+ product-version = token
+ https://www.rfc-editor.org/rfc/rfc9110#field.user-agent
+
+ comment        = "(" *( ctext / quoted-pair / comment ) ")"
+ ctext          = HTAB / SP / %x21-27 / %x2A-5B / %x5D-7E / obs-text
+ https://www.rfc-editor.org/rfc/rfc9110#name-comments
+ */
+Result<int, int> validate_user_agent(const std::string &field_value) {
+	std::size_t pos, end;
+
+	if (field_value.empty()) {
+		return Result<int, int>::err(ERR);
+	}
+
+	// product
+	pos = 0;
+	HttpMessageParser::skip_product(field_value, pos, &end);
+	if (pos == end) {
+		return Result<int, int>::err(ERR);
+	}
+	pos = end;
+
+	// *( RWS ( product / comment ) )
+	while (field_value[pos]) {
+		// RWS
+		if (!HttpMessageParser::is_whitespace(field_value[pos])) {
+			return Result<int, int>::err(ERR);
+		}
+		++pos;
+
+		// ( product / comment )
+		if (HttpMessageParser::is_tchar(field_value[pos])) {
+			HttpMessageParser::skip_product(field_value, pos, &end);
+		} else if (field_value[pos] == '(') {
+			HttpMessageParser::skip_comment(field_value, pos, &end);
+		} else {
+			return Result<int, int>::err(ERR);
+		}
+		if (pos == end) {
+			return Result<int, int>::err(ERR);
+		}
+		pos = end;
+	}
+	return Result<int, int>::ok(OK);
+}
+
 }  // namespace
+
+////////////////////////////////////////////////////////////////////////////////
 
 // Access-Control-Request-Method: <method>
 Result<int, int> HttpRequest::set_access_control_request_method(const std::string &field_name,
@@ -345,14 +397,26 @@ Result<int, int> HttpRequest::set_upgrade_insecure_requests(const std::string &f
 	return Result<int, int>::ok(STATUS_OK);
 }
 
-// todo: User-Agent
-// User-Agent = product *( RWS ( product / comment ) )
-// product         = token ["/" product-version]
-// product-version = token
+/*
+ todo: User-Agent
+ User-Agent = product *( RWS ( product / comment ) )
+ product         = token ["/" product-version]
+ product-version = token
+ https://www.rfc-editor.org/rfc/rfc9110#field.user-agent
+
+ comment        = "(" *( ctext / quoted-pair / comment ) ")"
+ ctext          = HTAB / SP / %x21-27 / %x2A-5B / %x5D-7E / obs-text
+ https://www.rfc-editor.org/rfc/rfc9110#name-comments
+ */
 Result<int, int> HttpRequest::set_user_agent(const std::string &field_name,
-											 const std::string &field_value)
-{
-	this->_request_header_fields[field_name] = new SingleFieldValue(field_value);
+											 const std::string &field_value) {
+	Result<int, int> result;
+
+	clear_field_values_of(field_name);
+	result = validate_user_agent(field_value);
+	if (result.is_ok()) {
+		this->_request_header_fields[field_name] = new SingleFieldValue(field_value);
+	}
 	return Result<int, int>::ok(STATUS_OK);
 }
 

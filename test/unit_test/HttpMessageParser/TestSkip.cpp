@@ -527,12 +527,150 @@ TEST(TestHttpMessageParser, SkipOWS) {
 	EXPECT_EQ(3, pos);
 }
 
-// TEST(HttpMessageParser, ) {
+TEST(TestHttpMessageParser, SkipQuotedpair) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "\\\t";
+	pos = 0;
+	HttpMessageParser::skip_quoted_pair(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "\\ aaaaa";
+	pos = 0;
+	HttpMessageParser::skip_quoted_pair(str, pos, &end);
+	EXPECT_EQ(2, end);
+
+	str = "aaaaaaaa";
+	pos = 0;
+	HttpMessageParser::skip_quoted_pair(str, pos, &end);
+	EXPECT_EQ(0, end);
+
+	str = "            ";
+	pos = 0;
+	HttpMessageParser::skip_quoted_pair(str, pos, &end);
+	EXPECT_EQ(0, end);
+
+	str = "";
+	pos = 10;
+	HttpMessageParser::skip_quoted_pair(str, pos, &end);
+	EXPECT_EQ(10, end);
+}
+
+// comment = "(" *( ctext / quoted-pair / comment ) ")"
+TEST(TestHttpMessageParser, SkipComment) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "(abc)";
+	pos = 0;
+	HttpMessageParser::skip_comment(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "((abc))";
+	pos = 0;
+	HttpMessageParser::skip_comment(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "(((abc(def))))";
+	pos = 0;
+	HttpMessageParser::skip_comment(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "(((abc(def) )))";
+	pos = 0;
+	HttpMessageParser::skip_comment(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "(((abc(def)(hoge) )))";
+	pos = 0;
+	HttpMessageParser::skip_comment(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "(((abc(def)\t(hoge) )))";
+	pos = 0;
+	HttpMessageParser::skip_comment(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "()";
+	pos = 0;
+	HttpMessageParser::skip_comment(str, pos, &end);
+	EXPECT_EQ(0, end);
+
+	str = "(aaaa()(aa))";
+	pos = 0;
+	HttpMessageParser::skip_comment(str, pos, &end);
+	EXPECT_EQ(0, end);
+
+	str = "(((((";
+	pos = 0;
+	HttpMessageParser::skip_comment(str, pos, &end);
+	EXPECT_EQ(0, end);
+
+	str = "(";
+	pos = 0;
+	HttpMessageParser::skip_comment(str, pos, &end);
+	EXPECT_EQ(0, end);
+
+	str = "())";
+	pos = 0;
+	HttpMessageParser::skip_comment(str, pos, &end);
+	EXPECT_EQ(0, end);
+}
+
+TEST(TestHttpMessageParser, SkipProduct) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "a";
+	pos = 0;
+	HttpMessageParser::skip_product(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "a/b";
+	pos = 0;
+	HttpMessageParser::skip_product(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "abc/abc";
+	pos = 0;
+	HttpMessageParser::skip_product(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "a,b";
+	pos = 0;
+	HttpMessageParser::skip_product(str, pos, &end);
+	EXPECT_EQ(1, end);
+
+	str = "a b";
+	//     01234
+	pos = 0;
+	HttpMessageParser::skip_product(str, pos, &end);
+	EXPECT_EQ(1, end);
+
+	str = "a/b/c";
+	//     01234
+	pos = 0;
+	HttpMessageParser::skip_product(str, pos, &end);
+	EXPECT_EQ(3, end);
+
+	str = "a/";
+	//     01234
+	pos = 0;
+	HttpMessageParser::skip_product(str, pos, &end);
+	EXPECT_EQ(0, end);
+
+	str = "a///b";
+	//     01234
+	pos = 0;
+	HttpMessageParser::skip_product(str, pos, &end);
+	EXPECT_EQ(0, end);
+}
+
+
+// TEST(TestHttpMessageParser, ) {
 // }
 
-// TEST(HttpMessageParser, ) {
-// }
-
-// TEST(HttpMessageParser, ) {
+// TEST(TestHttpMessageParser, ) {
 // }
 

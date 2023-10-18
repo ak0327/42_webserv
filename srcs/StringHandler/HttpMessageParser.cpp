@@ -256,6 +256,15 @@ bool is_tchar(char c) {
 	// return true;
 }
 
+// ctext = HTAB / SP / %x21-27 / %x2A-5B / %x5D-7E / obs-text
+bool is_ctext(char c) {
+	return (is_whitespace(c)
+			|| (0x21 <= c && c <= 0x27)
+			|| (0x2A <= c && c <= 0x5B)
+			|| (0x5D <= c && c <= 0x7E)
+			|| is_obs_text(c));
+}
+
 // token = 1*tchar
 bool is_token(const std::string &str) {
 	std::size_t pos;
@@ -1050,19 +1059,38 @@ bool is_singleton(char c) {
 	return true;
 }
 
-
-bool is_quoted_pair(const std::string &str, std::size_t pos) {
-	if (str.empty() || str.length() < pos) {
+bool is_quoted_pair(const std::string &str, std::size_t start_pos) {
+	if (str.empty() || str.length() < start_pos) {
 		return false;
 	}
-	if (str[pos] != '\\') {
+	if (str[start_pos] != '\\') {
 		return false;
 	}
 
-	return (str[pos + 1] == HT
-			|| str[pos + 1] == SP
-			|| is_vchar(str[pos + 1])
-			|| is_obs_text(str[pos + 1]));
+	return (str[start_pos + 1] == HT
+			|| str[start_pos + 1] == SP
+			|| is_vchar(str[start_pos + 1])
+			|| is_obs_text(str[start_pos + 1]));
+}
+
+/*
+ quoted-pair    = "\" ( HTAB / SP / VCHAR / obs-text )
+ https://datatracker.ietf.org/doc/html/rfc7230#section-3.2.6
+ */
+void skip_quoted_pair(const std::string &str,
+					  std::size_t start_pos,
+					  std::size_t *end_pos) {
+	if (!end_pos) {
+		return;
+	}
+	*end_pos = start_pos;
+	if (str.empty() || str.length() < start_pos) {
+		return;
+	}
+	if (!is_quoted_pair(str, start_pos)) {
+		return;
+	}
+	*end_pos = start_pos + 2;
 }
 
 /*
@@ -1305,5 +1333,90 @@ std::string parse_port(const std::string &str,
 	// todo
 	return "";
 }
+
+/*
+ product         = token ["/" product-version]
+ product-version = token
+ */
+void skip_product(const std::string &str,
+				  std::size_t start_pos,
+				  std::size_t *end_pos) {
+	std::size_t pos, len;
+	if (!end_pos) { return; }
+
+	pos = start_pos;
+	*end_pos = start_pos;
+	if (str.empty()) { return; }
+
+	len = 0;
+	while (HttpMessageParser::is_tchar(str[pos + len])) {
+		++len;
+	}
+	if (len == 0) { return; }
+	pos += len;
+
+	if (str[pos] != '/') {
+		*end_pos = pos; return; }
+
+	// ["/" product-version]
+	++pos;
+	len = 0;
+	while (HttpMessageParser::is_tchar(str[pos + len])) {
+		++len;
+	}
+	if (len == 0) { return; }
+	pos += len;
+	*end_pos = pos;
+}
+
+/*
+ comment        = "(" *( ctext / quoted-pair / comment ) ")"
+ ctext          = HTAB / SP / %x21-27 / %x2A-5B / %x5D-7E / obs-text
+ */
+void skip_comment(const std::string &str,
+				  std::size_t start_pos,
+				  std::size_t *end_pos) {
+	std::size_t pos, len, end;
+	if (!end_pos) { return; }
+
+	pos = start_pos;
+	*end_pos = start_pos;
+	if (str.empty()) { return; }
+
+	if (str[pos] != '(') { return; }
+	++pos;
+
+	len = 0;
+	while (str[pos + len]) {
+		if (HttpMessageParser::is_ctext(str[pos + len])) {
+			while (str[pos + len]
+					&& HttpMessageParser::is_ctext(str[pos + len])) {
+				++len;
+			}
+		}
+		if (HttpMessageParser::is_quoted_pair(str, pos + len)) {
+			HttpMessageParser::skip_quoted_pair(str, pos + len, &end);
+			if (pos + len == end) { return; }
+			len += end - (pos + len);
+		}
+		if (str[pos + len] == '(') {
+			skip_comment(str, pos + len, &end);
+			if (pos + len == end) { return; }
+			len += end - (pos + len);
+		}
+		if (str[pos + len] == ')') {
+			break;
+		}
+	}
+
+	if (len == 0) { return; }
+	pos += len;
+
+	if (str[pos] != ')') { return; }
+	++pos;
+
+	*end_pos = pos;
+}
+
 
 }  // namespace HttpMessageParser

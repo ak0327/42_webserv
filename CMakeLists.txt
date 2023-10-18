@@ -182,6 +182,7 @@ set (unit_test_srcs
         test/unit_test/SingleFieldValue/TestIfRange.cpp
         test/unit_test/SingleFieldValue/TestTrailer.cpp
         test/unit_test/SingleFieldValue/TestUpgradeInsecureRequests.cpp
+        test/unit_test/SingleFieldValue/TestUserAgent.cpp
 
         # multi field value
         test/unit_test/MultiFieldValues/TestAccessControlRequestHeaders.cpp

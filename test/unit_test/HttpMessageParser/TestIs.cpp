@@ -2,6 +2,7 @@
 #include "HttpMessageParser.hpp"
 #include "gtest/gtest.h"
 
+
 // "(),/:;<=>?@[\]{}
 TEST(TestHttpMessageParser, IsDelimiter) {
 	EXPECT_TRUE(HttpMessageParser::is_delimiters('"'));
@@ -123,6 +124,23 @@ TEST(TestHttpMessageParser, isTchar) {
 	EXPECT_FALSE(HttpMessageParser::is_tchar('\v'));
 }
 
+TEST(TestHttpMessageParser, IsCtext) {
+	EXPECT_TRUE(HttpMessageParser::is_ctext('\t'));
+	EXPECT_TRUE(HttpMessageParser::is_ctext(' '));
+	EXPECT_TRUE(HttpMessageParser::is_ctext('!'));
+	EXPECT_TRUE(HttpMessageParser::is_ctext('\''));
+	EXPECT_TRUE(HttpMessageParser::is_ctext('*'));
+	EXPECT_TRUE(HttpMessageParser::is_ctext('a'));
+	EXPECT_TRUE(HttpMessageParser::is_ctext('['));
+	EXPECT_TRUE(HttpMessageParser::is_ctext(']'));
+	EXPECT_TRUE(HttpMessageParser::is_ctext('~'));
+
+	EXPECT_FALSE(HttpMessageParser::is_ctext('\0'));
+	EXPECT_FALSE(HttpMessageParser::is_ctext('\n'));
+	EXPECT_FALSE(HttpMessageParser::is_ctext('('));
+	EXPECT_FALSE(HttpMessageParser::is_ctext(')'));
+	EXPECT_FALSE(HttpMessageParser::is_ctext('\\'));
+}
 
 TEST(TestHttpMessageParser, IsSingleton) {
 	EXPECT_TRUE(HttpMessageParser::is_singleton('0'));
@@ -730,19 +748,19 @@ TEST(TestHttpMessageParser, IsAttrChar) {
 	EXPECT_FALSE(HttpMessageParser::is_attr_char('\t'));
 }
 
-// TEST(HttpMessageParser, ) {
+// TEST(TestHttpMessageParser, ) {
 // 	EXPECT_TRUE(HttpMessageParser::);
 //
 // 	EXPECT_FALSE(HttpMessageParser::);
 // }
 
-// TEST(HttpMessageParser, ) {
+// TEST(TestHttpMessageParser, ) {
 // 	EXPECT_TRUE(HttpMessageParser::);
 //
 // 	EXPECT_FALSE(HttpMessageParser::);
 // }
 
-// TEST(HttpMessageParser, ) {
+// TEST(TestHttpMessageParser, ) {
 // 	EXPECT_TRUE(HttpMessageParser::);
 //
 // 	EXPECT_FALSE(HttpMessageParser::);

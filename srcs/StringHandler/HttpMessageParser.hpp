@@ -32,6 +32,7 @@ bool is_vchar(char c);
 bool is_field_vchar(char c);
 bool is_obs_text(char c);
 bool is_tchar(char c);
+bool is_ctext(char c);
 bool is_whitespace(char c);
 bool is_qdtext(char c);
 bool is_hexdig(char c);
@@ -73,7 +74,7 @@ bool is_regular(const std::string &str);
 bool is_header_body_separator(const std::string &line_end_with_cr);
 
 bool is_quoted_string(const std::string &str);
-bool is_quoted_pair(const std::string &str, std::size_t pos);
+bool is_quoted_pair(const std::string &str, std::size_t start_pos);
 
 bool is_pct_encoded(const std::string &str, std::size_t pos);
 bool is_http_date(const std::string &str);
@@ -120,37 +121,61 @@ Result<int, int> validate_http_date(date_format format,
 									const std::string &gmt);
 
 void skip_ows(const std::string &str, std::size_t *pos);
+
 void skip_quoted_string(const std::string &str,
 						std::size_t start_pos,
 						std::size_t *end_pos);
+
+void skip_quoted_pair(const std::string &str,
+					  std::size_t start_pos,
+					  std::size_t *end_pos);
+
 void skip_language_tag(const std::string &str,
 					   std::size_t start_pos,
 					   std::size_t *end_pos);
+
 void skip_langtag(const std::string &str,
 				  std::size_t start_pos,
 				  std::size_t *end_pos);
+
 void skip_privateuse(const std::string &str,
 					 std::size_t start_pos,
 					 std::size_t *end_pos);
+
 void skip_grandfathered(const std::string &str,
 						std::size_t start_pos,
 						std::size_t *end_pos);
+
 void skip_script(const std::string &str,
 				 std::size_t start_pos,
 				 std::size_t *end_pos);
+
 void skip_region(const std::string &str,
 				 std::size_t start_pos,
 				 std::size_t *end_pos);
+
 void skip_variant(const std::string &str,
 				  std::size_t start_pos,
 				  std::size_t *end_pos);
+
 void skip_extension(const std::string &str,
 					std::size_t start_pos,
 					std::size_t *end_pos);
+
 void skip_extlang(const std::string &str,
 				  std::size_t start_pos,
 				  std::size_t *end_pos);
+
 void skip_language(const std::string &str,
 				   std::size_t start_pos,
 				   std::size_t *end_pos);
+
+void skip_product(const std::string &str,
+				  std::size_t start_pos,
+				  std::size_t *end_pos);
+
+void skip_comment(const std::string &str,
+				  std::size_t start_pos,
+				  std::size_t *end_pos);
+
 }  // namespace HttpMessageParser
