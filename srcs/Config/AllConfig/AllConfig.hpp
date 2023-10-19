@@ -19,11 +19,11 @@ class	AllConfig
 		AllConfig& operator=(const AllConfig &other);
 		AllConfig();
 		~AllConfig();
+		void	clear_information();
+		void	clear_location_information();
 		void	set_host_config(const ServerConfig &host_config);
 		void	set_location_config(const std::string &location_path, \
 										const LocationConfig &location_config);
-		void	clear_information();
-		void	clear_location_information();
 		ServerConfig	get_host_config(void);
 		LocationConfig	get_location_host_config(const std::string &location_path);
 };
