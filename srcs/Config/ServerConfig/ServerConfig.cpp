@@ -2,8 +2,8 @@
 
 ServerConfig::ServerConfig(): _autoindex(false), _chunked_transferencoding_allow(false), _server_tokens(1),
 _client_body_buffer_size(8000), _client_body_timeout(60), _client_header_buffer_size(1024),
-_client_header_timeout(60), _client_maxbody_size(1048576), _keepaliverequests(0), _keepalive_timeout(0),
-_maxBodySize(1024), _default_type("application/octet-stream"){}
+_client_header_timeout(60), _client_maxbody_size(1048576), _keepalive_requests(0), _keepalive_timeout(0),
+_client_max_body_size(1024), _default_type("application/octet-stream"){}
 
 ServerConfig::ServerConfig(const ServerConfig &other)
 {
@@ -16,9 +16,9 @@ ServerConfig::ServerConfig(const ServerConfig &other)
 	this->_client_header_buffer_size =	other._client_header_buffer_size;
 	this->_client_header_timeout =	other._client_header_timeout;
 	this->_client_maxbody_size =	other._client_maxbody_size;
-	this->_keepaliverequests =	other._keepaliverequests;
+	this->_keepalive_requests =	other._keepalive_requests;
 	this->_keepalive_timeout =	other._keepalive_timeout;
-	this->_maxBodySize =	other._maxBodySize;
+	this->_client_max_body_size =	other._client_max_body_size;
 	// this->// _locations =	other->// _locations;
 	this->_accesslog =	other._accesslog;
 	this->_default_type =	other._default_type;
@@ -45,9 +45,9 @@ ServerConfig& ServerConfig::operator=(const ServerConfig &other)
 	this->_client_header_buffer_size =	other._client_header_buffer_size;
 	this->_client_header_timeout =	other._client_header_timeout;
 	this->_client_maxbody_size =	other._client_maxbody_size;
-	this->_keepaliverequests =	other._keepaliverequests;
+	this->_keepalive_requests =	other._keepalive_requests;
 	this->_keepalive_timeout =	other._keepalive_timeout;
-	this->_maxBodySize =	other._maxBodySize;
+	this->_client_max_body_size =	other._client_max_body_size;
 	// this->// _locations =	other->// _locations;
 	this->_accesslog =	other._accesslog;
 	this->_default_type =	other._default_type;
@@ -86,7 +86,8 @@ std::vector<std::string> ServerConfig::ready_string_vector_fieldvalue(const std:
 	return (anser_vector);
 }
 
-bool	ServerConfig::ready_serverblock_keyword(const std::string &field_key, const std::string &field_value)
+bool	ServerConfig::ready_serverblock_keyword(const std::string &field_key, \
+													const std::string &field_value)
 {
 	std::vector<std::string>	field_keys;
 
@@ -173,7 +174,7 @@ bool	ServerConfig::ready_serverblock_keyword(const std::string &field_key, const
 	{
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_keepaliverequests = this->ready_size_t_fieldvalue(field_value);
+		this->_keepalive_requests = this->ready_size_t_fieldvalue(field_value);
 		return true;
 	}
 	else if (field_key == "keepalive_timeout")
@@ -187,7 +188,7 @@ bool	ServerConfig::ready_serverblock_keyword(const std::string &field_key, const
 	{
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_maxBodySize = this->ready_size_t_fieldvalue(field_value);
+		this->_client_max_body_size = this->ready_size_t_fieldvalue(field_value);
 		return true;
 	}
 	else if (field_key == "accesslog")
@@ -253,9 +254,9 @@ void	ServerConfig::set_client_header_buffer_size(const size_t &client_header_buf
 }
 void	ServerConfig::set_client_header_timeout(const size_t &client_header_timeout) { this->_client_body_timeout = client_header_timeout; }
 void	ServerConfig::set_client_maxbody_size(const size_t &client_maxbody_size){ this->_client_maxbody_size = client_maxbody_size; }
-void	ServerConfig::set_keepaliverequests(const size_t &keepaliverequests){ this->_keepaliverequests = keepaliverequests; }
+void	ServerConfig::set_keepalive_requests(const size_t &keepaliverequests){ this->_keepalive_requests = keepaliverequests; }
 void	ServerConfig::set_keepalive_timeout(const size_t &keepalive_timeout){ this->_keepalive_timeout = keepalive_timeout; }
-void	ServerConfig::set_maxBodySize(const size_t &max_bodysize){ this->_maxBodySize = max_bodysize; }
+void	ServerConfig::set_client_max_body_size(const size_t &max_bodysize){ this->_client_max_body_size = max_bodysize; }
 // void		ServerConfig::set_locations();
 void	ServerConfig::set_accesslog(const std::string &access_log){ this->_accesslog = access_log; }
 void	ServerConfig::set_default_type(const std::string &default_type){ this->_default_type = default_type; }
@@ -275,9 +276,9 @@ size_t	ServerConfig::get_client_body_timeout() const { return (this->_client_bod
 size_t	ServerConfig::get_client_header_buffer_size() const { return (this->_client_header_buffer_size); }
 size_t	ServerConfig::get_client_header_timeout() const { return (this->_client_header_timeout); }
 size_t	ServerConfig::get_client_maxbody_size() const { return (this->_client_maxbody_size); }
-size_t	ServerConfig::get_keepaliverequests() const { return (this->_keepaliverequests); }
+size_t	ServerConfig::get_keepalive_requests() const { return (this->_keepalive_requests); }
 size_t	ServerConfig::get_keepalive_timeout() const { return (this->_keepalive_timeout); }
-size_t 	ServerConfig::get_maxBodySize() const { return (this->_maxBodySize); }
+size_t 	ServerConfig::get_client_max_body_size() const { return (this->_client_max_body_size); }
 // std::map<std::string, LocationConfig>get	_locations;
 std::string	ServerConfig::get_accesslog() const { return (this->_accesslog); }
 std::string	ServerConfig::get_default_type() const { return (this->_default_type); }
@@ -296,7 +297,7 @@ std::vector<std::string>	ServerConfig::get_server_name() const { return (this->_
 // _client_header_buffer_size(1024)
 // _client_header_timeout(60)
 // _client_maxbody_size(1048576)
-// _keepaliverequests(0)
+// _keepalive_requests(0)
 // _keepalive_timeout(0)
 // _maxBodySize(1024)
 // _default_type("application/octet-stream")
@@ -308,9 +309,9 @@ void	ServerConfig::clear_serverconfig()
 	this->set_client_body_buffer_size(8000);
 	this->set_client_header_timeout(60);
 	this->set_client_maxbody_size(1048576);
-	this->set_keepaliverequests(0);
+	this->set_keepalive_requests(0);
 	this->set_keepalive_timeout(0);
-	this->set_maxBodySize(1024);
+	this->set_client_max_body_size(1024);
 	this->set_accesslog("");
 	this->set_default_type("");
 	this->set_default_type("application/octet-stream");

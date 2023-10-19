@@ -1,4 +1,5 @@
-NAME = webserv
+NAME 		=\
+webserv
 
 CXXFLAGS	+=	-g -fsanitize=address,undefined -fno-omit-frame-pointer
 
@@ -14,8 +15,8 @@ NUMERIHANDLE_DIR =	NumericHandle
 SRCS		+=	$(NUMERIHANDLE_DIR)/NumericHandle.cpp
 
 #string系の関数
-HandlingString_DIR = HandlingString
-SRCS		+=	$(HandlingString_DIR)/HandlingString.cpp
+HANDLING_STR = HandlingString
+SRCS		+=	$(HANDLING_STR)/HandlingString.cpp
 
 #error
 ERROR_DIR	=	Error
@@ -55,7 +56,7 @@ INCLUDES	= $(addprefix -I, $(INCLUDES_DIR))
 all		: $(NAME)
 
 $(NAME)	: $(OBJS)
-	$(CXX) $(OBJS) $(CXXFLAGS) -o $(NAME)
+	$(CXX) $(OBJS) $(CXXFLAGS) -o $@ $^
 
 $(OBJS_DIR)/%.o : $(SRCS_DIR)/%.cpp
 	@mkdir -p $$(dirname $@)

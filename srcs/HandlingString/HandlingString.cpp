@@ -78,7 +78,7 @@ void HandlingString::skip_no_ows(const std::string &line, size_t *pos)
 
 bool HandlingString::is_field_value(const std::string &line, size_t *pos)
 {
-	if (line.length() == 0 || line == ";")
+	if (line.empty() || line == ";")
 		return (false);
 	if (std::count(line.begin(), line.end(), ';') != 1)
 		return (false);

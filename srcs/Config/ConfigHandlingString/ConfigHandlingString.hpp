@@ -17,7 +17,7 @@ class ConfigHandlingString
 		ConfigHandlingString();
 		~ConfigHandlingString();
 	public:
-		static	bool	is_nomeanig_line(const std::string &line);
+		static	bool	is_ignore_line(const std::string &line);
 		static	bool	is_block_end(const std::string &line);
 		static	bool	is_blockstart_endword(const std::string &block_endword);
 		static	bool	is_field_header(const std::string &line, size_t *pos);

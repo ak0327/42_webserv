@@ -23,7 +23,7 @@ class IsConfigFormat
 		static	bool	ready_locationblock_config(const std::string &line, bool *in_location_block, \
 		LocationConfig *locationconfig, std::vector<std::string> *fieldkey_map);
 		static	bool	ready_serverblock_format(const std::string &line, bool *in_server_block, \
-		ServerConfig *serverinfs, std::vector<std::string> *field_key_map);
+		ServerConfig *serverinfs, std::vector<std::string> *field_key_vector);
 };
 
 #endif  // SRCS_CONFIG_ISCONFIGFORMAT_ISCONFIGFORMAT_HPP_

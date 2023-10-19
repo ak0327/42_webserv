@@ -39,7 +39,6 @@ class LocationConfig
 		bool						ready_boolean_fieldvalue(const std::string &field_value);
 		int							ready_int_fieldvalue(const std::string &field_value);
 		size_t						ready_size_t_fieldvalue(const std::string &field_value);
-		std::string					ready_string_fieldvalue(const std::string &field_value);
 		std::vector<std::string>	ready_string_vector_fieldvalue(const std::string &field_value);
 	public:
 		LocationConfig();

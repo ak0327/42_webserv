@@ -22,9 +22,9 @@ class ServerConfig
 		size_t									_client_header_buffer_size;
 		size_t									_client_header_timeout;
 		size_t									_client_maxbody_size;
-		size_t									_keepaliverequests;
+		size_t									_keepalive_requests;
 		size_t									_keepalive_timeout;
-		size_t 									_maxBodySize;
+		size_t 									_client_max_body_size;
 		std::string								_accesslog;
 		std::string								_default_type;
 		std::string								_errorlog;
@@ -52,9 +52,9 @@ class ServerConfig
 		size_t									get_client_header_buffer_size() const;
 		size_t									get_client_header_timeout() const;
 		size_t									get_client_maxbody_size() const;
-		size_t									get_keepaliverequests() const;
+		size_t									get_keepalive_requests() const;
 		size_t									get_keepalive_timeout() const;
-		size_t 									get_maxBodySize() const;
+		size_t 									get_client_max_body_size() const;
 		std::string								get_accesslog() const;
 		std::string								get_default_type() const;
 		std::string								get_errorlog() const;
@@ -72,9 +72,9 @@ class ServerConfig
 		void									set_client_header_buffer_size(const size_t &client_header_buffer_size);
 		void									set_client_header_timeout(const size_t &client_header_timeout);
 		void									set_client_maxbody_size(const size_t &client_maxbody_size);
-		void									set_keepaliverequests(const size_t &keepaliverequests);
+		void									set_keepalive_requests(const size_t &keepaliverequests);
 		void									set_keepalive_timeout(const size_t &keepalive_timeout);
-		void									set_maxBodySize(const size_t &max_bodysize);
+		void									set_client_max_body_size(const size_t &max_bodysize);
 		void									set_accesslog(const std::string &access_log);
 		void									set_default_type(const std::string &default_type);
 		void									set_errorlog(const std::string &error_log);

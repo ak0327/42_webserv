@@ -6,8 +6,10 @@
 // serverblockの情報の取得→locationblockの情報を取得
 // 上記の流れを行いたい場合どうしても二回開く必要がある（要相談
 
-void	Config::set_serverconfig_ready_next_serverconfig(AllConfig *Configs, ServerConfig *serverconfig, \
-std::vector<std::string> *fieldkey_map, std::vector<std::vector<std::string> > *servername_list)
+void	Config::set_serverconfig_ready_next_serverconfig(AllConfig *Configs, \
+															ServerConfig *serverconfig, \
+															std::vector<std::string> *fieldkey_map, \
+															std::vector<std::vector<std::string> > *servername_list)
 {
 	Configs->set_host_config(*serverconfig);
 	servername_list->push_back(serverconfig->get_server_name());
@@ -18,19 +20,19 @@ std::vector<std::string> *fieldkey_map, std::vector<std::vector<std::string> > *
 }
 
 bool	Config::ready_server_config_format(const std::string &config_file_name, \
-std::vector<std::vector<std::string> > *servername_list)
+											std::vector<std::vector<std::string> > *servername_list)
 {
-	AllConfig					Configs;  // 現状ここに対する適切な変数が見つかっていない
-	bool						in_server_block = false;
-	bool						in_location_block = false;
-	ServerConfig				serverconfig;
-	std::ifstream				config_lines(config_file_name.c_str());
-	std::string					config_line;
+	AllConfig	Configs;  // 現状ここに対する適切な変数が見つかっていない
+	bool	in_server_block = false;
+	bool	in_location_block = false;
+	ServerConfig	serverconfig;
+	std::ifstream	config_lines(config_file_name.c_str());
+	std::string		config_line;
 	std::vector<std::string>	fieldkey_map;
 
 	while (std::getline(config_lines, config_line, '\n'))
 	{
-		if ((ConfigHandlingString::is_nomeanig_line(config_line)))
+		if ((ConfigHandlingString::is_ignore_line(config_line)))
 			continue;
 		if (in_server_block == false && in_location_block == false && IsConfigFormat::is_start_serverblock(config_line))
 			in_server_block = true;
@@ -48,10 +50,12 @@ std::vector<std::vector<std::string> > *servername_list)
 		else  // 上記3つ以外の場合、状況としてはありえないためfalseになる
 			return this->report_errorline(config_line);
 	}
-	return (true);
+	return (in_server_block == false && in_location_block == false);
 }
 
-void	Config::ready_next_locationconfig(LocationConfig *locationconfig, const std::vector<std::string> &server_name, bool *in_server_block)
+void	Config::ready_next_locationconfig(LocationConfig *locationconfig, \
+												const std::vector<std::string> &server_name, \
+												bool *in_server_block)
 {
 	locationconfig->clear_location_keyword();
 	locationconfig->set_serverblock_infs(this->get_same_allconfig(server_name).get_host_config());
@@ -59,19 +63,19 @@ void	Config::ready_next_locationconfig(LocationConfig *locationconfig, const std
 }
 
 bool	Config::ready_location_config(const std::string &config_file_name, \
-std::vector<std::vector<std::string> >::iterator servername_itr)
+										std::vector<std::vector<std::string> >::iterator servername_itr)
 {
-	std::vector<std::string>							location_fieldkey_map;
-	std::ifstream										config_lines(config_file_name.c_str());
-	std::string											config_line;
-	std::string											location_path;
-	LocationConfig										locationconfig;
-	bool												in_server_block = false;
-	bool												in_location_block = false;
+	std::vector<std::string>	location_fieldkey_map;
+	std::ifstream	config_lines(config_file_name.c_str());
+	std::string	config_line;
+	std::string	location_path;
+	LocationConfig	locationconfig;
+	bool	in_server_block = false;
+	bool	in_location_block = false;
 
 	while (std::getline(config_lines, config_line, '\n'))
 	{
-		if ((ConfigHandlingString::is_nomeanig_line(config_line)))
+		if ((ConfigHandlingString::is_ignore_line(config_line)))
 			continue;
 		if (in_server_block == false && in_location_block == false && IsConfigFormat::is_start_serverblock(config_line))
 			ready_next_locationconfig(&locationconfig, *servername_itr, &in_server_block);
@@ -99,21 +103,21 @@ std::vector<std::vector<std::string> >::iterator servername_itr)
 	return (true);
 }
 
-Config::Config(const std::string &config_file_name): _is_config_format(true)
+Config::Config(const std::string &config_file_name): _is_config_format(false)
 {
-	std::ifstream													test_open(config_file_name.c_str());
-	std::vector<std::vector<std::string> >							servername_list;
+	std::ifstream	test_open(config_file_name.c_str());
+	std::vector<std::vector<std::string> >	servername_list;
+	bool	server_success, location_success;
 
-	if (!(test_open.is_open() && this->ready_server_config_format(config_file_name, &servername_list)))
-	{
-		this->_is_config_format = false;
+	if (!(test_open.is_open()))
+		return ;
+	server_success = this->ready_server_config_format(config_file_name, &servername_list);
+	if (!server_success)
 		return;
-	}
-	if (!(ready_location_config(config_file_name, servername_list.begin())))
-	{
-		this->_is_config_format = false;
+	location_success = this->ready_location_config(config_file_name, servername_list.begin());
+	if (!location_success)
 		return;
-	}
+	this->_is_config_format = true;
 }
 
 Config::~Config(){}
@@ -122,6 +126,32 @@ std::map<std::vector<std::string>, AllConfig>	Config::get_all_configs()
 {
 	return (this->_all_configs);
 }
+
+// bool	Config::is_vector_equal(const std::vector<std::string> &servername, const std::vector<std::string> &inputed_servername)
+// {
+// 	std::vector<std::string>::iterator	servername_itr = servername.begin();
+
+// 	while (servername_itr != servername.end())
+// 	{
+// 		if (std::count(inputed_servername.begin(), inputed_servername.end(), *servername_itr) != 1)
+// 			return false;
+// 		servername_itr++;
+// 	}
+// 	return (true);
+// }
+
+// bool	Config::is_server_name_exist(const std::vector<std::string> &servername)
+// {
+// 	std::map<std::vector<std::string>, AllConfig>::iterator	all_configs_itr = this->_all_configs.begin();
+
+// 	while (all_configs_itr != this->_all_configs.end())
+// 	{
+// 		if (is_vector_equal(servername, all_configs_itr->first))
+// 			return true;
+// 		all_configs_itr++;
+// 	}
+// 	return false;
+// }
 
 AllConfig Config::get_same_allconfig(const std::vector<std::string> &servername)
 {

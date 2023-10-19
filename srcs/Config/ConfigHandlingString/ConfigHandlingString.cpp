@@ -1,7 +1,7 @@
 #include <string>
 #include "ConfigHandlingString.hpp"
 
-bool ConfigHandlingString::is_nomeanig_line(const std::string &line)
+bool ConfigHandlingString::is_ignore_line(const std::string &line)
 {
 	std::string	line_without_ows = HandlingString::obtain_without_ows_value(line);
 
@@ -25,7 +25,7 @@ bool ConfigHandlingString::is_blockstart_endword(const std::string &block_endwor
 bool	ConfigHandlingString::is_field_header(const std::string &line, size_t *pos)
 {
 	std::string	line_trim_header;
-	size_t		check_tmp_num = 0;
+	size_t	check_tmp_num = 0;
 
 	HandlingString::skip_no_ows(line, pos);
 	if (line[*pos] == '\0')
@@ -39,7 +39,7 @@ bool	ConfigHandlingString::is_field_header(const std::string &line, size_t *pos)
 
 bool	ConfigHandlingString::is_field_value(const std::string &line, size_t *pos)
 {
-	if (line.length() == 0 || line == ";")
+	if (line.empty() || line == ";")
 		return ConfigHandlingString::show_error_message(line, NO_FIELD_VALUE);
 	if (std::count(line.begin(), line.end(), ';') == 0)
 		return ConfigHandlingString::show_error_message(line, NO_SEMICOLON);
@@ -52,7 +52,9 @@ bool	ConfigHandlingString::is_field_value(const std::string &line, size_t *pos)
 	return (true);
 }
 
-bool	ConfigHandlingString::ready_field_header(const std::string &line, size_t *end_pos, std::string *field_header)
+bool	ConfigHandlingString::ready_field_header(const std::string &line, \
+													size_t *end_pos, \
+													std::string *field_header)
 {
 	if (line.empty())
 		return ConfigHandlingString::show_error_message(line, NO_FIELD_HEADER);
@@ -63,7 +65,9 @@ bool	ConfigHandlingString::ready_field_header(const std::string &line, size_t *e
 	return (true);
 }
 
-bool	ConfigHandlingString::ready_field_value(const std::string &line, size_t *end_pos, std::string *field_value)
+bool	ConfigHandlingString::ready_field_value(const std::string &line, \
+													size_t *end_pos, \
+													std::string *field_value)
 {
 	size_t start_pos = *end_pos;
 
@@ -81,7 +85,8 @@ bool	ConfigHandlingString::ready_field_value(const std::string &line, size_t *en
 	return (true);
 }
 
-bool ConfigHandlingString::show_error_message(const std::string &line, const int &error_type)
+bool ConfigHandlingString::show_error_message(const std::string &line, \
+												const int &error_type)
 {
 	std::cerr << "*" << line << "*" << std::endl;
 	switch (error_type)

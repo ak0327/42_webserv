@@ -20,20 +20,19 @@ size_t	LocationConfig::ready_size_t_fieldvalue(const std::string &field_value)
 	return (static_cast<size_t>(NumericHandle::str_to_int(field_value)));
 }
 
-std::string		LocationConfig::ready_string_fieldvalue(const std::string &field_value){ return (field_value); }
-
 std::vector<std::string>	LocationConfig::ready_string_vector_fieldvalue(const std::string &field_value)
 {
 	std::vector<std::string>	anser_vector;
-	std::istringstream			values_splited_by_empty(field_value);
-	std::string					value_splited_by_empty;
+	std::istringstream	values_splited_by_empty(field_value);
+	std::string	value_splited_by_empty;
 
 	while (std::getline(values_splited_by_empty, value_splited_by_empty, ' '))
 		anser_vector.push_back(value_splited_by_empty);
 	return (anser_vector);
 }
 
-bool	LocationConfig::ready_locationblock_keyword(const std::string &field_key, const std::string &field_value)
+bool	LocationConfig::ready_locationblock_keyword(const std::string &field_key, \
+														const std::string &field_value)
 {
 	std::vector<std::string>	field_keys;
 
@@ -75,133 +74,89 @@ bool	LocationConfig::ready_locationblock_keyword(const std::string &field_key, c
 		if (!(field_value == "on" || field_value == "off"))
 			return false;
 		this->_autoindex = this->ready_boolean_fieldvalue(field_value);
-		return true;
 	}
-    else if (field_key ==  "chunked_transferencoding_allow")
+    if (field_key ==  "chunked_transferencoding_allow")
     {
 		if (!(field_value == "on" || field_value == "off"))
 			return false;
 		this->_chunked_transferencoding_allow = this->ready_boolean_fieldvalue(field_value);
-		return true;
 	}
-    else if (field_key ==  "server_tokens")
+    if (field_key ==  "server_tokens")
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
 		this->_server_tokens = this->ready_int_fieldvalue(field_value);
-		return true;
 	}
-	else if (field_key ==  "client_body_buffer_size")
+	if (field_key ==  "client_body_buffer_size")
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
 		this->_client_body_buffer_size = this->ready_size_t_fieldvalue(field_value);
-		return true;
 	}
-	else if (field_key ==  "client_body_timeout")
+	if (field_key ==  "client_body_timeout")
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
 		this->_client_body_timeout = this->ready_size_t_fieldvalue(field_value);
-		return true;
 	}
-	else if (field_key ==  "client_header_buffer_size")
+	if (field_key ==  "client_header_buffer_size")
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
 		this->_client_header_buffer_size = this->ready_size_t_fieldvalue(field_value);
-		return true;
 	}
-	else if (field_key ==  "client_header_timeout")
+	if (field_key ==  "client_header_timeout")
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
 		this->_client_header_timeout = this->ready_size_t_fieldvalue(field_value);
-		return true;
 	}
-	else if (field_key ==  "client_max_body_size")
+	if (field_key ==  "client_max_body_size")
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
 		this->_client_max_body_size = this->ready_size_t_fieldvalue(field_value);
-		return true;
 	}
-	else if (field_key ==  "keepaliverequests")
+	if (field_key ==  "keepaliverequests")
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
 		this->_keepaliverequests = this->ready_size_t_fieldvalue(field_value);
-		return true;
 	}
-	else if (field_key ==  "keepalive_timeout")
+	if (field_key ==  "keepalive_timeout")
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
 		this->_keepalive_timeout = this->ready_size_t_fieldvalue(field_value);
-		return true;
 	}
-	else if (field_key ==  "maxBodySize")
+	if (field_key ==  "maxBodySize")
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
 		this->_maxBodySize = this->ready_size_t_fieldvalue(field_value);
-		return true;
 	}
-	else if (field_key ==  "accesslog")
-    {
-		this->_accesslog = this->ready_string_fieldvalue(field_value);
-		return true;
-	}
-	else if (field_key ==  "default_type")
-    {
-		this->_default_type = this->ready_string_fieldvalue(field_value);
-		return true;
-	}
-	else if (field_key ==  "errorlog")
-    {
-		this->_errorlog = this->ready_string_fieldvalue(field_value);
-		return true;
-	}
-	else if (field_key ==  "root")
-    {
-		this->_root = this->ready_string_fieldvalue(field_value);
-		return true;
-	}
-	else if (field_key ==  "cgi_path")
-	{
-		this->_cgi_path = this->ready_string_fieldvalue(field_value);
-		return true;
-	}
-	else if (field_key ==  "alias")
-    {
-		this->_alias = this->ready_string_fieldvalue(field_value);
-		return true;
-	}
-	else if (field_key ==  "upload_path")
-    {
-		this->_upload_path = this->ready_string_fieldvalue(field_value);
-		return true;
-	}
-	else if (field_key ==  "allow_methods")
-    {
-		this->_allowmethod_set = this->ready_string_vector_fieldvalue(field_value);
-		return true;
-	}
-	else if (field_key ==  "index")
-    {
-		this->_indexpage_set = this->ready_string_vector_fieldvalue(field_value);
-		return true;
-	}
-	else if (field_key ==  "error_page")
-    {
-		this->_errorpage_set = this->ready_string_vector_fieldvalue(field_value);
-		return true;
-	}
-	else if (field_key ==  "server_name")
-    {
-		this->_server_name = this->ready_string_vector_fieldvalue(field_value);
-		return true;
-	}
+	if (field_key ==  "accesslog")
+		this->_accesslog = field_value;
+	if (field_key ==  "default_type")
+		this->_default_type = field_value;
+	if (field_key ==  "errorlog")
+		this->_errorlog = field_value;
+	if (field_key ==  "root")
+		this->_root = field_value;
+	if (field_key ==  "cgi_path")
+		this->_cgi_path = field_value;
+	if (field_key ==  "alias")
+		this->_alias = field_value;
+	if (field_key ==  "upload_path")
+		this->_upload_path = field_value;
+	if (field_key ==  "allow_methods")
+		this->_allowmethod_set = ready_string_vector_fieldvalue(field_value);
+	if (field_key ==  "index")
+		this->_indexpage_set = ready_string_vector_fieldvalue(field_value);
+	if (field_key ==  "error_page")
+		this->_errorpage_set = ready_string_vector_fieldvalue(field_value);
+	if (field_key ==  "server_name")
+		this->_server_name = ready_string_vector_fieldvalue(field_value);
 	return (true);
 }
 
@@ -263,9 +218,9 @@ void LocationConfig::set_serverblock_infs(const ServerConfig &other)
 	this->set_client_body_buffer_size(other.get_client_body_buffer_size());
 	this->set_client_header_timeout(other.get_client_header_timeout());
 	this->set_client_max_body_size(other.get_client_maxbody_size());
-	this->set_keepaliverequests(other.get_keepaliverequests());
+	this->set_keepaliverequests(other.get_keepalive_requests());
 	this->set_keepalive_timeout(other.get_keepalive_timeout());
-	this->set_maxBodySize(other.get_maxBodySize());
+	this->set_maxBodySize(other.get_client_max_body_size());
 	this->set_accesslog(other.get_accesslog());
 	this->set_default_type(other.get_default_type());
 	this->set_default_type(other.get_default_type());
