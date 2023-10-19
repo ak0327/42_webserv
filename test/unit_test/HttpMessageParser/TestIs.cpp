@@ -73,6 +73,9 @@ TEST(TestHttpMessageParser, IsFieldContent) {
 
 	EXPECT_FALSE(HttpMessageParser::is_field_content(" "));
 	EXPECT_FALSE(HttpMessageParser::is_field_content("aaa\t"));
+	EXPECT_FALSE(HttpMessageParser::is_field_content(""));
+	EXPECT_FALSE(HttpMessageParser::is_field_content("\0"));
+	EXPECT_FALSE(HttpMessageParser::is_field_content("\0\0a"));
 }
 
 TEST(TestHttpMessageParser, isTchar) {
@@ -170,6 +173,8 @@ TEST(TestHttpMessageParser, IsToken) {
 	EXPECT_FALSE(HttpMessageParser::is_token("a;b"));
 	EXPECT_FALSE(HttpMessageParser::is_token("123(c)"));
 	EXPECT_FALSE(HttpMessageParser::is_token("a:b"));
+	EXPECT_FALSE(HttpMessageParser::is_token("\0"));
+	EXPECT_FALSE(HttpMessageParser::is_token("\0aa"));
 }
 
 TEST(TestHttpMessageParser, IsToken68) {
@@ -185,6 +190,8 @@ TEST(TestHttpMessageParser, IsToken68) {
 	EXPECT_FALSE(HttpMessageParser::is_token68("a=b"));
 	EXPECT_FALSE(HttpMessageParser::is_token68("===="));
 	EXPECT_FALSE(HttpMessageParser::is_token68("====123==="));
+	EXPECT_FALSE(HttpMessageParser::is_token68("\0"));
+	EXPECT_FALSE(HttpMessageParser::is_token68("\0aa"));
 }
 
 TEST(TestHttpMessageParser, IsExtToken) {
@@ -202,6 +209,8 @@ TEST(TestHttpMessageParser, IsExtToken) {
 	EXPECT_FALSE(HttpMessageParser::is_ext_token("123 ***"));
 	EXPECT_FALSE(HttpMessageParser::is_ext_token("****1"));
 	EXPECT_FALSE(HttpMessageParser::is_ext_token("****  a*"));
+	EXPECT_FALSE(HttpMessageParser::is_ext_token("\0"));
+	EXPECT_FALSE(HttpMessageParser::is_ext_token("\0aa"));
 }
 
 TEST(TestHttpMessageParser, IsQuotedPair) {
@@ -218,6 +227,8 @@ TEST(TestHttpMessageParser, IsQuotedPair) {
 	EXPECT_FALSE(HttpMessageParser::is_quoted_pair("012\\ ", 1));
 	EXPECT_FALSE(HttpMessageParser::is_quoted_pair("012\\ ", 2));
 	EXPECT_FALSE(HttpMessageParser::is_quoted_pair("012\\ ", 4));
+	EXPECT_FALSE(HttpMessageParser::is_quoted_pair("\0", 0));
+	EXPECT_FALSE(HttpMessageParser::is_quoted_pair("\0aa", 0));
 }
 
 TEST(TestHttpMessageParser, IsPctEncoded) {
@@ -229,6 +240,8 @@ TEST(TestHttpMessageParser, IsPctEncoded) {
 	EXPECT_FALSE(HttpMessageParser::is_pct_encoded("", 0));
 	EXPECT_FALSE(HttpMessageParser::is_pct_encoded("", 100));
 	EXPECT_FALSE(HttpMessageParser::is_pct_encoded("%0x", 0));
+	EXPECT_FALSE(HttpMessageParser::is_pct_encoded("\0", 0));
+	EXPECT_FALSE(HttpMessageParser::is_pct_encoded("\0aa", 0));
 }
 
 TEST(TestHttpMessageParser, IsQuotedString) {
@@ -245,6 +258,8 @@ TEST(TestHttpMessageParser, IsQuotedString) {
 	EXPECT_FALSE(HttpMessageParser::is_quoted_string("\""));
 	EXPECT_FALSE(HttpMessageParser::is_quoted_string("'"));
 	EXPECT_FALSE(HttpMessageParser::is_quoted_string("\"'         "));
+	EXPECT_FALSE(HttpMessageParser::is_quoted_string("\0"));
+	EXPECT_FALSE(HttpMessageParser::is_quoted_string("\0aa"));
 }
 
 TEST(TestHttpMessageParser, IsWhiteSpace) {
@@ -268,6 +283,8 @@ TEST(TestHttpMessageParser, IsEndWithCR) {
 	EXPECT_FALSE(HttpMessageParser::is_end_with_cr("\v"));
 	EXPECT_FALSE(HttpMessageParser::is_end_with_cr("\n"));
 	EXPECT_FALSE(HttpMessageParser::is_end_with_cr("abc"));
+	EXPECT_FALSE(HttpMessageParser::is_end_with_cr("\0"));
+	EXPECT_FALSE(HttpMessageParser::is_end_with_cr("\0aa"));
 }
 
 TEST(TestHttpMessageParser, IsValidMethod) {
@@ -280,6 +297,8 @@ TEST(TestHttpMessageParser, IsValidMethod) {
 	EXPECT_FALSE(HttpMessageParser::is_valid_method("HEADER"));
 	EXPECT_FALSE(HttpMessageParser::is_valid_method("GET "));
 	EXPECT_FALSE(HttpMessageParser::is_valid_method("GETGET"));
+	EXPECT_FALSE(HttpMessageParser::is_valid_method("\0"));
+	EXPECT_FALSE(HttpMessageParser::is_valid_method("\0aa"));
 }
 
 TEST(TestHttpMessageParser, IsValidRequestTarget) {
@@ -290,6 +309,8 @@ TEST(TestHttpMessageParser, IsValidRequestTarget) {
 	EXPECT_FALSE(HttpMessageParser::is_valid_request_target("\t"));
 	EXPECT_FALSE(HttpMessageParser::is_valid_request_target("\n"));
 	EXPECT_FALSE(HttpMessageParser::is_valid_request_target("\r\n"));
+	EXPECT_FALSE(HttpMessageParser::is_valid_request_target("\0"));
+	EXPECT_FALSE(HttpMessageParser::is_valid_request_target("\0aa"));
 }
 
 TEST(TestHttpMessageParser, IsValidHttpVersion) {
@@ -302,6 +323,9 @@ TEST(TestHttpMessageParser, IsValidHttpVersion) {
 	EXPECT_FALSE(HttpMessageParser::is_valid_http_version("HTTP1.1"));
 	EXPECT_FALSE(HttpMessageParser::is_valid_http_version("HTTP/1.11\r"));
 	EXPECT_FALSE(HttpMessageParser::is_valid_http_version("HTTP/1.1\r"));
+	EXPECT_FALSE(HttpMessageParser::is_valid_http_version(""));
+	EXPECT_FALSE(HttpMessageParser::is_valid_http_version("\0"));
+	EXPECT_FALSE(HttpMessageParser::is_valid_http_version("\0aa"));
 }
 
 TEST(TestHttpMessageParser, IsHeaderBodySeparetor) {
@@ -312,6 +336,8 @@ TEST(TestHttpMessageParser, IsHeaderBodySeparetor) {
 	EXPECT_FALSE(HttpMessageParser::is_header_body_separator("\r\n"));
 	EXPECT_FALSE(HttpMessageParser::is_header_body_separator("\n"));
 	EXPECT_FALSE(HttpMessageParser::is_header_body_separator("\r\n\r"));
+	EXPECT_FALSE(HttpMessageParser::is_header_body_separator("\0"));
+	EXPECT_FALSE(HttpMessageParser::is_header_body_separator("\0aa"));
 }
 
 TEST(TestHttpMessageParser, TestIsIRREGULAR) {
@@ -343,7 +369,10 @@ TEST(TestHttpMessageParser, TestIsIRREGULAR) {
 	EXPECT_FALSE(HttpMessageParser::is_irregular("zh-hakka"));
 	EXPECT_FALSE(HttpMessageParser::is_irregular("zh-min"));
 	EXPECT_FALSE(HttpMessageParser::is_irregular("zh-min-nan"));
-	EXPECT_FALSE(HttpMessageParser::is_irregular("zh-xiang"));}
+	EXPECT_FALSE(HttpMessageParser::is_irregular("zh-xiang"));
+	EXPECT_FALSE(HttpMessageParser::is_irregular("\0"));
+	EXPECT_FALSE(HttpMessageParser::is_irregular("\0aa"));
+}
 
 TEST(TestHttpMessageParser, IsRegular) {
 	EXPECT_TRUE(HttpMessageParser::is_regular("art-lojban"));
@@ -375,6 +404,8 @@ TEST(TestHttpMessageParser, IsRegular) {
 	EXPECT_FALSE(HttpMessageParser::is_regular("sgn-BE-FR"));
 	EXPECT_FALSE(HttpMessageParser::is_regular("sgn-BE-NL"));
 	EXPECT_FALSE(HttpMessageParser::is_regular("sgn-CH-DE"));
+	EXPECT_FALSE(HttpMessageParser::is_regular("\0"));
+	EXPECT_FALSE(HttpMessageParser::is_regular("\0aa"));
 }
 
 TEST(TestHttpMessageParser, IsGrandfathered) {
@@ -406,6 +437,8 @@ TEST(TestHttpMessageParser, IsGrandfathered) {
 	EXPECT_TRUE(HttpMessageParser::is_grandfathered("zh-xiang"));
 
 	EXPECT_FALSE(HttpMessageParser::is_grandfathered(""));
+	EXPECT_FALSE(HttpMessageParser::is_grandfathered("\0"));
+	EXPECT_FALSE(HttpMessageParser::is_grandfathered("\0aa"));
 	EXPECT_FALSE(HttpMessageParser::is_grandfathered("aaa"));
 	EXPECT_FALSE(HttpMessageParser::is_grandfathered("EN-GB-OED"));  // todo: case-sensitive??
 }
@@ -446,6 +479,8 @@ TEST(TestHttpMessageParser, IsLanguage) {
 	EXPECT_FALSE(HttpMessageParser::is_language("en-aaa-b"));
 	EXPECT_FALSE(HttpMessageParser::is_language("en-aaa-bbbb"));
 	EXPECT_FALSE(HttpMessageParser::is_language("en-aaa-bbb-ccc-ddd"));
+	EXPECT_FALSE(HttpMessageParser::is_language("\0"));
+	EXPECT_FALSE(HttpMessageParser::is_language("\0aa"));
 }
 
 /*
@@ -463,6 +498,8 @@ TEST(TestHttpMessageParser, IsScript) {
 	EXPECT_FALSE(HttpMessageParser::is_script("a"));
 	EXPECT_FALSE(HttpMessageParser::is_script("aaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
 	EXPECT_FALSE(HttpMessageParser::is_script("  a  "));
+	EXPECT_FALSE(HttpMessageParser::is_script("\0"));
+	EXPECT_FALSE(HttpMessageParser::is_script("\0aa"));
 }
 
 /*
@@ -487,6 +524,8 @@ TEST(TestHttpMessageParser, IsRegion) {
 	EXPECT_FALSE(HttpMessageParser::is_region("1234-ab"));
 	EXPECT_FALSE(HttpMessageParser::is_region(" ab"));
 	EXPECT_FALSE(HttpMessageParser::is_region("ab "));
+	EXPECT_FALSE(HttpMessageParser::is_region("\0"));
+	EXPECT_FALSE(HttpMessageParser::is_region("\0aa"));
 }
 
 /*
@@ -507,6 +546,8 @@ TEST(TestHttpMessageParser, IsVariant) {
 	EXPECT_FALSE(HttpMessageParser::is_variant("aaaaabbbb"));
 	EXPECT_FALSE(HttpMessageParser::is_variant("a b c d"));
 	EXPECT_FALSE(HttpMessageParser::is_variant("abc''"));
+	EXPECT_FALSE(HttpMessageParser::is_variant("\0"));
+	EXPECT_FALSE(HttpMessageParser::is_variant("\0aa"));
 }
 
 /*
@@ -532,6 +573,8 @@ TEST(TestHttpMessageParser, IsExtension) {
 	EXPECT_FALSE(HttpMessageParser::is_extension("a-1"));
 	EXPECT_FALSE(HttpMessageParser::is_extension("a-123456789"));
 	EXPECT_FALSE(HttpMessageParser::is_extension("*-123456-aaaa"));
+	EXPECT_FALSE(HttpMessageParser::is_extension("\0"));
+	EXPECT_FALSE(HttpMessageParser::is_extension("\0aa"));
 }
 
 /*
@@ -554,6 +597,8 @@ TEST(TestHttpMessageParser, IsPrivateuse) {
 	EXPECT_FALSE(HttpMessageParser::is_privateuse("x-12345678-"));
 	EXPECT_FALSE(HttpMessageParser::is_privateuse("x-12345678--"));
 	EXPECT_FALSE(HttpMessageParser::is_privateuse("x-12345678-abcde-;"));
+	EXPECT_FALSE(HttpMessageParser::is_privateuse("\0"));
+	EXPECT_FALSE(HttpMessageParser::is_privateuse("\0aa"));
 }
 
 // ["-" OPTION]
@@ -655,6 +700,8 @@ TEST(TestHttpMessageParser, IsLangtag) {
 	EXPECT_FALSE(HttpMessageParser::is_langtag("e-aaa"));
 	EXPECT_FALSE(HttpMessageParser::is_langtag("en--aaa"));
 	EXPECT_FALSE(HttpMessageParser::is_langtag("en-aaa--aa"));
+	EXPECT_FALSE(HttpMessageParser::is_langtag("\0"));
+	EXPECT_FALSE(HttpMessageParser::is_langtag("\0aa"));
 }
 
 TEST(TestHttpMessageParser, IsOpaqueTag) {
@@ -671,6 +718,8 @@ TEST(TestHttpMessageParser, IsOpaqueTag) {
 	EXPECT_FALSE(HttpMessageParser::is_opaque_tag(" "));
 	EXPECT_FALSE(HttpMessageParser::is_opaque_tag("\t"));
 	EXPECT_FALSE(HttpMessageParser::is_opaque_tag("\n"));
+	EXPECT_FALSE(HttpMessageParser::is_opaque_tag("\0"));
+	EXPECT_FALSE(HttpMessageParser::is_opaque_tag("\0aa"));
 }
 
 TEST(TestHttpMessageParser, IsEntityTag) {
@@ -688,7 +737,8 @@ TEST(TestHttpMessageParser, IsEntityTag) {
 	EXPECT_FALSE(HttpMessageParser::is_entity_tag("!"));
 	EXPECT_FALSE(HttpMessageParser::is_entity_tag("\"ABC SP NG\""));
 	EXPECT_FALSE(HttpMessageParser::is_entity_tag("W/\"ABC\tTAB\tIS\tNG\""));
-
+	EXPECT_FALSE(HttpMessageParser::is_entity_tag("\0"));
+	EXPECT_FALSE(HttpMessageParser::is_entity_tag("\0aa"));
 }
 
 TEST(TestHttpMessageParser, IsQdtext) {

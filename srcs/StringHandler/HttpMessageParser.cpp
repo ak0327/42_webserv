@@ -465,7 +465,7 @@ void skip_extlang(const std::string &str,
 
 	if (!end_pos) { return; }
 	*end_pos = start_pos;
-	if (str.empty() || str.length() < start_pos) { return; }
+	if (str.empty() || str.length() <= start_pos) { return; }
 
 	pos = start_pos;
 	len = 0;
@@ -544,7 +544,7 @@ void skip_script(const std::string &str,
 
 	if (!end_pos) { return; }
 	*end_pos = start_pos;
-	if (str.empty() || str.length() < start_pos) { return; }
+	if (str.empty() || str.length() <= start_pos) { return; }
 
 	pos = start_pos;
 	len = 0;
@@ -567,7 +567,7 @@ void skip_region(const std::string &str,
 
 	if (!end_pos) { return; }
 	*end_pos = start_pos;
-	if (str.empty() || str.length() < start_pos) { return; }
+	if (str.empty() || str.length() <= start_pos) { return; }
 
 	pos = start_pos;
 	len = 0;
@@ -600,7 +600,7 @@ void skip_variant(const std::string &str,
 
 	if (!end_pos) { return; }
 	*end_pos = start_pos;
-	if (str.empty() || str.length() < start_pos) { return; }
+	if (str.empty() || str.length() <= start_pos) { return; }
 
 	pos = start_pos;
 
@@ -646,7 +646,7 @@ void skip_extension(const std::string &str,
 
 	if (!end_pos) { return; }
 	*end_pos = start_pos;
-	if (str.empty() || str.length() < start_pos) { return; }
+	if (str.empty() || str.length() <= start_pos) { return; }
 
 	pos = start_pos;
 	if (!is_singleton(str[pos])) { return; }
@@ -680,7 +680,7 @@ bool is_langtag_option(const std::string &str,
 										 std::size_t *)) {
 	std::size_t pos, end;
 
-	if (str.empty() || str.length() < start_pos) { return false; }
+	if (str.empty() || str.length() <= start_pos) { return false; }
 
 	pos = start_pos;
 	if (str[pos] != '-') { return false; }
@@ -705,7 +705,7 @@ void skip_langtag(const std::string &str,
 
 	if (!end_pos) { return; }
 	*end_pos = start_pos;
-	if (str.empty() || str.length() < start_pos) { return; }
+	if (str.empty() || str.length() <= start_pos) { return; }
 
 	// language
 	pos = start_pos;
@@ -774,7 +774,7 @@ void skip_privateuse(const std::string &str,
 
 	if (!end_pos) { return; }
 	*end_pos = start_pos;
-	if (str.empty() || str.length() < start_pos) {
+	if (str.empty() || str.length() <= start_pos) {
 		return;
 	}
 
@@ -890,7 +890,7 @@ void skip_grandfathered(const std::string &str,
 
 	if (!end_pos) { return; }
 	*end_pos = start_pos;
-	if (str.empty() || str.length() < start_pos) { return; }
+	if (str.empty() || str.length() <= start_pos) { return; }
 
 	pos = start_pos;
 	len = 0;
@@ -917,7 +917,7 @@ void skip_language_tag(const std::string &str,
 					   std::size_t *end_pos) {
 	if (!end_pos) { return; }
 	*end_pos = start_pos;
-	if (str.empty() || str.length() < start_pos) { return; }
+	if (str.empty() || str.length() <= start_pos) { return; }
 
 	skip_grandfathered(str, start_pos, end_pos);
 	if (start_pos != *end_pos) {
@@ -1018,7 +1018,7 @@ bool is_qdtext(char c) {
 	return false;
 }
 
-// hexadecimal 0-9/A-F/a-f
+// HEXDIG (hexadecimal digits) 0-9/A-F/a-f
 bool is_hexdig(char c) {
 	return (('0' <= c && c <= '9')
 			|| ('A' <= c && c <= 'F')
@@ -1059,6 +1059,7 @@ bool is_singleton(char c) {
 	return true;
 }
 
+// todo: rm start_pos?, use skip_quoted_pair?
 bool is_quoted_pair(const std::string &str, std::size_t start_pos) {
 	if (str.empty() || str.length() < start_pos) {
 		return false;
@@ -1084,7 +1085,7 @@ void skip_quoted_pair(const std::string &str,
 		return;
 	}
 	*end_pos = start_pos;
-	if (str.empty() || str.length() < start_pos) {
+	if (str.empty() || str.length() <= start_pos) {
 		return;
 	}
 	if (!is_quoted_pair(str, start_pos)) {
@@ -1346,7 +1347,7 @@ void skip_product(const std::string &str,
 
 	pos = start_pos;
 	*end_pos = start_pos;
-	if (str.empty()) { return; }
+	if (str.empty() || str.length() <= start_pos) { return; }
 
 	len = 0;
 	while (HttpMessageParser::is_tchar(str[pos + len])) {
@@ -1381,7 +1382,7 @@ void skip_comment(const std::string &str,
 
 	pos = start_pos;
 	*end_pos = start_pos;
-	if (str.empty()) { return; }
+	if (str.empty() || str.length() <= start_pos) { return; }
 
 	if (str[pos] != '(') { return; }
 	++pos;
