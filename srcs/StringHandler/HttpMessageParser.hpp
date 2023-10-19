@@ -178,4 +178,48 @@ void skip_comment(const std::string &str,
 				  std::size_t start_pos,
 				  std::size_t *end_pos);
 
+void skip_reg_name(const std::string &str,
+				   std::size_t start_pos,
+				   std::size_t *end_pos);
+
+void skip_ipv4address(const std::string &str,
+					  std::size_t start_pos,
+					  std::size_t *end_pos);
+
+void skip_ipv6address(const std::string &str,
+					  std::size_t start_pos,
+					  std::size_t *end_pos);
+
+void skip_ipvfuture(const std::string &str,
+					std::size_t start_pos,
+					std::size_t *end_pos);
+
+void skip_ip_literal(const std::string &str,
+					 std::size_t start_pos,
+					 std::size_t *end_pos);
+
+void skip_dec_octet(const std::string &str,
+					std::size_t start_pos,
+					std::size_t *end_pos);
+
+void skip_h16(const std::string &str,
+			  std::size_t start_pos,
+			  std::size_t *end_pos);
+
+void skip_ls32(const std::string &str,
+			   std::size_t start_pos,
+			   std::size_t *end_pos);
+
+bool is_unreserved(char c);
+bool is_sub_delims(char c);
+bool is_dec_octet(const std::string &str);
+bool is_ipv4address(const std::string &str);
+bool is_ipv6address(const std::string &str);
+bool is_ipvfuture(const std::string &str);
+bool is_ip_literal(const std::string &str);
+bool is_reg_name(const std::string &str);
+
+Result<std::size_t, int> get_double_colon_pos(const std::string &str,
+											  std::size_t start_pos);
+
 }  // namespace HttpMessageParser

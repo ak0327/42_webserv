@@ -52,6 +52,7 @@ const char SP = ' ';
 const char CRLF[] = "\r\n";
 
 const char DELIMITERS[] = "\"(),/:;<=>?@[\\]{}";
+const char SUB_DELIMS[] = "!$&'()*+,;=";
 
 ////////////////////////////////////////////////////////////////////////////////
 /* method */
@@ -320,12 +321,13 @@ std::vector<std::string> init_ignore_headers() {
 
 const char AUTH_SCHEME[] = "auth_scheme";
 const char AUTH_PARAM[] = "auth_param";
+const char URI_HOST[] = "uri_host";
+const char PORT[] = "port";
 
 ////////////////////////////////////////////////////////////////////////////////
 /* date */
 
 const char GMT[] = "GMT";
-
 const char MON[] = "Mon";
 const char TUE[] = "Tue";
 const char WED[] = "Wed";

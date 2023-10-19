@@ -318,9 +318,16 @@ TEST(Request, TEST1)
 	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
 	if (same_class_test(__LINE__, "host", httprequest_test1) == true)
 	{
-		TwoValueSet* twoval = static_cast<TwoValueSet*>(httprequest_test1.get_field_values(
-				"host"));
-		compair_twovaluemap_report( twoval->get_firstvalue(), twoval->get_secondvalue(), "www.example.com", "");
+		// TwoValueSet* twoval = static_cast<TwoValueSet*>(httprequest_test1.get_field_values(
+		// 		"host"));
+		// compair_twovaluemap_report( twoval->get_firstvalue(), twoval->get_secondvalue(), "www.example.com", "");
+		FieldValueBase *field_values = httprequest_test1.get_field_values(std::string(HOST));
+		MapFieldValues *multi_field_values = dynamic_cast<MapFieldValues *>(field_values);
+		std::map<std::string, std::string> actual_map = multi_field_values->get_value_map();
+
+		std::map<std::string, std::string>::const_iterator itr;
+		itr = actual_map.find(std::string(URI_HOST));
+		EXPECT_EQ("www.example.com", itr->second);
 	}
 	if (same_class_test(__LINE__, "user-agent", httprequest_test1) == true)
 	{
@@ -453,9 +460,16 @@ TEST(Request, TEST2)
 	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
 	if (same_class_test(__LINE__, "host", httprequest_test1) == true)
 	{
-		TwoValueSet* twoval1 = static_cast<TwoValueSet*>(httprequest_test1.get_field_values(
-				"host"));
-		compair_twovaluemap_report( twoval1->get_firstvalue(), twoval1->get_secondvalue(), "example.com", "");
+		// TwoValueSet* twoval1 = static_cast<TwoValueSet*>(httprequest_test1.get_field_values(
+		// 		"host"));
+		// compair_twovaluemap_report( twoval1->get_firstvalue(), twoval1->get_secondvalue(), "example.com", "");
+		FieldValueBase *field_values = httprequest_test1.get_field_values(std::string(HOST));
+		MapFieldValues *multi_field_values = dynamic_cast<MapFieldValues *>(field_values);
+		std::map<std::string, std::string> actual_map = multi_field_values->get_value_map();
+
+		std::map<std::string, std::string>::const_iterator itr;
+		itr = actual_map.find(std::string(URI_HOST));
+		EXPECT_EQ("example.com", itr->second);
 	}
 	if (same_class_test(__LINE__, "user-agent", httprequest_test1) == true)
 	{

@@ -511,7 +511,7 @@ void skip_language(const std::string &str,
 
 	if (!end_pos) { return; }
 	*end_pos = start_pos;
-	if (str.empty() || str.length() < start_pos) { return; }
+	if (str.empty() || str.length() <= start_pos) { return; }
 
 	pos = start_pos;
 	len = 0;
@@ -1061,7 +1061,7 @@ bool is_singleton(char c) {
 
 // todo: rm start_pos?, use skip_quoted_pair?
 bool is_quoted_pair(const std::string &str, std::size_t start_pos) {
-	if (str.empty() || str.length() < start_pos) {
+	if (str.empty() || str.length() <= start_pos) {
 		return false;
 	}
 	if (str[start_pos] != '\\') {
@@ -1128,7 +1128,7 @@ void skip_quoted_string(const std::string &str,
 	if (!end_pos) {
 		return;
 	}
-	if (str.length() < start_pos) {
+	if (str.length() <= start_pos) {
 		return;
 	}
 
@@ -1416,6 +1416,367 @@ void skip_comment(const std::string &str,
 	if (str[pos] != ')') { return; }
 	++pos;
 
+	*end_pos = pos;
+}
+
+// h16 = 1*4HEXDIG
+void skip_h16(const std::string &str,
+			  std::size_t start_pos,
+			  std::size_t *end_pos) {
+	std::size_t pos, len;
+	if (!end_pos) { return; }
+
+	pos = start_pos;
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) { return; }
+
+	len = 0;
+	while (str[pos + len] && is_hexdig(str[pos + len])) {
+		++len;
+		if (len == 4) {
+			break;
+		}
+	}
+	if (len == 0) {
+		return;
+	}
+	pos += len;
+	*end_pos = pos;
+}
+
+
+// ls32 = ( h16 ":" h16 ) / IPv4address
+void skip_ls32(const std::string &str,
+			   std::size_t start_pos,
+			   std::size_t *end_pos) {
+	std::size_t pos, end;
+	if (!end_pos) { return; }
+
+	pos = start_pos;
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) { return; }
+
+	// IPv4address
+	skip_ipv4address(str, pos, &end);
+	if (pos != end) {
+		*end_pos = end;
+		return;
+	}
+
+	// ( h16 ":" h16 )
+	skip_h16(str, pos, &end);
+	if (pos == end) {
+		return;
+	}
+	pos = end;
+
+	if (str[pos] != ':') {
+		return;
+	}
+	++pos;
+
+	skip_h16(str, pos, &end);
+	if (pos == end) {
+		return;
+	}
+	pos = end;
+
+	*end_pos = pos;
+}
+
+// if double colon not found, returns error
+Result<std::size_t, int> get_double_colon_pos(const std::string &str,
+											  std::size_t start_pos) {
+	std::size_t pos;
+
+	if (str.empty() || str.length() < start_pos) {
+		return Result<std::size_t, int>::err(ERR);
+	}
+	pos = start_pos;
+	while (str[pos] && str[pos + 1]) {
+		if (str[pos] == ':' && str[pos + 1] == ':') {
+			return Result<std::size_t, int>::ok(pos);
+		}
+		++pos;
+	}
+	return Result<std::size_t, int>::err(ERR);
+}
+
+bool is_ipv6address(const std::string &str) {
+	std::size_t end;
+
+	if (str.empty()) {
+		return false;
+	}
+	skip_ipv6address(str, 0, &end);
+	return str[end] == '\0';
+}
+
+// todo: test
+/*
+ IPv6address =                            6( h16 ":" ) ls32
+             /                       "::" 5( h16 ":" ) ls32
+             / [               h16 ] "::" 4( h16 ":" ) ls32
+             / [ *1( h16 ":" ) h16 ] "::" 3( h16 ":" ) ls32
+             / [ *2( h16 ":" ) h16 ] "::" 2( h16 ":" ) ls32
+             / [ *3( h16 ":" ) h16 ] "::"    h16 ":"   ls32
+             / [ *4( h16 ":" ) h16 ] "::"              ls32
+             / [ *5( h16 ":" ) h16 ] "::"              h16
+             / [ *6( h16 ":" ) h16 ] "::"
+ */
+void skip_ipv6address(const std::string &str,
+					  std::size_t start_pos,
+					  std::size_t *end_pos) {
+	std::size_t pos, end, double_colon_pos, cnt;
+	Result<std::size_t, int> double_colon_result;
+	if (!end_pos) { return; }
+
+	pos = start_pos;
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) { return; }
+
+	double_colon_result = get_double_colon_pos(str, pos);
+	if (double_colon_result.is_err()) {
+		// 6( h16 ":" )
+		cnt = 0;
+		while (str[pos] && cnt < 6) {
+			skip_h16(str, pos, &end);
+			if (pos == end) {
+				return;
+			}
+			pos = end;
+			if (str[pos] != ':') {
+				return;
+			}
+			++pos;
+			++cnt;
+		}
+		if (cnt != 6) {
+			return;
+		}
+
+		// ls32
+		skip_ls32(str, pos, &end);
+		if (pos == end) {
+			return;
+		}
+		pos = end;
+
+	} else {
+		double_colon_pos = double_colon_result.get_ok_value();
+		(void)double_colon_pos;
+		// todo
+	}
+
+	*end_pos = pos;
+}
+
+// IPvFuture   = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
+bool is_ipvfuture(const std::string &str) {
+	std::size_t end;
+
+	if (str.empty()) {
+		return false;
+	}
+	skip_ipvfuture(str, 0, &end);
+	return str[end] == '\0';
+}
+
+void skip_ipvfuture(const std::string &str,
+					std::size_t start_pos,
+					 std::size_t *end_pos) {
+	std::size_t pos, len;
+	if (!end_pos) { return; }
+
+	pos = start_pos;
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) { return; }
+
+	if (!(str[pos] == 'v' && is_hexdig(str[pos + 1]) && str[pos + 2] == '.')) {
+		return;
+	}
+	pos += 3;
+	len = 0;
+	while (str[pos + len]
+		&& (is_unreserved(str[pos + len])
+			|| is_sub_delims(str[pos + len])
+			|| str[pos + len] == ':')) {
+		++len;
+	}
+	if (len == 0) {
+		return;
+	}
+	pos += len;
+	*end_pos = pos;
+}
+
+// todo:test(ipv6)
+bool is_ip_literal(const std::string &str) {
+	std::size_t end;
+
+	if (str.empty()) {
+		return false;
+	}
+	skip_ip_literal(str, 0, &end);
+	return str[end] == '\0';
+}
+
+// todo:test(ipv6)
+void skip_ip_literal(const std::string &str,
+					 std::size_t start_pos,
+					 std::size_t *end_pos) {
+	std::size_t pos, end;
+	if (!end_pos) { return; }
+
+	pos = start_pos;
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) { return; }
+
+	if (str[pos] != '[') {
+		return;
+	}
+	++pos;
+
+	if (str[pos] == 'v') {
+		skip_ipvfuture(str, pos, &end);
+	} else {
+		skip_ipv6address(str, pos, &end);
+	}
+	if (pos == end) {
+		return;
+	}
+	pos = end;
+
+	if (str[pos] != ']') {
+		return;
+	}
+	++pos;
+	*end_pos = pos;
+}
+
+bool is_dec_octet(const std::string &str) {
+	std::size_t end;
+
+	if (str.empty()) {
+		return false;
+	}
+	skip_dec_octet(str, 0, &end);
+	return str[end] == '\0';
+}
+
+/*
+ dec-octet   = DIGIT                 ; 0-9
+             / %x31-39 DIGIT         ; 10-99
+             / "1" 2DIGIT            ; 100-199
+             / "2" %x30-34 DIGIT     ; 200-249
+             / "25" %x30-35          ; 250-255
+ */
+void skip_dec_octet(const std::string &str,
+					std::size_t start_pos,
+					std::size_t *end_pos) {
+	std::size_t len;
+	std::string digit_str;
+	int num;
+
+	if (!end_pos) { return; }
+
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) { return; }
+
+	len = 0;
+	while (std::isdigit(str[start_pos + len])) {
+		++len;
+	}
+	if (len < 1 || 3 < len) { return; }
+	digit_str = str.substr(start_pos, len);
+
+	if (digit_str[0] == '0' && len != 1) { return; }
+
+	num = to_integer_num(digit_str, NULL);
+	if (num < 0 || 255 < num) { return; }
+	*end_pos = start_pos + len;
+}
+
+// IPv4address = dec-octet "." dec-octet "." dec-octet "." dec-octet
+void skip_ipv4address(const std::string &str,
+					  std::size_t start_pos,
+					  std::size_t *end_pos) {
+	std::size_t pos, end, dec_octet_cnt;
+	if (!end_pos) { return; }
+
+	pos = start_pos;
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) { return; }
+
+	dec_octet_cnt = 0;
+	while (str[pos] && dec_octet_cnt < 4) {
+		skip_dec_octet(str, pos, &end);
+		if (pos == end) { return; }
+		pos = end;
+		++dec_octet_cnt;
+		if (dec_octet_cnt < 4) {
+			if (str[pos] != '.') { return; }
+			++pos;
+		}
+	}
+	if (dec_octet_cnt != 4) { return; }
+	*end_pos = pos;
+}
+
+bool is_ipv4address(const std::string &str) {
+	std::size_t end;
+
+	if (str.empty()) {
+		return false;
+	}
+	skip_ipv4address(str, 0, &end);
+	return str[end] == '\0';
+}
+
+// unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
+bool is_unreserved(char c) {
+	return (std::isalnum(c) || c == '-' || c == '.' || c == '_' || c == '~');
+}
+
+// sub-delims  = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
+bool is_sub_delims(char c) {
+	return std::string(SUB_DELIMS).find(c) != std::string::npos;
+}
+
+bool is_reg_name(const std::string &str) {
+	std::size_t end;
+
+	if (str.empty()) {
+		return false;
+	}
+	skip_reg_name(str, 0, &end);
+	return str[end] == '\0';
+}
+
+// reg-name    = *( unreserved / pct-encoded / sub-delims )
+void skip_reg_name(const std::string &str,
+				   std::size_t start_pos,
+				   std::size_t *end_pos) {
+	std::size_t pos, len;
+	if (!end_pos) { return; }
+
+	pos = start_pos;
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) { return; }
+
+	len = 0;
+	while (str[pos + len]) {
+		if (is_unreserved(str[pos + len])
+			|| is_sub_delims(str[pos + len])) {
+			++len;
+		} else if (is_pct_encoded(str, pos + len)) {
+			len += 3;
+		} else {
+			break;
+		}
+	}
+	if (len == 0) { return; }
+	pos += len;
 	*end_pos = pos;
 }
 

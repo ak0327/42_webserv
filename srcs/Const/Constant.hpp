@@ -55,6 +55,7 @@ extern const char SP;
 extern const char CRLF[];
 
 extern const char DELIMITERS[];
+extern const char SUB_DELIMS[];
 
 ////////////////////////////////////////////////////////////////////////////////
 /* method */
@@ -186,6 +187,8 @@ std::vector<std::string> init_ignore_headers();
 
 extern const char AUTH_SCHEME[];
 extern const char AUTH_PARAM[];
+extern const char URI_HOST[];
+extern const char PORT[];
 
 ////////////////////////////////////////////////////////////////////////////////
 /* date */

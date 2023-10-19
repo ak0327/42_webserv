@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <string>
+#include <map>
 #include "StringHandler.hpp"
 #include "SingleFieldValue.hpp"
 #include "TwoValueSet.hpp"
@@ -54,13 +55,21 @@ bool	same_class_test_twovalueset(int line, const char *key, HttpRequest &target)
 
 TEST(TwoValuseSet, TEST1)
 {
-	const std::string TEST_REQUEST = "GET /example-page HTTP/1.1\r\nHost: example.com\r\nAccept-Post: application/json, application/xml\r\nPermission-Policy: geolocation=*, microphone=()\r\nProxy-Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==\r\n";
+	const std::string TEST_REQUEST = "GET /example-page HTTP/1.1\r\n"
+									 "Host: example.com\r\n"
+									 "Accept-Post: application/json, application/xml\r\n"
+									 "Permission-Policy: geolocation=*, microphone=()\r\n"
+									 "Proxy-Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
 	if (same_class_test_twovalueset(__LINE__, "host", httprequest_test1) == true)
 	{
-		TwoValueSet* twoval = static_cast<TwoValueSet*>(httprequest_test1.get_field_values(
-				"host"));
-		compair_twovaluemap( twoval->get_firstvalue(), twoval->get_secondvalue(), "example.com", "");
+		FieldValueBase *field_values = httprequest_test1.get_field_values(std::string(HOST));
+		MapFieldValues *multi_field_values = dynamic_cast<MapFieldValues *>(field_values);
+		std::map<std::string, std::string> actual_map = multi_field_values->get_value_map();
+
+		std::map<std::string, std::string>::const_iterator itr;
+		itr = actual_map.find(std::string(URI_HOST));
+		EXPECT_EQ("example.com", itr->second);
 	}
 	// if (same_class_test_twovalueset(__LINE__, "accept-post", httprequest_test1) == true)
 	// {
@@ -72,14 +81,16 @@ TEST(TwoValuseSet, TEST1)
 
 TEST(TwoValuseSet, TEST2)
 {
-	const std::string TEST_REQUEST = "GET /example-page HTTP/1.1\r\nAccept-Post: application/json, appl,ication/xml\r\n";
+	const std::string TEST_REQUEST = "GET /example-page HTTP/1.1\r\n"
+									 "Accept-Post: application/json, appl,ication/xml\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
 	EXPECT_EQ(httprequest_test1.get_status_code(), 400);
 }
 
 TEST(TwoValuseSet, TEST3)
 {
-	const std::string TEST_REQUEST = "GET /example-page HTTP/1.1\r\nPermission-Policy: , microphone=()\r\n";
+	const std::string TEST_REQUEST = "GET /example-page HTTP/1.1\r\n"
+									 "Permission-Policy: , microphone=()\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
 	EXPECT_EQ(httprequest_test1.get_status_code(), 400);
 }

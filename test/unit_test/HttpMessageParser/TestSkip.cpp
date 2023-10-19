@@ -667,10 +667,400 @@ TEST(TestHttpMessageParser, SkipProduct) {
 	EXPECT_EQ(0, end);
 }
 
+TEST(TestHttpMessageParser, SkipRegName) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_reg_name(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "abc";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_reg_name(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "123";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_reg_name(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "%ab";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_reg_name(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "abc";
+	//     012345678901234567890
+	pos = 2;
+	HttpMessageParser::skip_reg_name(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "abc";
+	//     012345678901234567890
+	pos = 3;
+	HttpMessageParser::skip_reg_name(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "abc";
+	//     012345678901234567890
+	pos = 4;
+	HttpMessageParser::skip_reg_name(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "abc";
+	//     012345678901234567890
+	pos = 100;
+	HttpMessageParser::skip_reg_name(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_reg_name(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 1;
+	HttpMessageParser::skip_reg_name(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 2;
+	HttpMessageParser::skip_reg_name(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 100;
+	HttpMessageParser::skip_reg_name(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "!$&'()*+,;=abc123-._~%12";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_reg_name(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "!$&'()*+,;=abc123-._~%12";
+	//     012345678901234567890
+	pos = 5;
+	HttpMessageParser::skip_reg_name(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "!$&'()*+,;=abc123-._~%%";
+	//                          ^^ng
+	//     012345678901234567890123
+	pos = 0;
+	HttpMessageParser::skip_reg_name(str, pos, &end);
+	EXPECT_EQ(21, end);
+
+	str = "!$&'()*+,;=abc123-._~%%";
+	//                          ^^ng
+	//     012345678901234567890123
+	pos = 21;
+	HttpMessageParser::skip_reg_name(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "!$&'()*+,;=abc123-._~%%";
+	//                          ^^ng
+	//     012345678901234567890123
+	pos = 22;
+	HttpMessageParser::skip_reg_name(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+}
+
+TEST(TestHttpMessageParser, SkipIPv4address) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "0.0.0.0";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_ipv4address(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "0.0.0.255";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_ipv4address(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "1.2.3.9";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_ipv4address(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "255.255.255.255";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_ipv4address(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "192.168.0.1";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_ipv4address(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "0.0.0.00";
+	//           ^^ng
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_ipv4address(str, pos, &end);
+	EXPECT_EQ(0, end);
+
+	str = "255.255.255.256";
+	//                 ^^^ng
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_ipv4address(str, pos, &end);
+	EXPECT_EQ(0, end);
+
+	str = "255.255.255.255.";
+	//                    ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_ipv4address(str, pos, &end);
+	EXPECT_EQ(15, end);
+
+	str = "255,255,255,256";
+	//        ^   ^   ^ ng
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_ipv4address(str, pos, &end);
+	EXPECT_EQ(0, end);
+
+	str = "01.255.255.255";
+	//     ^^ ng
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_ipv4address(str, pos, &end);
+	EXPECT_EQ(0, end);
+
+	str = "123.234.345.456";
+	//             ^^^ ^^^ng
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_ipv4address(str, pos, &end);
+	EXPECT_EQ(0, end);
+
+	str = "";
+	//    ^ ng
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_ipv4address(str, pos, &end);
+	EXPECT_EQ(0, end);
+
+	str = "...";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_ipv4address(str, pos, &end);
+	EXPECT_EQ(0, end);
+
+	str = "0.0.0.";
+	//           ^ng
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_ipv4address(str, pos, &end);
+	EXPECT_EQ(0, end);
+
+	str = " . . . ";
+	//     ^ ^ ^ ^ng
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_ipv4address(str, pos, &end);
+	EXPECT_EQ(0, end);
+
+}
+
+TEST(TestHttpMessageParser, SkipIPvFuture) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "vF.0:1:2";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_ipvfuture(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "vF.0:1:2 ";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_ipvfuture(str, pos, &end);
+	EXPECT_EQ(8, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_ipvfuture(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "vA.";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_ipvfuture(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "\0\0\0aaaaa";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_ipvfuture(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "\0\0\0\0\0";
+	//     012345678901234567890
+	pos = 3;
+	HttpMessageParser::skip_ipvfuture(str, pos, &end);
+	EXPECT_EQ(pos, end);
+}
+
+TEST(TestHttpMessageParser, SkipH16) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "0";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_h16(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "0000";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_h16(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "000011";
+	//         ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_h16(str, pos, &end);
+	EXPECT_EQ(4, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_h16(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 100;
+	HttpMessageParser::skip_h16(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "    ";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_h16(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "ffg";
+	//       ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_h16(str, pos, &end);
+	EXPECT_EQ(2, end);
+
+}
+
+TEST(TestHttpMessageParser, SKipLs32) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "0:1";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_ls32(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "0000:1111";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_ls32(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "abcd:ef01:";
+	//              ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_ls32(str, pos, &end);
+	EXPECT_EQ(9, end);
+
+	str = "0.0.0.0";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_ls32(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_ls32(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = ":";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_ls32(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "abcd:efgh";
+	//            ^^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_ls32(str, pos, &end);
+	EXPECT_EQ(7, end);
+
+
+	str = "\0\0\0";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_ls32(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+}
 
 // TEST(TestHttpMessageParser, ) {
+// 	std::size_t pos, end;
+// 	std::string str;
+//
+// 	str = "";
+// 	//     012345678901234567890
+// 	pos = 0;
+// 	HttpMessageParser::skip_(str, pos, &end);
+// 	EXPECT_EQ(str.length(), end);
 // }
 
 // TEST(TestHttpMessageParser, ) {
+// 	std::size_t pos, end;
+// 	std::string str;
+//
+// 	str = "";
+// 	//     012345678901234567890
+// 	pos = 0;
+// 	HttpMessageParser::skip_(str, pos, &end);
+// 	EXPECT_EQ(str.length(), end);
+// }
+
+// TEST(TestHttpMessageParser, ) {
+// 	std::size_t pos, end;
+// 	std::string str;
+//
+// 	str = "";
+// 	//     012345678901234567890
+// 	pos = 0;
+// 	HttpMessageParser::skip_(str, pos, &end);
+// 	EXPECT_EQ(str.length(), end);
 // }
 

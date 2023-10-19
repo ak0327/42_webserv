@@ -798,11 +798,158 @@ TEST(TestHttpMessageParser, IsAttrChar) {
 	EXPECT_FALSE(HttpMessageParser::is_attr_char('\t'));
 }
 
-// TEST(TestHttpMessageParser, ) {
-// 	EXPECT_TRUE(HttpMessageParser::);
-//
-// 	EXPECT_FALSE(HttpMessageParser::);
-// }
+TEST(TestHttpMessageParser, IsUnreserved) {
+	EXPECT_TRUE(HttpMessageParser::is_unreserved('a'));
+	EXPECT_TRUE(HttpMessageParser::is_unreserved('A'));
+	EXPECT_TRUE(HttpMessageParser::is_unreserved('0'));
+	EXPECT_TRUE(HttpMessageParser::is_unreserved('9'));
+	EXPECT_TRUE(HttpMessageParser::is_unreserved('-'));
+	EXPECT_TRUE(HttpMessageParser::is_unreserved('.'));
+	EXPECT_TRUE(HttpMessageParser::is_unreserved('_'));
+	EXPECT_TRUE(HttpMessageParser::is_unreserved('~'));
+
+	EXPECT_FALSE(HttpMessageParser::is_unreserved('\0'));
+	EXPECT_FALSE(HttpMessageParser::is_unreserved(' '));
+	EXPECT_FALSE(HttpMessageParser::is_unreserved('\t'));
+	EXPECT_FALSE(HttpMessageParser::is_unreserved('\\'));
+	EXPECT_FALSE(HttpMessageParser::is_unreserved('\''));
+	EXPECT_FALSE(HttpMessageParser::is_unreserved('"'));
+	EXPECT_FALSE(HttpMessageParser::is_unreserved('\r'));
+	EXPECT_FALSE(HttpMessageParser::is_unreserved('\n'));
+}
+
+TEST(TestHttpMessageParser, IsSubDelim) {
+	EXPECT_TRUE(HttpMessageParser::is_sub_delims('!'));
+	EXPECT_TRUE(HttpMessageParser::is_sub_delims('$'));
+	EXPECT_TRUE(HttpMessageParser::is_sub_delims('&'));
+	EXPECT_TRUE(HttpMessageParser::is_sub_delims('\''));
+	EXPECT_TRUE(HttpMessageParser::is_sub_delims('('));
+	EXPECT_TRUE(HttpMessageParser::is_sub_delims(')'));
+	EXPECT_TRUE(HttpMessageParser::is_sub_delims('*'));
+	EXPECT_TRUE(HttpMessageParser::is_sub_delims('+'));
+	EXPECT_TRUE(HttpMessageParser::is_sub_delims(','));
+	EXPECT_TRUE(HttpMessageParser::is_sub_delims(';'));
+	EXPECT_TRUE(HttpMessageParser::is_sub_delims('='));
+
+	EXPECT_FALSE(HttpMessageParser::is_sub_delims('\0'));
+	EXPECT_FALSE(HttpMessageParser::is_sub_delims('a'));
+	EXPECT_FALSE(HttpMessageParser::is_sub_delims('A'));
+	EXPECT_FALSE(HttpMessageParser::is_sub_delims('0'));
+	EXPECT_FALSE(HttpMessageParser::is_sub_delims('9'));
+	EXPECT_FALSE(HttpMessageParser::is_sub_delims(' '));
+	EXPECT_FALSE(HttpMessageParser::is_sub_delims('\t'));
+	EXPECT_FALSE(HttpMessageParser::is_sub_delims('\r'));
+	EXPECT_FALSE(HttpMessageParser::is_sub_delims('\n'));
+	EXPECT_FALSE(HttpMessageParser::is_sub_delims('_'));
+	EXPECT_FALSE(HttpMessageParser::is_sub_delims('^'));
+	EXPECT_FALSE(HttpMessageParser::is_sub_delims('~'));
+}
+
+TEST(TestHttpMessageParser, IsDecOctet) {
+	EXPECT_TRUE(HttpMessageParser::is_dec_octet("0"));
+	EXPECT_TRUE(HttpMessageParser::is_dec_octet("1"));
+	EXPECT_TRUE(HttpMessageParser::is_dec_octet("9"));
+	EXPECT_TRUE(HttpMessageParser::is_dec_octet("10"));
+	EXPECT_TRUE(HttpMessageParser::is_dec_octet("99"));
+	EXPECT_TRUE(HttpMessageParser::is_dec_octet("100"));
+	EXPECT_TRUE(HttpMessageParser::is_dec_octet("199"));
+	EXPECT_TRUE(HttpMessageParser::is_dec_octet("200"));
+	EXPECT_TRUE(HttpMessageParser::is_dec_octet("249"));
+	EXPECT_TRUE(HttpMessageParser::is_dec_octet("250"));
+	EXPECT_TRUE(HttpMessageParser::is_dec_octet("255"));
+
+	EXPECT_FALSE(HttpMessageParser::is_dec_octet("00"));
+	EXPECT_FALSE(HttpMessageParser::is_dec_octet("000"));
+	EXPECT_FALSE(HttpMessageParser::is_dec_octet("01"));
+	EXPECT_FALSE(HttpMessageParser::is_dec_octet("256"));
+	EXPECT_FALSE(HttpMessageParser::is_dec_octet(" 1"));
+	EXPECT_FALSE(HttpMessageParser::is_dec_octet("+1"));
+	EXPECT_FALSE(HttpMessageParser::is_dec_octet(" 1.0"));
+	EXPECT_FALSE(HttpMessageParser::is_dec_octet("1.0"));
+	EXPECT_FALSE(HttpMessageParser::is_dec_octet(""));
+	EXPECT_FALSE(HttpMessageParser::is_dec_octet(" "));
+	EXPECT_FALSE(HttpMessageParser::is_dec_octet("999999999999999999"));
+	EXPECT_FALSE(HttpMessageParser::is_dec_octet("\r1"));
+	EXPECT_FALSE(HttpMessageParser::is_dec_octet("1\r"));
+	EXPECT_FALSE(HttpMessageParser::is_dec_octet("1\n"));
+
+	EXPECT_FALSE(HttpMessageParser::is_dec_octet("\0\0\0"));
+}
+
+TEST(TestHttpMessageParser, IsIPv4address) {
+	EXPECT_TRUE(HttpMessageParser::is_ipv4address("0.0.0.0"));
+	EXPECT_TRUE(HttpMessageParser::is_ipv4address("255.255.255.255"));
+
+	EXPECT_FALSE(HttpMessageParser::is_ipv4address(""));
+	EXPECT_FALSE(HttpMessageParser::is_ipv4address("\0"));
+	EXPECT_FALSE(HttpMessageParser::is_ipv4address("\0aa"));
+	EXPECT_FALSE(HttpMessageParser::is_ipv4address("0.0.0.0."));
+	EXPECT_FALSE(HttpMessageParser::is_ipv4address("0.0.0.0.0"));
+	EXPECT_FALSE(HttpMessageParser::is_ipv4address("0.0.0.0 "));
+	EXPECT_FALSE(HttpMessageParser::is_ipv4address("a.b.c.d"));
+	EXPECT_FALSE(HttpMessageParser::is_ipv4address("255.255.255.256"));
+	EXPECT_FALSE(HttpMessageParser::is_ipv4address("00.00.00.00"));
+}
+
+TEST(TestHttpMessageParser, IsIPv6address) {
+	EXPECT_TRUE(HttpMessageParser::is_ipv6address("ABCD:EF01:2345:6789:ABCD:EF01:2345:6789"));
+	EXPECT_TRUE(HttpMessageParser::is_ipv6address("abcd:ed01:2345:6789:abcd:ef01:2345:0000"));
+
+	EXPECT_TRUE(HttpMessageParser::is_ipv6address("0:0:0:0:0:0:0:0"));
+	// EXPECT_TRUE(HttpMessageParser::is_ipv6address("::"));
+	EXPECT_TRUE(HttpMessageParser::is_ipv6address("0:0:0:0:0:0:0:1"));
+	// EXPECT_TRUE(HttpMessageParser::is_ipv6address("::1"));
+	EXPECT_TRUE(HttpMessageParser::is_ipv6address("FF01:0:0:0:0:0:0:101"));
+	// EXPECT_TRUE(HttpMessageParser::is_ipv6address("FF01::101"));
+	EXPECT_TRUE(HttpMessageParser::is_ipv6address("2001:DB8:0:0:8:800:200C:417A"));
+	// EXPECT_TRUE(HttpMessageParser::is_ipv6address("2001:DB8::8:800:200C:417A"));
+
+
+	EXPECT_FALSE(HttpMessageParser::is_ipv6address(""));
+	EXPECT_FALSE(HttpMessageParser::is_ipv6address("GGGG:EF01:2345:6789:ABCD:EF01:2345:6789"));
+	EXPECT_FALSE(HttpMessageParser::is_ipv6address("ABCD:EF01:2345:6789:ABCD:EF01:2345:6789:"));
+	EXPECT_FALSE(HttpMessageParser::is_ipv6address("ABCD:EF01:2345:6789:ABCD:EF01:2345:6789 "));
+	EXPECT_FALSE(HttpMessageParser::is_ipv6address(" ABCD:EF01:2345:6789:ABCD:EF01:2345:6789"));
+	EXPECT_FALSE(HttpMessageParser::is_ipv6address("ABCD.EF01.2345.6789.ABCD.EF01.2345.6789"));
+	EXPECT_FALSE(HttpMessageParser::is_ipv6address("0.0.0.0"));
+}
+
+TEST(TestHttpMessageParser, IsIPvFuture) {
+	EXPECT_TRUE(HttpMessageParser::is_ipvfuture("vA.a:b:c"));
+	EXPECT_TRUE(HttpMessageParser::is_ipvfuture("v6.0"));
+	EXPECT_TRUE(HttpMessageParser::is_ipvfuture("vF.:1:2:3:0"));
+
+	EXPECT_FALSE(HttpMessageParser::is_ipvfuture(""));
+	EXPECT_FALSE(HttpMessageParser::is_ipvfuture("\0\0aaa"));
+	EXPECT_FALSE(HttpMessageParser::is_ipvfuture("a:b:c"));
+	EXPECT_FALSE(HttpMessageParser::is_ipvfuture("vv.a"));
+	EXPECT_FALSE(HttpMessageParser::is_ipvfuture("vA."));
+	EXPECT_FALSE(HttpMessageParser::is_ipvfuture("vA. "));
+	EXPECT_FALSE(HttpMessageParser::is_ipvfuture("aA:::"));
+}
+
+TEST(TestHttpMessageParser, IsIpLiteral) {
+	EXPECT_TRUE(HttpMessageParser::is_ip_literal("[ABCD:EF01:2345:6789:ABCD:EF01:2345:6789]"));
+	EXPECT_TRUE(HttpMessageParser::is_ip_literal("[0:0:0:0:0:0:0:0]"));
+	EXPECT_TRUE(HttpMessageParser::is_ip_literal("[2001:DB8:0:0:8:800:200C:417A]"));
+	EXPECT_TRUE(HttpMessageParser::is_ip_literal("[vF.:1:2:3:0]"));
+
+	EXPECT_FALSE(HttpMessageParser::is_ip_literal(""));
+	EXPECT_FALSE(HttpMessageParser::is_ip_literal("[]"));
+	EXPECT_FALSE(HttpMessageParser::is_ip_literal("\0\0aaa"));
+}
+
+
+TEST(TestHttpMessageParser, IsRegName) {
+	EXPECT_TRUE(HttpMessageParser::is_reg_name("localhost"));
+	EXPECT_TRUE(HttpMessageParser::is_reg_name("abc"));
+	EXPECT_TRUE(HttpMessageParser::is_reg_name("123"));
+	EXPECT_TRUE(HttpMessageParser::is_reg_name("%abc"));
+
+	EXPECT_FALSE(HttpMessageParser::is_reg_name(""));
+	EXPECT_FALSE(HttpMessageParser::is_reg_name("[]"));
+	EXPECT_FALSE(HttpMessageParser::is_reg_name("\0\0aaa"));
+}
 
 // TEST(TestHttpMessageParser, ) {
 // 	EXPECT_TRUE(HttpMessageParser::);
@@ -816,3 +963,14 @@ TEST(TestHttpMessageParser, IsAttrChar) {
 // 	EXPECT_FALSE(HttpMessageParser::);
 // }
 
+// TEST(TestHttpMessageParser, ) {
+// 	EXPECT_TRUE(HttpMessageParser::);
+//
+// 	EXPECT_FALSE(HttpMessageParser::);
+// }
+
+// TEST(TestHttpMessageParser, ) {
+// 	EXPECT_TRUE(HttpMessageParser::);
+//
+// 	EXPECT_FALSE(HttpMessageParser::);
+// }

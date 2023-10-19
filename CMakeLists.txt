@@ -163,6 +163,7 @@ set (unit_test_srcs
         test/unit_test/TestRequestLine.cpp
 
         # http message parser
+        test/unit_test/HttpMessageParser/TestGet.cpp
         test/unit_test/HttpMessageParser/TestIs.cpp
         test/unit_test/HttpMessageParser/TestSkip.cpp
         test/unit_test/HttpMessageParser/TestStrToNum.cpp
@@ -197,6 +198,7 @@ set (unit_test_srcs
         test/unit_test/MapFieldValues/TestCacheControl.cpp
         test/unit_test/MapFieldValues/TestCookie.cpp
         test/unit_test/MapFieldValues/TestForwarded.cpp
+        test/unit_test/MapFieldValues/TestHost.cpp
         test/unit_test/MapFieldValues/TestKeepAlive.cpp
         test/unit_test/MapFieldValues/TestProxyAuthorization.cpp
         test/unit_test/MapFieldValues/TestRange.cpp

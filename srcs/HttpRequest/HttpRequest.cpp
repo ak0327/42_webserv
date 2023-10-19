@@ -350,7 +350,7 @@ void HttpRequest::init_field_name_parser() {
 	map[std::string(EXPECT)] = &HttpRequest::set_expect;
 	map[std::string(FORWARDED)] = &HttpRequest::set_forwarded;
 	map[std::string(FROM)] = &HttpRequest::set_from;  // todo: From
-	map[std::string(HOST)] = &HttpRequest::set_host;  // todo: Host
+	map[std::string(HOST)] = &HttpRequest::set_host;
 	map[std::string(IF_MATCH)] = &HttpRequest::set_if_match;
 	map[std::string(IF_MODIFIED_SINCE)] = &HttpRequest::set_if_modified_since;
 	map[std::string(IF_NONE_MATCH)] = &HttpRequest::set_if_none_match;
