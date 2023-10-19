@@ -1,11 +1,12 @@
 *
 
-!.gitignore
 !.github
 !.github/*
+!.gitignore
 !config
 
 !srcs
+!srcs/Client
 !srcs/Debug
 !srcs/Error
 !srcs/HandlingString
@@ -14,25 +15,29 @@
 !srcs/Config
 !www
 !includes
-!test
 !playground
+!test
+!www
 
-!*.cpp
-!*.hpp
-!*.yml
 !*.conf
-!*.txt
+!*.cpp
 !*.h
+!*.hpp
+!*.txt
+!*.yml
 
-!Readme.md
+!CPPLINT.cfg
+!CMakeLists.txt
 !Makefile
+
+!webserv.drawio
+
+.DS_Store
 .idea
 .vscode
-.DS_Store
-!CPPLINT.cfg
-!webserv.drawio
-!CMakeLists.txt
-!CPPLINT.cfg
+client_response.txt
+CMakeCache.txt
+
 Dockerfile
 
 !test/unit_test/
