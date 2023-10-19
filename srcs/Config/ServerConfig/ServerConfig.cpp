@@ -25,9 +25,9 @@ ServerConfig::ServerConfig(const ServerConfig &other)
 	this->_errorlog =	other._errorlog;
 	this->_port =	other._port;
 	this->_root =	other._root;
-	this->_allowmethod_set = other._allowmethod_set;
-	this->_indexpage_set = other._indexpage_set;
-	this->_server_name = other._server_name;
+	this->_allowmethods = other._allowmethods;
+	this->_indexpages = other._indexpages;
+	this->_server_names = other._server_names;
 }
 
 ServerConfig& ServerConfig::operator=(const ServerConfig &other)
@@ -54,9 +54,9 @@ ServerConfig& ServerConfig::operator=(const ServerConfig &other)
 	this->_errorlog =	other._errorlog;
 	this->_port =	other._port;
 	this->_root =	other._root;
-	this->_allowmethod_set = other._allowmethod_set;
-	this->_indexpage_set = other._indexpage_set;
-	this->_server_name = other._server_name;
+	this->_allowmethods = other._allowmethods;
+	this->_indexpages = other._indexpages;
+	this->_server_names = other._server_names;
     return *this;
 }
 
@@ -86,7 +86,7 @@ std::vector<std::string> ServerConfig::ready_string_vector_field_value(const std
 	return (anser_vector);
 }
 
-bool	ServerConfig::ready_serverblock_keyword(const std::string &field_key, \
+bool	ServerConfig::ready_server_block_keyword(const std::string &field_key, \
 													const std::string &field_value)
 {
 	std::vector<std::string>	field_keys;
@@ -226,17 +226,17 @@ bool	ServerConfig::ready_serverblock_keyword(const std::string &field_key, \
 	}
 	else if (field_key == "allow_methods")
 	{
-		this->_allowmethod_set = this->ready_string_vector_field_value(field_value);
+		this->_allowmethods = this->ready_string_vector_field_value(field_value);
 		return true;
 	}
 	else if (field_key == "index")
 	{
-		this->_indexpage_set = this->ready_string_vector_field_value(field_value);
+		this->_indexpages = this->ready_string_vector_field_value(field_value);
 		return true;
 	}
 	else if (field_key == "server_name")
 	{
-		this->_server_name = this->ready_string_vector_field_value(field_value);
+		this->_server_names = this->ready_string_vector_field_value(field_value);
 		return true;
 	}
 	return (true);
@@ -263,9 +263,9 @@ void	ServerConfig::set_default_type(const std::string &default_type){ this->_def
 void	ServerConfig::set_errorlog(const std::string &error_log){ this->_errorlog = error_log; }
 void	ServerConfig::set_port(const std::string &port){ this->_port = port; }
 void	ServerConfig::set_root(const std::string &root){ this->_root = root; }
-void	ServerConfig::set_allowmethod_set(const std::vector<std::string> &allow_method_set){ this->_allowmethod_set = allow_method_set; }
-void	ServerConfig::set_indexpage_set(const std::vector<std::string> &indexpage_set){ this->_indexpage_set = indexpage_set; }
-void	ServerConfig::set_server_name(const std::vector<std::string> &indexpage_set){ this->_indexpage_set = indexpage_set; }
+void	ServerConfig::set_allowmethods(const std::vector<std::string> &allow_methods){ this->_allowmethods = allow_methods; }
+void	ServerConfig::set_indexpages(const std::vector<std::string> &indexpages){ this->_indexpages = indexpages; }
+void	ServerConfig::set_server_names(const std::vector<std::string> &server_names){ this->_server_names = server_names; }
 
 bool	ServerConfig::get_autoindex() const { return (this->_autoindex); }
 bool	ServerConfig::get_chunked_transferencoding_allow() const { return (this->_chunked_transferencoding_allow); }
@@ -285,9 +285,9 @@ std::string	ServerConfig::get_default_type() const { return (this->_default_type
 std::string	ServerConfig::get_errorlog() const { return (this->_errorlog); }
 std::string	ServerConfig::get_port() const { return (this->_port); }
 std::string	ServerConfig::get_root() const { return (this->_root); }
-std::vector<std::string>	ServerConfig::get_allowmethod_set() const { return (this->_allowmethod_set); }
-std::vector<std::string>	ServerConfig::get_indexpage_set() const { return (this->_indexpage_set); }
-std::vector<std::string>	ServerConfig::get_server_name() const { return (this->_server_name); }
+std::vector<std::string>	ServerConfig::get_allowmethods() const { return (this->_allowmethods); }
+std::vector<std::string>	ServerConfig::get_indexpages() const { return (this->_indexpages); }
+std::vector<std::string>	ServerConfig::get_server_names() const { return (this->_server_names); }
 
 // autoindex(false)
 // _chunked_transferencoding_allow(false)
@@ -318,6 +318,6 @@ void	ServerConfig::clear_serverconfig()
 	this->set_errorlog("");
 	this->set_port("");
 	this->set_root("");
-	this->_allowmethod_set.clear();
-	this->_indexpage_set.clear();
+	this->_allowmethods.clear();
+	this->_indexpages.clear();
 }

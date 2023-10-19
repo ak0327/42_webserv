@@ -31,7 +31,7 @@ std::vector<std::string>	LocationConfig::ready_string_vector_field_value(const s
 	return (anser_vector);
 }
 
-bool	LocationConfig::ready_locationblock_keyword(const std::string &field_key, \
+bool	LocationConfig::ready_location_block_keyword(const std::string &field_key, \
 														const std::string &field_value)
 {
 	std::vector<std::string>	field_keys;
@@ -210,7 +210,7 @@ void	LocationConfig::clear_location_keyword()
 	this->_errorpages.clear();
 }
 
-void LocationConfig::set_serverblock_infs(const ServerConfig &other)
+void LocationConfig::set_server_block_infs(const ServerConfig &other)
 {
 	this->set_autoindex(other.get_autoindex());
 	this->set_chunked_transferencoding_allow(other.get_chunked_transferencoding_allow());
@@ -226,6 +226,6 @@ void LocationConfig::set_serverblock_infs(const ServerConfig &other)
 	this->set_default_type(other.get_default_type());
 	this->set_errorlog(other.get_errorlog());
 	this->set_root(other.get_root());
-	this->set_allowmethods(other.get_allowmethod_set());
+	this->set_allowmethods(other.get_allowmethods());
 	this->_indexpages.clear();
 }

@@ -90,10 +90,10 @@ class LocationConfig
 		void						set_indexpages(const std::vector<std::string> &indexpages){ this->_indexpages = indexpages; }
 		void						set_server_names(const std::vector<std::string> &server_names){ this->_server_names = server_names; }
 		void						set_errorpages(const std::vector<std::string> &errorpages){ this->_errorpages = errorpages; }
-		bool						ready_locationblock_keyword(const std::string &field_key, \
+		bool						ready_location_block_keyword(const std::string &field_key, \
 																const std::string &field_value);
 		void						clear_location_keyword(void);
-		void						set_serverblock_infs(const ServerConfig &inputes_severconfig);
+		void						set_server_block_infs(const ServerConfig &inputes_severconfig);
 };
 
 #endif  // SRCS_CONFIG_LOCATIONCONFIG_LOCATIONCONFIG_HPP_

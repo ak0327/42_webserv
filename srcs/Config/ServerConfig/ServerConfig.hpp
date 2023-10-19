@@ -30,9 +30,9 @@ class ServerConfig
 		std::string								_errorlog;
 		std::string								_port;
 		std::string								_root;
-		std::vector<std::string>				_allowmethod_set;
-		std::vector<std::string>				_indexpage_set;
-		std::vector<std::string>				_server_name;
+		std::vector<std::string>				_allowmethods;
+		std::vector<std::string>				_indexpages;
+		std::vector<std::string>				_server_names;
 		bool									ready_boolean_field_value(const std::string &field_value);
 		int										ready_int_field_value(const std::string &field_value);
 		size_t									ready_size_t_field_value(const std::string &field_value);
@@ -60,9 +60,9 @@ class ServerConfig
 		std::string								get_errorlog() const;
 		std::string								get_port() const;
 		std::string								get_root() const;
-		std::vector<std::string>				get_allowmethod_set() const;
-		std::vector<std::string>				get_indexpage_set() const;
-		std::vector<std::string>				get_server_name() const;
+		std::vector<std::string>				get_allowmethods() const;
+		std::vector<std::string>				get_indexpages() const;
+		std::vector<std::string>				get_server_names() const;
 		// setter
 		void									set_autoindex(const bool &boolean);
 		void									set_chunked_transferencoding_allow(const bool &boolean);
@@ -80,10 +80,10 @@ class ServerConfig
 		void									set_errorlog(const std::string &error_log);
 		void									set_port(const std::string &port);
 		void									set_root(const std::string &root);
-		void									set_allowmethod_set(const std::vector<std::string> &allow_method_set);
-		void									set_indexpage_set(const std::vector<std::string> &indexpag_set);
-		void									set_server_name(const std::vector<std::string> &indexpage_set);
-		bool									ready_serverblock_keyword(const std::string &fiels_key, const std::string &field_value);
+		void									set_allowmethods(const std::vector<std::string> &allow_methods);
+		void									set_indexpages(const std::vector<std::string> &indexpags);
+		void									set_server_names(const std::vector<std::string> &indexpages);
+		bool									ready_server_block_keyword(const std::string &fiels_key, const std::string &field_value);
 		void									clear_serverconfig();
 };
 

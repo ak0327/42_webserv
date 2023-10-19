@@ -103,7 +103,7 @@ bool	IsConfigFormat::ready_location_block_config(const std::string &config_line,
 	if (std::find(field_key_vector->begin(), field_key_vector->end(), field_header) != field_key_vector->end())
 		return (false);
 	field_key_vector->push_back(field_header);
-	if (locationconfig->ready_locationblock_keyword(field_header, field_value) == false)
+	if (locationconfig->ready_location_block_keyword(field_header, field_value) == false)
 		return (false);
 	return (true);
 }
@@ -136,7 +136,7 @@ bool	IsConfigFormat::ready_server_block_format(const std::string &config_line, \
 	HandlingString::skip_ows(line_without_ows, &end_pos);
 	if (ConfigHandlingString::ready_field_value(line_without_ows, &end_pos, &field_value) == false)
 		return (false);
-	if (server_config->ready_serverblock_keyword(field_header, field_value) == false)
+	if (server_config->ready_server_block_keyword(field_header, field_value) == false)
 	{
 		std::cout << "serverconfig -> |" << field_header << "|" << field_value << "|" << std::endl;
 		return (false);

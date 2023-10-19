@@ -37,16 +37,16 @@ class	Config
 		bool	ready_server_config_format(const std::string &config_file_name, \
 											std::vector<std::vector<std::string> > *servername_list);
 		bool	ready_location_config(const std::string &config_file_name, \
-										std::vector<std::vector<std::string> >::iterator servername_itr);
+										std::vector<std::vector<std::string> >::iterator server_name_itr);
 		void	set_serverconfig_ready_next_serverconfig(AllConfig *Configs, \
 															ServerConfig *serverconfig, \
-															std::vector<std::string> *fieldkey_map, \
-															std::vector<std::vector<std::string> > *servername_list);
+															std::vector<std::string> *field_key_map, \
+															std::vector<std::vector<std::string> > *server_name_list);
 		bool	get_is_config_format(void){ return this->_is_config_format; }
 		std::map<std::vector<std::string>, AllConfig>	get_all_configs(void);
-		AllConfig	get_same_allconfig(const std::vector<std::string> &servername);
-		bool	report_errorline(const std::string &line);
-		void	ready_next_locationconfig(LocationConfig *locationconfig, \
+		AllConfig	get_same_allconfig(const std::vector<std::string> &server_name);
+		bool	report_errorline(const std::string &config_line);
+		void	ready_next_locationconfig(LocationConfig *location_config, \
 											const std::vector<std::string> &server_name, 
 											bool *in_server_block);
 };
