@@ -81,7 +81,7 @@ bool	IsConfigFormat::is_location_block_config(const std::string &config_line, \
 // もしくは終了を表す　}　元のOWSはなくても許容
 bool	IsConfigFormat::ready_location_block_config(const std::string &config_line, \
 													bool *in_location_block, \
-													LocationConfig *locationconfig, \
+													LocationConfig *location_config, \
 													std::vector<std::string> *field_key_vector)
 {
 	std::string	line_without_ows = HandlingString::obtain_without_ows_value(config_line);
@@ -103,7 +103,7 @@ bool	IsConfigFormat::ready_location_block_config(const std::string &config_line,
 	if (std::find(field_key_vector->begin(), field_key_vector->end(), field_header) != field_key_vector->end())
 		return (false);
 	field_key_vector->push_back(field_header);
-	if (locationconfig->ready_location_block_keyword(field_header, field_value) == false)
+	if (location_config->ready_location_block_keyword(field_header, field_value) == false)
 		return (false);
 	return (true);
 }
@@ -114,7 +114,7 @@ bool	IsConfigFormat::ready_location_block_config(const std::string &config_line,
 bool	IsConfigFormat::ready_server_block_format(const std::string &config_line, \
 													bool *in_server_block,
 													ServerConfig *server_config, \
-													std::vector<std::string> *field_key_vector)
+													std::vector<std::string> *field_header_vector)
 {
 	std::string	line_without_ows = HandlingString::obtain_without_ows_value(config_line);
 	// (文字列->header) <OWS> {文字列->value};
@@ -131,7 +131,7 @@ bool	IsConfigFormat::ready_server_block_format(const std::string &config_line, \
 	}
 	if (!(ConfigHandlingString::ready_field_header(line_without_ows, &end_pos, &field_header)))
 		return (false);
-	if (std::find(field_key_vector->begin(), field_key_vector->end(), field_header) != field_key_vector->end())
+	if (std::find(field_header_vector->begin(), field_header_vector->end(), field_header) != field_header_vector->end())
 		return false;
 	HandlingString::skip_ows(line_without_ows, &end_pos);
 	if (ConfigHandlingString::ready_field_value(line_without_ows, &end_pos, &field_value) == false)
@@ -141,6 +141,6 @@ bool	IsConfigFormat::ready_server_block_format(const std::string &config_line, \
 		std::cout << "serverconfig -> |" << field_header << "|" << field_value << "|" << std::endl;
 		return (false);
 	}
-	field_key_vector->push_back(field_header);
+	field_header_vector->push_back(field_header);
 	return (true);
 }

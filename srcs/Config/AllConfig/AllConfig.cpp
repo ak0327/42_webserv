@@ -9,8 +9,7 @@ AllConfig::AllConfig(const AllConfig &other)
 }
 
 AllConfig::AllConfig(const ServerConfig &host_config, \
-						const std::map<std::string, \
-						LocationConfig> &location_config_map)
+						const std::map<std::string, LocationConfig> &location_config_map)
 {
 	this->_host_config = host_config;
 	this->_location_config_map = location_config_map;

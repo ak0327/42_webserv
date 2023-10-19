@@ -8,7 +8,7 @@
 
 void	Config::set_serverconfig_ready_next_serverconfig(AllConfig *Configs, \
 															ServerConfig *server_config, \
-															std::vector<std::string> *field_key_map, \
+															std::vector<std::string> *field_header_map, \
 															std::vector<std::vector<std::string> > *server_name_list)
 {
 	Configs->set_host_config(*server_config);
@@ -16,7 +16,7 @@ void	Config::set_serverconfig_ready_next_serverconfig(AllConfig *Configs, \
 	this->_all_configs[server_config->get_server_names()] = *Configs;
 	Configs->clear_information();
 	server_config->clear_serverconfig();
-	field_key_map->clear();
+	field_header_map->clear();
 }
 
 bool	Config::ready_server_config_format(const std::string &config_file_name, \
@@ -28,7 +28,7 @@ bool	Config::ready_server_config_format(const std::string &config_file_name, \
 	ServerConfig	server_config;
 	std::ifstream	config_lines(config_file_name.c_str());
 	std::string		config_line;
-	std::vector<std::string>	field_key_map;
+	std::vector<std::string>	field_header_map;
 
 	while (std::getline(config_lines, config_line, '\n'))
 	{
@@ -37,12 +37,12 @@ bool	Config::ready_server_config_format(const std::string &config_file_name, \
 		if (in_server_block == false && in_location_block == false && IsConfigFormat::is_start_server_block(config_line))
 			in_server_block = true;
 		else if (in_server_block == true && in_location_block == false && \
-		IsConfigFormat::ready_server_block_format(config_line, &in_server_block, &server_config, &field_key_map))
+		IsConfigFormat::ready_server_block_format(config_line, &in_server_block, &server_config, &field_header_map))
 		{
 			if (IsConfigFormat::is_start_location_block(config_line))
 				in_location_block = true;
 			else if (ConfigHandlingString::is_block_end(config_line))
-				set_serverconfig_ready_next_serverconfig(&Configs, &server_config, &field_key_map, server_name_list);
+				set_serverconfig_ready_next_serverconfig(&Configs, &server_config, &field_header_map, server_name_list);
 		}
 		else if (in_server_block == true && in_location_block == true && \
 		IsConfigFormat::is_location_block_config(config_line, &in_location_block))
@@ -65,7 +65,7 @@ void	Config::ready_next_locationconfig(LocationConfig *location_config, \
 bool	Config::ready_location_config(const std::string &config_file_name, \
 										std::vector<std::vector<std::string> >::iterator server_name_itr)
 {
-	std::vector<std::string>	location_field_key_map;
+	std::vector<std::string>	location_field_header_map;
 	std::ifstream	config_lines(config_file_name.c_str());
 	std::string	config_line;
 	std::string	location_path;
@@ -87,12 +87,12 @@ bool	Config::ready_location_config(const std::string &config_file_name, \
 				server_name_itr++;
 		}
 		else if (in_server_block == true && in_location_block == true && \
-		IsConfigFormat::ready_location_block_config(config_line, &in_location_block, &location_config, &location_field_key_map))
+		IsConfigFormat::ready_location_block_config(config_line, &in_location_block, &location_config, &location_field_header_map))
 		{
 			if (ConfigHandlingString::is_block_end(config_line))
 			{
 				this->_all_configs[*server_name_itr].set_location_config(location_path, location_config);
-				location_field_key_map.clear();
+				location_field_header_map.clear();
 				location_config.clear_location_keyword();
 				location_config.set_server_block_infs(this->get_same_allconfig(*server_name_itr).get_host_config());
 			}
@@ -153,16 +153,16 @@ std::map<std::vector<std::string>, AllConfig>	Config::get_all_configs()
 // 	return false;
 // }
 
-AllConfig Config::get_same_allconfig(const std::vector<std::string> &servername)
+AllConfig Config::get_same_allconfig(const std::vector<std::string> &server_name)
 {
-	return (this->_all_configs[servername]);
+	return (this->_all_configs[server_name]);
 }
 
-bool Config::report_errorline(const std::string &line)
+bool Config::report_errorline(const std::string &config_line)
 {
 	std::cerr << "FORMAT ERROR OCURED" << std::endl;
 	std::cerr << "|====== TARGET LINE ======|" << std::endl;
-	std::cerr << "|" << line << std::endl;
+	std::cerr << "|" << config_line << std::endl;
 	std::cerr << "|=========================|" << std::endl;
 	return (false);
 }
