@@ -1,7 +1,7 @@
 #include <string>
 #include "IsConfigFormat.hpp"
 
-bool	IsConfigFormat::is_start_locationblock(const std::string &line)
+bool	IsConfigFormat::is_start_location_block(const std::string &line)
 {
 	std::string	line_without_ows = HandlingString::obtain_without_ows_value(line);
 	size_t	start_pos = 0;
@@ -19,7 +19,7 @@ bool	IsConfigFormat::is_start_locationblock(const std::string &line)
 }
 
 // locationのスタートなら　location *.cgi {のように<OWS> location <OWS> <文字列->location path> <OWS> { <OWS>のみ許容
-bool	IsConfigFormat::is_start_locationblock(const std::string &line, \
+bool	IsConfigFormat::is_start_location_block(const std::string &line, \
 												std::string *config_location_path)
 {
 	std::string	line_without_ows = HandlingString::obtain_without_ows_value(line);
@@ -40,7 +40,7 @@ bool	IsConfigFormat::is_start_locationblock(const std::string &line, \
 }
 
 // start_server -> <OWS> server <OWS> { <OWS>
-bool	IsConfigFormat::is_start_serverblock(const std::string &line)
+bool	IsConfigFormat::is_start_server_block(const std::string &line)
 {
 	std::string	line_without_ows = HandlingString::obtain_without_ows_value(line);
 	size_t	start_pos = 0;
@@ -55,7 +55,7 @@ bool	IsConfigFormat::is_start_serverblock(const std::string &line)
 
 // location -> <OWS> (文字列->header) <OWS> {文字列->value}; <OWS>
 // もしくは終了を表す　}　元のOWSはなくても許容 このis_型ではチェックのみ行う
-bool	IsConfigFormat::is_locationblock_config(const std::string &line, \
+bool	IsConfigFormat::is_location_block_config(const std::string &line, \
 													bool *in_location_block)
 {
 	// (文字列->header) <OWS> {文字列->value};
@@ -79,7 +79,7 @@ bool	IsConfigFormat::is_locationblock_config(const std::string &line, \
 
 // location -> <OWS> (文字列->header) <OWS> {文字列->value}; <OWS>
 // もしくは終了を表す　}　元のOWSはなくても許容
-bool	IsConfigFormat::ready_locationblock_config(const std::string &line, \
+bool	IsConfigFormat::ready_location_block_config(const std::string &line, \
 													bool *in_location_block, \
 LocationConfig *locationconfig, \
 std::vector<std::string> *fieldkey_map)
@@ -111,7 +111,7 @@ std::vector<std::string> *fieldkey_map)
 // <OWS> (文字列->header) <OWS> {文字列->value} ; <OWS>
 // もしくはserver が終了する }
 // もしくはlocationブロックのスタート
-bool	IsConfigFormat::ready_serverblock_format(const std::string &line, \
+bool	IsConfigFormat::ready_server_block_format(const std::string &line, \
 													bool *in_server_block,
 													ServerConfig *serverconfig, \
 													std::vector<std::string> *field_key_vector)
@@ -122,7 +122,7 @@ bool	IsConfigFormat::ready_serverblock_format(const std::string &line, \
 	std::string	field_header;
 	std::string	field_value;
 
-	if (is_start_locationblock(line))
+	if (is_start_location_block(line))
 		return (true);
 	if (ConfigHandlingString::is_block_end(line_without_ows))
 	{

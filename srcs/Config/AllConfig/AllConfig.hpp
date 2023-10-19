@@ -11,10 +11,10 @@ class	AllConfig
 {
 	private:
 		ServerConfig	_host_config;
-		std::map<std::string, LocationConfig>	_location_config;
+		std::map<std::string, LocationConfig>	_location_config_map;
 	public:
 		AllConfig(const ServerConfig &host_configs, \
-					const std::map<std::string, LocationConfig> &_location_config);
+					const std::map<std::string, LocationConfig> &location_config_map);
 		AllConfig(const AllConfig &other);
 		AllConfig& operator=(const AllConfig &other);
 		AllConfig();
@@ -25,7 +25,7 @@ class	AllConfig
 		void	clear_information();
 		void	clear_location_information();
 		ServerConfig	get_host_config(void);
-		LocationConfig	get_location_host_config(const std::string &location_name);
+		LocationConfig	get_location_host_config(const std::string &location_path);
 };
 
 #endif  // SRCS_CONFIG_ALLCONFIG_ALLCONFIG_HPP_

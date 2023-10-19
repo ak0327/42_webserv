@@ -62,20 +62,20 @@ ServerConfig& ServerConfig::operator=(const ServerConfig &other)
 
 ServerConfig::~ServerConfig(){}
 
-bool ServerConfig::ready_boolean_fieldvalue(const std::string &field_value)
+bool ServerConfig::ready_boolean_field_value(const std::string &field_value)
 {
 	if (field_value == "on")
 		return (true);
 	return (false);
 }
 
-int ServerConfig::ready_int_fieldvalue(const std::string &field_value){ return (NumericHandle::str_to_int(field_value)); }
+int ServerConfig::ready_int_field_value(const std::string &field_value){ return (NumericHandle::str_to_int(field_value)); }
 
-size_t ServerConfig::ready_size_t_fieldvalue(const std::string &field_value){ return (static_cast<size_t>(NumericHandle::str_to_int(field_value))); }
+size_t ServerConfig::ready_size_t_field_value(const std::string &field_value){ return (static_cast<size_t>(NumericHandle::str_to_int(field_value))); }
 
-std::string ServerConfig::ready_string_fieldvalue(const std::string &field_value){ return (field_value); }
+std::string ServerConfig::ready_string_field_value(const std::string &field_value){ return (field_value); }
 
-std::vector<std::string> ServerConfig::ready_string_vector_fieldvalue(const std::string &field_value)
+std::vector<std::string> ServerConfig::ready_string_vector_field_value(const std::string &field_value)
 {
 	std::vector<std::string>	anser_vector;
 	std::istringstream			values_splited_by_empty(field_value);
@@ -118,97 +118,97 @@ bool	ServerConfig::ready_serverblock_keyword(const std::string &field_key, \
 	{
 		if (!(field_value == "on" || field_value == "off"))
 			return false;
-		this->_autoindex = this->ready_boolean_fieldvalue(field_value);
+		this->_autoindex = this->ready_boolean_field_value(field_value);
 		return true;
 	}
 	else if (field_key == "chunked_transferencoding_allow")
 	{
 		if (!(field_value == "on" || field_value == "off"))
 			return false;
-		this->_chunked_transferencoding_allow = this->ready_boolean_fieldvalue(field_value);
+		this->_chunked_transferencoding_allow = this->ready_boolean_field_value(field_value);
 		return true;
 	}
 	else if (field_key == "server_tokens")
 	{
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_server_tokens = this->ready_int_fieldvalue(field_value);
+		this->_server_tokens = this->ready_int_field_value(field_value);
 		return true;
 	}
 	else if (field_key == "client_body_buffer_size")
 	{
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_client_body_buffer_size = this->ready_size_t_fieldvalue(field_value);
+		this->_client_body_buffer_size = this->ready_size_t_field_value(field_value);
 		return true;
 	}
 	else if (field_key == "client_body_timeout")
 	{
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_client_body_timeout = this->ready_size_t_fieldvalue(field_value);
+		this->_client_body_timeout = this->ready_size_t_field_value(field_value);
 		return true;
 	}
 	else if (field_key == "client_header_buffer_size")
 	{
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_client_header_buffer_size = this->ready_size_t_fieldvalue(field_value);
+		this->_client_header_buffer_size = this->ready_size_t_field_value(field_value);
 		return true;
 	}
 	else if (field_key == "client_header_timeout")
 	{
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_client_header_timeout = this->ready_size_t_fieldvalue(field_value);
+		this->_client_header_timeout = this->ready_size_t_field_value(field_value);
 		return true;
 	}
 	else if (field_key == "client_maxbody_size")
 	{
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_client_maxbody_size = this->ready_size_t_fieldvalue(field_value);
+		this->_client_maxbody_size = this->ready_size_t_field_value(field_value);
 		return true;
 	}
 	else if (field_key == "keepaliverequests")
 	{
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_keepalive_requests = this->ready_size_t_fieldvalue(field_value);
+		this->_keepalive_requests = this->ready_size_t_field_value(field_value);
 		return true;
 	}
 	else if (field_key == "keepalive_timeout")
 	{
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_keepalive_timeout = this->ready_size_t_fieldvalue(field_value);
+		this->_keepalive_timeout = this->ready_size_t_field_value(field_value);
 		return true;
 	}
 	else if (field_key == "maxBodySize")
 	{
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_client_max_body_size = this->ready_size_t_fieldvalue(field_value);
+		this->_client_max_body_size = this->ready_size_t_field_value(field_value);
 		return true;
 	}
 	else if (field_key == "accesslog")
 	{
-		this->_accesslog = this->ready_string_fieldvalue(field_value);
+		this->_accesslog = this->ready_string_field_value(field_value);
 		return true;
 	}
 	else if (field_key == "default_type")
 	{
-		this->_default_type = this->ready_string_fieldvalue(field_value);
+		this->_default_type = this->ready_string_field_value(field_value);
 		return true;
 	}
 	else if (field_key == "listen")
 	{
-		this->_port = this->ready_string_fieldvalue(field_value);
+		this->_port = this->ready_string_field_value(field_value);
 		return true;
 	}
 	else if (field_key == "errorlog")
 	{
-		this->_errorlog = this->ready_string_fieldvalue(field_value);
+		this->_errorlog = this->ready_string_field_value(field_value);
 		return true;
 	}
 	else if (field_key == "port")
@@ -216,27 +216,27 @@ bool	ServerConfig::ready_serverblock_keyword(const std::string &field_key, \
 		// requestないと照合する際はstring型で扱いそうなので意図的にstd::string型にしている
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_port = this->ready_string_fieldvalue(field_value);
+		this->_port = this->ready_string_field_value(field_value);
 		return true;
 	}
 	else if (field_key == "root")
 	{
-		this->_root = this->ready_string_fieldvalue(field_value);
+		this->_root = this->ready_string_field_value(field_value);
 		return true;
 	}
 	else if (field_key == "allow_methods")
 	{
-		this->_allowmethod_set = this->ready_string_vector_fieldvalue(field_value);
+		this->_allowmethod_set = this->ready_string_vector_field_value(field_value);
 		return true;
 	}
 	else if (field_key == "index")
 	{
-		this->_indexpage_set = this->ready_string_vector_fieldvalue(field_value);
+		this->_indexpage_set = this->ready_string_vector_field_value(field_value);
 		return true;
 	}
 	else if (field_key == "server_name")
 	{
-		this->_server_name = this->ready_string_vector_fieldvalue(field_value);
+		this->_server_name = this->ready_string_vector_field_value(field_value);
 		return true;
 	}
 	return (true);

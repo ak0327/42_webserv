@@ -34,18 +34,18 @@ bool	Config::ready_server_config_format(const std::string &config_file_name, \
 	{
 		if ((ConfigHandlingString::is_ignore_line(config_line)))
 			continue;
-		if (in_server_block == false && in_location_block == false && IsConfigFormat::is_start_serverblock(config_line))
+		if (in_server_block == false && in_location_block == false && IsConfigFormat::is_start_server_block(config_line))
 			in_server_block = true;
 		else if (in_server_block == true && in_location_block == false && \
-		IsConfigFormat::ready_serverblock_format(config_line, &in_server_block, &serverconfig, &fieldkey_map))
+		IsConfigFormat::ready_server_block_format(config_line, &in_server_block, &serverconfig, &fieldkey_map))
 		{
-			if (IsConfigFormat::is_start_locationblock(config_line))
+			if (IsConfigFormat::is_start_location_block(config_line))
 				in_location_block = true;
 			else if (ConfigHandlingString::is_block_end(config_line))
 				set_serverconfig_ready_next_serverconfig(&Configs, &serverconfig, &fieldkey_map, servername_list);
 		}
 		else if (in_server_block == true && in_location_block == true && \
-		IsConfigFormat::is_locationblock_config(config_line, &in_location_block))
+		IsConfigFormat::is_location_block_config(config_line, &in_location_block))
 			continue;
 		else  // 上記3つ以外の場合、状況としてはありえないためfalseになる
 			return this->report_errorline(config_line);
@@ -77,17 +77,17 @@ bool	Config::ready_location_config(const std::string &config_file_name, \
 	{
 		if ((ConfigHandlingString::is_ignore_line(config_line)))
 			continue;
-		if (in_server_block == false && in_location_block == false && IsConfigFormat::is_start_serverblock(config_line))
+		if (in_server_block == false && in_location_block == false && IsConfigFormat::is_start_server_block(config_line))
 			ready_next_locationconfig(&locationconfig, *servername_itr, &in_server_block);
 		else if (in_server_block == true && in_location_block == false)
 		{
-			if (IsConfigFormat::is_start_locationblock(config_line, &location_path))
+			if (IsConfigFormat::is_start_location_block(config_line, &location_path))
 				in_location_block = true;
 			else if (ConfigHandlingString::is_block_end(config_line))
 				servername_itr++;
 		}
 		else if (in_server_block == true && in_location_block == true && \
-		IsConfigFormat::ready_locationblock_config(config_line, &in_location_block, &locationconfig, &location_fieldkey_map))
+		IsConfigFormat::ready_location_block_config(config_line, &in_location_block, &locationconfig, &location_fieldkey_map))
 		{
 			if (ConfigHandlingString::is_block_end(config_line))
 			{

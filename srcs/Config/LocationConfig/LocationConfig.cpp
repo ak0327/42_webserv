@@ -6,21 +6,21 @@ _client_max_body_size(1048576), _keepaliverequests(0), _keepalive_timeout(0), _m
 
 LocationConfig::~LocationConfig(){}
 
-bool	LocationConfig::ready_boolean_fieldvalue(const std::string &field_value)
+bool	LocationConfig::ready_boolean_field_value(const std::string &field_value)
 {
 	if (field_value == "on")
 		return (true);
 	return (false);
 }
 
-int		LocationConfig::ready_int_fieldvalue(const std::string &field_value){ return (NumericHandle::str_to_int(field_value)); }
+int		LocationConfig::ready_int_field_value(const std::string &field_value){ return (NumericHandle::str_to_int(field_value)); }
 
-size_t	LocationConfig::ready_size_t_fieldvalue(const std::string &field_value)
+size_t	LocationConfig::ready_size_t_field_value(const std::string &field_value)
 {
 	return (static_cast<size_t>(NumericHandle::str_to_int(field_value)));
 }
 
-std::vector<std::string>	LocationConfig::ready_string_vector_fieldvalue(const std::string &field_value)
+std::vector<std::string>	LocationConfig::ready_string_vector_field_value(const std::string &field_value)
 {
 	std::vector<std::string>	anser_vector;
 	std::istringstream	values_splited_by_empty(field_value);
@@ -73,67 +73,67 @@ bool	LocationConfig::ready_locationblock_keyword(const std::string &field_key, \
     {
 		if (!(field_value == "on" || field_value == "off"))
 			return false;
-		this->_autoindex = this->ready_boolean_fieldvalue(field_value);
+		this->_autoindex = this->ready_boolean_field_value(field_value);
 	}
     if (field_key ==  "chunked_transferencoding_allow")
     {
 		if (!(field_value == "on" || field_value == "off"))
 			return false;
-		this->_chunked_transferencoding_allow = this->ready_boolean_fieldvalue(field_value);
+		this->_chunked_transferencoding_allow = this->ready_boolean_field_value(field_value);
 	}
     if (field_key ==  "server_tokens")
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_server_tokens = this->ready_int_fieldvalue(field_value);
+		this->_server_tokens = this->ready_int_field_value(field_value);
 	}
 	if (field_key ==  "client_body_buffer_size")
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_client_body_buffer_size = this->ready_size_t_fieldvalue(field_value);
+		this->_client_body_buffer_size = this->ready_size_t_field_value(field_value);
 	}
 	if (field_key ==  "client_body_timeout")
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_client_body_timeout = this->ready_size_t_fieldvalue(field_value);
+		this->_client_body_timeout = this->ready_size_t_field_value(field_value);
 	}
 	if (field_key ==  "client_header_buffer_size")
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_client_header_buffer_size = this->ready_size_t_fieldvalue(field_value);
+		this->_client_header_buffer_size = this->ready_size_t_field_value(field_value);
 	}
 	if (field_key ==  "client_header_timeout")
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_client_header_timeout = this->ready_size_t_fieldvalue(field_value);
+		this->_client_header_timeout = this->ready_size_t_field_value(field_value);
 	}
 	if (field_key ==  "client_max_body_size")
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_client_max_body_size = this->ready_size_t_fieldvalue(field_value);
+		this->_client_max_body_size = this->ready_size_t_field_value(field_value);
 	}
 	if (field_key ==  "keepaliverequests")
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_keepaliverequests = this->ready_size_t_fieldvalue(field_value);
+		this->_keepaliverequests = this->ready_size_t_field_value(field_value);
 	}
 	if (field_key ==  "keepalive_timeout")
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_keepalive_timeout = this->ready_size_t_fieldvalue(field_value);
+		this->_keepalive_timeout = this->ready_size_t_field_value(field_value);
 	}
 	if (field_key ==  "maxBodySize")
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_maxBodySize = this->ready_size_t_fieldvalue(field_value);
+		this->_maxBodySize = this->ready_size_t_field_value(field_value);
 	}
 	if (field_key ==  "accesslog")
 		this->_accesslog = field_value;
@@ -150,13 +150,13 @@ bool	LocationConfig::ready_locationblock_keyword(const std::string &field_key, \
 	if (field_key ==  "upload_path")
 		this->_upload_path = field_value;
 	if (field_key ==  "allow_methods")
-		this->_allowmethod_set = ready_string_vector_fieldvalue(field_value);
+		this->_allowmethod_set = ready_string_vector_field_value(field_value);
 	if (field_key ==  "index")
-		this->_indexpage_set = ready_string_vector_fieldvalue(field_value);
+		this->_indexpage_set = ready_string_vector_field_value(field_value);
 	if (field_key ==  "error_page")
-		this->_errorpage_set = ready_string_vector_fieldvalue(field_value);
+		this->_errorpage_set = ready_string_vector_field_value(field_value);
 	if (field_key ==  "server_name")
-		this->_server_name = ready_string_vector_fieldvalue(field_value);
+		this->_server_name = ready_string_vector_field_value(field_value);
 	return (true);
 }
 

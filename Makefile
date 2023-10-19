@@ -1,6 +1,8 @@
 NAME 		=\
 webserv
 
+CXXFLAGS	=	-std=c++98 -Wall -Wextra -Werror -MMD -MP
+
 CXXFLAGS	+=	-g -fsanitize=address,undefined -fno-omit-frame-pointer
 
 # SRCS -------------------------------------------------------------------------
@@ -48,8 +50,16 @@ OBJS		=	$(SRCS:%.cpp=$(OBJS_DIR)/%.o)
 DEPS		=	$(OBJS:%.o=%.d)
 
 # todo: srcs/includes -> includes
-INCLUDES_DIR = includes $(SRCS_DIR)/$(ERROR_DIR) $(SRCS_DIR)/$(DEBUG_DIR) $(SRCS_DIR)/$(SOCKET_DIR) \
-				$(SRCS_DIR)/$(CONFIG_DIR)
+INCLUDES_DIR = includes \
+				$(SRCS_DIR)/$(ERROR_DIR) \
+				$(SRCS_DIR)/$(DEBUG_DIR) \
+				$(SRCS_DIR)/$(SOCKET_DIR) \
+				$(SRCS_DIR)/$(CONFIG_DIR) \
+				$(SRCS_DIR)/$(HANDRING_STR) \
+				$(SRCS_DIR)/$(IO_DIR) \
+				$(SRCS_DIR)/$(NUMERIHANDLE_DIR) \
+				$(SRCS_DIR)/$(SERVER_DIR) \
+				$(SRCS_DIR)/$(SOCKET_DIR)
 INCLUDES	= $(addprefix -I, $(INCLUDES_DIR))
 
 .PHONY	: all
