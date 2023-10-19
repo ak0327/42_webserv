@@ -153,9 +153,24 @@ std::map<std::vector<std::string>, AllConfig>	Config::get_all_configs()
 // 	return false;
 // }
 
-AllConfig Config::get_same_allconfig(const std::vector<std::string> &server_name)
+AllConfig Config::get_same_allconfig(const std::string &server_name)
 {
-	return (this->_all_configs[server_name]);
+	std::string	server_name_without_port;
+	std::vector<std::string>	all_config_server_names;
+	std::map<std::vector<std::string>, AllConfig>::iterator	all_configs_itr = this->_all_configs.begin();
+
+	if (server_name.find(':') != std::string::npos)
+		server_name_without_port = server_name.substr(server_name.find(':'));
+	else
+		server_name_without_port = server_name;
+	while (all_configs_itr != this->_all_configs.end())
+	{
+		all_config_server_names = all_configs_itr->first;
+		if (std::count(all_config_server_names.begin(), all_config_server_names.end(), server_name) != all_config_server_names.end())
+			return (all_configs_itr->second());
+		all_configs_itr++;
+	}
+	return (this->_all_configs.begin())->second;
 }
 
 bool Config::report_errorline(const std::string &config_line)

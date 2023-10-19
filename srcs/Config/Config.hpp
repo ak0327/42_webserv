@@ -48,7 +48,7 @@ class	Config
 		~Config();
 		bool	get_is_config_format(void){ return this->_is_config_format; }
 		std::map<std::vector<std::string>, AllConfig>	get_all_configs(void);
-		AllConfig	get_same_allconfig(const std::vector<std::string> &server_name);
+		AllConfig	get_same_allconfig(const std::string &server_name);
 };
 
 #endif  // SRCS_CONFIG_CONFIG_HPP_
