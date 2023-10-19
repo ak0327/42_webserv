@@ -19,6 +19,7 @@ bool ConfigHandlingString::is_block_end(const std::string &config_line)
 
 bool ConfigHandlingString::is_blockstart_endword(const std::string &block_end_word)
 {
+	// ブロックの始まりかどうか、という意味合いだけどどういう関数名がいいかわからない。。。
 	return (block_end_word == "{");
 }
 
@@ -57,7 +58,7 @@ bool	ConfigHandlingString::ready_field_header(const std::string &config_line, \
 													std::string *field_header)
 {
 	if (config_line.empty())
-		return ConfigHandlingString::show_error_message(line, NO_FIELD_HEADER);
+		return ConfigHandlingString::show_error_message(config_line, NO_FIELD_HEADER);
 	HandlingString::skip_no_ows(config_line, end_pos);
 	if (*end_pos == config_line.length())  // headerの存在確認を行う必要があればここで行う headerしか存在しない場合のチェックは必要
 		return ConfigHandlingString::show_error_message(config_line, NO_FIELD_VALUE);

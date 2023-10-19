@@ -2,7 +2,7 @@
 
 LocationConfig::LocationConfig():_autoindex(false), _chunked_transferencoding_allow(false), _server_tokens(1),
 _client_body_buffer_size(8000), _client_body_timeout(60), _client_header_buffer_size(1024), _client_header_timeout(60),
-_client_max_body_size(1048576), _keepaliverequests(0), _keepalive_timeout(0), _maxBodySize(1024), _default_type("application/octet-stream"){}
+_client_max_body_size(1048576), _keepalive_requests(0), _keepalive_timeout(0), _default_type("application/octet-stream"){}
 
 LocationConfig::~LocationConfig(){}
 
@@ -121,7 +121,7 @@ bool	LocationConfig::ready_locationblock_keyword(const std::string &field_key, \
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_keepaliverequests = this->ready_size_t_field_value(field_value);
+		this->_keepalive_requests = this->ready_size_t_field_value(field_value);
 	}
 	if (field_key ==  "keepalive_timeout")
     {
@@ -133,7 +133,7 @@ bool	LocationConfig::ready_locationblock_keyword(const std::string &field_key, \
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_maxBodySize = this->ready_size_t_field_value(field_value);
+		this->_client_max_body_size = this->ready_size_t_field_value(field_value);
 	}
 	if (field_key ==  "accesslog")
 		this->_accesslog = field_value;
@@ -150,13 +150,13 @@ bool	LocationConfig::ready_locationblock_keyword(const std::string &field_key, \
 	if (field_key ==  "upload_path")
 		this->_upload_path = field_value;
 	if (field_key ==  "allow_methods")
-		this->_allowmethod_set = ready_string_vector_field_value(field_value);
+		this->_allowmethods = ready_string_vector_field_value(field_value);
 	if (field_key ==  "index")
-		this->_indexpage_set = ready_string_vector_field_value(field_value);
+		this->_indexpages = ready_string_vector_field_value(field_value);
 	if (field_key ==  "error_page")
-		this->_errorpage_set = ready_string_vector_field_value(field_value);
+		this->_errorpages = ready_string_vector_field_value(field_value);
 	if (field_key ==  "server_name")
-		this->_server_name = ready_string_vector_field_value(field_value);
+		this->_server_names = ready_string_vector_field_value(field_value);
 	return (true);
 }
 
@@ -168,9 +168,9 @@ size_t	LocationConfig::get_client_body_timeout(void){ return (this->_client_body
 size_t	LocationConfig::get_client_header_buffer_size(void){ return (this->_client_header_buffer_size); }
 size_t	LocationConfig::get_client_header_timeout(void){ return (this->_client_header_timeout); }
 size_t	LocationConfig::get_client_max_body_size(void){ return (this->_client_max_body_size); }
-size_t	LocationConfig::get_keepaliverequests(void){ return (this->_keepaliverequests); }
+size_t	LocationConfig::get_keepaliverequests(void){ return (this->_keepalive_requests); }
 size_t	LocationConfig::get_keepalive_timeout(void){ return (this->_keepalive_timeout); }
-size_t 	LocationConfig::get_maxBodySize(void){ return (this->_maxBodySize); }
+size_t 	LocationConfig::get_maxBodySize(void){ return (this->_client_max_body_size); }
 std::string	LocationConfig::get_alias(void){ return (this->_alias); }
 // error_page		LocationConfig::get	_errorpage_set;//これめっちゃおかしい使い方できる　error_page 403 404 500 503 =404 /custom_404.html;
 std::string	LocationConfig::get_accesslog(void){ return (this->_accesslog); }
@@ -179,10 +179,10 @@ std::string	LocationConfig::get_default_type(void){ return (this->_default_type)
 std::string	LocationConfig::get_errorlog(void){ return (this->_errorlog); }
 std::string	LocationConfig::get_upload_path(void){ return (this->_upload_path); }
 std::string	LocationConfig::get_root(void){ return (this->_root); }
-std::vector<std::string> LocationConfig::get_allowmethod_set(void){ return (this->_allowmethod_set); }
-std::vector<std::string> LocationConfig::get_indexpage_set(void){ return (this->_indexpage_set); }
-std::vector<std::string> LocationConfig::get_server_name(void){ return (this->_server_name); }
-std::vector<std::string> LocationConfig::get_errorpage_set(void){ return (this->_errorpage_set); }
+std::vector<std::string> LocationConfig::get_allowmethods(void){ return (this->_allowmethods); }
+std::vector<std::string> LocationConfig::get_indexpages(void){ return (this->_indexpages); }
+std::vector<std::string> LocationConfig::get_server_names(void){ return (this->_server_names); }
+std::vector<std::string> LocationConfig::get_errorpages(void){ return (this->_errorpages); }
 
 void	LocationConfig::clear_location_keyword()
 {
@@ -194,9 +194,9 @@ void	LocationConfig::clear_location_keyword()
 	this->_client_header_buffer_size = 1024;
 	this->_client_header_timeout = 60;
 	this->_client_max_body_size = 1048576;
-	this->_keepaliverequests = 0;
+	this->_keepalive_requests = 0;
 	this->_keepalive_timeout = 0;
-	this->_maxBodySize = 1024;
+	this->_client_max_body_size = 1024;
 	this->_alias = "";
 	this->_accesslog = "";
 	this->_cgi_path = "";
@@ -204,10 +204,10 @@ void	LocationConfig::clear_location_keyword()
 	this->_errorlog = "";
 	this->_upload_path = "";
 	this->_root = "";
-	this->_allowmethod_set.clear();
-	this->_indexpage_set.clear();
-	this->_server_name.clear();
-	this->_errorpage_set.clear();
+	this->_allowmethods.clear();
+	this->_indexpages.clear();
+	this->_server_names.clear();
+	this->_errorpages.clear();
 }
 
 void LocationConfig::set_serverblock_infs(const ServerConfig &other)
@@ -226,6 +226,6 @@ void LocationConfig::set_serverblock_infs(const ServerConfig &other)
 	this->set_default_type(other.get_default_type());
 	this->set_errorlog(other.get_errorlog());
 	this->set_root(other.get_root());
-	this->set_allowmethod_set(other.get_allowmethod_set());
-	this->_indexpage_set.clear();
+	this->set_allowmethods(other.get_allowmethod_set());
+	this->_indexpages.clear();
 }

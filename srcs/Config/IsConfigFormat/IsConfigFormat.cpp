@@ -1,9 +1,9 @@
 #include <string>
 #include "IsConfigFormat.hpp"
 
-bool	IsConfigFormat::is_start_location_block(const std::string &line)
+bool	IsConfigFormat::is_start_location_block(const std::string &config_line)
 {
-	std::string	line_without_ows = HandlingString::obtain_without_ows_value(line);
+	std::string	line_without_ows = HandlingString::obtain_without_ows_value(config_line);
 	size_t	start_pos = 0;
 	size_t	end_pos = 0;
 
@@ -19,10 +19,10 @@ bool	IsConfigFormat::is_start_location_block(const std::string &line)
 }
 
 // locationのスタートなら　location *.cgi {のように<OWS> location <OWS> <文字列->location path> <OWS> { <OWS>のみ許容
-bool	IsConfigFormat::is_start_location_block(const std::string &line, \
+bool	IsConfigFormat::is_start_location_block(const std::string &config_line, \
 												std::string *config_location_path)
 {
-	std::string	line_without_ows = HandlingString::obtain_without_ows_value(line);
+	std::string	line_without_ows = HandlingString::obtain_without_ows_value(config_line);
 	size_t	start_pos = 0;
 	size_t	end_pos = 0;
 
@@ -40,9 +40,9 @@ bool	IsConfigFormat::is_start_location_block(const std::string &line, \
 }
 
 // start_server -> <OWS> server <OWS> { <OWS>
-bool	IsConfigFormat::is_start_server_block(const std::string &line)
+bool	IsConfigFormat::is_start_server_block(const std::string &config_line)
 {
-	std::string	line_without_ows = HandlingString::obtain_without_ows_value(line);
+	std::string	line_without_ows = HandlingString::obtain_without_ows_value(config_line);
 	size_t	start_pos = 0;
 	size_t	end_pos = 0;
 
@@ -55,11 +55,11 @@ bool	IsConfigFormat::is_start_server_block(const std::string &line)
 
 // location -> <OWS> (文字列->header) <OWS> {文字列->value}; <OWS>
 // もしくは終了を表す　}　元のOWSはなくても許容 このis_型ではチェックのみ行う
-bool	IsConfigFormat::is_location_block_config(const std::string &line, \
+bool	IsConfigFormat::is_location_block_config(const std::string &config_line, \
 													bool *in_location_block)
 {
 	// (文字列->header) <OWS> {文字列->value};
-	std::string	line_without_ows = HandlingString::obtain_without_ows_value(line);
+	std::string	line_without_ows = HandlingString::obtain_without_ows_value(config_line);
 	size_t	end_pos = 0;
 
 	if (ConfigHandlingString::is_block_end(line_without_ows))
@@ -79,12 +79,12 @@ bool	IsConfigFormat::is_location_block_config(const std::string &line, \
 
 // location -> <OWS> (文字列->header) <OWS> {文字列->value}; <OWS>
 // もしくは終了を表す　}　元のOWSはなくても許容
-bool	IsConfigFormat::ready_location_block_config(const std::string &line, \
+bool	IsConfigFormat::ready_location_block_config(const std::string &config_line, \
 													bool *in_location_block, \
-LocationConfig *locationconfig, \
-std::vector<std::string> *fieldkey_map)
+													LocationConfig *locationconfig, \
+													std::vector<std::string> *field_key_vector)
 {
-	std::string	line_without_ows = HandlingString::obtain_without_ows_value(line);
+	std::string	line_without_ows = HandlingString::obtain_without_ows_value(config_line);
 	// (文字列->header) <OWS> {文字列->value};
 	size_t	end_pos = 0;
 	std::string	field_header;
@@ -100,9 +100,9 @@ std::vector<std::string> *fieldkey_map)
 	HandlingString::skip_ows(line_without_ows, &end_pos);
 	if (ConfigHandlingString::ready_field_value(line_without_ows, &end_pos, &field_value) == false)
 		return (false);
-	if (std::find(fieldkey_map->begin(), fieldkey_map->end(), field_header) != fieldkey_map->end())
+	if (std::find(field_key_vector->begin(), field_key_vector->end(), field_header) != field_key_vector->end())
 		return (false);
-	fieldkey_map->push_back(field_header);
+	field_key_vector->push_back(field_header);
 	if (locationconfig->ready_locationblock_keyword(field_header, field_value) == false)
 		return (false);
 	return (true);
@@ -111,18 +111,18 @@ std::vector<std::string> *fieldkey_map)
 // <OWS> (文字列->header) <OWS> {文字列->value} ; <OWS>
 // もしくはserver が終了する }
 // もしくはlocationブロックのスタート
-bool	IsConfigFormat::ready_server_block_format(const std::string &line, \
+bool	IsConfigFormat::ready_server_block_format(const std::string &config_line, \
 													bool *in_server_block,
-													ServerConfig *serverconfig, \
+													ServerConfig *server_config, \
 													std::vector<std::string> *field_key_vector)
 {
-	std::string	line_without_ows = HandlingString::obtain_without_ows_value(line);
+	std::string	line_without_ows = HandlingString::obtain_without_ows_value(config_line);
 	// (文字列->header) <OWS> {文字列->value};
 	size_t	end_pos = 0;
 	std::string	field_header;
 	std::string	field_value;
 
-	if (is_start_location_block(line))
+	if (is_start_location_block(config_line))
 		return (true);
 	if (ConfigHandlingString::is_block_end(line_without_ows))
 	{
@@ -136,7 +136,7 @@ bool	IsConfigFormat::ready_server_block_format(const std::string &line, \
 	HandlingString::skip_ows(line_without_ows, &end_pos);
 	if (ConfigHandlingString::ready_field_value(line_without_ows, &end_pos, &field_value) == false)
 		return (false);
-	if (serverconfig->ready_serverblock_keyword(field_header, field_value) == false)
+	if (server_config->ready_serverblock_keyword(field_header, field_value) == false)
 	{
 		std::cout << "serverconfig -> |" << field_header << "|" << field_value << "|" << std::endl;
 		return (false);

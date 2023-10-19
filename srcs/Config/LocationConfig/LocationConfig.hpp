@@ -21,9 +21,9 @@ class LocationConfig
 		size_t						_client_header_buffer_size;
 		size_t						_client_header_timeout;
 		size_t						_client_max_body_size;
-		size_t						_keepaliverequests;
+		size_t						_keepalive_requests;
 		size_t						_keepalive_timeout;
-		size_t 						_maxBodySize;
+		// size_t 						_client_max_body_size;
 		std::string					_alias;
 		std::string					_accesslog;
 		std::string					_cgi_path;
@@ -31,10 +31,10 @@ class LocationConfig
 		std::string					_errorlog;
 		std::string					_upload_path;
 		std::string					_root;
-		std::vector<std::string>	_allowmethod_set;
-		std::vector<std::string>	_indexpage_set;
-		std::vector<std::string>	_server_name;
-		std::vector<std::string>	_errorpage_set;
+		std::vector<std::string>	_allowmethods;
+		std::vector<std::string>	_indexpages;
+		std::vector<std::string>	_server_names;
+		std::vector<std::string>	_errorpages;
 		// function
 		bool						ready_boolean_field_value(const std::string &field_value);
 		int							ready_int_field_value(const std::string &field_value);
@@ -61,10 +61,10 @@ class LocationConfig
 		std::string					get_errorlog(void);
 		std::string					get_upload_path(void);
 		std::string					get_root(void);
-		std::vector<std::string>	get_allowmethod_set(void);
-		std::vector<std::string>	get_indexpage_set(void);
-		std::vector<std::string>	get_server_name(void);
-		std::vector<std::string>	get_errorpage_set(void);
+		std::vector<std::string>	get_allowmethods(void);
+		std::vector<std::string>	get_indexpages(void);
+		std::vector<std::string>	get_server_names(void);
+		std::vector<std::string>	get_errorpages(void);
 		void						set_autoindex(const bool &autoindex){ this->_autoindex = autoindex; }
 		void						set_chunked_transferencoding_allow(const bool &chunked_transferencoding_allow)
 		{
@@ -76,9 +76,9 @@ class LocationConfig
 		void						set_client_header_buffer_size(const size_t &client_header_buffer_size){ this->_client_header_buffer_size = client_header_buffer_size; }
 		void						set_client_header_timeout(const size_t &client_header_timeout){ this->_client_header_timeout = client_header_timeout; }
 		void						set_client_max_body_size(const size_t &client_max_body_size){ this->_client_max_body_size = client_max_body_size; }
-		void						set_keepaliverequests(const size_t &keepaliverequest){ this->_keepaliverequests = keepaliverequest; }
+		void						set_keepaliverequests(const size_t &keepalive_request){ this->_keepalive_requests = keepalive_request; }
 		void						set_keepalive_timeout(const size_t &keepalive_timeout){ this->_keepalive_timeout = keepalive_timeout; }
-		void						set_maxBodySize(const size_t &maxBodySize){ this->_maxBodySize = maxBodySize; }
+		void						set_maxBodySize(const size_t &client_max_body_size){ this->_client_max_body_size = client_max_body_size; }
 		void						set_alias(const std::string &alias){ this->_alias = alias;  }
 		void						set_accesslog(const std::string &accesslog){ this->_accesslog = accesslog; }
 		void						set_cgi_path(const std::string &cgi_path){ this->_cgi_path = cgi_path; }
@@ -86,10 +86,10 @@ class LocationConfig
 		void						set_errorlog(const std::string &errorlog){ this->_errorlog = errorlog; }
 		void						set_upload_path(const std::string &upload_path){ this->_upload_path = upload_path; }
 		void						set_root(const std::string &root){ this->_root = root; }
-		void						set_allowmethod_set(const std::vector<std::string> &allowmethod_set){ this->_allowmethod_set = allowmethod_set; }
-		void						set_indexpage_set(const std::vector<std::string> &indexpage_set){ this->_indexpage_set = indexpage_set; }
-		void						set_server_name(const std::vector<std::string> &server_name){ this->_server_name = server_name; }
-		void						set_errorpage_set(const std::vector<std::string> &errorpage_set){ this->_errorpage_set = errorpage_set; }
+		void						set_allowmethods(const std::vector<std::string> &allowmethods){ this->_allowmethods = allowmethods; }
+		void						set_indexpages(const std::vector<std::string> &indexpages){ this->_indexpages = indexpages; }
+		void						set_server_names(const std::vector<std::string> &server_names){ this->_server_names = server_names; }
+		void						set_errorpages(const std::vector<std::string> &errorpages){ this->_errorpages = errorpages; }
 		bool						ready_locationblock_keyword(const std::string &field_key, \
 																const std::string &field_value);
 		void						clear_location_keyword(void);
