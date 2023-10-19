@@ -153,7 +153,12 @@ std::map<std::vector<std::string>, AllConfig>	Config::get_all_configs()
 // 	return false;
 // }
 
-AllConfig Config::get_same_allconfig(const std::string &server_name)
+AllConfig Config::get_same_allconfig(const std::vector<std::string> &server_name)  // これがconfigの読み取りの時に使うやつ
+{
+	return (this->_all_configs[server_name]);
+}
+
+AllConfig Config::get_same_allconfig(const std::string &server_name)  // これがrequestように使うやつ
 {
 	std::string	server_name_without_port;
 	std::vector<std::string>	all_config_server_names;
@@ -166,8 +171,8 @@ AllConfig Config::get_same_allconfig(const std::string &server_name)
 	while (all_configs_itr != this->_all_configs.end())
 	{
 		all_config_server_names = all_configs_itr->first;
-		if (std::count(all_config_server_names.begin(), all_config_server_names.end(), server_name) != all_config_server_names.end())
-			return (all_configs_itr->second());
+		if (std::find(all_config_server_names.begin(), all_config_server_names.end(), server_name) != all_config_server_names.end())
+			return (all_configs_itr->second);
 		all_configs_itr++;
 	}
 	return (this->_all_configs.begin())->second;
