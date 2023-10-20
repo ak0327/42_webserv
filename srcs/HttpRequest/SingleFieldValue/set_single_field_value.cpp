@@ -246,17 +246,6 @@ Result<int, int> HttpRequest::set_max_forwards(const std::string &field_name,
 	return Result<int, int>::ok(STATUS_OK);
 }
 
-// todo: Origin
-// Origin: null
-// Origin: <scheme>://<hostname>
-// Origin: <scheme>://<hostname>:<port>
-Result<int, int> HttpRequest::set_origin(const std::string &field_name,
-										 const std::string &field_value)
-{
-	this->_request_header_fields[field_name] = new SingleFieldValue(field_value);
-	return Result<int, int>::ok(STATUS_OK);
-}
-
 // todo: Referer
 // Referer = absolute-URI / partial-URI
 Result<int, int> HttpRequest::set_referer(const std::string &field_name,

@@ -468,6 +468,7 @@ Result<date_format, int> parse_http_date(const std::string &http_date,
 
 }  // namespace
 
+// todo: end_pos
 Date::Date(const std::string &http_date) {
 	std::string day_name, day, month, year, hour, minute, second, gmt;
 	Result<date_format, int> parse_result;

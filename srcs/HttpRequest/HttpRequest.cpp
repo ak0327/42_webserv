@@ -336,7 +336,7 @@ void HttpRequest::init_field_name_parser() {
 	map[std::string(ACCESS_CONTROL_REQUEST_METHOD)] = &HttpRequest::set_access_control_request_method;
 	map[std::string(ALT_USED)] = &HttpRequest::set_alt_used;
 	map[std::string(AUTHORIZATION)] = &HttpRequest::set_authorization;
-	map[std::string(CACHE_CONTROL)] =  &HttpRequest::set_cache_control;  // todo:
+	map[std::string(CACHE_CONTROL)] =  &HttpRequest::set_cache_control;
 	map[std::string(CONNECTION)] = &HttpRequest::set_connection;
 	map[std::string(CONTENT_DISPOSITION)] = &HttpRequest::set_content_disposition;
 	map[std::string(CONTENT_ENCODING)] = &HttpRequest::set_content_encoding;
@@ -360,7 +360,7 @@ void HttpRequest::init_field_name_parser() {
 	map[std::string(LAST_MODIFIED)] = &HttpRequest::set_last_modified;
 	map[std::string(LINK)] = &HttpRequest::set_link;  // todo: Link
 	map[std::string(MAX_FORWARDS)] = &HttpRequest::set_max_forwards;
-	map[std::string(ORIGIN)] = &HttpRequest::set_origin;  // todo: Origin
+	map[std::string(ORIGIN)] = &HttpRequest::set_origin;
 	map[std::string(PROXY_AUTHORIZATION)] = &HttpRequest::set_proxy_authorization;
 	map[std::string(RANGE)] = &HttpRequest::set_range;
 	map[std::string(REFERER)] = &HttpRequest::set_referer;  // todo: Referer

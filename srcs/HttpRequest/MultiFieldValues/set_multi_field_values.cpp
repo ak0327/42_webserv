@@ -155,6 +155,161 @@ bool is_transfer_coding(const std::string &str) {
 	return str[pos] == '\0';
 }
 
+//------------------------------------------------------------------------------
+/* Origin */
+
+std::string get_serialized_origin_str(const std::string &scheme,
+									  const std::string &host,
+									  const std::string &port) {
+	std::string origin;
+
+	origin.append(scheme);
+	origin.append("://");
+	origin.append(host);
+	origin.append(port.empty() ? "" : ":" + port);
+	return origin;
+}
+
+Result<int, int> parse_serialized_origin(const std::string &field_value,
+										 std::size_t start_pos,
+										 std::size_t *end_pos,
+										 std::string *scheme,
+										 std::string *host,
+										 std::string *port) {
+	std::size_t pos, end, len;
+	Result<std::string, int> host_result, port_result;
+
+	if (!end_pos || !scheme || !host || !port) {
+		return Result<int, int>::err(ERR);
+	}
+	pos = start_pos;
+	*end_pos = start_pos;
+	*scheme = "";
+	*host = "";
+	*port = "";
+	if (field_value.empty() || field_value.length() < start_pos) {
+		return Result<int, int>::err(ERR);
+	}
+
+	// scheme
+	end = field_value.find(':', pos);
+	if (end == std::string::npos) {
+		return Result<int, int>::err(ERR);
+	}
+	len = end - pos;
+	*scheme = field_value.substr(pos, len);
+	pos += len;
+
+	// "://"
+	if (!(field_value[pos] == ':'
+		  && field_value[pos + 1] == '/'
+		  && field_value[pos + 2] == '/')) {
+		return Result<int, int>::err(ERR);
+	}
+	pos += 3;
+
+	// host
+	host_result = HttpMessageParser::parse_uri_host(field_value, pos, &end);
+	if (host_result.is_err()) {
+		return Result<int, int>::err(ERR);
+	}
+	*host = host_result.get_ok_value();
+	pos = end;
+
+	// ":"
+	if (field_value[pos] != ':') {
+		*end_pos = end;
+		return Result<int, int>::ok(OK);
+	}
+	++pos;
+
+	// port
+	port_result = HttpMessageParser::parse_port(field_value, pos, &end);
+	if (port_result.is_err()) {
+		return Result<int, int>::err(ERR);
+	}
+	*port = port_result.get_ok_value();
+
+	*end_pos = end;
+	return Result<int, int>::ok(OK);
+}
+
+Result<int, int> validate_serialized_oritin(const std::string &scheme,
+											const std::string &host,
+											const std::string &port) {
+	if (!HttpMessageParser::is_valid_scheme(scheme)) {
+		return Result<int, int>::err(ERR);
+	}
+	if (!HttpMessageParser::is_valid_uri_host(host)) {
+		return Result<int, int>::err(ERR);
+	}
+	if (!port.empty() && !HttpMessageParser::is_valid_port(port)) {
+		return Result<int, int>::err(ERR);
+	}
+	return Result<int, int>::ok(OK);
+}
+
+/*
+ origin-list         = serialized-origin *( SP serialized-origin )
+ serialized-origin   = scheme "://" host [ ":" port ]
+                     ; <scheme>, <host>, <port> from RFC 3986
+ scheme      = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
+ */
+Result<std::set<std::string>, int> parse_and_validate_origin_list(const std::string &field_value) {
+	std::set<std::string> origin_set;
+	std::string scheme, host, port, serialized_origin;
+	std::size_t pos, end;
+	Result<int, int> parse_result, validate_result;
+
+	if (field_value.empty()) {
+		return Result<std::set<std::string>, int>::err(ERR);
+	}
+	pos = 0;
+	while (field_value[pos]) {
+		parse_result = parse_serialized_origin(field_value,
+											   pos, &end,
+											   &scheme, &host, &port);
+
+		if (parse_result.is_err()) {
+			return Result<std::set<std::string>, int>::err(ERR);
+		}
+
+		validate_result = validate_serialized_oritin(scheme, host, port);
+		if (validate_result.is_err()) {
+			return Result<std::set<std::string>, int>::err(ERR);
+		}
+
+		serialized_origin = get_serialized_origin_str(scheme, host, port);
+		origin_set.insert(serialized_origin);
+
+		pos = end;
+		if (field_value[pos] == SP && field_value[pos + 1] != '\0') {
+			++pos;
+			continue;
+		}
+	}
+	return Result<std::set<std::string>, int>::ok(origin_set);
+}
+
+Result<std::set<std::string>, int>
+parse_and_validate_origin_list_or_null(const std::string &field_value) {
+	Result<std::set<std::string>, int> result;
+	std::set<std::string> origin_set;
+
+	if (field_value == "null") {
+		origin_set.insert(field_value);
+		return Result<std::set<std::string>, int>::ok(origin_set);
+	}
+
+	result = parse_and_validate_origin_list(field_value);
+	if (result.is_err()) {
+		return Result<std::set<std::string>, int>::err(ERR);
+	}
+	origin_set = result.get_ok_value();
+	return Result<std::set<std::string>, int>::ok(origin_set);
+}
+
+
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -264,6 +419,37 @@ Result<int, int> HttpRequest::set_if_none_match(const std::string &field_name,
 									  field_value,
 									  HttpMessageParser::is_entity_tag);
 	}
+}
+
+// Origin: null
+// Origin: <scheme>://<hostname>
+// Origin: <scheme>://<hostname>:<port>
+/*
+ origin              = "Origin:" OWS origin-list-or-null OWS
+ origin-list-or-null = %x6E %x75 %x6C %x6C / origin-list
+ origin-list         = serialized-origin *( SP serialized-origin )
+ serialized-origin   = scheme "://" host [ ":" port ]
+                     ; <scheme>, <host>, <port> from RFC 3986
+ https://www.rfc-editor.org/rfc/rfc6454#section-7
+
+ scheme      = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
+ https://www.rfc-editor.org/rfc/rfc3986#section-3.1
+ */
+Result<int, int> HttpRequest::set_origin(const std::string &field_name,
+										 const std::string &field_value) {
+	std::set<std::string> origin_set_or_null;
+	Result<std::set<std::string>, int> result;
+
+	clear_field_values_of(field_name);
+
+	result = parse_and_validate_origin_list_or_null(field_value);
+	if (result.is_err()) {
+		return Result<int, int>::ok(STATUS_OK);
+	}
+	origin_set_or_null = result.get_ok_value();
+
+	this->_request_header_fields[field_name] = new MultiFieldValues(origin_set_or_null);
+	return Result<int, int>::ok(STATUS_OK);
 }
 
 /*

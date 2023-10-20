@@ -1805,6 +1805,7 @@ bool is_valid_port(const std::string &port) {
  pct-encoded = "%" HEXDIG HEXDIG
  sub-delims  = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
  */
+// todo:test
 Result<std::string, int> parse_uri_host(const std::string &field_value,
 										std::size_t start_pos,
 										std::size_t *end_pos) {
@@ -1846,6 +1847,7 @@ Result<std::string, int> parse_uri_host(const std::string &field_value,
 /*
  port          = *DIGIT
  */
+// todo:test
 Result<std::string, int> parse_port(const std::string &field_value,
 									std::size_t start_pos,
 									std::size_t *end_pos) {
@@ -1873,6 +1875,26 @@ Result<std::string, int> parse_port(const std::string &field_value,
 
 	*end_pos = pos;
 	return Result<std::string, int>::ok(port);
+}
+
+bool is_valid_scheme(const std::string &scheme) {
+	std::size_t pos;
+
+	if (scheme.empty() || !std::isalpha(scheme[0])) {
+		return false;
+	}
+	pos = 1;
+	while (scheme[pos]) {
+		if (std::isalnum(scheme[pos])
+			|| scheme[pos] == '+'
+			|| scheme[pos] == '-'
+			|| scheme[pos] == '.') {
+			++pos;
+		} else {
+			return false;
+		}
+	}
+	return scheme[pos] == '\0';
 }
 
 }  // namespace HttpMessageParser

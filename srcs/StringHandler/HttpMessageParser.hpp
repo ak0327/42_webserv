@@ -101,7 +101,6 @@ Result<std::string, int> parse_port(const std::string &field_value,
 									std::size_t start_pos,
 									std::size_t *end_pos);
 
-
 bool is_valid_uri_host(const std::string &uri_host);
 bool is_valid_port(const std::string &port);
 
@@ -223,6 +222,8 @@ bool is_ipv6address(const std::string &str);
 bool is_ipvfuture(const std::string &str);
 bool is_ip_literal(const std::string &str);
 bool is_reg_name(const std::string &str);
+
+bool is_valid_scheme(const std::string &scheme);
 
 Result<std::size_t, int> get_double_colon_pos(const std::string &str,
 											  std::size_t start_pos);

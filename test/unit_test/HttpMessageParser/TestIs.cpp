@@ -989,11 +989,19 @@ TEST(TestHttpMessageParser, IsValidPort) {
 	EXPECT_FALSE(HttpMessageParser::is_valid_port("2147483648"));
 }
 
-//TEST(TestHttpMessageParser, ) {
-//	EXPECT_TRUE(HttpMessageParser::);
-//
-//	EXPECT_FALSE(HttpMessageParser::);
-//}
+TEST(TestHttpMessageParser, IsValidScheme) {
+	EXPECT_TRUE(HttpMessageParser::is_valid_scheme("a"));
+	EXPECT_TRUE(HttpMessageParser::is_valid_scheme("a+-."));
+	EXPECT_TRUE(HttpMessageParser::is_valid_scheme("aaaaaa"));
+	EXPECT_TRUE(HttpMessageParser::is_valid_scheme("ABC+-DE.F"));
+	EXPECT_TRUE(HttpMessageParser::is_valid_scheme("a01234"));
+
+	EXPECT_FALSE(HttpMessageParser::is_valid_scheme(""));
+	EXPECT_FALSE(HttpMessageParser::is_valid_scheme("1"));
+	EXPECT_FALSE(HttpMessageParser::is_valid_scheme("1abc"));
+	EXPECT_FALSE(HttpMessageParser::is_valid_scheme("a_*"));
+	EXPECT_FALSE(HttpMessageParser::is_valid_scheme("\0"));
+}
 
 //TEST(TestHttpMessageParser, ) {
 //	EXPECT_TRUE(HttpMessageParser::);

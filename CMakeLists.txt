@@ -191,6 +191,7 @@ set (unit_test_srcs
         test/unit_test/MultiFieldValues/TestContentLanguage.cpp
         test/unit_test/MultiFieldValues/TestIfMatch.cpp
         test/unit_test/MultiFieldValues/TestIfNoneMatch.cpp
+        test/unit_test/MultiFieldValues/TestOgirin.cpp
         test/unit_test/MultiFieldValues/TestTransferEncoding.cpp
 
         # map field values
