@@ -21,7 +21,6 @@ class ServerConfig
 		size_t									_client_body_timeout;
 		size_t									_client_header_buffer_size;
 		size_t									_client_header_timeout;
-		size_t									_client_maxbody_size;
 		size_t									_keepalive_requests;
 		size_t									_keepalive_timeout;
 		size_t 									_client_max_body_size;
@@ -51,7 +50,6 @@ class ServerConfig
 		size_t									get_client_body_timeout() const;
 		size_t									get_client_header_buffer_size() const;
 		size_t									get_client_header_timeout() const;
-		size_t									get_client_maxbody_size() const;
 		size_t									get_keepalive_requests() const;
 		size_t									get_keepalive_timeout() const;
 		size_t 									get_client_max_body_size() const;
@@ -71,7 +69,6 @@ class ServerConfig
 		void									set_client_body_timeout(const size_t &client_body_timeout);
 		void									set_client_header_buffer_size(const size_t &client_header_buffer_size);
 		void									set_client_header_timeout(const size_t &client_header_timeout);
-		void									set_client_maxbody_size(const size_t &client_maxbody_size);
 		void									set_keepalive_requests(const size_t &keepaliverequests);
 		void									set_keepalive_timeout(const size_t &keepalive_timeout);
 		void									set_client_max_body_size(const size_t &max_bodysize);

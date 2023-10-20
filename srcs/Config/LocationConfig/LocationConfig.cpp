@@ -2,7 +2,8 @@
 
 LocationConfig::LocationConfig():_autoindex(false), _chunked_transferencoding_allow(false), _server_tokens(1),
 _client_body_buffer_size(8000), _client_body_timeout(60), _client_header_buffer_size(1024), _client_header_timeout(60),
-_client_max_body_size(1048576), _keepalive_requests(0), _keepalive_timeout(0), _default_type("application/octet-stream"){}
+_client_max_body_size(1024), _keepalive_requests(0), _keepalive_timeout(0), _default_type("application/octet-stream")
+{}
 
 LocationConfig::~LocationConfig(){}
 
@@ -129,12 +130,6 @@ bool	LocationConfig::ready_location_block_keyword(const std::string &field_heade
 			return false;
 		this->_keepalive_timeout = this->ready_size_t_field_value(field_value);
 	}
-	if (field_header ==  "maxBodySize")
-    {
-		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
-			return false;
-		this->_client_max_body_size = this->ready_size_t_field_value(field_value);
-	}
 	if (field_header ==  "accesslog")
 		this->_accesslog = field_value;
 	if (field_header ==  "default_type")
@@ -170,7 +165,6 @@ size_t	LocationConfig::get_client_header_timeout(void){ return (this->_client_he
 size_t	LocationConfig::get_client_max_body_size(void){ return (this->_client_max_body_size); }
 size_t	LocationConfig::get_keepaliverequests(void){ return (this->_keepalive_requests); }
 size_t	LocationConfig::get_keepalive_timeout(void){ return (this->_keepalive_timeout); }
-size_t 	LocationConfig::get_maxBodySize(void){ return (this->_client_max_body_size); }
 std::string	LocationConfig::get_alias(void){ return (this->_alias); }
 // error_page		LocationConfig::get	_errorpage_set;//これめっちゃおかしい使い方できる　error_page 403 404 500 503 =404 /custom_404.html;
 std::string	LocationConfig::get_accesslog(void){ return (this->_accesslog); }
@@ -193,7 +187,6 @@ void	LocationConfig::clear_location_keyword()
 	this->_client_body_timeout = 60;
 	this->_client_header_buffer_size = 1024;
 	this->_client_header_timeout = 60;
-	this->_client_max_body_size = 1048576;
 	this->_keepalive_requests = 0;
 	this->_keepalive_timeout = 0;
 	this->_client_max_body_size = 1024;
@@ -217,10 +210,9 @@ void LocationConfig::set_server_block_infs(const ServerConfig &other)
 	this->set_server_tokens(other.get_server_tokens());
 	this->set_client_body_buffer_size(other.get_client_body_buffer_size());
 	this->set_client_header_timeout(other.get_client_header_timeout());
-	this->set_client_max_body_size(other.get_client_maxbody_size());
+	this->set_client_max_body_size(other.get_client_max_body_size());
 	this->set_keepaliverequests(other.get_keepalive_requests());
 	this->set_keepalive_timeout(other.get_keepalive_timeout());
-	this->set_maxBodySize(other.get_client_max_body_size());
 	this->set_accesslog(other.get_accesslog());
 	this->set_default_type(other.get_default_type());
 	this->set_default_type(other.get_default_type());

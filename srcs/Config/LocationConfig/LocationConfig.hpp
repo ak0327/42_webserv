@@ -23,7 +23,6 @@ class LocationConfig
 		size_t						_client_max_body_size;
 		size_t						_keepalive_requests;
 		size_t						_keepalive_timeout;
-		// size_t 						_client_max_body_size;
 		std::string					_alias;
 		std::string					_accesslog;
 		std::string					_cgi_path;
