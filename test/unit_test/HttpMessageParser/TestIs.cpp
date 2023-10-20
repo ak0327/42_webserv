@@ -951,26 +951,71 @@ TEST(TestHttpMessageParser, IsRegName) {
 	EXPECT_FALSE(HttpMessageParser::is_reg_name("\0\0aaa"));
 }
 
-// TEST(TestHttpMessageParser, ) {
-// 	EXPECT_TRUE(HttpMessageParser::);
-//
-// 	EXPECT_FALSE(HttpMessageParser::);
-// }
+TEST(TestHttpMessageParser, IsValidUriHost) {
+	EXPECT_TRUE(HttpMessageParser::is_valid_uri_host("example.com"));
+	EXPECT_TRUE(HttpMessageParser::is_valid_uri_host("127.0.0.1"));
+	EXPECT_TRUE(HttpMessageParser::is_valid_uri_host("255.255.255.255"));
+	EXPECT_TRUE(HttpMessageParser::is_valid_uri_host("[ABCD:EF01:2345:6789:ABCD:EF01:2345:6789]"));
+	EXPECT_TRUE(HttpMessageParser::is_valid_uri_host("localhost"));
 
-// TEST(TestHttpMessageParser, ) {
-// 	EXPECT_TRUE(HttpMessageParser::);
-//
-// 	EXPECT_FALSE(HttpMessageParser::);
-// }
+	EXPECT_FALSE(HttpMessageParser::is_valid_uri_host(""));
+	EXPECT_FALSE(HttpMessageParser::is_valid_uri_host(" example.com "));
+	EXPECT_FALSE(HttpMessageParser::is_valid_uri_host(" example.com: "));
+	EXPECT_FALSE(HttpMessageParser::is_valid_uri_host("  "));
+	EXPECT_FALSE(HttpMessageParser::is_valid_uri_host(" : "));
+	EXPECT_FALSE(HttpMessageParser::is_valid_uri_host(" 127.0.0 "));
+	EXPECT_FALSE(HttpMessageParser::is_valid_uri_host("[]"));
+	EXPECT_FALSE(HttpMessageParser::is_valid_uri_host("[localhost]"));
+	EXPECT_FALSE(HttpMessageParser::is_valid_uri_host("[127.0.0.1]"));
+	EXPECT_FALSE(HttpMessageParser::is_valid_uri_host("ABCD:EF01:2345:6789:ABCD:EF01:2345:6789"));
+}
 
-// TEST(TestHttpMessageParser, ) {
-// 	EXPECT_TRUE(HttpMessageParser::);
-//
-// 	EXPECT_FALSE(HttpMessageParser::);
-// }
+TEST(TestHttpMessageParser, IsValidPort) {
+	EXPECT_TRUE(HttpMessageParser::is_valid_port("0"));
+	EXPECT_TRUE(HttpMessageParser::is_valid_port("1"));
+	EXPECT_TRUE(HttpMessageParser::is_valid_port("10"));
+	EXPECT_TRUE(HttpMessageParser::is_valid_port("0001"));
+	EXPECT_TRUE(HttpMessageParser::is_valid_port("8080"));
+	EXPECT_TRUE(HttpMessageParser::is_valid_port("65535"));
 
-// TEST(TestHttpMessageParser, ) {
-// 	EXPECT_TRUE(HttpMessageParser::);
+	EXPECT_FALSE(HttpMessageParser::is_valid_port(""));
+	EXPECT_FALSE(HttpMessageParser::is_valid_port(" 1"));
+	EXPECT_FALSE(HttpMessageParser::is_valid_port("1 "));
+	EXPECT_FALSE(HttpMessageParser::is_valid_port(" 1 "));
+	EXPECT_FALSE(HttpMessageParser::is_valid_port("-1"));
+	EXPECT_FALSE(HttpMessageParser::is_valid_port("+1"));
+	EXPECT_FALSE(HttpMessageParser::is_valid_port("65536"));
+	EXPECT_FALSE(HttpMessageParser::is_valid_port("2147483647"));
+	EXPECT_FALSE(HttpMessageParser::is_valid_port("2147483648"));
+}
+
+//TEST(TestHttpMessageParser, ) {
+//	EXPECT_TRUE(HttpMessageParser::);
 //
-// 	EXPECT_FALSE(HttpMessageParser::);
-// }
+//	EXPECT_FALSE(HttpMessageParser::);
+//}
+
+//TEST(TestHttpMessageParser, ) {
+//	EXPECT_TRUE(HttpMessageParser::);
+//
+//	EXPECT_FALSE(HttpMessageParser::);
+//}
+
+//TEST(TestHttpMessageParser, ) {
+//	EXPECT_TRUE(HttpMessageParser::);
+//
+//	EXPECT_FALSE(HttpMessageParser::);
+//}
+
+//TEST(TestHttpMessageParser, ) {
+//	EXPECT_TRUE(HttpMessageParser::);
+//
+//	EXPECT_FALSE(HttpMessageParser::);
+//}
+
+//TEST(TestHttpMessageParser, ) {
+//	EXPECT_TRUE(HttpMessageParser::);
+//
+//	EXPECT_FALSE(HttpMessageParser::);
+//}
+

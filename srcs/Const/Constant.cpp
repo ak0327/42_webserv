@@ -16,6 +16,8 @@ const int COUNTER_INIT = 0;
 
 /* num */
 const int SINGLE_OCCURRENCE_LIMIT = 1;
+const int PORT_MIN = 0;
+const int PORT_MAX = 65535;
 
 ////////////////////////////////////////////////////////////////////////////////
 /* status */

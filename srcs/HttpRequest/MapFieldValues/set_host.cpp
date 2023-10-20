@@ -8,109 +8,6 @@
 
 namespace {
 
-/*
- uri-host    = IP-literal / IPv4address / reg-name
-
- IP-literal  = "[" ( IPv6address / IPvFuture  ) "]"
-
- IPv6address =                            6( h16 ":" ) ls32
-             /                       "::" 5( h16 ":" ) ls32
-             / [               h16 ] "::" 4( h16 ":" ) ls32
-             / [ *1( h16 ":" ) h16 ] "::" 3( h16 ":" ) ls32
-             / [ *2( h16 ":" ) h16 ] "::" 2( h16 ":" ) ls32
-             / [ *3( h16 ":" ) h16 ] "::"    h16 ":"   ls32
-             / [ *4( h16 ":" ) h16 ] "::"              ls32
-             / [ *5( h16 ":" ) h16 ] "::"              h16
-             / [ *6( h16 ":" ) h16 ] "::"
- h16         = 1*4HEXDIG
-             ; 16 bits of address represented in hexadecimal
- ls32        = ( h16 ":" h16 ) / IPv4address
-             ; least-significant 32 bits of address
-
- IPvFuture   = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
-
- IPv4address = dec-octet "." dec-octet "." dec-octet "." dec-octet
- dec-octet   = DIGIT                 ; 0-9
-             / %x31-39 DIGIT         ; 10-99
-             / "1" 2DIGIT            ; 100-199
-             / "2" %x30-34 DIGIT     ; 200-249
-             / "25" %x30-35          ; 250-255
-
- reg-name    = *( unreserved / pct-encoded / sub-delims )
- unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
- pct-encoded = "%" HEXDIG HEXDIG
- sub-delims  = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
- */
-Result <std::string, int> parse_uri_host(const std::string &field_value,
-									 std::size_t start_pos,
-									 std::size_t *end_pos) {
-	std::size_t pos, end, len;
-	std::string uri_host;
-
-	if (!end_pos) {
-		return Result<std::string, int>::err(ERR);
-	}
-	pos = start_pos;
-	*end_pos = start_pos;
-	if (field_value.empty() || field_value.length() < start_pos) {
-		return Result<std::string, int>::err(ERR);
-	}
-
-	if (field_value[pos] == '[') {
-		HttpMessageParser::skip_ip_literal(field_value, pos, &end);
-	} else if (std::isdigit(field_value[pos])) {
-		HttpMessageParser::skip_ipv4address(field_value, pos, &end);
-	} else if (HttpMessageParser::is_unreserved(field_value[pos])
-			|| field_value[pos] == '%'
-			|| HttpMessageParser::is_sub_delims(field_value[pos])) {
-		HttpMessageParser::skip_reg_name(field_value, pos, &end);
-	} else {
-		return Result<std::string, int>::err(ERR);
-	}
-
-	if (pos == end) {
-		return Result<std::string, int>::err(ERR);
-	}
-	len = end - pos;
-	uri_host = field_value.substr(pos, len);
-	pos += len;
-
-	*end_pos = pos;
-	return Result<std::string, int>::ok(uri_host);
-}
-
-/*
- port          = *DIGIT
- */
-Result <std::string, int> parse_port(const std::string &field_value,
-									 std::size_t start_pos,
-									 std::size_t *end_pos) {
-	std::size_t pos, len;
-	std::string port;
-
-	if (!end_pos) {
-		return Result<std::string, int>::err(ERR);
-	}
-	*end_pos = start_pos;
-	if (field_value.empty() || field_value.length() < start_pos) {
-		return Result<std::string, int>::err(ERR);
-	}
-
-	pos = start_pos;
-	len = 0;
-	while (field_value[pos + len] && std::isdigit(field_value[pos + len])) {
-		++len;
-	}
-	if (len == 0) {
-		return Result<std::string, int>::err(ERR);
-	}
-	port = field_value.substr(pos, len);
-	pos += len;
-
-	*end_pos = pos;
-	return Result<std::string, int>::ok(port);
-}
-
 Result<std::map<std::string, std::string>, int> parse_host(const std::string &field_value) {
 	std::map<std::string, std::string> host;
 	std::size_t pos, end;
@@ -122,7 +19,7 @@ Result<std::map<std::string, std::string>, int> parse_host(const std::string &fi
 	}
 
 	pos = 0;
-	uri_host_result = parse_uri_host(field_value, pos, &end);
+	uri_host_result = HttpMessageParser::parse_uri_host(field_value, pos, &end);
 	if (uri_host_result.is_err()) {
 		return Result<std::map<std::string, std::string>, int>::err(ERR);
 	}
@@ -136,7 +33,7 @@ Result<std::map<std::string, std::string>, int> parse_host(const std::string &fi
 		}
 		++pos;
 
-		port_result = parse_port(field_value, pos, &end);
+		port_result = HttpMessageParser::parse_port(field_value, pos, &end);
 		if (port_result.is_err()) {
 			return Result<std::map<std::string, std::string>, int>::err(ERR);
 		}
@@ -161,9 +58,7 @@ Result<int, int> validate_uri_host(const std::map<std::string, std::string> &hos
 	}
 	uri_host = itr->second;
 
-	if (!HttpMessageParser::is_ip_literal(uri_host)
-		&& !HttpMessageParser::is_ipv4address(uri_host)
-		&& !HttpMessageParser::is_reg_name(uri_host)) {
+	if (!HttpMessageParser::is_valid_uri_host(uri_host)) {
 		return Result<int, int>::err(ERR);
 	}
 	return Result<int, int>::ok(OK);
@@ -172,8 +67,7 @@ Result<int, int> validate_uri_host(const std::map<std::string, std::string> &hos
 Result<int, int> validate_port(const std::map<std::string, std::string> &host) {
 	std::map<std::string, std::string>::const_iterator itr;
 	std::string port;
-	int port_num;
-	bool succeed;
+
 
 	itr = host.find(std::string(PORT));
 	if (itr == host.end()){
@@ -181,8 +75,7 @@ Result<int, int> validate_port(const std::map<std::string, std::string> &host) {
 	}
 
 	port = itr->second;
-	port_num = HttpMessageParser::to_integer_num(port, &succeed);
-	if (!succeed || port_num < 0 || 65535 < port_num) {
+	if (!HttpMessageParser::is_valid_port(port)) {
 		return Result<int, int>::err(ERR);
 	}
 	return Result<int, int>::ok(OK);

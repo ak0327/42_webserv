@@ -18,6 +18,8 @@ extern const int COUNTER_INIT;
 
 /* num */
 extern const int SINGLE_OCCURRENCE_LIMIT;
+extern const int PORT_MIN;
+extern const int PORT_MAX;
 
 ////////////////////////////////////////////////////////////////////////////////
 /* status */

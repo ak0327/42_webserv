@@ -93,12 +93,17 @@ bool is_valid_day1(int year, int month, int day);
 bool is_valid_time_of_day(int hour, int minute, int second);
 bool is_valid_day_name(const std::string &day_name, int year, int month, int day);
 
-std::string parse_uri_host(const std::string &str,
-						   std::size_t start_pos,
-						   std::size_t *end_pos);
-std::string parse_port(const std::string &str,
-					   std::size_t start_pos,
-					   std::size_t *end_pos);
+Result<std::string, int> parse_uri_host(const std::string &field_value,
+										std::size_t start_pos,
+										std::size_t *end_pos);
+
+Result<std::string, int> parse_port(const std::string &field_value,
+									std::size_t start_pos,
+									std::size_t *end_pos);
+
+
+bool is_valid_uri_host(const std::string &uri_host);
+bool is_valid_port(const std::string &port);
 
 Result<date_format, int> parse_http_date(const std::string &http_date,
 										 std::string *day_name,
