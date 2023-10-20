@@ -1805,7 +1805,6 @@ bool is_valid_port(const std::string &port) {
  pct-encoded = "%" HEXDIG HEXDIG
  sub-delims  = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
  */
-// todo:test
 Result<std::string, int> parse_uri_host(const std::string &field_value,
 										std::size_t start_pos,
 										std::size_t *end_pos) {
@@ -1847,7 +1846,6 @@ Result<std::string, int> parse_uri_host(const std::string &field_value,
 /*
  port          = *DIGIT
  */
-// todo:test
 Result<std::string, int> parse_port(const std::string &field_value,
 									std::size_t start_pos,
 									std::size_t *end_pos) {

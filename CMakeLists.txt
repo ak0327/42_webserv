@@ -165,6 +165,7 @@ set (unit_test_srcs
         # http message parser
         test/unit_test/HttpMessageParser/TestGet.cpp
         test/unit_test/HttpMessageParser/TestIs.cpp
+        test/unit_test/HttpMessageParser/TestParse.cpp
         test/unit_test/HttpMessageParser/TestSkip.cpp
         test/unit_test/HttpMessageParser/TestStrToNum.cpp
 
