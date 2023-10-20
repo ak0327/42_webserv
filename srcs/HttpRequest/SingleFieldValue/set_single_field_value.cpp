@@ -98,19 +98,6 @@ Result<int, int> HttpRequest::set_access_control_request_method(const std::strin
 	return Result<int, int>::ok(STATUS_OK);
 }
 
-// todo: Alt-Used
-// Alt-Used = uri-host [ ":" port ]
-// https://tex2e.github.io/rfc-translater/html/rfc7838.html#5--The-Alt-Used-HTTP-Header-Field
-
-// todo: map['host'] = host, map[port] = port ?
-// same as Host structure
-Result<int, int> HttpRequest::set_alt_used(const std::string &field_name,
-										   const std::string &field_value)
-{
-	this->_request_header_fields[field_name] = new SingleFieldValue(field_value);
-	return Result<int, int>::ok(STATUS_OK);
-}
-
 // Connection        = #connection-option; case-insensitive
 // connection-option = token
 

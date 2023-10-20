@@ -334,7 +334,7 @@ void HttpRequest::init_field_name_parser() {
 	map[std::string(ACCEPT_LANGUAGE)] = &HttpRequest::set_accept_language;  // todo: Accept-Language
 	map[std::string(ACCESS_CONTROL_REQUEST_HEADERS)] = &HttpRequest::set_access_control_request_headers;  // todo: Access-Control-Request-Headers
 	map[std::string(ACCESS_CONTROL_REQUEST_METHOD)] = &HttpRequest::set_access_control_request_method;
-	map[std::string(ALT_USED)] = &HttpRequest::set_alt_used;  // todo: Alt-Used
+	map[std::string(ALT_USED)] = &HttpRequest::set_alt_used;
 	map[std::string(AUTHORIZATION)] = &HttpRequest::set_authorization;
 	map[std::string(CACHE_CONTROL)] =  &HttpRequest::set_cache_control;  // todo:
 	map[std::string(CONNECTION)] = &HttpRequest::set_connection;

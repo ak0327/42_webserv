@@ -194,6 +194,7 @@ set (unit_test_srcs
         test/unit_test/MultiFieldValues/TestTransferEncoding.cpp
 
         # map field values
+        test/unit_test/MapFieldValues/TestAltUsed.cpp
         test/unit_test/MapFieldValues/TestAuthorization.cpp
         test/unit_test/MapFieldValues/TestCacheControl.cpp
         test/unit_test/MapFieldValues/TestCookie.cpp

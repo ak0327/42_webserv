@@ -231,7 +231,6 @@ parse_and_validate_host(const std::string &field_value) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// todo: Host
 // Host: <host>:<port>
 
 /*
@@ -297,3 +296,21 @@ Result<int, int> HttpRequest::set_host(const std::string &field_name,
 	return Result<int, int>::ok(STATUS_OK);
 }
 
+// Alt-Used = uri-host [ ":" port ]
+// https://tex2e.github.io/rfc-translater/html/rfc7838.html#5--The-Alt-Used-HTTP-Header-Field
+Result<int, int> HttpRequest::set_alt_used(const std::string &field_name,
+										   const std::string &field_value) {
+	std::map<std::string, std::string> host;
+	Result<std::map<std::string, std::string>, int> result;
+
+	clear_field_values_of(field_name);
+
+	result = parse_and_validate_host(field_value);
+	if (result.is_err()) {
+		return Result<int, int>::ok(STATUS_OK);
+	}
+	host = result.get_ok_value();
+
+	this->_request_header_fields[field_name] = new MapFieldValues(host);
+	return Result<int, int>::ok(STATUS_OK);
+}
