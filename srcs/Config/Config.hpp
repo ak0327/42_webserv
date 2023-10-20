@@ -37,7 +37,7 @@ class	Config
 		void	ready_next_locationconfig(LocationConfig *location_config, \
 											const std::vector<std::string> &server_name, 
 											bool *in_server_block);
-		bool	ready_server_config_format(const std::string &config_file_name, \
+		bool	ready_server_config(const std::string &config_file_name, \
 											std::vector<std::vector<std::string> > *server_name_list);
 		void	set_serverconfig_ready_next_serverconfig(AllConfig *Configs, \
 															ServerConfig *server_config, \

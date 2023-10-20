@@ -19,7 +19,7 @@ void	Config::set_serverconfig_ready_next_serverconfig(AllConfig *Configs, \
 	field_header_map->clear();
 }
 
-bool	Config::ready_server_config_format(const std::string &config_file_name, \
+bool	Config::ready_server_config(const std::string &config_file_name, \
 											std::vector<std::vector<std::string> > *server_name_list)
 {
 	AllConfig	Configs;  // 現状ここに対する適切な変数が見つかっていない
@@ -111,7 +111,7 @@ Config::Config(const std::string &config_file_name): _is_config_format(false)
 
 	if (!(test_open.is_open()))
 		return ;
-	server_success = this->ready_server_config_format(config_file_name, &server_name_list);
+	server_success = this->ready_server_config(config_file_name, &server_name_list);
 	if (!server_success)
 		return;
 	location_success = this->ready_location_config(config_file_name, server_name_list.begin());
