@@ -1758,13 +1758,13 @@ void skip_reg_name(const std::string &str,
 	*end_pos = pos;
 }
 
-bool is_valid_uri_host(const std::string &uri_host) {
+bool is_uri_host(const std::string &uri_host) {
 	return (HttpMessageParser::is_ip_literal(uri_host)
 			|| HttpMessageParser::is_ipv4address(uri_host)
 			|| HttpMessageParser::is_reg_name(uri_host));
 }
 
-bool is_valid_port(const std::string &port) {
+bool is_port(const std::string &port) {
 	int port_num;
 	bool succeed;
 
@@ -1875,7 +1875,7 @@ Result<std::string, int> parse_port(const std::string &field_value,
 	return Result<std::string, int>::ok(port);
 }
 
-bool is_valid_scheme(const std::string &scheme) {
+bool is_scheme(const std::string &scheme) {
 	std::size_t pos;
 
 	if (scheme.empty() || !std::isalpha(scheme[0])) {

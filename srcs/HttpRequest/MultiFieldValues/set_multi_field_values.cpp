@@ -237,13 +237,13 @@ Result<int, int> parse_serialized_origin(const std::string &field_value,
 Result<int, int> validate_serialized_oritin(const std::string &scheme,
 											const std::string &host,
 											const std::string &port) {
-	if (!HttpMessageParser::is_valid_scheme(scheme)) {
+	if (!HttpMessageParser::is_scheme(scheme)) {
 		return Result<int, int>::err(ERR);
 	}
-	if (!HttpMessageParser::is_valid_uri_host(host)) {
+	if (!HttpMessageParser::is_uri_host(host)) {
 		return Result<int, int>::err(ERR);
 	}
-	if (!port.empty() && !HttpMessageParser::is_valid_port(port)) {
+	if (!port.empty() && !HttpMessageParser::is_port(port)) {
 		return Result<int, int>::err(ERR);
 	}
 	return Result<int, int>::ok(OK);

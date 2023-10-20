@@ -58,7 +58,7 @@ Result<int, int> validate_uri_host(const std::map<std::string, std::string> &hos
 	}
 	uri_host = itr->second;
 
-	if (!HttpMessageParser::is_valid_uri_host(uri_host)) {
+	if (!HttpMessageParser::is_uri_host(uri_host)) {
 		return Result<int, int>::err(ERR);
 	}
 	return Result<int, int>::ok(OK);
@@ -75,7 +75,7 @@ Result<int, int> validate_port(const std::map<std::string, std::string> &host) {
 	}
 
 	port = itr->second;
-	if (!HttpMessageParser::is_valid_port(port)) {
+	if (!HttpMessageParser::is_port(port)) {
 		return Result<int, int>::err(ERR);
 	}
 	return Result<int, int>::ok(OK);

@@ -255,7 +255,6 @@ Result<int, int> HttpRequest::set_referer(const std::string &field_name,
 	return Result<int, int>::ok(STATUS_OK);
 }
 
-// todo: Sec-Fetch-Dest
 /*
  Sec-Fetch-Dest = sh-token
  "audio", "audioworklet", "document", "embed", "empty", "font",
@@ -374,7 +373,6 @@ Result<int, int> HttpRequest::set_upgrade_insecure_requests(const std::string &f
 }
 
 /*
- todo: User-Agent
  User-Agent = product *( RWS ( product / comment ) )
  product         = token ["/" product-version]
  product-version = token
