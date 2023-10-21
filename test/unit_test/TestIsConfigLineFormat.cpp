@@ -81,23 +81,27 @@ TEST(IsConfigLineTest, is_location_block_format_false)
 
 TEST(IsConfigLineTest, is_start_server_block_true) 
 {
-	EXPECT_EQ(true, IsConfigFormat::is_start_server_block("server {"));
-	EXPECT_EQ(true, IsConfigFormat::is_start_server_block("	server {	"));
-	EXPECT_EQ(true, IsConfigFormat::is_start_server_block("server		{	"));
-	EXPECT_EQ(true, IsConfigFormat::is_start_server_block("      server 		 {		   "));
+	bool	test_bool = false;
+
+	EXPECT_EQ(true, IsConfigFormat::is_start_server_block("server {", &test_bool));
+	EXPECT_EQ(true, IsConfigFormat::is_start_server_block("	server {	", &test_bool));
+	EXPECT_EQ(true, IsConfigFormat::is_start_server_block("server		{	", &test_bool));
+	EXPECT_EQ(true, IsConfigFormat::is_start_server_block("      server 		 {		   ", &test_bool));
 }
 
 TEST(IsConfigLineTest, is_start_server_block_false)
 {
-	EXPECT_EQ(false, IsConfigFormat::is_start_server_block("s"));
-	EXPECT_EQ(false, IsConfigFormat::is_start_server_block(""));
-	EXPECT_EQ(false, IsConfigFormat::is_start_server_block("server {{"));
-	EXPECT_EQ(false, IsConfigFormat::is_start_server_block("      server {	   {"));
-	EXPECT_EQ(false, IsConfigFormat::is_start_server_block("serve {"));
-	EXPECT_EQ(false, IsConfigFormat::is_start_server_block("{"));
-	EXPECT_EQ(false, IsConfigFormat::is_start_server_block("server aaa {"));
-	EXPECT_EQ(false, IsConfigFormat::is_start_server_block("server{"));
-	EXPECT_EQ(false, IsConfigFormat::is_start_server_block("     server{"));
+	bool	test_bool = false;
+
+	EXPECT_EQ(false, IsConfigFormat::is_start_server_block("s", &test_bool));
+	EXPECT_EQ(false, IsConfigFormat::is_start_server_block("", &test_bool));
+	EXPECT_EQ(false, IsConfigFormat::is_start_server_block("server {{", &test_bool));
+	EXPECT_EQ(false, IsConfigFormat::is_start_server_block("      server {	   {", &test_bool));
+	EXPECT_EQ(false, IsConfigFormat::is_start_server_block("serve {", &test_bool));
+	EXPECT_EQ(false, IsConfigFormat::is_start_server_block("{", &test_bool));
+	EXPECT_EQ(false, IsConfigFormat::is_start_server_block("server aaa {", &test_bool));
+	EXPECT_EQ(false, IsConfigFormat::is_start_server_block("server{", &test_bool));
+	EXPECT_EQ(false, IsConfigFormat::is_start_server_block("     server{", &test_bool));
 }
 
 

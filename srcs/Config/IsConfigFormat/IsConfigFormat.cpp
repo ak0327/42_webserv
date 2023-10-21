@@ -40,7 +40,7 @@ bool	IsConfigFormat::is_start_location_block(const std::string &config_line, \
 }
 
 // start_server -> <OWS> server <OWS> { <OWS>
-bool	IsConfigFormat::is_start_server_block(const std::string &config_line)
+bool	IsConfigFormat::is_start_server_block(const std::string &config_line, bool *in_server_block)
 {
 	std::string	line_without_ows = HandlingString::obtain_without_ows_value(config_line);
 	size_t	start_pos = 0;
@@ -50,7 +50,11 @@ bool	IsConfigFormat::is_start_server_block(const std::string &config_line)
 	if (line_without_ows.substr(start_pos, end_pos - start_pos) != "server" || end_pos == line_without_ows.length())
 		return (false);
 	HandlingString::skip_ows(line_without_ows, &end_pos);
-	return (ConfigHandlingString::is_blockstart_endword(line_without_ows.substr(end_pos, line_without_ows.length() - end_pos)));
+	if (ConfigHandlingString::is_blockstart_endword(line_without_ows.substr(end_pos, line_without_ows.length() - end_pos)))
+		*in_server_block = true;
+	else
+		*in_server_block = false;
+	return (true);
 }
 
 // location -> <OWS> (文字列->header) <OWS> {文字列->value}; <OWS>
@@ -95,15 +99,15 @@ bool	IsConfigFormat::ready_location_block_config(const std::string &config_line,
 		*in_location_block = false;
 		return true;
 	}
-	if (!(ConfigHandlingString::ready_field_header(line_without_ows, &end_pos, &field_header)))
+	if (!(ConfigHandlingString::is_field_header_format_get_header(line_without_ows, &end_pos, &field_header)))
 		return (false);
 	HandlingString::skip_ows(line_without_ows, &end_pos);
-	if (ConfigHandlingString::ready_field_value(line_without_ows, &end_pos, &field_value) == false)
+	if (ConfigHandlingString::is_field_value_format_get_value(line_without_ows, &end_pos, &field_value) == false)
 		return (false);
 	if (std::find(field_key_vector->begin(), field_key_vector->end(), field_header) != field_key_vector->end())
 		return (false);
 	field_key_vector->push_back(field_header);
-	if (location_config->ready_location_block_keyword(field_header, field_value) == false)
+	if (location_config->set_field_header_field_key(field_header, field_value) == false)
 		return (false);
 	return (true);
 }
@@ -129,14 +133,14 @@ bool	IsConfigFormat::ready_server_block_format(const std::string &config_line, \
 		*in_server_block = false;
 		return true;
 	}
-	if (!(ConfigHandlingString::ready_field_header(line_without_ows, &end_pos, &field_header)))
+	if (!(ConfigHandlingString::is_field_header_format_get_header(line_without_ows, &end_pos, &field_header)))
 		return (false);
 	if (std::find(field_header_vector->begin(), field_header_vector->end(), field_header) != field_header_vector->end())
 		return false;
 	HandlingString::skip_ows(line_without_ows, &end_pos);
-	if (ConfigHandlingString::ready_field_value(line_without_ows, &end_pos, &field_value) == false)
+	if (ConfigHandlingString::is_field_value_format_get_value(line_without_ows, &end_pos, &field_value) == false)
 		return (false);
-	if (server_config->ready_server_block_keyword(field_header, field_value) == false)
+	if (server_config->set_field_header_field_value(field_header, field_value) == false)
 	{
 		std::cout << "serverconfig -> |" << field_header << "|" << field_value << "|" << std::endl;
 		return (false);

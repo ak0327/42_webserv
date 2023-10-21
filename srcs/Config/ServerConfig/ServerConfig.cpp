@@ -84,7 +84,7 @@ std::vector<std::string> ServerConfig::ready_string_vector_field_value(const std
 	return (anser_vector);
 }
 
-bool	ServerConfig::ready_server_block_keyword(const std::string &field_header, \
+bool	ServerConfig::set_field_header_field_value(const std::string &field_header, \
 													const std::string &field_value)
 {
 	std::vector<std::string>	field_headers;

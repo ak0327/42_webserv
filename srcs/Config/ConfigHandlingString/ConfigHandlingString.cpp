@@ -53,7 +53,7 @@ bool	ConfigHandlingString::is_field_value(const std::string &config_line, size_t
 	return (true);
 }
 
-bool	ConfigHandlingString::ready_field_header(const std::string &config_line, \
+bool	ConfigHandlingString::is_field_header_format_get_header(const std::string &config_line, \
 													size_t *end_pos, \
 													std::string *field_header)
 {
@@ -66,7 +66,7 @@ bool	ConfigHandlingString::ready_field_header(const std::string &config_line, \
 	return (true);
 }
 
-bool	ConfigHandlingString::ready_field_value(const std::string &config_line, \
+bool	ConfigHandlingString::is_field_value_format_get_value(const std::string &config_line, \
 													size_t *end_pos, \
 													std::string *field_value)
 {

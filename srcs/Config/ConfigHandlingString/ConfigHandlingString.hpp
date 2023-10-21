@@ -24,10 +24,10 @@ class ConfigHandlingString
 		static	bool	is_blockstart_endword(const std::string &block_end_word);
 		static	bool	is_field_header(const std::string &config_line, size_t *pos);
 		static	bool	is_field_value(const std::string &config_line, size_t *pos);
-		static	bool	ready_field_header(const std::string &config_line, \
+		static	bool	is_field_header_format_get_header(const std::string &config_line, \
 											size_t *end_pos, \
 											std::string *field_header);
-		static	bool	ready_field_value(const std::string &config_line, \
+		static	bool	is_field_value_format_get_value(const std::string &config_line, \
 											size_t *end_pos, \
 											std::string *field_value);
 		static	bool	show_error_message(const std::string &config_line, \

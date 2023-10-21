@@ -34,9 +34,9 @@ class	Config
 		bool	report_errorline(const std::string &config_line);
 		bool	ready_location_config(const std::string &config_file_name, \
 										std::vector<std::vector<std::string> >::iterator server_name_itr);
-		void	ready_next_locationconfig(LocationConfig *location_config, \
-											const std::vector<std::string> &server_name, 
-											bool *in_server_block);
+		void	init_location_config_with_server_config(LocationConfig *location_config, \
+															const std::vector<std::string> &server_name, 
+															bool *in_server_block);
 		bool	ready_server_config(const std::string &config_file_name, \
 											std::vector<std::vector<std::string> > *server_name_list);
 		void	set_serverconfig_ready_next_serverconfig(AllConfig *Configs, \

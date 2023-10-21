@@ -80,7 +80,7 @@ class ServerConfig
 		void									set_allowmethods(const std::vector<std::string> &allow_methods);
 		void									set_indexpages(const std::vector<std::string> &indexpags);
 		void									set_server_names(const std::vector<std::string> &indexpages);
-		bool									ready_server_block_keyword(const std::string &field_header, const std::string &field_value);
+		bool									set_field_header_field_value(const std::string &field_header, const std::string &field_value);
 		void									clear_serverconfig();
 };
 

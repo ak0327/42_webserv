@@ -19,7 +19,8 @@ class IsConfigFormat
 		static	bool	is_start_location_block(const std::string &config_line, \
 												std::string *config_location_path);
 		static	bool	is_start_location_block(const std::string &config_line);
-		static	bool	is_start_server_block(const std::string &config_line);
+		static	bool	is_start_server_block(const std::string &config_line, \
+												bool *in_server_block);
 		static	bool	is_location_block_config(const std::string &config_line, \
 													bool *in_location_block);
 		static	bool	ready_location_block_config(const std::string &config_line, \

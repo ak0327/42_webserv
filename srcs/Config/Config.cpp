@@ -34,15 +34,17 @@ bool	Config::ready_server_config(const std::string &config_file_name, \
 	{
 		if ((ConfigHandlingString::is_ignore_line(config_line)))
 			continue;
-		if (in_server_block == false && in_location_block == false && IsConfigFormat::is_start_server_block(config_line))
-			in_server_block = true;
+		if (in_server_block == false && in_location_block == false)
+			IsConfigFormat::is_start_server_block(config_line, &in_server_block);
 		else if (in_server_block == true && in_location_block == false && \
-		IsConfigFormat::ready_server_block_format(config_line, &in_server_block, &server_config, &field_header_map))
+		IsConfigFormat::ready_server_block_format(config_line, &in_server_block, \
+		&server_config, &field_header_map))
 		{
 			if (IsConfigFormat::is_start_location_block(config_line))
 				in_location_block = true;
 			else if (ConfigHandlingString::is_block_end(config_line))
-				set_serverconfig_ready_next_serverconfig(&Configs, &server_config, &field_header_map, server_name_list);
+				set_serverconfig_ready_next_serverconfig(&Configs, &server_config, \
+				&field_header_map, server_name_list);
 		}
 		else if (in_server_block == true && in_location_block == true && \
 		IsConfigFormat::is_location_block_config(config_line, &in_location_block))
@@ -53,7 +55,7 @@ bool	Config::ready_server_config(const std::string &config_file_name, \
 	return (in_server_block == false && in_location_block == false);
 }
 
-void	Config::ready_next_locationconfig(LocationConfig *location_config, \
+void	Config::init_location_config_with_server_config(LocationConfig *location_config, \
 												const std::vector<std::string> &server_name, \
 												bool *in_server_block)
 {
@@ -77,8 +79,13 @@ bool	Config::ready_location_config(const std::string &config_file_name, \
 	{
 		if ((ConfigHandlingString::is_ignore_line(config_line)))
 			continue;
-		if (in_server_block == false && in_location_block == false && IsConfigFormat::is_start_server_block(config_line))
-			ready_next_locationconfig(&location_config, *server_name_itr, &in_server_block);
+		if (in_server_block == false && in_location_block == false)
+		{
+			IsConfigFormat::is_start_server_block(config_line, &in_server_block);
+			if (in_server_block == true)
+				init_location_config_with_server_config(&location_config, \
+														*server_name_itr, &in_server_block);
+		}
 		else if (in_server_block == true && in_location_block == false)
 		{
 			if (IsConfigFormat::is_start_location_block(config_line, &location_path))
