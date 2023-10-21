@@ -1249,15 +1249,20 @@ TEST(TestHttpMessageParser, IsPartialURI) {
 	EXPECT_FALSE(HttpMessageParser::is_partial_uri(":"));
 	EXPECT_FALSE(HttpMessageParser::is_partial_uri(" "));
 	EXPECT_FALSE(HttpMessageParser::is_partial_uri("\n"));
+	EXPECT_FALSE(HttpMessageParser::is_partial_uri("//"));
 }
 
 TEST(TestHttpMessageParser, IsUserInfo) {
+	EXPECT_TRUE(HttpMessageParser::is_userinfo(""));
 	EXPECT_TRUE(HttpMessageParser::is_userinfo("a"));
 	EXPECT_TRUE(HttpMessageParser::is_userinfo("%12"));
 	EXPECT_TRUE(HttpMessageParser::is_userinfo(":"));
 	EXPECT_TRUE(HttpMessageParser::is_userinfo("abc123%12%ff:"));
 
 	EXPECT_FALSE(HttpMessageParser::is_userinfo(" "));
+	EXPECT_FALSE(HttpMessageParser::is_userinfo("\t"));
+	EXPECT_FALSE(HttpMessageParser::is_userinfo("\n"));
+	EXPECT_FALSE(HttpMessageParser::is_userinfo("\r%12"));
 	EXPECT_FALSE(HttpMessageParser::is_userinfo("%"));
 	EXPECT_FALSE(HttpMessageParser::is_userinfo("%fgaaa"));
 	EXPECT_FALSE(HttpMessageParser::is_userinfo("/aaa/bbb"));

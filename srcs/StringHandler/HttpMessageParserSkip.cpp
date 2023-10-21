@@ -521,7 +521,7 @@ void skip_userinfo(const std::string &str,
 	}
 	pos = start_pos;
 	*end_pos = start_pos;
-	if (str.empty() || str.length() <= start_pos) {
+	if (str.length() <= start_pos) {
 		return;
 	}
 	while (str[pos]) {

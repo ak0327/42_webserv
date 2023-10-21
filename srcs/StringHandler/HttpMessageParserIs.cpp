@@ -740,9 +740,6 @@ bool is_path_empty(const std::string &str, std::size_t start_pos) {
 bool is_userinfo(const std::string &str) {
 	std::size_t end;
 
-	if (str.empty()) {
-		return false;
-	}
 	skip_userinfo(str, 0, &end);
 	return str[end] == '\0';
 }

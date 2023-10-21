@@ -39,7 +39,6 @@ TEST(TestHttpMessageParser, SkipQuotedString) {
                  *("-" extension)
                  ["-" privateuse]
  */
-
 TEST(TestHttpMessageParser, SkipLanguage) {
 	std::size_t end;
 	std::string str;
@@ -1547,71 +1546,268 @@ TEST(TestHttpMessageParser, SkipPathRootless) {
 
 }
 
-// TEST(TestHttpMessageParser, SkipUserInfo) {
-// 	std::size_t pos, end;
-// 	std::string str;
-//
-// 	str = "";
-// 	//     012345678901234567890
-// 	pos = 0;
-// 	HttpMessageParser::skip_(str, pos, &end);
-// 	EXPECT_EQ(str.length(), end);
-// }
-//
-// TEST(TestHttpMessageParser, SkipAuthority) {
-// 	std::size_t pos, end;
-// 	std::string str;
-//
-// 	str = "";
-// 	//     012345678901234567890
-// 	pos = 0;
-// 	HttpMessageParser::skip_(str, pos, &end);
-// 	EXPECT_EQ(str.length(), end);
-// }
-//
-// TEST(TestHttpMessageParser, SkipRelativePart) {
-// 	std::size_t pos, end;
-// 	std::string str;
-//
-// 	str = "";
-// 	//     012345678901234567890
-// 	pos = 0;
-// 	HttpMessageParser::skip_(str, pos, &end);
-// 	EXPECT_EQ(str.length(), end);
-// }
-//
-// TEST(TestHttpMessageParser, SkipHierPart) {
-// 	std::size_t pos, end;
-// 	std::string str;
-//
-// 	str = "";
-// 	//     012345678901234567890
-// 	pos = 0;
-// 	HttpMessageParser::skip_(str, pos, &end);
-// 	EXPECT_EQ(str.length(), end);
-// }
-//
-// TEST(TestHttpMessageParser, SkipPartialURI) {
-// 	std::size_t pos, end;
-// 	std::string str;
-//
-// 	str = "";
-// 	//     012345678901234567890
-// 	pos = 0;
-// 	HttpMessageParser::skip_(str, pos, &end);
-// 	EXPECT_EQ(str.length(), end);
-// }
-//
-// TEST(TestHttpMessageParser, SkipAbsoluteURI) {
-// 	std::size_t pos, end;
-// 	std::string str;
-//
-// 	str = "";
-// 	//     012345678901234567890
-// 	pos = 0;
-// 	HttpMessageParser::skip_(str, pos, &end);
-// 	EXPECT_EQ(str.length(), end);
-// }
+TEST(TestHttpMessageParser, SkipUserInfo) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_userinfo(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "aaaabbb123%12";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_userinfo(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "12:%ff12%12:!&?*";
+	//                   ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_userinfo(str, pos, &end);
+	EXPECT_EQ(14, end);
+
+	str = " aaa";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_userinfo(str, pos, &end);
+	EXPECT_EQ(0, end);
+
+	str = "%12/aaa/bbb";
+	//        ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_userinfo(str, pos, &end);
+	EXPECT_EQ(3, end);
+
+	str = "a";
+	//     012345678901234567890
+	pos = 10;
+	HttpMessageParser::skip_userinfo(str, pos, &end);
+	EXPECT_EQ(pos, end);
+}
+
+TEST(TestHttpMessageParser, SkipAuthority) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "localhost";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_authority(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "userinfo@localhost:8080";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_authority(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_authority(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 10;
+	HttpMessageParser::skip_authority(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "localhost ";
+	//              ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_authority(str, pos, &end);
+	EXPECT_EQ(9, end);
+}
+
+TEST(TestHttpMessageParser, SkipRelativePart) {
+	std::size_t pos, end;
+	std::string str;
+
+	// "//" authority path-abempty
+	str = "//localhost:8080";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_relative_part(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "//localhost:8080/abc/";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_relative_part(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "//localhost//////////";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_relative_part(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "//localhost:8080?";
+	//                     ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_relative_part(str, pos, &end);
+	EXPECT_EQ(16, end);
+
+	str = "///localhost:8080?";
+	//     ^ng
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_relative_part(str, pos, &end);
+	EXPECT_EQ(0, end);
+
+	// path-absolute
+	str = "/localhost";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_relative_part(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "/a/b/c////d";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_relative_part(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	// path-rootless
+	str = "a/b/c////d";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_relative_part(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "localhost/hoge/huga%12%fg";
+	//                           ^^^ng
+	//     01234567890123456789012345
+	pos = 0;
+	HttpMessageParser::skip_relative_part(str, pos, &end);
+	EXPECT_EQ(22, end);
+
+	// path-empty
+	str = "";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_relative_part(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "^abc";
+	//     ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_relative_part(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "?0123";
+	//     ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_relative_part(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "????0123";
+	//       ^start = end
+	//     012345678901234567890
+	pos = 2;
+	HttpMessageParser::skip_relative_part(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+}
+
+TEST(TestHttpMessageParser, SkipHierPart) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_hier_part(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+}
+
+TEST(TestHttpMessageParser, SkipPartialURI) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "//localhost";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_partial_uri(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "//localhost:8080?a/b/c/";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_partial_uri(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "//a:8080?aaa^";
+	//                 ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_partial_uri(str, pos, &end);
+	EXPECT_EQ(12, end);
+
+	str = "//a:8080?aaa^";
+	//     012345678901234567890
+	pos = 100;
+	HttpMessageParser::skip_partial_uri(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "?/?/?/?\n";
+	//            ^end
+	//     012345678901234567890
+	pos = 2;
+	HttpMessageParser::skip_partial_uri(str, pos, &end);
+	EXPECT_EQ(7, end);
+
+	str = "//";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_partial_uri(str, pos, &end);
+	EXPECT_EQ(0, end);
+}
+
+TEST(TestHttpMessageParser, SkipAbsoluteURI) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "aaa://aaa@localhost:8080?get/abc???";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_absolute_uri(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "aaa://aaa@localhost%fg";
+	//                        ^^^ng
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_absolute_uri(str, pos, &end);
+	EXPECT_EQ(19, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_absolute_uri(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "     ";
+	//     012345678901234567890
+	pos = 3;
+	HttpMessageParser::skip_absolute_uri(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "   ";
+	//     012345678901234567890
+	pos = 100;
+	HttpMessageParser::skip_absolute_uri(str, pos, &end);
+	EXPECT_EQ(pos, end);
+}
 
 // TEST(TestHttpMessageParser, ) {
 // 	std::size_t pos, end;

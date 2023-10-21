@@ -273,6 +273,13 @@ void skip_authority(const std::string &str,
 					std::size_t start_pos,
 					std::size_t *end_pos);
 
+void skip_relative_part(const std::string &str,
+						std::size_t start_pos,
+						std::size_t *end_pos);
+
+void skip_hier_part(const std::string &str,
+					std::size_t start_pos,
+					std::size_t *end_pos);
 ////////////////////////////////////////////////////////////////////////////////
 
 Result<std::size_t, int> get_double_colon_pos(const std::string &str,
