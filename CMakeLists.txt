@@ -60,6 +60,8 @@ set(webserv_srcs
         srcs/Socket/Socket.cpp
         srcs/StringHandler/StringHandler.cpp
         srcs/StringHandler/HttpMessageParser.cpp
+        srcs/StringHandler/HttpMessageParserIs.cpp
+        srcs/StringHandler/HttpMessageParserSkip.cpp
 )
 
 # request_srcs -----------------------------------------------------------------
