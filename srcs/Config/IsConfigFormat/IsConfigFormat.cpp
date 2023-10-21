@@ -55,7 +55,7 @@ bool	IsConfigFormat::is_start_server_block(const std::string &config_line, bool 
 	return (true);
 }
 
-bool	IsConfigFormat::is_location_block_config(const std::string &config_line, \
+bool	IsConfigFormat::is_location_block(const std::string &config_line, \
 													bool *in_location_block)
 {
 	std::string	line_without_ows = HandlingString::obtain_without_ows_value(config_line);
@@ -113,7 +113,6 @@ bool	IsConfigFormat::is_location_format_ok_input_field_key_fiield_value(const st
 }
 
 bool	IsConfigFormat::is_server_format_ok_input_field_key_fiield_value(const std::string &config_line, \
-													bool *in_server_block,
 													ServerConfig *server_config, \
 													std::vector<std::string> *field_header_vector)
 {
@@ -124,13 +123,6 @@ bool	IsConfigFormat::is_server_format_ok_input_field_key_fiield_value(const std:
 	size_t		field_value_start_pos;
 	bool		is_format = false;
 
-	if (is_start_location_block(config_line))
-		return (true);
-	if (ConfigHandlingString::is_block_end(line_without_ows))
-	{
-		*in_server_block = false;
-		return true;
-	}
 	is_format = ConfigHandlingString::is_field_header(line_without_ows, &end_pos);
 	if (is_format == false)
 		return (false);

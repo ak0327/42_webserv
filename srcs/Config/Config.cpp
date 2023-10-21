@@ -36,18 +36,19 @@ bool	Config::ready_server_config(const std::string &config_file_name, \
 			continue;
 		if (in_server_block == false && in_location_block == false)
 			IsConfigFormat::is_start_server_block(config_line, &in_server_block);
-		else if (in_server_block == true && in_location_block == false && \
-		IsConfigFormat::is_server_format_ok_input_field_key_fiield_value(config_line, &in_server_block, \
-		&server_config, &field_header_map))
+		else if (in_server_block == true && in_location_block == false)
 		{
 			if (IsConfigFormat::is_start_location_block(config_line))
 				in_location_block = true;
 			else if (ConfigHandlingString::is_block_end(config_line))
 				set_serverconfig_ready_next_serverconfig(&Configs, &server_config, \
 				&field_header_map, server_name_list);
+			else if (IsConfigFormat::is_server_format_ok_input_field_key_fiield_value(config_line, \
+						&server_config, &field_header_map) == false)
+				return this->report_errorline(config_line);
 		}
 		else if (in_server_block == true && in_location_block == true && \
-		IsConfigFormat::is_location_block_config(config_line, &in_location_block))
+		IsConfigFormat::is_location_block(config_line, &in_location_block))
 			continue;
 		else  // 上記3つ以外の場合、状況としてはありえないためfalseになる
 			return this->report_errorline(config_line);

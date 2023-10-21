@@ -53,33 +53,6 @@ bool	ConfigHandlingString::is_field_value(const std::string &config_line, size_t
 	return (true);
 }
 
-// bool	ConfigHandlingString::is_field_header_format(const std::string &config_line, \
-// 													size_t *end_pos)
-// {
-// 	if (config_line.empty())
-// 		return ConfigHandlingString::show_error_message(config_line, NO_FIELD_HEADER);
-// 	HandlingString::skip_no_ows(config_line, end_pos);
-// 	if (*end_pos == config_line.length())  // headerの存在確認を行う必要があればここで行う headerしか存在しない場合のチェックは必要
-// 		return ConfigHandlingString::show_error_message(config_line, NO_FIELD_VALUE);
-// 	return (true);
-// }
-
-// bool	ConfigHandlingString::is_field_value_format(const std::string &config_line, \
-// 													size_t *end_pos)
-// {
-// 	size_t start_pos = *end_pos;
-
-// 	if (std::count(config_line.begin(), config_line.end(), ';') == 0)
-// 		return ConfigHandlingString::show_error_message(config_line, NO_SEMICOLON);
-// 	if (std::count(config_line.begin(), config_line.end(), ';') != 1)
-// 		return ConfigHandlingString::show_error_message(config_line, MULTIPLE_SEMICOLON);
-// 	while (config_line[*end_pos] != ';' && config_line[*end_pos] != '\0')
-// 		*end_pos = *end_pos + 1;
-// 	if (start_pos == *end_pos || config_line[*end_pos] != ';')
-// 		return ConfigHandlingString::show_error_message(config_line, NO_SEMICOLON);
-// 	return (true);
-// }
-
 bool ConfigHandlingString::show_error_message(const std::string &config_line, \
 												const int &error_type)
 {
