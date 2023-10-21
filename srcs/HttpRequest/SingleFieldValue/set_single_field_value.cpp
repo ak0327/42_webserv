@@ -140,10 +140,8 @@ Result<int, int> HttpRequest::set_content_length(const std::string &field_name,
 	return Result<int, int>::ok(STATUS_OK);
 }
 
-// todo: Content-Location
+
 // Content-Location = absolute-URI / partial-URI
-//   absolute-URI  = scheme ":" hier-part [ "?" query ]
-//   relative-ref  = relative-part [ "?" query ] [ "#" fragment ]
 Result<int, int> HttpRequest::set_content_location(const std::string &field_name,
 												   const std::string &field_value) {
 	clear_field_values_of(field_name);
@@ -246,12 +244,16 @@ Result<int, int> HttpRequest::set_max_forwards(const std::string &field_name,
 	return Result<int, int>::ok(STATUS_OK);
 }
 
-// todo: Referer
 // Referer = absolute-URI / partial-URI
+// https://rfc-editor.org/rfc/rfc9110#field.referer
 Result<int, int> HttpRequest::set_referer(const std::string &field_name,
-										  const std::string &field_value)
-{
-	this->_request_header_fields[field_name] = new SingleFieldValue(field_value);
+										  const std::string &field_value) {
+	clear_field_values_of(field_name);
+
+	if (HttpMessageParser::is_absolute_uri(field_value)
+		|| HttpMessageParser::is_partial_uri(field_value)) {
+		this->_request_header_fields[field_name] = new SingleFieldValue(field_value);
+	}
 	return Result<int, int>::ok(STATUS_OK);
 }
 

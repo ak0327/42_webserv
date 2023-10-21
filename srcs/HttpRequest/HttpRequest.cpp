@@ -342,7 +342,7 @@ void HttpRequest::init_field_name_parser() {
 	map[std::string(CONTENT_ENCODING)] = &HttpRequest::set_content_encoding;
 	map[std::string(CONTENT_LANGUAGE)] = &HttpRequest::set_content_language;
 	map[std::string(CONTENT_LENGTH)] = &HttpRequest::set_content_length;
-	map[std::string(CONTENT_LOCATION)] = &HttpRequest::set_content_location;  // todo: Content-Location
+	map[std::string(CONTENT_LOCATION)] = &HttpRequest::set_content_location;
 	map[std::string(CONTENT_RANGE)] = &HttpRequest::set_content_range;  // todo: Content-Range
 	map[std::string(CONTENT_TYPE)] = &HttpRequest::set_content_type;
 	map[std::string(COOKIE)] = &HttpRequest::set_cookie;
@@ -363,7 +363,7 @@ void HttpRequest::init_field_name_parser() {
 	map[std::string(ORIGIN)] = &HttpRequest::set_origin;
 	map[std::string(PROXY_AUTHORIZATION)] = &HttpRequest::set_proxy_authorization;
 	map[std::string(RANGE)] = &HttpRequest::set_range;
-	map[std::string(REFERER)] = &HttpRequest::set_referer;  // todo: Referer
+	map[std::string(REFERER)] = &HttpRequest::set_referer;
 	map[std::string(SEC_FETCH_DEST)] = &HttpRequest::set_sec_fetch_dest;
 	map[std::string(SEC_FETCH_MODE)] = &HttpRequest::set_sec_fetch_mode;
 	map[std::string(SEC_FETCH_SITE)] = &HttpRequest::set_sec_fetch_site;
