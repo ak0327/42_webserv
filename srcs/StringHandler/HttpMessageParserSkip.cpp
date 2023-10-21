@@ -22,7 +22,8 @@ void skip_extlang(const std::string &str,
 				  std::size_t start_pos,
 				  std::size_t *end_pos) {
 	std::size_t pos, tmp_pos, len, cnt;
-
+	const int alpha_len = 3;
+	const int repeat_min = 2;
 
 	if (!end_pos) { return; }
 	*end_pos = start_pos;
@@ -33,7 +34,7 @@ void skip_extlang(const std::string &str,
 	while (str[pos + len] && std::isalpha(str[pos + len])) {
 		++len;
 	}
-	if (len != 3) { return; }
+	if (len != alpha_len) { return; }
 	pos += len;
 
 	cnt = 0;
@@ -45,12 +46,12 @@ void skip_extlang(const std::string &str,
 		while (str[tmp_pos + len] && std::isalpha(str[tmp_pos + len])) {
 			++len;
 		}
-		if (len != 3) {
+		if (len != alpha_len) {
 			break;
 		}
 		pos = tmp_pos + len;
 		++cnt;
-		if (cnt == 2) {
+		if (cnt == repeat_min) {
 			break;
 		}
 	}
@@ -69,6 +70,11 @@ void skip_language(const std::string &str,
 				   std::size_t start_pos,
 				   std::size_t *end_pos) {
 	std::size_t pos, end, len;
+	const int shortest_code_min = 2;
+	const int shortest_code_max = 3;
+	const int reserved_len = 4;
+	const int registered_min = 5;
+	const int registered_max = 8;
 
 	if (!end_pos) { return; }
 	*end_pos = start_pos;
@@ -79,7 +85,7 @@ void skip_language(const std::string &str,
 	while (str[pos + len] && std::isalpha(str[pos + len])) {
 		++len;
 	}
-	if (2 <= len && len <= 3) {
+	if (shortest_code_min <= len && len <= shortest_code_max) {
 		pos += len;
 		if (str[pos] == '-') {
 			skip_extlang(str, pos + 1, &end);
@@ -87,7 +93,8 @@ void skip_language(const std::string &str,
 				pos = end;
 			}
 		}
-	} else if (len == 4 || (5 <= len && len <= 8)) {
+	} else if (len == reserved_len
+			|| (registered_min <= len && len <= registered_max)) {
 		pos += len;
 	} else {
 		return;
@@ -102,6 +109,7 @@ void skip_script(const std::string &str,
 				 std::size_t start_pos,
 				 std::size_t *end_pos) {
 	std::size_t pos, len;
+	const int script_len = 4;
 
 	if (!end_pos) { return; }
 	*end_pos = start_pos;
@@ -112,7 +120,7 @@ void skip_script(const std::string &str,
 	while (str[pos + len] && std::isalpha(str[pos + len])) {
 		++len;
 	}
-	if (len != 4) { return; }
+	if (len != script_len) { return; }
 	pos += len;
 	*end_pos = pos;
 }
@@ -125,6 +133,8 @@ void skip_region(const std::string &str,
 				 std::size_t start_pos,
 				 std::size_t *end_pos) {
 	std::size_t pos, len;
+	const int alpha_len = 2;
+	const int digit_len = 3;
 
 	if (!end_pos) { return; }
 	*end_pos = start_pos;
@@ -136,13 +146,13 @@ void skip_region(const std::string &str,
 		while (str[pos + len] && std::isalpha(str[pos + len])) {
 			++len;
 		}
-		if (len != 2) { return; }
+		if (len != alpha_len) { return; }
 		pos += len;
 	} else if (std::isdigit(str[pos])) {
 		while (str[pos + len] && std::isdigit(str[pos + len])) {
 			++len;
 		}
-		if (len != 3) { return; }
+		if (len != digit_len) { return; }
 		pos += len;
 	} else {
 		return;
@@ -158,6 +168,9 @@ void skip_variant(const std::string &str,
 				  std::size_t start_pos,
 				  std::size_t *end_pos) {
 	std::size_t pos, tmp_pos, len1, len2;
+	const int alnum_min = 5;
+	const int alnum_max = 8;
+	const int digit_len = 3;
 
 	if (!end_pos) { return; }
 	*end_pos = start_pos;
@@ -182,9 +195,9 @@ void skip_variant(const std::string &str,
 		}
 	}
 
-	if (5 <= len1 && len1 <= 8) {
+	if (alnum_min <= len1 && len1 <= alnum_max) {
 		pos += len1;
-	} else if (len2 == 3) {
+	} else if (len2 == digit_len) {
 		pos = tmp_pos + len2;
 	} else {
 		return;
@@ -204,6 +217,8 @@ void skip_extension(const std::string &str,
 					std::size_t start_pos,
 					std::size_t *end_pos) {
 	std::size_t pos, tmp_pos, len, cnt;
+	const int alnum_min = 2;
+	const int alnum_max = 8;
 
 	if (!end_pos) { return; }
 	*end_pos = start_pos;
@@ -222,7 +237,7 @@ void skip_extension(const std::string &str,
 		while (str[tmp_pos + len] && std::isalnum(str[tmp_pos + len])) {
 			++len;
 		}
-		if (len < 2 || 8 < len) { break; }
+		if (len < alnum_min || alnum_max < len) { break; }
 		pos = tmp_pos + len;
 		++cnt;
 	}
@@ -314,6 +329,8 @@ void skip_privateuse(const std::string &str,
 					 std::size_t start_pos,
 					 std::size_t *end_pos) {
 	std::size_t pos, tmp_pos, len, cnt;
+	const int alnum_min = 1;
+	const int alnum_max = 8;
 
 	if (!end_pos) { return; }
 	*end_pos = start_pos;
@@ -337,7 +354,7 @@ void skip_privateuse(const std::string &str,
 			   && std::isalnum(str[tmp_pos + len])) {
 			len++;
 		}
-		if (len < 1 || 8 < len) {
+		if (len < alnum_min || alnum_max < len) {
 			break;
 		}
 		pos = tmp_pos + len;
@@ -355,13 +372,6 @@ void skip_privateuse(const std::string &str,
  https://tex2e.github.io/rfc-translater/html/rfc5646.html
  */
 // todo: test
-
-// todo: 文字列の一致をどこまで判定するか？区切り文字の決め方がわからない
-//    regular = "zh-xiang"
-//    str     = "zh-xiangxxx"
-//                       ^ end_pos? NG?
-//              "zh-xiang-xxx"
-//              "zh-xiang;xxx"
 void skip_grandfathered(const std::string &str,
 						std::size_t start_pos,
 						std::size_t *end_pos) {
@@ -1058,6 +1068,9 @@ void skip_h16(const std::string &str,
 			  std::size_t start_pos,
 			  std::size_t *end_pos) {
 	std::size_t pos, len;
+	const int hexdig_min = 1;
+	const int hexdig_max = 4;
+
 	if (!end_pos) { return; }
 
 	pos = start_pos;
@@ -1067,11 +1080,11 @@ void skip_h16(const std::string &str,
 	len = 0;
 	while (str[pos + len] && is_hexdig(str[pos + len])) {
 		++len;
-		if (len == 4) {
+		if (len == hexdig_max) {
 			break;
 		}
 	}
-	if (len == 0) {
+	if (len < hexdig_min) {
 		return;
 	}
 	pos += len;
@@ -1274,25 +1287,27 @@ void skip_dec_octet(const std::string &str,
 void skip_ipv4address(const std::string &str,
 					  std::size_t start_pos,
 					  std::size_t *end_pos) {
-	std::size_t pos, end, dec_octet_cnt;
+	std::size_t pos, end, cnt;
+	const int dec_octet_cnt = 4;
+
 	if (!end_pos) { return; }
 
 	pos = start_pos;
 	*end_pos = start_pos;
 	if (str.empty() || str.length() <= start_pos) { return; }
 
-	dec_octet_cnt = 0;
-	while (str[pos] && dec_octet_cnt < 4) {
+	cnt = 0;
+	while (str[pos] && cnt < dec_octet_cnt) {
 		skip_dec_octet(str, pos, &end);
 		if (pos == end) { return; }
 		pos = end;
-		++dec_octet_cnt;
-		if (dec_octet_cnt < 4) {
+		++cnt;
+		if (cnt < dec_octet_cnt) {
 			if (str[pos] != '.') { return; }
 			++pos;
 		}
 	}
-	if (dec_octet_cnt != 4) { return; }
+	if (cnt != dec_octet_cnt) { return; }
 	*end_pos = pos;
 }
 
