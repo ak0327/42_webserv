@@ -37,7 +37,7 @@ bool	Config::ready_server_config(const std::string &config_file_name, \
 		if (in_server_block == false && in_location_block == false)
 			IsConfigFormat::is_start_server_block(config_line, &in_server_block);
 		else if (in_server_block == true && in_location_block == false && \
-		IsConfigFormat::ready_server_block_format(config_line, &in_server_block, \
+		IsConfigFormat::is_server_format_ok_input_field_key_fiield_value(config_line, &in_server_block, \
 		&server_config, &field_header_map))
 		{
 			if (IsConfigFormat::is_start_location_block(config_line))
@@ -63,6 +63,8 @@ void	Config::init_location_config_with_server_config(LocationConfig *location_co
 	location_config->set_server_block_infs(this->get_same_allconfig(server_name).get_host_config());
 	*in_server_block = true;
 }
+
+
 
 bool	Config::ready_location_config(const std::string &config_file_name, \
 										std::vector<std::vector<std::string> >::iterator server_name_itr)
@@ -94,7 +96,7 @@ bool	Config::ready_location_config(const std::string &config_file_name, \
 				server_name_itr++;
 		}
 		else if (in_server_block == true && in_location_block == true && \
-		IsConfigFormat::ready_location_block_config(config_line, &in_location_block, &location_config, &location_field_header_map))
+		IsConfigFormat::is_location_format_ok_input_field_key_fiield_value(config_line, &in_location_block, &location_config, &location_field_header_map))
 		{
 			if (ConfigHandlingString::is_block_end(config_line))
 			{

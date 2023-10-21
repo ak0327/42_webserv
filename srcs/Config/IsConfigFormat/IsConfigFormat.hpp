@@ -23,11 +23,11 @@ class IsConfigFormat
 												bool *in_server_block);
 		static	bool	is_location_block_config(const std::string &config_line, \
 													bool *in_location_block);
-		static	bool	ready_location_block_config(const std::string &config_line, \
+		static	bool	is_location_format_ok_input_field_key_fiield_value(const std::string &config_line, \
 													bool *in_location_block, \
 													LocationConfig *location_config, \
 													std::vector<std::string> *field_header_map);
-		static	bool	ready_server_block_format(const std::string &config_line, \
+		static	bool	is_server_format_ok_input_field_key_fiield_value(const std::string &config_line, \
 													bool *in_server_block, \
 													ServerConfig *server_config, \
 													std::vector<std::string> *field_header_vector);
