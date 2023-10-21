@@ -80,6 +80,8 @@ bool is_scheme(const std::string &str);
 bool is_uri_host(const std::string &str);
 bool is_port(const std::string &str);
 
+bool is_path_empty(const std::string &str, std::size_t start_pos);
+
 bool is_langtag_option(const std::string &str,
 					   std::size_t start_pos,
 					   void (*skip_func)(const std::string &,
@@ -186,6 +188,30 @@ void skip_ls32(const std::string &str,
 			   std::size_t start_pos,
 			   std::size_t *end_pos);
 
+void skip_absolute_uri(const std::string &str,
+					   std::size_t start_pos,
+					   std::size_t *end_pos);
+
+void skip_partial_uri(const std::string &str,
+					  std::size_t start_pos,
+					  std::size_t *end_pos);
+
+void skip_scheme(const std::string &str,
+				 std::size_t start_pos,
+				 std::size_t *end_pos);
+
+void skip_pct_encoded(const std::string &str,
+					  std::size_t start_pos,
+					  std::size_t *end_pos);
+
+void skip_pchar(const std::string &str,
+				std::size_t start_pos,
+				std::size_t *end_pos);
+
+void skip_segment(const std::string &str,
+				  std::size_t start_pos,
+				  std::size_t *end_pos);
+
 Result<std::size_t, int> get_double_colon_pos(const std::string &str,
 											  std::size_t start_pos);
 
@@ -198,6 +224,9 @@ Result<std::string, int> parse_port(const std::string &field_value,
 									std::size_t start_pos,
 									std::size_t *end_pos);
 
+void skip_path_abempty(const std::string &str,
+					   std::size_t start_pos,
+					   std::size_t *end_pos);
 
 Result<date_format, int> parse_http_date(const std::string &http_date,
 										 std::string *day_name,
@@ -218,5 +247,59 @@ Result<int, int> validate_http_date(date_format format,
 									const std::string &minute,
 									const std::string &second,
 									const std::string &gmt);
+
+
+void skip_query(const std::string &str,
+				std::size_t start_pos,
+				std::size_t *end_pos);
+
+void skip_segment_nz(const std::string &str,
+					 std::size_t start_pos,
+					 std::size_t *end_pos);
+
+void skip_segment_nz_nc(const std::string &str,
+						std::size_t start_pos,
+						std::size_t *end_pos);
+
+void skip_path_absolute(const std::string &str,
+						std::size_t start_pos,
+						std::size_t *end_pos);
+
+void skip_path_noscheme(const std::string &str,
+						std::size_t start_pos,
+						std::size_t *end_pos);
+
+void skip_path_rootless(const std::string &str,
+						std::size_t start_pos,
+						std::size_t *end_pos);
+
+void skip_userinfo(const std::string &str,
+				   std::size_t start_pos,
+				   std::size_t *end_pos);
+
+void skip_uri_host(const std::string &str,
+				   std::size_t start_pos,
+				   std::size_t *end_pos);
+
+void skip_port(const std::string &str,
+			   std::size_t start_pos,
+			   std::size_t *end_pos);
+
+void skip_authority(const std::string &str,
+					std::size_t start_pos,
+					std::size_t *end_pos);
+
+bool is_pchar(const std::string &str);
+bool is_query(const std::string &str);
+bool is_segment(const std::string &str);
+bool is_segment_nz(const std::string &str);
+bool is_segment_nz_nc(const std::string &str);
+bool is_path_abempty(const std::string &str);
+bool is_path_absolute(const std::string &str);
+bool is_path_noscheme(const std::string &str);
+bool is_path_rootless(const std::string &str);
+bool is_userinfo(const std::string &str);
+bool is_authority(const std::string &str);
+
 
 }  // namespace HttpMessageParser

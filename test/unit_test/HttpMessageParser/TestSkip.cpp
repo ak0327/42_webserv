@@ -1031,6 +1031,588 @@ TEST(TestHttpMessageParser, SKipLs32) {
 
 }
 
+TEST(TestHttpMessageParser, SkipScheme) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "a";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_scheme(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "a01234";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_scheme(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "a01234*";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_scheme(str, pos, &end);
+	EXPECT_EQ(6, end);
+
+	str = "a_";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_scheme(str, pos, &end);
+	EXPECT_EQ(1, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_scheme(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 100;
+	HttpMessageParser::skip_scheme(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+}
+
+TEST(TestHttpMessageParser, SkipPctEncoded) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "%12";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_pct_encoded(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "%12%12";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_pct_encoded(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "%123";
+	//        ^end
+	//     012345678901234567890
+	pos = 3;
+	HttpMessageParser::skip_pct_encoded(str, pos, &end);
+	EXPECT_EQ(3, end);
+
+	str = "%12%";
+	//        ^end
+	//     012345678901234567890
+	pos = 3;
+	HttpMessageParser::skip_pct_encoded(str, pos, &end);
+	EXPECT_EQ(3, end);
+
+	str = "%12%3";
+	//        ^end
+	//     012345678901234567890
+	pos = 3;
+	HttpMessageParser::skip_pct_encoded(str, pos, &end);
+	EXPECT_EQ(3, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_pct_encoded(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "%1";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_pct_encoded(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "%";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_pct_encoded(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "%%%%%";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_pct_encoded(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "%%%1";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_pct_encoded(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 1000;
+	HttpMessageParser::skip_pct_encoded(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+
+}
+
+TEST(TestHttpMessageParser, SkipPchar) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "123";
+	//     ^^^ pchar
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_pchar(str, pos, &end);
+	EXPECT_EQ(1, end);
+
+	str = "abc";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_pchar(str, pos, &end);
+	EXPECT_EQ(1, end);
+
+	str = "-._~!$&'()*+,;=:@";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_pchar(str, pos, &end);
+	EXPECT_EQ(1, end);
+
+	str = "-._~!$&'()*+,;=:@  aaa";
+	//                      ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_pchar(str, pos, &end);
+	EXPECT_EQ(1, end);
+
+	str = " -._~!$&'()*+,;=:@";
+	//     ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_pchar(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+}
+
+TEST(TestHttpMessageParser, SkipSegment) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "123";
+	//     ^^^ pchar
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_segment(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "abc";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_segment(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "-._~!$&'()*+,;=:@";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_segment(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "-._~!$&'()*+,;=:@  aaa";
+	//                      ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_segment(str, pos, &end);
+	EXPECT_EQ(17, end);
+
+	str = " -._~!$&'()*+,;=:@";
+	//     ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_segment(str, pos, &end);
+	EXPECT_EQ(pos, end);
+}
+
+TEST(TestHttpMessageParser, SkipSegmentNz) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "aaa";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_segment_nz(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "aaa123!$&'()*+,;=-._~";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_segment_nz(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "aaa123!$&'()*+,;=-._~";
+	//     012345678901234567890
+	pos = 5;
+	HttpMessageParser::skip_segment_nz(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "  \t";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_segment_nz(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_segment_nz(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 100;
+	HttpMessageParser::skip_segment_nz(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "%f";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_segment_nz(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "%fg";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_segment_nz(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "%ab%f";
+	//        ^^ng
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_segment_nz(str, pos, &end);
+	EXPECT_EQ(3, end);
+
+	str = "%ab%fg";
+	//        ^^^ng
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_segment_nz(str, pos, &end);
+	EXPECT_EQ(3, end);
+}
+
+TEST(TestHttpMessageParser, SkipPathAbsoluteSegmentNzNc) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "abc!$&'()*+,;=-._~";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_segment_nz_nc(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "abc!$&'()*+,;=-._~";
+	//     012345678901234567890
+	pos = 5;
+	HttpMessageParser::skip_segment_nz_nc(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "%12%23";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_segment_nz_nc(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_segment_nz_nc(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 100;
+	HttpMessageParser::skip_segment_nz_nc(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = " ";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_segment_nz_nc(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "%fg";
+	//       ^ng
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_segment_nz_nc(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "aaa%fg";
+	//        ^^^ng
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_segment_nz_nc(str, pos, &end);
+	EXPECT_EQ(3, end);
+
+}
+
+
+TEST(TestHttpMessageParser, SkipQuery) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "abc?/";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_query(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "%12///////ok";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_query(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 10;
+	HttpMessageParser::skip_query(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "%%%%%%";
+	//      ^ng
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_query(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "%1g";
+	//       ^ng
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_query(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = " ";
+	//     ^ng
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_query(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "\t\r\n";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_query(str, pos, &end);
+	EXPECT_EQ(pos, end);
+}
+
+TEST(TestHttpMessageParser, SkipPathAbempty) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "/abc";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_path_abempty(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "/abc/";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_path_abempty(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "/";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_path_abempty(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "/////";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_path_abempty(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_path_abempty(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 100;
+	HttpMessageParser::skip_path_abempty(str, pos, &end);
+	EXPECT_EQ(pos, end);
+}
+
+TEST(TestHttpMessageParser, SkipPathAbsolute) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "/";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_path_absolute(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "/abc:@/def";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_path_absolute(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "//////aa////bb/cccc";
+	//      ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_path_absolute(str, pos, &end);
+	EXPECT_EQ(1, end);
+
+	str = "/ ";
+	//      ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_path_absolute(str, pos, &end);
+	EXPECT_EQ(1, end);
+
+	str = "/a///";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_path_absolute(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "/abc/%fg";
+	//          ^^^ng
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_path_absolute(str, pos, &end);
+	EXPECT_EQ(5, end);
+
+	str = "//abc/%fg";
+	//      ^ng
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_path_absolute(str, pos, &end);
+	EXPECT_EQ(1, end);
+}
+
+TEST(TestHttpMessageParser, SkipPathNoscheme) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_path_noscheme(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+}
+
+TEST(TestHttpMessageParser, SkipPathRootless) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "aaa";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_path_rootless(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "aaa/bbb//c./d";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_path_rootless(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "aaa/a/b////";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_path_rootless(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "aaa/.";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_path_rootless(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "/abc";
+	//     ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_path_rootless(str, pos, &end);
+	EXPECT_EQ(0, end);
+
+	str = "/./abc";
+	//     ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_path_rootless(str, pos, &end);
+	EXPECT_EQ(0, end);
+
+}
+
+// TEST(TestHttpMessageParser, SkipUserInfo) {
+// 	std::size_t pos, end;
+// 	std::string str;
+//
+// 	str = "";
+// 	//     012345678901234567890
+// 	pos = 0;
+// 	HttpMessageParser::skip_(str, pos, &end);
+// 	EXPECT_EQ(str.length(), end);
+// }
+//
+// TEST(TestHttpMessageParser, SkipAuthority) {
+// 	std::size_t pos, end;
+// 	std::string str;
+//
+// 	str = "";
+// 	//     012345678901234567890
+// 	pos = 0;
+// 	HttpMessageParser::skip_(str, pos, &end);
+// 	EXPECT_EQ(str.length(), end);
+// }
+//
+// TEST(TestHttpMessageParser, SkipRelativePart) {
+// 	std::size_t pos, end;
+// 	std::string str;
+//
+// 	str = "";
+// 	//     012345678901234567890
+// 	pos = 0;
+// 	HttpMessageParser::skip_(str, pos, &end);
+// 	EXPECT_EQ(str.length(), end);
+// }
+//
+// TEST(TestHttpMessageParser, SkipHierPart) {
+// 	std::size_t pos, end;
+// 	std::string str;
+//
+// 	str = "";
+// 	//     012345678901234567890
+// 	pos = 0;
+// 	HttpMessageParser::skip_(str, pos, &end);
+// 	EXPECT_EQ(str.length(), end);
+// }
+//
+// TEST(TestHttpMessageParser, SkipPartialURI) {
+// 	std::size_t pos, end;
+// 	std::string str;
+//
+// 	str = "";
+// 	//     012345678901234567890
+// 	pos = 0;
+// 	HttpMessageParser::skip_(str, pos, &end);
+// 	EXPECT_EQ(str.length(), end);
+// }
+//
+// TEST(TestHttpMessageParser, SkipAbsoluteURI) {
+// 	std::size_t pos, end;
+// 	std::string str;
+//
+// 	str = "";
+// 	//     012345678901234567890
+// 	pos = 0;
+// 	HttpMessageParser::skip_(str, pos, &end);
+// 	EXPECT_EQ(str.length(), end);
+// }
+
 // TEST(TestHttpMessageParser, ) {
 // 	std::size_t pos, end;
 // 	std::string str;

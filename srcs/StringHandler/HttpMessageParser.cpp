@@ -1094,19 +1094,49 @@ void skip_quoted_pair(const std::string &str,
 	*end_pos = start_pos + 2;
 }
 
+void skip_pct_encoded(const std::string &str,
+					  std::size_t start_pos,
+					  std::size_t *end_pos) {
+	std::size_t pos, len;
+	if (!end_pos) {
+		return;
+	}
+	pos = start_pos;
+	*end_pos = start_pos;
+	if (str.empty() || str.length() < start_pos) {
+		return;
+	}
+
+	len = 0;
+	while (str[pos + len]) {
+		if (str[pos + len] == '%'
+		&& is_hexdig(str[pos + len + 1])
+		&& is_hexdig(str[pos + len + 2])) {
+			len += 3;
+			continue;
+		}
+		break;
+	}
+	if (len == 0) {
+		return;
+	}
+	pos += len;
+	*end_pos = pos;
+}
+
 /*
  pct-encoded   = "%" HEXDIG HEXDIG
 			   ; see [RFC3986], Section 2.1
  https://www.rfc-editor.org/rfc/rfc3986#section-2.1
  */
-bool is_pct_encoded(const std::string &str, std::size_t pos) {
-	if (str.empty() || str.length() < pos) {
+bool is_pct_encoded(const std::string &str, std::size_t start_pos) {
+	std::size_t end;
+
+	if (str.empty() || str.length() <= start_pos) {
 		return false;
 	}
-
-	return (str[pos] == '%'
-			&& is_hexdig(str[pos + 1])
-			&& is_hexdig(str[pos + 2]));
+	skip_pct_encoded(str, start_pos, &end);
+	return str[end] == '\0';
 }
 
 // todo: test
@@ -1257,61 +1287,645 @@ bool is_base_64_value_non_empty(const std::string &str) {
 }
 
 /*
- absolute-URI  = scheme ":" hier-part [ "?" query ]
-
- hier-part     = "//" authority path-abempty
-              / path-absolute
-              / path-rootless
-              / path-empty
-
- scheme        = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
- path-rootless = segment-nz *( "/" segment )
-
- https://datatracker.ietf.org/doc/html/rfc3986#appendix-A
+ pchar         = unreserved / pct-encoded / sub-delims / ":" / "@"
+ segment       = *pchar
+ segment-nz    = 1*pchar
+ segment-nz-nc = 1*( unreserved / pct-encoded / sub-delims / "@" )
+               ; non-zero-length segment without any colon ":"
  */
-// todo: test
-bool is_absolute_uri(const std::string &str) {
-	(void)str;
-	// todo
-	return true;
+bool is_pchar(const std::string &str) {
+	std::size_t end;
+
+	if (str.empty()) {
+		return false;
+	}
+	skip_pchar(str, 0, &end);
+	return str[end] == '\0';
+}
+
+bool is_segment(const std::string &str) {
+	std::size_t end;
+
+	skip_segment(str, 0, &end);
+	return str[end] == '\0';
+}
+
+bool is_segment_nz(const std::string &str) {
+	std::size_t end;
+
+	if (str.empty()) {
+		return false;
+	}
+	skip_segment_nz(str, 0, &end);
+	return str[end] == '\0';
+}
+
+bool is_segment_nz_nc(const std::string &str) {
+	std::size_t end;
+
+	if (str.empty()) {
+		return false;
+	}
+	skip_segment_nz_nc(str, 0, &end);
+	return str[end] == '\0';
+}
+
+
+/*
+ path-abempty  = *( "/" segment )
+ path-absolute = "/" [ segment-nz *( "/" segment ) ]
+ path-noscheme = segment-nz-nc *( "/" segment )
+ path-rootless = segment-nz *( "/" segment )
+ path-empty    = 0<pchar>
+ */
+bool is_path_abempty(const std::string &str) {
+	std::size_t end;
+
+	if (str.empty()) {
+		return false;
+	}
+	skip_path_abempty(str, 0, &end);
+	return str[end] == '\0';
+}
+
+bool is_path_absolute(const std::string &str) {
+	std::size_t end;
+
+	if (str.empty()) {
+		return false;
+	}
+	skip_path_absolute(str, 0, &end);
+	return str[end] == '\0';
+}
+
+bool is_path_noscheme(const std::string &str) {
+	std::size_t end;
+
+	if (str.empty()) {
+		return false;
+	}
+	skip_path_noscheme(str, 0, &end);
+	return str[end] == '\0';
+}
+
+bool is_path_rootless(const std::string &str) {
+	std::size_t end;
+
+	if (str.empty()) {
+		return false;
+	}
+	skip_path_rootless(str, 0, &end);
+	return str[end] == '\0';
+}
+
+// path-empty = 0<pchar>
+bool is_path_empty(const std::string &str, std::size_t start_pos) {
+	std::size_t pos, end;
+	pos = start_pos;
+	if (str.length() < start_pos) {
+		return false;
+	}
+	skip_pchar(str, pos, &end);
+	return pos == end;
+}
+
+bool is_userinfo(const std::string &str) {
+	std::size_t end;
+
+	if (str.empty()) {
+		return false;
+	}
+	skip_userinfo(str, 0, &end);
+	return str[end] == '\0';
+}
+
+// userinfo  = *( unreserved / pct-encoded / sub-delims / ":" )
+void skip_userinfo(const std::string &str,
+				   std::size_t start_pos,
+				   std::size_t *end_pos) {
+	std::size_t pos, end;
+	if (!end_pos) {
+		return;
+	}
+	pos = start_pos;
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) {
+		return;
+	}
+	while (str[pos]) {
+		if (is_unreserved(str[pos])
+		|| is_sub_delims(str[pos])
+		|| str[pos] == ':') {
+			++pos;
+			continue;
+		}
+		skip_pct_encoded(str, pos, &end);
+		if (pos != end) {
+			pos = end;
+			continue;
+		}
+		break;
+	}
+	*end_pos = pos;
+}
+
+bool is_authority(const std::string &str) {
+	std::size_t end;
+
+	if (str.empty()) {
+		return false;
+	}
+	skip_authority(str, 0, &end);
+	return str[end] == '\0';
+}
+
+// authority = [ userinfo "@" ] host [ ":" port ]
+void skip_authority(const std::string &str,
+					std::size_t start_pos,
+					std::size_t *end_pos) {
+	std::size_t pos, end;
+	if (!end_pos) {
+		return;
+	}
+	pos = start_pos;
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) {
+		return;
+	}
+
+	skip_userinfo(str, pos, &end);
+	if (pos != end && str[end] == '@') {
+		pos = end + 1;
+	}
+
+	skip_uri_host(str, pos, &end);
+	if (pos == end) {
+		return;
+	}
+	pos = end;
+
+	if (str[pos] != ':') {
+		*end_pos = pos;
+		return;
+	}
+	++pos;
+
+	skip_port(str, pos, &end);
+	if (pos == end) {
+		return;
+	}
+	*end_pos = end;
+}
+
+// pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
+void skip_pchar(const std::string &str,
+				std::size_t start_pos,
+				std::size_t *end_pos) {
+	std::size_t pos, end;
+	if (!end_pos) {
+		return;
+	}
+	pos = start_pos;
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) {
+		return;
+	}
+
+	if (is_unreserved(str[pos])
+	|| is_sub_delims(str[pos])
+	|| str[pos] == ':' || str[pos] == '@') {
+		++pos;
+	} else{
+		skip_pct_encoded(str, pos, &end);
+		if (pos == end) {
+			return;
+		}
+		pos = end;
+	}
+	*end_pos = pos;
+}
+
+// segment = *pchar
+void skip_segment(const std::string &str,
+				  std::size_t start_pos,
+				  std::size_t *end_pos) {
+	std::size_t pos, end;
+	if (!end_pos) {
+		return;
+	}
+	pos = start_pos;
+	*end_pos = start_pos;
+	if (str.length() <= start_pos) {
+		return;
+	}
+
+	while (str[pos]) {
+		skip_pchar(str, pos, &end);
+		if (pos == end) {
+			break;
+		}
+		pos = end;
+	}
+	*end_pos = end;
+}
+
+// path-abempty = *( "/" segment )
+void skip_path_abempty(const std::string &str,
+					   std::size_t start_pos,
+					   std::size_t *end_pos) {
+	std::size_t pos, end;
+	if (!end_pos) {
+		return;
+	}
+	pos = start_pos;
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) {
+		return;
+	}
+
+	while (str[pos]) {
+		if (str[pos] != '/') {
+			break;
+		}
+		skip_segment(str, pos + 1, &end);
+		pos = end;
+	}
+	*end_pos = pos;
+}
+
+
+// path-absolute = "/" [ segment-nz *( "/" segment ) ]
+void skip_path_absolute(const std::string &str,
+						std::size_t start_pos,
+						std::size_t *end_pos) {
+	std::size_t pos, end;
+	if (!end_pos) {
+		return;
+	}
+	pos = start_pos;
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) {
+		return;
+	}
+
+	if (str[pos] != '/') {
+		return;
+	}
+	++pos;
+	*end_pos = pos;
+
+	skip_segment_nz(str, pos, &end);
+	if (pos == end) {
+		return;
+	}
+	pos = end;
+	skip_path_abempty(str, pos, &end);
+	*end_pos = end;
+}
+
+// path-noscheme = segment-nz-nc *( "/" segment )
+void skip_path_noscheme(const std::string &str,
+						std::size_t start_pos,
+						std::size_t *end_pos) {
+	std::size_t pos, end;
+	if (!end_pos) {
+		return;
+	}
+	pos = start_pos;
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) {
+		return;
+	}
+
+	skip_segment_nz_nc(str, pos, &end);
+	if (pos == end) {
+		return;
+	}
+	pos = end;
+	skip_path_abempty(str, pos, &end);
+	*end_pos = end;
+}
+
+// path-rootless = segment-nz *( "/" segment )
+void skip_path_rootless(const std::string &str,
+						std::size_t start_pos,
+						std::size_t *end_pos) {
+	std::size_t pos, end;
+	if (!end_pos) {
+		return;
+	}
+	pos = start_pos;
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) {
+		return;
+	}
+
+	skip_segment_nz(str, pos, &end);
+	if (pos == end) {
+		return;
+	}
+	pos = end;
+	skip_path_abempty(str, pos, &end);
+	*end_pos = end;
+}
+
+// segment-nz-nc = 1*( unreserved / pct-encoded / sub-delims / "@" )
+void skip_segment_nz_nc(const std::string &str,
+					 std::size_t start_pos,
+					 std::size_t *end_pos) {
+	std::size_t pos, end;
+	if (!end_pos) {
+		return;
+	}
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) {
+		return;
+	}
+	pos = start_pos;
+	while (str[pos]) {
+		if (is_unreserved(str[pos])
+		|| is_sub_delims(str[pos])
+		|| str[pos] == '@') {
+			++pos;
+			continue;
+		}
+		skip_pct_encoded(str, pos, &end);
+		if (pos != end) {
+			pos = end;
+			continue;
+		}
+		break;
+	}
+	if (start_pos == pos) {
+		return;
+	}
+	*end_pos = pos;
+}
+
+// segment-nz = 1*pchar
+void skip_segment_nz(const std::string &str,
+					 std::size_t start_pos,
+					 std::size_t *end_pos) {
+	std::size_t pos, end;
+	if (!end_pos) {
+		return;
+	}
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) {
+		return;
+	}
+	pos = start_pos;
+	while (str[pos]) {
+		skip_pchar(str, pos, &end);
+		if (pos == end) {
+			break;
+		}
+		pos = end;
+	}
+	if (start_pos == pos) {
+		return;
+	}
+	*end_pos = pos;
 }
 
 /*
-// partial-URI   = relative-part [ "?" query ]
-// relative-part = "//" authority path-abempty
-//                  / path-absolute
-//                  / path-noscheme
-//                  / path-empty
+ relative-part = "//" authority path-abempty
+                  / path-absolute
+                  / path-noscheme
+                  / path-empty
+ */
+void skip_relative_part(const std::string &str,
+						std::size_t start_pos,
+						std::size_t *end_pos) {
+	std::size_t pos, end;
+	if (!end_pos) {
+		return;
+	}
+	pos = start_pos;
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) {
+		return;
+	}
 
- authority   = [ userinfo "@" ] host [ ":" port ]
+	if (str[pos] == '/' && str[pos + 1] == '/') {
+		pos += 2;
+		skip_authority(str, pos, &end);
+		if (pos == end) { return; }
+		pos = end;
+		skip_path_abempty(str, pos, &end);
+	} else if (str[pos] == '/' && str[pos + 1] != '/') {
+		skip_path_absolute(str, pos, &end);
+	} else {
+		skip_path_noscheme(str, pos, &end);
+	}
+
+	if (pos == end) {
+		return;
+	}
+	*end_pos = end;
+}
+
+/*
+ hier-part = "//" authority path-abempty
+           / path-absolute
+           / path-rootless
+           / path-empty
+ */
+void skip_hier_part(const std::string &str,
+					std::size_t start_pos,
+					std::size_t *end_pos) {
+	std::size_t pos, end;
+	if (!end_pos) {
+		return;
+	}
+	pos = start_pos;
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) {
+		return;
+	}
+
+	if (str[pos] == '/' && str[pos + 1] == '/') {
+		pos += 2;
+		skip_authority(str, pos, &end);
+		if (pos == end) { return; }
+		pos = end;
+		skip_path_abempty(str, pos, &end);
+	} else if (str[pos] == '/' && str[pos + 1] != '/') {
+		skip_path_absolute(str, pos, &end);
+	} else {
+		skip_path_rootless(str, pos, &end);
+	}
+
+	if (pos == end) {
+		return;
+	}
+	*end_pos = end;
+}
+
+// query = *( pchar / "/" / "?" )
+bool is_query(const std::string &str) {
+	std::size_t end;
+	if (str.empty()) {
+		return false;
+	}
+	skip_query(str, 0, &end);
+	return str[end] == '\0';
+}
+
+// query = *( pchar / "/" / "?" )
+void skip_query(const std::string &str,
+				std::size_t start_pos,
+				std::size_t *end_pos) {
+	std::size_t pos, end;
+	if (!end_pos) {
+		return;
+	}
+	pos = start_pos;
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) {
+		return;
+	}
+
+	while (str[pos]) {
+		skip_pchar(str, pos, &end);
+		if (pos != end) {
+			pos = end;
+			continue;
+		}
+		if (str[pos] == '/' || str[pos] == '?') {
+			++pos;
+			continue;
+		}
+		break;
+	}
+	if (pos == start_pos) {
+		return;
+	}
+	*end_pos = pos;
+}
+
+/*
+ absolute-URI  = scheme ":" hier-part [ "?" query ]
 
  query         = *( pchar / "/" / "?" )
- path-abempty  = *( "/" segment )
 
- path-absolute = "/" [ segment-nz *( "/" segment ) ]
- path-noscheme = segment-nz-nc *( "/" segment )
- path-empty    = 0<pchar>
+ fragment      = *( pchar / "/" / "?" )
 
- segment       = *pchar
- segment-nz    = 1*pchar
- pchar         = unreserved / pct-encoded / sub-delims / ":" / "@"
+ pct-encoded   = "%" HEXDIG HEXDIG
 
  unreserved    = ALPHA / DIGIT / "-" / "." / "_" / "~"
  reserved      = gen-delims / sub-delims
  gen-delims    = ":" / "/" / "?" / "#" / "[" / "]" / "@"
  sub-delims    = "!" / "$" / "&" / "'" / "(" / ")"
                / "*" / "+" / "," / ";" / "="
+ https://datatracker.ietf.org/doc/html/rfc3986#appendix-A
+ */
+// todo: test
+bool is_absolute_uri(const std::string &str) {
+	std::size_t end;
 
- pct-encoded = "%" HEXDIG HEXDIG; HEXDIG = hexadecimal digits
+	if (str.empty()) {
+		return false;
+	}
+	skip_absolute_uri(str, 0, &end);
+	return str[end] == '\0';
+}
 
+// todo: test
+void skip_absolute_uri(const std::string &str,
+					   std::size_t start_pos,
+					   std::size_t *end_pos) {
+	std::size_t pos, end;
+	if (!end_pos) {
+		return;
+	}
+
+	// scheme
+	pos = start_pos;
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) {
+		return;
+	}
+	skip_scheme(str, pos, &end);
+	if (pos == end) {
+		return;
+	}
+	pos = end;
+
+	// ":"
+	if (str[pos] != COLON) {
+		return;
+	}
+	++pos;
+
+	// hier-part
+	skip_hier_part(str, pos, &end);
+	pos = end;  // if (pos == end) -> path-empty
+
+	// ?
+	if (str[pos] != '?') {
+		*end_pos = pos;
+		return;
+	}
+
+	// query
+	skip_query(str, pos, &end);
+	if (pos == end) {
+		return;
+	}
+
+	*end_pos = end;
+}
+
+// partial-URI = relative-part [ "?" query ]
+// todo: test
+bool is_partial_uri(const std::string &str) {
+	std::size_t end;
+
+	if (str.empty()) {
+		return false;
+	}
+	skip_partial_uri(str, 0, &end);
+	return str[end] == '\0';
+}
+
+/*
+ partial-URI = relative-part [ "?" query ]
  https://datatracker.ietf.org/doc/html/rfc3986#section-3.3
 */
 // todo: test
-bool is_partial_uri(const std::string &str) {
-	(void)str;
-	// todo
-	return true;
+void skip_partial_uri(const std::string &str,
+					  std::size_t start_pos,
+					  std::size_t *end_pos) {
+	std::size_t pos, end;
+	if (!end_pos) {
+		return;
+	}
+	pos = start_pos;
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) {
+		return;
+	}
+
+	skip_relative_part(str, pos, &end);
+	if (pos == end) {
+		return;
+	}
+	pos = end;
+	*end_pos = pos;
+
+	if (str[pos] != '?') {
+		return;
+	}
+	++pos;
+
+	skip_query(str, pos, &end);
+	if (pos == end) {
+		return;
+	}
+	*end_pos = end;
 }
+
 
 /*
  product         = token ["/" product-version]
@@ -1349,8 +1963,8 @@ void skip_product(const std::string &str,
 }
 
 /*
- comment        = "(" *( ctext / quoted-pair / comment ) ")"
- ctext          = HTAB / SP / %x21-27 / %x2A-5B / %x5D-7E / obs-text
+ comment  = "(" *( ctext / quoted-pair / comment ) ")"
+ ctext    = HTAB / SP / %x21-27 / %x2A-5B / %x5D-7E / obs-text
  */
 void skip_comment(const std::string &str,
 				  std::size_t start_pos,
@@ -1467,7 +2081,7 @@ Result<std::size_t, int> get_double_colon_pos(const std::string &str,
 											  std::size_t start_pos) {
 	std::size_t pos;
 
-	if (str.empty() || str.length() < start_pos) {
+	if (str.empty() || str.length() <= start_pos) {
 		return Result<std::size_t, int>::err(ERR);
 	}
 	pos = start_pos;
@@ -1549,7 +2163,7 @@ void skip_ipv6address(const std::string &str,
 	*end_pos = pos;
 }
 
-// IPvFuture   = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
+// IPvFuture = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
 bool is_ipvfuture(const std::string &str) {
 	std::size_t end;
 
@@ -1643,11 +2257,11 @@ bool is_dec_octet(const std::string &str) {
 }
 
 /*
- dec-octet   = DIGIT                 ; 0-9
-             / %x31-39 DIGIT         ; 10-99
-             / "1" 2DIGIT            ; 100-199
-             / "2" %x30-34 DIGIT     ; 200-249
-             / "25" %x30-35          ; 250-255
+ dec-octet = DIGIT                 ; 0-9
+           / %x31-39 DIGIT         ; 10-99
+           / "1" 2DIGIT            ; 100-199
+           / "2" %x30-34 DIGIT     ; 200-249
+           / "25" %x30-35          ; 250-255
  */
 void skip_dec_octet(const std::string &str,
 					std::size_t start_pos,
@@ -1711,12 +2325,12 @@ bool is_ipv4address(const std::string &str) {
 	return str[end] == '\0';
 }
 
-// unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
+// unreserved = ALPHA / DIGIT / "-" / "." / "_" / "~"
 bool is_unreserved(char c) {
 	return (std::isalnum(c) || c == '-' || c == '.' || c == '_' || c == '~');
 }
 
-// sub-delims  = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
+// sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
 bool is_sub_delims(char c) {
 	return std::string(SUB_DELIMS).find(c) != std::string::npos;
 }
@@ -1731,7 +2345,7 @@ bool is_reg_name(const std::string &str) {
 	return str[end] == '\0';
 }
 
-// reg-name    = *( unreserved / pct-encoded / sub-delims )
+// reg-name = *( unreserved / pct-encoded / sub-delims )
 void skip_reg_name(const std::string &str,
 				   std::size_t start_pos,
 				   std::size_t *end_pos) {
@@ -1772,6 +2386,27 @@ bool is_port(const std::string &port) {
 	return (succeed && (PORT_MIN <= port_num && port_num <= PORT_MAX));
 }
 
+Result<std::string, int> parse_uri_host(const std::string &field_value,
+										std::size_t start_pos,
+										std::size_t *end_pos) {
+	std::size_t end, len;
+	std::string uri_host;
+
+	if (!end_pos) {
+		return Result<std::string, int>::err(ERR);
+	}
+	*end_pos = start_pos;
+
+	skip_uri_host(field_value, start_pos, &end);
+	if (start_pos == end) {
+		return Result<std::string, int>::err(ERR);
+	}
+	len = end - start_pos;
+	uri_host = field_value.substr(start_pos, len);
+	*end_pos = start_pos + len;
+	return Result<std::string, int>::ok(uri_host);
+}
+
 /*
  uri-host    = IP-literal / IPv4address / reg-name
 
@@ -1805,94 +2440,132 @@ bool is_port(const std::string &port) {
  pct-encoded = "%" HEXDIG HEXDIG
  sub-delims  = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
  */
-Result<std::string, int> parse_uri_host(const std::string &field_value,
-										std::size_t start_pos,
-										std::size_t *end_pos) {
+void skip_uri_host(const std::string &str,
+				   std::size_t start_pos,
+				   std::size_t *end_pos) {
 	std::size_t pos, end, len;
-	std::string uri_host;
 
 	if (!end_pos) {
-		return Result<std::string, int>::err(ERR);
+		return;
 	}
 	pos = start_pos;
 	*end_pos = start_pos;
-	if (field_value.empty() || field_value.length() < start_pos) {
-		return Result<std::string, int>::err(ERR);
+	if (str.empty() || str.length() < start_pos) {
+		return;
 	}
 
-	if (field_value[pos] == '[') {
-		HttpMessageParser::skip_ip_literal(field_value, pos, &end);
-	} else if (std::isdigit(field_value[pos])) {
-		HttpMessageParser::skip_ipv4address(field_value, pos, &end);
-	} else if (HttpMessageParser::is_unreserved(field_value[pos])
-			   || field_value[pos] == '%'
-			   || HttpMessageParser::is_sub_delims(field_value[pos])) {
-		HttpMessageParser::skip_reg_name(field_value, pos, &end);
+	if (str[pos] == '[') {
+		HttpMessageParser::skip_ip_literal(str, pos, &end);
+	} else if (std::isdigit(str[pos])) {
+		HttpMessageParser::skip_ipv4address(str, pos, &end);
+	} else if (HttpMessageParser::is_unreserved(str[pos])
+			   || str[pos] == '%'
+			   || HttpMessageParser::is_sub_delims(str[pos])) {
+		HttpMessageParser::skip_reg_name(str, pos, &end);
 	} else {
-		return Result<std::string, int>::err(ERR);
+		return;
 	}
 
 	if (pos == end) {
-		return Result<std::string, int>::err(ERR);
+		return;
 	}
 	len = end - pos;
-	uri_host = field_value.substr(pos, len);
 	pos += len;
 
 	*end_pos = pos;
-	return Result<std::string, int>::ok(uri_host);
 }
 
-/*
- port          = *DIGIT
- */
+// port = *DIGIT
 Result<std::string, int> parse_port(const std::string &field_value,
 									std::size_t start_pos,
 									std::size_t *end_pos) {
-	std::size_t pos, len;
+	std::size_t len, end;
 	std::string port;
 
 	if (!end_pos) {
 		return Result<std::string, int>::err(ERR);
 	}
 	*end_pos = start_pos;
-	if (field_value.empty() || field_value.length() < start_pos) {
+
+	skip_port(field_value, start_pos, &end);
+	if (start_pos == end) {
 		return Result<std::string, int>::err(ERR);
+	}
+	len = end - start_pos;
+	port = field_value.substr(start_pos, len);
+	*end_pos = start_pos + len;
+	return Result<std::string, int>::ok(port);
+}
+
+// port = *DIGIT
+void skip_port(const std::string &str,
+			   std::size_t start_pos,
+			   std::size_t *end_pos) {
+	std::size_t pos, len;
+	std::string port;
+
+	if (!end_pos) {
+		return;
+	}
+	*end_pos = start_pos;
+	if (str.empty() || str.length() < start_pos) {
+		return;
 	}
 
 	pos = start_pos;
 	len = 0;
-	while (field_value[pos + len] && std::isdigit(field_value[pos + len])) {
+	while (str[pos + len] && std::isdigit(str[pos + len])) {
 		++len;
 	}
 	if (len == 0) {
-		return Result<std::string, int>::err(ERR);
+		return;
 	}
-	port = field_value.substr(pos, len);
 	pos += len;
-
 	*end_pos = pos;
-	return Result<std::string, int>::ok(port);
 }
 
+
+// scheme      = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
 bool is_scheme(const std::string &scheme) {
-	std::size_t pos;
+	std::size_t pos, end;
 
 	if (scheme.empty() || !std::isalpha(scheme[0])) {
 		return false;
 	}
 	pos = 1;
-	while (scheme[pos]) {
-		if (std::isalnum(scheme[pos])
-			|| scheme[pos] == '+'
-			|| scheme[pos] == '-'
-			|| scheme[pos] == '.') {
-			++pos;
-		} else {
-			return false;
-		}
-	}
-	return scheme[pos] == '\0';
+	skip_scheme(scheme, pos, &end);
+	return scheme[end] == '\0';
 }
+
+// scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
+void skip_scheme(const std::string &str,
+				 std::size_t start_pos,
+				 std::size_t *end_pos) {
+	std::size_t pos;
+	if (!end_pos) {
+		return;
+	}
+	pos = start_pos;
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) {
+		return;
+	}
+	if (str.empty() || !std::isalpha(str[0])) {
+		return;
+	}
+	pos = 1;
+	while (str[pos]) {
+		if (std::isalnum(str[pos])
+			|| str[pos] == '+'
+			|| str[pos] == '-'
+			|| str[pos] == '.') {
+			++pos;
+			continue;
+		}
+		break;
+	}
+	*end_pos = pos;
+}
+
 
 }  // namespace HttpMessageParser
