@@ -769,21 +769,8 @@ bool is_query(const std::string &str) {
 
 /*
  absolute-URI  = scheme ":" hier-part [ "?" query ]
-
- query         = *( pchar / "/" / "?" )
-
- fragment      = *( pchar / "/" / "?" )
-
- pct-encoded   = "%" HEXDIG HEXDIG
-
- unreserved    = ALPHA / DIGIT / "-" / "." / "_" / "~"
- reserved      = gen-delims / sub-delims
- gen-delims    = ":" / "/" / "?" / "#" / "[" / "]" / "@"
- sub-delims    = "!" / "$" / "&" / "'" / "(" / ")"
-               / "*" / "+" / "," / ";" / "="
  https://datatracker.ietf.org/doc/html/rfc3986#appendix-A
  */
-// todo: test
 bool is_absolute_uri(const std::string &str) {
 	std::size_t end;
 
@@ -795,13 +782,9 @@ bool is_absolute_uri(const std::string &str) {
 }
 
 // partial-URI = relative-part [ "?" query ]
-// todo: test
 bool is_partial_uri(const std::string &str) {
 	std::size_t end;
 
-	if (str.empty()) {
-		return false;
-	}
 	skip_partial_uri(str, 0, &end);
 	return str[end] == '\0';
 }

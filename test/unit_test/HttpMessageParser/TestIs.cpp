@@ -1158,47 +1158,98 @@ TEST(TestHttpMessageParser, IsPathEmpty) {
 	EXPECT_FALSE(HttpMessageParser::is_path_empty("012", 5));
 }
 
-// TEST(TestHttpMessageParser, IsAbsoluteURI) {
-// 	// scheme ":" "//" authority path-abempty [ "?" query ]
-// 	EXPECT_TRUE(HttpMessageParser::is_absolute_uri("aaa://aaa@localhost:8080"));
-// 	EXPECT_TRUE(HttpMessageParser::is_absolute_uri("aaa://aaa@localhost:8080?get"));
-// 	EXPECT_TRUE(HttpMessageParser::is_absolute_uri("aaa://aaa@localhost:8080?get/abc"));
-//
-// 	// scheme ":" path-absolute [ "?" query ]
-// 	EXPECT_TRUE(HttpMessageParser::is_absolute_uri(""));
-//
-// 	// scheme ":" path-rootless [ "?" query ]
-// 	EXPECT_TRUE(HttpMessageParser::is_absolute_uri(""));
-//
-// 	// scheme ":" path-empty [ "?" query ]
-// 	EXPECT_TRUE(HttpMessageParser::is_absolute_uri(""));
-//
-// 	EXPECT_TRUE(HttpMessageParser::is_absolute_uri(""));
-// 	EXPECT_TRUE(HttpMessageParser::is_absolute_uri(""));
-// 	EXPECT_TRUE(HttpMessageParser::is_absolute_uri(""));
-//
-// 	EXPECT_FALSE(HttpMessageParser::is_absolute_uri(""));
-// 	EXPECT_FALSE(HttpMessageParser::is_absolute_uri(""));
-// 	EXPECT_FALSE(HttpMessageParser::is_absolute_uri(""));
-// 	EXPECT_FALSE(HttpMessageParser::is_absolute_uri(""));
-// 	EXPECT_FALSE(HttpMessageParser::is_absolute_uri(""));
-// 	EXPECT_FALSE(HttpMessageParser::is_absolute_uri(""));
-// 	EXPECT_FALSE(HttpMessageParser::is_absolute_uri(""));
-// }
-//
-// TEST(TestHttpMessageParser, IsPartialURI) {
-// 	EXPECT_TRUE(HttpMessageParser::is_partial_uri(""));
-// 	EXPECT_TRUE(HttpMessageParser::is_partial_uri(""));
-// 	EXPECT_TRUE(HttpMessageParser::is_partial_uri(""));
-// 	EXPECT_TRUE(HttpMessageParser::is_partial_uri(""));
-// 	EXPECT_TRUE(HttpMessageParser::is_partial_uri(""));
-//
-// 	EXPECT_FALSE(HttpMessageParser::is_partial_uri(""));
-// 	EXPECT_FALSE(HttpMessageParser::is_partial_uri(""));
-// 	EXPECT_FALSE(HttpMessageParser::is_partial_uri(""));
-// 	EXPECT_FALSE(HttpMessageParser::is_partial_uri(""));
-// 	EXPECT_FALSE(HttpMessageParser::is_partial_uri(""));
-// }
+TEST(TestHttpMessageParser, IsAbsoluteURI) {
+	// scheme ":" "//" authority path-abempty [ "?" query ]
+	EXPECT_TRUE(HttpMessageParser::is_absolute_uri("aaa://localhost"));
+	EXPECT_TRUE(HttpMessageParser::is_absolute_uri("aaa://aaa@localhost:8080"));
+	EXPECT_TRUE(HttpMessageParser::is_absolute_uri("aaa://aaa@localhost:8080/"));
+	EXPECT_TRUE(HttpMessageParser::is_absolute_uri("aaa://aaa@localhost:8080/abc"));
+	EXPECT_TRUE(HttpMessageParser::is_absolute_uri("aaa://aaa@localhost:8080?get"));
+	EXPECT_TRUE(HttpMessageParser::is_absolute_uri("aaa://aaa@localhost:8080?get/abc"));
+	EXPECT_TRUE(HttpMessageParser::is_absolute_uri("aaa://aaa@localhost:8080?get/abc???"));
+	EXPECT_TRUE(HttpMessageParser::is_absolute_uri("aaa://aaa@localhost:8080?"));
+
+	EXPECT_FALSE(HttpMessageParser::is_absolute_uri("://aaa@localhost:8080"));
+	EXPECT_FALSE(HttpMessageParser::is_absolute_uri("//aaa@local"));
+
+	// scheme ":" path-absolute [ "?" query ]
+	EXPECT_TRUE(HttpMessageParser::is_absolute_uri("aaa:/"));
+	EXPECT_TRUE(HttpMessageParser::is_absolute_uri("aaa:/bbb"));
+	EXPECT_TRUE(HttpMessageParser::is_absolute_uri("aaa:/bbb/ccc/"));
+	EXPECT_TRUE(HttpMessageParser::is_absolute_uri("aaa:/bbb/?a"));
+	EXPECT_TRUE(HttpMessageParser::is_absolute_uri("aaa:/bbb/?"));
+	EXPECT_TRUE(HttpMessageParser::is_absolute_uri("aaa:/bbb/?/"));
+	EXPECT_TRUE(HttpMessageParser::is_absolute_uri("aaa:/bbb/???"));
+
+	EXPECT_FALSE(HttpMessageParser::is_absolute_uri("/"));
+
+	// scheme ":" path-rootless [ "?" query ]
+	EXPECT_TRUE(HttpMessageParser::is_absolute_uri("aaa:bbb"));
+	EXPECT_TRUE(HttpMessageParser::is_absolute_uri("aaa:bbb/"));
+	EXPECT_TRUE(HttpMessageParser::is_absolute_uri("aaa:bbb////"));
+	EXPECT_TRUE(HttpMessageParser::is_absolute_uri("aaa:bbb/c/d"));
+	EXPECT_TRUE(HttpMessageParser::is_absolute_uri("aaa:bbb/c/d/"));
+	EXPECT_TRUE(HttpMessageParser::is_absolute_uri("aaa:bbb/c/d/?"));
+	EXPECT_TRUE(HttpMessageParser::is_absolute_uri("aaa:bbb/c/d/???"));
+	EXPECT_TRUE(HttpMessageParser::is_absolute_uri("aaa:bbb/c/d/??"));
+
+	// scheme ":" path-empty [ "?" query ]
+	EXPECT_TRUE(HttpMessageParser::is_absolute_uri("aaa:"));
+
+	EXPECT_FALSE(HttpMessageParser::is_absolute_uri(""));
+	EXPECT_FALSE(HttpMessageParser::is_absolute_uri("?"));
+	EXPECT_FALSE(HttpMessageParser::is_absolute_uri("/"));
+	EXPECT_FALSE(HttpMessageParser::is_absolute_uri(":"));
+	EXPECT_FALSE(HttpMessageParser::is_absolute_uri(" : "));
+	EXPECT_FALSE(HttpMessageParser::is_absolute_uri(" "));
+	EXPECT_FALSE(HttpMessageParser::is_absolute_uri("\n:aa/bb/cc?"));
+}
+
+TEST(TestHttpMessageParser, IsPartialURI) {
+	// "//" authority path-abempty [ "?" query ]
+	EXPECT_TRUE(HttpMessageParser::is_partial_uri("//localhost"));
+	EXPECT_TRUE(HttpMessageParser::is_partial_uri("//aaa@localhost:8080"));
+	EXPECT_TRUE(HttpMessageParser::is_partial_uri("//aaa@localhost:8080/"));
+	EXPECT_TRUE(HttpMessageParser::is_partial_uri("//aaa@localhost:8080/abc"));
+	EXPECT_TRUE(HttpMessageParser::is_partial_uri("//aaa@localhost:8080?get"));
+	EXPECT_TRUE(HttpMessageParser::is_partial_uri("//aaa@localhost:8080?get/abc"));
+	EXPECT_TRUE(HttpMessageParser::is_partial_uri("//aaa@localhost:8080?get/abc???"));
+	EXPECT_TRUE(HttpMessageParser::is_partial_uri("//aaa@localhost:8080?"));
+	EXPECT_TRUE(HttpMessageParser::is_partial_uri("//aaa@local"));
+
+	// path-absolute [ "?" query ]
+	EXPECT_TRUE(HttpMessageParser::is_partial_uri("/"));
+	EXPECT_TRUE(HttpMessageParser::is_partial_uri("/?"));
+	EXPECT_TRUE(HttpMessageParser::is_partial_uri("/bbb"));
+	EXPECT_TRUE(HttpMessageParser::is_partial_uri("/bbb/ccc/"));
+	EXPECT_TRUE(HttpMessageParser::is_partial_uri("/bbb/?a"));
+	EXPECT_TRUE(HttpMessageParser::is_partial_uri("/bbb/?"));
+	EXPECT_TRUE(HttpMessageParser::is_partial_uri("/bbb/?/"));
+	EXPECT_TRUE(HttpMessageParser::is_partial_uri("/bbb/???"));
+	EXPECT_TRUE(HttpMessageParser::is_partial_uri("/?*"));
+
+	// path-noscheme [ "?" query ]
+	EXPECT_TRUE(HttpMessageParser::is_partial_uri("abc"));
+	EXPECT_TRUE(HttpMessageParser::is_partial_uri("abc/"));
+	EXPECT_TRUE(HttpMessageParser::is_partial_uri("abc/aa"));
+	EXPECT_TRUE(HttpMessageParser::is_partial_uri("abc?"));
+	EXPECT_TRUE(HttpMessageParser::is_partial_uri("abc/?bb"));
+	EXPECT_TRUE(HttpMessageParser::is_partial_uri("abc?/bb"));
+
+	// path-empty [ "?" query ]
+	EXPECT_TRUE(HttpMessageParser::is_partial_uri(""));
+	EXPECT_TRUE(HttpMessageParser::is_partial_uri("?"));
+	EXPECT_TRUE(HttpMessageParser::is_partial_uri("???"));
+	EXPECT_TRUE(HttpMessageParser::is_partial_uri("?/"));
+	EXPECT_TRUE(HttpMessageParser::is_partial_uri("?/?/??"));
+	EXPECT_TRUE(HttpMessageParser::is_partial_uri("?*"));
+
+	EXPECT_FALSE(HttpMessageParser::is_partial_uri("^"));
+	EXPECT_FALSE(HttpMessageParser::is_partial_uri("^***"));
+	EXPECT_FALSE(HttpMessageParser::is_partial_uri(":"));
+	EXPECT_FALSE(HttpMessageParser::is_partial_uri(" "));
+	EXPECT_FALSE(HttpMessageParser::is_partial_uri("\n"));
+}
 
 TEST(TestHttpMessageParser, IsUserInfo) {
 	EXPECT_TRUE(HttpMessageParser::is_userinfo("a"));

@@ -804,6 +804,7 @@ void skip_relative_part(const std::string &str,
 	}
 	pos = start_pos;
 	*end_pos = start_pos;
+
 	if (str.empty() || str.length() <= start_pos) {
 		return;
 	}
@@ -812,14 +813,12 @@ void skip_relative_part(const std::string &str,
 		pos += 2;
 		skip_authority(str, pos, &end);
 		if (pos == end) { return; }
-		pos = end;
-		skip_path_abempty(str, pos, &end);
+		skip_path_abempty(str, end, &end);
 	} else if (str[pos] == '/' && str[pos + 1] != '/') {
 		skip_path_absolute(str, pos, &end);
 	} else {
 		skip_path_noscheme(str, pos, &end);
 	}
-
 	if (pos == end) {
 		return;
 	}
@@ -849,8 +848,7 @@ void skip_hier_part(const std::string &str,
 		pos += 2;
 		skip_authority(str, pos, &end);
 		if (pos == end) { return; }
-		pos = end;
-		skip_path_abempty(str, pos, &end);
+		skip_path_abempty(str, end, &end);
 	} else if (str[pos] == '/' && str[pos + 1] != '/') {
 		skip_path_absolute(str, pos, &end);
 	} else {
@@ -877,7 +875,6 @@ void skip_query(const std::string &str,
 	if (str.empty() || str.length() <= start_pos) {
 		return;
 	}
-
 	while (str[pos]) {
 		skip_pchar(str, pos, &end);
 		if (pos != end) {
@@ -890,13 +887,11 @@ void skip_query(const std::string &str,
 		}
 		break;
 	}
-	if (pos == start_pos) {
-		return;
-	}
 	*end_pos = pos;
 }
 
 // todo: test
+// absolute-URI  = scheme ":" hier-part [ "?" query ]
 void skip_absolute_uri(const std::string &str,
 					   std::size_t start_pos,
 					   std::size_t *end_pos) {
@@ -918,7 +913,7 @@ void skip_absolute_uri(const std::string &str,
 	pos = end;
 
 	// ":"
-	if (str[pos] != COLON) {
+	if (str[pos] != ':') {
 		return;
 	}
 	++pos;
@@ -927,26 +922,18 @@ void skip_absolute_uri(const std::string &str,
 	skip_hier_part(str, pos, &end);
 	pos = end;  // if (pos == end) -> path-empty
 
-	// ?
-	if (str[pos] != '?') {
-		*end_pos = pos;
-		return;
+	// [ ? query ]
+	if (str[pos] == '?') {
+		skip_query(str, pos + 1, &end);
+		pos = end;
 	}
-
-	// query
-	skip_query(str, pos, &end);
-	if (pos == end) {
-		return;
-	}
-
-	*end_pos = end;
+	*end_pos = pos;
 }
 
 /*
  partial-URI = relative-part [ "?" query ]
  https://datatracker.ietf.org/doc/html/rfc3986#section-3.3
 */
-// todo: test
 void skip_partial_uri(const std::string &str,
 					  std::size_t start_pos,
 					  std::size_t *end_pos) {
@@ -954,6 +941,7 @@ void skip_partial_uri(const std::string &str,
 	if (!end_pos) {
 		return;
 	}
+
 	pos = start_pos;
 	*end_pos = start_pos;
 	if (str.empty() || str.length() <= start_pos) {
@@ -961,20 +949,12 @@ void skip_partial_uri(const std::string &str,
 	}
 
 	skip_relative_part(str, pos, &end);
-	if (pos == end) {
-		return;
-	}
-	pos = end;
-	*end_pos = pos;
+	pos = end;  // if (pos == end) -> path-empty
 
-	if (str[pos] != '?') {
-		return;
-	}
-	++pos;
-
-	skip_query(str, pos, &end);
-	if (pos == end) {
-		return;
+	// [ ? query ]
+	if (str[pos] == '?') {
+		skip_query(str, pos + 1, &end);
+		pos = end;
 	}
 	*end_pos = end;
 }
