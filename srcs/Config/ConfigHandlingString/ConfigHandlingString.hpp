@@ -24,12 +24,7 @@ class ConfigHandlingString
 		static	bool	is_blockstart_endword(const std::string &block_end_word);
 		static	bool	is_field_header(const std::string &config_line, size_t *pos);
 		static	bool	is_field_value(const std::string &config_line, size_t *pos);
-		// static	bool	is_field_header_format(const std::string &config_line,
-												// size_t *end_pos);
-		// static	bool	is_field_value_format(const std::string &config_line,
-											// size_t *end_pos);
-		static	bool	show_error_message(const std::string &config_line, \
-											const int &error_type);
+		static	bool	show_error_message(const std::string	&config_line, const int	&error_type);
 };
 
 #endif  // SRCS_CONFIG_CONFIGHANDLINGSTRING_CONFIGHANDLINGSTRING_HPP_

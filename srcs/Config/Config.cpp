@@ -35,23 +35,23 @@ int	Config::server_block_action(const std::string	&config_line, \
 	if (IsConfigFormat::is_start_location_block(config_line))
 	{
 		*in_location_block = true;
-		return IS_START_SERVER_BLOCK;
+		return IS_OK_START_SERVER_BLOCK;
 	}
 	if (ConfigHandlingString::is_block_end(config_line))
 	{
 		*in_server_block = false;
 		set_server_config_to_allconfigs(Configs, server_config, server_name_list);
 		init_server_config_and_allconfigs(Configs, server_config, field_headers);
-		return IS_BLOCK_END;
+		return IS_OK_BLOCK_END;
 	}
 	if (IsConfigFormat::is_server_block_format(config_line, *field_headers))
 	{
 		bool	done_input_action = IsConfigFormat::do_input_field_key_field_value(config_line, server_config, field_headers);
 		if (done_input_action == false)
 			return (IS_ALREADY_EXIST_FIELD_KEY);
-		return IS_IN_SERVER_BLOCK;
+		return IS_OK_IN_SERVER_BLOCK;
 	}
-	return (NOT_ALLOWED_SERVER_BLOCK_FORMAT);
+	return (IS_NOT_SERVER_CONFIG_FORMAT);
 }
 
 bool	Config::ready_server_config(const std::string &config_file_name, \
@@ -79,9 +79,13 @@ bool	Config::ready_server_config(const std::string &config_file_name, \
 			if (result_server_block_action != IS_OK)
 				return this->report_errorline(config_line);
 		}
-		else if (in_server_block == true && in_location_block == true && \
-		IsConfigFormat::is_location_block(config_line, &in_location_block))
-			continue;
+		else if (in_server_block == true && in_location_block == true)
+		{
+			if (ConfigHandlingString::is_block_end(config_line))
+				in_location_block = false;
+			else if (IsConfigFormat::is_location_block_format(config_line) == false)
+				return this->report_errorline(config_line);
+		}
 		else
 			return this->report_errorline(config_line);
 	}
@@ -97,15 +101,12 @@ void	Config::init_location_config_with_server_config(LocationConfig *location_co
 	*in_server_block = true;
 }
 
-
-
 bool	Config::ready_location_config(const std::string &config_file_name, \
 										std::vector<std::vector<std::string> >::iterator server_name_itr)
 {
-	std::vector<std::string>	location_field_header_map;
+	std::vector<std::string>	location_field_headers;
 	std::ifstream	config_lines(config_file_name.c_str());
-	std::string	config_line;
-	std::string	location_path;
+	std::string	config_line, location_path;
 	LocationConfig	location_config;
 	bool	in_server_block = false;
 	bool	in_location_block = false;
@@ -128,16 +129,24 @@ bool	Config::ready_location_config(const std::string &config_file_name, \
 			else if (ConfigHandlingString::is_block_end(config_line))
 				server_name_itr++;
 		}
-		else if (in_server_block == true && in_location_block == true && \
-		IsConfigFormat::is_location_format_ok_input_field_key_field_value(config_line, &in_location_block, &location_config, &location_field_header_map))
+		else if (in_server_block == true && in_location_block == true)
 		{
 			if (ConfigHandlingString::is_block_end(config_line))
 			{
 				this->_all_configs[*server_name_itr].set_location_config(location_path, location_config);
-				location_field_header_map.clear();
+				location_field_headers.clear();
 				location_config.clear_location_keyword();
 				location_config.set_server_block_infs(this->get_same_allconfig(*server_name_itr).get_server_config());
+				in_location_block = false;
 			}
+			else if (IsConfigFormat::is_location_block_format(config_line))
+			{
+				bool	done_input_action = IsConfigFormat::do_input_field_key_field_value(config_line, &location_config, &location_field_headers);
+				if (done_input_action == false)
+					return this->report_errorline(config_line);
+			}
+			else
+				return this->report_errorline(config_line);
 		}
 		else
 			return this->report_errorline(config_line);

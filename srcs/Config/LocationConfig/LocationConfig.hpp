@@ -89,7 +89,7 @@ class LocationConfig
 		void						set_indexpages(const std::vector<std::string> &indexpages){ this->_indexpages = indexpages; }
 		void						set_server_names(const std::vector<std::string> &server_names){ this->_server_names = server_names; }
 		void						set_errorpages(const std::vector<std::string> &errorpages){ this->_errorpages = errorpages; }
-		bool						set_field_header_field_key(const std::string &field_header, \
+		bool						set_field_header_field_value(const std::string &field_header, \
 																const std::string &field_value);
 		void						clear_location_keyword(void);
 		void						set_server_block_infs(const ServerConfig &inputes_severconfig);

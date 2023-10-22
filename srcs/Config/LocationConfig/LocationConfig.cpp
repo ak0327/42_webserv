@@ -32,7 +32,7 @@ std::vector<std::string>	LocationConfig::ready_string_vector_field_value(const s
 	return (anser_vector);
 }
 
-bool	LocationConfig::set_field_header_field_key(const std::string &field_header, \
+bool	LocationConfig::set_field_header_field_value(const std::string &field_header, \
 														const std::string &field_value)
 {
 	std::vector<std::string>	field_headers;
