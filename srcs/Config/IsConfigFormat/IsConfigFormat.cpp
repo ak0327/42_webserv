@@ -140,7 +140,6 @@ bool	IsConfigFormat::is_server_block_format(const std::string &config_line, \
 	if (std::find(field_headers.begin(), field_headers.end(), field_header) != field_headers.end())
 		return false;
 	HandlingString::skip_ows(line_without_ows, &end_pos);
-	field_value_start_pos = end_pos;
 	is_format = ConfigHandlingString::is_field_value(line_without_ows, &end_pos);
 	if (is_format == false)
 		return (false);
