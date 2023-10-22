@@ -40,13 +40,14 @@ bool	ConfigHandlingString::is_field_header(const std::string &config_line, size_
 
 bool	ConfigHandlingString::is_field_value(const std::string &config_line, size_t *pos)
 {
-	if (config_line.empty() || config_line == ";")
+	std::string	field_value_word = config_line.substr(*pos, config_line.length() - *pos);
+	if (field_value_word.empty() || field_value_word == ";")
 		return ConfigHandlingString::show_error_message(config_line, NO_FIELD_VALUE);
-	if (std::count(config_line.begin(), config_line.end(), ';') == 0)
+	if (std::count(field_value_word.begin(), field_value_word.end(), ';') == 0)
 		return ConfigHandlingString::show_error_message(config_line, NO_SEMICOLON);
-	if (std::count(config_line.begin(), config_line.end(), ';') != 1)
+	if (std::count(field_value_word.begin(), field_value_word.end(), ';') != 1)
 		return ConfigHandlingString::show_error_message(config_line, MULTIPLE_SEMICOLON);
-	if (config_line[config_line.length() - 1] != ';')
+	if (field_value_word[field_value_word.length() - 1] != ';')
 		return ConfigHandlingString::show_error_message(config_line, NO_LAST_SEMICOLON);
 	while (config_line[*pos] != ';')  // valueの終了条件は必ずセミコロンが存在しているかどうかになる
 		*pos = *pos + 1;

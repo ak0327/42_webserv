@@ -45,14 +45,17 @@ bool	IsConfigFormat::is_start_server_block(const std::string &config_line, bool 
 	size_t	end_pos = 0;
 
 	HandlingString::skip_no_ows(line_without_ows, &end_pos);
+	if (std::count(line_without_ows.begin(), line_without_ows.end(), '{') != 1)
+		return (false);
 	if (line_without_ows.substr(start_pos, end_pos - start_pos) != "server" || end_pos == line_without_ows.length())
 		return (false);
 	HandlingString::skip_ows(line_without_ows, &end_pos);
 	if (ConfigHandlingString::is_blockstart_endword(line_without_ows.substr(end_pos, line_without_ows.length() - end_pos)))
+	{
 		*in_server_block = true;
-	else
-		*in_server_block = false;
-	return (true);
+		return (true);
+	}
+	return (false);
 }
 
 bool	IsConfigFormat::is_location_block_format(const std::string &config_line)

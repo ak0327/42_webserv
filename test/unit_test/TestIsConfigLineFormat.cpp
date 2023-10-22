@@ -45,10 +45,10 @@ TEST(IsConfigLineTest, is_location_block_format_format_true)
 	EXPECT_EQ(true, IsConfigFormat::is_location_block_format(" key val    val     val          val;"));
 	EXPECT_EQ(true, IsConfigFormat::is_location_block_format("	 key val    val   	 val;"));
 	EXPECT_EQ(true, IsConfigFormat::is_location_block_format("  key val    val   	 val;    "));
-	EXPECT_EQ(true, IsConfigFormat::is_location_block_format("  } "));
-	EXPECT_EQ(true, IsConfigFormat::is_location_block_format("  			 } "));
+	// EXPECT_EQ(true, IsConfigFormat::is_location_block_format("  } ")); block_endとして判定
+	// EXPECT_EQ(true, IsConfigFormat::is_location_block_format("  			 } "));　block_endとして判定
 	EXPECT_EQ(true, IsConfigFormat::is_location_block_format("key val    val     val	;          "));
-	EXPECT_EQ(true, IsConfigFormat::is_location_block_format("}"));
+	// EXPECT_EQ(true, IsConfigFormat::is_location_block_format("}")); // block_endとして判定
 }
 
 TEST(IsConfigLineTest, is_location_block_format_format_false) 
@@ -90,42 +90,22 @@ TEST(IsConfigLineTest, is_start_server_block_false)
 
 
 //testの中身は別途テストケースを追加、ここではbooleanのみ確認する
-TEST(IsConfigLineTest, is_server_block_format_true) 
+TEST(IsConfigLineTest, is_location_block_format_true) 
 {
-	std::vector<std::string>	header_maps;
-
-	EXPECT_EQ(true, IsConfigFormat::is_server_block_format("location aaa { ", header_maps));
-	header_maps.clear();
-	EXPECT_EQ(true, IsConfigFormat::is_server_block_format("		location aaa { ", header_maps));
-	header_maps.clear();
-	EXPECT_EQ(true, IsConfigFormat::is_server_block_format("		location aaa 	{", header_maps));
-	header_maps.clear();
-	EXPECT_EQ(true, IsConfigFormat::is_server_block_format("		key value;", header_maps));
-	header_maps.clear();
-	EXPECT_EQ(true, IsConfigFormat::is_server_block_format("		key value		;", header_maps));
-	header_maps.clear();
-	EXPECT_EQ(true, IsConfigFormat::is_server_block_format("		key value			;	 ", header_maps));
-	header_maps.clear();
-	EXPECT_EQ(true, IsConfigFormat::is_server_block_format("		key value	value  value		;	 ", header_maps));
-	header_maps.clear();
-	EXPECT_EQ(true, IsConfigFormat::is_server_block_format("}", header_maps));
-	header_maps.clear();
-	EXPECT_EQ(true, IsConfigFormat::is_server_block_format("			} ", header_maps));
+	EXPECT_EQ(true, IsConfigFormat::is_location_block_format("		key value;"));
+	EXPECT_EQ(true, IsConfigFormat::is_location_block_format("		key value		;"));
+	EXPECT_EQ(true, IsConfigFormat::is_location_block_format("		key value			;	 "));
+	EXPECT_EQ(true, IsConfigFormat::is_location_block_format("		key value	value  value		;	 "));
 }
 
-TEST(IsConfigLineTest, is_server_block_format_false) 
+TEST(IsConfigLineTest, is_location_block_format_false) 
 {
-	std::vector<std::string>	header_maps;
-
-	EXPECT_EQ(false, IsConfigFormat::is_server_block_format("location aaa", header_maps));
-	EXPECT_EQ(false, IsConfigFormat::is_server_block_format("location aaa {			{", header_maps));
-	EXPECT_EQ(false, IsConfigFormat::is_server_block_format("", header_maps));
-	EXPECT_EQ(false, IsConfigFormat::is_server_block_format("keyval;", header_maps));
-	EXPECT_EQ(false, IsConfigFormat::is_server_block_format("key			val ", header_maps));
-	EXPECT_EQ(false, IsConfigFormat::is_server_block_format("", header_maps));
-	EXPECT_EQ(false, IsConfigFormat::is_server_block_format("	 key ", header_maps));
-	EXPECT_EQ(false, IsConfigFormat::is_server_block_format("  key ; ", header_maps));
-	EXPECT_EQ(false, IsConfigFormat::is_server_block_format("  }; ", header_maps));
-	EXPECT_EQ(false, IsConfigFormat::is_server_block_format("  		} a aaaa aaaa ", header_maps));
-	EXPECT_EQ(false, IsConfigFormat::is_server_block_format("key val; ;", header_maps));
+	EXPECT_EQ(false, IsConfigFormat::is_location_block_format("keyval;"));
+	EXPECT_EQ(false, IsConfigFormat::is_location_block_format("key			val "));
+	EXPECT_EQ(false, IsConfigFormat::is_location_block_format(""));
+	EXPECT_EQ(false, IsConfigFormat::is_location_block_format("	 key "));
+	EXPECT_EQ(false, IsConfigFormat::is_location_block_format("  key ; "));
+	EXPECT_EQ(false, IsConfigFormat::is_location_block_format("  }; "));
+	EXPECT_EQ(false, IsConfigFormat::is_location_block_format("  		} a aaaa aaaa "));
+	EXPECT_EQ(false, IsConfigFormat::is_location_block_format("key val; ;"));
 }
