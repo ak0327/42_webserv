@@ -161,7 +161,7 @@ Config::Config(const std::string &config_file_name): _is_config_format(false)
 	bool	server_success, location_success;
 
 	if (!(test_open.is_open()))
-		return ;
+		return;
 	server_success = this->ready_server_config(config_file_name, &server_name_list);
 	if (!server_success)
 		return;
