@@ -21,11 +21,11 @@ class	AllConfig
 		~AllConfig();
 		void	clear_information();
 		void	clear_location_information();
-		void	set_host_config(const ServerConfig &host_config);
+		void	set_server_config(const ServerConfig &host_config);
 		void	set_location_config(const std::string &location_path, \
 										const LocationConfig &location_config);
-		ServerConfig	get_host_config(void);
-		LocationConfig	get_location_host_config(const std::string &location_path);
+		ServerConfig	get_server_config(void);
+		LocationConfig	get_location_config(const std::string &location_path);
 };
 
 #endif  // SRCS_CONFIG_ALLCONFIG_ALLCONFIG_HPP_

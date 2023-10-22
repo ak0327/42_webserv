@@ -26,7 +26,7 @@ AllConfig& AllConfig::operator=(const AllConfig &other)
 
 AllConfig::~AllConfig(){}
 
-void	AllConfig::set_host_config(const ServerConfig &host_config)
+void	AllConfig::set_server_config(const ServerConfig &host_config)
 {
 	this->_host_config = host_config;
 }
@@ -48,12 +48,12 @@ void	AllConfig::clear_location_information()
 	this->_location_config_map.clear();
 }
 
-ServerConfig AllConfig::get_host_config()
+ServerConfig AllConfig::get_server_config()
 {
 	return (this->_host_config);
 }
 
-LocationConfig AllConfig::get_location_host_config(const std::string &location_path)
+LocationConfig AllConfig::get_location_config(const std::string &location_path)
 {
 	return (this->_location_config_map[location_path]);
 }

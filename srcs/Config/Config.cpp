@@ -6,17 +6,52 @@
 // serverblockの情報の取得→locationblockの情報を取得
 // 上記の流れを行いたい場合どうしても二回開く必要がある（要相談
 
-void	Config::set_serverconfig_ready_next_serverconfig(AllConfig *Configs, \
-															ServerConfig *server_config, \
-															std::vector<std::string> *field_header_map, \
-															std::vector<std::vector<std::string> > *server_name_list)
+void	Config::set_server_config_to_allconfigs(AllConfig	*Configs, \
+											ServerConfig	*server_config, \
+					std::vector<std::vector<std::string> >	*server_name_list)
 {
-	Configs->set_host_config(*server_config);
+	Configs->set_server_config(*server_config);
 	server_name_list->push_back(server_config->get_server_names());
 	this->_all_configs[server_config->get_server_names()] = *Configs;
+}
+
+void	Config::init_server_config_and_allconfigs(AllConfig	*Configs, \
+											ServerConfig	*server_config, \
+								std::vector<std::string>	*field_header_map)
+{
 	Configs->clear_information();
 	server_config->clear_serverconfig();
 	field_header_map->clear();
+}
+
+int	Config::server_block_action(const std::string	&config_line, \
+											bool	*in_server_block, \
+											bool	*in_location_block, \
+										AllConfig	*Configs, \
+									ServerConfig	*server_config, \
+						std::vector<std::string>	*field_headers, \
+			std::vector<std::vector<std::string> >	*server_name_list)
+{
+	if (IsConfigFormat::is_start_location_block(config_line))
+	{
+		*in_location_block = true;
+		return IS_START_SERVER_BLOCK;
+	}
+	if (ConfigHandlingString::is_block_end(config_line))
+	{
+		*in_server_block = false;
+		set_server_config_to_allconfigs(Configs, server_config, server_name_list);
+		init_server_config_and_allconfigs(Configs, server_config, field_headers);
+		return IS_BLOCK_END;
+	}
+	if (IsConfigFormat::is_server_block_format(config_line, *field_headers))
+	{
+		bool	done_input_action = IsConfigFormat::do_input_field_key_field_value(config_line, server_config, field_headers);
+		if (done_input_action == false)
+			return (IS_ALREADY_EXIST_FIELD_KEY);
+		return IS_IN_SERVER_BLOCK;
+	}
+	return (NOT_ALLOWED_SERVER_BLOCK_FORMAT);
 }
 
 bool	Config::ready_server_config(const std::string &config_file_name, \
@@ -28,7 +63,7 @@ bool	Config::ready_server_config(const std::string &config_file_name, \
 	ServerConfig	server_config;
 	std::ifstream	config_lines(config_file_name.c_str());
 	std::string		config_line;
-	std::vector<std::string>	field_header_map;
+	std::vector<std::string>	field_headers;
 
 	while (std::getline(config_lines, config_line, '\n'))
 	{
@@ -38,19 +73,16 @@ bool	Config::ready_server_config(const std::string &config_file_name, \
 			IsConfigFormat::is_start_server_block(config_line, &in_server_block);
 		else if (in_server_block == true && in_location_block == false)
 		{
-			if (IsConfigFormat::is_start_location_block(config_line))
-				in_location_block = true;
-			else if (ConfigHandlingString::is_block_end(config_line))
-				set_serverconfig_ready_next_serverconfig(&Configs, &server_config, \
-				&field_header_map, server_name_list);
-			else if (IsConfigFormat::is_server_format_ok_input_field_key_fiield_value(config_line, \
-						&server_config, &field_header_map) == false)
+			int	result_server_block_action = server_block_action(config_line, &in_server_block, &in_location_block, \
+																	&Configs, &server_config, &field_headers, \
+																		server_name_list);
+			if (result_server_block_action != IS_OK)
 				return this->report_errorline(config_line);
 		}
 		else if (in_server_block == true && in_location_block == true && \
 		IsConfigFormat::is_location_block(config_line, &in_location_block))
 			continue;
-		else  // 上記3つ以外の場合、状況としてはありえないためfalseになる
+		else
 			return this->report_errorline(config_line);
 	}
 	return (in_server_block == false && in_location_block == false);
@@ -61,7 +93,7 @@ void	Config::init_location_config_with_server_config(LocationConfig *location_co
 												bool *in_server_block)
 {
 	location_config->clear_location_keyword();
-	location_config->set_server_block_infs(this->get_same_allconfig(server_name).get_host_config());
+	location_config->set_server_block_infs(this->get_same_allconfig(server_name).get_server_config());
 	*in_server_block = true;
 }
 
@@ -97,14 +129,14 @@ bool	Config::ready_location_config(const std::string &config_file_name, \
 				server_name_itr++;
 		}
 		else if (in_server_block == true && in_location_block == true && \
-		IsConfigFormat::is_location_format_ok_input_field_key_fiield_value(config_line, &in_location_block, &location_config, &location_field_header_map))
+		IsConfigFormat::is_location_format_ok_input_field_key_field_value(config_line, &in_location_block, &location_config, &location_field_header_map))
 		{
 			if (ConfigHandlingString::is_block_end(config_line))
 			{
 				this->_all_configs[*server_name_itr].set_location_config(location_path, location_config);
 				location_field_header_map.clear();
 				location_config.clear_location_keyword();
-				location_config.set_server_block_infs(this->get_same_allconfig(*server_name_itr).get_host_config());
+				location_config.set_server_block_infs(this->get_same_allconfig(*server_name_itr).get_server_config());
 			}
 		}
 		else
@@ -136,32 +168,6 @@ std::map<std::vector<std::string>, AllConfig>	Config::get_all_configs()
 {
 	return (this->_all_configs);
 }
-
-// bool	Config::is_vector_equal(const std::vector<std::string> &servername, const std::vector<std::string> &inputed_servername)
-// {
-// 	std::vector<std::string>::iterator	servername_itr = servername.begin();
-
-// 	while (servername_itr != servername.end())
-// 	{
-// 		if (std::count(inputed_servername.begin(), inputed_servername.end(), *servername_itr) != 1)
-// 			return false;
-// 		servername_itr++;
-// 	}
-// 	return (true);
-// }
-
-// bool	Config::is_server_name_exist(const std::vector<std::string> &servername)
-// {
-// 	std::map<std::vector<std::string>, AllConfig>::iterator	all_configs_itr = this->_all_configs.begin();
-
-// 	while (all_configs_itr != this->_all_configs.end())
-// 	{
-// 		if (is_vector_equal(servername, all_configs_itr->first))
-// 			return true;
-// 		all_configs_itr++;
-// 	}
-// 	return false;
-// }
 
 AllConfig Config::get_same_allconfig(const std::vector<std::string> &server_name)  // これがconfigの読み取りの時に使うやつ
 {
