@@ -41,4 +41,8 @@ Result<std::string, int> parse_pos_to_delimiter(const std::string &src_str,
 												char tail_delimiter,
 												std::size_t *end_pos);
 
+Result<std::string, int> parse_pos_to_wsp(const std::string &str,
+										  std::size_t start_pos,
+										  std::size_t *end_pos);
+
 }  // namespace StringHandler

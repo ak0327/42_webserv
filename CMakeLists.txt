@@ -45,6 +45,7 @@ include_directories(
         srcs/HttpRequest/MultiFieldValues
         srcs/HttpRequest/Date
         srcs/HttpRequest/MapFieldValues
+        srcs/HttpRequest/MapSetFieldValues
         srcs/HttpRequest/SingleFieldValue
         srcs/HttpRequest/ValueWeightArraySet
         srcs/HttpRequest/MediaType
@@ -74,7 +75,6 @@ set(http_request_srcs
         srcs/HttpRequest/TwoValueSet/TwoValueSet.cpp
         srcs/HttpRequest/ValueWeightArraySet/ValueWeightArraySet.cpp
         srcs/HttpRequest/LinkClass/LinkClass.cpp
-        srcs/HttpRequest/LinkClass/set_link.cpp
         )
 
 # Date
@@ -89,7 +89,7 @@ set(field_values_srcs
         )
 
 # MapFieldValues
-set(field_value_map_srcs
+set(map_field_values_srcs
         srcs/HttpRequest/MapFieldValues/MapFieldValues.cpp
         srcs/HttpRequest/MapFieldValues/set_authorization.cpp
         srcs/HttpRequest/MapFieldValues/set_cache_control.cpp
@@ -99,6 +99,13 @@ set(field_value_map_srcs
         srcs/HttpRequest/MapFieldValues/set_keep_alive.cpp
         srcs/HttpRequest/MapFieldValues/set_range.cpp
         srcs/HttpRequest/MapFieldValues/set_upgrade.cpp
+        )
+
+# MapSetFieldValues
+set(map_set_field_values_srcs
+        srcs/HttpRequest/MapSetFieldValues/MapSetFieldValues.cpp
+        srcs/HttpRequest/MapSetFieldValues/set_link.cpp
+        srcs/HttpRequest/MapSetFieldValues/set_via.cpp
         )
 
 # MediaType
@@ -127,7 +134,8 @@ set(value_and_map_field_values_srcs
 
 list(APPEND http_request_srcs
         ${date_srcs}
-        ${field_value_map_srcs}
+        ${map_field_values_srcs}
+        ${map_set_field_values_srcs}
         ${field_values_srcs}
         ${media_type_srcs}
         ${multi_field_values}
@@ -210,6 +218,9 @@ set (unit_test_srcs
         test/unit_test/MapFieldValues/TestProxyAuthorization.cpp
         test/unit_test/MapFieldValues/TestRange.cpp
         test/unit_test/MapFieldValues/TestUpgrade.cpp
+
+        # map set field values
+        test/unit_test/MapSetFieldValues/TestVia.cpp
 
         # value and map field values
         test/unit_test/ValueAndMapFieldValues/TestContentDisposition.cpp

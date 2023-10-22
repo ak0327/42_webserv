@@ -2,6 +2,7 @@
 #include "Constant.hpp"
 #include "HttpRequest.hpp"
 #include "HttpMessageParser.hpp"
+#include "MapSetFieldValues.hpp"
 
 LinkClass* HttpRequest::ready_LinkClass(std::map<std::string, std::map<std::string, std::string> > link_valuemap)
 {
@@ -49,6 +50,27 @@ bool	is_list_form(const std::string &field_value_without_ows)
 }
 
 // todo: Link
+/*
+ Link       = #link-value
+ link-value = "<" URI-Reference ">" *( OWS ";" OWS link-param )
+ link-param = token BWS [ "=" BWS ( token / quoted-string ) ]
+ https://httpwg.org/specs/rfc8288.html#header
+
+ URI-reference = URI / relative-ref
+ URI           = scheme ":" hier-part [ "?" query ] [ "#" fragment ]
+ relative-ref  = relative-part [ "?" query ] [ "#" fragment ]
+ relative-part = "//" authority path-abempty
+                  / path-absolute
+                  / path-noscheme
+                  / path-empty
+ fragment      = *( pchar / "/" / "?" )
+ https://www.rfc-editor.org/rfc/rfc3986.html
+
+  std::set<std::map<std::string, std::string> > links = {link1, link2, ... };
+
+  link_i["URI-Reference"] = received-protocol;
+  link_i[token] = link-param;
+ */
 Result<int, int> HttpRequest::set_link(const std::string &key, const std::string &value)
 {
 	std::map<std::string, std::map<std::string, std::string> >	value_map;

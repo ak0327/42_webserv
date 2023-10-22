@@ -997,6 +997,7 @@ void skip_product(const std::string &str,
 /*
  comment  = "(" *( ctext / quoted-pair / comment ) ")"
  ctext    = HTAB / SP / %x21-27 / %x2A-5B / %x5D-7E / obs-text
+ https://www.rfc-editor.org/rfc/rfc9110#name-comments
  */
 void skip_comment(const std::string &str,
 				  std::size_t start_pos,
@@ -1418,6 +1419,7 @@ void skip_scheme(const std::string &str,
 				 std::size_t start_pos,
 				 std::size_t *end_pos) {
 	std::size_t pos;
+
 	if (!end_pos) {
 		return;
 	}
@@ -1442,6 +1444,26 @@ void skip_scheme(const std::string &str,
 	}
 	*end_pos = pos;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 }  // namespace HttpMessageParser

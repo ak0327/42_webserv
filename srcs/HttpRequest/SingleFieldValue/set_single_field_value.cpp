@@ -153,17 +153,6 @@ Result<int, int> HttpRequest::set_content_location(const std::string &field_name
 	return Result<int, int>::ok(STATUS_OK);
 }
 
-// todo: Content-Range
-// Content-Range: <unit> <range-start>-<range-end>/<size>
-// Content-Range: <unit> <range-start>-<range-end>/*
-// Content-Range: <unit> */<size>
-Result<int, int> HttpRequest::set_content_range(const std::string &field_name,
-												const std::string &field_value)
-{
-	this->_request_header_fields[field_name] = new SingleFieldValue(field_value);
-	return Result<int, int>::ok(STATUS_OK);
-}
-
 // Expect  = "100-continue" ;case-insensitive.
 Result<int, int> HttpRequest::set_expect(const std::string &field_name,
 										 const std::string &field_value) {
@@ -182,23 +171,65 @@ Result<int, int> HttpRequest::set_expect(const std::string &field_name,
 }
 
 // todo: From
-// From    = mailbox
-// mailbox         =   name-addr / addr-spec
-// name-addr       =   [display-name] angle-addr
-// angle-addr      =   [CFWS] "<" addr-spec ">" [CFWS] / obs-angle-addr
-//
-// addr-spec       =   local-part "@" domain
-// local-part      =   dot-atom / quoted-string / obs-local-part
-// domain          =   dot-atom / domain-literal / obs-domain
-// domain-literal  =   [CFWS] "[" *([FWS] dtext) [FWS] "]" [CFWS]
-// dtext           =   %d33-90 /          ; Printable US-ASCII
-//                     %d94-126 /         ; characters not including
-//                     obs-dtext          ; "[", "]", or "\"
-//
-// obs-angle-addr  =   [CFWS] "<" obs-route addr-spec ">" [CFWS]
-// obs-route       =   obs-domain-list ":"
-// obs-domain-list =   *(CFWS / ",") "@" domain
-//                     *("," [CFWS] ["@" domain])
+/*
+ From            =   mailbox
+
+ mailbox         =   name-addr / addr-spec
+
+ name-addr       =   [display-name] angle-addr
+ display-name    =   phrase
+ phrase          =   1*word / obs-phrase
+ word            =   atom / quoted-string
+ atom            =   [CFWS] 1*atext [CFWS]
+ CFWS            =   (1*([FWS] comment) [FWS]) / FWS
+ FWS             =   ([*WSP CRLF] 1*WSP) /  obs-FWS
+                      ; Folding white space
+ atext           =   ALPHA / DIGIT /    ; Printable US-ASCII
+                     "!" / "#" /        ;  characters not including
+                     "$" / "%" /        ;  specials.  Used for atoms.
+                     "&" / "'" /
+                     "*" / "+" /
+                     "-" / "/" /
+                     "=" / "?" /
+                     "^" / "_" /
+                     "`" / "{" /
+                     "|" / "}" /
+                     "~"
+ obs-FWS         =   1*WSP *(CRLF 1*WSP)
+
+ WSP             =  SP / HTAB
+                   ; white space
+ https://www.rfc-editor.org/rfc/rfc5234
+
+
+ angle-addr      =   [CFWS] "<" addr-spec ">" [CFWS]
+                     / obs-angle-addr
+
+ group           =   display-name ":" [group-list] ";" [CFWS]
+ mailbox-list    =   (mailbox *("," mailbox)) / obs-mbox-list
+ address-list    =   (address *("," address)) / obs-addr-list
+ group-list      =   mailbox-list / CFWS / obs-group-list
+
+
+
+ mailbox         =   name-addr / addr-spec
+ name-addr       =   [display-name] angle-addr
+ angle-addr      =   [CFWS] "<" addr-spec ">" [CFWS] / obs-angle-addr
+
+ addr-spec       =   local-part "@" domain
+ local-part      =   dot-atom / quoted-string / obs-local-part
+ domain          =   dot-atom / domain-literal / obs-domain
+ domain-literal  =   [CFWS] "[" *([FWS] dtext) [FWS] "]" [CFWS]
+ dtext           =   %d33-90 /          ; Printable US-ASCII
+                     %d94-126 /         ; characters not including
+                     obs-dtext          ; "[", "]", or "\"
+
+ obs-angle-addr  =   [CFWS] "<" obs-route addr-spec ">" [CFWS]
+ obs-route       =   obs-domain-list ":"
+ obs-domain-list =   *(CFWS / ",") "@" domain
+                    *("," [CFWS] ["@" domain])
+ https://www.rfc-editor.org/rfc/rfc5322#section-3.4
+ */
 Result<int, int> HttpRequest::set_from(const std::string &field_name,
 									   const std::string &field_value)
 {
@@ -396,20 +427,10 @@ Result<int, int> HttpRequest::set_user_agent(const std::string &field_name,
 	return Result<int, int>::ok(STATUS_OK);
 }
 
-// todo: Via
-// Via: [ <protocol-name> "/" ] <protocol-version> <host> [ ":" <port> ]
-//  or
-// Via: [ <protocol-name> "/" ] <protocol-version> <pseudonym>
 
-// Via = 1#( received-protocol RWS received-by [ RWS comment ] )
 
-// received-protocol = [ protocol-name "/" ] protocol-version
-//                     ; see Section 6.7
-// received-by       = ( uri-host [ ":" port ] ) / pseudonym
-// pseudonym         = token
-Result<int, int> HttpRequest::set_via(const std::string &field_name,
-									  const std::string &field_value)
-{
-	this->_request_header_fields[field_name] = new SingleFieldValue(field_value);
-	return Result<int, int>::ok(STATUS_OK);
-}
+
+
+
+
+

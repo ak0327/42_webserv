@@ -95,7 +95,7 @@ class HttpRequest {
 
 	Result<int, int> set_multi_field_values(const std::string &field_name,
 											const std::string &field_value,
-											bool (*is_valid_syntax)(const std::string &));
+											bool (*syntax_validate_func)(const std::string &));
 
 	Result<int, int> set_accept(const std::string &field_name, const std::string &field_value);
 	Result<int, int> set_accept_encoding(const std::string &field_name, const std::string &field_value);
@@ -111,7 +111,6 @@ class HttpRequest {
 	Result<int, int> set_content_language(const std::string &field_name, const std::string &field_value);
 	Result<int, int> set_content_length(const std::string &field_name, const std::string &field_value);
 	Result<int, int> set_content_location(const std::string &field_name, const std::string &field_value);
-	Result<int, int> set_content_range(const std::string &field_name, const std::string &field_value);
 	Result<int, int> set_content_type(const std::string &field_name, const std::string &field_value);
 	Result<int, int> set_cookie(const std::string &field_name, const std::string &field_value);
 	Result<int, int> set_date(const std::string &field_name, const std::string &field_value);

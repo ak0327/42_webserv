@@ -333,10 +333,8 @@ Result<std::string, int> parse_pos_to_delimiter(const std::string &src_str,
 	std::size_t delim_pos, len;
 	std::string	ret_str;
 
-	if (!end_pos) {
-		return Result<std::string, int>::err(ERR);
-	}
-	*end_pos = start_pos;
+	if (end_pos) { *end_pos = start_pos; }
+
 	if (src_str.empty() || src_str.length() < start_pos) {
 		return Result<std::string, int>::err(ERR);
 	}
@@ -354,6 +352,31 @@ Result<std::string, int> parse_pos_to_delimiter(const std::string &src_str,
 	len = delim_pos - start_pos;
 
 	ret_str = src_str.substr(start_pos, len);
+
+	if (end_pos) { *end_pos = start_pos + len; }
+	return Result<std::string, int>::ok(ret_str);
+}
+
+Result<std::string, int> parse_pos_to_wsp(const std::string &str,
+										  std::size_t start_pos,
+										  std::size_t *end_pos) {
+	std::size_t pos, len;
+	std::string	ret_str;
+
+	if (end_pos) { *end_pos = start_pos; }
+
+	pos = start_pos;
+	if (str.empty() || str.length() < start_pos) {
+		return Result<std::string, int>::err(ERR);
+	}
+
+	while (str[pos] && !HttpMessageParser::is_whitespace(str[pos])) {
+		++pos;
+	}
+	len = pos - start_pos;
+
+	ret_str = str.substr(start_pos, len);
+
 	if (end_pos) { *end_pos = start_pos + len; }
 	return Result<std::string, int>::ok(ret_str);
 }

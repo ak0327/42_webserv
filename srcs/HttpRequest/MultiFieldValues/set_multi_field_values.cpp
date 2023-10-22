@@ -327,11 +327,11 @@ MultiFieldValues* HttpRequest::ready_ValueArraySet(const std::string &all_value)
 
 Result<int, int> HttpRequest::set_multi_field_values(const std::string &field_name,
 													 const std::string &field_value,
-													 bool (*is_valid_syntax)(const std::string &)) {
+													 bool (*syntax_validate_func)(const std::string &)) {
 	std::set<std::string> field_values;
 
 	field_values = parse_field_values(field_value);
-	if (is_valid_field_values(field_values, is_valid_syntax)) {
+	if (is_valid_field_values(field_values, syntax_validate_func)) {
 		this->_request_header_fields[field_name] = new MultiFieldValues(field_values);
 	}
 	return Result<int, int>::ok(STATUS_OK);
@@ -339,7 +339,6 @@ Result<int, int> HttpRequest::set_multi_field_values(const std::string &field_na
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// todo: Access-Control-Request-Headers
 // Access-Control-Request-Headers: <header-name>, <header-name>, ...
 /*
  Access-Control-Request-Headers: "Access-Control-Request-Headers" ":" #field-name

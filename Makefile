@@ -43,7 +43,6 @@ SRCS		+=	$(REQUEST_DIR)/HttpRequest.cpp \
 
 SRCS		+= 	$(REQUEST_DIR)/FieldValueBase/FieldValueBase.cpp \
 				$(REQUEST_DIR)/LinkClass/LinkClass.cpp \
-				$(REQUEST_DIR)/LinkClass/set_link.cpp \
 				$(REQUEST_DIR)/RequestLine/RequestLine.cpp \
 				$(REQUEST_DIR)/SingleFieldValue/SingleFieldValue.cpp \
 				$(REQUEST_DIR)/TwoValueSet/TwoValueSet.cpp \
@@ -65,6 +64,11 @@ SRCS		+=	$(MAP_FIELD_VALUES_DIR)/MapFieldValues.cpp \
 				$(MAP_FIELD_VALUES_DIR)/set_keep_alive.cpp \
 				$(MAP_FIELD_VALUES_DIR)/set_range.cpp \
 				$(MAP_FIELD_VALUES_DIR)/set_upgrade.cpp
+
+MAP_SET_FIELD_VALUES_DIR = $(REQUEST_DIR)/MapSetFieldValues
+SRCS		+=	$(MAP_SET_FIELD_VALUES_DIR)/MapSetFieldValues.cpp \
+				$(MAP_SET_FIELD_VALUES_DIR)/set_link.cpp \
+				$(MAP_SET_FIELD_VALUES_DIR)/set_via.cpp
 
 MEDIA_TYPE_DIR = $(REQUEST_DIR)/MediaType
 SRCS		+=	$(MEDIA_TYPE_DIR)/MediaType.cpp \
@@ -98,6 +102,7 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(REQUEST_DIR) \
 				$(SRCS_DIR)/$(DATE_DIR) \
 				$(SRCS_DIR)/$(MAP_FIELD_VALUES_DIR) \
+				$(SRCS_DIR)/$(MAP_SET_FIELD_VALUES_DIR) \
 				$(SRCS_DIR)/$(MEDIA_TYPE_DIR) \
 				$(SRCS_DIR)/$(MULTI_FIELD_VALUES_DIR) \
 				$(SRCS_DIR)/$(SINGLE_FIELD_VALUE_DIR) \
@@ -250,6 +255,14 @@ run_map_field_values_test    :
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestMapFieldValues*
+
+
+.PHONY    : run_map_set_field_values_test
+run_map_set_field_values_test    :
+#rm -rf build
+	cmake -S . -B build
+	cmake --build build
+	./build/unit_test --gtest_filter=TestMapSetFieldValues*
 
 
 .PHONY    : run_value_and_map_test

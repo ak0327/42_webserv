@@ -323,8 +323,13 @@ std::vector<std::string> init_ignore_headers() {
 
 const char AUTH_SCHEME[] = "auth_scheme";
 const char AUTH_PARAM[] = "auth_param";
+
 const char URI_HOST[] = "uri_host";
 const char PORT[] = "port";
+
+const char RECEIVED_PROTOCOL[] = "received_protocol";
+const char RECEIVED_BY[] = "received_by";
+const char COMMENT[] = "comment";
 
 ////////////////////////////////////////////////////////////////////////////////
 /* date */

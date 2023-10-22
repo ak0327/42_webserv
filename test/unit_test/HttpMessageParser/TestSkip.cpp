@@ -566,6 +566,16 @@ TEST(TestHttpMessageParser, SkipComment) {
 	HttpMessageParser::skip_comment(str, pos, &end);
 	EXPECT_EQ(str.length(), end);
 
+	str = "(this is comment)";
+	pos = 0;
+	HttpMessageParser::skip_comment(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "this is comment";
+	pos = 0;
+	HttpMessageParser::skip_comment(str, pos, &end);
+	EXPECT_EQ(0, end);
+
 	str = "((abc))";
 	pos = 0;
 	HttpMessageParser::skip_comment(str, pos, &end);

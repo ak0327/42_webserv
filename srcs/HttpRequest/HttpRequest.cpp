@@ -332,7 +332,7 @@ void HttpRequest::init_field_name_parser() {
 	map[std::string(ACCEPT)] = &HttpRequest::set_accept;  // todo: Accept
 	map[std::string(ACCEPT_ENCODING)] = &HttpRequest::set_accept_encoding;  // todo: Accept-Encoding
 	map[std::string(ACCEPT_LANGUAGE)] = &HttpRequest::set_accept_language;  // todo: Accept-Language
-	map[std::string(ACCESS_CONTROL_REQUEST_HEADERS)] = &HttpRequest::set_access_control_request_headers;  // todo: Access-Control-Request-Headers
+	map[std::string(ACCESS_CONTROL_REQUEST_HEADERS)] = &HttpRequest::set_access_control_request_headers;
 	map[std::string(ACCESS_CONTROL_REQUEST_METHOD)] = &HttpRequest::set_access_control_request_method;
 	map[std::string(ALT_USED)] = &HttpRequest::set_alt_used;
 	map[std::string(AUTHORIZATION)] = &HttpRequest::set_authorization;
@@ -343,7 +343,6 @@ void HttpRequest::init_field_name_parser() {
 	map[std::string(CONTENT_LANGUAGE)] = &HttpRequest::set_content_language;
 	map[std::string(CONTENT_LENGTH)] = &HttpRequest::set_content_length;
 	map[std::string(CONTENT_LOCATION)] = &HttpRequest::set_content_location;
-	map[std::string(CONTENT_RANGE)] = &HttpRequest::set_content_range;  // todo: Content-Range
 	map[std::string(CONTENT_TYPE)] = &HttpRequest::set_content_type;
 	map[std::string(COOKIE)] = &HttpRequest::set_cookie;
 	map[std::string(DATE)] = &HttpRequest::set_date;
@@ -376,7 +375,7 @@ void HttpRequest::init_field_name_parser() {
 	map[std::string(UPGRADE)] = &HttpRequest::set_upgrade;
 	map[std::string(UPGRADE_INSECURE_REQUESTS)] = &HttpRequest::set_upgrade_insecure_requests;
 	map[std::string(USER_AGENT)] = &HttpRequest::set_user_agent;
-	map[std::string(VIA)] = &HttpRequest::set_via;  // todo: Via
+	map[std::string(VIA)] = &HttpRequest::set_via;
 
 	this->_field_value_parser = map;
 }

@@ -189,8 +189,13 @@ std::vector<std::string> init_ignore_headers();
 
 extern const char AUTH_SCHEME[];
 extern const char AUTH_PARAM[];
+
 extern const char URI_HOST[];
 extern const char PORT[];
+
+extern const char RECEIVED_PROTOCOL[];
+extern const char RECEIVED_BY[];
+extern const char COMMENT[];
 
 ////////////////////////////////////////////////////////////////////////////////
 /* date */
