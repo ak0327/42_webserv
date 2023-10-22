@@ -131,7 +131,6 @@ bool	IsConfigFormat::is_server_block_format(const std::string &config_line, \
 	size_t	end_pos = 0;
 	std::string	field_header;
 	std::string	field_value;
-	size_t		field_value_start_pos;
 	bool		is_format = false;
 
 	is_format = ConfigHandlingString::is_field_header(line_without_ows, &end_pos);
