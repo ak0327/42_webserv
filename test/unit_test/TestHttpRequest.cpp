@@ -1,21 +1,20 @@
 #include <string>
 #include <algorithm>
-
 #include "gtest/gtest.h"
 #include "Constant.hpp"
 #include "Color.hpp"
+#include "Date.hpp"
 #include "Debug.hpp"
 #include "Error.hpp"
 #include "HttpRequest.hpp"
+#include "MultiFieldValues.hpp"
 #include "RequestLine.hpp"
 #include "Result.hpp"
+#include "SingleFieldValue.hpp"
 #include "StringHandler.hpp"
 #include "TwoValueSet.hpp"
-#include "MultiFieldValues.hpp"
-#include "Date.hpp"
 #include "MapFieldValues.hpp"
 #include "MapSetFieldValues.hpp"
-#include "SingleFieldValue.hpp"
 #include "ValueWeightArraySet.hpp"
 
 typedef std::set<std::map<std::string, std::string> > map_set;
@@ -82,9 +81,9 @@ TEST(TestHttpRequest, NgInvalidHeaderFormat2) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void	compare_inputvalue_truevalue_linkclass(std::map<std::string,
-											   std::map<std::string, std::string> > test_map_values,
-											   std::map<std::string, std::map<std::string, std::string> > true_map_values, size_t line)
+void compare_inputvalue_truevalue_linkclass(std::map<std::string,
+											std::map<std::string, std::string> > test_map_values,
+											std::map<std::string, std::map<std::string, std::string> > true_map_values, size_t line)
 {
 	std::map<std::string, std::map<std::string, std::string> >::iterator true_itr_now = true_map_values.begin();
 	std::map<std::string, std::string>	checking_map;
@@ -114,8 +113,8 @@ void	compare_inputvalue_truevalue_linkclass(std::map<std::string,
 	}
 }
 
-void	compare_vectors_report(std::set<std::string> target_vector,
-							   std::set<std::string> subject_vector, size_t line)
+void compare_vectors_report(std::set<std::string> target_vector,
+							std::set<std::string> subject_vector, size_t line)
 {
 	std::set<std::string>::iterator itr_now = target_vector.begin();
 	while (itr_now != target_vector.end())
@@ -129,8 +128,8 @@ void	compare_vectors_report(std::set<std::string> target_vector,
 	}
 }
 
-void	compare_map_report(std::map<std::string, std::set<std::string> > target_map,
-						   std::map<std::string, std::set<std::string> > true_map, size_t line)
+void compare_map_report(std::map<std::string, std::set<std::string> > target_map,
+						std::map<std::string, std::set<std::string> > true_map, size_t line)
 {
 	std::map<std::string, std::set<std::string> >::iterator itr_now = true_map.begin();
 	while (itr_now != true_map.end())
@@ -143,7 +142,14 @@ void	compare_map_report(std::map<std::string, std::set<std::string> > target_map
 	}
 }
 
-void	compare_daymap_report(Date *targetdatevalue, std::string day_name, std::string day, std::string month, std::string year, std::string hour, std::string minute, std::string second)
+void compare_daymap_report(Date *targetdatevalue,
+						   std::string day_name,
+						   std::string day,
+						   std::string month,
+						   std::string year,
+						   std::string hour,
+						   std::string minute,
+						   std::string second)
 {
 	EXPECT_EQ(targetdatevalue->get_day_name(), day_name);
 	EXPECT_EQ(targetdatevalue->get_day(), day);
@@ -154,12 +160,11 @@ void	compare_daymap_report(Date *targetdatevalue, std::string day_name, std::str
 	EXPECT_EQ(targetdatevalue->get_second(), second);
 }
 
-//valuemap1.get_only_value(), valmap1->get_value_map(), "attachment", valuemap1, keys1
-void	compair_valuemapset_withfirstvalue_report(std::string only_value,
-												  std::map<std::string, std::string> target_wordmap,
-												  std::string expect_only_value,
-												  std::map<std::string, std::string> expected_wordmap,
-												  std::set<std::string> keys)
+void compair_valuemapset_withfirstvalue_report(std::string only_value,
+											   std::map<std::string, std::string> target_wordmap,
+											   std::string expect_only_value,
+											   std::map<std::string, std::string> expected_wordmap,
+											   std::set<std::string> keys)
 {
 	EXPECT_EQ(only_value, expect_only_value);
 	std::set<std::string>::iterator itr_now = keys.begin();
@@ -180,9 +185,9 @@ void	compair_valuemapset_withfirstvalue_report(std::string only_value,
 	}
 }
 
-void	check(std::map<std::string, std::string> target_wordmap,
-			  std::map<std::string, std::string> expected_wordmap,
-			  std::set<std::string> keys)
+void check(std::map<std::string, std::string> target_wordmap,
+		   std::map<std::string, std::string> expected_wordmap,
+		   std::set<std::string> keys)
 {
 	std::set<std::string>::iterator itr_now = keys.begin();
 	while (itr_now != keys.end())
@@ -205,9 +210,9 @@ void	check(std::map<std::string, std::string> target_wordmap,
 	}
 }
 
-void	compair_valueweightarray_report(std::map<std::string, double> target_wordmap,
-										std::map<std::string, double> expected_wordmap,
-										std::set<std::string> keys)
+void compair_valueweightarray_report(std::map<std::string, double> target_wordmap,
+									 std::map<std::string, double> expected_wordmap,
+									 std::set<std::string> keys)
 {
 	std::set<std::string>::iterator itr_now = keys.begin();
 	while (itr_now != keys.end())
@@ -227,21 +232,21 @@ void	compair_valueweightarray_report(std::map<std::string, double> target_wordma
 	}
 }
 
-void	compair_twovaluemap_report(const std::string &first_target_word,
-								   const std::string &second_target_word,
-								   const std::string &exp_1,
-								   const std::string &exp_2)
+void compair_twovaluemap_report(const std::string &first_target_word,
+								const std::string &second_target_word,
+								const std::string &exp_1,
+								const std::string &exp_2)
 {
 	EXPECT_EQ(first_target_word, exp_1);
 	EXPECT_EQ(second_target_word, exp_2);
 }
 
-void	compair_valueset_report(const std::string &target_word, const std::string &expected_word)
+void compair_valueset_report(const std::string &target_word, const std::string &expected_word)
 {
 	EXPECT_EQ(target_word, expected_word);
 }
 
-bool	same_class_test(int line, const char *key, HttpRequest &target)
+bool same_class_test(int line, const char *key, HttpRequest &target)
 {
 	std::map<std::string, FieldValueBase*>keyvaluemap = target.get_request_header_fields();
 	std::map<std::string, FieldValueBase*>::iterator itr_now = keyvaluemap.begin();
@@ -259,9 +264,8 @@ bool	same_class_test(int line, const char *key, HttpRequest &target)
 	return (true);
 }
 
-bool	keyword_doesnot_exist(int line, const char *key, HttpRequest &target)
+bool keyword_doesnot_exist(int line, const char *key, HttpRequest &target)
 {
-	(void)line;
 	std::map<std::string, FieldValueBase*>keyvaluemap = target.get_request_header_fields();
 	std::map<std::string, FieldValueBase*>::iterator itr_now = keyvaluemap.begin();
 	while (itr_now != keyvaluemap.end())
@@ -446,9 +450,6 @@ TEST(Request, TEST2)
 	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
 	if (same_class_test(__LINE__, "host", httprequest_test1) == true)
 	{
-		// TwoValueSet* twoval1 = static_cast<TwoValueSet*>(httprequest_test1.get_field_values(
-		// 		"host"));
-		// compair_twovaluemap_report( twoval1->get_firstvalue(), twoval1->get_secondvalue(), "example.com", "");
 		FieldValueBase *field_values = httprequest_test1.get_field_values(std::string(HOST));
 		MapFieldValues *multi_field_values = dynamic_cast<MapFieldValues *>(field_values);
 		std::map<std::string, std::string> actual_map = multi_field_values->get_value_map();
@@ -516,8 +517,7 @@ TEST(Request, TEST2)
 		compair_valueset_report( val7->get_value(), "http://www.example.com/referrer");
 	}
 
-	//todo:later
-
+	// todo:later
 	// if (same_class_test(__LINE__, "cookie", httprequest_test1) == true)
 	// {
 	// 	//map型
@@ -685,23 +685,12 @@ TEST(Request, TEST3)
 	// 	compair_valueset_report(val6->get_value(), "http://www.origin-example.com");
 	// }
 
+	// todo: later
 	// if (same_class_test(__LINE__, "via", httprequest_test1) == true)
 	// {
 	// 	SingleFieldValue* val7 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 	// 			"via"));
 	// 	compair_valueset_report(val7->get_value(), "1.0 proxy.example.com (Apache/1.1)");
-	// }
-	// if (same_class_test(__LINE__, "age", httprequest_test1) == true)
-	// {
-	// 	SingleFieldValue* val8 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
-	// 			"age"));
-	// 	compair_valueset_report(val8->get_value(), "3600");
-	// }
-	// if (same_class_test(__LINE__, "access-control-allow-origin", httprequest_test1) == true)
-	// {
-	// 	SingleFieldValue* val9 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
-	// 			"access-control-allow-origin"));
-	// 	compair_valueset_report(val9->get_value(), "*");
 	// }
 }
 
@@ -754,18 +743,12 @@ TEST(Request, TEST3_include_empty)
 	// 	compair_valueset_report(val6->get_value(), "http:// www.origin-example.com");
 	// }
 
+	// todo: later
 	// if (same_class_test(__LINE__, "Via", httprequest_test1) == true)
 	// {
 	// 	SingleFieldValue* val7 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 	// 			"Via"));
 	// 	compair_valueset_report(val7->get_value(), "1.0 proxy.example.com (Apache/1.1)");
-	// }
-	// keyword_doesnot_exist(__LINE__, "Age", httprequest_test1);
-	// if (same_class_test(__LINE__, "Access-Control-Allow-Origin", httprequest_test1) == true)
-	// {
-	// 	SingleFieldValue* val9 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
-	// 			"Access-Control-Allow-Origin"));
-	// 	compair_valueset_report(val9->get_value(), "*");
 	// }
 }
 
@@ -780,29 +763,6 @@ TEST(Request, MAX_FORWARDS_TEST)
 	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
 	keyword_doesnot_exist(__LINE__, "max-forwards", httprequest_test1);
 }
-
-// TEST(Request, AGE_MINUS)
-// {
-// 	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\n"
-// 									  "Age: -1\r\n"
-// 									  "Age: 11111111111111\r\n"
-// 									  "Age: -1";
-// 	HttpRequest httprequest_test1(TEST_REQUEST2);
-// 	EXPECT_EQ(httprequest_test1.get_method(), "GET");
-// 	EXPECT_EQ(httprequest_test1.get_request_target(), "/path/to/resource");
-// 	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
-// 	keyword_doesnot_exist(__LINE__, "age", httprequest_test1);
-// }
-
-// GET /example HTTP/1.1
-// Host: example.com
-// Accept-CH: viewport-width, width, downlink
-// Accept-Charset: utf-8
-// Accept-Post: text/html, application/json
-// Accept-Ranges: bytes
-// Access-Control-Allow-Credentials: true
-// Access-Control-Allow-Headers: Content-Type, Authorization
-// Access-Control-Allow-Methods: GET, POST, PUT, DELETE
 
 TEST(Request, TEST4)
 {
@@ -819,17 +779,6 @@ TEST(Request, TEST4)
 	EXPECT_EQ(httprequest_test1.get_method(), "GET");
 	EXPECT_EQ(httprequest_test1.get_request_target(), "/example");
 	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
-	// if (same_class_test(__LINE__, "Accept-CH", httprequest_test1) == true)
-	// {
-	// 	MultiFieldValues* val1 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
-	// 			"Accept-CH"));
-	// 	std::set<std::string> vector1;
-	// 	vector1.insert("viewport-width");
-	// 	vector1.insert("width");
-	// 	vector1.insert("downlink");
-	// 	compare_vectors_report(val1->get_values(), vector1, 394);
-	// }
-
 	// todo later
 	// if (same_class_test(__LINE__, "accept-charset", httprequest_test1) == true)
 	// {
@@ -840,46 +789,6 @@ TEST(Request, TEST4)
 	// 	keyvalue2["utf-8"] = 1.0;
 	// 	keys2.insert("utf-8");
 	// 	compair_valueweightarray_report(valweightarrayset2->get_valueweight_set(), keyvalue2, keys2);
-	// }
-
-	// if (same_class_test(__LINE__, "Accept-Post", httprequest_test1) == true)
-	// {
-	// 	TwoValueSet* twoval3 = static_cast<TwoValueSet*>(httprequest_test1.get_field_values(
-	// 			"Accept-Post"));
-	// 	compair_twovaluemap_report( twoval3->get_firstvalue(), twoval3->get_secondvalue(), "text/html", "application/json");
-	// }
-	// if (same_class_test(__LINE__, "Accept-Ranges", httprequest_test1) == true)
-	// {
-	// 	SingleFieldValue* val4 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
-	// 			"Accept-Ranges"));
-	// 	compair_valueset_report(val4->get_value(), "bytes");
-	// }
-	// if (same_class_test(__LINE__, "Access-Control-Allow-Credentials", httprequest_test1) == true)
-	// {
-	// 	SingleFieldValue* val5 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
-	// 			"Access-Control-Allow-Credentials"));
-	// 	compair_valueset_report(val5->get_value(), "true");
-	// }
-	// if (same_class_test(__LINE__, "Access-Control-Allow-Headers", httprequest_test1) == true)
-	// {
-	// 	MultiFieldValues* val6 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
-	// 			"Access-Control-Allow-Headers"));
-	// 	std::set<std::string> vector6;
-	// 	vector6.insert("Content-Type");
-	// 	vector6.insert("Authorization");
-	// 	compare_vectors_report(val6->get_values(), vector6, 492);
-	// }
-	// if (same_class_test(__LINE__, "Access-Control-Allow-Methods", httprequest_test1) == true)
-	// {
-	// 	MultiFieldValues* val7 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
-	// 			"Access-Control-Allow-Methods"));
-	// 	std::set<std::string> vector7;
-	// 	// GET, POST, PUT, DELETE
-	// 	vector7.insert("GET");
-	// 	vector7.insert("POST");
-	// 	vector7.insert("PUT");
-	// 	vector7.insert("DELETE");
-	// 	compare_vectors_report(val7->get_values(), vector7, 503);
 	// }
 }
 
@@ -898,17 +807,6 @@ TEST(Request, TEST4_include_empty)
 	EXPECT_EQ(httprequest_test1.get_method(), "GET");
 	EXPECT_EQ(httprequest_test1.get_request_target(), "/example");
 	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
-	// if (same_class_test(__LINE__, "Accept-CH", httprequest_test1) == true)
-	// {
-	// 	MultiFieldValues* val1 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
-	// 			"Accept-CH"));
-	// 	std::set<std::string> vector1;
-	// 	vector1.insert("viewpor  t-width");
-	// 	vector1.insert("wi dth");
-	// 	vector1.insert("downlink");
-	// 	compare_vectors_report(val1->get_values(), vector1, 661);
-	// }
-
 	// todo: later
 	// if (same_class_test(__LINE__, "accept-charset", httprequest_test1) == true)
 	// {
@@ -920,38 +818,8 @@ TEST(Request, TEST4_include_empty)
 	// 	keys2.insert("utf-8");
 	// 	compair_valueweightarray_report(valweightarrayset2->get_valueweight_set(), keyvalue2, keys2);
 	// }
-
-	// keyword_doesnot_exist(__LINE__, "Accept-Ranges", httprequest_test1);
-	// if (same_class_test(__LINE__, "Access-Control-Allow-Credentials", httprequest_test1) == true)
-	// {
-	// 	SingleFieldValue* val5 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
-	// 			"Access-Control-Allow-Credentials"));
-	// 	compair_valueset_report(val5->get_value(), "true");
-	// }
-	// if (same_class_test(__LINE__, "Access-Control-Allow-Headers", httprequest_test1) == true)
-	// {
-	// 	MultiFieldValues* val6 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
-	// 			"Access-Control-Allow-Headers"));
-	// 	std::set<std::string> vector6;
-	// 	vector6.insert("Content-Type");
-	// 	vector6.insert("Authorization");
-	// 	compare_vectors_report(val6->get_values(), vector6, 492);
-	// }
-	// keyword_doesnot_exist(__LINE__, "Access-Control-Allow-Methods", httprequest_test1);
 }
 
-// OPTIONS /example HTTP/1.1
-// Host: example.com
-// Access-Control-Expose-Headers: X-Custom-Header, Content-Type
-// Access-Control-Max-Age: 3600
-// Access-Control-Request-Headers: Authorization, Content-Type
-// Access-Control-Request-Method: POST
-// Allow: GET, POST, PUT, DELETE
-// Alt-Svc: h2="https://example.com:443"
-// Alt-Used: h2
-// Clear-Site-Data: "cache", "cookies"
-
-// change OPTIONS -> GET, for request validate
 TEST(Request, TEST5)
 {
 	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\n"
@@ -968,21 +836,6 @@ TEST(Request, TEST5)
 	EXPECT_EQ(httprequest_test1.get_method(), "GET");
 	EXPECT_EQ(httprequest_test1.get_request_target(), "/example");
 	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
-	// if (same_class_test(__LINE__, "Access-Control-Expose-Headers", httprequest_test1) == true)
-	// {
-	// 	MultiFieldValues* val1 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
-	// 			"Access-Control-Expose-Headers"));
-	// 	std::set<std::string> vector1;
-	// 	vector1.insert("X-Custom-Header");
-	// 	vector1.insert("Content-Type");
-	// 	compare_vectors_report(val1->get_values(), vector1, 779);
-	// }
-	// if (same_class_test(__LINE__, "Access-Control-Max-Age", httprequest_test1) == true)
-	// {
-	// 	SingleFieldValue* val2 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
-	// 			"Access-Control-Max-Age"));
-	// 	compair_valueset_report(val2->get_value(), "3600");
-	// }
 
 	// todo: later
 	// if (same_class_test(__LINE__, "access-control-request-headers", httprequest_test1) == true)
@@ -994,58 +847,15 @@ TEST(Request, TEST5)
 	// 	vector3.insert("content-type");
 	// 	compare_vectors_report(val3->get_values(), vector3, 478);
 	// }
+
+	// todo: later
 	// if (same_class_test(__LINE__, "access-control-request-method", httprequest_test1) == true)
 	// {
 	// 	SingleFieldValue* val4 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
 	// 			"access-control-request-method"));
 	// 	compair_valueset_report(val4->get_value(), "POST");
 	// }
-
-
-	// if (same_class_test(__LINE__, "Allow", httprequest_test1) == true)
-	// {
-	// 	MultiFieldValues* val5 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
-	// 			"Allow"));
-	// 	std::set<std::string> vector5;
-	// 	vector5.insert("GET");
-	// 	vector5.insert("POST");
-	// 	vector5.insert("PUT");
-	// 	vector5.insert("DELETE");
-	// 	compare_vectors_report(val5->get_values(), vector5, 478);
-	// }
-	// if (same_class_test(__LINE__, "Alt-Svc", httprequest_test1) == true)
-	// {
-	// 	//map型
-	// 	MapFieldValues* valmap6 = static_cast<MapFieldValues*>(httprequest_test1.get_field_values(
-	// 			"Alt-Svc"));
-	// 	std::map<std::string, std::string> valuemap6;
-	// 	std::set<std::string> keys6;
-	// 	valuemap6["h2"] = "\"https://example.com:443\"";
-	// 	keys6.insert("h2");
-	// 	check( valmap6->get_value_map(), valuemap6, keys6);
-	// }
-	// if (same_class_test(__LINE__, "clear-site-data", httprequest_test1) == true)
-	// {
-	// 	MultiFieldValues* val7 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
-	// 			"clear-site-data"));
-	// 	std::set<std::string> vector7;
-	// 	vector7.insert("\"cache\"");
-	// 	vector7.insert("\"cookies\"");
-	// 	compare_vectors_report(val7->get_values(), vector7, 511);
-	// }
 }
-
-// GET /example HTTP/1.1
-// Host: example.com
-// Content-Disposition: attachment; filename="example.txt"
-// Content-Encoding: gzip
-// Content-Language: en-US
-// Content-Length: 1024
-// Content-Location: /documents/example.txt
-// Content-Range: bytes 0-511/1024
-// Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'
-// Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline'; report-uri /csp-report
-// Content-Type: application/json
 
 TEST(Request, TEST6)
 {
@@ -1077,6 +887,8 @@ TEST(Request, TEST6)
 	// 	keys1.insert("filename");
 	// 	compair_valuemapset_withfirstvalue_report( valmap1->get_only_value(), valmap1->get_value_map(), "attachment", valuemap1, keys1);
 	// }
+
+	// todo: later
 	// if (same_class_test(__LINE__, "content-encoding", httprequest_test1) == true)
 	// {
 	// 	MultiFieldValues* val2 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
@@ -1085,6 +897,8 @@ TEST(Request, TEST6)
 	// 	vector2.insert("gzip");
 	// 	compare_vectors_report(val2->get_values(), vector2, 571);
 	// }
+
+	// todo: later
 	// if (same_class_test(__LINE__, "content-language", httprequest_test1) == true)
 	// {
 	// 	MultiFieldValues* val3 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
@@ -1093,6 +907,8 @@ TEST(Request, TEST6)
 	// 	vector3.insert("en-US");
 	// 	compare_vectors_report(val3->get_values(), vector3, 578);
 	// }
+
+	// todo: later
 	// if (same_class_test(__LINE__, "content-length", httprequest_test1) == true)
 	// {
 	//
@@ -1100,6 +916,8 @@ TEST(Request, TEST6)
 	// 			"content-length"));
 	// 	compair_valueset_report(val4->get_value(), "1024");
 	// }
+
+	// todo: later
 	// if (same_class_test(__LINE__, "content-location", httprequest_test1) == true)
 	// {
 	// 	SingleFieldValue* val5 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
@@ -1107,27 +925,6 @@ TEST(Request, TEST6)
 	// 	compair_valueset_report(val5->get_value(), "/documents/example.txt");
 	// }
 
-	// if (same_class_test(__LINE__, "Content-Range", httprequest_test1) == true)
-	// {
-	// 	SingleFieldValue* val6 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
-	// 			"Content-Range"));
-	// 	compair_valueset_report(val6->get_value(), "bytes 0-511/1024");
-	// }
-	// if (same_class_test(__LINE__, "Content-Security-Policy", httprequest_test1) == true)
-	// {
-	// 	SecurityPolicy* securitypolicy7 = static_cast<SecurityPolicy*>(httprequest_test1.get_field_values(
-	// 			"Content-Security-Policy"));
-	// 	std::map<std::string, std::set<std::string> >	policy_directive;
-	// 	// default-src 'self'; script-src 'self' 'unsafe-inline'
-	// 	std::set<std::string>	test_vector7_1;
-	// 	std::set<std::string>	test_vector7_2;
-	// 	test_vector7_1.insert("\'self\'");
-	// 	test_vector7_2.insert("\'self\'");
-	// 	test_vector7_2.insert("\'unsafe-inline\'");
-	// 	policy_directive["default-src"] = test_vector7_1;
-	// 	policy_directive["script-src"] = test_vector7_2;
-	// 	compare_map_report(securitypolicy7->get_policy_directhive(), policy_directive, __LINE__);
-	// }
 	// todo: later
 	// if (same_class_test(__LINE__, "content-type", httprequest_test1) == true)
 	// {
@@ -1140,31 +937,15 @@ TEST(Request, TEST6)
 
 TEST(Request, TEST_CONTENT_LENGTH)
 {
-	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\nContent-Length: -1\r\nContent-Length: 10000000000000000\r\n";
+	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\n"
+									  "Content-Length: -1\r\n"
+									  "Content-Length: 10000000000000000\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST2);
 	EXPECT_EQ(httprequest_test1.get_method(), "GET");
 	EXPECT_EQ(httprequest_test1.get_request_target(), "/example");
 	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
 	keyword_doesnot_exist(__LINE__, "content-length", httprequest_test1);
 }
-
-// GET /example HTTP/1.1\r\n
-// Host: example.com\r\n
-// Cross-Origin-Embedder-Policy: require-corp\r\n
-// Cross-Origin-Opener-Policy: same-origin-allow-popups\r\n
-// Cross-Origin-Resource-Policy: same-origin\r\n
-// Date: Thu, 15 Sep 2023 12:00:00 GMT\r\n
-// Expect: 100-continue\r\n
-// Expires: Thu, 15 Sep 2023 13:00:00 GMT\r\n
-// Forwarded: for=192.0.2.60;proto=http;by=203.0.113.43\r\n
-// Host: example.com\r\n
-// If-Match: \"etag123\"\r\n
-// If-Range: \"etag123\"\r\n
-// If-Unmodified-Since: Thu, 15 Sep 2023 11:30:00 GMT\r\n
-// Keep-Alive: timeout=5, max=1000\r\n
-// Last-Modified: Thu, 15 Sep 2023 11:45:00 GMT\r\n
-// Link: <https://example.com/style.css>; rel=preload; as=style\r\n
-// Location: https://example.com/redirected-page\r\n
 
 TEST(Request, TEST7)
 {
@@ -1191,24 +972,6 @@ TEST(Request, TEST7)
 	EXPECT_EQ(httprequest_test1.get_request_target(), "/example");
 	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
 
-	// if (same_class_test(__LINE__, "Cross-Origin-Embedder-Policy", httprequest_test1) == true)
-	// {
-	// 	SingleFieldValue* val1 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
-	// 			"Cross-Origin-Embedder-Policy"));
-	// 	compair_valueset_report(val1->get_value(), "require-corp");
-	// }
-	// if (same_class_test(__LINE__, "Cross-Origin-Opener-Policy", httprequest_test1) == true)
-	// {
-	// 	SingleFieldValue* val2 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
-	// 			"Cross-Origin-Opener-Policy"));
-	// 	compair_valueset_report(val2->get_value(), "same-origin-allow-popups");
-	// }
-	// if (same_class_test(__LINE__, "Cross-Origin-Resource-Policy", httprequest_test1) == true)
-	// {
-	// 	SingleFieldValue* val3 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
-	// 			"Cross-Origin-Resource-Policy"));
-	// 	compair_valueset_report(val3->get_value(), "same-origin");
-	// }
 	if (same_class_test(__LINE__, "date", httprequest_test1) == true)
 	{
 		// Fri, 15 Sep 2023 12:00:00 GMT
@@ -1222,15 +985,8 @@ TEST(Request, TEST7)
 				"expect"));
 		compair_valueset_report(val5->get_value(), "100-continue");
 	}
-	// if (same_class_test(__LINE__, "Expires", httprequest_test1) == true)
-	// {
-	// 	SingleFieldValue* val6 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
-	// 			"Expires"));
-	// 	compair_valueset_report(val6->get_value(), "Fri, 15 Sep 2023 13:00:00 GMT");
-	// }
 	if (same_class_test(__LINE__, "forwarded", httprequest_test1) == true)
 	{
-		//map型
 		MapFieldValues* valmap7 = static_cast<MapFieldValues*>(httprequest_test1.get_field_values(
 				"forwarded"));
 		std::map<std::string, std::string> valuemap7;
@@ -1266,7 +1022,6 @@ TEST(Request, TEST7)
 	}
 	if (same_class_test(__LINE__, "keep-alive", httprequest_test1) == true)
 	{
-		//map型
 		MapFieldValues* valmap11 = static_cast<MapFieldValues*>(httprequest_test1.get_field_values(
 				"keep-alive"));
 		std::map<std::string, std::string> valuemap11;
@@ -1279,13 +1034,10 @@ TEST(Request, TEST7)
 	}
 	if (same_class_test(__LINE__, "last-modified", httprequest_test1) == true)
 	{
-		// Fri, 15 Sep 2023 11:45:00 GMT
 		Date *dateval12 = static_cast<Date*>(httprequest_test1.get_field_values(
 				"last-modified"));
 		compare_daymap_report(dateval12, "Fri", "15", "Sep", "2023", "11", "45", "00");
 	}
-
-	// todo: later
 	if (same_class_test(__LINE__, "link", httprequest_test1) == true)
 	{
 		std::string field_name = std::string(LINK);
@@ -1339,54 +1091,30 @@ TEST(Request, TEST7)
 		EXPECT_EQ(STATUS_OK, httprequest_test1.get_status_code());
 
 	}
-	// if (same_class_test(__LINE__, "Location", httprequest_test1) == true)
-	// {
-	// 	SingleFieldValue* val13 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
-	// 			"Location"));
-	// 	compair_valueset_report(val13->get_value(), "https://example.com/redirected-page");
-	// }
 }
-
-// GET /example HTTP/1.1z\r\n
-// Host: example.com\r\n
-// Permissions-Policy: geolocation=(self "https://example.com"), camera=()\r\n
-// Proxy-Authenticate: Basic realm="Proxy Server"\r\n
-// Proxy-Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==\r\n
-// Referer: https://example.com/previous-page\r\n
-// Retry-After: 120\r\n
-// Sec-Fetch-Dest: document\r\n
-// Sec-Fetch-Mode: navigate\r\n
-// Sec-Fetch-Site: same-origin\r\n
-// Sec-Fetch-User: ?1\r\n
-// Sec-Purpose: prefetch\r\n
-// Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=\r\n
-// Server: Apache/2.4.41 (Ubuntu)\r\n
 
 TEST(Request, TEST8)
 {
-	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\nHost: example.com\r\nPermission-Policy: geolocation=(self \"https://example.com\"), camera=()\r\nProxy-Authenticate: Basic realm=\"Proxy Server\"\r\nProxy-Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==\r\nReferer: https://example.com/previous-page\r\nRetry-After: 120\r\nSec-Fetch-Dest: document\r\nSec-Fetch-Mode: navigate\r\nSec-Fetch-Site: same-origin\r\nSec-Fetch-User: ?1\r\nSec-Purpose: prefetch\r\nSec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=\r\nServer: Apache/2.4.41 (Ubuntu)\r\n";
+	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\n"
+									  "Host: example.com\r\n"
+									  "Permission-Policy: geolocation=(self \"https://example.com\"), camera=()\r\n"
+									  "Proxy-Authenticate: Basic realm=\"Proxy Server\"\r\n"
+									  "Proxy-Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==\r\n"
+									  "Referer: https://example.com/previous-page\r\n"
+									  "Retry-After: 120\r\n"
+									  "Sec-Fetch-Dest: document\r\n"
+									  "Sec-Fetch-Mode: navigate\r\n"
+									  "Sec-Fetch-Site: same-origin\r\n"
+									  "Sec-Fetch-User: ?1\r\n"
+									  "Sec-Purpose: prefetch\r\n"
+									  "Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=\r\n"
+									  "Server: Apache/2.4.41 (Ubuntu)\r\n"
+									  "\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST2);
 	EXPECT_EQ(httprequest_test1.get_method(), "GET");
 	EXPECT_EQ(httprequest_test1.get_request_target(), "/example");
 	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
 
-	// if (same_class_test(__LINE__, "Proxy-Authenticate", httprequest_test1) == true)
-	// {
-	// 	//map型
-	// 	MapFieldValues* valmap2 = static_cast<MapFieldValues*>(httprequest_test1.get_field_values(
-	// 			"Proxy-Authenticate"));
-	// 	std::map<std::string, std::string> valuemap2;
-	// 	std::set<std::string> keys2;
-	// 	valuemap2["realm"] = "\"Proxy Server\"";
-	// 	keys2.insert("realm");
-	// 	check(valmap2->get_value_map(), valuemap2, keys2);
-	// }
-	// if (same_class_test(__LINE__, "Retry-After", httprequest_test1) == true)
-	// {
-	// 	SingleFieldValue* val3 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
-	// 			"Retry-After"));
-	// 	compair_valueset_report(val3->get_value(), "120");
-	// }
 	if (same_class_test(__LINE__, "sec-fetch-dest", httprequest_test1) == true)
 	{
 		SingleFieldValue* val4 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
@@ -1425,24 +1153,6 @@ TEST(Request, TEST8)
 	}
 }
 
-// /GET /example HTTP/1.1\r\n
-// Host: example.com\r\n
-// Service-Worker-Navigation-Preload: true\r\n
-// Set-Cookie: sessionId=12345; path=/; Secure; HttpOnly\r\n
-// SourceMap: /path/to/source.map\r\n
-// Strict-Transport-Security: max-age=31536000; includeSubDomains\r\n
-// TE: trailers, deflate\r\n
-// Timing-Allow-Origin: *\r\n
-// Trailer: Content-MD5\r\n
-// Transfer-Encoding: chunked\r\n
-// Upgrade: websocket\r\n
-// Upgrade-Insecure-Requests: 1\r\n
-// User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36\r\n
-// Vary: Accept-Encoding, User-Agent\r\n
-// Via: 1.1 example.com\r\n
-// WWW-Authenticate: Basic realm="Secure Area"\r\n
-
-
 TEST(Request, TEST9)
 {
 	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\n"
@@ -1469,39 +1179,6 @@ TEST(Request, TEST9)
 				"service-worker-navigation-preload"));
 		compair_valueset_report(val1->get_value(), "true");
 	}
-	// if (same_class_test(__LINE__, "Proxy-Authenticate", httprequest_test1) == true)
-	// {
-	// 	//map型
-	// 	MapFieldValues* valmap2 = static_cast<MapFieldValues*>(httprequest_test1.get_field_values("Proxy-Authenticate"));
-	// 	std::map<std::string, std::string> valuemap2;
-	// 	std::set<std::string> keys2;
-	// 	valuemap2["sessionId"] = "12345";
-	// 	valuemap2["path"] = "/";
-	// 	valuemap2["path"] = "/";
-	// 	keys2.insert("sessionId");
-	// 	check(valmap2->get_value_map(), valuemap2, keys2);
-	// }
-
-	// todo:??
-	// if (same_class_test(__LINE__, "sourcemap", httprequest_test1) == true)
-	// {
-	// 	SingleFieldValue* val3 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
-	// 			"sourcemap"));
-	// 	compair_valueset_report(val3->get_value(), "/path/to/source.map");
-	// }
-
-
-	// if (same_class_test(__LINE__, "Strict-Transport-Security", httprequest_test1) == true)
-	// {
-	// 	MapFieldValues* valmap2 = static_cast<MapFieldValues*>(httprequest_test1.get_field_values("Strict-Transport-Security"));
-	// 	std::map<std::string, std::string> valuemap2;
-	// 	std::set<std::string> keys2;
-	// 	valuemap2["max-age"] = "31536000";
-	// 	valuemap2["path"] = "/";
-	// 	valuemap2["path"] = "/";
-	// 	keys2.insert("sessionId");
-	// 	check(valmap2->get_value_map(), valuemap2, keys2);
-	// }
 	if (same_class_test(__LINE__, "te", httprequest_test1) == true)
 	{
 		ValueWeightArraySet* valweightarrayset4 = static_cast<ValueWeightArraySet*>(httprequest_test1.get_field_values(
@@ -1514,12 +1191,6 @@ TEST(Request, TEST9)
 		keys4.insert("deflate");
 		compair_valueweightarray_report(valweightarrayset4->get_valueweight_set(), keyvalue4, keys4);
 	}
-	// if (same_class_test(__LINE__, "Timing-Allow-Origin", httprequest_test1) == true)
-	// {
-	// 	SingleFieldValue* val5 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
-	// 			"Timing-Allow-Origin"));
-	// 	compair_valueset_report(val5->get_value(), "*");
-	// }
 	if (same_class_test(__LINE__, "trailer", httprequest_test1) == true)
 	{
 		SingleFieldValue* val6 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
@@ -1534,6 +1205,7 @@ TEST(Request, TEST9)
 		vector7.insert("chunked");
 		compare_vectors_report(val7->get_values(), vector7, 310);
 	}
+	// todo: later
 	// if (same_class_test(__LINE__, "upgrade", httprequest_test1) == true)
 	// {
 	// 	MultiFieldValues* val8 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
@@ -1554,38 +1226,6 @@ TEST(Request, TEST9)
 				"user-agent"));
 		compair_valueset_report(val10->get_value(), "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36");
 	}
-	// if (same_class_test(__LINE__, "Vary", httprequest_test1) == true)
-	// {
-	// 	MultiFieldValues* val11 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
-	// 			"Vary"));
-	// 	std::set<std::string> vector11;
-	// 	vector11.insert("Accept-Encoding");
-	// 	vector11.insert("User-Agent");
-	// 	compare_vectors_report(val11->get_values(), vector11, 310);
-	// }
-	// if (same_class_test(__LINE__, "Vary", httprequest_test1) == true)
-	// {
-	// 	MultiFieldValues* val12 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(
-	// 			"Vary"));
-	// 	std::set<std::string> vector12;
-	// 	vector12.insert("Accept-Encoding");
-	// 	vector12.insert("User-Agent");
-	// 	compare_vectors_report(val12->get_values(), vector12, 310);
-	// }
-	// if (same_class_test(__LINE__, "Via", httprequest_test1) == true)
-	// {
-	// 	SingleFieldValue* val13 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
-	// 			"Via"));
-	// 	compair_valueset_report(val13->get_value(), "1.1 example.com");
-	// }
-	// if (same_class_test(__LINE__, "WWW-Authenticate", httprequest_test1) == true)
-	// {
-	// 	MultiFieldValues* val1 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values("WWW-Authenticate"));
-	// 	std::set<std::string> vector1;
-	// 	vector1.insert("Accept-Encoding");
-	// 	vector1.insert("User-Agent");
-	// 	check(val1->get_values(), vector1, 310);
-	// }
 }
 
 //イレギュラーケース　数字系統の異常
