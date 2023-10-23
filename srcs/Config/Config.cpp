@@ -64,6 +64,7 @@ bool	Config::ready_server_config(const std::string &config_file_name, \
 	std::ifstream	config_lines(config_file_name.c_str());
 	std::string		config_line;
 	std::vector<std::string>	field_headers;
+	size_t	line = 1;
 
 	while (std::getline(config_lines, config_line, '\n'))
 	{
@@ -73,7 +74,7 @@ bool	Config::ready_server_config(const std::string &config_file_name, \
 		{
 			if (IsConfigFormat::is_start_server_block(config_line, &in_server_block) == false)
 			{
-				return this->report_errorline(config_line);
+				return this->report_errorline(config_line, line);
 			}
 		}
 		else if (in_server_block == true && in_location_block == false)
@@ -82,17 +83,18 @@ bool	Config::ready_server_config(const std::string &config_file_name, \
 																	&Configs, &server_config, &field_headers, \
 																		server_name_list);
 			if (result_server_block_action != IS_OK)
-				return this->report_errorline(config_line);
+				return this->report_errorline(config_line, line);
 		}
 		else if (in_server_block == true && in_location_block == true)
 		{
 			if (ConfigHandlingString::is_block_end(config_line))
 				in_location_block = false;
 			else if (IsConfigFormat::is_location_block_format(config_line) == false)
-				return this->report_errorline(config_line);
+				return this->report_errorline(config_line, line);
 		}
 		else
-			return this->report_errorline(config_line);
+			return this->report_errorline(config_line, line);
+		line++;
 	}
 	return (in_server_block == false && in_location_block == false);
 }
@@ -115,6 +117,7 @@ bool	Config::ready_location_config(const std::string &config_file_name, \
 	LocationConfig	location_config;
 	bool	in_server_block = false;
 	bool	in_location_block = false;
+	size_t	line = 1;
 
 	while (std::getline(config_lines, config_line, '\n'))
 	{
@@ -148,13 +151,14 @@ bool	Config::ready_location_config(const std::string &config_file_name, \
 			{
 				bool	done_input_action = IsConfigFormat::do_input_field_key_field_value(config_line, &location_config, &location_field_headers);
 				if (done_input_action == false)
-					return this->report_errorline(config_line);
+					return this->report_errorline(config_line, line);
 			}
 			else
-				return this->report_errorline(config_line);
+				return this->report_errorline(config_line, line);
 		}
 		else
-			return this->report_errorline(config_line);
+			return this->report_errorline(config_line, line);
+		line++;
 	}
 	return (true);
 }
@@ -213,11 +217,11 @@ AllConfig Config::get_same_allconfig(const std::string &server_name)  // これ�
 		return (this->_all_configs.begin()->second);
 }
 
-bool Config::report_errorline(const std::string &config_line)
+bool Config::report_errorline(const std::string &config_line, const size_t &line)
 {
 	std::cerr << "FORMAT ERROR OCURED" << std::endl;
 	std::cerr << "|====== TARGET LINE ======|" << std::endl;
-	std::cerr << "|" << config_line << std::endl;
+	std::cerr << "* line -> " << line << " |" << config_line << "|" << std::endl;
 	std::cerr << "|=========================|" << std::endl;
 	return (false);
 }

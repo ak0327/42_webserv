@@ -4,6 +4,7 @@
 !.github/*
 !.gitignore
 !config
+!error_config
 
 !srcs
 !srcs/Client

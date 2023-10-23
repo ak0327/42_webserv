@@ -42,7 +42,7 @@ class	Config
 	private:
 		bool	_is_config_format;
 		std::map<std::vector<std::string>, AllConfig>	_all_configs;
-		bool	report_errorline(const std::string &config_line);
+		bool	report_errorline(const std::string &config_line, const size_t &line);
 		bool	ready_location_config(const std::string	&config_file_name, \
 	std::vector<std::vector<std::string> >::iterator	server_name_itr);
 		void	init_location_config_with_server_config(LocationConfig	*location_config, \
