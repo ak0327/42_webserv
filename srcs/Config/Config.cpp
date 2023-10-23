@@ -72,7 +72,9 @@ bool	Config::ready_server_config(const std::string &config_file_name, \
 		if (in_server_block == false && in_location_block == false)
 		{
 			if (IsConfigFormat::is_start_server_block(config_line, &in_server_block) == false)
-				return this->report_errorline(config_line);;
+			{
+				return this->report_errorline(config_line);
+			}
 		}
 		else if (in_server_block == true && in_location_block == false)
 		{
