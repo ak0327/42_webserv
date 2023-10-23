@@ -24,9 +24,9 @@ ServerConfig::ServerConfig(const ServerConfig &other)
 	this->_errorlog =	other._errorlog;
 	this->_port =	other._port;
 	this->_root =	other._root;
-	this->_allowmethods = other._allowmethods;
-	this->_indexpages = other._indexpages;
-	this->_server_names = other._server_names;
+	this->_allow_methods = other._allow_methods;
+	this->_index = other._index;
+	this->_server_name = other._server_name;
 }
 
 ServerConfig& ServerConfig::operator=(const ServerConfig &other)
@@ -52,9 +52,9 @@ ServerConfig& ServerConfig::operator=(const ServerConfig &other)
 	this->_errorlog =	other._errorlog;
 	this->_port =	other._port;
 	this->_root =	other._root;
-	this->_allowmethods = other._allowmethods;
-	this->_indexpages = other._indexpages;
-	this->_server_names = other._server_names;
+	this->_allow_methods = other._allow_methods;
+	this->_index = other._index;
+	this->_server_name = other._server_name;
     return *this;
 }
 
@@ -78,9 +78,16 @@ std::vector<std::string> ServerConfig::ready_string_vector_field_value(const std
 	std::vector<std::string>	anser_vector;
 	std::istringstream			values_splited_by_empty(field_value);
 	std::string					value_splited_by_empty;
+	size_t	value_start_pos = 0;
+	size_t	value_end_pos = 0;
 
-	while (std::getline(values_splited_by_empty, value_splited_by_empty, ' '))
-		anser_vector.push_back(value_splited_by_empty);
+	while (field_value[value_start_pos] != '\0')
+	{
+		HandlingString::skip_no_ows(field_value, &value_end_pos);
+		anser_vector.push_back(field_value.substr(value_start_pos, value_end_pos - value_start_pos));
+		HandlingString::skip_ows(field_value, &value_end_pos);
+		value_start_pos = value_end_pos;
+	}
 	return (anser_vector);
 }
 
@@ -96,11 +103,12 @@ bool	ServerConfig::set_field_header_field_value(const std::string &field_header,
 	field_headers.push_back("client_body_timeout");
 	field_headers.push_back("client_header_buffer_size");
 	field_headers.push_back("client_header_timeout");
-	field_headers.push_back("client_maxbody_size");
-	field_headers.push_back("keepaliverequests");
+	field_headers.push_back("client_max_body_size");
+	field_headers.push_back("keepalive_requests");
 	field_headers.push_back("keepalive_timeout");
 	field_headers.push_back("maxBodySize");
 	field_headers.push_back("accesslog");
+	field_headers.push_back("cgi_extension");
 	field_headers.push_back("default_type");
 	field_headers.push_back("errorlog");
 	field_headers.push_back("port");
@@ -111,125 +119,95 @@ bool	ServerConfig::set_field_header_field_value(const std::string &field_header,
 	field_headers.push_back("listen");
 
 	if (std::find(field_headers.begin(), field_headers.end(), field_header) == field_headers.end())
-		return true;
+	{
+		std::cout << "NO EXIST FIELD KEY" << std::endl;
+		return false;
+	}
 	if (field_header == "autoindex")
 	{
 		if (!(field_value == "on" || field_value == "off"))
 			return false;
 		this->_autoindex = this->ready_boolean_field_value(field_value);
-		return true;
 	}
-	else if (field_header == "chunked_transferencoding_allow")
+	if (field_header == "chunked_transferencoding_allow")
 	{
 		if (!(field_value == "on" || field_value == "off"))
 			return false;
 		this->_chunked_transferencoding_allow = this->ready_boolean_field_value(field_value);
-		return true;
 	}
-	else if (field_header == "server_tokens")
+	if (field_header == "server_tokens")
 	{
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
 		this->_server_tokens = this->ready_int_field_value(field_value);
-		return true;
 	}
-	else if (field_header == "client_body_buffer_size")
+	if (field_header == "client_body_buffer_size")
 	{
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
 		this->_client_body_buffer_size = this->ready_size_t_field_value(field_value);
-		return true;
 	}
-	else if (field_header == "client_body_timeout")
+	if (field_header == "client_body_timeout")
 	{
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
 		this->_client_body_timeout = this->ready_size_t_field_value(field_value);
-		return true;
 	}
-	else if (field_header == "client_header_buffer_size")
+	if (field_header == "client_header_buffer_size")
 	{
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
 		this->_client_header_buffer_size = this->ready_size_t_field_value(field_value);
-		return true;
 	}
-	else if (field_header == "client_header_timeout")
+	if (field_header == "client_header_timeout")
 	{
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
 		this->_client_header_timeout = this->ready_size_t_field_value(field_value);
-		return true;
 	}
-	else if (field_header == "client_max_body_size")
+	if (field_header == "client_max_body_size")
 	{
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
 		this->_client_max_body_size = this->ready_size_t_field_value(field_value);
-		return true;
 	}
-	else if (field_header == "keepaliverequests")
+	if (field_header == "keepalive_requests")
 	{
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
 		this->_keepalive_requests = this->ready_size_t_field_value(field_value);
-		return true;
 	}
-	else if (field_header == "keepalive_timeout")
+	if (field_header == "keepalive_timeout")
 	{
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
 		this->_keepalive_timeout = this->ready_size_t_field_value(field_value);
-		return true;
 	}
-	else if (field_header == "accesslog")
-	{
+	if (field_header == "accesslog")
 		this->_accesslog = this->ready_string_field_value(field_value);
-		return true;
-	}
-	else if (field_header == "default_type")
-	{
+	if (field_header == "cgi_extension")
+		this->_cgi_extension = this->ready_string_field_value(field_value);
+	if (field_header == "default_type")
 		this->_default_type = this->ready_string_field_value(field_value);
-		return true;
-	}
-	else if (field_header == "listen")
-	{
+	if (field_header == "listen")
 		this->_port = this->ready_string_field_value(HandlingString::obtain_without_ows_value(field_value));
-		return true;
-	}
-	else if (field_header == "errorlog")
-	{
+	if (field_header == "errorlog")
 		this->_errorlog = this->ready_string_field_value(HandlingString::obtain_without_ows_value(field_value));
-		return true;
-	}
-	else if (field_header == "port")
+	if (field_header == "port")
 	{
 		// requestないと照合する際はstring型で扱いそうなので意図的にstd::string型にしている
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
 		this->_port = this->ready_string_field_value(HandlingString::obtain_without_ows_value(field_value));
-		return true;
 	}
-	else if (field_header == "root")
-	{
+	if (field_header == "root")
 		this->_root = this->ready_string_field_value(HandlingString::obtain_without_ows_value(field_value));
-		return true;
-	}
-	else if (field_header == "allow_methods")
-	{
-		this->_allowmethods = this->ready_string_vector_field_value(field_value);
-		return true;
-	}
-	else if (field_header == "index")
-	{
-		this->_indexpages = this->ready_string_vector_field_value(field_value);
-		return true;
-	}
-	else if (field_header == "server_name")
-	{
-		this->_server_names = this->ready_string_vector_field_value(field_value);
-		return true;
-	}
+	if (field_header == "allow_methods")
+		this->_allow_methods = this->ready_string_vector_field_value(field_value);
+	if (field_header == "index")
+		this->_index = this->ready_string_vector_field_value(field_value);
+	if (field_header == "server_name")
+		this->_server_name = this->ready_string_vector_field_value(field_value);
 	return (true);
 }
 
@@ -253,9 +231,9 @@ void	ServerConfig::set_default_type(const std::string &default_type){ this->_def
 void	ServerConfig::set_errorlog(const std::string &error_log){ this->_errorlog = error_log; }
 void	ServerConfig::set_port(const std::string &port){ this->_port = port; }
 void	ServerConfig::set_root(const std::string &root){ this->_root = root; }
-void	ServerConfig::set_allowmethods(const std::vector<std::string> &allow_methods){ this->_allowmethods = allow_methods; }
-void	ServerConfig::set_indexpages(const std::vector<std::string> &indexpages){ this->_indexpages = indexpages; }
-void	ServerConfig::set_server_names(const std::vector<std::string> &server_names){ this->_server_names = server_names; }
+void	ServerConfig::set_allow_methods(const std::vector<std::string> &allow_methods){ this->_allow_methods = allow_methods; }
+void	ServerConfig::set_index(const std::vector<std::string> &index){ this->_index = index; }
+void	ServerConfig::set_server_name(const std::vector<std::string> &server_name){ this->_server_name = server_name; }
 
 bool	ServerConfig::get_autoindex() const { return (this->_autoindex); }
 bool	ServerConfig::get_chunked_transferencoding_allow() const { return (this->_chunked_transferencoding_allow); }
@@ -274,9 +252,9 @@ std::string	ServerConfig::get_default_type() const { return (this->_default_type
 std::string	ServerConfig::get_errorlog() const { return (this->_errorlog); }
 std::string	ServerConfig::get_port() const { return (this->_port); }
 std::string	ServerConfig::get_root() const { return (this->_root); }
-std::vector<std::string>	ServerConfig::get_allowmethods() const { return (this->_allowmethods); }
-std::vector<std::string>	ServerConfig::get_indexpages() const { return (this->_indexpages); }
-std::vector<std::string>	ServerConfig::get_server_names() const { return (this->_server_names); }
+std::vector<std::string>	ServerConfig::get_allow_methods() const { return (this->_allow_methods); }
+std::vector<std::string>	ServerConfig::get_index() const { return (this->_index); }
+std::vector<std::string>	ServerConfig::get_server_name() const { return (this->_server_name); }
 
 // autoindex(false)
 // _chunked_transferencoding_allow(false)
@@ -306,6 +284,6 @@ void	ServerConfig::clear_serverconfig()
 	this->set_errorlog("");
 	this->set_port("");
 	this->set_root("");
-	this->_allowmethods.clear();
-	this->_indexpages.clear();
+	this->_allow_methods.clear();
+	this->_index.clear();
 }

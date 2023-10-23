@@ -25,13 +25,14 @@ class ServerConfig
 		size_t									_keepalive_timeout;
 		size_t 									_client_max_body_size;
 		std::string								_accesslog;
+		std::string								_cgi_extension;
 		std::string								_default_type;
 		std::string								_errorlog;
 		std::string								_port;
 		std::string								_root;
-		std::vector<std::string>				_allowmethods;
-		std::vector<std::string>				_indexpages;
-		std::vector<std::string>				_server_names;
+		std::vector<std::string>				_allow_methods;
+		std::vector<std::string>				_index;
+		std::vector<std::string>				_server_name;
 		bool									ready_boolean_field_value(const std::string &field_value);
 		int										ready_int_field_value(const std::string &field_value);
 		size_t									ready_size_t_field_value(const std::string &field_value);
@@ -58,9 +59,9 @@ class ServerConfig
 		std::string								get_errorlog() const;
 		std::string								get_port() const;
 		std::string								get_root() const;
-		std::vector<std::string>				get_allowmethods() const;
-		std::vector<std::string>				get_indexpages() const;
-		std::vector<std::string>				get_server_names() const;
+		std::vector<std::string>				get_allow_methods() const;
+		std::vector<std::string>				get_index() const;
+		std::vector<std::string>				get_server_name() const;
 		// setter
 		void									set_autoindex(const bool &boolean);
 		void									set_chunked_transferencoding_allow(const bool &boolean);
@@ -77,9 +78,9 @@ class ServerConfig
 		void									set_errorlog(const std::string &error_log);
 		void									set_port(const std::string &port);
 		void									set_root(const std::string &root);
-		void									set_allowmethods(const std::vector<std::string> &allow_methods);
-		void									set_indexpages(const std::vector<std::string> &indexpags);
-		void									set_server_names(const std::vector<std::string> &indexpages);
+		void									set_allow_methods(const std::vector<std::string> &allow_methods);
+		void									set_index(const std::vector<std::string> &indexpags);
+		void									set_server_name(const std::vector<std::string> &indexpages);
 		bool									set_field_header_field_value(const std::string &field_header, const std::string &field_value);
 		void									clear_serverconfig();
 };

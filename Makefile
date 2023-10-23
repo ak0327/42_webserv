@@ -1,5 +1,5 @@
-NAME 		=\
-webserv
+NAME 		=	webserv
+CXX			=	c++
 
 CXXFLAGS	=	-std=c++98 -Wall -Wextra -Werror -MMD -MP
 
@@ -106,7 +106,7 @@ INCLUDES	 =	$(addprefix -I, $(INCLUDES_DIR))
 all		: $(NAME)
 
 $(NAME)	: $(OBJS)
-	$(CXX) $(OBJS) $(CXXFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) -o $@ $^
 
 $(OBJS_DIR)/%.o : $(SRCS_DIR)/%.cpp
 	@mkdir -p $$(dirname $@)

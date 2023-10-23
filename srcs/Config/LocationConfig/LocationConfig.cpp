@@ -45,7 +45,7 @@ bool	LocationConfig::set_field_header_field_value(const std::string &field_heade
 	field_headers.push_back("client_header_buffer_size");
 	field_headers.push_back("client_header_timeout");
 	field_headers.push_back("client_max_body_size");
-	field_headers.push_back("keepaliverequests");
+	field_headers.push_back("keepalive_requests");
 	field_headers.push_back("keepalive_timeout");
 	field_headers.push_back("maxBodySize");
 	field_headers.push_back("accesslog");
@@ -118,7 +118,7 @@ bool	LocationConfig::set_field_header_field_value(const std::string &field_heade
 			return false;
 		this->_client_max_body_size = this->ready_size_t_field_value(field_value);
 	}
-	if (field_header ==  "keepaliverequests")
+	if (field_header ==  "keepalive_requests")
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
@@ -145,13 +145,13 @@ bool	LocationConfig::set_field_header_field_value(const std::string &field_heade
 	if (field_header ==  "upload_path")
 		this->_upload_path = field_value;
 	if (field_header ==  "allow_methods")
-		this->_allowmethods = ready_string_vector_field_value(field_value);
+		this->_allow_methods = ready_string_vector_field_value(field_value);
 	if (field_header ==  "index")
-		this->_indexpages = ready_string_vector_field_value(field_value);
+		this->_index = ready_string_vector_field_value(field_value);
 	if (field_header ==  "error_page")
 		this->_errorpages = ready_string_vector_field_value(field_value);
 	if (field_header ==  "server_name")
-		this->_server_names = ready_string_vector_field_value(field_value);
+		this->_server_name = ready_string_vector_field_value(field_value);
 	return (true);
 }
 
@@ -163,7 +163,7 @@ size_t	LocationConfig::get_client_body_timeout(void){ return (this->_client_body
 size_t	LocationConfig::get_client_header_buffer_size(void){ return (this->_client_header_buffer_size); }
 size_t	LocationConfig::get_client_header_timeout(void){ return (this->_client_header_timeout); }
 size_t	LocationConfig::get_client_max_body_size(void){ return (this->_client_max_body_size); }
-size_t	LocationConfig::get_keepaliverequests(void){ return (this->_keepalive_requests); }
+size_t	LocationConfig::get_keepalive_requests(void){ return (this->_keepalive_requests); }
 size_t	LocationConfig::get_keepalive_timeout(void){ return (this->_keepalive_timeout); }
 std::string	LocationConfig::get_alias(void){ return (this->_alias); }
 // error_page		LocationConfig::get	_errorpage_set;//これめっちゃおかしい使い方できる　error_page 403 404 500 503 =404 /custom_404.html;
@@ -173,9 +173,9 @@ std::string	LocationConfig::get_default_type(void){ return (this->_default_type)
 std::string	LocationConfig::get_errorlog(void){ return (this->_errorlog); }
 std::string	LocationConfig::get_upload_path(void){ return (this->_upload_path); }
 std::string	LocationConfig::get_root(void){ return (this->_root); }
-std::vector<std::string> LocationConfig::get_allowmethods(void){ return (this->_allowmethods); }
-std::vector<std::string> LocationConfig::get_indexpages(void){ return (this->_indexpages); }
-std::vector<std::string> LocationConfig::get_server_names(void){ return (this->_server_names); }
+std::vector<std::string> LocationConfig::get_allow_methods(void){ return (this->_allow_methods); }
+std::vector<std::string> LocationConfig::get_index(void){ return (this->_index); }
+std::vector<std::string> LocationConfig::get_server_name(void){ return (this->_server_name); }
 std::vector<std::string> LocationConfig::get_errorpages(void){ return (this->_errorpages); }
 
 void	LocationConfig::clear_location_keyword()
@@ -197,9 +197,9 @@ void	LocationConfig::clear_location_keyword()
 	this->_errorlog = "";
 	this->_upload_path = "";
 	this->_root = "";
-	this->_allowmethods.clear();
-	this->_indexpages.clear();
-	this->_server_names.clear();
+	this->_allow_methods.clear();
+	this->_index.clear();
+	this->_server_name.clear();
 	this->_errorpages.clear();
 }
 
@@ -218,6 +218,6 @@ void LocationConfig::set_server_block_infs(const ServerConfig &other)
 	this->set_default_type(other.get_default_type());
 	this->set_errorlog(other.get_errorlog());
 	this->set_root(other.get_root());
-	this->set_allowmethods(other.get_allowmethods());
-	this->_indexpages.clear();
+	this->set_allow_methods(other.get_allow_methods());
+	this->_index.clear();
 }

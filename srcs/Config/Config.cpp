@@ -11,8 +11,8 @@ void	Config::set_server_config_to_allconfigs(AllConfig	*Configs, \
 					std::vector<std::vector<std::string> >	*server_name_list)
 {
 	Configs->set_server_config(*server_config);
-	server_name_list->push_back(server_config->get_server_names());
-	this->_all_configs[server_config->get_server_names()] = *Configs;
+	server_name_list->push_back(server_config->get_server_name());
+	this->_all_configs[server_config->get_server_name()] = *Configs;
 }
 
 void	Config::init_server_config_and_allconfigs(AllConfig	*Configs, \
@@ -70,7 +70,10 @@ bool	Config::ready_server_config(const std::string &config_file_name, \
 		if ((ConfigHandlingString::is_ignore_line(config_line)))
 			continue;
 		if (in_server_block == false && in_location_block == false)
-			IsConfigFormat::is_start_server_block(config_line, &in_server_block);
+		{
+			if (IsConfigFormat::is_start_server_block(config_line, &in_server_block) == false)
+				return this->report_errorline(config_line);;
+		}
 		else if (in_server_block == true && in_location_block == false)
 		{
 			int	result_server_block_action = server_block_action(config_line, &in_server_block, &in_location_block, \
@@ -188,6 +191,7 @@ AllConfig Config::get_same_allconfig(const std::string &server_name)  // これ�
 	std::string	server_name_without_port;
 	std::vector<std::string>	all_config_server_names;
 	std::map<std::vector<std::string>, AllConfig>::iterator	all_configs_itr = this->_all_configs.begin();
+	size_t	key_counter = 0;
 
 	if (server_name.find(':') != std::string::npos)
 		server_name_without_port = server_name.substr(server_name.find(':'));
@@ -199,8 +203,12 @@ AllConfig Config::get_same_allconfig(const std::string &server_name)  // これ�
 		if (std::find(all_config_server_names.begin(), all_config_server_names.end(), server_name) != all_config_server_names.end())
 			return (all_configs_itr->second);
 		all_configs_itr++;
+		key_counter++;
 	}
-	return (this->_all_configs.begin())->second;
+	if (key_counter == 0)
+		return (AllConfig());
+	else
+		return (this->_all_configs.begin()->second);
 }
 
 bool Config::report_errorline(const std::string &config_line)

@@ -30,9 +30,9 @@ class LocationConfig
 		std::string					_errorlog;
 		std::string					_upload_path;
 		std::string					_root;
-		std::vector<std::string>	_allowmethods;
-		std::vector<std::string>	_indexpages;
-		std::vector<std::string>	_server_names;
+		std::vector<std::string>	_allow_methods;
+		std::vector<std::string>	_index;
+		std::vector<std::string>	_server_name;
 		std::vector<std::string>	_errorpages;
 		// function
 		bool						ready_boolean_field_value(const std::string &field_value);
@@ -50,9 +50,8 @@ class LocationConfig
 		size_t						get_client_header_buffer_size(void);
 		size_t						get_client_header_timeout(void);
 		size_t						get_client_max_body_size(void);
-		size_t						get_keepaliverequests(void);
+		size_t						get_keepalive_requests(void);
 		size_t						get_keepalive_timeout(void);
-		size_t 						get_maxBodySize(void);
 		std::string					get_alias(void);
 		std::string					get_accesslog(void);
 		std::string					get_cgi_path(void);
@@ -60,10 +59,10 @@ class LocationConfig
 		std::string					get_errorlog(void);
 		std::string					get_upload_path(void);
 		std::string					get_root(void);
-		std::vector<std::string>	get_allowmethods(void);
-		std::vector<std::string>	get_indexpages(void);
-		std::vector<std::string>	get_server_names(void);
-		std::vector<std::string>	get_errorpages(void);
+		std::vector<std::string>	get_allow_methods(void);
+		std::vector<std::string>	get_index(void);
+		std::vector<std::string>	get_server_name(void);
+		std::vector<std::string>	get_errorpages(void);  // 修正したい
 		void						set_autoindex(const bool &autoindex){ this->_autoindex = autoindex; }
 		void						set_chunked_transferencoding_allow(const bool &chunked_transferencoding_allow)
 		{
@@ -85,9 +84,9 @@ class LocationConfig
 		void						set_errorlog(const std::string &errorlog){ this->_errorlog = errorlog; }
 		void						set_upload_path(const std::string &upload_path){ this->_upload_path = upload_path; }
 		void						set_root(const std::string &root){ this->_root = root; }
-		void						set_allowmethods(const std::vector<std::string> &allowmethods){ this->_allowmethods = allowmethods; }
-		void						set_indexpages(const std::vector<std::string> &indexpages){ this->_indexpages = indexpages; }
-		void						set_server_names(const std::vector<std::string> &server_names){ this->_server_names = server_names; }
+		void						set_allow_methods(const std::vector<std::string> &allow_methods){ this->_allow_methods = allow_methods; }
+		void						set_index(const std::vector<std::string> &index){ this->_index = index; }
+		void						set_server_name(const std::vector<std::string> &server_name){ this->_server_name = server_name; }
 		void						set_errorpages(const std::vector<std::string> &errorpages){ this->_errorpages = errorpages; }
 		bool						set_field_header_field_value(const std::string &field_header, \
 																const std::string &field_value);
