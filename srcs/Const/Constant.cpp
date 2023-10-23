@@ -331,6 +331,8 @@ const char RECEIVED_PROTOCOL[] = "received_protocol";
 const char RECEIVED_BY[] = "received_by";
 const char COMMENT[] = "comment";
 
+const char URI_REFERENCE[] = "uri_reference";
+
 ////////////////////////////////////////////////////////////////////////////////
 /* date */
 

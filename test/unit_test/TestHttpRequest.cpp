@@ -14,8 +14,11 @@
 #include "MultiFieldValues.hpp"
 #include "Date.hpp"
 #include "MapFieldValues.hpp"
+#include "MapSetFieldValues.hpp"
 #include "SingleFieldValue.hpp"
 #include "ValueWeightArraySet.hpp"
+
+typedef std::set<std::map<std::string, std::string> > map_set;
 
 ////////////////////////////////////////////////////////////////////////////////
 /* add */
@@ -318,9 +321,6 @@ TEST(Request, TEST1)
 	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
 	if (same_class_test(__LINE__, "host", httprequest_test1) == true)
 	{
-		// TwoValueSet* twoval = static_cast<TwoValueSet*>(httprequest_test1.get_field_values(
-		// 		"host"));
-		// compair_twovaluemap_report( twoval->get_firstvalue(), twoval->get_secondvalue(), "www.example.com", "");
 		FieldValueBase *field_values = httprequest_test1.get_field_values(std::string(HOST));
 		MapFieldValues *multi_field_values = dynamic_cast<MapFieldValues *>(field_values);
 		std::map<std::string, std::string> actual_map = multi_field_values->get_value_map();
@@ -423,21 +423,6 @@ TEST(Request, AcceptEncoding_Error2)
 	HttpRequest httprequest_test1(TEST_REQUEST2);
 }
 
-// GET /path/to/resource HTTP/1.1
-// Host: example.com
-// User-Agent: YourUserAgent
-// Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
-// Accept-Language: en-US,en;q=0.5
-// Accept-Encoding: gzip, deflate
-// Connection: keep-alive
-// Referer: http://www.example.com/referrer
-// Cookie: session_id=12345; user=JohnDoe
-// Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
-// Cache-Control: no-cache
-// Pragma: no-cache
-// DNT: 1
-// Upgrade-Insecure-Requests: 1
-
 TEST(Request, TEST2)
 {
 	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\n"
@@ -453,7 +438,8 @@ TEST(Request, TEST2)
 									  "Cache-Control: no-cache\r\n"
 									  "Pragma: no-cache\r\n"
 									  "DNT: 1\r\n"
-									  "Upgrade-Insecure-Requests: 1\r\n";
+									  "Upgrade-Insecure-Requests: 1\r\n"
+									  "\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST2);
 	EXPECT_EQ(httprequest_test1.get_method(), "GET");
 	EXPECT_EQ(httprequest_test1.get_request_target(), "/path/to/resource");
@@ -619,24 +605,6 @@ TEST(Request, TEST2_include_empty)
 	HttpRequest httprequest_test1(TEST_REQUEST2);
 	EXPECT_EQ(httprequest_test1.get_status_code(), 400);
 }
-
-// g++ *.cpp ../HandleString/StringHandler.cpp
-
-// GET /path/to/resource HTTP/1.1
-// X-Forwarded-For: 192.168.1.1
-// X-Request-ID: 12345
-// X-Requested-With: XMLHttpRequest
-// If-None-Match: "some_etag"
-// If-Modified-Since: Thu, 01 Sep 2023 12:00:00 GMT
-// Max-Forwards: 10
-// TE: trailers, deflate;q=0.5
-// From: sender@example.com
-// Origin: http://www.origin-example.com
-// Via: 1.0 proxy.example.com (Apache/1.1)
-// Age: 3600
-// Warning: 199 Miscellaneous warning
-// Access-Control-Allow-Origin: *
-// X-Frame-Options: SAMEORIGIN
 
 TEST(Request, TEST3)
 {
@@ -1320,16 +1288,56 @@ TEST(Request, TEST7)
 	// todo: later
 	if (same_class_test(__LINE__, "link", httprequest_test1) == true)
 	{
-		// Thu, 15 Sep 2023 11:45:00 GMT
-		// <https://example.com/style.css>; rel=preload; as=style\r\n
-		std::map<std::string, std::map<std::string, std::string> > test_map_values;
-		std::map<std::string, std::string>	map_value;
-		map_value["rel"] = "preload";
-		map_value["as"] = "style";
-		test_map_values["<https://example.com/style.css>"] = map_value;
-		LinkClass *linkckass12 = static_cast<LinkClass*>(httprequest_test1.get_field_values(
-				"link"));
-		compare_inputvalue_truevalue_linkclass(linkckass12->get_link_valuemap(), test_map_values, __LINE__);
+		std::string field_name = std::string(LINK);
+		bool has_field_name = httprequest_test1.is_valid_field_name_registered(field_name);
+
+		EXPECT_TRUE(has_field_name);
+
+		if (has_field_name) {
+			FieldValueBase *field_values = httprequest_test1.get_field_values(field_name);
+			MapSetFieldValues *map_set_field_values = dynamic_cast<MapSetFieldValues *>(field_values);
+
+			map_set actual_map_set = map_set_field_values->get_map_set_values();
+			map_set expected_map_set = {
+					{{std::string(URI_REFERENCE), "https://example.com/style.css"},
+					 {"rel", "preload"},
+					 {"as", "style"},
+					}};
+
+			EXPECT_EQ(actual_map_set.size(), expected_map_set.size());
+
+			map_set::const_iterator actual_map_set_itr = actual_map_set.begin();
+			map_set::const_iterator expected_map_set_itr = expected_map_set.begin();
+
+			while (actual_map_set_itr != actual_map_set.end() && expected_map_set_itr != expected_map_set.end()) {
+				std::map<std::string, std::string> actual_map = *actual_map_set_itr;
+				std::map<std::string, std::string> expected_map = *expected_map_set_itr;;
+
+				EXPECT_EQ(actual_map.size(), expected_map.size());
+				std::map<std::string, std::string>::const_iterator actual_map_itr = actual_map.begin();
+				std::map<std::string, std::string>::const_iterator expected_map_itr = expected_map.begin();
+
+				while (actual_map_itr != actual_map.end() && expected_map_itr != expected_map.end()) {
+					EXPECT_EQ(actual_map_itr->second, expected_map_itr->second);
+
+					++actual_map_itr;
+					++expected_map_itr;
+				}
+				EXPECT_TRUE(actual_map_itr == actual_map.end());
+				EXPECT_TRUE(expected_map_itr == expected_map.end());
+
+				++actual_map_set_itr;
+				++expected_map_set_itr;
+			}
+			EXPECT_TRUE(actual_map_set_itr == actual_map_set.end());
+			EXPECT_TRUE(expected_map_set_itr == expected_map_set.end());
+
+		} else {
+			ADD_FAILURE() << field_name << " not found";
+		}
+
+		EXPECT_EQ(STATUS_OK, httprequest_test1.get_status_code());
+
 	}
 	// if (same_class_test(__LINE__, "Location", httprequest_test1) == true)
 	// {
@@ -1415,18 +1423,6 @@ TEST(Request, TEST8)
 				"sec-purpose"));
 		compair_valueset_report(val9->get_value(), "prefetch");
 	}
-	// if (same_class_test(__LINE__, "Sec-WebSocket-Accept", httprequest_test1) == true)
-	// {
-	// 	SingleFieldValue* val10 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
-	// 			"Sec-WebSocket-Accept"));
-	// 	compair_valueset_report(val10->get_value(), "s3pPLMBiTxaQ9kYGzzhZRbK+xOo=");
-	// }
-	// if (same_class_test(__LINE__, "Server", httprequest_test1) == true)
-	// {
-	// 	SingleFieldValue* val11 = static_cast<SingleFieldValue*>(httprequest_test1.get_field_values(
-	// 			"Server"));
-	// 	compair_valueset_report(val11->get_value(), "Apache/2.4.41 (Ubuntu)");
-	// }
 }
 
 // /GET /example HTTP/1.1\r\n

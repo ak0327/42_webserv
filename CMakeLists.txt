@@ -39,7 +39,6 @@ include_directories(
         srcs/StringHandler
         srcs/HttpRequest
         srcs/HttpRequest/FieldValueBase
-        srcs/HttpRequest/LinkClass
         srcs/HttpRequest/RequestLine
         srcs/HttpRequest/TwoValueSet
         srcs/HttpRequest/MultiFieldValues
@@ -74,7 +73,6 @@ set(http_request_srcs
         srcs/HttpRequest/RequestLine/RequestLine.cpp
         srcs/HttpRequest/TwoValueSet/TwoValueSet.cpp
         srcs/HttpRequest/ValueWeightArraySet/ValueWeightArraySet.cpp
-        srcs/HttpRequest/LinkClass/LinkClass.cpp
         )
 
 # Date
@@ -220,6 +218,7 @@ set (unit_test_srcs
         test/unit_test/MapFieldValues/TestUpgrade.cpp
 
         # map set field values
+        test/unit_test/MapSetFieldValues/TestLink.cpp
         test/unit_test/MapSetFieldValues/TestVia.cpp
 
         # value and map field values

@@ -117,6 +117,10 @@ bool is_valid_day_name(const std::string &day_name, int year, int month, int day
 
 void skip_ows(const std::string &str, std::size_t *pos);
 
+void skip_token(const std::string &str,
+				std::size_t start_pos,
+				std::size_t *end_pos);
+
 void skip_quoted_string(const std::string &str,
 						std::size_t start_pos,
 						std::size_t *end_pos);
@@ -232,6 +236,10 @@ void skip_segment(const std::string &str,
 void skip_query(const std::string &str,
 				std::size_t start_pos,
 				std::size_t *end_pos);
+
+void skip_fragment(const std::string &str,
+				   std::size_t start_pos,
+				   std::size_t *end_pos);
 
 void skip_segment_nz(const std::string &str,
 					 std::size_t start_pos,

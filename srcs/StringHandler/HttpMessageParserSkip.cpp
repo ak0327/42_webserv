@@ -466,6 +466,26 @@ void skip_pct_encoded(const std::string &str,
 	*end_pos = pos;
 }
 
+// todo:test
+void skip_token(const std::string &str,
+				std::size_t start_pos,
+				std::size_t *end_pos) {
+	std::size_t pos;
+	if (!end_pos) {
+		return;
+	}
+	*end_pos = start_pos;
+	if (str.length() <= start_pos) {
+		return;
+	}
+
+	pos = start_pos;
+	while (str[pos] && is_tchar(str[pos])) {
+		++pos;
+	}
+	*end_pos = pos;
+}
+
 /*
  quoted-string  = DQUOTE *( qdtext / quoted-pair ) DQUOTE
  qdtext         = HTAB / SP / %x21 / %x23-5B / %x5D-7E / obs-text
@@ -861,7 +881,6 @@ void skip_hier_part(const std::string &str,
 	*end_pos = end;
 }
 
-
 // query = *( pchar / "/" / "?" )
 void skip_query(const std::string &str,
 				std::size_t start_pos,
@@ -888,6 +907,13 @@ void skip_query(const std::string &str,
 		break;
 	}
 	*end_pos = pos;
+}
+
+// fragment = *( pchar / "/" / "?" )
+void skip_fragment(const std::string &str,
+				   std::size_t start_pos,
+				   std::size_t *end_pos) {
+	return skip_query(str, start_pos, end_pos);
 }
 
 // todo: test

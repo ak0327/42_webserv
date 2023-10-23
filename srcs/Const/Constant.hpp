@@ -197,6 +197,8 @@ extern const char RECEIVED_PROTOCOL[];
 extern const char RECEIVED_BY[];
 extern const char COMMENT[];
 
+extern const char URI_REFERENCE[];
+
 ////////////////////////////////////////////////////////////////////////////////
 /* date */
 

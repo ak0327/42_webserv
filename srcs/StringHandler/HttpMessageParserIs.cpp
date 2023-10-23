@@ -106,20 +106,14 @@ bool is_ctext(char c) {
 
 // token = 1*tchar
 bool is_token(const std::string &str) {
-	std::size_t pos;
+	std::size_t end;
 
 	if (str.empty()) {
 		return false;
 	}
 
-	pos = 0;
-	while (str[pos]) {
-		if (!is_tchar(str[pos])) {
-			return false;
-		}
-		++pos;
-	}
-	return true;
+	skip_token(str, 0, &end);
+	return str[end] == '\0';
 }
 
 // token68       = 1*( ALPHA / DIGIT / "-" / "." / "_" / "~" / "+" / "/" ) *"="

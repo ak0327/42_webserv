@@ -15,7 +15,6 @@
 # include "TwoValueSet.hpp"
 # include "MapFieldValues.hpp"
 # include "Date.hpp"
-# include "LinkClass.hpp"
 # include "Result.hpp"
 
 class FieldValueBase;
@@ -77,7 +76,6 @@ class HttpRequest {
 	void increment_field_name_counter(const std::string &field_name);
 
 	bool is_weightformat(const std::string &value);
-	LinkClass *ready_LinkClass(std::map<std::string, std::map<std::string, std::string> > link_valuemap);
 	std::map<std::string, std::string> ready_mappingvalue(const std::string &value_map);
 	std::vector<std::string> securitypolicy_readyvector(const std::string &words);
 	TwoValueSet *ready_TwoValueSet(const std::string &value);

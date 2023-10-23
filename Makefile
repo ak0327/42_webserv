@@ -42,7 +42,6 @@ SRCS		+=	$(REQUEST_DIR)/HttpRequest.cpp \
 				$(REQUEST_DIR)/HttpRequest_ValueWeightArraySet.cpp
 
 SRCS		+= 	$(REQUEST_DIR)/FieldValueBase/FieldValueBase.cpp \
-				$(REQUEST_DIR)/LinkClass/LinkClass.cpp \
 				$(REQUEST_DIR)/RequestLine/RequestLine.cpp \
 				$(REQUEST_DIR)/SingleFieldValue/SingleFieldValue.cpp \
 				$(REQUEST_DIR)/TwoValueSet/TwoValueSet.cpp \
@@ -107,7 +106,6 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(MULTI_FIELD_VALUES_DIR) \
 				$(SRCS_DIR)/$(SINGLE_FIELD_VALUE_DIR) \
 				$(SRCS_DIR)/$(REQUEST_DIR)/FieldValueBase \
-				$(SRCS_DIR)/$(REQUEST_DIR)/LinkClass \
 				$(SRCS_DIR)/$(REQUEST_DIR)/RequestLine \
 				$(SRCS_DIR)/$(REQUEST_DIR)/TwoValueSet \
 				$(SRCS_DIR)/$(REQUEST_DIR)/ValueWeightArraySet
