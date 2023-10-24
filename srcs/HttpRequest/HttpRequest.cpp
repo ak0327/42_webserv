@@ -316,7 +316,7 @@ void HttpRequest::init_field_name_parser() {
 	std::map<std::string, func_ptr> map;
 
 	map[std::string(ACCEPT)] = &HttpRequest::set_accept;
-	map[std::string(ACCEPT_ENCODING)] = &HttpRequest::set_accept_encoding;  // todo: Accept-Encoding
+	map[std::string(ACCEPT_ENCODING)] = &HttpRequest::set_accept_encoding;
 	map[std::string(ACCEPT_LANGUAGE)] = &HttpRequest::set_accept_language;  // todo: Accept-Language
 	map[std::string(ACCESS_CONTROL_REQUEST_HEADERS)] = &HttpRequest::set_access_control_request_headers;
 	map[std::string(ACCESS_CONTROL_REQUEST_METHOD)] = &HttpRequest::set_access_control_request_method;

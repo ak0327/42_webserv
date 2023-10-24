@@ -1,5 +1,6 @@
 #include "Constant.hpp"
 #include "FieldValueWithWeight.hpp"
+#include "HttpMessageParser.hpp"
 #include "MapFieldValues.hpp"
 #include "MapSetFieldValues.hpp"
 #include "MediaType.hpp"
@@ -89,3 +90,44 @@ std::set<FieldValueWithWeight> FieldValueWithWeightSet::get_field_values() const
 	return this->_field_values;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+/*
+ weight = OWS ";" OWS "q=" qvalue
+ qvalue = ( "0" [ "." 0*3DIGIT ] )
+        / ( "1" [ "." 0*3("0") ] )
+ */
+Result<double, int> FieldValueWithWeight::parse_valid_weight(const std::string &field_value,
+															 std::size_t start_pos,
+															 std::size_t *end_pos) {
+	Result<int, int> parse_result;
+	std::size_t end;
+	std::string key, value;
+	double weight;
+	bool succeed;
+
+	if (!end_pos) {
+		return Result<double, int>::err(ERR);
+	}
+	*end_pos = start_pos;
+	if (field_value.length() < start_pos) {
+		return Result<double, int>::err(ERR);
+	}
+	parse_result = HttpMessageParser::parse_parameter(field_value,
+													  start_pos, &end,
+													  &key, &value);
+	if (parse_result.is_err()) {
+		return Result<double, int>::err(ERR);
+	}
+
+	if (key != std::string(WEIGHT_KEY)) {
+		return Result<double, int>::err(ERR);
+	}
+	weight = HttpMessageParser::to_floating_num(value, 3, &succeed);
+
+	if (!succeed || weight < 0.0 || 1.0 < weight) {
+		return Result<double, int>::err(ERR);
+	}
+	*end_pos = end;
+	return Result<double, int>::ok(weight);
+}

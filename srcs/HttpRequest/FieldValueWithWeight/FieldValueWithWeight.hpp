@@ -2,6 +2,7 @@
 
 # include <map>
 # include <set>
+# include <string>
 # include "FieldValueBase.hpp"
 # include "MapFieldValues.hpp"
 # include "MediaType.hpp"
@@ -19,6 +20,10 @@ class FieldValueWithWeight : public FieldValueBase {
 
 	FieldValueBase *get_field_value() const;
 	double get_weight() const;
+
+	static Result<double, int> parse_valid_weight(const std::string &field_value,
+												  std::size_t start_pos,
+												  std::size_t *end_pos);
 
  private:
 	FieldValueBase *_field_value;  // MediaType, SingleFieldValue, MapFieldValues

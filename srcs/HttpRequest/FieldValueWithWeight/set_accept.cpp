@@ -42,46 +42,6 @@ Result<MediaType *, int> parse_valid_media_range(const std::string &field_value,
 	}
 }
 
-/*
- weight = OWS ";" OWS "q=" qvalue
- qvalue = ( "0" [ "." 0*3DIGIT ] )
-        / ( "1" [ "." 0*3("0") ] )
- */
-Result<double, int> parse_valid_weight(const std::string &field_value,
-									   std::size_t start_pos,
-									   std::size_t *end_pos) {
-	Result<int, int> parse_result;
-	std::size_t end;
-	std::string key, value;
-	double weight;
-	bool succeed;
-
-	if (!end_pos) {
-		return Result<double, int>::err(ERR);
-	}
-	*end_pos = start_pos;
-	if (field_value.length() < start_pos) {
-		return Result<double, int>::err(ERR);
-	}
-	parse_result = HttpMessageParser::parse_parameter(field_value,
-													  start_pos, &end,
-													  &key, &value);
-	if (parse_result.is_err()) {
-		return Result<double, int>::err(ERR);
-	}
-
-	if (key != std::string(WEIGHT_KEY)) {
-		return Result<double, int>::err(ERR);
-	}
-	weight = HttpMessageParser::to_floating_num(value, 3, &succeed);
-
-	if (!succeed || weight < 0.0 || 1.0 < weight) {
-		return Result<double, int>::err(ERR);
-	}
-	*end_pos = end;
-	return Result<double, int>::ok(weight);
-}
-
 Result<std::set<FieldValueWithWeight>, int>
 parse_and_validate_media_range_with_weight_set(const std::string &field_value) {
 	std::set<FieldValueWithWeight> media_range_weight_set;
@@ -112,7 +72,7 @@ parse_and_validate_media_range_with_weight_set(const std::string &field_value) {
 			HttpMessageParser::skip_ows(field_value, &pos);
 
 
-			weight_result = parse_valid_weight(field_value, pos, &end);
+			weight_result = FieldValueWithWeight::parse_valid_weight(field_value, pos, &end);
 			if (weight_result.is_err()) {
 				delete media_range;
 				return Result<std::set<FieldValueWithWeight>, int>::err(ERR);
