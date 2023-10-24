@@ -4,6 +4,8 @@
 #include "FieldValueWithWeight.hpp"
 #include "MediaType.hpp"
 
+namespace {
+
 Result<MediaType *, int> parse_valid_media_range(const std::string &field_value,
 												 std::size_t start_pos,
 												 std::size_t *end_pos) {
@@ -133,6 +135,9 @@ parse_and_validate_media_range_with_weight_set(const std::string &field_value) {
 	}
 	return Result<std::set<FieldValueWithWeight>, int>::ok(media_range_weight_set);
 }
+
+
+}  // namespace
 
 //  Accept = #( media-range [ weight ] )
 //  media-range    = ( "*/*"

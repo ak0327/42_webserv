@@ -314,17 +314,6 @@ parse_and_validate_origin_list_or_null(const std::string &field_value) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-MultiFieldValues* HttpRequest::ready_ValueArraySet(const std::string &all_value)
-{
-	std::set<std::string>	value_array;
-	std::stringstream			ss(all_value);
-	std::string					line;
-
-	while(std::getline(ss, line, ','))
-		value_array.insert(HttpMessageParser::obtain_withoutows_value(line));
-	return (new MultiFieldValues(value_array));
-}
-
 Result<int, int> HttpRequest::set_multi_field_values(const std::string &field_name,
 													 const std::string &field_value,
 													 bool (*syntax_validate_func)(const std::string &)) {

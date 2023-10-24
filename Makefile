@@ -37,15 +37,11 @@ SRCS		+=	$(STR_HANDLER)/HttpMessageParser.cpp \
 #httprequest
 REQUEST_DIR	=	HttpRequest
 SRCS		+=	$(REQUEST_DIR)/HttpRequest.cpp \
-				$(REQUEST_DIR)/RequestLine/RequestLine.cpp \
-				$(REQUEST_DIR)/HttpRequest_TwoValueSet.cpp \
-				$(REQUEST_DIR)/HttpRequest_ValueWeightArraySet.cpp
+				$(REQUEST_DIR)/RequestLine/RequestLine.cpp
 
 SRCS		+= 	$(REQUEST_DIR)/FieldValueBase/FieldValueBase.cpp \
 				$(REQUEST_DIR)/RequestLine/RequestLine.cpp \
 				$(REQUEST_DIR)/SingleFieldValue/SingleFieldValue.cpp \
-				$(REQUEST_DIR)/TwoValueSet/TwoValueSet.cpp \
-				$(REQUEST_DIR)/ValueWeightArraySet/ValueWeightArraySet.cpp \
 				$(REQUEST_DIR)/ValueAndMapFieldValues/ValueAndMapFieldValues.cpp \
 				$(REQUEST_DIR)/ValueAndMapFieldValues/set_content_disposition.cpp \
 
@@ -55,7 +51,10 @@ SRCS		+=	$(DATE_DIR)/Date.cpp \
 
 FIELD_VALUE_WITH_WEIGHT = $(REQUEST_DIR)/FieldValueWithWeight
 SRCS		+=	$(FIELD_VALUE_WITH_WEIGHT)/FieldValueWithWeight.cpp \
-				$(FIELD_VALUE_WITH_WEIGHT)/set_field_value_with_weight.cpp
+				$(FIELD_VALUE_WITH_WEIGHT)/set_accept.cpp \
+				$(FIELD_VALUE_WITH_WEIGHT)/set_accept_encoding.cpp \
+				$(FIELD_VALUE_WITH_WEIGHT)/set_accept_language.cpp \
+				$(FIELD_VALUE_WITH_WEIGHT)/set_te.cpp
 
 MAP_FIELD_VALUES_DIR = $(REQUEST_DIR)/MapFieldValues
 SRCS		+=	$(MAP_FIELD_VALUES_DIR)/MapFieldValues.cpp \
@@ -111,9 +110,7 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(SINGLE_FIELD_VALUE_DIR) \
 				$(SRCS_DIR)/$(REQUEST_DIR)/FieldValueBase \
 				$(SRCS_DIR)/$(REQUEST_DIR)/RequestLine \
-				$(SRCS_DIR)/$(REQUEST_DIR)/TwoValueSet \
-				$(SRCS_DIR)/$(REQUEST_DIR)/ValueAndMapFieldValues \
-				$(SRCS_DIR)/$(REQUEST_DIR)/ValueWeightArraySet
+				$(SRCS_DIR)/$(REQUEST_DIR)/ValueAndMapFieldValues
 
 INCLUDES	 =	$(addprefix -I, $(INCLUDES_DIR))
 

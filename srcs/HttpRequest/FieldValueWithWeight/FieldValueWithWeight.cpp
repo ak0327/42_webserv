@@ -27,8 +27,6 @@ FieldValueWithWeight &FieldValueWithWeight::operator=(const FieldValueWithWeight
 		return *this;
 	}
 
-	this->_weight = rhs._weight;
-
 	FieldValueBase *copy_ptr = NULL;
 	if (dynamic_cast<MapFieldValues *>(rhs._field_value)) {
 		copy_ptr = new MapFieldValues(*(static_cast<MapFieldValues *>(rhs._field_value)));
@@ -46,6 +44,8 @@ FieldValueWithWeight &FieldValueWithWeight::operator=(const FieldValueWithWeight
 
 	delete this->_field_value;
 	this->_field_value = copy_ptr;
+
+	this->_weight = rhs._weight;
 	return *this;
 }
 

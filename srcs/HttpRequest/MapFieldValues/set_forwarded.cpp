@@ -4,6 +4,7 @@
 #include "HttpRequest.hpp"
 #include "HttpMessageParser.hpp"
 #include "MapFieldValues.hpp"
+#include "StringHandler.hpp"
 
 namespace {
 

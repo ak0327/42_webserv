@@ -1,19 +1,8 @@
 #include <string>
 #include <algorithm>
-#include "StringHandler.hpp"
-#include "SingleFieldValue.hpp"
-#include "TwoValueSet.hpp"
-#include "RequestLine.hpp"
-#include "MultiFieldValues.hpp"
-#include "Date.hpp"
-#include "MapFieldValues.hpp"
-#include "ValueWeightArraySet.hpp"
-#include "HttpRequest.hpp"
 #include "gtest/gtest.h"
-#include "Color.hpp"
-#include "Error.hpp"
-#include "Debug.hpp"
-#include "Result.hpp"
+#include "StringHandler.hpp"
+#include "HttpRequest.hpp"
 #include "HttpMessageParser.hpp"
 
 TEST(HandlingString, IS_END_WITH_CR)

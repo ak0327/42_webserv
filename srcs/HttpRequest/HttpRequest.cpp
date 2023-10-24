@@ -2,10 +2,11 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include "Color.hpp"
 #include "Constant.hpp"
 #include "HttpRequest.hpp"
 #include "HttpMessageParser.hpp"
-#include "Color.hpp"
+#include "StringHandler.hpp"
 
 /* sub funcs; unnamed namespace */
 namespace {
@@ -302,24 +303,6 @@ bool HttpRequest::is_field_name_supported_parsing(const std::string &field_name)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-
-// weightarrayset わかりやすいように
-bool HttpRequest::is_weightformat(const std::string &value)
-{
-	size_t		semicolon_pos = value.find(';');
-	std::string	field_value_weight = value.substr(semicolon_pos + 1);
-	std::string	weight_key;
-	std::string	weight_num;
-
-	if (std::count(field_value_weight.begin(), field_value_weight.end(), '=') != 1)
-		return (false);
-	weight_key = field_value_weight.substr(0, field_value_weight.find('='));
-	if (weight_key != "q")
-		return (false);
-	weight_num = field_value_weight.substr(field_value_weight.find('=') + 1);
-	return StringHandler::is_positive_under_intmax_double(weight_num);
-}
 
 void HttpRequest::init_field_name_counter() {
 	std::vector<std::string>::const_iterator itr;

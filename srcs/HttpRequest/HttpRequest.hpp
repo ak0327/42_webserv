@@ -6,25 +6,13 @@
 # include <sstream>
 # include <vector>
 
-# include "FieldValueBase.hpp"
-# include "StringHandler.hpp"
-# include "RequestLine.hpp"
-# include "ValueWeightArraySet.hpp"
-# include "MultiFieldValues.hpp"
-# include "SingleFieldValue.hpp"
-# include "TwoValueSet.hpp"
-# include "MapFieldValues.hpp"
 # include "Date.hpp"
+# include "FieldValueBase.hpp"
+# include "MapFieldValues.hpp"
+# include "MultiFieldValues.hpp"
+# include "RequestLine.hpp"
 # include "Result.hpp"
-
-class FieldValueBase;
-class RequestLine;
-class TwoValueSet;
-class MultiFieldValues;
-class Date;
-class MapFieldValues;
-class SingleFieldValue;
-class ValueWeightArraySet;
+# include "SingleFieldValue.hpp"
 
 class HttpRequest {
  public:
@@ -61,40 +49,28 @@ class HttpRequest {
 
 	/* parse, validate */
 	int parse_and_validate_http_request(const std::string &input);
-	Result<int, int> parse_and_validate_field_lines(std::stringstream *ss);
 
+	Result<int, int> parse_and_validate_field_lines(std::stringstream *ss);
 	Result<int, int> parse_field_line(const std::string &field_line,
 									  std::string *ret_field_name,
 									  std::string *ret_field_value);
 	std::string parse_message_body(std::stringstream *ss);
 
-	void clear_field_values_of(const std::string &field_name);
-
-	Result<int, int> set_valid_http_date(const std::string &field_name, const std::string &field_value);
-	Result<int, int> set_valid_media_type(const std::string &field_name, const std::string &field_value);
-
+	/* operator */
+	void init_field_name_parser(void);
+	void init_field_name_counter();
 	void increment_field_name_counter(const std::string &field_name);
 
-	bool is_weightformat(const std::string &value);
-	std::map<std::string, std::string> ready_mappingvalue(const std::string &value_map);
-	std::vector<std::string> securitypolicy_readyvector(const std::string &words);
-	TwoValueSet *ready_TwoValueSet(const std::string &value);
-	TwoValueSet *ready_TwoValueSet(const std::string &value, char delimiter);
-	MultiFieldValues *ready_ValueArraySet(const std::string &value);
-	Date *ready_ValueDateSet(const std::string &value);
-	MapFieldValues *ready_ValueMap(const std::string &value);
-	MapFieldValues *ready_ValueMap(const std::string &value, char delimiter);
-	MapFieldValues *ready_ValueMap(const std::string &only_value, const std::string &value);
-	SingleFieldValue *ready_ValueSet(const std::string &value);
-	ValueWeightArraySet*ready_ValueWeightArraySet(const std::string &value);
+	void clear_field_values_of(const std::string &field_name);
 
-	void init_field_name_counter();
-	void init_field_name_parser(void);
-
+	/* set data */
 	Result<int, int> set_multi_field_values(const std::string &field_name,
 											const std::string &field_value,
 											bool (*syntax_validate_func)(const std::string &));
+	Result<int, int> set_valid_http_date(const std::string &field_name, const std::string &field_value);
+	Result<int, int> set_valid_media_type(const std::string &field_name, const std::string &field_value);
 
+	/* parse func */
 	Result<int, int> set_accept(const std::string &field_name, const std::string &field_value);
 	Result<int, int> set_accept_encoding(const std::string &field_name, const std::string &field_value);
 	Result<int, int> set_accept_language(const std::string &field_name, const std::string &field_value);

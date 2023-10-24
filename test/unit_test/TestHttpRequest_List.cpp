@@ -1,20 +1,8 @@
 #include <algorithm>
 #include <string>
-#include "StringHandler.hpp"
-#include "SingleFieldValue.hpp"
-#include "TwoValueSet.hpp"
-#include "RequestLine.hpp"
-#include "MultiFieldValues.hpp"
-#include "Date.hpp"
-#include "MapFieldValues.hpp"
-#include "MapSetFieldValues.hpp"
-#include "ValueWeightArraySet.hpp"
-#include "HttpRequest.hpp"
 #include "gtest/gtest.h"
-#include "Color.hpp"
-#include "Error.hpp"
-#include "Debug.hpp"
-#include "Result.hpp"
+#include "MapSetFieldValues.hpp"
+#include "HttpRequest.hpp"
 
 // GET /example-page HTTP/1.1
 // Host: example.com

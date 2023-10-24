@@ -38,18 +38,17 @@ include_directories(
         srcs/Socket
         srcs/StringHandler
         srcs/HttpRequest
-        srcs/HttpRequest/FieldValueBase
-        srcs/HttpRequest/RequestLine
-        srcs/HttpRequest/TwoValueSet
-        srcs/HttpRequest/MultiFieldValues
         srcs/HttpRequest/Date
+        srcs/HttpRequest/FieldValueBase
+        srcs/HttpRequest/FieldValueWithWeight
         srcs/HttpRequest/MapFieldValues
         srcs/HttpRequest/MapSetFieldValues
+        srcs/HttpRequest/MediaType
+        srcs/HttpRequest/MultiFieldValues
+        srcs/HttpRequest/RequestLine
         srcs/HttpRequest/SingleFieldValue
         srcs/HttpRequest/ValueWeightArraySet
-        srcs/HttpRequest/MediaType
         srcs/HttpRequest/ValueAndMapFieldValues
-        srcs/HttpRequest/FieldValueWithWeight
 )
 
 # webserv_srcs -----------------------------------------------------------------
@@ -69,10 +68,7 @@ set(webserv_srcs
 
 set(http_request_srcs
         srcs/HttpRequest/HttpRequest.cpp
-        srcs/HttpRequest/HttpRequest_TwoValueSet.cpp
-        srcs/HttpRequest/HttpRequest_ValueWeightArraySet.cpp
         srcs/HttpRequest/RequestLine/RequestLine.cpp
-        srcs/HttpRequest/TwoValueSet/TwoValueSet.cpp
         srcs/HttpRequest/ValueWeightArraySet/ValueWeightArraySet.cpp
         )
 
@@ -83,8 +79,17 @@ set(date_srcs
         )
 
 # FieldValueBase
-set(field_values_srcs
+set(field_value_base_srcs
         srcs/HttpRequest/FieldValueBase/FieldValueBase.cpp
+        )
+
+# FieldValueWithWeight
+set(field_value_with_weight_srcs
+        srcs/HttpRequest/FieldValueWithWeight/FieldValueWithWeight.cpp
+        srcs/HttpRequest/FieldValueWithWeight/set_accept.cpp
+        srcs/HttpRequest/FieldValueWithWeight/set_accept_encoding.cpp
+        srcs/HttpRequest/FieldValueWithWeight/set_accept_language.cpp
+        srcs/HttpRequest/FieldValueWithWeight/set_te.cpp
         )
 
 # MapFieldValues
@@ -131,22 +136,16 @@ set(value_and_map_field_values_srcs
         srcs/HttpRequest/ValueAndMapFieldValues/set_content_disposition.cpp
         )
 
-# FieldValueWithWeight
-set(weight_with_field_value_srcs
-        srcs/HttpRequest/FieldValueWithWeight/FieldValueWithWeight.cpp
-        srcs/HttpRequest/FieldValueWithWeight/set_field_value_with_weight.cpp
-        )
-
 list(APPEND http_request_srcs
         ${date_srcs}
+        ${field_value_base_srcs}
+        ${field_value_with_weight_srcs}
         ${map_field_values_srcs}
         ${map_set_field_values_srcs}
-        ${field_values_srcs}
         ${media_type_srcs}
         ${multi_field_values}
-        ${value_and_map_field_values_srcs}
         ${single_field_value_srcs}
-        ${weight_with_field_value_srcs}
+        ${value_and_map_field_values_srcs}
         )
 
 list(APPEND webserv_srcs
@@ -168,24 +167,59 @@ set (unit_test_srcs
         test/unit_test/TestResult.cpp
         test/unit_test/TestSocket.cpp
         test/unit_test/TestHttpRequest.cpp
-        test/unit_test/TestLeaks.cpp
         test/unit_test/TestHandlingString.cpp
         test/unit_test/TestHttpRequest_List.cpp
-        test/unit_test/TestHttpRequest_TwoValueSet.cpp
         test/unit_test/TestHttpRequest_Array.cpp
 
         # add
         test/unit_test/TestStringHandler.cpp
         test/unit_test/TestRequestLine.cpp
 
-        # http message parser
+        # HttpMessageParser
         test/unit_test/HttpMessageParser/TestGet.cpp
         test/unit_test/HttpMessageParser/TestIs.cpp
         test/unit_test/HttpMessageParser/TestParse.cpp
         test/unit_test/HttpMessageParser/TestSkip.cpp
         test/unit_test/HttpMessageParser/TestStrToNum.cpp
 
-        # single field value
+        # Date
+        test/unit_test/Date/TestDate.cpp
+        test/unit_test/Date/TestIfModifiedSince.cpp
+        test/unit_test/Date/TestIfUnmodifiedSince.cpp
+        test/unit_test/Date/TestLastModified.cpp
+
+        # FieldValueWithWeight
+        test/unit_test/FieldValueWithWeight/TestAccept.cpp
+
+        # MapFieldValues
+        test/unit_test/MapFieldValues/TestAltUsed.cpp
+        test/unit_test/MapFieldValues/TestAuthorization.cpp
+        test/unit_test/MapFieldValues/TestCacheControl.cpp
+        test/unit_test/MapFieldValues/TestCookie.cpp
+        test/unit_test/MapFieldValues/TestForwarded.cpp
+        test/unit_test/MapFieldValues/TestHost.cpp
+        test/unit_test/MapFieldValues/TestKeepAlive.cpp
+        test/unit_test/MapFieldValues/TestProxyAuthorization.cpp
+        test/unit_test/MapFieldValues/TestRange.cpp
+        test/unit_test/MapFieldValues/TestUpgrade.cpp
+
+        # MapSetFieldValues
+        test/unit_test/MapSetFieldValues/TestLink.cpp
+        test/unit_test/MapSetFieldValues/TestVia.cpp
+
+        # MediaType
+        test/unit_test/MediaType/TestContentType.cpp
+
+        # MultiFieldValue
+        test/unit_test/MultiFieldValues/TestAccessControlRequestHeaders.cpp
+        test/unit_test/MultiFieldValues/TestContentEncoding.cpp
+        test/unit_test/MultiFieldValues/TestContentLanguage.cpp
+        test/unit_test/MultiFieldValues/TestIfMatch.cpp
+        test/unit_test/MultiFieldValues/TestIfNoneMatch.cpp
+        test/unit_test/MultiFieldValues/TestOgirin.cpp
+        test/unit_test/MultiFieldValues/TestTransferEncoding.cpp
+
+        # SingleFieldValue
         test/unit_test/SingleFieldValue/TestAccessControlRequestMethod.cpp
         test/unit_test/SingleFieldValue/TestConnection.cpp
         test/unit_test/SingleFieldValue/TestContentLength.cpp
@@ -204,45 +238,9 @@ set (unit_test_srcs
         test/unit_test/SingleFieldValue/TestUpgradeInsecureRequests.cpp
         test/unit_test/SingleFieldValue/TestUserAgent.cpp
 
-        # multi field value
-        test/unit_test/MultiFieldValues/TestAccessControlRequestHeaders.cpp
-        test/unit_test/MultiFieldValues/TestContentEncoding.cpp
-        test/unit_test/MultiFieldValues/TestContentLanguage.cpp
-        test/unit_test/MultiFieldValues/TestIfMatch.cpp
-        test/unit_test/MultiFieldValues/TestIfNoneMatch.cpp
-        test/unit_test/MultiFieldValues/TestOgirin.cpp
-        test/unit_test/MultiFieldValues/TestTransferEncoding.cpp
-
-        # map field values
-        test/unit_test/MapFieldValues/TestAltUsed.cpp
-        test/unit_test/MapFieldValues/TestAuthorization.cpp
-        test/unit_test/MapFieldValues/TestCacheControl.cpp
-        test/unit_test/MapFieldValues/TestCookie.cpp
-        test/unit_test/MapFieldValues/TestForwarded.cpp
-        test/unit_test/MapFieldValues/TestHost.cpp
-        test/unit_test/MapFieldValues/TestKeepAlive.cpp
-        test/unit_test/MapFieldValues/TestProxyAuthorization.cpp
-        test/unit_test/MapFieldValues/TestRange.cpp
-        test/unit_test/MapFieldValues/TestUpgrade.cpp
-
-        # map set field values
-        test/unit_test/MapSetFieldValues/TestLink.cpp
-        test/unit_test/MapSetFieldValues/TestVia.cpp
-
-        # value and map field values
+        # ValueAndMapFieldValues
         test/unit_test/ValueAndMapFieldValues/TestContentDisposition.cpp
 
-        # field value with weight
-        test/unit_test/FieldValueWithWeight/TestAccept.cpp
-
-        # date
-        test/unit_test/Date/TestDate.cpp
-        test/unit_test/Date/TestIfModifiedSince.cpp
-        test/unit_test/Date/TestIfUnmodifiedSince.cpp
-        test/unit_test/Date/TestLastModified.cpp
-
-        # media type
-        test/unit_test/MediaType/TestContentType.cpp
 )
 
 add_executable(unit_test
