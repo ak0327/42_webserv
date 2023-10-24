@@ -139,10 +139,8 @@ parse_and_validate_coding_with_weight_set(const std::string &field_value) {
  content-coding   = token
  https://www.rfc-editor.org/rfc/rfc9110#field.accept-encoding
  */
-
 // std::set<FieldValueWithSet>
 // FieldValueWithSet : SingleFieldValue, weight
-
 Result<int, int> HttpRequest::set_accept_encoding(const std::string &field_name,
 												  const std::string &field_value) {
 	std::set<FieldValueWithWeight> codings_weight_set;
