@@ -219,9 +219,8 @@ AllConfig Config::get_same_allconfig(const std::string &server_name)  // これ�
 
 bool Config::report_errorline(const std::string &config_line, const size_t &line)
 {
-	std::cerr << "FORMAT ERROR OCURED" << std::endl;
-	std::cerr << "|====== TARGET LINE ======|" << std::endl;
+	std::cerr << "\033[31m|====== ERROR LINE ======|" << std::endl;
 	std::cerr << "* line -> " << line << " |" << config_line << "|" << std::endl;
-	std::cerr << "|=========================|" << std::endl;
+	std::cerr << "|=========================|\033[0m" << std::endl;
 	return (false);
 }

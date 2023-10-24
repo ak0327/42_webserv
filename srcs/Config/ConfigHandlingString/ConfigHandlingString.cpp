@@ -23,35 +23,35 @@ bool ConfigHandlingString::is_blockstart_endword(const std::string &block_end_wo
 	return (block_end_word == "{");
 }
 
-bool	ConfigHandlingString::is_field_header(const std::string &config_line, size_t *pos)
+int	ConfigHandlingString::is_field_header(const std::string &config_line, size_t *pos)
 {
 	std::string	line_trim_header;
 	size_t	check_tmp_num = 0;
 
 	HandlingString::skip_no_ows(config_line, pos);
 	if (config_line[*pos] == '\0')
-		return ConfigHandlingString::show_error_message(config_line, NO_FIELD_VALUE);
+		return NO_FIELD_HEADER;
 	line_trim_header = config_line.substr(*pos, config_line.length() - *pos);
 	HandlingString::skip_ows(line_trim_header, &check_tmp_num);
 	if (line_trim_header[check_tmp_num] == '\0')
-		return ConfigHandlingString::show_error_message(config_line, NO_FIELD_VALUE);
-	return (true);
+		return NO_FIELD_VALUE;
+	return IS_OK_FIELD_HEADER;
 }
 
-bool	ConfigHandlingString::is_field_value(const std::string &config_line, size_t *pos)
+int	ConfigHandlingString::is_field_value(const std::string &config_line, size_t *pos)
 {
 	std::string	field_value_word = config_line.substr(*pos, config_line.length() - *pos);
 	if (field_value_word.empty() || field_value_word == ";")
-		return ConfigHandlingString::show_error_message(config_line, NO_FIELD_VALUE);
+		return NO_FIELD_VALUE;
 	if (std::count(field_value_word.begin(), field_value_word.end(), ';') == 0)
-		return ConfigHandlingString::show_error_message(config_line, NO_SEMICOLON);
+		return NO_SEMICOLON;
 	if (std::count(field_value_word.begin(), field_value_word.end(), ';') != 1)
-		return ConfigHandlingString::show_error_message(config_line, MULTIPLE_SEMICOLON);
+		return MULTIPLE_SEMICOLON;
 	if (field_value_word[field_value_word.length() - 1] != ';')
-		return ConfigHandlingString::show_error_message(config_line, NO_LAST_SEMICOLON);
+		return NO_LAST_SEMICOLON;
 	while (config_line[*pos] != ';')  // valueの終了条件は必ずセミコロンが存在しているかどうかになる
 		*pos = *pos + 1;
-	return (true);
+	return (IS_OK_FIELD_VALUE);
 }
 
 bool ConfigHandlingString::show_error_message(const std::string &config_line, \

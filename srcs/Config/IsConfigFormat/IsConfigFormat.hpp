@@ -8,6 +8,9 @@
 #include "../../HandlingString/HandlingString.hpp"
 #include "../ConfigHandlingString/ConfigHandlingString.hpp"
 
+#define	IS_OK 0
+#define	IS_NOT_ENDWORD_EXIST 6
+
 class IsConfigFormat
 {
 	private:

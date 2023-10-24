@@ -63,10 +63,10 @@ bool	IsConfigFormat::is_location_block_format(const std::string &config_line)
 	std::string	line_without_ows = HandlingString::obtain_without_ows_value(config_line);
 	size_t	end_pos = 0;
 
-	if (!(ConfigHandlingString::is_field_header(line_without_ows, &end_pos)))
+	if (ConfigHandlingString::is_field_header(line_without_ows, &end_pos) != IS_OK_FIELD_HEADER)
 		return (false);
 	HandlingString::skip_ows(line_without_ows, &end_pos);
-	if (!ConfigHandlingString::is_field_value(line_without_ows, &end_pos))
+	if (ConfigHandlingString::is_field_value(line_without_ows, &end_pos) != IS_OK_FIELD_VALUE)
 		return (false);
 	if (line_without_ows.length() != end_pos + 1)
 		return (false);
@@ -134,17 +134,14 @@ bool	IsConfigFormat::is_server_block_format(const std::string &config_line, \
 	size_t	end_pos = 0;
 	std::string	field_header;
 	std::string	field_value;
-	bool		is_format = false;
 
-	is_format = ConfigHandlingString::is_field_header(line_without_ows, &end_pos);
-	if (is_format == false)
+	if (ConfigHandlingString::is_field_header(line_without_ows, &end_pos) != IS_OK_FIELD_HEADER)
 		return (false);
 	field_header = line_without_ows.substr(0, end_pos);
 	if (std::find(field_headers.begin(), field_headers.end(), field_header) != field_headers.end())
 		return false;
 	HandlingString::skip_ows(line_without_ows, &end_pos);
-	is_format = ConfigHandlingString::is_field_value(line_without_ows, &end_pos);
-	if (is_format == false)
+	if (ConfigHandlingString::is_field_value(line_without_ows, &end_pos) != IS_OK_FIELD_VALUE)
 		return (false);
 	return (true);
 }
