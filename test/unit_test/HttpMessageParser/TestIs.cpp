@@ -173,6 +173,8 @@ TEST(TestHttpMessageParser, IsToken) {
 	EXPECT_FALSE(HttpMessageParser::is_token("a;b"));
 	EXPECT_FALSE(HttpMessageParser::is_token("123(c)"));
 	EXPECT_FALSE(HttpMessageParser::is_token("a:b"));
+	EXPECT_FALSE(HttpMessageParser::is_token("a=b"));
+	EXPECT_FALSE(HttpMessageParser::is_token("="));
 	EXPECT_FALSE(HttpMessageParser::is_token("\0"));
 	EXPECT_FALSE(HttpMessageParser::is_token("\0aa"));
 }

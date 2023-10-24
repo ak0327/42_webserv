@@ -49,6 +49,7 @@ include_directories(
         srcs/HttpRequest/ValueWeightArraySet
         srcs/HttpRequest/MediaType
         srcs/HttpRequest/ValueAndMapFieldValues
+        srcs/HttpRequest/FieldValueWithWeight
 )
 
 # webserv_srcs -----------------------------------------------------------------
@@ -130,6 +131,12 @@ set(value_and_map_field_values_srcs
         srcs/HttpRequest/ValueAndMapFieldValues/set_content_disposition.cpp
         )
 
+# FieldValueWithWeight
+set(weight_with_field_value_srcs
+        srcs/HttpRequest/FieldValueWithWeight/FieldValueWithWeight.cpp
+        srcs/HttpRequest/FieldValueWithWeight/set_field_value_with_weight.cpp
+        )
+
 list(APPEND http_request_srcs
         ${date_srcs}
         ${map_field_values_srcs}
@@ -139,6 +146,7 @@ list(APPEND http_request_srcs
         ${multi_field_values}
         ${value_and_map_field_values_srcs}
         ${single_field_value_srcs}
+        ${weight_with_field_value_srcs}
         )
 
 list(APPEND webserv_srcs
@@ -223,6 +231,9 @@ set (unit_test_srcs
 
         # value and map field values
         test/unit_test/ValueAndMapFieldValues/TestContentDisposition.cpp
+
+        # field value with weight
+        test/unit_test/FieldValueWithWeight/TestAccept.cpp
 
         # date
         test/unit_test/Date/TestDate.cpp

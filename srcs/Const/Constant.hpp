@@ -13,6 +13,7 @@ extern const int ERR;
 /* initial value */
 
 extern const int COUNTER_INIT;
+extern const double WEIGHT_INIT;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -198,6 +199,8 @@ extern const char RECEIVED_BY[];
 extern const char COMMENT[];
 
 extern const char URI_REFERENCE[];
+
+extern const char WEIGHT_KEY[];
 
 ////////////////////////////////////////////////////////////////////////////////
 /* date */

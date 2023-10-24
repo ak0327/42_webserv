@@ -149,6 +149,9 @@ int HttpRequest::parse_and_validate_http_request(const std::string &input) {
 		return STATUS_SERVER_ERROR;
 	}
 	if (field_line_result.is_err()) {
+		if (field_line_result.get_err_value() == STATUS_SERVER_ERROR) {
+			return STATUS_SERVER_ERROR;
+		}
 		return STATUS_BAD_REQUEST;
 	}
 
@@ -210,7 +213,7 @@ Result<int, int> HttpRequest::parse_and_validate_field_lines(std::stringstream *
 
 			parse_result = (this->*_field_value_parser[field_name])(field_name, field_value);
 			if (parse_result.is_err()) {
-				return Result<int, int>::err(ERR);
+				return Result<int, int>::err(parse_result.get_err_value());
 			}
 			continue;
 		}
@@ -329,7 +332,7 @@ void HttpRequest::init_field_name_counter() {
 void HttpRequest::init_field_name_parser() {
 	std::map<std::string, func_ptr> map;
 
-	map[std::string(ACCEPT)] = &HttpRequest::set_accept;  // todo: Accept
+	map[std::string(ACCEPT)] = &HttpRequest::set_accept;
 	map[std::string(ACCEPT_ENCODING)] = &HttpRequest::set_accept_encoding;  // todo: Accept-Encoding
 	map[std::string(ACCEPT_LANGUAGE)] = &HttpRequest::set_accept_language;  // todo: Accept-Language
 	map[std::string(ACCESS_CONTROL_REQUEST_HEADERS)] = &HttpRequest::set_access_control_request_headers;

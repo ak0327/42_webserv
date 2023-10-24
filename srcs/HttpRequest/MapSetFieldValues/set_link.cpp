@@ -5,31 +5,6 @@
 #include "HttpMessageParser.hpp"
 #include "MapSetFieldValues.hpp"
 
-Result<std::size_t, int> skip_ows_delimiter_ows(const std::string &field_value,
-												 char delimiter,
-												 std::size_t start_pos) {
-	std::size_t pos;
-
-	if (field_value.length() < start_pos) {
-		return Result<std::size_t, int>::err(ERR);
-	}
-	pos = start_pos;
-	if (field_value[pos] == '\0') {
-		return Result<std::size_t, int>::ok(pos);
-	}
-
-	HttpMessageParser::skip_ows(field_value, &pos);
-	if (field_value[pos] != delimiter) {
-		return Result<std::size_t, int>::err(ERR);
-	}
-	++pos;
-	HttpMessageParser::skip_ows(field_value, &pos);
-	if (field_value[pos] == '\0') {
-		return Result<std::size_t, int>::err(ERR);
-	}
-	return Result<std::size_t, int>::ok(pos);
-}
-
 // link-value = "<" URI-Reference ">" *( OWS ";" OWS link-param )
 Result<int, int> parse_uri_reference(const std::string &field_value,
 									 std::size_t start_pos,
@@ -359,7 +334,7 @@ parse_valid_link_values(const std::string &field_value) {
 
 		link_values.insert(link_value);
 
-		skip_result = skip_ows_delimiter_ows(field_value, COMMA, pos);
+		skip_result = HttpMessageParser::skip_ows_delimiter_ows(field_value, COMMA, pos);
 		if (skip_result.is_err()) {
 			return Result<std::set<std::map<std::string, std::string> >, int>::err(ERR);
 		}

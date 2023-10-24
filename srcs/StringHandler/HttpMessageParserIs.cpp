@@ -878,5 +878,40 @@ bool is_scheme(const std::string &scheme) {
 	return scheme[end] == '\0';
 }
 
+// type = token
+bool is_valid_type(const std::string &type) {
+	return HttpMessageParser::is_token(type);
+}
+
+// subtype = token
+bool is_valid_subtype(const std::string &subtype) {
+	return HttpMessageParser::is_token(subtype);
+}
+
+/*
+ parameters = *( OWS ";" OWS [ parameter ] )
+ parameter = parameter-name "=" parameter-value
+ parameter-name = token
+ parameter-value = ( token / quoted-string )
+ */
+bool is_valid_parameters(const std::map<std::string, std::string> &parameters) {
+	std::map<std::string, std::string>::const_iterator itr;
+	std::string parameter_name, parameter_value;
+
+	for (itr = parameters.begin(); itr != parameters.end(); ++itr) {
+		parameter_name = itr->first;
+		parameter_value = itr->second;
+
+		if (!HttpMessageParser::is_token(parameter_name)) {
+			return false;
+		}
+		if (!HttpMessageParser::is_token(parameter_value)
+			&& !HttpMessageParser::is_quoted_string(parameter_value)) {
+			return false;
+		}
+	}
+	return true;
+}
+
 
 }  // namespace HttpMessageParser

@@ -1471,25 +1471,31 @@ void skip_scheme(const std::string &str,
 	*end_pos = pos;
 }
 
+Result<std::size_t, int> skip_ows_delimiter_ows(const std::string &field_value,
+												char delimiter,
+												std::size_t start_pos) {
+	std::size_t pos;
 
+	if (field_value.length() < start_pos) {
+		return Result<std::size_t, int>::err(ERR);
+	}
+	pos = start_pos;
 
+	if (field_value[pos] == '\0') {
+		return Result<std::size_t, int>::ok(pos);
+	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	HttpMessageParser::skip_ows(field_value, &pos);
+	if (field_value[pos] != delimiter) {
+		return Result<std::size_t, int>::err(ERR);
+	}
+	++pos;
+	HttpMessageParser::skip_ows(field_value, &pos);
+	if (field_value[pos] == '\0') {
+		return Result<std::size_t, int>::err(ERR);
+	}
+	return Result<std::size_t, int>::ok(pos);
+}
 
 
 }  // namespace HttpMessageParser

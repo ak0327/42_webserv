@@ -41,6 +41,21 @@ double get_fractional_part(const std::string &str_after_decimal_point,
 	return num;
 }
 
+// bool is_parameter_weight(const std::string &parameter_name,
+// 						 const std::string &parameter_value) {
+// 	bool succeed;
+//
+// 	if (parameter_name != "q") {
+// 		return false;
+// 	}
+// 	HttpMessageParser::to_floating_num(parameter_value, 3, &succeed);
+// 	return succeed;
+// }
+
+bool is_parameter_weight(const std::string &parameter_name) {
+	return parameter_name == "q";
+}
+
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -237,5 +252,213 @@ Result<std::string, int> parse_port(const std::string &field_value,
 	return Result<std::string, int>::ok(port);
 }
 
+/*
+ parameter = parameter-name "=" parameter-value
+ parameter-name = token
+ parameter-value = ( token / quoted-string )
+ */
+// todo:test
+Result<int, int> parse_parameter(const std::string &field_value,
+								 std::size_t start_pos,
+								 std::size_t *end_pos,
+								 std::string *parameter_name,
+								 std::string *parameter_value) {
+	std::size_t pos, end, len;
+	Result<std::string, int> parse_name_result;
+
+	if (!end_pos || !parameter_name || !parameter_value) {
+		return Result<int, int>::err(ERR);
+	}
+	*end_pos = start_pos;
+	if (field_value.empty() || field_value.length() < start_pos) {
+		return Result<int, int>::err(ERR);
+	}
+
+	// parameter-name
+	pos = start_pos;
+	skip_token(field_value, pos, &end);
+	if (pos == end) {
+		return Result<int, int>::err(ERR);
+	}
+	len = end - pos;
+	*parameter_name = field_value.substr(pos, len);
+	pos += len;
+
+	// =
+	if (field_value[pos] != '=') {
+		return Result<int, int>::err(ERR);
+	}
+	++pos;
+
+	// parameter-value
+	len = 0;
+	if (HttpMessageParser::is_tchar(field_value[pos])) {
+		while (field_value[pos + len] && HttpMessageParser::is_tchar(field_value[pos + len])) {
+			++len;
+		}
+	} else if (field_value[pos] == '"') {
+		HttpMessageParser::skip_quoted_string(field_value, pos, &end);
+		if (pos == end) {
+			return Result<int, int>::err(ERR);
+		}
+		len = end - pos;
+	} else {
+		return Result<int, int>::err(ERR);
+	}
+
+	if (len == 0) {
+		return Result<int, int>::err(ERR);
+	}
+	*parameter_value = field_value.substr(pos, len);
+	*end_pos = pos + len;
+	return Result<int, int>::ok(OK);
+}
+
+/*
+ parameters = *( OWS ";" OWS [ parameter ] )
+ parameter = parameter-name "=" parameter-value
+ parameter-name = token
+ parameter-value = ( token / quoted-string )
+ */
+// todo:test
+Result<std::map<std::string, std::string>, int> parse_parameters(const std::string &field_value,
+																 std::size_t start_pos,
+																 std::size_t *end_pos) {
+	std::size_t pos, end, tmp_pos;
+	std::map<std::string, std::string> parameters;
+	std::string parameter_name, parameter_value;
+	Result<int, int> parse_result;
+
+	if (!end_pos) {
+		return Result<std::map<std::string, std::string>, int>::err(ERR);
+	}
+	*end_pos = start_pos;
+	if (field_value.empty() || field_value.length() < start_pos) {
+		return Result<std::map<std::string, std::string>, int>::err(ERR);
+	}
+	if (field_value[start_pos] == '\0') {
+		return Result<std::map<std::string, std::string>, int>::ok(parameters);
+	}
+
+	pos = start_pos;
+	while (field_value[pos]) {
+		tmp_pos = pos;
+		HttpMessageParser::skip_ows(field_value, &tmp_pos);
+		if (field_value[tmp_pos] != ';') {
+			return Result<std::map<std::string, std::string>, int>::err(ERR);
+		}
+		++tmp_pos;
+		HttpMessageParser::skip_ows(field_value, &tmp_pos);
+
+		parse_result = parse_parameter(field_value, tmp_pos, &end,
+									   &parameter_name,
+									   &parameter_value);
+		if (parse_result.is_err()) {
+			return Result<std::map<std::string, std::string>, int>::err(ERR);
+		}
+		if (is_parameter_weight(parameter_name)) {
+			break;
+		}
+		pos = end;
+		parameters[parameter_name] = parameter_value;
+	}
+
+	*end_pos = pos;
+	return Result<std::map<std::string, std::string>, int>::ok(parameters);
+}
+
+/*
+ media-type = type "/" subtype parameters
+ subtype = token
+ parameters = *( OWS ";" OWS [ parameter ] )
+ */
+// todo:test
+Result<std::string, int> parse_subtype(const std::string &field_value,
+									   std::size_t start_pos,
+									   std::size_t *end_pos) {
+	std::size_t len;
+	std::string subtype;
+
+	if (!end_pos) { return Result<std::string, int>::err(ERR); }
+	*end_pos = start_pos;
+	if (field_value.empty() || field_value.length() < start_pos) {
+		return Result<std::string, int>::err(ERR);
+	}
+
+	len = 0;
+	while (true) {
+		if (field_value[start_pos + len] == '\0') { break; }
+		if (field_value[start_pos + len] == SP) { break; }
+		if (field_value[start_pos + len] == ';') { break; }
+		++len;
+	}
+	if (len == 0) {
+		return Result<std::string, int>::err(ERR);
+	}
+	subtype = field_value.substr(start_pos, len);
+	*end_pos = start_pos + len;
+	return Result<std::string, int>::ok(subtype);
+}
+
+/*
+ media-type = type "/" subtype parameters
+
+ type = token
+ subtype = token
+
+ parameters = *( OWS ";" OWS [ parameter ] )
+ parameter = parameter-name "=" parameter-value
+ parameter-name = token
+ parameter-value = ( token / quoted-string )
+ */
+// todo:test
+Result<int, int> parse_madia_type(const std::string &field_value,
+								  std::size_t start_pos,
+								  std::size_t *end_pos,
+								  std::string *type,
+								  std::string *subtype,
+								  std::map<std::string, std::string> *parameters) {
+	std::size_t pos, end;
+	Result<std::string, int> type_result, subtype_result;
+	Result<std::map<std::string, std::string>, int> parameters_result;
+
+	if (!end_pos || !type || !subtype || !parameters) {
+		return Result<int, int>::err(ERR);
+	}
+	*end_pos = start_pos;
+	if (field_value.empty() || field_value.length() <= start_pos) {
+		return Result<int, int>::err(ERR);
+	}
+
+	pos = start_pos;
+	type_result = StringHandler::parse_pos_to_delimiter(field_value, pos,
+														'/', &end);
+	if (type_result.is_err()) {
+		return Result<int, int>::err(ERR);
+	}
+	*type = type_result.get_ok_value();
+	pos = end;
+
+	if (field_value[pos] != '/') {
+		return Result<int, int>::err(ERR);
+	}
+	++pos;
+
+	subtype_result = parse_subtype(field_value, pos, &end);
+	if (subtype_result.is_err()) {
+		return Result<int, int>::err(ERR);
+	}
+	*subtype = subtype_result.get_ok_value();
+	pos = end;
+
+	parameters_result = HttpMessageParser::parse_parameters(field_value, pos, &end);
+	if (parameters_result.is_err()) {
+		return Result<int, int>::err(ERR);
+	}
+	*parameters = parameters_result.get_ok_value();
+
+	*end_pos = end;
+	return Result<int, int>::ok(OK);
+}
 
 }  // namespace HttpMessageParser

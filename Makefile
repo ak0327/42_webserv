@@ -53,6 +53,10 @@ DATE_DIR	= 	$(REQUEST_DIR)/Date
 SRCS		+=	$(DATE_DIR)/Date.cpp \
 				$(DATE_DIR)/set_date.cpp
 
+FIELD_VALUE_WITH_WEIGHT = $(REQUEST_DIR)/FieldValueWithWeight
+SRCS		+=	$(FIELD_VALUE_WITH_WEIGHT)/FieldValueWithWeight.cpp \
+				$(FIELD_VALUE_WITH_WEIGHT)/set_field_value_with_weight.cpp
+
 MAP_FIELD_VALUES_DIR = $(REQUEST_DIR)/MapFieldValues
 SRCS		+=	$(MAP_FIELD_VALUES_DIR)/MapFieldValues.cpp \
 				$(MAP_FIELD_VALUES_DIR)/set_authorization.cpp \
@@ -81,7 +85,6 @@ SINGLE_FIELD_VALUE_DIR = $(REQUEST_DIR)/SingleFieldValue
 SRCS		+=	$(SINGLE_FIELD_VALUE_DIR)/SingleFieldValue.cpp \
 				$(SINGLE_FIELD_VALUE_DIR)/set_single_field_value.cpp
 
-
 # OBJS -------------------------------------------------------------------------
 OBJS_DIR	=	objs
 OBJS		=	$(SRCS:%.cpp=$(OBJS_DIR)/%.o)
@@ -100,6 +103,7 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(STR_HANDLER) \
 				$(SRCS_DIR)/$(REQUEST_DIR) \
 				$(SRCS_DIR)/$(DATE_DIR) \
+				$(SRCS_DIR)/$(FIELD_VALUE_WITH_WEIGHT) \
 				$(SRCS_DIR)/$(MAP_FIELD_VALUES_DIR) \
 				$(SRCS_DIR)/$(MAP_SET_FIELD_VALUES_DIR) \
 				$(SRCS_DIR)/$(MEDIA_TYPE_DIR) \
@@ -108,6 +112,7 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(REQUEST_DIR)/FieldValueBase \
 				$(SRCS_DIR)/$(REQUEST_DIR)/RequestLine \
 				$(SRCS_DIR)/$(REQUEST_DIR)/TwoValueSet \
+				$(SRCS_DIR)/$(REQUEST_DIR)/ValueAndMapFieldValues \
 				$(SRCS_DIR)/$(REQUEST_DIR)/ValueWeightArraySet
 
 INCLUDES	 =	$(addprefix -I, $(INCLUDES_DIR))
@@ -270,6 +275,12 @@ run_value_and_map_test    :
 	cmake --build build
 	./build/unit_test --gtest_filter=TestValueAndMapFieldValues*
 
+.PHONY    : run_weight_test
+run_weight_test    :
+#rm -rf build
+	cmake -S . -B build
+	cmake --build build
+	./build/unit_test --gtest_filter=TestFieldValueWithWeight*
 
 .PHONY    : run_media_test
 run_media_test    :

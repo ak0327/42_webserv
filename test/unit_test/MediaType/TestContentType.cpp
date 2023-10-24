@@ -20,6 +20,9 @@ TEST(TestMediaType, ContentTypeOK1) {
 	if (has_field_name) {
 		FieldValueBase *field_values = request.get_field_values(field_name);
 		MediaType *data = dynamic_cast<MediaType *>(field_values);
+		if (data->is_err()) {
+			FAIL() << "[Error] Parse Failed";
+		}
 
 		//----------------------------------------------------------------------
 
@@ -69,6 +72,9 @@ TEST(TestMediaType, ContentTypeOK2) {
 	if (has_field_name) {
 		FieldValueBase *field_values = request.get_field_values(field_name);
 		MediaType *data = dynamic_cast<MediaType *>(field_values);
+		if (data->is_err()) {
+			FAIL() << "[Error] Parse Failed";
+		}
 
 		//----------------------------------------------------------------------
 
@@ -118,6 +124,9 @@ TEST(TestMediaType, ContentTypeOK3) {
 	if (has_field_name) {
 		FieldValueBase *field_values = request.get_field_values(field_name);
 		MediaType *data = dynamic_cast<MediaType *>(field_values);
+		if (data->is_err()) {
+			FAIL() << "[Error] Parse Failed";
+		}
 
 		//----------------------------------------------------------------------
 
@@ -168,6 +177,9 @@ TEST(TestMediaType, ContentTypeOK4) {
 	if (has_field_name) {
 		FieldValueBase *field_values = request.get_field_values(field_name);
 		MediaType *data = dynamic_cast<MediaType *>(field_values);
+		if (data->is_err()) {
+			FAIL() << "[Error] Parse Failed";
+		}
 
 		//----------------------------------------------------------------------
 

@@ -11,6 +11,7 @@ const int ERR = 1;
 /* initial value */
 
 const int COUNTER_INIT = 0;
+const double WEIGHT_INIT = 1.0;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -332,6 +333,8 @@ const char RECEIVED_BY[] = "received_by";
 const char COMMENT[] = "comment";
 
 const char URI_REFERENCE[] = "uri_reference";
+
+const char WEIGHT_KEY[] = "q";
 
 ////////////////////////////////////////////////////////////////////////////////
 /* date */

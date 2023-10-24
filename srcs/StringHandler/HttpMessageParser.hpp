@@ -1,5 +1,6 @@
 #pragma once
 
+# include <map>
 # include <string>
 # include "Constant.hpp"
 # include "Result.hpp"
@@ -112,6 +113,10 @@ bool is_ignore_field_name(const std::string &field_name);
 bool is_valid_day1(int year, int month, int day);
 bool is_valid_time_of_day(int hour, int minute, int second);
 bool is_valid_day_name(const std::string &day_name, int year, int month, int day);
+
+bool is_valid_type(const std::string &type);
+bool is_valid_subtype(const std::string &subtype);
+bool is_valid_parameters(const std::map<std::string, std::string> &parameters);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -312,6 +317,27 @@ Result<date_format, int> parse_http_date(const std::string &http_date,
 										 std::string *second,
 										 std::string *gmt);
 
+Result<int, int> parse_madia_type(const std::string &field_value,
+								  std::size_t start_pos,
+								  std::size_t *end_pos,
+								  std::string *type,
+								  std::string *subtype,
+								  std::map<std::string, std::string> *parameters);
+
+Result<std::string, int> parse_subtype(const std::string &field_value,
+									   std::size_t start_pos,
+									   std::size_t *end_pos);
+
+Result<std::map<std::string, std::string>, int> parse_parameters(const std::string &field_value,
+																 std::size_t start_pos,
+																 std::size_t *end_pos);
+
+Result<int, int> parse_parameter(const std::string &field_value,
+								 std::size_t start_pos,
+								 std::size_t *end_pos,
+								 std::string *parameter_name,
+								 std::string *parameter_value);
+
 Result<int, int> validate_http_date(date_format format,
 									const std::string &day_name,
 									const std::string &day,
@@ -322,5 +348,8 @@ Result<int, int> validate_http_date(date_format format,
 									const std::string &second,
 									const std::string &gmt);
 
+Result<std::size_t, int> skip_ows_delimiter_ows(const std::string &field_value,
+												char delimiter,
+												std::size_t start_pos);
 
 }  // namespace HttpMessageParser

@@ -7,12 +7,11 @@
 
 class MediaType : public FieldValueBase {
  public:
+	MediaType();
 	explicit MediaType(const std::string &field_value);
-	// MediaType(const std::string &type,
-	// 		  const std::string &subtype);
-	// MediaType(const std::string &type,
-	// 		  const std::string &subtype,
-	// 		  const std::map<std::string, std::string> &parameters);
+	MediaType(const std::string &type,
+			  const std::string &subtype,
+			  const std::map<std::string, std::string> &parameters);
 	virtual ~MediaType();
 
 	MediaType(const MediaType &other);
