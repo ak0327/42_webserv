@@ -14,7 +14,6 @@
 
 namespace HttpMessageParser {
 
-
 bool is_printable(const std::string &str)
 {
 	if (str.empty()) {
@@ -32,7 +31,7 @@ bool is_printable(const std::string &str)
 // Delimiters : set of US-ASCII visual characters not allowed in a token
 //  (DQUOTE and "(),/:;<=>?@[\]{}").
 bool is_delimiters(char c) {
-	return std::string(DELIMITERS).find(c) != std::string::npos;
+	return StringHandler::is_char_in_str(c, DELIMITERS);
 }
 
 // VCHAR = %x21-7E ; (any visible [USASCII] character).
@@ -80,11 +79,9 @@ bool is_field_content(const std::string &str) {
 //      ; any VCHAR, except delimiters
 // https://datatracker.ietf.org/doc/html/rfc7230#ref-USASCII
 bool is_tchar(char c) {
-	return (std::isalnum(c)
-			|| c == '!' || c == '#' || c == '$' || c == '%'
-			|| c == '&' || c == '\'' || c == '*' || c == '+'
-			|| c == '-' || c == '.' || c == '^' || c == '_'
-			|| c == '`' || c == '|' || c == '|' || c == '~');
+	const std::string tchar_symbol = "!#$%&'*+-.^_`|~";
+
+	return (std::isalnum(c) || tchar_symbol.find(c) != std::string::npos);
 
 	// if (!is_vchar(c)) {
 	// 	return false;
@@ -116,16 +113,17 @@ bool is_token(const std::string &str) {
 	return str[end] == '\0';
 }
 
-// token68       = 1*( ALPHA / DIGIT / "-" / "." / "_" / "~" / "+" / "/" ) *"="
+// token68 = 1*( ALPHA / DIGIT / "-" / "." / "_" / "~" / "+" / "/" ) *"="
 bool is_token68(const std::string &str) {
 	std::size_t pos;
+	const std::string token68_symbols = "-._~+/";
 
 	if (str.empty()) { return false; }
 
 	pos = 0;
-	while (std::isalnum(str[pos])
-		   || str[pos] == '-' || str[pos] == '.' || str[pos] == '_'
-		   || str[pos] == '~'|| str[pos] == '+' || str[pos] == '/') {
+	while (str[pos]
+	&& (std::isalnum(str[pos])
+		|| StringHandler::is_char_in_str(str[pos], token68_symbols))) {
 		++pos;
 	}
 	if (pos == 0) { return false; }
@@ -138,7 +136,7 @@ bool is_token68(const std::string &str) {
 }
 
 /*
- ext-token  = <the characters in token, followed by "*">
+ ext-token = <the characters in token, followed by "*">
  https://httpwg.org/specs/rfc6266.html#n-grammar
  */
 bool is_ext_token(const std::string &str) {
@@ -156,12 +154,12 @@ bool is_ext_token(const std::string &str) {
 }
 
 /*
- langtag       = language
-                 ["-" script]
-                 ["-" region]
-                 *("-" variant)
-                 *("-" extension)
-                 ["-" privateuse]
+ langtag = language
+           ["-" script]
+           ["-" region]
+           *("-" variant)
+           * *("-" extension)
+           * ["-" privateuse]
  */
 bool is_langtag(const std::string &str) {
 	std::size_t pos, end;
@@ -176,7 +174,7 @@ bool is_langtag(const std::string &str) {
 }
 
 /*
- privateuse    = "x" 1*("-" (1*8alphanum))
+ privateuse = "x" 1*("-" (1*8alphanum))
  */
 bool is_privateuse(const std::string &str) {
 	std::size_t pos, end;
@@ -313,7 +311,6 @@ bool is_langtag_option(const std::string &str,
                / "i-klingon"         ; in favor of more modern
                / "i-lux"             ; subtags or subtag
                / "i-mingo"           ; combination
-
                / "i-navajo"
                / "i-pwn"
                / "i-tao"
@@ -406,6 +403,7 @@ bool is_opaque_tag(const std::string &str) {
  */
 bool is_entity_tag(const std::string &str) {
 	std::size_t pos;
+	const std::size_t weak_len = 2;
 
 	if (str[0] != 'W' && str[0] != '"') {
 		return false;
@@ -413,7 +411,7 @@ bool is_entity_tag(const std::string &str) {
 
 	pos = 0;
 	if (str[0] == 'W' && str[1] == '/') {
-		pos += 2;
+		pos += weak_len;
 	}
 
 	return is_opaque_tag(&str[pos]);
@@ -520,6 +518,8 @@ bool is_quoted_pair(const std::string &str, std::size_t start_pos) {
 void skip_quoted_pair(const std::string &str,
 					  std::size_t start_pos,
 					  std::size_t *end_pos) {
+	const std::size_t quoted_pair_len = 2;
+
 	if (!end_pos) {
 		return;
 	}
@@ -530,7 +530,7 @@ void skip_quoted_pair(const std::string &str,
 	if (!is_quoted_pair(str, start_pos)) {
 		return;
 	}
-	*end_pos = start_pos + 2;
+	*end_pos = start_pos + quoted_pair_len;
 }
 
 /*
@@ -855,12 +855,15 @@ bool is_ipv4address(const std::string &str) {
 
 // unreserved = ALPHA / DIGIT / "-" / "." / "_" / "~"
 bool is_unreserved(char c) {
-	return (std::isalnum(c) || c == '-' || c == '.' || c == '_' || c == '~');
+	const std::string unreserved_symbol = "-._~";
+
+	return (std::isalnum(c)
+			|| StringHandler::is_char_in_str(c, unreserved_symbol));
 }
 
 // sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
 bool is_sub_delims(char c) {
-	return std::string(SUB_DELIMS).find(c) != std::string::npos;
+	return StringHandler::is_char_in_str(c, SUB_DELIMS);
 }
 
 bool is_reg_name(const std::string &str) {
@@ -938,7 +941,7 @@ bool is_parameter_weight(const std::string &parameter_name,
 						 const std::string &parameter_value) {
 	bool succeed;
 
-	if (parameter_name != "q") {
+	if (parameter_name != std::string(WEIGHT_KEY)) {
 		return false;
 	}
 	HttpMessageParser::to_floating_num(parameter_value, 3, &succeed);
@@ -946,7 +949,7 @@ bool is_parameter_weight(const std::string &parameter_name,
 }
 
 bool is_parameter_weight(const std::string &parameter_name) {
-	return parameter_name == "q";
+	return parameter_name == std::string(WEIGHT_KEY);
 }
 
 bool is_mailbox(const std::string &str) {
@@ -978,7 +981,7 @@ bool is_atext(char c) {
 	if (std::isalnum(c)) {
 		return true;
 	}
-	return (atext_except_alnum.find(c) != std::string::npos);
+	return StringHandler::is_char_in_str(c, atext_except_alnum);
 }
 
 // atom = [CFWS] 1*atext [CFWS] -> 1*atext

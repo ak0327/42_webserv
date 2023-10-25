@@ -425,8 +425,8 @@ Result<int, int> parse_madia_type(const std::string &field_value,
 	}
 
 	pos = start_pos;
-	type_result = StringHandler::parse_pos_to_delimiter(field_value, pos,
-														'/', &end);
+	type_result = StringHandler::parse_pos_to_delimiter(field_value,
+														pos, &end, '/');
 	if (type_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}

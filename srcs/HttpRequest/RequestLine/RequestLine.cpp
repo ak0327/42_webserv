@@ -75,8 +75,8 @@ Result<int, int> RequestLine::parse(const std::string &line_wo_end_lf) {
 	pos = 0;
 	method_result = StringHandler::parse_pos_to_delimiter(line_wo_end_lf,
 														  pos,
-														  SP,
-														  &end_pos);
+														  &end_pos,
+														  SP);
 	if (method_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}
@@ -92,8 +92,8 @@ Result<int, int> RequestLine::parse(const std::string &line_wo_end_lf) {
 	// request-target
 	request_target_result = StringHandler::parse_pos_to_delimiter(line_wo_end_lf,
 																  pos,
-																  SP,
-																  &end_pos);
+																  &end_pos,
+																  SP);
 	if (request_target_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}
@@ -109,8 +109,8 @@ Result<int, int> RequestLine::parse(const std::string &line_wo_end_lf) {
 	// HTTP-version
 	http_version_result = StringHandler::parse_pos_to_delimiter(line_wo_end_lf,
 																pos,
-																CR,
-																&end_pos);
+																&end_pos,
+																CR);
 	if (http_version_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}

@@ -329,8 +329,8 @@ std::string to_lower(const std::string &str) {
 // todo: mv end_pos
 Result<std::string, int> parse_pos_to_delimiter(const std::string &src_str,
 												std::size_t start_pos,
-												char tail_delimiter,
-												std::size_t *end_pos) {
+												std::size_t *end_pos,
+												char tail_delimiter) {
 	std::size_t delim_pos, len;
 	std::string	ret_str;
 
@@ -381,5 +381,10 @@ Result<std::string, int> parse_pos_to_wsp(const std::string &str,
 	if (end_pos) { *end_pos = start_pos + len; }
 	return Result<std::string, int>::ok(ret_str);
 }
+
+bool is_char_in_str(char c, const std::string &str) {
+	return str.find(c) != std::string::npos;
+}
+
 
 }  // namespace StringHandler

@@ -61,7 +61,7 @@ Result<int, int> parse_forwarded_pair(const std::string &field_value,
 
 	pos = start_pos;
 	token_result = StringHandler::parse_pos_to_delimiter(field_value,
-														 pos, '=', &end);
+														 pos, &end, '=');
 	if (token_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}
