@@ -16,6 +16,7 @@ namespace {
   disp-ext-type       = token
  */
 Result<std::string, int> parse_disposition_type(const std::string &field_value,
+												std::size_t start_pos,
 												std::size_t *end_pos) {
 	std::string disposition_type;
 	std::size_t pos, end, len;
@@ -23,12 +24,12 @@ Result<std::string, int> parse_disposition_type(const std::string &field_value,
 	if (!end_pos) {
 		return Result<std::string, int>::err(ERR);
 	}
-	*end_pos = 0;
+	*end_pos = start_pos;
 	if (field_value.empty()) {
 		return Result<std::string, int>::err(ERR);
 	}
 
-	pos = 0;
+	pos = start_pos;
 	end = field_value.find(';', pos);
 	if (end == std::string::npos) {
 		len = field_value.length();
@@ -61,17 +62,19 @@ Result<int, int> validate_disposition_type(const std::string &disposition_type) 
 }
 
 Result<std::string, int> parse_and_validate_disposition_type(const std::string &field_value,
+															 std::size_t start_pos,
 															 std::size_t *end_pos) {
 	std::string disposition_type;
 	Result<std::string, int> parse_result;
 	Result<int, int> validate_result;
-	std::size_t end;
+	std::size_t pos, end;
 
 	if (!end_pos) {
 		return Result<std::string, int>::err(ERR);
 	}
-
-	parse_result = parse_disposition_type(field_value, &end);
+	*end_pos = start_pos;
+	pos = start_pos;
+	parse_result = parse_disposition_type(field_value, pos, &end);
 	if (parse_result.is_err()) {
 		return Result<std::string, int>::err(ERR);
 	}
@@ -250,8 +253,8 @@ bool is_ext_param_value(const std::string &value) {
   disp-ext-parm       = token "=" value
                       | ext-token "=" ext-value
  */
-Result<int, int> validate_disposition_param(
-					const std::map<std::string, std::string> &disposition_param) {
+Result<int, int>
+validate_disposition_param(const std::map<std::string, std::string> &disposition_param) {
 	std::map<std::string, std::string>::const_iterator itr;
 	std::string key, value;
 
@@ -274,16 +277,15 @@ Result<int, int> validate_disposition_param(
 }
 
 
-Result<std::map<std::string, std::string>, int> parse_and_validate_disposition_param(
-															const std::string &field_value,
-															std::size_t start_pos,
-															std::size_t *end_pos) {
+Result<std::map<std::string, std::string>, int>
+parse_and_validate_disposition_param(const std::string &field_value,
+									 std::size_t start_pos,
+									 std::size_t *end_pos) {
 	std::map<std::string, std::string> disposition_param;
 	Result<std::map<std::string, std::string>, int> parse_result;
 	Result<int, int> validate_result;
 
 	if (!end_pos) {
-		// std::cout << YELLOW << " err 1" << RESET << std::endl;
 		return Result<std::map<std::string, std::string> , int>::err(ERR);
 	}
 	*end_pos = start_pos;
@@ -293,14 +295,12 @@ Result<std::map<std::string, std::string>, int> parse_and_validate_disposition_p
 
 	parse_result = parse_disposition_param(field_value, start_pos, end_pos);
 	if (parse_result.is_err()) {
-		// std::cout << YELLOW << " err 2" << RESET << std::endl;
 		return Result<std::map<std::string, std::string> , int>::err(ERR);
 	}
 	disposition_param = parse_result.get_ok_value();
 
 	validate_result = validate_disposition_param(disposition_param);
 	if (validate_result.is_err()) {
-		// std::cout << YELLOW << " err 3" << RESET << std::endl;
 		return Result<std::map<std::string, std::string> , int>::err(ERR);
 	}
 	return Result<std::map<std::string, std::string> , int>::ok(disposition_param);
@@ -325,42 +325,26 @@ Result<std::map<std::string, std::string>, int> parse_and_validate_disposition_p
  https://httpwg.org/specs/rfc6266.html#header.field.definition
  */
 
-Result<int, int> parse_and_validate_content_disposition(
-								const std::string &field_value,
-								std::string *disposition_type,
-								std::map<std::string, std::string> *disposition_param) {
-	Result<std::string, int> type_result;
-	Result<std::map<std::string, std::string>, int> param_result;
+Result<int, int>
+parse_and_validate_content_disposition(const std::string &field_value,
+									   std::string *disposition_type,
+									   std::map<std::string, std::string> *disposition_param) {
+	Result<int, int> result;
 	std::size_t pos, end;
 
-	type_result = parse_and_validate_disposition_type(field_value, &end);
-	if (type_result.is_err()) {
-		// std::cout << CYAN << "err 1" << RESET << std::endl;
+	pos = 0;
+	result = ValueAndMapFieldValues::parse_value_and_map_values(field_value,
+																pos, &end,
+																disposition_type,
+																disposition_param,
+																parse_and_validate_disposition_type,
+																parse_and_validate_disposition_param);
+	if (result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}
-	*disposition_type = type_result.get_ok_value();
-	// std::cout << CYAN << "type:[" << *disposition_type << "]" << RESET << std::endl;
-
-	pos = end;
-
-	if (field_value[pos] == '\0') {
-		return Result<int, int>::ok(OK);
-	}
-	if (field_value[pos] != ';') {
-		// std::cout << CYAN << "err 2" << RESET << std::endl;
-		return Result<int, int>::err(ERR);
-	}
-
-	param_result = parse_and_validate_disposition_param(field_value, pos, &end);
-	if (param_result.is_err()) {
-		// std::cout << CYAN << "err 3" << RESET << std::endl;
-		return Result<int, int>::err(ERR);
-	}
-	*disposition_param = param_result.get_ok_value();
 	pos = end;
 
 	if (field_value[pos] != '\0') {
-		// std::cout << CYAN << "err 4, &field_value[pos]:[" << &field_value[pos] << "]" << RESET << std::endl;
 		return Result<int, int>::err(ERR);
 	}
 	return Result<int, int>::ok(OK);

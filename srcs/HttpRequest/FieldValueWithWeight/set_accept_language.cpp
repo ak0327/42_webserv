@@ -151,22 +151,13 @@ parse_and_validate_language_range_with_weight_set(const std::string &field_value
 
 		HttpMessageParser::skip_ows(field_value, &pos);
 
-		if (field_value[pos] == ';') {
-			++pos;
-			HttpMessageParser::skip_ows(field_value, &pos);
-
-
-			weight_result = FieldValueWithWeight::parse_valid_weight(field_value, pos, &end);
-			if (weight_result.is_err()) {
-				delete language_range;
-				return Result<std::set<FieldValueWithWeight>, int>::err(ERR);
-			}
-			weight = weight_result.get_ok_value();
-			pos = end;
-
-		} else {
-			weight = WEIGHT_INIT;
+		weight_result = FieldValueWithWeight::parse_valid_weight(field_value, pos, &end);
+		if (weight_result.is_err()) {
+			delete language_range;
+			return Result<std::set<FieldValueWithWeight>, int>::err(ERR);
 		}
+		weight = weight_result.get_ok_value();
+		pos = end;
 
 		ranguage_range_with_weight = FieldValueWithWeight(language_range, weight);
 		language_range_set.insert(ranguage_range_with_weight);
