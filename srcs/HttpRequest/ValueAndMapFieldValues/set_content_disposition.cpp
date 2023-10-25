@@ -142,10 +142,10 @@ Result<int, int> parse_param(const std::string &field_value,
                       | ext-token "=" ext-value
   ext-token           = <the characters in token, followed by "*">
  */
-Result<std::map<std::string, std::string>, int> parse_disposition_param(
-												const std::string &field_value,
-												std::size_t start_pos,
-												std::size_t *end_pos) {
+Result<std::map<std::string, std::string>, int>
+parse_disposition_param(const std::string &field_value,
+						std::size_t start_pos,
+						std::size_t *end_pos) {
 	std::map<std::string, std::string> disposition_param;
 	Result<int, int> parse_result;
 	std::size_t pos, end;

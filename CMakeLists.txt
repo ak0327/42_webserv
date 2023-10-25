@@ -192,6 +192,7 @@ set (unit_test_srcs
         test/unit_test/FieldValueWithWeight/TestAccept.cpp
         test/unit_test/FieldValueWithWeight/TestAcceptEncoding.cpp
         test/unit_test/FieldValueWithWeight/TestAcceptLanguage.cpp
+#        test/unit_test/FieldValueWithWeight/TestTE.cpp
 
         # MapFieldValues
         test/unit_test/MapFieldValues/TestAltUsed.cpp

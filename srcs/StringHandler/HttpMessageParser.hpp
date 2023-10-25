@@ -118,6 +118,10 @@ bool is_valid_type(const std::string &type);
 bool is_valid_subtype(const std::string &subtype);
 bool is_valid_parameters(const std::map<std::string, std::string> &parameters);
 
+bool is_parameter_weight(const std::string &parameter_name,
+						 const std::string &parameter_value);
+bool is_parameter_weight(const std::string &parameter_name);
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void skip_ows(const std::string &str, std::size_t *pos);
@@ -129,6 +133,10 @@ void skip_token(const std::string &str,
 void skip_quoted_string(const std::string &str,
 						std::size_t start_pos,
 						std::size_t *end_pos);
+
+void skip_token_or_quoted_string(const std::string &field_value,
+								 std::size_t start_pos,
+								 std::size_t *end_pos);
 
 void skip_quoted_pair(const std::string &str,
 					  std::size_t start_pos,
@@ -328,15 +336,21 @@ Result<std::string, int> parse_subtype(const std::string &field_value,
 									   std::size_t start_pos,
 									   std::size_t *end_pos);
 
-Result<std::map<std::string, std::string>, int> parse_parameters(const std::string &field_value,
-																 std::size_t start_pos,
-																 std::size_t *end_pos);
-
 Result<int, int> parse_parameter(const std::string &field_value,
 								 std::size_t start_pos,
 								 std::size_t *end_pos,
 								 std::string *parameter_name,
-								 std::string *parameter_value);
+								 std::string *parameter_value,
+								 void (*skip_parameter_name)(const std::string &, std::size_t, std::size_t *),
+								 void (*skip_parameter_value)(const std::string &, std::size_t, std::size_t *),
+								 bool skip_bws = false);
+
+Result<std::map<std::string, std::string>, int> parse_parameters(const std::string &field_value,
+																 std::size_t start_pos,
+																 std::size_t *end_pos,
+																 void (*skip_parameter_name)(const std::string &, std::size_t, std::size_t *),
+																 void (*skip_parameter_value)(const std::string &, std::size_t, std::size_t *),
+																 bool skip_bws = false);
 
 Result<int, int> validate_http_date(date_format format,
 									const std::string &day_name,

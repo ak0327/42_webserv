@@ -913,5 +913,20 @@ bool is_valid_parameters(const std::map<std::string, std::string> &parameters) {
 	return true;
 }
 
+bool is_parameter_weight(const std::string &parameter_name,
+						 const std::string &parameter_value) {
+	bool succeed;
+
+	if (parameter_name != "q") {
+		return false;
+	}
+	HttpMessageParser::to_floating_num(parameter_value, 3, &succeed);
+	return succeed;
+}
+
+bool is_parameter_weight(const std::string &parameter_name) {
+	return parameter_name == "q";
+}
+
 
 }  // namespace HttpMessageParser

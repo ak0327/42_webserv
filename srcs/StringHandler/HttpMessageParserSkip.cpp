@@ -427,7 +427,7 @@ void skip_language_tag(const std::string &str,
 
 void skip_ows(const std::string &str, std::size_t *pos) {
 	if (!pos) { return; }
-	if (str.empty() || str.length() < *pos) {
+	if (str.empty() || str.length() <= *pos) {
 		return;
 	}
 
@@ -467,10 +467,34 @@ void skip_pct_encoded(const std::string &str,
 }
 
 // todo:test
+void skip_token_or_quoted_string(const std::string &field_value,
+								 std::size_t start_pos,
+								 std::size_t *end_pos) {
+	std::size_t end;
+
+	if (!end_pos) {
+		return;
+	}
+	*end_pos = start_pos;
+	if (field_value.empty() || field_value.length() <= start_pos) {
+		return;
+	}
+
+	end = start_pos;
+	if (HttpMessageParser::is_tchar(field_value[start_pos])) {
+		skip_token(field_value, start_pos, &end);
+	} else if (field_value[start_pos] == '"') {
+		HttpMessageParser::skip_quoted_string(field_value, start_pos, &end);
+	}
+	*end_pos = end;
+}
+
+// todo:test
 void skip_token(const std::string &str,
 				std::size_t start_pos,
 				std::size_t *end_pos) {
 	std::size_t pos;
+
 	if (!end_pos) {
 		return;
 	}

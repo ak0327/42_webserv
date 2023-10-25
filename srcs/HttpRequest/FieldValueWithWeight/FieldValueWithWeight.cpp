@@ -1,3 +1,4 @@
+#include "Color.hpp"
 #include "Constant.hpp"
 #include "FieldValueWithWeight.hpp"
 #include "HttpMessageParser.hpp"
@@ -28,7 +29,10 @@ Result<double, int> parse_weight(const std::string &field_value,
 	}
 	parse_result = HttpMessageParser::parse_parameter(field_value,
 													  start_pos, &end,
-													  &key, &value);
+													  &key, &value,
+													  HttpMessageParser::skip_token,
+													  HttpMessageParser::skip_token);
+
 	if (parse_result.is_err()) {
 		return Result<double, int>::err(ERR);
 	}

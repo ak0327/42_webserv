@@ -53,6 +53,7 @@ parse_and_validate_media_range_with_weight_set(const std::string &field_value) {
 	Result<double, int> weight_result;
 	Result<std::size_t, int> skip_result;
 
+
 	if (field_value.empty()) {
 		return Result<std::set<FieldValueWithWeight>, int>::err(ERR);
 	}

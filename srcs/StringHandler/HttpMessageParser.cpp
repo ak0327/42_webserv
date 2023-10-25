@@ -41,21 +41,6 @@ double get_fractional_part(const std::string &str_after_decimal_point,
 	return num;
 }
 
-// bool is_parameter_weight(const std::string &parameter_name,
-// 						 const std::string &parameter_value) {
-// 	bool succeed;
-//
-// 	if (parameter_name != "q") {
-// 		return false;
-// 	}
-// 	HttpMessageParser::to_floating_num(parameter_value, 3, &succeed);
-// 	return succeed;
-// }
-
-bool is_parameter_weight(const std::string &parameter_name) {
-	return parameter_name == "q";
-}
-
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -256,13 +241,17 @@ Result<std::string, int> parse_port(const std::string &field_value,
  parameter = parameter-name "=" parameter-value
  parameter-name = token
  parameter-value = ( token / quoted-string )
+ parameter-value BWS = BWS ( token / quoted-string )
  */
 // todo:test
 Result<int, int> parse_parameter(const std::string &field_value,
 								 std::size_t start_pos,
 								 std::size_t *end_pos,
 								 std::string *parameter_name,
-								 std::string *parameter_value) {
+								 std::string *parameter_value,
+								 void (*skip_parameter_name)(const std::string &, std::size_t, std::size_t *),
+								 void (*skip_parameter_value)(const std::string &, std::size_t, std::size_t *),
+								 bool skip_bws) {
 	std::size_t pos, end, len;
 	Result<std::string, int> parse_name_result;
 
@@ -270,19 +259,25 @@ Result<int, int> parse_parameter(const std::string &field_value,
 		return Result<int, int>::err(ERR);
 	}
 	*end_pos = start_pos;
-	if (field_value.empty() || field_value.length() < start_pos) {
+	if (field_value.empty() || field_value.length() <= start_pos) {
 		return Result<int, int>::err(ERR);
 	}
 
 	// parameter-name
 	pos = start_pos;
-	skip_token(field_value, pos, &end);
+
+	skip_parameter_name(field_value, pos, &end);
 	if (pos == end) {
 		return Result<int, int>::err(ERR);
 	}
 	len = end - pos;
+
 	*parameter_name = field_value.substr(pos, len);
 	pos += len;
+
+	if (skip_bws) {
+		skip_ows(field_value, &pos);
+	}
 
 	// =
 	if (field_value[pos] != '=') {
@@ -290,26 +285,19 @@ Result<int, int> parse_parameter(const std::string &field_value,
 	}
 	++pos;
 
-	// parameter-value
-	len = 0;
-	if (HttpMessageParser::is_tchar(field_value[pos])) {
-		while (field_value[pos + len] && HttpMessageParser::is_tchar(field_value[pos + len])) {
-			++len;
-		}
-	} else if (field_value[pos] == '"') {
-		HttpMessageParser::skip_quoted_string(field_value, pos, &end);
-		if (pos == end) {
-			return Result<int, int>::err(ERR);
-		}
-		len = end - pos;
-	} else {
-		return Result<int, int>::err(ERR);
+	if (skip_bws) {
+		skip_ows(field_value, &pos);
 	}
 
-	if (len == 0) {
+	// parameter-value
+	skip_parameter_value(field_value, pos, &end);
+	if (pos == end) {
 		return Result<int, int>::err(ERR);
 	}
+	len = end - pos;
+
 	*parameter_value = field_value.substr(pos, len);
+
 	*end_pos = pos + len;
 	return Result<int, int>::ok(OK);
 }
@@ -323,7 +311,10 @@ Result<int, int> parse_parameter(const std::string &field_value,
 // todo:test
 Result<std::map<std::string, std::string>, int> parse_parameters(const std::string &field_value,
 																 std::size_t start_pos,
-																 std::size_t *end_pos) {
+																 std::size_t *end_pos,
+																 void (*skip_parameter_name)(const std::string &, std::size_t, std::size_t *),
+																 void (*skip_parameter_value)(const std::string &, std::size_t, std::size_t *),
+																 bool skip_bws) {
 	std::size_t pos, end, tmp_pos;
 	std::map<std::string, std::string> parameters;
 	std::string parameter_name, parameter_value;
@@ -352,11 +343,14 @@ Result<std::map<std::string, std::string>, int> parse_parameters(const std::stri
 
 		parse_result = parse_parameter(field_value, tmp_pos, &end,
 									   &parameter_name,
-									   &parameter_value);
+									   &parameter_value,
+									   skip_parameter_name,
+									   skip_parameter_value,
+									   skip_bws);
 		if (parse_result.is_err()) {
 			return Result<std::map<std::string, std::string>, int>::err(ERR);
 		}
-		if (is_parameter_weight(parameter_name)) {
+		if (HttpMessageParser::is_parameter_weight(parameter_name)) {
 			break;
 		}
 		pos = end;
@@ -451,7 +445,10 @@ Result<int, int> parse_madia_type(const std::string &field_value,
 	*subtype = subtype_result.get_ok_value();
 	pos = end;
 
-	parameters_result = HttpMessageParser::parse_parameters(field_value, pos, &end);
+	parameters_result = HttpMessageParser::parse_parameters(field_value,
+															pos, &end,
+															skip_token,
+															skip_token_or_quoted_string);
 	if (parameters_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}
