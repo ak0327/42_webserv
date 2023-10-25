@@ -1285,6 +1285,79 @@ TEST(TestHttpMessageParser, IsAuthority) {
 	EXPECT_FALSE(HttpMessageParser::is_authority("localhost:8080:"));
 }
 
+TEST(TestHttpMessageParser, IsAtext) {
+	EXPECT_TRUE(HttpMessageParser::is_atext('0'));
+	EXPECT_TRUE(HttpMessageParser::is_atext('9'));
+	EXPECT_TRUE(HttpMessageParser::is_atext('a'));
+	EXPECT_TRUE(HttpMessageParser::is_atext('z'));
+	EXPECT_TRUE(HttpMessageParser::is_atext('!'));
+	EXPECT_TRUE(HttpMessageParser::is_atext('#'));
+	EXPECT_TRUE(HttpMessageParser::is_atext('$'));
+	EXPECT_TRUE(HttpMessageParser::is_atext('%'));
+	EXPECT_TRUE(HttpMessageParser::is_atext('&'));
+	EXPECT_TRUE(HttpMessageParser::is_atext('\''));
+	EXPECT_TRUE(HttpMessageParser::is_atext('*'));
+	EXPECT_TRUE(HttpMessageParser::is_atext('+'));
+	EXPECT_TRUE(HttpMessageParser::is_atext('-'));
+	EXPECT_TRUE(HttpMessageParser::is_atext('/'));
+	EXPECT_TRUE(HttpMessageParser::is_atext('='));
+	EXPECT_TRUE(HttpMessageParser::is_atext('?'));
+	EXPECT_TRUE(HttpMessageParser::is_atext('^'));
+	EXPECT_TRUE(HttpMessageParser::is_atext('_'));
+	EXPECT_TRUE(HttpMessageParser::is_atext('`'));
+	EXPECT_TRUE(HttpMessageParser::is_atext('{'));
+	EXPECT_TRUE(HttpMessageParser::is_atext('|'));
+	EXPECT_TRUE(HttpMessageParser::is_atext('}'));
+	EXPECT_TRUE(HttpMessageParser::is_atext('~'));
+
+	EXPECT_FALSE(HttpMessageParser::is_atext('\0'));
+	EXPECT_FALSE(HttpMessageParser::is_atext('\\'));
+	EXPECT_FALSE(HttpMessageParser::is_atext(' '));
+	EXPECT_FALSE(HttpMessageParser::is_atext('\t'));
+	EXPECT_FALSE(HttpMessageParser::is_atext('\r'));
+	EXPECT_FALSE(HttpMessageParser::is_atext('\n'));
+	EXPECT_FALSE(HttpMessageParser::is_atext('('));
+	EXPECT_FALSE(HttpMessageParser::is_atext(')'));
+	EXPECT_FALSE(HttpMessageParser::is_atext('['));
+	EXPECT_FALSE(HttpMessageParser::is_atext(']'));
+	EXPECT_FALSE(HttpMessageParser::is_atext('"'));
+}
+
+TEST(TestHttpMessageParser, IsAtom) {
+	EXPECT_TRUE(HttpMessageParser::is_atom("abc012!#$%&'*+-/=?^_`{|}~"));
+	EXPECT_TRUE(HttpMessageParser::is_atom("a"));
+
+	EXPECT_FALSE(HttpMessageParser::is_atom(""));
+	EXPECT_FALSE(HttpMessageParser::is_atom("(aaa)"));
+	EXPECT_FALSE(HttpMessageParser::is_atom("!#$%&'*+-/=?^_`{|}~\t "));
+	EXPECT_FALSE(HttpMessageParser::is_atom("  "));
+	EXPECT_FALSE(HttpMessageParser::is_atom("\0aa\0"));
+}
+
+TEST(TestHttpMessageParser, IsDtext) {
+	EXPECT_TRUE(HttpMessageParser::is_dtext('a'));
+	EXPECT_TRUE(HttpMessageParser::is_dtext('b'));
+	EXPECT_TRUE(HttpMessageParser::is_dtext('['));
+	EXPECT_TRUE(HttpMessageParser::is_dtext(']'));
+	EXPECT_TRUE(HttpMessageParser::is_dtext('\\'));
+
+	EXPECT_FALSE(HttpMessageParser::is_dtext('\0'));
+	EXPECT_FALSE(HttpMessageParser::is_dtext(' '));
+	EXPECT_FALSE(HttpMessageParser::is_dtext('\n'));
+}
+
+//TEST(TestHttpMessageParser, ) {
+//	EXPECT_TRUE(HttpMessageParser::);
+//
+//	EXPECT_FALSE(HttpMessageParser::);
+//}
+
+//TEST(TestHttpMessageParser, ) {
+//	EXPECT_TRUE(HttpMessageParser::);
+//
+//	EXPECT_FALSE(HttpMessageParser::);
+//}
+
 //TEST(TestHttpMessageParser, ) {
 //	EXPECT_TRUE(HttpMessageParser::);
 //

@@ -1819,16 +1819,564 @@ TEST(TestHttpMessageParser, SkipAbsoluteURI) {
 	EXPECT_EQ(pos, end);
 }
 
-// TEST(TestHttpMessageParser, ) {
-// 	std::size_t pos, end;
-// 	std::string str;
-//
-// 	str = "";
-// 	//     012345678901234567890
-// 	pos = 0;
-// 	HttpMessageParser::skip_(str, pos, &end);
-// 	EXPECT_EQ(str.length(), end);
-// }
+TEST(TestHttpMessageParser, SkipAtom) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "abc012!#$%&'*+-/=?^_`{|}~";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_atom(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "abc 012";
+	//        ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_atom(str, pos, &end);
+	EXPECT_EQ(3, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_atom(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "\\";
+	//     012345678901234567890
+	pos = 100;
+	HttpMessageParser::skip_atom(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+}
+
+TEST(TestHttpMessageParser, SkipWord) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "abc012!#$%&";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_word(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "\"abc  123\"";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_word(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "\"abc\"abc";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_word(str, pos, &end);
+	EXPECT_EQ(5, end);
+
+	str = "abc\"abc\"";
+	//        ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_word(str, pos, &end);
+	EXPECT_EQ(3, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 10;
+	HttpMessageParser::skip_word(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_word(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "\"\"";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_word(str, pos, &end);
+	EXPECT_EQ(0, end);
+
+	str = "\" \"";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_word(str, pos, &end);
+	EXPECT_EQ(3, end);
+
+	str = "      ";
+	//     012345678901234567890
+	pos = 2;
+	HttpMessageParser::skip_word(str, pos, &end);
+	EXPECT_EQ(pos, end);
+}
+
+TEST(TestHttpMessageParser, SkipDomainLiteral) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "[]";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_domain_literal(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "[aaa]";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_domain_literal(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "[[[[]]";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_domain_literal(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "[";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_domain_literal(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_domain_literal(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 10;
+	HttpMessageParser::skip_domain_literal(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "]]]][aaa]";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_domain_literal(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "[[[[[";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_domain_literal(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "[aaa";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_domain_literal(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "]";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_domain_literal(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "[aaa]bbb";
+	//          ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_domain_literal(str, pos, &end);
+	EXPECT_EQ(5, end);
+
+	str = "[aaa].b";
+	//          &end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_domain_literal(str, pos, &end);
+	EXPECT_EQ(5, end);
+}
+
+TEST(TestHttpMessageParser, SkipDomain) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "aaa.bbb.ccc";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_domain(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "[aaa]";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_domain(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "aaa[bbb].ccc";
+	//        ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_domain(str, pos, &end);
+	EXPECT_EQ(3, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_domain(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 10;
+	HttpMessageParser::skip_domain(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "aaa.";
+	//        ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_domain(str, pos, &end);
+	EXPECT_EQ(3, end);
+
+	str = "aaa.bbb";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_domain(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "aaa..bbb";
+	//        ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_domain(str, pos, &end);
+	EXPECT_EQ(3, end);
+
+}
+
+TEST(TestHttpMessageParser, SkipDotAtomText) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "aaa";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_dot_atm_text(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "aaa.bbb";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_dot_atm_text(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "aaa.";
+	//        ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_dot_atm_text(str, pos, &end);
+	EXPECT_EQ(3, end);
+
+	str = "aaa...";
+	//        ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_dot_atm_text(str, pos, &end);
+	EXPECT_EQ(3, end);
+
+	str = "aaa[bbb]";
+	//        ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_dot_atm_text(str, pos, &end);
+	EXPECT_EQ(3, end);
+}
+
+TEST(TestHttpMessageParser, SkipObsLocalPart) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "aaa";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_obs_local_part(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "\"aaa\"";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_obs_local_part(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "\"aaa\"aaa";
+	//            ^end
+	//      0123 45678901234567890
+	pos = 0;
+	HttpMessageParser::skip_obs_local_part(str, pos, &end);
+	EXPECT_EQ(5, end);
+
+	str = "aaa.bbb.ccc.012";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_obs_local_part(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "aaa.";
+	//        ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_obs_local_part(str, pos, &end);
+	EXPECT_EQ(3, end);
+
+	str = "aaa..";
+	//        ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_obs_local_part(str, pos, &end);
+	EXPECT_EQ(3, end);
+
+	str = "aaa ";
+	//        ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_obs_local_part(str, pos, &end);
+	EXPECT_EQ(3, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_obs_local_part(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 1;
+	HttpMessageParser::skip_obs_local_part(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 2;
+	HttpMessageParser::skip_obs_local_part(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 10;
+	HttpMessageParser::skip_obs_local_part(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+}
+
+TEST(TestHttpMessageParser, SkipLocalPart) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "aaa";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_local_part(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "aaa.bbb.ccc";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_local_part(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "\"aaa\"";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_local_part(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "aaa\"bbb\".ccc";
+	//        ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_local_part(str, pos, &end);
+	EXPECT_EQ(3, end);
+
+}
+
+TEST(TestHttpMessageParser, SkipAddrSpec) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "aaa@bbb";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_addr_spec(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "aaa@bbb.cc.dd";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_addr_spec(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "[aaa]@bbb";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_addr_spec(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "aaa@[bbb]";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_addr_spec(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "aaa@[bbb.cc.dd]";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_addr_spec(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "aaa@[]";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_addr_spec(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "aaa@[.......]";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_addr_spec(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "aa@[d]";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_addr_spec(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "aa@[d].e";
+	//           ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_addr_spec(str, pos, &end);
+	EXPECT_EQ(6, end);
+
+
+	str = "aaa@@bbb";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_addr_spec(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "@";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_addr_spec(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_addr_spec(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 10;
+	HttpMessageParser::skip_addr_spec(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "[aaa@bbb.cc";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_addr_spec(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "[aaa@@bbb]@bb";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_addr_spec(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "aa..bb@cc";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_addr_spec(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "aaa@";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_addr_spec(str, pos, &end);
+	EXPECT_EQ(pos, end);
+}
+
+TEST(TestHttpMessageParser, SkipMailBox) {
+	std::size_t pos, end;
+	std::string str;
+
+	// name-addr
+
+	// addr-spec
+	str = "aaa.bbb@cc.d";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_mailbox(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "aaa.bbb@[cc.d]";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_mailbox(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "aaa.bbb@cc.d";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_mailbox(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_mailbox(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 10;
+	HttpMessageParser::skip_mailbox(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "aa@";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_mailbox(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "aa@";
+	//     012345678901234567890
+	pos = 10;
+	HttpMessageParser::skip_mailbox(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "aa@bb.cc[d].e";
+	//             ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_mailbox(str, pos, &end);
+	EXPECT_EQ(8,  end);
+
+	str = "aa@bb.cc.[d].e";
+	//             ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_mailbox(str, pos, &end);
+	EXPECT_EQ(8, end);
+
+	str = "aa@[d].e";
+	//           ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_mailbox(str, pos, &end);
+	EXPECT_EQ(6, end);
+
+	str = "aa@[]";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_mailbox(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+}
 
 // TEST(TestHttpMessageParser, ) {
 // 	std::size_t pos, end;

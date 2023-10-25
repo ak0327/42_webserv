@@ -228,6 +228,7 @@ set (unit_test_srcs
         test/unit_test/SingleFieldValue/TestContentLength.cpp
         test/unit_test/SingleFieldValue/TestContentLocation.cpp
         test/unit_test/SingleFieldValue/TestExpect.cpp
+        test/unit_test/SingleFieldValue/TestFrom.cpp
         test/unit_test/SingleFieldValue/TestMaxForwards.cpp
         test/unit_test/SingleFieldValue/TestReferer.cpp
         test/unit_test/SingleFieldValue/TestSecFetchDest.cpp

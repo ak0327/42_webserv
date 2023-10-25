@@ -38,6 +38,8 @@ bool is_obs_text(char c);
 bool is_tchar(char c);
 bool is_ctext(char c);
 bool is_whitespace(char c);
+bool is_dtext(char c);
+bool is_obs_dtext(char c);
 bool is_qdtext(char c);
 bool is_hexdig(char c);
 bool is_attr_char(char c);
@@ -45,6 +47,7 @@ bool is_singleton(char c);
 bool is_etag(char c);
 bool is_unreserved(char c);
 bool is_sub_delims(char c);
+bool is_atext(char c);
 
 bool is_field_content(const std::string &str);
 bool is_token(const std::string &str);
@@ -94,7 +97,8 @@ bool is_path_noscheme(const std::string &str);
 bool is_path_rootless(const std::string &str);
 bool is_userinfo(const std::string &str);
 bool is_authority(const std::string &str);
-
+bool is_mailbox(const std::string &str);
+bool is_atom(const std::string &str);
 
 bool is_path_empty(const std::string &str, std::size_t start_pos);
 
@@ -301,6 +305,47 @@ void skip_relative_part(const std::string &str,
 void skip_hier_part(const std::string &str,
 					std::size_t start_pos,
 					std::size_t *end_pos);
+
+void skip_mailbox(const std::string &str,
+				  std::size_t start_pos,
+				  std::size_t *end_pos);
+
+void skip_atom(const std::string &str,
+			   std::size_t start_pos,
+			   std::size_t *end_pos);
+
+void skip_word(const std::string &str,
+			   std::size_t start_pos,
+			   std::size_t *end_pos);
+
+void skip_dot_atm_text(const std::string &str,
+					   std::size_t start_pos,
+					   std::size_t *end_pos);
+
+void skip_dot_atom(const std::string &str,
+				   std::size_t start_pos,
+				   std::size_t *end_pos);
+
+void skip_domain_literal(const std::string &str,
+						 std::size_t start_pos,
+						 std::size_t *end_pos);
+
+void skip_domain(const std::string &str,
+				 std::size_t start_pos,
+				 std::size_t *end_pos);
+
+void skip_obs_local_part(const std::string &str,
+						 std::size_t start_pos,
+						 std::size_t *end_pos);
+
+void skip_local_part(const std::string &str,
+					 std::size_t start_pos,
+					 std::size_t *end_pos);
+
+void skip_addr_spec(const std::string &str,
+					std::size_t start_pos,
+					std::size_t *end_pos);
+
 ////////////////////////////////////////////////////////////////////////////////
 
 Result<std::size_t, int> get_double_colon_pos(const std::string &str,
@@ -365,5 +410,6 @@ Result<int, int> validate_http_date(date_format format,
 Result<std::size_t, int> skip_ows_delimiter_ows(const std::string &field_value,
 												char delimiter,
 												std::size_t start_pos);
+
 
 }  // namespace HttpMessageParser

@@ -1522,4 +1522,334 @@ Result<std::size_t, int> skip_ows_delimiter_ows(const std::string &field_value,
 }
 
 
+// domain-literal = [CFWS] "[" *([FWS] dtext) [FWS] "]" [CFWS]
+//               -> "[" *(dtext) "]"
+// dtext includes ']'
+void skip_domain_literal(const std::string &str,
+						 std::size_t start_pos,
+						 std::size_t *end_pos) {
+	std::size_t pos, len, last_right_bracket;
+
+	if (!end_pos) {
+		return;
+	}
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) {
+		return;
+	}
+	pos = start_pos;
+	if (str[pos] != '[') {
+		return;
+	}
+	++pos;
+
+	len = 0;
+	last_right_bracket = start_pos;
+	while (str[pos + len] && is_dtext(str[pos + len])) {
+		if (str[pos + len] == ']') {
+			last_right_bracket = pos + len;
+		}
+		++len;
+	}
+	if (1 <= len
+		&& last_right_bracket != start_pos
+		&& str[last_right_bracket]) {
+		*end_pos = last_right_bracket + 1;
+	}
+}
+
+/*
+ domain          =   dot-atom / domain-literal / obs-domain
+ obs-domain      =   atom *("." atom)
+ */
+void skip_domain(const std::string &str,
+				 std::size_t start_pos,
+				 std::size_t *end_pos) {
+	std::size_t pos, end;
+
+	if (!end_pos) {
+		return;
+	}
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) {
+		return;
+	}
+	pos = start_pos;
+	end = pos;
+	if (is_atext(str[pos])) {
+		// std::cout << CYAN << "1 atext &str[pos]:[" << &str[pos] << "]" << RESET << std::endl;
+		skip_dot_atom(str, pos, &end);
+	} else if (str[pos] == '[') {
+		// std::cout << CYAN << "1 domain &str[pos]:[" << &str[pos] << "]" << RESET << std::endl;
+		skip_domain_literal(str, pos, &end);
+	}
+	if (pos == end) {
+		return;
+	}
+	// std::cout << CYAN << "2 &str[pos]:[" << &str[pos] << "]" << RESET << std::endl;
+	*end_pos = end;
+}
+
+void skip_dot_atom(const std::string &str,
+				   std::size_t start_pos,
+				   std::size_t *end_pos) {
+	skip_dot_atm_text(str, start_pos, end_pos);
+}
+
+// obs-domain = atom *("." atom)
+void skip_obs_domain(const std::string &str,
+					 std::size_t start_pos,
+					 std::size_t *end_pos) {
+	skip_dot_atm_text(str, start_pos, end_pos);
+}
+
+
+//  ot-atom-text = 1*atext *("." 1*atext)
+void skip_dot_atm_text(const std::string &str,
+					   std::size_t start_pos,
+					   std::size_t *end_pos) {
+	std::size_t pos, end;
+
+	if (!end_pos) {
+		return;
+	}
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) {
+		return;
+	}
+	pos = start_pos;
+
+	skip_atom(str, pos, &end);
+	if (pos == end) {
+		return;
+	}
+	pos = end;
+	while (str[pos]) {
+		if (str[pos] != '.') {
+			break;
+		}
+		skip_atom(str, pos + 1, &end);
+		if (pos + 1 == end) {
+			break;
+		}
+		pos = end;
+	}
+	*end_pos = pos;
+}
+
+// obs-local-part = word *("." word)
+void skip_obs_local_part(const std::string &str,
+						 std::size_t start_pos,
+						 std::size_t *end_pos) {
+	std::size_t pos, end;
+
+	if (!end_pos) {
+		return;
+	}
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) {
+		return;
+	}
+	pos = start_pos;
+
+	skip_word(str, pos, &end);
+	if (pos == end) {
+		return;
+	}
+	pos = end;
+	while (str[pos]) {
+		if (str[pos] != '.') {
+			break;
+		}
+		skip_word(str, pos + 1, &end);
+		if (pos + 1 == end) {
+			break;
+		}
+		pos = end;
+	}
+	*end_pos = pos;
+}
+
+/*
+ local-part      =   dot-atom / quoted-string / obs-local-part
+
+ dot-atom        =   [CFWS] dot-atom-text [CFWS] -> dot-atom-text
+ dot-atom-text   =   1*atext *("." 1*atext)
+ obs-local-part  =   word *("." word)
+
+ word = atom / quoted-string ->  quoted-string ⊆ obs-local-part
+ */
+void skip_local_part(const std::string &str,
+					 std::size_t start_pos,
+					 std::size_t *end_pos) {
+	std::size_t pos, end;
+
+	if (!end_pos) {
+		return;
+	}
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) {
+		return;
+	}
+	pos = start_pos;
+
+	skip_obs_local_part(str, pos, &end);
+	if (pos == end) {
+		return;
+	}
+	*end_pos = end;
+}
+
+// addr-spec       =   local-part "@" domain
+// todo: test
+void skip_addr_spec(const std::string &str,
+					std::size_t start_pos,
+					std::size_t *end_pos) {
+	std::size_t pos, end;
+
+	if (!end_pos) {
+		return;
+	}
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) {
+		return;
+	}
+	pos = start_pos;
+	skip_local_part(str, pos, &end);
+	if (pos == end) {
+		return;
+	}
+	pos = end;
+	if (str[pos] != '@') {
+		return;
+	}
+	++pos;
+
+	skip_domain(str, pos, &end);
+	if (pos == end) {
+		return;
+	}
+
+	*end_pos = end;
+}
+
+/*
+ mailbox         =   name-addr / addr-spec
+
+ name-addr       =   [display-name] angle-addr
+ display-name    =   phrase
+ phrase          =   1*word / obs-phrase
+ word            =   atom / quoted-string
+ atom            =   [CFWS] 1*atext [CFWS]
+ atext           =   ALPHA / DIGIT /    ; Printable US-ASCII
+                     "!" / "#" /        ;  characters not including
+                     "$" / "%" /        ;  specials.  Used for atoms.
+                     "&" / "'" /
+                     "*" / "+" /
+                     "-" / "/" /
+                     "=" / "?" /
+                     "^" / "_" /
+                     "`" / "{" /
+                     "|" / "}" /
+                     "~"
+
+ obs-phrase      =   word *(word / "." / CFWS)
+ CFWS            =   (1*([FWS] comment) [FWS]) / FWS
+ comment         =   "(" *([FWS] ccontent) [FWS] ")"
+ ccontent        =   ctext / quoted-pair / comment
+ FWS             =   ([*WSP CRLF] 1*WSP) / obs-FWS
+                     ; Folding white space
+ obs-FWS         =   1*WSP *(CRLF 1*WSP)
+
+ angle-addr      =   [CFWS] "<" addr-spec ">" [CFWS] /
+                     obs-angle-addr
+
+ addr-spec       =   local-part "@" domain
+ local-part      =   dot-atom / quoted-string / obs-local-part
+
+ dot-atom        =   [CFWS] dot-atom-text [CFWS]
+ dot-atom-text   =   1*atext *("." 1*atext)
+ obs-local-part  =   word *("." word)
+
+ domain          =   dot-atom / domain-literal / obs-domain
+ domain-literal  =   [CFWS] "[" *([FWS] dtext) [FWS] "]" [CFWS]
+ dtext           =   %d33-90 /          ; Printable US-ASCII
+                     %d94-126 /         ;  characters not including
+                     obs-dtext          ;  "[", "]", or "\"
+
+ obs-domain      =   atom *("." atom)
+
+ obs-angle-addr  =   [CFWS] "<" obs-route addr-spec ">" [CFWS]
+ obs-route       =   obs-domain-list ":"
+ obs-domain-list =   *(CFWS / ",") "@" domain
+                     *("," [CFWS] ["@" domain])
+
+ https://www.rfc-editor.org/rfc/rfc5322#section-3.4
+ */
+// todo: name_addr
+void skip_mailbox(const std::string &str,
+				  std::size_t start_pos,
+				  std::size_t *end_pos) {
+	std::size_t end;
+
+	if (!end_pos) {
+		return;
+	}
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) {
+		return;
+	}
+	skip_addr_spec(str, start_pos, &end);
+	if (start_pos == end) {
+		return;
+	}
+	*end_pos = end;
+}
+
+void skip_atom(const std::string &str,
+			   std::size_t start_pos,
+			   std::size_t *end_pos) {
+	std::size_t pos;
+
+	if (!end_pos) {
+		return;
+	}
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) {
+		return;
+	}
+	pos = start_pos;
+	while (str[pos] && is_atext(str[pos])) {
+		++pos;
+	}
+	*end_pos = pos;
+}
+
+// word = atom / quoted-string
+void skip_word(const std::string &str,
+			   std::size_t start_pos,
+			   std::size_t *end_pos) {
+	std::size_t pos, end;
+
+	if (!end_pos) {
+		return;
+	}
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) {
+		return;
+	}
+	pos = start_pos;
+	end = pos;
+	if (is_atext(str[pos])) {
+		skip_atom(str, pos, &end);
+	} else if (str[pos] == '"') {
+		skip_quoted_string(str, pos, &end);
+	}
+	if (pos == end) {
+		return;
+	}
+	*end_pos = end;
+}
+
+
 }  // namespace HttpMessageParser

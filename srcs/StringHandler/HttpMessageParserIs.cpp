@@ -419,6 +419,27 @@ bool is_entity_tag(const std::string &str) {
 	return is_opaque_tag(&str[pos]);
 }
 
+/*
+ dtext           =   %d33-90 /          ; Printable US-ASCII
+                     %d94-126 /         ;  characters not including
+                     obs-dtext          ;  "[", "]", or "\"
+ */
+bool is_obs_dtext(char c) {
+	return (c == '[' || c == ']' || c == '\\');
+}
+
+bool is_dtext(char c) {
+	if (33 <= c && c <= 90) {
+		return true;
+	}
+	if (94 <= c && c <= 126) {
+		return true;
+	}
+	if (is_obs_dtext(c)) {
+		return true;
+	}
+	return false;
+}
 
 bool is_qdtext(char c) {
 	if (c == HT || c == SP || c == 0x21) {
@@ -926,6 +947,49 @@ bool is_parameter_weight(const std::string &parameter_name,
 
 bool is_parameter_weight(const std::string &parameter_name) {
 	return parameter_name == "q";
+}
+
+bool is_mailbox(const std::string &str) {
+	std::size_t end;
+
+	if (str.empty()) {
+		return false;
+	}
+	skip_mailbox(str, 0, &end);
+	return str[end] == '\0';
+}
+
+/*
+ atext           =   ALPHA / DIGIT /    ; Printable US-ASCII
+                     "!" / "#" /        ;  characters not including
+                     "$" / "%" /        ;  specials.  Used for atoms.
+                     "&" / "'" /
+                     "*" / "+" /
+                     "-" / "/" /
+                     "=" / "?" /
+                     "^" / "_" /
+                     "`" / "{" /
+                     "|" / "}" /
+                     "~"
+ */
+bool is_atext(char c) {
+	const std::string atext_except_alnum = "!#$%&'*+-/=?^_`{|}~";
+
+	if (std::isalnum(c)) {
+		return true;
+	}
+	return (atext_except_alnum.find(c) != std::string::npos);
+}
+
+// atom = [CFWS] 1*atext [CFWS] -> 1*atext
+bool is_atom(const std::string &str) {
+	std::size_t end;
+
+	if (str.empty()) {
+		return false;
+	}
+	skip_atom(str, 0, &end);
+	return str[end] == '\0';
 }
 
 
