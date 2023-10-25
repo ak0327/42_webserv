@@ -317,7 +317,7 @@ void HttpRequest::init_field_name_parser() {
 
 	map[std::string(ACCEPT)] = &HttpRequest::set_accept;
 	map[std::string(ACCEPT_ENCODING)] = &HttpRequest::set_accept_encoding;
-	map[std::string(ACCEPT_LANGUAGE)] = &HttpRequest::set_accept_language;  // todo: Accept-Language
+	map[std::string(ACCEPT_LANGUAGE)] = &HttpRequest::set_accept_language;
 	map[std::string(ACCESS_CONTROL_REQUEST_HEADERS)] = &HttpRequest::set_access_control_request_headers;
 	map[std::string(ACCESS_CONTROL_REQUEST_METHOD)] = &HttpRequest::set_access_control_request_method;
 	map[std::string(ALT_USED)] = &HttpRequest::set_alt_used;
@@ -355,7 +355,7 @@ void HttpRequest::init_field_name_parser() {
 	map[std::string(SEC_FETCH_USER)] = &HttpRequest::set_sec_fetch_user;
 	map[std::string(SEC_PURPOSE)] = &HttpRequest::set_sec_purpose;
 	map[std::string(SERVICE_WORKER_NAVIGATION_PRELOAD)] = &HttpRequest::set_service_worker_navigation_preload;
-	map[std::string(TE)] = &HttpRequest::set_te;  // todo: TE
+	map[std::string(TE)] = &HttpRequest::set_te;
 	map[std::string(TRAILER)] = &HttpRequest::set_trailer;
 	map[std::string(TRANSFER_ENCODING)] = &HttpRequest::set_transfer_encoding;
 	map[std::string(UPGRADE)] = &HttpRequest::set_upgrade;

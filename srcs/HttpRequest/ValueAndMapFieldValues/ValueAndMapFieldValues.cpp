@@ -1,3 +1,5 @@
+#include <iostream>
+#include "Color.hpp"
 #include "Constant.hpp"
 #include "HttpMessageParser.hpp"
 #include "Result.hpp"
@@ -54,6 +56,7 @@ parse_value_and_map_values(const std::string &field_value,
 	Result<std::map<std::string, std::string>, int> map_values_result;
 	std::size_t pos, end;
 
+
 	if (!end_pos || !value || !map_values || !parse_value_func || !parse_map_values) {
 		return Result<int, int>::err(ERR);
 	}
@@ -72,12 +75,15 @@ parse_value_and_map_values(const std::string &field_value,
 	pos = end;
 	*end_pos = pos;
 
-	if (field_value[pos] == '\0') {
+	if (field_value[pos] != ';') {
 		return Result<int, int>::ok(OK);
 	}
-	if (field_value[pos] != ';') {
-		return Result<int, int>::err(ERR);
-	}
+	// if (field_value[pos] == '\0') {
+	// 	return Result<int, int>::ok(OK);
+	// }
+	// if (field_value[pos] != ';') {
+	// 	return Result<int, int>::err(ERR);
+	// }
 
 	map_values_result = parse_map_values(field_value, pos, &end);
 	if (map_values_result.is_err()) {
