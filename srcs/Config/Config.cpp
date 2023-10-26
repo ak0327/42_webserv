@@ -32,10 +32,10 @@ int	Config::server_block_action(const std::string	&config_line, \
 						std::vector<std::string>	*field_headers, \
 			std::vector<std::vector<std::string> >	*server_name_list)
 {
-	if (IsConfigFormat::is_start_location_block(config_line))
+	if (IsConfigFormat::is_start_location_block(config_line) == IS_OK)
 	{
 		*in_location_block = true;
-		return IS_OK_START_SERVER_BLOCK;
+		return IS_OK_START_LOCATION_BLOCK;
 	}
 	if (ConfigHandlingString::is_block_end(config_line))
 	{
@@ -44,14 +44,15 @@ int	Config::server_block_action(const std::string	&config_line, \
 		init_server_config_and_allconfigs(Configs, server_config, field_headers);
 		return IS_OK_BLOCK_END;
 	}
-	if (IsConfigFormat::is_server_block_format(config_line, *field_headers))
+	int action_result = IsConfigFormat::is_server_block_format(config_line, *field_headers);
+	if (action_result == IS_OK)
 	{
-		bool	done_input_action = IsConfigFormat::do_input_field_key_field_value(config_line, server_config, field_headers);
-		if (done_input_action == false)
-			return (IS_ALREADY_EXIST_FIELD_KEY);
-		return IS_OK_IN_SERVER_BLOCK;
+		int	done_input_action = IsConfigFormat::do_input_field_key_field_value(config_line, server_config, field_headers);
+		if (done_input_action == IS_OK)
+			return IS_OK_IN_SERVER_BLOCK;
+		return (IS_ALREADY_EXIST_FIELD_KEY);
 	}
-	return (IS_NOT_SERVER_CONFIG_FORMAT);
+	return (action_result);
 }
 
 bool	Config::ready_server_config(const std::string &config_file_name, \
@@ -68,13 +69,14 @@ bool	Config::ready_server_config(const std::string &config_file_name, \
 
 	while (std::getline(config_lines, config_line, '\n'))
 	{
+		// std::cout << config_line << std::endl;
 		if ((ConfigHandlingString::is_ignore_line(config_line)))
 			continue;
 		if (in_server_block == false && in_location_block == false)
 		{
-			if (IsConfigFormat::is_start_server_block(config_line, &in_server_block) == false)
+			if (IsConfigFormat::is_start_server_block(config_line, &in_server_block) != IS_OK)
 			{
-				return this->report_errorline(config_line, line);
+				return this->report_errorline(config_line, line, IsConfigFormat::is_start_server_block(config_line, &in_server_block));
 			}
 		}
 		else if (in_server_block == true && in_location_block == false)
@@ -83,20 +85,22 @@ bool	Config::ready_server_config(const std::string &config_file_name, \
 																	&Configs, &server_config, &field_headers, \
 																		server_name_list);
 			if (result_server_block_action != IS_OK)
-				return this->report_errorline(config_line, line);
+				return this->report_errorline(config_line, line, result_server_block_action);
 		}
 		else if (in_server_block == true && in_location_block == true)
 		{
 			if (ConfigHandlingString::is_block_end(config_line))
 				in_location_block = false;
-			else if (IsConfigFormat::is_location_block_format(config_line) == false)
-				return this->report_errorline(config_line, line);
+			else if (IsConfigFormat::is_location_block_format(config_line) != IS_OK)
+				return this->report_errorline(config_line, line, IsConfigFormat::is_location_block_format(config_line));
 		}
 		else
-			return this->report_errorline(config_line, line);
+			return this->report_errorline(config_line, line, NOT_ALLOWED_CONFIG_FORMAT);
 		line++;
 	}
-	return (in_server_block == false && in_location_block == false);
+	if (in_server_block != false || in_location_block != false)
+		return this->report_errorline(config_line, line, NOT_END_CONFIG);
+	return (true);
 }
 
 void	Config::init_location_config_with_server_config(LocationConfig *location_config, \
@@ -132,7 +136,7 @@ bool	Config::ready_location_config(const std::string &config_file_name, \
 		}
 		else if (in_server_block == true && in_location_block == false)
 		{
-			if (IsConfigFormat::is_start_location_block(config_line, &location_path))
+			if (IsConfigFormat::is_start_location_block(config_line, &location_path) == IS_OK)
 				in_location_block = true;
 			else if (ConfigHandlingString::is_block_end(config_line))
 				server_name_itr++;
@@ -147,17 +151,17 @@ bool	Config::ready_location_config(const std::string &config_file_name, \
 				location_config.set_server_block_infs(this->get_same_allconfig(*server_name_itr).get_server_config());
 				in_location_block = false;
 			}
-			else if (IsConfigFormat::is_location_block_format(config_line))
+			else if (IsConfigFormat::is_location_block_format(config_line) == IS_OK)
 			{
-				bool	done_input_action = IsConfigFormat::do_input_field_key_field_value(config_line, &location_config, &location_field_headers);
-				if (done_input_action == false)
-					return this->report_errorline(config_line, line);
+				bool	result_input_action = IsConfigFormat::do_input_field_key_field_value(config_line, &location_config, &location_field_headers);
+				if (result_input_action != IS_OK)
+					return this->report_errorline(config_line, line, result_input_action);
 			}
 			else
-				return this->report_errorline(config_line, line);
+				return this->report_errorline(config_line, line, IS_NOT_LOCATION_CONFIG_FORMAT);
 		}
 		else
-			return this->report_errorline(config_line, line);
+			return this->report_errorline(config_line, line, NOT_ALLOWED_CONFIG_FORMAT);
 		line++;
 	}
 	return (true);
@@ -217,10 +221,83 @@ AllConfig Config::get_same_allconfig(const std::string &server_name)  // これ�
 		return (this->_all_configs.begin()->second);
 }
 
-bool Config::report_errorline(const std::string &config_line, const size_t &line)
+bool Config::report_errorline(const std::string &config_line, const size_t &line, const int &error_type)
 {
-	std::cerr << "\033[31m|====== ERROR LINE ======|" << std::endl;
-	std::cerr << "* line -> " << line << " |" << config_line << "|" << std::endl;
-	std::cerr << "|=========================|\033[0m" << std::endl;
+	std::cerr << "\033[31m====== ERROR ======" << std::endl;
+	std::cerr << "| line :" << line << std::endl;
+	std::cerr << "| text :" << config_line << std::endl;
+	std::cerr << "| ERROR TYPE :";
+	switch (error_type)
+	{
+		case NO_FIELD_HEADER:
+			std::cerr << "NO_FIELD_HEADER" << std::endl;
+			break;
+		case NO_FIELD_VALUE:
+			std::cerr << "NO_FIELD_VALUE" << std::endl;
+			break;
+		case NO_LAST_SEMICOLON:
+			std::cerr << "NO_LAST_SEMICOLON" << std::endl;
+			break;
+		case NO_SEMICOLON:
+			std::cerr << "NO_SEMICOLON" << std::endl;
+			break;
+		case MULTIPLE_SEMICOLON:
+			std::cerr << "MULTIPLE_SEMICOLON" << std::endl;
+			break;
+		case IS_NOT_ENDWORD_EXIST:
+			std::cerr << "IS_NOT_ENDWORD_EXIST" << std::endl;
+			break;
+		case IS_NOT_START_BLOCK:
+			std::cerr << "IS_NOT_START_BLOCK" << std::endl;
+			break;
+		case IS_NOT_EXIST_KEYWORD_SERVER:
+			std::cerr << "IS_NOT_EXIST_KEYWORD_SERVER" << std::endl;
+			break;
+		case IS_NOT_EXIST_KEYWORD_LOCATION:
+			std::cerr << "IS_NOT_EXIST_KEYWORD_LOCATION" << std::endl;
+			break;
+		case IS_NOT_ENDWORD_CURLY_BRACES:
+			std::cerr << "IS_NOT_ENDWORD_CURLY_BRACES" << std::endl;
+			break;
+		case IS_SERVER_BLOCK_KEY_ALREADY_EXIST:
+			std::cerr << "IS_SERVER_BLOCK_KEY_ALREADY_EXIST" << std::endl;
+			break;
+		case IS_LOCATION_BLOCK_KEY_ALREADY_EXIST:
+			std::cerr << "IS_LOCATION_BLOCK_KEY_ALREADY_EXIST" << std::endl;
+			break;
+		case IS_NOT_FIELD_KEY_PRINTABLE:
+			std::cerr << "IS_NOT_FIELD_KEY_PRINTABLE" << std::endl;
+			break;
+		case IS_NOT_CURLY_BRACES_EXIST:
+			std::cerr << "IS_NOT_CURLY_BRACES_EXIST" << std::endl;
+			break;
+		case IS_NOT_ONLY_CURLY_BRACES:
+			std::cerr << "IS_NOT_ONLY_CURLY_BRACES" << std::endl;
+			break;
+		case IS_NOT_LAST_WARD_SEMICOLON:
+			std::cerr << "IS_NOT_LAST_WARD_SEMICOLON" << std::endl;
+			break;
+		case IS_NOT_SERVER_CONFIG_FORMAT:
+			std::cerr << "IS_NOT_SERVER_CONFIG_FORMAT" << std::endl;
+			break;
+		case IS_NOT_LOCATION_CONFIG_FORMAT:
+			std::cerr << "IS_NOT_LOCATION_CONFIG_FORMAT" << std::endl;
+			break;
+		case IS_ALREADY_EXIST_FIELD_KEY:
+			std::cerr << "IS_ALREADY_EXIST_FIELD_KEY" << std::endl;
+			break;
+		case NOT_ALLOWED_SERVER_BLOCK_FORMAT:
+			std::cerr << "NOT_ALLOWED_SERVER_BLOCK_FORMAT" << std::endl;
+			break;
+		case NOT_ALLOWED_CONFIG_FORMAT:
+			std::cerr << "NOT_ALLOWED_CONFIG_FORMAT" << std::endl;
+			break;
+		case NOT_END_CONFIG:
+			std::cerr << "NOT_END_CONFIG" << std::endl;
+			break;
+		default:
+			break;
+	}
+	std::cerr << "======================\033[0m" << std::endl;
 	return (false);
 }

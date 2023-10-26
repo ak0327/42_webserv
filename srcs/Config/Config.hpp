@@ -14,14 +14,15 @@
 
 #define IS_OK 0
 #define	IS_OK_START_SERVER_BLOCK 0
+#define	IS_OK_START_LOCATION_BLOCK 0
 #define	IS_OK_BLOCK_END 0
 #define	IS_OK_IN_SERVER_BLOCK 0
-#define	IS_NOT_SERVER_CONFIG_FORMAT 1
-#define	IS_NOT_LOCATION_CONFIG_FORMAT 2
-#define	IS_ALREADY_EXIST_FIELD_KEY 3
-#define	NOT_ALLOWED_SERVER_BLOCK_FORMAT 4
-#define NOT_ALLOWED_CONFIG_FORMAT 5
-#define	NOT_END_CONFIG 6
+#define	IS_NOT_SERVER_CONFIG_FORMAT 17
+#define	IS_NOT_LOCATION_CONFIG_FORMAT 18
+#define	IS_ALREADY_EXIST_FIELD_KEY 19
+#define	NOT_ALLOWED_SERVER_BLOCK_FORMAT 20
+#define NOT_ALLOWED_CONFIG_FORMAT 21
+#define	NOT_END_CONFIG 22
 
 // 以下のような配置構成にする必要がある　命名は最適解分からず
 // 何かしらのクラス -> AllConfigと仮称
@@ -42,7 +43,7 @@ class	Config
 	private:
 		bool	_is_config_format;
 		std::map<std::vector<std::string>, AllConfig>	_all_configs;
-		bool	report_errorline(const std::string &config_line, const size_t &line);
+		bool	report_errorline(const std::string &config_line, const size_t &line, const int &error_type);
 		bool	ready_location_config(const std::string	&config_file_name, \
 	std::vector<std::vector<std::string> >::iterator	server_name_itr);
 		void	init_location_config_with_server_config(LocationConfig	*location_config, \

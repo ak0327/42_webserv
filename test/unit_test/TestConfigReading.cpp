@@ -17,7 +17,7 @@ void	compare_vector_report(int line, std::vector<std::string> target_vector, std
 
 	while (target_vector_itr != target_vector.end())
 	{
-		std::cerr << *target_vector_itr << "|";
+		// std::cerr << *target_vector_itr << "|";
 		if (std::find(anser_vector.begin(), anser_vector.end(), *target_vector_itr) == anser_vector.end())
 			ADD_FAILURE_AT(__FILE__, line);
 		target_vector_itr++;
@@ -278,6 +278,14 @@ TEST(ConfigReadingTest, error_config_test_7)
 TEST(ConfigReadingTest, error_config_test_8) 
 {
 	Config	test_config("error_config/errortestconfig8.conf");
+	ServerConfig	allconfig;
+
+	EXPECT_EQ(false, test_config.get_is_config_format());
+}
+
+TEST(ConfigReadingTest, error_config_test_9) 
+{
+	Config	test_config("error_config/errortestconfig9.conf");
 	ServerConfig	allconfig;
 
 	EXPECT_EQ(false, test_config.get_is_config_format());
