@@ -111,12 +111,12 @@ Result<ValueAndMapFieldValues *, int> parse_valid_transfer_coding(const std::str
 		return Result<ValueAndMapFieldValues *, int>::err(ERR);
 	}
 	pos = start_pos;
-	result = ValueAndMapFieldValues::parse_value_and_map_values(field_value,
-																pos, &end,
-																&value,
-																&value_map,
-																parse_token,
-																parse_and_validate_transfer_parameter);
+	result = HttpMessageParser::parse_value_and_map_values(field_value,
+														   pos, &end,
+														   &value,
+														   &value_map,
+														   parse_token,
+														   parse_and_validate_transfer_parameter);
 	if (result.is_err()) {
 		return Result<ValueAndMapFieldValues *, int>::err(ERR);
 	}

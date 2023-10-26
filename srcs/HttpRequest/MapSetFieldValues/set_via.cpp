@@ -268,7 +268,7 @@ Result<int, int> HttpRequest::set_via(const std::string &field_name,
 
 	clear_field_values_of(field_name);
 
-	result = MapSetFieldValues::parse_map_set_field_values(field_value,
+	result = HttpMessageParser::parse_map_set_field_values(field_value,
 														   parse_and_validate_via_elems);
 	if (result.is_err()) {
 		return Result<int, int>::ok(STATUS_OK);

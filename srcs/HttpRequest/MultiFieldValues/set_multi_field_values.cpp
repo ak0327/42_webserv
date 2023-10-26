@@ -39,7 +39,6 @@ std::set<std::string> parse_field_values(const std::string &field_value) {
 	while (field_value[pos]) {
 		len = get_value_len(&field_value[pos], SP, COMMA);
 		value = field_value.substr(pos, len);
-		// std::cout << "3 &field_value[pos]: [" << &field_value[pos] << "], value:[" << value << "], len:[" << len << "]" << std::endl;
 		field_values.insert(value);
 		pos += len;
 		if (field_value[pos] == '\0' || len == 0) {
@@ -206,7 +205,7 @@ Result<int, int> parse_serialized_origin(const std::string &field_value,
 		  && field_value[pos + 2] == '/')) {
 		return Result<int, int>::err(ERR);
 	}
-	pos += 3;
+	pos += std::string("://").length();
 
 	// host
 	host_result = HttpMessageParser::parse_uri_host(field_value, pos, &end);

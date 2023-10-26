@@ -32,11 +32,6 @@ class MapFieldValues : public FieldValueBase {
 
 	////////////////////////////////////////////////////////////////////////
 
-	static Result<int, int> parse_map_element(const std::string &field_value,
-											  std::size_t start_pos,
-											  std::size_t *end_pos,
-											  std::string *key,
-											  std::string *value);
 	static bool is_key_only(const std::string &value);
 
  private:

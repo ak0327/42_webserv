@@ -76,7 +76,7 @@ Result<int, int> HttpRequest::set_forwarded(const std::string &field_name,
 
 	clear_field_values_of(field_name);
 
-	result = MapSetFieldValues::parse_map_set_field_values(field_value,
+	result = HttpMessageParser::parse_map_set_field_values(field_value,
 														   parse_and_validate_forwarded_element);
 	if (result.is_ok()) {
 		forwarded_set = result.get_ok_value();

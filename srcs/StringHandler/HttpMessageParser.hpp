@@ -1,6 +1,7 @@
 #pragma once
 
 # include <map>
+# include <set>
 # include <string>
 # include "Constant.hpp"
 # include "Result.hpp"
@@ -346,6 +347,18 @@ void skip_addr_spec(const std::string &str,
 					std::size_t start_pos,
 					std::size_t *end_pos);
 
+void skip_int_range(const std::string &str,
+					std::size_t start_pos,
+					std::size_t *end_pos);
+
+void skip_suffix_range(const std::string &str,
+					   std::size_t start_pos,
+					   std::size_t *end_pos);
+
+void skip_other_range(const std::string &str,
+					  std::size_t start_pos,
+					  std::size_t *end_pos);
+
 ////////////////////////////////////////////////////////////////////////////////
 
 Result<std::size_t, int> get_double_colon_pos(const std::string &str,
@@ -373,8 +386,8 @@ Result<date_format, int> parse_http_date(const std::string &http_date,
 Result<int, int> parse_madia_type(const std::string &field_value,
 								  std::size_t start_pos,
 								  std::size_t *end_pos,
-								  std::string *type,
-								  std::string *subtype,
+								  std::string *ret_type,
+								  std::string *ret_subtype,
 								  std::map<std::string, std::string> *parameters);
 
 Result<std::string, int> parse_subtype(const std::string &field_value,
@@ -384,18 +397,66 @@ Result<std::string, int> parse_subtype(const std::string &field_value,
 Result<int, int> parse_parameter(const std::string &field_value,
 								 std::size_t start_pos,
 								 std::size_t *end_pos,
-								 std::string *parameter_name,
-								 std::string *parameter_value,
+								 std::string *ret_parameter_name,
+								 std::string *ret_parameter_value,
 								 void (*skip_parameter_name)(const std::string &, std::size_t, std::size_t *),
 								 void (*skip_parameter_value)(const std::string &, std::size_t, std::size_t *),
+								 char separator = '=',
+								 bool is_value_optional = false,
 								 bool skip_bws = false);
 
-Result<std::map<std::string, std::string>, int> parse_parameters(const std::string &field_value,
-																 std::size_t start_pos,
-																 std::size_t *end_pos,
-																 void (*skip_parameter_name)(const std::string &, std::size_t, std::size_t *),
-																 void (*skip_parameter_value)(const std::string &, std::size_t, std::size_t *),
-																 bool skip_bws = false);
+Result<std::map<std::string, std::string>, int>
+parse_parameters(const std::string &field_value,
+				 std::size_t start_pos,
+				 std::size_t *end_pos,
+				 void (*skip_parameter_name)(const std::string &, std::size_t, std::size_t *),
+				 void (*skip_parameter_value)(const std::string &, std::size_t, std::size_t *),
+				 bool skip_bws = false);
+
+Result<int, int> parse_map_element(const std::string &field_value,
+								   std::size_t start_pos,
+								   std::size_t *end_pos,
+								   char separator,
+								   std::string *key,
+								   std::string *value,
+								   void (*skip_key_func)(const std::string &,
+														 std::size_t,
+														 std::size_t *),
+								  void (*skip_value_func)(const std::string &,
+														  std::size_t,
+														  std::size_t *));
+
+Result<std::map<std::string, std::string>, int>
+parse_map_field_values(const std::string &field_value,
+					   void (*skip_parameter_name)(const std::string &,
+												   std::size_t,
+												   std::size_t *),
+					   void (*skip_parameter_value)(const std::string &,
+													std::size_t,
+													std::size_t *),
+					   Result<std::size_t, int> (*skip_to_next_parameter)(const std::string &,
+																		  std::size_t),
+					   char separator = '=',
+					   bool is_value_optional = false);
+
+Result<std::set<std::map<std::string, std::string> >, int>
+parse_map_set_field_values(const std::string &field_value,
+						   Result<std::map<std::string, std::string>, int> (*parse_func)(const std::string &,
+																						 std::size_t,
+																						 std::size_t *));
+
+Result<int, int>
+parse_value_and_map_values(const std::string &field_value,
+						   std::size_t start_pos,
+						   std::size_t *end_pos,
+						   std::string *ret_value,
+						   std::map<std::string, std::string> *ret_map_values,
+						   Result<std::string, int> (*parse_value_func)(const std::string &,
+																		std::size_t,
+																		std::size_t *),
+						   Result<std::map<std::string, std::string>, int> (*parse_map_values)(const std::string &,
+																							   std::size_t,
+																							   std::size_t *));
 
 Result<int, int> validate_http_date(date_format format,
 									const std::string &day_name,
@@ -411,5 +472,10 @@ Result<std::size_t, int> skip_ows_delimiter_ows(const std::string &field_value,
 												char delimiter,
 												std::size_t start_pos);
 
+Result<std::size_t, int> skip_ows_comma_ows(const std::string &field_value,
+											std::size_t start_pos);
+
+Result<std::size_t, int> skip_non(const std::string &field_value,
+								  std::size_t start_pos);
 
 }  // namespace HttpMessageParser

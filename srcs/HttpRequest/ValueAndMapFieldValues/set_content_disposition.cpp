@@ -333,12 +333,12 @@ parse_and_validate_content_disposition(const std::string &field_value,
 	std::size_t pos, end;
 
 	pos = 0;
-	result = ValueAndMapFieldValues::parse_value_and_map_values(field_value,
-																pos, &end,
-																disposition_type,
-																disposition_param,
-																parse_and_validate_disposition_type,
-																parse_and_validate_disposition_param);
+	result = HttpMessageParser::parse_value_and_map_values(field_value,
+														   pos, &end,
+														   disposition_type,
+														   disposition_param,
+														   parse_and_validate_disposition_type,
+														   parse_and_validate_disposition_param);
 	if (result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}

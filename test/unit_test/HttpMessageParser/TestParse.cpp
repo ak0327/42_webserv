@@ -144,6 +144,8 @@ TEST(TestHttpMessageParser, ParseParameter) {
 												&name, &value,
 												HttpMessageParser::skip_token,
 												HttpMessageParser::skip_token,
+												'=',
+												false,
 												true);
 	EXPECT_TRUE(result.is_ok());
 	EXPECT_EQ(str.length(), end);
@@ -159,6 +161,8 @@ TEST(TestHttpMessageParser, ParseParameter) {
 												&name, &value,
 												HttpMessageParser::skip_token,
 												HttpMessageParser::skip_token,
+												'=',
+												false,
 												true);
 	EXPECT_TRUE(result.is_ok());
 	EXPECT_EQ(3, end);
@@ -213,6 +217,8 @@ TEST(TestHttpMessageParser, ParseParameter) {
 												&name, &value,
 												HttpMessageParser::skip_token,
 												HttpMessageParser::skip_token,
+												'=',
+												false,
 												true);
 	EXPECT_FALSE(result.is_ok());
 	EXPECT_EQ(start, end);
@@ -227,6 +233,8 @@ TEST(TestHttpMessageParser, ParseParameter) {
 												&name, &value,
 												HttpMessageParser::skip_token,
 												HttpMessageParser::skip_token,
+												'=',
+												false,
 												true);
 	EXPECT_FALSE(result.is_ok());
 	EXPECT_EQ(start, end);
@@ -242,6 +250,8 @@ TEST(TestHttpMessageParser, ParseParameter) {
 												&name, &value,
 												HttpMessageParser::skip_token,
 												HttpMessageParser::skip_token,
+												'=',
+												false,
 												true);
 	EXPECT_TRUE(result.is_ok());
 	EXPECT_EQ(3, end);
@@ -258,6 +268,8 @@ TEST(TestHttpMessageParser, ParseParameter) {
 												&name, &value,
 												HttpMessageParser::skip_token,
 												HttpMessageParser::skip_token,
+												'=',
+												false,
 												true);
 	EXPECT_TRUE(result.is_ok());
 	EXPECT_EQ(3, end);
@@ -272,6 +284,8 @@ TEST(TestHttpMessageParser, ParseParameter) {
 												&name, &value,
 												HttpMessageParser::skip_token,
 												HttpMessageParser::skip_token,
+												'=',
+												false,
 												true);
 	EXPECT_FALSE(result.is_ok());
 	EXPECT_EQ(start, end);
@@ -290,6 +304,8 @@ TEST(TestHttpMessageParser, ParseParameter) {
 												&name, &value,
 												HttpMessageParser::skip_token,
 												HttpMessageParser::skip_quoted_string,
+												'=',
+												false,
 												true);
 	EXPECT_TRUE(result.is_ok());
 	EXPECT_EQ(str.length(), end);
@@ -304,6 +320,8 @@ TEST(TestHttpMessageParser, ParseParameter) {
 												&name, &value,
 												HttpMessageParser::skip_token,
 												HttpMessageParser::skip_quoted_string,
+												'=',
+												false,
 												true);
 	EXPECT_TRUE(result.is_ok());
 	EXPECT_EQ(str.length(), end);
@@ -319,6 +337,8 @@ TEST(TestHttpMessageParser, ParseParameter) {
 												&name, &value,
 												HttpMessageParser::skip_token,
 												HttpMessageParser::skip_quoted_string,
+												'=',
+												false,
 												true);
 	EXPECT_TRUE(result.is_ok());
 	EXPECT_EQ(13, end);
@@ -403,7 +423,6 @@ TEST(TestHttpMessageParser, ParseParameters) {
 	actual = result.get_ok_value();
 	EXPECT_EQ(expected, actual);
 	EXPECT_EQ(12, end);
-
 }
 
 

@@ -13,55 +13,31 @@ Result<std::map<std::string, std::string>, int> parse_host(const std::string &fi
 	std::size_t pos, end;
 	std::string uri_host, port;
 	Result<std::string, int> uri_host_result, port_result;
+	Result<int, int> parse_result;
 
 	if (field_value.empty()) {
 		return Result<std::map<std::string, std::string>, int>::err(ERR);
 	}
 
 	pos = 0;
-	uri_host_result = HttpMessageParser::parse_uri_host(field_value, pos, &end);
-	if (uri_host_result.is_err()) {
+	parse_result = HttpMessageParser::parse_map_element(field_value,
+														pos, &end,
+													 	':',
+													 	&uri_host, &port,
+													 	HttpMessageParser::skip_uri_host,
+													 	HttpMessageParser::skip_port);
+	if (parse_result.is_err()) {
 		return Result<std::map<std::string, std::string>, int>::err(ERR);
 	}
-	uri_host = uri_host_result.get_ok_value();
 	host[std::string(URI_HOST)] = uri_host;
-	pos = end;
-
-	if (field_value[pos] != '\0') {
-		if (field_value[pos] != ':') {
-			return Result<std::map<std::string, std::string>, int>::err(ERR);
-		}
-		++pos;
-
-		port_result = HttpMessageParser::parse_port(field_value, pos, &end);
-		if (port_result.is_err()) {
-			return Result<std::map<std::string, std::string>, int>::err(ERR);
-		}
-		port = port_result.get_ok_value();
+	if (!port.empty()) {
 		host[std::string(PORT)] = port;
-		pos = end;
+	}
 
-		if (field_value[pos] != '\0') {
-			return Result<std::map<std::string, std::string>, int>::err(ERR);
-		}
+	if (field_value[end] != '\0') {
+		return Result<std::map<std::string, std::string>, int>::err(ERR);
 	}
 	return Result<std::map<std::string, std::string>, int>::ok(host);
-}
-
-Result<int, int> validate_uri_host(const std::map<std::string, std::string> &host) {
-	std::map<std::string, std::string>::const_iterator itr;
-	std::string uri_host;
-
-	itr = host.find(std::string(URI_HOST));
-	if (itr == host.end()) {
-		return Result<int, int>::err(ERR);
-	}
-	uri_host = itr->second;
-
-	if (!HttpMessageParser::is_uri_host(uri_host)) {
-		return Result<int, int>::err(ERR);
-	}
-	return Result<int, int>::ok(OK);
 }
 
 Result<int, int> validate_port(const std::map<std::string, std::string> &host) {
@@ -81,25 +57,6 @@ Result<int, int> validate_port(const std::map<std::string, std::string> &host) {
 	return Result<int, int>::ok(OK);
 }
 
-Result<int, int> validate_host(const std::map<std::string, std::string> &host) {
-	Result<int, int> uri_host_result, port_result;
-
-	if (host.empty()) {
-		return Result<int, int>::err(ERR);
-	}
-
-	uri_host_result = validate_uri_host(host);
-	if (uri_host_result.is_err()) {
-		return Result<int, int>::err(ERR);
-	}
-
-	port_result = validate_port(host);
-	if (port_result.is_err()) {
-		return Result<int, int>::err(ERR);
-	}
-	return Result<int, int>::ok(OK);
-}
-
 Result<std::map<std::string, std::string>, int>
 parse_and_validate_host(const std::string &field_value) {
 	std::map<std::string, std::string> host;
@@ -112,7 +69,7 @@ parse_and_validate_host(const std::string &field_value) {
 	}
 	host = parse_result.get_ok_value();
 
-	validate_result = validate_host(host);
+	validate_result = validate_port(host);
 	if (validate_result.is_err()) {
 		return Result<std::map<std::string, std::string>, int>::err(ERR);
 	}

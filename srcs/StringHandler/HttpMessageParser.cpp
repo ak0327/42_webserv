@@ -3,6 +3,7 @@
 #include <iostream>
 #include <limits>
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 #include "Color.hpp"
@@ -247,25 +248,27 @@ Result<int, int>
 parse_parameter(const std::string &field_value,
 				std::size_t start_pos,
 				std::size_t *end_pos,
-				std::string *parameter_name,
-				std::string *parameter_value,
+				std::string *ret_parameter_name,
+				std::string *ret_parameter_value,
 				void (*skip_parameter_name)(const std::string &,
 											std::size_t,
 											std::size_t *),
 				void (*skip_parameter_value)(const std::string &,
 											 std::size_t,
 											 std::size_t *),
+				char separator,
+				bool is_value_optional,
 				bool skip_bws) {
-	std::size_t pos, end, len;
+	std::size_t pos, end, len, tmp_pos;
 	std::string name, value;
 	Result<std::string, int> parse_name_result;
 
-	if (!end_pos || !parameter_name || !parameter_value) {
+	if (!end_pos || !ret_parameter_name || !ret_parameter_value) {
 		return Result<int, int>::err(ERR);
 	}
 	*end_pos = start_pos;
-	*parameter_name = std::string(EMPTY);
-	*parameter_value = std::string(EMPTY);
+	*ret_parameter_name = std::string(EMPTY);
+	*ret_parameter_value = std::string(EMPTY);
 	if (field_value.empty() || field_value.length() <= start_pos) {
 		return Result<int, int>::err(ERR);
 	}
@@ -284,28 +287,34 @@ parse_parameter(const std::string &field_value,
 		skip_ows(field_value, &pos);
 	}
 
-	// =
-	if (field_value[pos] != '=') {
+	// separator
+	if (field_value[pos] != separator) {
+		if (is_value_optional) {
+			*end_pos = pos;
+			*ret_parameter_name = name;
+			return Result<int, int>::ok(OK);
+		}
 		return Result<int, int>::err(ERR);
 	}
-	++pos;
+	tmp_pos = pos + 1;
 
 	if (skip_bws) {
-		skip_ows(field_value, &pos);
+		skip_ows(field_value, &tmp_pos);
 	}
 
 	// parameter-value
-	skip_parameter_value(field_value, pos, &end);
-	if (pos == end) {
+	skip_parameter_value(field_value, tmp_pos, &end);
+	if (tmp_pos == end) {
 		return Result<int, int>::err(ERR);
 	}
-	len = end - pos;
-	value = field_value.substr(pos, len);
+	len = end - tmp_pos;
+	value = field_value.substr(tmp_pos, len);
+	pos = end;
 
 	// return
-	*end_pos = pos + len;
-	*parameter_name = name;
-	*parameter_value = value;
+	*end_pos = pos;
+	*ret_parameter_name = name;
+	*ret_parameter_value = value;
 	return Result<int, int>::ok(OK);
 }
 
@@ -355,6 +364,7 @@ parse_parameters(const std::string &field_value,
 									   &parameter_value,
 									   skip_parameter_name,
 									   skip_parameter_value,
+									   '=',
 									   skip_bws);
 		if (parse_result.is_err()) {
 			break;
@@ -418,14 +428,14 @@ Result<std::string, int> parse_subtype(const std::string &field_value,
 Result<int, int> parse_madia_type(const std::string &field_value,
 								  std::size_t start_pos,
 								  std::size_t *end_pos,
-								  std::string *type,
-								  std::string *subtype,
+								  std::string *ret_type,
+								  std::string *ret_subtype,
 								  std::map<std::string, std::string> *parameters) {
 	std::size_t pos, end;
 	Result<std::string, int> type_result, subtype_result;
 	Result<std::map<std::string, std::string>, int> parameters_result;
 
-	if (!end_pos || !type || !subtype || !parameters) {
+	if (!end_pos || !ret_type || !ret_subtype || !parameters) {
 		return Result<int, int>::err(ERR);
 	}
 	*end_pos = start_pos;
@@ -439,7 +449,7 @@ Result<int, int> parse_madia_type(const std::string &field_value,
 	if (type_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}
-	*type = type_result.get_ok_value();
+	*ret_type = type_result.get_ok_value();
 	pos = end;
 
 	if (field_value[pos] != '/') {
@@ -451,7 +461,7 @@ Result<int, int> parse_madia_type(const std::string &field_value,
 	if (subtype_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}
-	*subtype = subtype_result.get_ok_value();
+	*ret_subtype = subtype_result.get_ok_value();
 	pos = end;
 
 	parameters_result = HttpMessageParser::parse_parameters(field_value,
@@ -466,5 +476,205 @@ Result<int, int> parse_madia_type(const std::string &field_value,
 	*end_pos = end;
 	return Result<int, int>::ok(OK);
 }
+
+/*
+ MAP_FIELD_VALUER = PARAMETER * ( OWS "," OWS PARAMETER)
+ PARAMETER        = PARAMETER-NAME SEPARATOR PARAMETER-VALUE   ; optional = false
+ PARAMETER        = PARAMETER-NAME [SEPARATOR PARAMETER-VALUE] ; optional = true
+ */
+Result<std::map<std::string, std::string>, int>
+parse_map_field_values(const std::string &field_value,
+					   void (*skip_parameter_name)(const std::string &,
+												   std::size_t,
+												   std::size_t *),
+					   void (*skip_parameter_value)(const std::string &,
+													std::size_t,
+													std::size_t *),
+					   Result<std::size_t, int> (*skip_to_next_parameter)(const std::string &,
+																		  std::size_t),
+					   char separator,
+					   bool is_value_optional) {
+	Result<int, int> parse_result;
+	Result<std::size_t, int> skip_result;
+	std::string parameter_name, parameter_value;
+	std::map<std::string, std::string> parameters;
+	std::size_t pos, end;
+
+	if (field_value.empty()) {
+		return Result<std::map<std::string, std::string>, int>::err(ERR);
+	}
+
+	pos = 0;
+	while (field_value[pos]) {
+		parse_result = HttpMessageParser::parse_parameter(field_value,
+														  pos, &end,
+														  &parameter_name,
+														  &parameter_value,
+														  skip_parameter_name,
+														  skip_parameter_value,
+														  separator,
+														  is_value_optional);
+		if (parse_result.is_err()) {
+			return Result<std::map<std::string, std::string>, int>::err(ERR);
+		}
+		parameters[parameter_name] = parameter_value;
+		pos = end;
+
+		skip_result = skip_to_next_parameter(field_value, pos);
+		if (skip_result.is_err()) {
+			return Result<std::map<std::string, std::string>, int>::err(ERR);
+		}
+		pos = skip_result.get_ok_value();
+	}
+	return Result<std::map<std::string, std::string>, int>::ok(parameters);
+}
+
+/*
+ FIELD_NAME   = #MAP_ELEMENT
+ MAP_ELEMENT  = KEY [ SEPARATOR VALUE ]
+ 1#element => element *( OWS "," OWS element )
+ */
+Result<int, int> parse_map_element(const std::string &field_value,
+								   std::size_t start_pos,
+								   std::size_t *end_pos,
+								   char separator,
+								   std::string *key,
+								   std::string *value,
+								   void (*skip_key_func)(const std::string &,
+														 std::size_t,
+														 std::size_t *),
+								   void (*skip_value_func)(const std::string &,
+														   std::size_t,
+														   std::size_t *)) {
+	std::size_t pos, end, len;
+
+	if (!end_pos || !key || !value) {
+		return Result<int, int>::err(ERR);
+	}
+	*end_pos = start_pos;
+	*key = std::string(EMPTY);
+	*value = std::string(EMPTY);
+	if (field_value.empty() || field_value.length() <= start_pos) {
+		return Result<int, int>::err(ERR);
+	}
+
+	// key
+	pos = start_pos;
+	skip_key_func(field_value, pos, &end);
+	if (pos == end) {
+		return Result<int, int>::err(ERR);
+	}
+	len = end - pos;
+	*key = field_value.substr(pos, len);
+	pos += len;
+
+	// separator
+	if (field_value[pos] != separator) {
+		*end_pos = pos;
+		return Result<int, int>::ok(OK);
+	}
+	++pos;
+
+	// value
+	skip_value_func(field_value, pos, &end);
+	if (pos == end) {
+		return Result<int, int>::err(ERR);
+	}
+	len = end - pos;
+	*value = field_value.substr(pos, len);
+
+	*end_pos = pos + len;
+	return Result<int, int>::ok(OK);
+}
+
+Result<std::set<std::map<std::string, std::string> >, int>
+parse_map_set_field_values(const std::string &field_value,
+						   Result<std::map<std::string, std::string>, int> (*parse_func)(const std::string &,
+																						 std::size_t,
+																						 std::size_t *)) {
+	std::set<std::map<std::string, std::string> > map_set;
+	std::map<std::string, std::string> map_element;
+	std::size_t pos, end;
+	Result<std::map<std::string, std::string>, int> parse_result;
+	Result<std::size_t, int> skip_result;
+
+	if (field_value.empty()) {
+		return Result<std::set<std::map<std::string, std::string> >, int>::err(ERR);
+	}
+
+	pos = 0;
+	while (field_value[pos]) {
+		parse_result = parse_func(field_value, pos, &end);
+		if (parse_result.is_err()) {
+			return Result<std::set<std::map<std::string, std::string> >, int>::err(ERR);
+		}
+		map_element = parse_result.get_ok_value();
+		pos = end;
+
+		map_set.insert(map_element);
+
+		skip_result = HttpMessageParser::skip_ows_delimiter_ows(field_value, COMMA, pos);
+		if (skip_result.is_err()) {
+			return Result<std::set<std::map<std::string, std::string> >, int>::err(ERR);
+		}
+		pos = skip_result.get_ok_value();
+	}
+	return Result<std::set<std::map<std::string, std::string> >, int>::ok(map_set);
+}
+
+/*
+ field-name: field_value
+ field_value = VALUE *( ";" MAP_VALUES )
+*/
+Result<int, int>
+parse_value_and_map_values(const std::string &field_value,
+						   std::size_t start_pos,
+						   std::size_t *end_pos,
+						   std::string *ret_value,
+						   std::map<std::string, std::string> *ret_map_values,
+						   Result<std::string, int> (*parse_value_func)(const std::string &,
+																		std::size_t,
+																		std::size_t *),
+						   Result<std::map<std::string, std::string>, int> (*parse_map_values)(const std::string &,
+																							   std::size_t,
+																							   std::size_t *)) {
+	Result<std::string, int> value_result;
+	Result<std::map<std::string, std::string>, int> map_values_result;
+	std::size_t pos, end;
+
+
+	if (!end_pos || !ret_value || !ret_map_values || !parse_value_func || !parse_map_values) {
+		return Result<int, int>::err(ERR);
+	}
+	*end_pos = start_pos;
+	if (field_value.empty() || field_value.length() <= start_pos) {
+		return Result<int, int>::err(ERR);
+	}
+	pos = start_pos;
+
+	value_result = parse_value_func(field_value, pos, &end);
+	if (value_result.is_err()) {
+		return Result<int, int>::err(ERR);
+	}
+	*ret_value = value_result.get_ok_value();
+
+	pos = end;
+	*end_pos = pos;
+
+	if (field_value[pos] != ';') {
+		return Result<int, int>::ok(OK);
+	}
+
+	map_values_result = parse_map_values(field_value, pos, &end);
+	if (map_values_result.is_err()) {
+		return Result<int, int>::err(ERR);
+	}
+	*ret_map_values = map_values_result.get_ok_value();
+
+	pos = end;
+	*end_pos = pos;
+	return Result<int, int>::ok(OK);
+}
+
 
 }  // namespace HttpMessageParser

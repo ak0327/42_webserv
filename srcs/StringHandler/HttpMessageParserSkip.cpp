@@ -1521,6 +1521,21 @@ Result<std::size_t, int> skip_ows_delimiter_ows(const std::string &field_value,
 	return Result<std::size_t, int>::ok(pos);
 }
 
+Result<std::size_t, int> skip_ows_comma_ows(const std::string &field_value,
+											std::size_t start_pos) {
+	return skip_ows_delimiter_ows(field_value, COMMA, start_pos);
+}
+
+Result<std::size_t, int> skip_non(const std::string &field_value,
+								  std::size_t start_pos) {
+	if (field_value.length() < start_pos) {
+		return Result<std::size_t, int>::err(ERR);
+	}
+	if (field_value[start_pos] != '\0') {
+		return Result<std::size_t, int>::err(ERR);
+	}
+	return Result<std::size_t, int>::ok(start_pos);
+}
 
 // domain-literal = [CFWS] "[" *([FWS] dtext) [FWS] "]" [CFWS]
 //               -> "[" *(dtext) "]"
@@ -1851,5 +1866,116 @@ void skip_word(const std::string &str,
 	*end_pos = end;
 }
 
+
+/*
+ int-range     = first-pos "-" [ last-pos ]
+ first-pos     = 1*DIGIT
+ last-pos      = 1*DIGIT
+ */
+// todo:test
+void skip_int_range(const std::string &str,
+					std::size_t start_pos,
+					std::size_t *end_pos) {
+	std::size_t pos, len;
+
+	if (!end_pos) {
+		return;
+	}
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) {
+		return;
+	}
+	pos = start_pos;
+
+	while (str[pos]) {
+		len = 0;
+		while (str[pos + len] && std::isdigit(str[pos + len])) {
+			++len;
+		}
+		if (len == 0) {
+			break;
+		}
+		pos += len;
+
+		if (str[pos] != '-') {
+			break;
+		}
+		++pos;
+
+		while (str[pos] && std::isdigit(str[pos])) {
+			++pos;
+		}
+	}
+
+	*end_pos = pos;
+}
+
+/*
+ suffix-range  = "-" suffix-length
+ suffix-length = 1*DIGIT
+ */
+// todo:test
+void skip_suffix_range(const std::string &str,
+					   std::size_t start_pos,
+					   std::size_t *end_pos) {
+	std::size_t pos, len;
+
+	if (!end_pos) {
+		return;
+	}
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) {
+		return;
+	}
+	pos = start_pos;
+
+	if (str[pos] != '-') {
+		return;
+	}
+	++pos;
+
+	len = 0;
+	while (str[pos + len] && std::isdigit(str[pos + len])) {
+		++len;
+	}
+	if (len == 0) {
+		return;
+	}
+
+	*end_pos = pos + len;
+}
+
+/*
+ other-range   = 1*( %x21-2B / %x2D-7E )
+               ; 1*(VCHAR excluding comma)
+ */
+// todo:test
+void skip_other_range(const std::string &str,
+					  std::size_t start_pos,
+					  std::size_t *end_pos) {
+	std::size_t pos, len;
+
+	if (!end_pos) {
+		return;
+	}
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) {
+		return;
+	}
+	pos = start_pos;
+
+	len = 0;
+	while (str[pos + len]) {
+		if (HttpMessageParser::is_vchar(str[pos + len]) || str[pos + len] == COMMA) {
+			++len;
+			continue;
+		}
+		break;
+	}
+	if (len == 0) {
+		return;
+	}
+	*end_pos = pos + len;
+}
 
 }  // namespace HttpMessageParser

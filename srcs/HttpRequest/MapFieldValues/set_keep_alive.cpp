@@ -22,7 +22,11 @@ parse_keep_alive_info(const std::string &field_value) {
 
 	pos = 0;
 	while (true) {
-		parse_result = MapFieldValues::parse_map_element(field_value, pos, &end, &key, &value);
+		parse_result = HttpMessageParser::parse_map_element(field_value,
+														 	pos, &end,
+														 	'=', &key, &value,
+														 	HttpMessageParser::skip_token,
+														 	HttpMessageParser::skip_token_or_quoted_string);
 		if (parse_result.is_err()) {
 			return Result<std::map<std::string, std::string>, int>::err(ERR);
 		}

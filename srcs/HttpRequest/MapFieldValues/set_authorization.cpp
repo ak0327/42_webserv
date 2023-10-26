@@ -3,6 +3,7 @@
 #include "Constant.hpp"
 #include "HttpRequest.hpp"
 #include "HttpMessageParser.hpp"
+#include "MapFieldValues.hpp"
 
 namespace {
 
