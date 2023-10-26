@@ -30,14 +30,17 @@ const int STATUS_SERVER_ERROR = 500;
 ////////////////////////////////////////////////////////////////////////////////
 /* char */
 
-const char COMMA = ',';
 const char COLON = ':';
+const char COMMA = ',';
 const char SEMICOLON = ';';
+const char DOUBLE_QUOTE = '"';
+const char EQUAL_SIGN = '=';
+const char SINGLE_QUOTE = '\'';
+const char SLASH = '/';
 
 const char ELEMENT_SEPARATOR = COMMA;
 
 const char EMPTY[] = "";
-
 const char TIMEOUT[] = "timeout";
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -53,9 +56,6 @@ const char LF = '\n';
 const char SP = ' ';
 
 const char CRLF[] = "\r\n";
-
-const char DELIMITERS[] = "\"(),/:;<=>?@[\\]{}";
-const char SUB_DELIMS[] = "!$&'()*+,;=";
 
 ////////////////////////////////////////////////////////////////////////////////
 /* method */

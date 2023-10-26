@@ -46,9 +46,9 @@ Result<std::set<FieldValueWithWeight>, int>
 parse_and_validate_media_range_with_weight_set(const std::string &field_value) {
 	std::set<FieldValueWithWeight> media_range_weight_set;
 	FieldValueWithWeight media_range_with_weight;
+	std::size_t pos, end;
 	MediaType *media_range;
 	double weight;
-	std::size_t pos, end;
 	Result<MediaType *, int> media_range_result;
 	Result<double, int> weight_result;
 	Result<std::size_t, int> skip_result;
@@ -113,8 +113,8 @@ parse_and_validate_media_range_with_weight_set(const std::string &field_value) {
 // FieldValueWithSet : MediaType, weight
 Result<int, int> HttpRequest::set_accept(const std::string &field_name,
 										 const std::string &field_value) {
-	std::set<FieldValueWithWeight> media_range_weight_set;
 	Result<std::set<FieldValueWithWeight>, int> result;
+	std::set<FieldValueWithWeight> media_range_weight_set;
 
 	clear_field_values_of(field_name);
 

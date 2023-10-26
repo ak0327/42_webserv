@@ -18,23 +18,15 @@ class MapFieldValues : public FieldValueBase {
 	MapFieldValues& operator=(const MapFieldValues &other);
 
 	std::map<std::string, std::string> get_value_map() const;
-	std::string get_value(const std::string &map_key) const;
+	std::string get_value_by(const std::string &map_key) const;
+	std::string get_unique_value(void) const;
 	bool has_map_key(const std::string &map_key) const;
-
-	////////////////////////////////////////////////////////////////////////
-
-	std::string get_only_value(void) const;
-
-	void set_value(const std::string &only_value,
-				   const std::map<std::string, std::string> &value_map);
-	void set_value(const std::string &only_value);
-	void set_value(const std::map<std::string, std::string> &value_map);
 
 	////////////////////////////////////////////////////////////////////////
 
 	static bool is_key_only(const std::string &value);
 
  private:
-	std::string _only_value;
+	std::string _unique_value;
 	std::map<std::string, std::string> _value_map;
 };

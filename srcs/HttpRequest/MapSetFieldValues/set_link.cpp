@@ -63,7 +63,7 @@ Result<int, int> parse_link_param(const std::string &field_value,
 	len = 0;
 	while (field_value[pos + len]
 	&& !HttpMessageParser::is_whitespace(field_value[pos + len])
-	&& field_value[pos + len] != '='
+	&& field_value[pos + len] != EQUAL_SIGN
 	&& field_value[pos + len] != COMMA) {
 		++len;
 	}
@@ -78,7 +78,7 @@ Result<int, int> parse_link_param(const std::string &field_value,
 	*end_pos = pos;
 
 	// [ "=" BWS ( token / quoted-string ) ]
-	if (field_value[pos] != '=') {
+	if (field_value[pos] != EQUAL_SIGN) {
 		return Result<int, int>::ok(OK);
 	}
 	++pos;
@@ -86,7 +86,7 @@ Result<int, int> parse_link_param(const std::string &field_value,
 
 	if (HttpMessageParser::is_tchar(field_value[pos])) {
 		HttpMessageParser::skip_token(field_value, pos, &end);
-	} else if (field_value[pos] == '"') {
+	} else if (field_value[pos] == DOUBLE_QUOTE) {
 		HttpMessageParser::skip_quoted_string(field_value, pos, &end);
 	} else {
 		return Result<int, int>::err(ERR);
@@ -279,8 +279,6 @@ Result<int, int> validate_link_value(const std::map<std::string, std::string> &l
 		 if (is_valid_key && is_valid_value) {
 			 continue;
 		 }
-		// std::cout << CYAN << "key:[" << key << "]" << RESET << std::endl;
-		// std::cout << CYAN << "value:[" << value << "]" << RESET << std::endl;
 		return Result<int, int>::err(ERR);
 	}
 	return Result<int, int>::ok(OK);
@@ -341,8 +339,8 @@ parse_and_validate_link_value(const std::string &field_value,
  */
 Result<int, int> HttpRequest::set_link(const std::string &field_name,
 									   const std::string &field_value) {
-	std::set<std::map<std::string, std::string> > link_values;
 	Result<std::set<std::map<std::string, std::string> >, int> result;
+	std::set<std::map<std::string, std::string> > link_values;
 
 	clear_field_values_of(field_name);
 

@@ -21,7 +21,7 @@ bool is_auth_param(const std::string &str) {
 	if (pos == 0) { return false; }
 
 	HttpMessageParser::skip_ows(str, &pos);
-	if (str[pos] != '=') { return false; }
+	if (str[pos] != EQUAL_SIGN) { return false; }
 	HttpMessageParser::skip_ows(str, &pos);
 
 	return HttpMessageParser::is_token(&str[pos])
@@ -42,7 +42,7 @@ bool is_valid_auth_scheme(const std::string &auth_scheme) {
 
 Result<int, int>
 validate_credentials(const std::map<std::string, std::string> &credentials) {
-	const std::size_t AUTH_SCHEME_ONLY = 1;
+	const std::size_t auth_scheme_only_size = 1;
 	std::map<std::string, std::string>::const_iterator itr;
 	std::string auth_scheme, auth_param;
 
@@ -57,7 +57,7 @@ validate_credentials(const std::map<std::string, std::string> &credentials) {
 
 	itr = credentials.find(std::string(AUTH_PARAM));
 	if (itr == credentials.end()) {
-		if (credentials.size() == AUTH_SCHEME_ONLY) {
+		if (credentials.size() == auth_scheme_only_size) {
 			return Result<int, int>::ok(OK);
 		}
 		return Result<int, int>::err(ERR);
@@ -184,8 +184,8 @@ parse_and_validate_credentials(const std::string &field_value) {
 // https://datatracker.ietf.org/doc/html/rfc7235#section-4.2
 Result<int, int> HttpRequest::set_authorization(const std::string &field_name,
 												const std::string &field_value) {
-	std::map<std::string, std::string> credentials;
 	Result<std::map<std::string, std::string>, int> result;
+	std::map<std::string, std::string> credentials;
 
 	if (is_field_name_repeated_in_request(field_name)) {
 		clear_field_values_of(field_name);
@@ -207,8 +207,8 @@ Result<int, int> HttpRequest::set_authorization(const std::string &field_name,
  */
 Result<int, int> HttpRequest::set_proxy_authorization(const std::string &field_name,
 													  const std::string &field_value) {
-	std::map<std::string, std::string> credentials;
 	Result<std::map<std::string, std::string>, int> result;
+	std::map<std::string, std::string> credentials;
 
 	clear_field_values_of(field_name);
 

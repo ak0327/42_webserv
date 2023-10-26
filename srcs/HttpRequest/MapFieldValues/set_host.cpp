@@ -22,7 +22,7 @@ Result<std::map<std::string, std::string>, int> parse_host(const std::string &fi
 	pos = 0;
 	parse_result = HttpMessageParser::parse_map_element(field_value,
 														pos, &end,
-													 	':',
+													 	COLON,
 													 	&uri_host, &port,
 													 	HttpMessageParser::skip_uri_host,
 													 	HttpMessageParser::skip_port);
@@ -123,13 +123,12 @@ parse_and_validate_host(const std::string &field_value) {
 https://datatracker.ietf.org/doc/html/rfc3986#appendix-A
  */
 // 0 <= port <= 65535
-
 // map["uri-host"] = uri-host
 // map["port"] = port
 Result<int, int> HttpRequest::set_host(const std::string &field_name,
 									   const std::string &field_value) {
-	std::map<std::string, std::string> host;
 	Result<std::map<std::string, std::string>, int> result;
+	std::map<std::string, std::string> host;
 
 	if (is_field_name_repeated_in_request(field_name)) {
 		clear_field_values_of(field_name);
@@ -150,8 +149,8 @@ Result<int, int> HttpRequest::set_host(const std::string &field_name,
 // https://tex2e.github.io/rfc-translater/html/rfc7838.html#5--The-Alt-Used-HTTP-Header-Field
 Result<int, int> HttpRequest::set_alt_used(const std::string &field_name,
 										   const std::string &field_value) {
-	std::map<std::string, std::string> host;
 	Result<std::map<std::string, std::string>, int> result;
+	std::map<std::string, std::string> host;
 
 	clear_field_values_of(field_name);
 

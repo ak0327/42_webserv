@@ -26,7 +26,7 @@ class FieldValueWithWeight : public FieldValueBase {
 												  std::size_t *end_pos);
 
  private:
-	FieldValueBase *_field_value;  // MediaType, SingleFieldValue, MapFieldValues
+	FieldValueBase *_field_value;  // MediaType, SingleFieldValue, MapSetFieldValues
 	double _weight;
 };
 

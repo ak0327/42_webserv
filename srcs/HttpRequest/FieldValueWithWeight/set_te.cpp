@@ -192,8 +192,8 @@ parse_and_validate_t_codings_with_weight_set(const std::string &field_value) {
 // FieldValueWithSet : ValueAndMapFieldValues, weight
 Result<int, int> HttpRequest::set_te(const std::string &field_name,
 									 const std::string &field_value) {
-	std::set<FieldValueWithWeight> t_codings_set;
 	Result<std::set<FieldValueWithWeight>, int> result;
+	std::set<FieldValueWithWeight> t_codings_set;
 
 	clear_field_values_of(field_name);
 

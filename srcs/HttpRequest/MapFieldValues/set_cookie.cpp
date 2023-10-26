@@ -38,7 +38,7 @@ void skip_cookie_value(const std::string &str,
 	if (!end_pos) { return; }
 
 	len = 0;
-	if (str[start_pos] == '"') {
+	if (str[start_pos] == DOUBLE_QUOTE) {
 		is_quoted = true;
 		++len;
 	} else {
@@ -50,7 +50,7 @@ void skip_cookie_value(const std::string &str,
 	}
 
 	if (is_quoted) {
-		if (str[start_pos + len] == '"') {
+		if (str[start_pos + len] == DOUBLE_QUOTE) {
 			++len;
 		} else {
 			return;
@@ -70,7 +70,7 @@ Result<std::size_t, int> skip_to_next_cookie_pair(const std::string &field_value
 	}
 
 	pos = start_pos;
-	if (field_value[pos] == ';' && field_value[pos + 1] == SP) {
+	if (field_value[pos] == SEMICOLON && field_value[pos + 1] == SP) {
 		pos += comma_and_sp_len;
 	}
 	return Result<std::size_t, int>::ok(pos);

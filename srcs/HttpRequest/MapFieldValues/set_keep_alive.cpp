@@ -24,7 +24,7 @@ parse_keep_alive_info(const std::string &field_value) {
 	while (true) {
 		parse_result = HttpMessageParser::parse_map_element(field_value,
 														 	pos, &end,
-														 	'=', &key, &value,
+														 	EQUAL_SIGN, &key, &value,
 														 	HttpMessageParser::skip_token,
 														 	HttpMessageParser::skip_token_or_quoted_string);
 		if (parse_result.is_err()) {
@@ -152,8 +152,8 @@ parse_and_validate_keep_alive_info(const std::string &field_value) {
  */
 Result<int, int> HttpRequest::set_keep_alive(const std::string &field_name,
 											 const std::string &field_value) {
-	std::map<std::string, std::string> keep_alive_info;
 	Result<std::map<std::string, std::string>, int> result;
+	std::map<std::string, std::string> keep_alive_info;
 
 	clear_field_values_of(field_name);
 	result = parse_and_validate_keep_alive_info(field_value);

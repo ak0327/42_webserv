@@ -12,9 +12,9 @@ class MediaType : public FieldValueBase {
 	MediaType(const std::string &type,
 			  const std::string &subtype,
 			  const std::map<std::string, std::string> &parameters);
+	MediaType(const MediaType &other);
 	virtual ~MediaType();
 
-	MediaType(const MediaType &other);
 	MediaType &operator=(const MediaType &rhs);
 
 	std::string get_type() const;

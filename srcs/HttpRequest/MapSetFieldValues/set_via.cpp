@@ -148,7 +148,7 @@ bool is_valid_received_protocol(const std::string &received_protocol) {
 	if (received_protocol.empty()) {
 		return false;
 	}
-	pos = received_protocol.find('/');
+	pos = received_protocol.find(SLASH);
 	if (pos == std::string::npos) {
 		protocol_version = received_protocol;
 		return HttpMessageParser::is_token(protocol_version);
@@ -169,7 +169,7 @@ bool is_valid_received_by(const std::string &received_by) {
 	std::string pseudonym, port;
 	std::size_t pos;
 
-	pos = received_by.find(':');
+	pos = received_by.find(COLON);
 	if (pos == std::string::npos) {
 		pseudonym = received_by;
 		return HttpMessageParser::is_token(pseudonym);

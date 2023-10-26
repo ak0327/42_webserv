@@ -32,7 +32,9 @@ bool is_print(const std::string &str)
 // Delimiters : set of US-ASCII visual characters not allowed in a token
 //  (DQUOTE and "(),/:;<=>?@[\]{}").
 bool is_delimiters(char c) {
-	return StringHandler::is_char_in_str(c, DELIMITERS);
+	const std::string delimiters = "\"(),/:;<=>?@[\\]{}";
+
+	return StringHandler::is_char_in_str(c, delimiters);
 }
 
 // VCHAR = %x21-7E ; (any visible [USASCII] character).
@@ -119,7 +121,7 @@ bool is_token68(const std::string &str) {
 	}
 	if (pos == 0) { return false; }
 
-	while (str[pos] == '=') {
+	while (str[pos] == EQUAL_SIGN) {
 		++pos;
 	}
 
@@ -131,17 +133,23 @@ bool is_token68(const std::string &str) {
  https://httpwg.org/specs/rfc6266.html#n-grammar
  */
 bool is_ext_token(const std::string &str) {
-	std::size_t pos;
+	std::size_t len, last_asterisk_pos;
 
-	if (str.empty()) { return false; }
-	pos = 0;
-	while (str[pos] && HttpMessageParser::is_tchar(str[pos])) {
-		++pos;
-	}
-	if (pos < 2 || str[pos - 1] != '*') {
+	if (str.empty()) {
 		return false;
 	}
-	return str[pos] == '\0';
+
+	len = 0;
+	while (str[len] && HttpMessageParser::is_tchar(str[len])) {
+		if (str[len] == '*') {
+			last_asterisk_pos = len;
+		}
+		++len;
+	}
+	if (len < 2 || last_asterisk_pos + 1 != len) {
+		return false;
+	}
+	return str[len] == '\0';
 }
 
 /*
@@ -854,7 +862,9 @@ bool is_unreserved(char c) {
 
 // sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
 bool is_sub_delims(char c) {
-	return StringHandler::is_char_in_str(c, SUB_DELIMS);
+	const std::string sub_delims = "!$&'()*+,;=\"";
+
+	return StringHandler::is_char_in_str(c, sub_delims);
 }
 
 bool is_reg_name(const std::string &str) {

@@ -8,18 +8,6 @@
 
 namespace HttpMessageParser {
 
-
-bool is_end_with_cr(const std::string &value);
-bool is_positive_under_intmax_double(const std::string &value);
-bool is_print(const std::string &value);
-
-std::string	obtain_word_after_delimiter(const std::string &str, char delimiter);
-std::string	obtain_withoutows_value(const std::string &field_value_with_ows);
-std::string	obtain_weight(const std::string &field_value);
-std::string	obtain_word_before_delimiter(const std::string &field_value, const char &delimiter);
-
-////////////////////////////////////////////////////////////////////////////////
-
 int to_integer_num(const std::string &str, bool *succeed);
 int to_delta_seconds(const std::string &str, bool *succeed);
 
@@ -50,6 +38,9 @@ bool is_unreserved(char c);
 bool is_sub_delims(char c);
 bool is_atext(char c);
 
+bool is_end_with_cr(const std::string &str);
+bool is_positive_under_intmax_double(const std::string &str);
+bool is_print(const std::string &str);
 bool is_field_content(const std::string &str);
 bool is_token(const std::string &str);
 bool is_token68(const std::string &str);
@@ -108,7 +99,6 @@ bool is_langtag_option(const std::string &str,
 					   void (*skip_func)(const std::string &,
 										 std::size_t,
 										 std::size_t *));
-
 
 bool is_header_body_separator(const std::string &line_end_with_cr);
 bool is_quoted_pair(const std::string &str, std::size_t start_pos);
@@ -359,6 +349,16 @@ void skip_other_range(const std::string &str,
 					  std::size_t start_pos,
 					  std::size_t *end_pos);
 
+Result<std::size_t, int> skip_ows_delimiter_ows(const std::string &field_value,
+												char delimiter,
+												std::size_t start_pos);
+
+Result<std::size_t, int> skip_ows_comma_ows(const std::string &field_value,
+											std::size_t start_pos);
+
+Result<std::size_t, int> skip_noop(const std::string &field_value,
+								   std::size_t start_pos);
+
 ////////////////////////////////////////////////////////////////////////////////
 
 Result<std::size_t, int> get_double_colon_pos(const std::string &str,
@@ -401,7 +401,7 @@ Result<int, int> parse_parameter(const std::string &field_value,
 								 std::string *ret_parameter_value,
 								 void (*skip_parameter_name)(const std::string &, std::size_t, std::size_t *),
 								 void (*skip_parameter_value)(const std::string &, std::size_t, std::size_t *),
-								 char separator = '=',
+								 char separator = EQUAL_SIGN,
 								 bool is_value_optional = false,
 								 bool skip_bws = false);
 
@@ -436,7 +436,7 @@ parse_map_field_values(const std::string &field_value,
 													std::size_t *),
 					   Result<std::size_t, int> (*skip_to_next_parameter)(const std::string &,
 																		  std::size_t),
-					   char separator = '=',
+					   char separator = EQUAL_SIGN,
 					   bool is_value_optional = false);
 
 Result<std::set<std::map<std::string, std::string> >, int>
@@ -467,15 +467,5 @@ Result<int, int> validate_http_date(date_format format,
 									const std::string &minute,
 									const std::string &second,
 									const std::string &gmt);
-
-Result<std::size_t, int> skip_ows_delimiter_ows(const std::string &field_value,
-												char delimiter,
-												std::size_t start_pos);
-
-Result<std::size_t, int> skip_ows_comma_ows(const std::string &field_value,
-											std::size_t start_pos);
-
-Result<std::size_t, int> skip_non(const std::string &field_value,
-								  std::size_t start_pos);
 
 }  // namespace HttpMessageParser

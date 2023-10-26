@@ -91,7 +91,7 @@ void skip_transfer_parameter(const std::string &str,
 	HttpMessageParser::skip_ows(str, &*pos);
 
 	// '='
-	if (str[*pos] != '=') { return; }
+	if (str[*pos] != EQUAL_SIGN) { return; }
 	*pos += 1;
 
 	// BWS
@@ -183,9 +183,9 @@ Result<int, int> parse_serialized_origin(const std::string &field_value,
 	}
 	pos = start_pos;
 	*end_pos = start_pos;
-	*scheme = "";
-	*host = "";
-	*port = "";
+	*scheme = std::string(EMPTY);
+	*host = std::string(EMPTY);
+	*port = std::string(EMPTY);
 	if (field_value.empty() || field_value.length() < start_pos) {
 		return Result<int, int>::err(ERR);
 	}

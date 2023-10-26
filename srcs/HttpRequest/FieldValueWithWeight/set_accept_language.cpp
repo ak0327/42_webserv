@@ -129,7 +129,7 @@ Result<SingleFieldValue *, int> parse_valid_language_range(const std::string &fi
 Result<std::set<FieldValueWithWeight>, int>
 parse_and_validate_language_range_with_weight_set(const std::string &field_value) {
 	std::set<FieldValueWithWeight> language_range_set;
-	FieldValueWithWeight ranguage_range_with_weight;
+	FieldValueWithWeight language_range_with_weight;
 	SingleFieldValue *language_range;
 	double weight;
 	std::size_t pos, end;
@@ -159,8 +159,8 @@ parse_and_validate_language_range_with_weight_set(const std::string &field_value
 		weight = weight_result.get_ok_value();
 		pos = end;
 
-		ranguage_range_with_weight = FieldValueWithWeight(language_range, weight);
-		language_range_set.insert(ranguage_range_with_weight);
+		language_range_with_weight = FieldValueWithWeight(language_range, weight);
+		language_range_set.insert(language_range_with_weight);
 
 		skip_result = HttpMessageParser::skip_ows_delimiter_ows(field_value, COMMA, pos);
 		if (skip_result.is_err()) {
@@ -185,8 +185,8 @@ parse_and_validate_language_range_with_weight_set(const std::string &field_value
 // FieldValueWithSet : SingleFieldValue, weight
 Result<int, int> HttpRequest::set_accept_language(const std::string &field_name,
 												  const std::string &field_value) {
-	std::set<FieldValueWithWeight> language_range_weight_set;
 	Result<std::set<FieldValueWithWeight>, int> result;
+	std::set<FieldValueWithWeight> language_range_weight_set;
 
 	clear_field_values_of(field_name);
 

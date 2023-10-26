@@ -78,14 +78,14 @@ void skip_range_set(const std::string &str,
  */
 Result<int, int> HttpRequest::set_range(const std::string &field_name,
 										const std::string &field_value) {
-	std::map<std::string, std::string> range_specifier;
 	Result<std::map<std::string, std::string>, int> result;
+	std::map<std::string, std::string> range_specifier;
 
 	clear_field_values_of(field_name);
 	result = HttpMessageParser::parse_map_field_values(field_value,
 													   skip_range_unit,
 													   skip_range_set,
-													   HttpMessageParser::skip_non);
+													   HttpMessageParser::skip_noop);
 	if (result.is_ok()) {
 		range_specifier = result.get_ok_value();
 		this->_request_header_fields[field_name] = new MapFieldValues(range_specifier);

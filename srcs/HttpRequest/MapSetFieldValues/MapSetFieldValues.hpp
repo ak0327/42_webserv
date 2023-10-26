@@ -9,9 +9,9 @@
 class MapSetFieldValues : public FieldValueBase {
  public:
 	explicit MapSetFieldValues(const std::set<std::map<std::string, std::string> > &values);
+	MapSetFieldValues(const MapSetFieldValues &other);
 	virtual ~MapSetFieldValues();
 
-	MapSetFieldValues(const MapSetFieldValues &other);
 	MapSetFieldValues &operator=(const MapSetFieldValues &rhs);
 
 	std::set<std::map<std::string, std::string> > get_map_set_values() const;

@@ -80,9 +80,9 @@ Result<std::set<FieldValueWithWeight>, int>
 parse_and_validate_coding_with_weight_set(const std::string &field_value) {
 	std::set<FieldValueWithWeight> coding_weight_set;
 	FieldValueWithWeight coding_with_weight;
+	std::size_t pos, end;
 	SingleFieldValue *codings;
 	double weight;
-	std::size_t pos, end;
 	Result<SingleFieldValue *, int> coding_result;
 	Result<double, int> weight_result;
 	Result<std::size_t, int> skip_result;
@@ -134,8 +134,8 @@ parse_and_validate_coding_with_weight_set(const std::string &field_value) {
 // FieldValueWithSet : SingleFieldValue, weight
 Result<int, int> HttpRequest::set_accept_encoding(const std::string &field_name,
 												  const std::string &field_value) {
-	std::set<FieldValueWithWeight> codings_weight_set;
 	Result<std::set<FieldValueWithWeight>, int> result;
+	std::set<FieldValueWithWeight> codings_weight_set;
 
 	clear_field_values_of(field_name);
 

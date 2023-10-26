@@ -10,8 +10,9 @@ class MultiFieldValues : public FieldValueBase {
  public:
 	explicit MultiFieldValues(const std::set<std::string> &values);
 	MultiFieldValues(const MultiFieldValues &other);
-	MultiFieldValues &operator=(const MultiFieldValues &rhs);
 	virtual ~MultiFieldValues();
+
+	MultiFieldValues &operator=(const MultiFieldValues &rhs);
 
 	std::set<std::string> get_values() const;
 

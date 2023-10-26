@@ -21,7 +21,7 @@ Result<int, int> HttpRequest::set_cache_control(const std::string &field_name,
 													   HttpMessageParser::skip_token,
 													   HttpMessageParser::skip_token_or_quoted_string,
 													   HttpMessageParser::skip_ows_comma_ows,
-													   '=',
+													   EQUAL_SIGN,
 													   true);
 	if (result.is_ok()) {
 		cache_directive = result.get_ok_value();

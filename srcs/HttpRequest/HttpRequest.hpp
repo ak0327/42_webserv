@@ -5,7 +5,6 @@
 # include <string>
 # include <sstream>
 # include <vector>
-
 # include "Date.hpp"
 # include "FieldValueBase.hpp"
 # include "MapFieldValues.hpp"
@@ -18,8 +17,6 @@ class HttpRequest {
  public:
 	explicit HttpRequest(const std::string &input);
 	~HttpRequest();
-
-	bool is_accept_langage_valueword(const std::string &value);
 
 	int get_status_code() const;
 	std::string	get_method() const;
@@ -49,7 +46,6 @@ class HttpRequest {
 
 	/* parse, validate */
 	int parse_and_validate_http_request(const std::string &input);
-
 	Result<int, int> parse_and_validate_field_lines(std::stringstream *ss);
 	Result<int, int> parse_field_line(const std::string &field_line,
 									  std::string *ret_field_name,
@@ -57,9 +53,9 @@ class HttpRequest {
 	std::string parse_message_body(std::stringstream *ss);
 
 	/* operator */
-	void init_field_name_parser(void);
-	void init_field_name_counter();
 	void increment_field_name_counter(const std::string &field_name);
+	void init_field_name_counter();
+	void init_field_name_parser(void);
 
 	void clear_field_values_of(const std::string &field_name);
 

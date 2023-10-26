@@ -48,59 +48,20 @@ double get_fractional_part(const std::string &str_after_decimal_point,
 
 namespace HttpMessageParser {
 
-// todo: test
-std::string obtain_word_before_delimiter(const std::string &field_value,
-										 const char &delimiter)
-{
-	return field_value.substr(0, field_value.find(delimiter));
-}
-
-// todo: test
-std::string obtain_word_after_delimiter(const std::string &str, char delimiter)
-{
-	return str.substr(str.find(delimiter) + 1);
-}
-
-// todo: test
-std::string	obtain_weight(const std::string &field_value)
-{
-	return (obtain_word_after_delimiter(field_value, '='));
-}
-
-// todo: test
-std::string obtain_withoutows_value(const std::string &field_value_with_ows)
-{
-	size_t		before_pos = 0;
-	size_t		after_pos = field_value_with_ows.length() - 1;
-
-	if (field_value_with_ows.empty())
-		return "";
-	while (is_whitespace(field_value_with_ows[before_pos])
-			&& before_pos != field_value_with_ows.length())
-		++before_pos;
-	while (is_whitespace(field_value_with_ows[after_pos])
-			&& after_pos != 0)
-		--after_pos;
-	if (before_pos > after_pos)
-		return "";
-	return (field_value_with_ows.substr(before_pos, after_pos - before_pos + 1));
-}
-
-////////////////////////////////////////////////////////////////////////////////
 
 // DIGIT = %x30-39; 10 進数字（ 0-9 ）
 // sign, space is not allowed for Request message
 int to_integer_num(const std::string &str, bool *succeed) {
 	bool		is_success = false, is_overflow;
 	int			num = 0;
-	std::size_t	idx = 0;
+	std::size_t	pos = 0;
 
 	if (succeed) { *succeed = is_success; }
-	if (!std::isdigit(str[idx])) {
+	if (!std::isdigit(str[pos])) {
 		return num;
 	}
-	num = StringHandler::stoi(str, &idx, &is_overflow);
-	if (str[idx] == '\0' && !is_overflow) {
+	num = StringHandler::stoi(str, &pos, &is_overflow);
+	if (str[pos] == '\0' && !is_overflow) {
 		is_success = true;
 	}
 	if (succeed && !is_overflow) { *succeed = is_success; }
@@ -116,14 +77,14 @@ int to_delta_seconds(const std::string &str, bool *succeed) {
 long to_long_num(const std::string &str, bool *succeed) {
 	bool		is_success = false, is_overflow;
 	long		num = 0;
-	std::size_t	idx = 0;
+	std::size_t	pos = 0;
 
 	if (succeed) { *succeed = is_success; }
-	if (!std::isdigit(str[idx])) {
+	if (!std::isdigit(str[pos])) {
 		return num;
 	}
-	num = StringHandler::stol(str, &idx, &is_overflow);
-	if (str[idx] == '\0' && !is_overflow) {
+	num = StringHandler::stol(str, &pos, &is_overflow);
+	if (str[pos] == '\0' && !is_overflow) {
 		is_success = true;
 	}
 	if (succeed && !is_overflow) { *succeed = is_success; }
@@ -187,7 +148,7 @@ Result<std::size_t, int> get_double_colon_pos(const std::string &str,
 	}
 	pos = start_pos;
 	while (str[pos] && str[pos + 1]) {
-		if (str[pos] == ':' && str[pos + 1] == ':') {
+		if (str[pos] == COLON && str[pos + 1] == COLON) {
 			return Result<std::size_t, int>::ok(pos);
 		}
 		++pos;
@@ -353,7 +314,7 @@ parse_parameters(const std::string &field_value,
 	while (field_value[pos]) {
 		HttpMessageParser::skip_ows(field_value, &pos);
 		tmp_pos = pos;
-		if (field_value[tmp_pos] != ';') {
+		if (field_value[tmp_pos] != SEMICOLON) {
 			return Result<std::map<std::string, std::string>, int>::err(ERR);
 		}
 		++tmp_pos;
@@ -364,7 +325,7 @@ parse_parameters(const std::string &field_value,
 									   &parameter_value,
 									   skip_parameter_name,
 									   skip_parameter_value,
-									   '=',
+									   EQUAL_SIGN,
 									   skip_bws);
 		if (parse_result.is_err()) {
 			break;
@@ -402,7 +363,7 @@ Result<std::string, int> parse_subtype(const std::string &field_value,
 	while (true) {
 		if (field_value[start_pos + len] == '\0') { break; }
 		if (field_value[start_pos + len] == SP) { break; }
-		if (field_value[start_pos + len] == ';') { break; }
+		if (field_value[start_pos + len] == SEMICOLON) { break; }
 		++len;
 	}
 	if (len == 0) {
@@ -452,7 +413,7 @@ Result<int, int> parse_madia_type(const std::string &field_value,
 	*ret_type = type_result.get_ok_value();
 	pos = end;
 
-	if (field_value[pos] != '/') {
+	if (field_value[pos] != SLASH) {
 		return Result<int, int>::err(ERR);
 	}
 	++pos;
@@ -661,7 +622,7 @@ parse_value_and_map_values(const std::string &field_value,
 	pos = end;
 	*end_pos = pos;
 
-	if (field_value[pos] != ';') {
+	if (field_value[pos] != SEMICOLON) {
 		return Result<int, int>::ok(OK);
 	}
 

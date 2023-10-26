@@ -887,7 +887,7 @@ TEST(Request, TEST6)
 	// 	std::set<std::string> keys1;
 	// 	valuemap1["filename"] = "\"example.txt\"";
 	// 	keys1.insert("filename");
-	// 	compair_valuemapset_withfirstvalue_report( valmap1->get_only_value(), valmap1->get_value_map(), "attachment", valuemap1, keys1);
+	// 	compair_valuemapset_withfirstvalue_report( valmap1->get_unique_value(), valmap1->get_value_map(), "attachment", valuemap1, keys1);
 	// }
 
 	// todo: later
@@ -933,7 +933,7 @@ TEST(Request, TEST6)
 	// 	//map型
 	// 	MapFieldValues* valmap8 = static_cast<MapFieldValues*>(httprequest_test1.get_field_values(
 	// 			"content-type"));
-	// 	EXPECT_EQ(valmap8->get_only_value(), "application/json");
+	// 	EXPECT_EQ(valmap8->get_unique_value(), "application/json");
 	// }
 }
 

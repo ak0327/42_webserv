@@ -530,7 +530,7 @@ void skip_quoted_string(const std::string &str,
 	*end_pos = start_pos;
 	len = 0;
 
-	if (str[start_pos + len] != '"') {
+	if (str[start_pos + len] != DOUBLE_QUOTE) {
 		return;
 	}
 	len += 1;
@@ -544,11 +544,11 @@ void skip_quoted_string(const std::string &str,
 			return;
 		}
 
-		if (str[start_pos + len] == '"') {
+		if (str[start_pos + len] == DOUBLE_QUOTE) {
 			break;
 		}
 	}
-	if (str[start_pos + len] != '"') {
+	if (str[start_pos + len] != DOUBLE_QUOTE) {
 		return;
 	}
 	++len;
@@ -571,7 +571,7 @@ void skip_userinfo(const std::string &str,
 	while (str[pos]) {
 		if (is_unreserved(str[pos])
 			|| is_sub_delims(str[pos])
-			|| str[pos] == ':') {
+			|| str[pos] == COLON) {
 			++pos;
 			continue;
 		}
@@ -1526,8 +1526,8 @@ Result<std::size_t, int> skip_ows_comma_ows(const std::string &field_value,
 	return skip_ows_delimiter_ows(field_value, COMMA, start_pos);
 }
 
-Result<std::size_t, int> skip_non(const std::string &field_value,
-								  std::size_t start_pos) {
+Result<std::size_t, int> skip_noop(const std::string &field_value,
+								   std::size_t start_pos) {
 	if (field_value.length() < start_pos) {
 		return Result<std::size_t, int>::err(ERR);
 	}

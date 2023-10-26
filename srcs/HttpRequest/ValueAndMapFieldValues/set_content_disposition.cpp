@@ -30,7 +30,7 @@ Result<std::string, int> parse_disposition_type(const std::string &field_value,
 	}
 
 	pos = start_pos;
-	end = field_value.find(';', pos);
+	end = field_value.find(SEMICOLON, pos);
 	if (end == std::string::npos) {
 		len = field_value.length();
 	} else {
@@ -102,7 +102,7 @@ Result<int, int> parse_param(const std::string &field_value,
 
 	// key
 	pos = start_pos;
-	end = field_value.find('=', pos);
+	end = field_value.find(EQUAL_SIGN, pos);
 	if (end == std::string::npos) {
 		return Result<int, int>::err(ERR);
 	}
@@ -111,13 +111,13 @@ Result<int, int> parse_param(const std::string &field_value,
 
 	// =
 	pos += len;
-	if (field_value[pos] != '=') {
+	if (field_value[pos] != EQUAL_SIGN) {
 		return Result<int, int>::err(ERR);
 	}
 	++pos;
 
 	// value
-	end = field_value.find(';', pos);
+	end = field_value.find(SEMICOLON, pos);
 	if (end == std::string::npos) {
 		end = field_value.length();
 	}
@@ -151,32 +151,27 @@ parse_disposition_param(const std::string &field_value,
 	std::size_t pos, end;
 	std::string key, value;
 
-	// std::cout << MAGENTA << "  &field_value[start]:[" << &field_value[start_pos] << "]" << RESET << std::endl;
 
 	if (!end_pos) {
 		return Result<std::map<std::string, std::string>, int>::err(ERR);
 	}
 	*end_pos = start_pos;
 	if (field_value.empty() || field_value.length() < start_pos) {
-		// std::cout << MAGENTA << "  err 1" << RESET << std::endl;
 		return Result<std::map<std::string, std::string>, int>::err(ERR);
 	}
 
 	pos = start_pos;
 	while (field_value[pos]) {
-		if (field_value[pos] != ';') {
-			// std::cout << MAGENTA << "  err 2" << RESET << std::endl;
+		if (field_value[pos] != SEMICOLON) {
 			return Result<std::map<std::string, std::string>, int>::err(ERR);
 		}
 		++pos;
 
 		parse_result = parse_param(field_value, pos, &end, &key, &value);
 		if (parse_result.is_err()) {
-			// std::cout << MAGENTA << "  err 3" << RESET << std::endl;
 			return Result<std::map<std::string, std::string>, int>::err(ERR);
 		}
 		disposition_param[key] = value;
-		// std::cout << MAGENTA << "  key:[" << key << "], value:[" << value << "]" << RESET << std::endl;
 		pos = end;
 	}
 	*end_pos = pos;
@@ -224,13 +219,13 @@ bool is_ext_param_value(const std::string &value) {
 	if (value.empty()) { return false; }
 
 	pos = 0;
-	if (value[pos] != '\'') { return false; }
+	if (value[pos] != SINGLE_QUOTE) { return false; }
 	++pos;
 
 	HttpMessageParser::skip_language_tag(value, pos, &end);
 	pos = end;
 
-	if (value[pos] != '\'') { return false; }
+	if (value[pos] != SINGLE_QUOTE) { return false; }
 	++pos;
 
 	while (value[pos]) {

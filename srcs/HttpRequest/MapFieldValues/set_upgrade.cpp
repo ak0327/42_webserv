@@ -21,7 +21,7 @@ Result<int, int> HttpRequest::set_upgrade(const std::string &field_name,
 													   HttpMessageParser::skip_token,
 													   HttpMessageParser::skip_token,
 													   HttpMessageParser::skip_ows_comma_ows,
-													   '/',
+													   SLASH,
 													   true);
 	if (result.is_ok()) {
 		keep_alive_info = result.get_ok_value();

@@ -32,14 +32,17 @@ extern const int STATUS_SERVER_ERROR;
 ////////////////////////////////////////////////////////////////////////////////
 /* char */
 
-extern const char COMMA;
 extern const char COLON;
+extern const char COMMA;
+extern const char DOUBLE_QUOTE;
+extern const char EQUAL_SIGN;
 extern const char SEMICOLON;
+extern const char SINGLE_QUOTE;
+extern const char SLASH;
 
 extern const char ELEMENT_SEPARATOR;
 
 extern const char EMPTY[];
-
 extern const char TIMEOUT[];
 
 
@@ -56,9 +59,6 @@ extern const char LF;
 extern const char SP;
 
 extern const char CRLF[];
-
-extern const char DELIMITERS[];
-extern const char SUB_DELIMS[];
 
 ////////////////////////////////////////////////////////////////////////////////
 /* method */
