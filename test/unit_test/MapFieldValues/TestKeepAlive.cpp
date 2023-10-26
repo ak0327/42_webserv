@@ -24,7 +24,7 @@ TEST(TestMapFieldValues, KeepAlilveOK1) {
 		std::map<std::string, std::string> expected_map = {{"timeout", "5"},
 														   {"max", "1000"}};
 
-		EXPECT_EQ(actual_map, expected_map);
+		EXPECT_EQ(expected_map, actual_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -52,7 +52,7 @@ TEST(TestMapFieldValues, KeepAlilveOK2) {
 		std::map<std::string, std::string> expected_map = {{"timeout", "5"},
 														   {"max", "0001000"}};
 
-		EXPECT_EQ(actual_map, expected_map);
+		EXPECT_EQ(expected_map, actual_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -80,7 +80,7 @@ TEST(TestMapFieldValues, KeepAlilveOK3) {
 		std::map<std::string, std::string> expected_map = {{"timeout", "0"},
 														   {"a", "\" SP OK\""}};
 
-		EXPECT_EQ(actual_map, expected_map);
+		EXPECT_EQ(expected_map, actual_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -107,7 +107,7 @@ TEST(TestMapFieldValues, KeepAlilveOK4) {
 		std::map<std::string, std::string> actual_map = multi_field_values->get_value_map();
 		std::map<std::string, std::string> expected_map = {{"a", "c"}};
 
-		EXPECT_EQ(actual_map, expected_map);
+		EXPECT_EQ(expected_map, actual_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -138,7 +138,7 @@ TEST(TestMapFieldValues, KeepAlilveOK5) {
 		std::map<std::string, std::string> expected_map = {{"timeout", "5"},
 														   {"max", "1000"}};
 
-		EXPECT_EQ(actual_map, expected_map);
+		EXPECT_EQ(expected_map, actual_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -170,7 +170,7 @@ TEST(TestMapFieldValues, KeepAlilveOK6) {
 														   {"b", ""},
 														   {"c", "d"}};
 
-		EXPECT_EQ(actual_map, expected_map);
+		EXPECT_EQ(expected_map, actual_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";

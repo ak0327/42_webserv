@@ -23,7 +23,7 @@ TEST(TestMapFieldValues, UpgradeOK1) {
 		std::map<std::string, std::string> actual_map = multi_field_values->get_value_map();
 		std::map<std::string, std::string> expected_map = {{"example", ""}};
 
-		EXPECT_EQ(actual_map, expected_map);
+		EXPECT_EQ(expected_map, actual_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -50,7 +50,7 @@ TEST(TestMapFieldValues, UpgradeOK2) {
 		std::map<std::string, std::string> actual_map = multi_field_values->get_value_map();
 		std::map<std::string, std::string> expected_map = {{"HTTP", "2.0"}};
 
-		EXPECT_EQ(actual_map, expected_map);
+		EXPECT_EQ(expected_map, actual_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -82,7 +82,7 @@ TEST(TestMapFieldValues, UpgradeOK3) {
 														   {"b", ""},
 														   {"c", ""}};
 
-		EXPECT_EQ(actual_map, expected_map);
+		EXPECT_EQ(expected_map, actual_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";

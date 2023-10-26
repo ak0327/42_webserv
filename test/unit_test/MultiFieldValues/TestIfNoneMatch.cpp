@@ -23,18 +23,7 @@ TEST(TestMultiFieldValues, IfNoneMatchOK1) {
 		std::set<std::string> actual_values = multi_field_values->get_values();
 		std::set<std::string> expected_values = {"\"bfc13a64729c4290ef5b2c2730249c88ca92d82d\""};
 
-		EXPECT_EQ(actual_values.size(), expected_values.size());
-
-		std::set<std::string>::iterator actual_itr, expected_itr;
-		actual_itr = actual_values.begin();
-		expected_itr = expected_values.begin();
-		while (actual_itr != actual_values.end() && expected_itr != expected_values.end()) {
-			EXPECT_EQ(*expected_itr, *actual_itr);
-			++actual_itr;
-			++expected_itr;
-		}
-		EXPECT_TRUE(actual_itr == actual_values.end());
-		EXPECT_TRUE(expected_itr == expected_values.end());
+		EXPECT_EQ(expected_values, actual_values);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -61,18 +50,7 @@ TEST(TestMultiFieldValues, IfNoneMatchOK2) {
 		std::set<std::string> actual_values = multi_field_values->get_values();
 		std::set<std::string> expected_values = {"W/\"67ab43\"", "\"54ed21\"", "\"7892dd\""};
 
-		EXPECT_EQ(actual_values.size(), expected_values.size());
-
-		std::set<std::string>::iterator actual_itr, expected_itr;
-		actual_itr = actual_values.begin();
-		expected_itr = expected_values.begin();
-		while (actual_itr != actual_values.end() && expected_itr != expected_values.end()) {
-			EXPECT_EQ(*expected_itr, *actual_itr);
-			++actual_itr;
-			++expected_itr;
-		}
-		EXPECT_TRUE(actual_itr == actual_values.end());
-		EXPECT_TRUE(expected_itr == expected_values.end());
+		EXPECT_EQ(expected_values, actual_values);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -99,18 +77,7 @@ TEST(TestMultiFieldValues, IfNoneMatchOK3) {
 		std::set<std::string> actual_values = multi_field_values->get_values();
 		std::set<std::string> expected_values = {"*"};
 
-		EXPECT_EQ(actual_values.size(), expected_values.size());
-
-		std::set<std::string>::iterator actual_itr, expected_itr;
-		actual_itr = actual_values.begin();
-		expected_itr = expected_values.begin();
-		while (actual_itr != actual_values.end() && expected_itr != expected_values.end()) {
-			EXPECT_EQ(*expected_itr, *actual_itr);
-			++actual_itr;
-			++expected_itr;
-		}
-		EXPECT_TRUE(actual_itr == actual_values.end());
-		EXPECT_TRUE(expected_itr == expected_values.end());
+		EXPECT_EQ(expected_values, actual_values);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";

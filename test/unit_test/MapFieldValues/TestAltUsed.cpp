@@ -23,7 +23,7 @@ TEST(TestMapFieldValues, AltUsedOK1) {
 		std::map<std::string, std::string> actual_map = multi_field_values->get_value_map();
 		std::map<std::string, std::string> expected_map = {{std::string(URI_HOST), "alternate.example.net"}};
 
-		EXPECT_EQ(actual_map, expected_map);
+		EXPECT_EQ(expected_map, actual_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -52,7 +52,7 @@ TEST(TestMapFieldValues, AltUsedOK2) {
 		std::map<std::string, std::string> expected_map = {{std::string(URI_HOST), "example.com"},
 														   {std::string(PORT), "8080"}};
 
-		EXPECT_EQ(actual_map, expected_map);
+		EXPECT_EQ(expected_map, actual_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -80,7 +80,7 @@ TEST(TestMapFieldValues, AltUsedOK3) {
 		std::map<std::string, std::string> expected_map = {{std::string(URI_HOST), "192.168.0.1"},
 														   {std::string(PORT), "8080"}};
 
-		EXPECT_EQ(actual_map, expected_map);
+		EXPECT_EQ(expected_map, actual_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -108,7 +108,7 @@ TEST(TestMapFieldValues, AltUsedOK4) {
 		std::map<std::string, std::string> expected_map = {{std::string(URI_HOST), "[ABCD:EF01:2345:6789:ABCD:EF01:2345:6789]"},
 														   {std::string(PORT), "8080"}};
 
-		EXPECT_EQ(actual_map, expected_map);
+		EXPECT_EQ(expected_map, actual_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -136,7 +136,7 @@ TEST(TestMapFieldValues, AltUsedOK5) {
 		std::map<std::string, std::string> expected_map = {{std::string(URI_HOST), "localhost"},
 														   {std::string(PORT), "8080"}};
 
-		EXPECT_EQ(actual_map, expected_map);
+		EXPECT_EQ(expected_map, actual_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";

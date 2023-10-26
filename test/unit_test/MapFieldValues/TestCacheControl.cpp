@@ -23,7 +23,7 @@ TEST(TestMapFieldValues, CacheControlOK1) {
 		std::map<std::string, std::string> actual_map = multi_field_values->get_value_map();
 		std::map<std::string, std::string> expected_map = {{"max-age", "604800"}};
 
-		EXPECT_EQ(actual_map, expected_map);
+		EXPECT_EQ(expected_map, actual_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -52,7 +52,7 @@ TEST(TestMapFieldValues, CacheControlOK2) {
 														   {"max-age", "604800"},
 														   {"immutable", ""}};
 
-		EXPECT_EQ(actual_map, expected_map);
+		EXPECT_EQ(expected_map, actual_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -80,7 +80,7 @@ TEST(TestMapFieldValues, CacheControlOK3) {
 		std::map<std::string, std::string> expected_map = {{"must-understand", ""},
 														   {"no-store", ""}};
 
-		EXPECT_EQ(actual_map, expected_map);
+		EXPECT_EQ(expected_map, actual_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -108,7 +108,7 @@ TEST(TestMapFieldValues, CacheControlOK4) {
 		std::map<std::string, std::string> expected_map = {{"max-age", "604800"},
 														   {"stale-while-revalidate", "86400"}};
 
-		EXPECT_EQ(actual_map, expected_map);
+		EXPECT_EQ(expected_map, actual_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -141,7 +141,7 @@ TEST(TestMapFieldValues, CacheControlOK5) {
 														   {"d", ""},
 														   {"e", ""}};
 
-		EXPECT_EQ(actual_map, expected_map);
+		EXPECT_EQ(expected_map, actual_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -168,7 +168,7 @@ TEST(TestMapFieldValues, CacheControlOK6) {
 		std::map<std::string, std::string> actual_map = multi_field_values->get_value_map();
 		std::map<std::string, std::string> expected_map = {{"a", "\"123\""}};
 
-		EXPECT_EQ(actual_map, expected_map);
+		EXPECT_EQ(expected_map, actual_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";

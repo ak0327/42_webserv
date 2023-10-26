@@ -20,21 +20,10 @@ TEST(TestMultiFieldValues, ContentLanguageOK1) {
 	if (has_field_name) {
 		FieldValueBase *field_values = request.get_field_values(field_name);
 		MultiFieldValues *multi_field_values = dynamic_cast<MultiFieldValues *>(field_values);
-		std::set<std::string> actual_set = multi_field_values->get_values();
-		std::set<std::string> expected_set = {"de-DE"};
+		std::set<std::string> actual_values = multi_field_values->get_values();
+		std::set<std::string> expected_values = {"de-DE"};
 
-		EXPECT_EQ(actual_set.size(), expected_set.size());
-
-		std::set<std::string>::iterator actual_itr, expected_itr;
-		actual_itr = actual_set.begin();
-		expected_itr = expected_set.begin();
-		while (actual_itr != actual_set.end() && expected_itr != expected_set.end()) {
-			EXPECT_EQ(*expected_itr, *actual_itr);
-			++actual_itr;
-			++expected_itr;
-		}
-		EXPECT_TRUE(actual_itr == actual_set.end());
-		EXPECT_TRUE(expected_itr == expected_set.end());
+		EXPECT_EQ(expected_values, actual_values);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -58,21 +47,10 @@ TEST(TestMultiFieldValues, ContentLanguageOK2) {
 	if (has_field_name) {
 		FieldValueBase *field_values = request.get_field_values(field_name);
 		MultiFieldValues *multi_field_values = dynamic_cast<MultiFieldValues *>(field_values);
-		std::set<std::string> actual_set = multi_field_values->get_values();
-		std::set<std::string> expected_set = {"de-DE", "en-CA"};
+		std::set<std::string> actual_values = multi_field_values->get_values();
+		std::set<std::string> expected_values = {"de-DE", "en-CA"};
 
-		EXPECT_EQ(actual_set.size(), expected_set.size());
-
-		std::set<std::string>::iterator actual_itr, expected_itr;
-		actual_itr = actual_set.begin();
-		expected_itr = expected_set.begin();
-		while (actual_itr != actual_set.end() && expected_itr != expected_set.end()) {
-			EXPECT_EQ(*expected_itr, *actual_itr);
-			++actual_itr;
-			++expected_itr;
-		}
-		EXPECT_TRUE(actual_itr == actual_set.end());
-		EXPECT_TRUE(expected_itr == expected_set.end());
+		EXPECT_EQ(expected_values, actual_values);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -96,21 +74,10 @@ TEST(TestMultiFieldValues, ContentLanguageOK3) {
 	if (has_field_name) {
 		FieldValueBase *field_values = request.get_field_values(field_name);
 		MultiFieldValues *multi_field_values = dynamic_cast<MultiFieldValues *>(field_values);
-		std::set<std::string> actual_set = multi_field_values->get_values();
-		std::set<std::string> expected_set = {"AAA-CCCC-123-12345-a-12-1234bbbb-1212-x-12345678-aaaa-12ab"};
+		std::set<std::string> actual_values = multi_field_values->get_values();
+		std::set<std::string> expected_values = {"AAA-CCCC-123-12345-a-12-1234bbbb-1212-x-12345678-aaaa-12ab"};
 
-		EXPECT_EQ(actual_set.size(), expected_set.size());
-
-		std::set<std::string>::iterator actual_itr, expected_itr;
-		actual_itr = actual_set.begin();
-		expected_itr = expected_set.begin();
-		while (actual_itr != actual_set.end() && expected_itr != expected_set.end()) {
-			EXPECT_EQ(*expected_itr, *actual_itr);
-			++actual_itr;
-			++expected_itr;
-		}
-		EXPECT_TRUE(actual_itr == actual_set.end());
-		EXPECT_TRUE(expected_itr == expected_set.end());
+		EXPECT_EQ(expected_values, actual_values);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -134,21 +101,10 @@ TEST(TestMultiFieldValues, ContentLanguageOK4) {
 	if (has_field_name) {
 		FieldValueBase *field_values = request.get_field_values(field_name);
 		MultiFieldValues *multi_field_values = dynamic_cast<MultiFieldValues *>(field_values);
-		std::set<std::string> actual_set = multi_field_values->get_values();
-		std::set<std::string> expected_set = {"en-GB-oed", "i-hak"};
+		std::set<std::string> actual_values = multi_field_values->get_values();
+		std::set<std::string> expected_values = {"en-GB-oed", "i-hak"};
 
-		EXPECT_EQ(actual_set.size(), expected_set.size());
-
-		std::set<std::string>::iterator actual_itr, expected_itr;
-		actual_itr = actual_set.begin();
-		expected_itr = expected_set.begin();
-		while (actual_itr != actual_set.end() && expected_itr != expected_set.end()) {
-			EXPECT_EQ(*expected_itr, *actual_itr);
-			++actual_itr;
-			++expected_itr;
-		}
-		EXPECT_TRUE(actual_itr == actual_set.end());
-		EXPECT_TRUE(expected_itr == expected_set.end());
+		EXPECT_EQ(expected_values, actual_values);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";

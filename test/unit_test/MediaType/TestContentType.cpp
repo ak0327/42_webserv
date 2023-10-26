@@ -34,19 +34,7 @@ TEST(TestMediaType, ContentTypeOK1) {
 		std::map<std::string, std::string> actual_param = data->get_parameters();
 		std::map<std::string, std::string> expected_param = {};
 
-		EXPECT_EQ(actual_param.size(), expected_param.size());
-
-		std::map<std::string, std::string>::iterator params_itr, ans_itr;
-		params_itr = actual_param.begin();
-		ans_itr = expected_param.begin();
-		while (params_itr != actual_param.end() && ans_itr != expected_param.end()) {
-			EXPECT_EQ(ans_itr->second, params_itr->second);
-			++params_itr;
-			++ans_itr;
-		}
-		EXPECT_TRUE(params_itr == actual_param.end());
-		EXPECT_TRUE(ans_itr == expected_param.end());
-
+		EXPECT_EQ(actual_param, expected_param);
 		//----------------------------------------------------------------------
 
 		EXPECT_EQ(true, data->is_ok());
@@ -84,21 +72,9 @@ TEST(TestMediaType, ContentTypeOK2) {
 		//----------------------------------------------------------------------
 
 		std::map<std::string, std::string> actual_param = data->get_parameters();
-		std::map<std::string, std::string> expected_param = {{"charaset", "utf-8"}};
+		std::map<std::string, std::string> expected_param = {{"charset", "utf-8"}};
 
-		EXPECT_EQ(actual_param.size(), expected_param.size());
-
-		std::map<std::string, std::string>::iterator params_itr, ans_itr;
-		params_itr = actual_param.begin();
-		ans_itr = expected_param.begin();
-		while (params_itr != actual_param.end() && ans_itr != expected_param.end()) {
-			EXPECT_EQ(ans_itr->second, params_itr->second);
-			++params_itr;
-			++ans_itr;
-		}
-		EXPECT_TRUE(params_itr == actual_param.end());
-		EXPECT_TRUE(ans_itr == expected_param.end());
-
+		EXPECT_EQ(actual_param, expected_param);
 		//----------------------------------------------------------------------
 
 		EXPECT_EQ(true, data->is_ok());
@@ -136,22 +112,10 @@ TEST(TestMediaType, ContentTypeOK3) {
 		//----------------------------------------------------------------------
 
 		std::map<std::string, std::string> actual_param = data->get_parameters();
-		std::map<std::string, std::string> expected_param = {{"charaset", "utf-8"},
+		std::map<std::string, std::string> expected_param = {{"charset", "utf-8"},
 															 {"boundary", "something"}};
 
-		EXPECT_EQ(actual_param.size(), expected_param.size());
-
-		std::map<std::string, std::string>::iterator params_itr, ans_itr;
-		params_itr = actual_param.begin();
-		ans_itr = expected_param.begin();
-		while (params_itr != actual_param.end() && ans_itr != expected_param.end()) {
-			EXPECT_EQ(ans_itr->second, params_itr->second);
-			++params_itr;
-			++ans_itr;
-		}
-		EXPECT_TRUE(params_itr == actual_param.end());
-		EXPECT_TRUE(ans_itr == expected_param.end());
-
+		EXPECT_EQ(actual_param, expected_param);
 		//----------------------------------------------------------------------
 
 		EXPECT_EQ(true, data->is_ok());
@@ -189,22 +153,10 @@ TEST(TestMediaType, ContentTypeOK4) {
 		//----------------------------------------------------------------------
 
 		std::map<std::string, std::string> actual_param = data->get_parameters();
-		std::map<std::string, std::string> expected_param = {{"charaset", "\"utf-8  sp ok \""},
+		std::map<std::string, std::string> expected_param = {{"charset", "\"utf-8  sp ok \""},
 															 {"a", "b"}};
 
-		EXPECT_EQ(actual_param.size(), expected_param.size());
-
-		std::map<std::string, std::string>::iterator params_itr, ans_itr;
-		params_itr = actual_param.begin();
-		ans_itr = expected_param.begin();
-		while (params_itr != actual_param.end() && ans_itr != expected_param.end()) {
-			EXPECT_EQ(ans_itr->second, params_itr->second);
-			++params_itr;
-			++ans_itr;
-		}
-		EXPECT_TRUE(params_itr == actual_param.end());
-		EXPECT_TRUE(ans_itr == expected_param.end());
-
+		EXPECT_EQ(actual_param, expected_param);
 		//----------------------------------------------------------------------
 
 		EXPECT_EQ(true, data->is_ok());
