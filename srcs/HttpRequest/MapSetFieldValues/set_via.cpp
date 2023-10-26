@@ -9,32 +9,6 @@
 namespace {
 
 
-// *( OWS "," OWS element )
-//                      ^ start_pos
-Result<std::size_t, int> skip_to_next_via(const std::string &field_value,
-										  std::size_t start_pos) {
-	std::size_t pos;
-
-	if (field_value.length() < start_pos) {
-		return Result<std::size_t, int>::err(ERR);
-	}
-	pos = start_pos;
-	if (field_value[pos] == '\0') {
-		return Result<std::size_t, int>::ok(pos);
-	}
-
-	HttpMessageParser::skip_ows(field_value, &pos);
-	if (field_value[pos] != COMMA) {
-		return Result<std::size_t, int>::err(ERR);
-	}
-	++pos;
-	HttpMessageParser::skip_ows(field_value, &pos);
-	if (field_value[pos] == '\0') {
-		return Result<std::size_t, int>::err(ERR);
-	}
-	return Result<std::size_t, int>::ok(pos);
-}
-
 Result<std::string, int> parse_received_by(const std::string &field_value,
 										   std::size_t start_pos,
 										   std::size_t *end_pos) {
@@ -242,21 +216,14 @@ parse_and_validate_via_elems(const std::string &field_value,
 	std::map<std::string, std::string> via_elems;
 	Result<int, int> parse_result, validate_result;
 
-	// std::cout << CYAN << "&field_value[pos]:[" << &field_value[start_pos] << "]" << RESET << std::endl;
-
 	parse_result = parse_via_elems(field_value,
 								   start_pos, end_pos,
 								   &received_protocol,
 								   &received_by,
 								   &comment);
-	// std::cout << CYAN << " received_protocol:[" << received_protocol << "]" << RESET << std::endl;
-	// std::cout << CYAN << " received_by:[" << received_by << "]" << RESET << std::endl;
-	// std::cout << CYAN << " comment:[" << comment << "]" << RESET << std::endl;
 	if (parse_result.is_err()) {
-		// std::cout << CYAN << "parse error" << RESET << std::endl;
 		return Result<std::map<std::string, std::string>, int>::err(ERR);
 	}
-	// std::cout << CYAN << "parse ok" << RESET << std::endl;
 
 	validate_result = validate_via_elems(received_protocol, received_by, comment);
 	if (validate_result.is_err()) {
@@ -268,41 +235,6 @@ parse_and_validate_via_elems(const std::string &field_value,
 	via_elems[std::string(COMMENT)] = comment;
 
 	return Result<std::map<std::string, std::string>, int>::ok(via_elems);
-}
-
-/*
- Via = #( received-protocol RWS received-by [ RWS comment ] )
- 1#element => element *( OWS "," OWS element )
- */
-Result<std::set<std::map<std::string, std::string> >, int> parse_valid_via(const std::string &field_value) {
-	std::set<std::map<std::string, std::string> > via;
-	std::map<std::string, std::string> via_elems;
-	std::size_t pos, end;
-	Result<std::map<std::string, std::string>, int> parse_result;
-	Result<std::size_t, int> skip_result;
-
-	if (field_value.empty()) {
-		return Result<std::set<std::map<std::string, std::string> >, int>::err(ERR);
-	}
-
-	pos = 0;
-	while (field_value[pos]) {
-		parse_result = parse_and_validate_via_elems(field_value, pos, &end);
-		if (parse_result.is_err()) {
-			return Result<std::set<std::map<std::string, std::string> >, int>::err(ERR);
-		}
-		via_elems = parse_result.get_ok_value();
-		pos = end;
-
-		via.insert(via_elems);
-
-		skip_result = skip_to_next_via(field_value, pos);
-		if (skip_result.is_err()) {
-			return Result<std::set<std::map<std::string, std::string> >, int>::err(ERR);
-		}
-		pos = skip_result.get_ok_value();
-	}
-	return Result<std::set<std::map<std::string, std::string> >, int>::ok(via);
 }
 
 
@@ -336,7 +268,8 @@ Result<int, int> HttpRequest::set_via(const std::string &field_name,
 
 	clear_field_values_of(field_name);
 
-	result = parse_valid_via(field_value);
+	result = MapSetFieldValues::parse_map_set_field_values(field_value,
+														   parse_and_validate_via_elems);
 	if (result.is_err()) {
 		return Result<int, int>::ok(STATUS_OK);
 	}

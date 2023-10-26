@@ -23,18 +23,7 @@ TEST(TestMapFieldValues, RangeOK1) {
 		std::map<std::string, std::string> actual_map = multi_field_values->get_value_map();
 		std::map<std::string, std::string> expected_map = {{"bytes", "100-200"}};
 
-		EXPECT_EQ(actual_map.size(), expected_map.size());
-
-		std::map<std::string, std::string>::iterator actual_itr, expected_itr;
-		actual_itr = actual_map.begin();
-		expected_itr = expected_map.begin();
-		while (actual_itr != actual_map.end() && expected_itr != expected_map.end()) {
-			EXPECT_EQ(expected_itr->second, actual_itr->second);
-			++actual_itr;
-			++expected_itr;
-		}
-		EXPECT_TRUE(actual_itr == actual_map.end());
-		EXPECT_TRUE(expected_itr == expected_map.end());
+		EXPECT_EQ(actual_map, expected_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";

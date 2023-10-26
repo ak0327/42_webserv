@@ -98,7 +98,6 @@ set(map_field_values_srcs
         srcs/HttpRequest/MapFieldValues/set_authorization.cpp
         srcs/HttpRequest/MapFieldValues/set_cache_control.cpp
         srcs/HttpRequest/MapFieldValues/set_cookie.cpp
-        srcs/HttpRequest/MapFieldValues/set_forwarded.cpp
         srcs/HttpRequest/MapFieldValues/set_host.cpp
         srcs/HttpRequest/MapFieldValues/set_keep_alive.cpp
         srcs/HttpRequest/MapFieldValues/set_range.cpp
@@ -108,6 +107,7 @@ set(map_field_values_srcs
 # MapSetFieldValues
 set(map_set_field_values_srcs
         srcs/HttpRequest/MapSetFieldValues/MapSetFieldValues.cpp
+        srcs/HttpRequest/MapSetFieldValues/set_forwarded.cpp
         srcs/HttpRequest/MapSetFieldValues/set_link.cpp
         srcs/HttpRequest/MapSetFieldValues/set_via.cpp
         )
@@ -199,7 +199,7 @@ set (unit_test_srcs
         test/unit_test/MapFieldValues/TestAuthorization.cpp
         test/unit_test/MapFieldValues/TestCacheControl.cpp
         test/unit_test/MapFieldValues/TestCookie.cpp
-        test/unit_test/MapFieldValues/TestForwarded.cpp
+        test/unit_test/MapSetFieldValues/TestForwarded.cpp
         test/unit_test/MapFieldValues/TestHost.cpp
         test/unit_test/MapFieldValues/TestKeepAlive.cpp
         test/unit_test/MapFieldValues/TestProxyAuthorization.cpp

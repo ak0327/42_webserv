@@ -24,18 +24,7 @@ TEST(TestMapFieldValues, KeepAlilveOK1) {
 		std::map<std::string, std::string> expected_map = {{"timeout", "5"},
 														   {"max", "1000"}};
 
-		EXPECT_EQ(actual_map.size(), expected_map.size());
-
-		std::map<std::string, std::string>::iterator actual_itr, expected_itr;
-		actual_itr = actual_map.begin();
-		expected_itr = expected_map.begin();
-		while (actual_itr != actual_map.end() && expected_itr != expected_map.end()) {
-			EXPECT_EQ(expected_itr->second, actual_itr->second);
-			++actual_itr;
-			++expected_itr;
-		}
-		EXPECT_TRUE(actual_itr == actual_map.end());
-		EXPECT_TRUE(expected_itr == expected_map.end());
+		EXPECT_EQ(actual_map, expected_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -63,18 +52,7 @@ TEST(TestMapFieldValues, KeepAlilveOK2) {
 		std::map<std::string, std::string> expected_map = {{"timeout", "5"},
 														   {"max", "0001000"}};
 
-		EXPECT_EQ(actual_map.size(), expected_map.size());
-
-		std::map<std::string, std::string>::iterator actual_itr, expected_itr;
-		actual_itr = actual_map.begin();
-		expected_itr = expected_map.begin();
-		while (actual_itr != actual_map.end() && expected_itr != expected_map.end()) {
-			EXPECT_EQ(expected_itr->second, actual_itr->second);
-			++actual_itr;
-			++expected_itr;
-		}
-		EXPECT_TRUE(actual_itr == actual_map.end());
-		EXPECT_TRUE(expected_itr == expected_map.end());
+		EXPECT_EQ(actual_map, expected_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -102,18 +80,7 @@ TEST(TestMapFieldValues, KeepAlilveOK3) {
 		std::map<std::string, std::string> expected_map = {{"timeout", "0"},
 														   {"a", "\" SP OK\""}};
 
-		EXPECT_EQ(actual_map.size(), expected_map.size());
-
-		std::map<std::string, std::string>::iterator actual_itr, expected_itr;
-		actual_itr = actual_map.begin();
-		expected_itr = expected_map.begin();
-		while (actual_itr != actual_map.end() && expected_itr != expected_map.end()) {
-			EXPECT_EQ(expected_itr->second, actual_itr->second);
-			++actual_itr;
-			++expected_itr;
-		}
-		EXPECT_TRUE(actual_itr == actual_map.end());
-		EXPECT_TRUE(expected_itr == expected_map.end());
+		EXPECT_EQ(actual_map, expected_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -140,18 +107,7 @@ TEST(TestMapFieldValues, KeepAlilveOK4) {
 		std::map<std::string, std::string> actual_map = multi_field_values->get_value_map();
 		std::map<std::string, std::string> expected_map = {{"a", "c"}};
 
-		EXPECT_EQ(actual_map.size(), expected_map.size());
-
-		std::map<std::string, std::string>::iterator actual_itr, expected_itr;
-		actual_itr = actual_map.begin();
-		expected_itr = expected_map.begin();
-		while (actual_itr != actual_map.end() && expected_itr != expected_map.end()) {
-			EXPECT_EQ(expected_itr->second, actual_itr->second);
-			++actual_itr;
-			++expected_itr;
-		}
-		EXPECT_TRUE(actual_itr == actual_map.end());
-		EXPECT_TRUE(expected_itr == expected_map.end());
+		EXPECT_EQ(actual_map, expected_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -182,18 +138,7 @@ TEST(TestMapFieldValues, KeepAlilveOK5) {
 		std::map<std::string, std::string> expected_map = {{"timeout", "5"},
 														   {"max", "1000"}};
 
-		EXPECT_EQ(actual_map.size(), expected_map.size());
-
-		std::map<std::string, std::string>::iterator actual_itr, expected_itr;
-		actual_itr = actual_map.begin();
-		expected_itr = expected_map.begin();
-		while (actual_itr != actual_map.end() && expected_itr != expected_map.end()) {
-			EXPECT_EQ(expected_itr->second, actual_itr->second);
-			++actual_itr;
-			++expected_itr;
-		}
-		EXPECT_TRUE(actual_itr == actual_map.end());
-		EXPECT_TRUE(expected_itr == expected_map.end());
+		EXPECT_EQ(actual_map, expected_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -225,18 +170,7 @@ TEST(TestMapFieldValues, KeepAlilveOK6) {
 														   {"b", ""},
 														   {"c", "d"}};
 
-		EXPECT_EQ(actual_map.size(), expected_map.size());
-
-		std::map<std::string, std::string>::iterator actual_itr, expected_itr;
-		actual_itr = actual_map.begin();
-		expected_itr = expected_map.begin();
-		while (actual_itr != actual_map.end() && expected_itr != expected_map.end()) {
-			EXPECT_EQ(expected_itr->second, actual_itr->second);
-			++actual_itr;
-			++expected_itr;
-		}
-		EXPECT_TRUE(actual_itr == actual_map.end());
-		EXPECT_TRUE(expected_itr == expected_map.end());
+		EXPECT_EQ(actual_map, expected_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";

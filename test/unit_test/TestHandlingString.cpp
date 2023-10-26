@@ -18,7 +18,7 @@ TEST(HandlingString, HandlingStringTEST)
 	EXPECT_EQ(StringHandler::obtain_withoutows_value(val1), "aaa bbb ccc      dd");
 
 	std::string	val2 = "  \1 thiis is not true line !";
-	if (HttpMessageParser::is_printable(val2) == true)
+	if (HttpMessageParser::is_print(val2) == true)
 		ADD_FAILURE_AT(__FILE__, __LINE__);
 }
 

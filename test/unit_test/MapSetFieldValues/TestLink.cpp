@@ -27,34 +27,7 @@ TEST(TestMapSetFieldValues, LinkOK1) {
 		map_set expected_map_set = {{{std::string(URI_REFERENCE), "https://example.com"},
 									 }};
 
-
-		EXPECT_EQ(actual_map_set.size(), expected_map_set.size());
-
-		map_set::const_iterator actual_map_set_itr = actual_map_set.begin();
-		map_set::const_iterator expected_map_set_itr = expected_map_set.begin();
-
-		while (actual_map_set_itr != actual_map_set.end() && expected_map_set_itr != expected_map_set.end()) {
-			std::map<std::string, std::string> actual_map = *actual_map_set_itr;
-			std::map<std::string, std::string> expected_map = *expected_map_set_itr;;
-
-			EXPECT_EQ(actual_map.size(), expected_map.size());
-			std::map<std::string, std::string>::const_iterator actual_map_itr = actual_map.begin();
-			std::map<std::string, std::string>::const_iterator expected_map_itr = expected_map.begin();
-
-			while (actual_map_itr != actual_map.end() && expected_map_itr != expected_map.end()) {
-				EXPECT_EQ(actual_map_itr->second, expected_map_itr->second);
-
-				++actual_map_itr;
-				++expected_map_itr;
-			}
-			EXPECT_TRUE(actual_map_itr == actual_map.end());
-			EXPECT_TRUE(expected_map_itr == expected_map.end());
-
-			++actual_map_set_itr;
-			++expected_map_set_itr;
-		}
-		EXPECT_TRUE(actual_map_set_itr == actual_map_set.end());
-		EXPECT_TRUE(expected_map_set_itr == expected_map_set.end());
+		EXPECT_EQ(expected_map_set, actual_map_set);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -87,33 +60,7 @@ TEST(TestMapSetFieldValues, LinkOK2) {
 									{{std::string(URI_REFERENCE), "example5"}},};
 
 
-		EXPECT_EQ(actual_map_set.size(), expected_map_set.size());
-
-		map_set::const_iterator actual_map_set_itr = actual_map_set.begin();
-		map_set::const_iterator expected_map_set_itr = expected_map_set.begin();
-
-		while (actual_map_set_itr != actual_map_set.end() && expected_map_set_itr != expected_map_set.end()) {
-			std::map<std::string, std::string> actual_map = *actual_map_set_itr;
-			std::map<std::string, std::string> expected_map = *expected_map_set_itr;;
-
-			EXPECT_EQ(actual_map.size(), expected_map.size());
-			std::map<std::string, std::string>::const_iterator actual_map_itr = actual_map.begin();
-			std::map<std::string, std::string>::const_iterator expected_map_itr = expected_map.begin();
-
-			while (actual_map_itr != actual_map.end() && expected_map_itr != expected_map.end()) {
-				EXPECT_EQ(actual_map_itr->second, expected_map_itr->second);
-
-				++actual_map_itr;
-				++expected_map_itr;
-			}
-			EXPECT_TRUE(actual_map_itr == actual_map.end());
-			EXPECT_TRUE(expected_map_itr == expected_map.end());
-
-			++actual_map_set_itr;
-			++expected_map_set_itr;
-		}
-		EXPECT_TRUE(actual_map_set_itr == actual_map_set.end());
-		EXPECT_TRUE(expected_map_set_itr == expected_map_set.end());
+		EXPECT_EQ(expected_map_set, actual_map_set);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -143,33 +90,7 @@ TEST(TestMapSetFieldValues, LinkOK3) {
 									 {"rel", "\"preconnect\""}
 									}};
 
-		EXPECT_EQ(actual_map_set.size(), expected_map_set.size());
-
-		map_set::const_iterator actual_map_set_itr = actual_map_set.begin();
-		map_set::const_iterator expected_map_set_itr = expected_map_set.begin();
-
-		while (actual_map_set_itr != actual_map_set.end() && expected_map_set_itr != expected_map_set.end()) {
-			std::map<std::string, std::string> actual_map = *actual_map_set_itr;
-			std::map<std::string, std::string> expected_map = *expected_map_set_itr;;
-
-			EXPECT_EQ(actual_map.size(), expected_map.size());
-			std::map<std::string, std::string>::const_iterator actual_map_itr = actual_map.begin();
-			std::map<std::string, std::string>::const_iterator expected_map_itr = expected_map.begin();
-
-			while (actual_map_itr != actual_map.end() && expected_map_itr != expected_map.end()) {
-				EXPECT_EQ(actual_map_itr->second, expected_map_itr->second);
-
-				++actual_map_itr;
-				++expected_map_itr;
-			}
-			EXPECT_TRUE(actual_map_itr == actual_map.end());
-			EXPECT_TRUE(expected_map_itr == expected_map.end());
-
-			++actual_map_set_itr;
-			++expected_map_set_itr;
-		}
-		EXPECT_TRUE(actual_map_set_itr == actual_map_set.end());
-		EXPECT_TRUE(expected_map_set_itr == expected_map_set.end());
+		EXPECT_EQ(expected_map_set, actual_map_set);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -202,33 +123,7 @@ TEST(TestMapSetFieldValues, LinkOK4) {
 									 {"c", "C"},
 									}};
 
-		EXPECT_EQ(actual_map_set.size(), expected_map_set.size());
-
-		map_set::const_iterator actual_map_set_itr = actual_map_set.begin();
-		map_set::const_iterator expected_map_set_itr = expected_map_set.begin();
-
-		while (actual_map_set_itr != actual_map_set.end() && expected_map_set_itr != expected_map_set.end()) {
-			std::map<std::string, std::string> actual_map = *actual_map_set_itr;
-			std::map<std::string, std::string> expected_map = *expected_map_set_itr;;
-
-			EXPECT_EQ(actual_map.size(), expected_map.size());
-			std::map<std::string, std::string>::const_iterator actual_map_itr = actual_map.begin();
-			std::map<std::string, std::string>::const_iterator expected_map_itr = expected_map.begin();
-
-			while (actual_map_itr != actual_map.end() && expected_map_itr != expected_map.end()) {
-				EXPECT_EQ(actual_map_itr->second, expected_map_itr->second);
-
-				++actual_map_itr;
-				++expected_map_itr;
-			}
-			EXPECT_TRUE(actual_map_itr == actual_map.end());
-			EXPECT_TRUE(expected_map_itr == expected_map.end());
-
-			++actual_map_set_itr;
-			++expected_map_set_itr;
-		}
-		EXPECT_TRUE(actual_map_set_itr == actual_map_set.end());
-		EXPECT_TRUE(expected_map_set_itr == expected_map_set.end());
+		EXPECT_EQ(expected_map_set, actual_map_set);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -277,33 +172,7 @@ TEST(TestMapSetFieldValues, LinkOK5) {
 				}};
 
 
-		EXPECT_EQ(actual_map_set.size(), expected_map_set.size());
-
-		map_set::const_iterator actual_map_set_itr = actual_map_set.begin();
-		map_set::const_iterator expected_map_set_itr = expected_map_set.begin();
-
-		while (actual_map_set_itr != actual_map_set.end() && expected_map_set_itr != expected_map_set.end()) {
-			std::map<std::string, std::string> actual_map = *actual_map_set_itr;
-			std::map<std::string, std::string> expected_map = *expected_map_set_itr;;
-
-			EXPECT_EQ(actual_map.size(), expected_map.size());
-			std::map<std::string, std::string>::const_iterator actual_map_itr = actual_map.begin();
-			std::map<std::string, std::string>::const_iterator expected_map_itr = expected_map.begin();
-
-			while (actual_map_itr != actual_map.end() && expected_map_itr != expected_map.end()) {
-				EXPECT_EQ(actual_map_itr->second, expected_map_itr->second);
-
-				++actual_map_itr;
-				++expected_map_itr;
-			}
-			EXPECT_TRUE(actual_map_itr == actual_map.end());
-			EXPECT_TRUE(expected_map_itr == expected_map.end());
-
-			++actual_map_set_itr;
-			++expected_map_set_itr;
-		}
-		EXPECT_TRUE(actual_map_set_itr == actual_map_set.end());
-		EXPECT_TRUE(expected_map_set_itr == expected_map_set.end());
+		EXPECT_EQ(expected_map_set, actual_map_set);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";

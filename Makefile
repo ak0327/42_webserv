@@ -61,7 +61,6 @@ SRCS		+=	$(MAP_FIELD_VALUES_DIR)/MapFieldValues.cpp \
 				$(MAP_FIELD_VALUES_DIR)/set_authorization.cpp \
 				$(MAP_FIELD_VALUES_DIR)/set_cache_control.cpp \
 				$(MAP_FIELD_VALUES_DIR)/set_cookie.cpp \
-				$(MAP_FIELD_VALUES_DIR)/set_forwarded.cpp \
 				$(MAP_FIELD_VALUES_DIR)/set_host.cpp \
 				$(MAP_FIELD_VALUES_DIR)/set_keep_alive.cpp \
 				$(MAP_FIELD_VALUES_DIR)/set_range.cpp \
@@ -69,6 +68,7 @@ SRCS		+=	$(MAP_FIELD_VALUES_DIR)/MapFieldValues.cpp \
 
 MAP_SET_FIELD_VALUES_DIR = $(REQUEST_DIR)/MapSetFieldValues
 SRCS		+=	$(MAP_SET_FIELD_VALUES_DIR)/MapSetFieldValues.cpp \
+				$(MAP_SET_FIELD_VALUES_DIR)/set_forwarded.cpp \
 				$(MAP_SET_FIELD_VALUES_DIR)/set_link.cpp \
 				$(MAP_SET_FIELD_VALUES_DIR)/set_via.cpp
 

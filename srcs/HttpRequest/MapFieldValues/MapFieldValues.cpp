@@ -80,52 +80,38 @@ Result<int, int> MapFieldValues::parse_map_element(const std::string &field_valu
 		return Result<int, int>::err(ERR);
 	}
 	*end_pos = start_pos;
+	*key = std::string(EMPTY);
+	*value = std::string(EMPTY);
 	if (field_value.empty() || field_value.length() < start_pos) {
 		return Result<int, int>::err(ERR);
 	}
 
 	// key
 	pos = start_pos;
-	len = 0;
-	while (field_value[pos + len]
-		   && HttpMessageParser::is_tchar(field_value[pos + len])) {
-		++len;
+	HttpMessageParser::skip_token(field_value, pos, &end);
+	if (pos == end) {
+		return Result<int, int>::err(ERR);
 	}
+	len = end - pos;
 	*key = field_value.substr(pos, len);
 	pos += len;
 
 	// =
 	if (field_value[pos] == ELEMENT_SEPARATOR || field_value[pos] == '\0') {
-		*value = std::string(EMPTY);
 		*end_pos = pos;
 		return Result<int, int>::ok(OK);
 	}
-	if (field_value[pos] != '=') { return Result<int, int>::err(ERR); }
+	if (field_value[pos] != '=') {
+		return Result<int, int>::err(ERR);
+	}
 	++pos;
 
 	// value
-	len = 0;
-	if (std::isdigit(field_value[pos])) {
-		while (field_value[pos + len] && std::isdigit(field_value[pos + len])) {
-			++len;
-		}
-	} else if (HttpMessageParser::is_tchar(field_value[pos])) {
-		while (field_value[pos + len]
-			   && HttpMessageParser::is_tchar(field_value[pos + len])) {
-			++len;
-		}
-	} else if (field_value[pos] == '"') {
-		HttpMessageParser::skip_quoted_string(field_value, pos, &end);
-		if (pos == end) {
-			return Result<int, int>::err(ERR);
-		}
-		len = end - pos;
-	} else {
+	HttpMessageParser::skip_token_or_quoted_string(field_value, pos, &end);
+	if (pos == end) {
 		return Result<int, int>::err(ERR);
 	}
-	if (len == 0) {
-		return Result<int, int>::err(ERR);
-	}
+	len = end - pos;
 	*value = field_value.substr(pos, len);
 
 	*end_pos = pos + len;

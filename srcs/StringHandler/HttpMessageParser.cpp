@@ -14,29 +14,29 @@
 
 namespace {
 
-double get_integer_part(const std::string &str, size_t idx) {
-	if (str.length() < idx) {
+double get_integer_part(const std::string &str, size_t pos) {
+	if (str.length() < pos) {
 		return ERR;
 	}
-	return StringHandler::to_digit(str[idx]);
+	return StringHandler::to_digit(str[pos]);
 }
 
 double get_fractional_part(const std::string &str_after_decimal_point,
 						   size_t *precision_idx) {
 	double	digit, num;
 	int		precision_num;
-	size_t	idx;
+	size_t	pos;
 
 	num = 0;
 	digit = 1;
-	idx = 0;
-	while (isdigit(str_after_decimal_point[idx])) {
-		precision_num = StringHandler::to_digit(str_after_decimal_point[idx]);
+	pos = 0;
+	while (isdigit(str_after_decimal_point[pos])) {
+		precision_num = StringHandler::to_digit(str_after_decimal_point[pos]);
 		num = num * 10 + precision_num;
 		digit *= 10;
-		++idx;
+		++pos;
 	}
-	*precision_idx = idx;
+	*precision_idx = pos;
 	num /= digit;
 	return num;
 }
@@ -46,7 +46,6 @@ double get_fractional_part(const std::string &str_after_decimal_point,
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace HttpMessageParser {
-
 
 // todo: test
 std::string obtain_word_before_delimiter(const std::string &field_value,
@@ -73,18 +72,20 @@ std::string obtain_withoutows_value(const std::string &field_value_with_ows)
 	size_t		before_pos = 0;
 	size_t		after_pos = field_value_with_ows.length() - 1;
 
-	if (field_value_with_ows == "")
+	if (field_value_with_ows.empty())
 		return "";
-	while (is_whitespace(field_value_with_ows[before_pos]) == true
+	while (is_whitespace(field_value_with_ows[before_pos])
 			&& before_pos != field_value_with_ows.length())
 		++before_pos;
-	while (is_whitespace(field_value_with_ows[after_pos]) == true
+	while (is_whitespace(field_value_with_ows[after_pos])
 			&& after_pos != 0)
 		--after_pos;
 	if (before_pos > after_pos)
 		return "";
 	return (field_value_with_ows.substr(before_pos, after_pos - before_pos + 1));
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 // DIGIT = %x30-39; 10 進数字（ 0-9 ）
 // sign, space is not allowed for Request message
@@ -128,7 +129,6 @@ long to_long_num(const std::string &str, bool *succeed) {
 	return num;
 }
 
-// todo: test
 long to_length(const std::string &str, bool *succeed) {
 	return to_long_num(str, succeed);
 }
@@ -144,32 +144,32 @@ double to_floating_num(const std::string &str,
 					   bool *succeed) {
 	bool		is_success;
 	double 		num, precision_num;
-	std::size_t	idx, precision_idx;
+	std::size_t	pos, precision_idx;
 
 	is_success = false;
 	if (succeed) { *succeed = is_success; }
 	num = 0;
-	idx = 0;
-	if (!std::isdigit(str[idx])) {
+	pos = 0;
+	if (!std::isdigit(str[pos])) {
 		return num;
 	}
-	num = get_integer_part(str, idx);
-	++idx;
+	num = get_integer_part(str, pos);
+	++pos;
 
-	if (str[idx] != DECIMAL_POINT) {
-		if (str[idx] == '\0') {
+	if (str[pos] != DECIMAL_POINT) {
+		if (str[pos] == '\0') {
 			is_success = true;
 		}
 		if (succeed) { *succeed = is_success; }
 		return num;
 	}
-	++idx;
+	++pos;
 
-	precision_num = get_fractional_part(&str[idx],
+	precision_num = get_fractional_part(&str[pos],
 										&precision_idx);
 	num += precision_num;
 
-	if (str[idx + precision_idx] == '\0' && precision_idx <= precision_digit) {
+	if (str[pos + precision_idx] == '\0' && precision_idx <= precision_digit) {
 		is_success = true;
 	}
 	if (succeed) { *succeed = is_success; }
@@ -243,36 +243,41 @@ Result<std::string, int> parse_port(const std::string &field_value,
  parameter-value = ( token / quoted-string )
  parameter-value BWS = BWS ( token / quoted-string )
  */
-// todo:test
-Result<int, int> parse_parameter(const std::string &field_value,
-								 std::size_t start_pos,
-								 std::size_t *end_pos,
-								 std::string *parameter_name,
-								 std::string *parameter_value,
-								 void (*skip_parameter_name)(const std::string &, std::size_t, std::size_t *),
-								 void (*skip_parameter_value)(const std::string &, std::size_t, std::size_t *),
-								 bool skip_bws) {
+Result<int, int>
+parse_parameter(const std::string &field_value,
+				std::size_t start_pos,
+				std::size_t *end_pos,
+				std::string *parameter_name,
+				std::string *parameter_value,
+				void (*skip_parameter_name)(const std::string &,
+											std::size_t,
+											std::size_t *),
+				void (*skip_parameter_value)(const std::string &,
+											 std::size_t,
+											 std::size_t *),
+				bool skip_bws) {
 	std::size_t pos, end, len;
+	std::string name, value;
 	Result<std::string, int> parse_name_result;
 
 	if (!end_pos || !parameter_name || !parameter_value) {
 		return Result<int, int>::err(ERR);
 	}
 	*end_pos = start_pos;
+	*parameter_name = std::string(EMPTY);
+	*parameter_value = std::string(EMPTY);
 	if (field_value.empty() || field_value.length() <= start_pos) {
 		return Result<int, int>::err(ERR);
 	}
 
 	// parameter-name
 	pos = start_pos;
-
 	skip_parameter_name(field_value, pos, &end);
 	if (pos == end) {
 		return Result<int, int>::err(ERR);
 	}
 	len = end - pos;
-
-	*parameter_name = field_value.substr(pos, len);
+	name = field_value.substr(pos, len);
 	pos += len;
 
 	if (skip_bws) {
@@ -295,26 +300,30 @@ Result<int, int> parse_parameter(const std::string &field_value,
 		return Result<int, int>::err(ERR);
 	}
 	len = end - pos;
+	value = field_value.substr(pos, len);
 
-	*parameter_value = field_value.substr(pos, len);
-
+	// return
 	*end_pos = pos + len;
+	*parameter_name = name;
+	*parameter_value = value;
 	return Result<int, int>::ok(OK);
 }
 
 /*
  parameters = *( OWS ";" OWS [ parameter ] )
  parameter = parameter-name "=" parameter-value
- parameter-name = token
- parameter-value = ( token / quoted-string )
  */
-// todo:test
-Result<std::map<std::string, std::string>, int> parse_parameters(const std::string &field_value,
-																 std::size_t start_pos,
-																 std::size_t *end_pos,
-																 void (*skip_parameter_name)(const std::string &, std::size_t, std::size_t *),
-																 void (*skip_parameter_value)(const std::string &, std::size_t, std::size_t *),
-																 bool skip_bws) {
+Result<std::map<std::string, std::string>, int>
+parse_parameters(const std::string &field_value,
+				 std::size_t start_pos,
+				 std::size_t *end_pos,
+				 void (*skip_parameter_name)(const std::string &,
+						 					 std::size_t,
+										     std::size_t *),
+				 void (*skip_parameter_value)(const std::string &,
+											  std::size_t,
+											  std::size_t *),
+				 bool skip_bws) {
 	std::size_t pos, end, tmp_pos;
 	std::map<std::string, std::string> parameters;
 	std::string parameter_name, parameter_value;
@@ -333,8 +342,8 @@ Result<std::map<std::string, std::string>, int> parse_parameters(const std::stri
 
 	pos = start_pos;
 	while (field_value[pos]) {
+		HttpMessageParser::skip_ows(field_value, &pos);
 		tmp_pos = pos;
-		HttpMessageParser::skip_ows(field_value, &tmp_pos);
 		if (field_value[tmp_pos] != ';') {
 			return Result<std::map<std::string, std::string>, int>::err(ERR);
 		}
@@ -348,7 +357,7 @@ Result<std::map<std::string, std::string>, int> parse_parameters(const std::stri
 									   skip_parameter_value,
 									   skip_bws);
 		if (parse_result.is_err()) {
-			return Result<std::map<std::string, std::string>, int>::err(ERR);
+			break;
 		}
 		if (HttpMessageParser::is_parameter_weight(parameter_name)) {
 			break;

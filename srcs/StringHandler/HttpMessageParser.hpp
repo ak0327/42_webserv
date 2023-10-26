@@ -10,7 +10,7 @@ namespace HttpMessageParser {
 
 bool is_end_with_cr(const std::string &value);
 bool is_positive_under_intmax_double(const std::string &value);
-bool is_printable(const std::string &value);
+bool is_print(const std::string &value);
 
 std::string	obtain_word_after_delimiter(const std::string &str, char delimiter);
 std::string	obtain_withoutows_value(const std::string &field_value_with_ows);

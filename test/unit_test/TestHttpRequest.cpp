@@ -987,20 +987,20 @@ TEST(Request, TEST7)
 				"expect"));
 		compair_valueset_report(val5->get_value(), "100-continue");
 	}
-	if (same_class_test(__LINE__, "forwarded", httprequest_test1))
-	{
-		MapFieldValues* valmap7 = static_cast<MapFieldValues*>(httprequest_test1.get_field_values(
-				"forwarded"));
-		std::map<std::string, std::string> valuemap7;
-		std::set<std::string> keys7;
-		valuemap7["for"] = "192.0.2.60";
-		valuemap7["proto"] = "http";
-		valuemap7["by"] = "203.0.113.43";
-		keys7.insert("for");
-		keys7.insert("proto");
-		keys7.insert("by");
-		check(valmap7->get_value_map(), valuemap7, keys7);
-	}
+	// if (same_class_test(__LINE__, "forwarded", httprequest_test1))
+	// {
+	// 	MapFieldValues* valmap7 = static_cast<MapFieldValues*>(httprequest_test1.get_field_values(
+	// 			"forwarded"));
+	// 	std::map<std::string, std::string> valuemap7;
+	// 	std::set<std::string> keys7;
+	// 	valuemap7["for"] = "192.0.2.60";
+	// 	valuemap7["proto"] = "http";
+	// 	valuemap7["by"] = "203.0.113.43";
+	// 	keys7.insert("for");
+	// 	keys7.insert("proto");
+	// 	keys7.insert("by");
+	// 	check(valmap7->get_value_map(), valuemap7, keys7);
+	// }
 	if (same_class_test(__LINE__, "if-match", httprequest_test1))
 	{
 		MultiFieldValues* val8 = static_cast<MultiFieldValues*>(httprequest_test1.get_field_values(

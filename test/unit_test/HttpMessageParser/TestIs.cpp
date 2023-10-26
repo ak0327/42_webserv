@@ -2,6 +2,20 @@
 #include "HttpMessageParser.hpp"
 #include "gtest/gtest.h"
 
+TEST(TestHttpMessageParser, IsPrint) {
+	EXPECT_TRUE(HttpMessageParser::is_print("aaa"));
+	EXPECT_TRUE(HttpMessageParser::is_print("123"));
+	EXPECT_TRUE(HttpMessageParser::is_print("(),/:;<=>?@[\\]{}\"'"));
+	EXPECT_TRUE(HttpMessageParser::is_print(" "));
+	EXPECT_TRUE(HttpMessageParser::is_print("aa bb"));
+
+	EXPECT_FALSE(HttpMessageParser::is_print(""));
+	EXPECT_FALSE(HttpMessageParser::is_print("\t"));
+	EXPECT_FALSE(HttpMessageParser::is_print("aa\tbb"));
+	EXPECT_FALSE(HttpMessageParser::is_print("\0aa bb"));
+	EXPECT_FALSE(HttpMessageParser::is_print("aa\r"));
+	EXPECT_FALSE(HttpMessageParser::is_print("aa\n"));
+}
 
 // "(),/:;<=>?@[\]{}
 TEST(TestHttpMessageParser, IsDelimiter) {

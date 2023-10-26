@@ -23,18 +23,7 @@ TEST(TestMapFieldValues, CookieOK1) {
 		std::map<std::string, std::string> actual_map = multi_field_values->get_value_map();
 		std::map<std::string, std::string> expected_map = {{"PHPSESSID", "298zf09hf012fh2"}};
 
-		EXPECT_EQ(actual_map.size(), expected_map.size());
-
-		std::map<std::string, std::string>::iterator actual_itr, expected_itr;
-		actual_itr = actual_map.begin();
-		expected_itr = expected_map.begin();
-		while (actual_itr != actual_map.end() && expected_itr != expected_map.end()) {
-			EXPECT_EQ(expected_itr->second, actual_itr->second);
-			++actual_itr;
-			++expected_itr;
-		}
-		EXPECT_TRUE(actual_itr == actual_map.end());
-		EXPECT_TRUE(expected_itr == expected_map.end());
+		EXPECT_EQ(expected_map, actual_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -63,18 +52,7 @@ TEST(TestMapFieldValues, CookieOK2) {
 														   {"csrftoken", "u32t4o3tb3gg43"},
 														   {"_gat", "1"}};
 
-		EXPECT_EQ(actual_map.size(), expected_map.size());
-
-		std::map<std::string, std::string>::iterator actual_itr, expected_itr;
-		actual_itr = actual_map.begin();
-		expected_itr = expected_map.begin();
-		while (actual_itr != actual_map.end() && expected_itr != expected_map.end()) {
-			EXPECT_EQ(expected_itr->second, actual_itr->second);
-			++actual_itr;
-			++expected_itr;
-		}
-		EXPECT_TRUE(actual_itr == actual_map.end());
-		EXPECT_TRUE(expected_itr == expected_map.end());
+		EXPECT_EQ(expected_map, actual_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -104,18 +82,7 @@ TEST(TestMapFieldValues, CookieOK3) {
 														   {"csrftoken", "u32t4o3tb3gg43"},
 														   {"_gat", "1"}};
 
-		EXPECT_EQ(actual_map.size(), expected_map.size());
-
-		std::map<std::string, std::string>::iterator actual_itr, expected_itr;
-		actual_itr = actual_map.begin();
-		expected_itr = expected_map.begin();
-		while (actual_itr != actual_map.end() && expected_itr != expected_map.end()) {
-			EXPECT_EQ(expected_itr->second, actual_itr->second);
-			++actual_itr;
-			++expected_itr;
-		}
-		EXPECT_TRUE(actual_itr == actual_map.end());
-		EXPECT_TRUE(expected_itr == expected_map.end());
+		EXPECT_EQ(expected_map, actual_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -143,18 +110,7 @@ TEST(TestMapFieldValues, CookieOK4) {
 		std::map<std::string, std::string> actual_map = multi_field_values->get_value_map();
 		std::map<std::string, std::string> expected_map = {{"PHPSESSID", "\"298zf09hf012fh2\""}};
 
-		EXPECT_EQ(actual_map.size(), expected_map.size());
-
-		std::map<std::string, std::string>::iterator actual_itr, expected_itr;
-		actual_itr = actual_map.begin();
-		expected_itr = expected_map.begin();
-		while (actual_itr != actual_map.end() && expected_itr != expected_map.end()) {
-			EXPECT_EQ(expected_itr->second, actual_itr->second);
-			++actual_itr;
-			++expected_itr;
-		}
-		EXPECT_TRUE(actual_itr == actual_map.end());
-		EXPECT_TRUE(expected_itr == expected_map.end());
+		EXPECT_EQ(expected_map, actual_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -182,18 +138,7 @@ TEST(TestMapFieldValues, CookieOK5) {
 		std::map<std::string, std::string> actual_map = multi_field_values->get_value_map();
 		std::map<std::string, std::string> expected_map = {{"PHPSESSID", "!#$%&'()*+-./012345689:<=>?@[]^_`{|}~"}};
 
-		EXPECT_EQ(actual_map.size(), expected_map.size());
-
-		std::map<std::string, std::string>::iterator actual_itr, expected_itr;
-		actual_itr = actual_map.begin();
-		expected_itr = expected_map.begin();
-		while (actual_itr != actual_map.end() && expected_itr != expected_map.end()) {
-			EXPECT_EQ(expected_itr->second, actual_itr->second);
-			++actual_itr;
-			++expected_itr;
-		}
-		EXPECT_TRUE(actual_itr == actual_map.end());
-		EXPECT_TRUE(expected_itr == expected_map.end());
+		EXPECT_EQ(expected_map, actual_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";
@@ -223,18 +168,7 @@ TEST(TestMapFieldValues, CookieOK6) {
 		std::map<std::string, std::string> actual_map = multi_field_values->get_value_map();
 		std::map<std::string, std::string> expected_map = {{"a", "E"}};
 
-		EXPECT_EQ(actual_map.size(), expected_map.size());
-
-		std::map<std::string, std::string>::iterator actual_itr, expected_itr;
-		actual_itr = actual_map.begin();
-		expected_itr = expected_map.begin();
-		while (actual_itr != actual_map.end() && expected_itr != expected_map.end()) {
-			EXPECT_EQ(expected_itr->second, actual_itr->second);
-			++actual_itr;
-			++expected_itr;
-		}
-		EXPECT_TRUE(actual_itr == actual_map.end());
-		EXPECT_TRUE(expected_itr == expected_map.end());
+		EXPECT_EQ(expected_map, actual_map);
 
 	} else {
 		ADD_FAILURE() << field_name << " not found";

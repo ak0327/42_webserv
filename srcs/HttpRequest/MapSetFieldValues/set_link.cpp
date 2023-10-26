@@ -5,6 +5,8 @@
 #include "HttpMessageParser.hpp"
 #include "MapSetFieldValues.hpp"
 
+namespace {
+
 // link-value = "<" URI-Reference ">" *( OWS ";" OWS link-param )
 Result<int, int> parse_uri_reference(const std::string &field_value,
 									 std::size_t start_pos,
@@ -311,37 +313,8 @@ parse_and_validate_link_value(const std::string &field_value,
 	return Result<std::map<std::string, std::string>, int>::ok(link_value);
 }
 
-Result<std::set<std::map<std::string, std::string> >, int>
-parse_valid_link_values(const std::string &field_value) {
-	std::set<std::map<std::string, std::string> > link_values;
-	std::map<std::string, std::string> link_value;
-	std::size_t pos, end;
-	Result<std::map<std::string, std::string>, int> parse_result;
-	Result<std::size_t, int> skip_result;
 
-	if (field_value.empty()) {
-		return Result<std::set<std::map<std::string, std::string> >, int>::err(ERR);
-	}
-
-	pos = 0;
-	while (field_value[pos]) {
-		parse_result = parse_and_validate_link_value(field_value, pos, &end);
-		if (parse_result.is_err()) {
-			return Result<std::set<std::map<std::string, std::string> >, int>::err(ERR);
-		}
-		link_value = parse_result.get_ok_value();
-		pos = end;
-
-		link_values.insert(link_value);
-
-		skip_result = HttpMessageParser::skip_ows_delimiter_ows(field_value, COMMA, pos);
-		if (skip_result.is_err()) {
-			return Result<std::set<std::map<std::string, std::string> >, int>::err(ERR);
-		}
-		pos = skip_result.get_ok_value();
-	}
-	return Result<std::set<std::map<std::string, std::string> >, int>::ok(link_values);
-}
+}  // namespace
 
 /*
  Link       = #link-value
@@ -373,7 +346,8 @@ Result<int, int> HttpRequest::set_link(const std::string &field_name,
 
 	clear_field_values_of(field_name);
 
-	result = parse_valid_link_values(field_value);
+	result = MapSetFieldValues::parse_map_set_field_values(field_value,
+														   parse_and_validate_link_value);
 	if (result.is_err()) {
 		return Result<int, int>::ok(STATUS_OK);
 	}

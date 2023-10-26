@@ -14,16 +14,17 @@
 
 namespace HttpMessageParser {
 
-bool is_printable(const std::string &str)
+bool is_print(const std::string &str)
 {
 	if (str.empty()) {
 		return false;
 	}
 
 	for (size_t pos = 0; pos < str.length(); ++pos) {
-		if (!isprint(str[pos])) {
-			return false;
+		if (isprint(str[pos])) {
+			continue;
 		}
+		return false;
 	}
 	return true;
 }
@@ -60,13 +61,11 @@ bool is_field_content(const std::string &str) {
 		return false;
 	}
 	while (str[pos]) {
-		while (HttpMessageParser::is_whitespace(str[pos])) {
-			++pos;
-		}
+		skip_ows(str, &pos);
 		if (!HttpMessageParser::is_field_vchar(str[pos])) {
 			return false;
 		}
-		while (HttpMessageParser::is_field_vchar(str[pos])) {
+		while (str[pos] && HttpMessageParser::is_field_vchar(str[pos])) {
 			++pos;
 		}
 	}
@@ -82,14 +81,6 @@ bool is_tchar(char c) {
 	const std::string tchar_symbol = "!#$%&'*+-.^_`|~";
 
 	return (std::isalnum(c) || tchar_symbol.find(c) != std::string::npos);
-
-	// if (!is_vchar(c)) {
-	// 	return false;
-	// }
-	// if (is_delimiters(c) || is_whitespace(c)) {
-	// 	return false;
-	// }
-	// return true;
 }
 
 // ctext = HTAB / SP / %x21-27 / %x2A-5B / %x5D-7E / obs-text
@@ -589,7 +580,7 @@ bool is_valid_request_target(const std::string &request_target) {
 	if (request_target.empty()) {
 		return false;
 	}
-	return HttpMessageParser::is_printable(request_target);
+	return HttpMessageParser::is_print(request_target);
 }
 
 bool is_valid_http_version(const std::string &http_version) {
