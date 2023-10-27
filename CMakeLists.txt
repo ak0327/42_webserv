@@ -45,6 +45,8 @@ set(webserv_srcs
         srcs/Error/Error.cpp
         srcs/HttpResponse/HttpResponse.cpp
         srcs/HttpResponse/GET/get_request_body.cpp
+        srcs/HttpResponse/DELETE/HttpResponse/HttpResponse.cpp
+        srcs/HttpResponse/DELETE/HttpResponse/get_location_path.cpp
         srcs/Socket/Socket.cpp
 )
 
@@ -65,6 +67,7 @@ set (unit_test_srcs
         test/unit_test/TestError.cpp
         test/unit_test/TestResult.cpp
         test/unit_test/TestSocket.cpp
+        test/unit_test/TestIntepretPath.cpp
 )
 
 add_executable(unit_test

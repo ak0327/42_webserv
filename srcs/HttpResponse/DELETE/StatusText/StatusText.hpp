@@ -13,6 +13,6 @@ class StatusText
 		~StatusText();
 		std::string	get_status_text(void) const;
 		std::string	get_body_text(void) const;
-}
+};
 
 #endif  // SRCS_HTTPRESPONSE_DELETE_STATUSTEXT_STATUSTEXT_HPP_
