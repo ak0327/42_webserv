@@ -2,6 +2,7 @@
 #define SRCS_CONFIG_CONFIGHANDLINGSTRING_CONFIGHANDLINGSTRING_HPP_
 
 #include <string>
+#include <vector>
 #include "../../HandlingString/HandlingString.hpp"
 #include "../NumericHandle/NumericHandle.hpp"
 

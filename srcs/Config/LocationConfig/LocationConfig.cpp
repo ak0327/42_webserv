@@ -34,8 +34,9 @@ bool	LocationConfig::set_field_header_field_value(const std::string &field_heade
 	field_headers.push_back(UPLOAD_PATH);
 
 	if (std::find(field_headers.begin(), field_headers.end(), field_header) == field_headers.end())
+	{
 		return false;
-	
+	}
     if (field_header == AUTOINDEX)
     {
 		if (!(field_value == "on" || field_value == "off"))
