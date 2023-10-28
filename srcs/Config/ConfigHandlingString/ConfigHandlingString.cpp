@@ -82,3 +82,43 @@ bool ConfigHandlingString::show_error_message(const std::string &config_line, \
     }
 	return (false);
 }
+
+bool ConfigHandlingString::ready_boolean_field_value(const std::string &field_value)
+{
+	if (field_value == "on")
+		return (true);
+	return (false);
+}
+
+int ConfigHandlingString::ready_int_field_value(const std::string &field_value)
+{
+	return (NumericHandle::str_to_int(field_value));
+}
+
+size_t ConfigHandlingString::ready_size_t_field_value(const std::string &field_value)
+{
+	return (static_cast<size_t>(NumericHandle::str_to_int(field_value)));
+}
+
+std::string ConfigHandlingString::ready_string_field_value(const std::string &field_value)
+{
+	return (field_value);
+}
+
+std::vector<std::string> ConfigHandlingString::ready_string_vector_field_value(const std::string &field_value)
+{
+	std::vector<std::string>	anser_vector;
+	std::istringstream			values_splited_by_empty(field_value);
+	std::string					value_splited_by_empty;
+	size_t	value_start_pos = 0;
+	size_t	value_end_pos = 0;
+
+	while (field_value[value_start_pos] != '\0')
+	{
+		HandlingString::skip_no_ows(field_value, &value_end_pos);
+		anser_vector.push_back(field_value.substr(value_start_pos, value_end_pos - value_start_pos));
+		HandlingString::skip_ows(field_value, &value_end_pos);
+		value_start_pos = value_end_pos;
+	}
+	return (anser_vector);
+}

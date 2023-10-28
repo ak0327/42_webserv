@@ -7,38 +7,6 @@ _client_max_body_size(1024), _keepalive_requests(0), _keepalive_timeout(0), _def
 
 LocationConfig::~LocationConfig(){}
 
-bool	LocationConfig::ready_boolean_field_value(const std::string &field_value)
-{
-	if (field_value == "on")
-		return (true);
-	return (false);
-}
-
-int		LocationConfig::ready_int_field_value(const std::string &field_value){ return (NumericHandle::str_to_int(field_value)); }
-
-size_t	LocationConfig::ready_size_t_field_value(const std::string &field_value)
-{
-	return (static_cast<size_t>(NumericHandle::str_to_int(field_value)));
-}
-
-std::vector<std::string>	LocationConfig::ready_string_vector_field_value(const std::string &field_value)
-{
-	std::vector<std::string>	anser_vector;
-	std::istringstream			values_splited_by_empty(field_value);
-	std::string					value_splited_by_empty;
-	size_t	value_start_pos = 0;
-	size_t	value_end_pos = 0;
-
-	while (field_value[value_start_pos] != '\0')
-	{
-		HandlingString::skip_no_ows(field_value, &value_end_pos);
-		anser_vector.push_back(field_value.substr(value_start_pos, value_end_pos - value_start_pos));
-		HandlingString::skip_ows(field_value, &value_end_pos);
-		value_start_pos = value_end_pos;
-	}
-	return (anser_vector);
-}
-
 bool	LocationConfig::set_field_header_field_value(const std::string &field_header, \
 														const std::string &field_value)
 {
@@ -66,91 +34,90 @@ bool	LocationConfig::set_field_header_field_value(const std::string &field_heade
 	field_headers.push_back(UPLOAD_PATH);
 
 	if (std::find(field_headers.begin(), field_headers.end(), field_header) == field_headers.end())
-	{
 		return false;
-	}
+	
     if (field_header == AUTOINDEX)
     {
 		if (!(field_value == "on" || field_value == "off"))
 			return false;
-		this->_autoindex = this->ready_boolean_field_value(field_value);
+		this->_autoindex = ConfigHandlingString::ready_boolean_field_value(field_value);
 	}
     if (field_header ==  CHUNKED_TRANSFERENCODING_ALLOW)
     {
 		if (!(field_value == "on" || field_value == "off"))
 			return false;
-		this->_chunked_transferencoding_allow = this->ready_boolean_field_value(field_value);
+		this->_chunked_transferencoding_allow = ConfigHandlingString::ready_boolean_field_value(field_value);
 	}
     if (field_header ==  SERVER_TOKENS)
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_server_tokens = this->ready_int_field_value(field_value);
+		this->_server_tokens = ConfigHandlingString::ready_int_field_value(field_value);
 	}
 	if (field_header ==  CLIENT_BODY_BUFFER_SIZE)
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_client_body_buffer_size = this->ready_size_t_field_value(field_value);
+		this->_client_body_buffer_size = ConfigHandlingString::ready_size_t_field_value(field_value);
 	}
 	if (field_header ==  CLIENT_BODY_TIMEOUT)
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_client_body_timeout = this->ready_size_t_field_value(field_value);
+		this->_client_body_timeout = ConfigHandlingString::ready_size_t_field_value(field_value);
 	}
 	if (field_header ==  CLIENT_HEADER_BUFFER_SIZE)
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_client_header_buffer_size = this->ready_size_t_field_value(field_value);
+		this->_client_header_buffer_size = ConfigHandlingString::ready_size_t_field_value(field_value);
 	}
 	if (field_header ==  CLIENT_HEADER_TIMEOUT)
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_client_header_timeout = this->ready_size_t_field_value(field_value);
+		this->_client_header_timeout = ConfigHandlingString::ready_size_t_field_value(field_value);
 	}
 	if (field_header ==  CLIENT_MAX_BODY_SIZE)
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_client_max_body_size = this->ready_size_t_field_value(field_value);
+		this->_client_max_body_size = ConfigHandlingString::ready_size_t_field_value(field_value);
 	}
 	if (field_header ==  KEEPALIVE_REQUESTS)
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_keepalive_requests = this->ready_size_t_field_value(field_value);
+		this->_keepalive_requests = ConfigHandlingString::ready_size_t_field_value(field_value);
 	}
 	if (field_header ==  KEEPALIVE_TIMEOUT)
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
-		this->_keepalive_timeout = this->ready_size_t_field_value(field_value);
+		this->_keepalive_timeout = ConfigHandlingString::ready_size_t_field_value(field_value);
 	}
 	if (field_header ==  ACCESSLOG)
-		this->_accesslog = field_value;
+		this->_accesslog = HandlingString::obtain_without_ows_value(field_value);
 	if (field_header ==  DEFAULT_TYPE)
-		this->_default_type = field_value;
+		this->_default_type = HandlingString::obtain_without_ows_value(field_value);
 	if (field_header ==  ERRORLOG)
-		this->_errorlog = field_value;
+		this->_errorlog = HandlingString::obtain_without_ows_value(field_value);
 	if (field_header ==  ROOT)
-		this->_root = field_value;
+		this->_root = HandlingString::obtain_without_ows_value(field_value);
 	if (field_header ==  CGI_PATH)
-		this->_cgi_path = field_value;
+		this->_cgi_path = HandlingString::obtain_without_ows_value(field_value);
 	if (field_header ==  ALIAS)
-		this->_alias = field_value;
+		this->_alias = HandlingString::obtain_without_ows_value(field_value);
 	if (field_header ==  UPLOAD_PATH)
-		this->_upload_path = field_value;
+		this->_upload_path = HandlingString::obtain_without_ows_value(field_value);
 	if (field_header ==  ALLOW_METHODS)
-		this->_allow_methods = ready_string_vector_field_value(field_value);
+		this->_allow_methods = ConfigHandlingString::ready_string_vector_field_value(field_value);
 	if (field_header ==  INDEX)
-		this->_index = ready_string_vector_field_value(field_value);
+		this->_index = ConfigHandlingString::ready_string_vector_field_value(field_value);
 	if (field_header ==  ERRORPAGES)
-		this->_errorpages = ready_string_vector_field_value(field_value);
+		this->_errorpages = ConfigHandlingString::ready_string_vector_field_value(field_value);
 	if (field_header ==  SERVER_NAME)
-		this->_server_name = ready_string_vector_field_value(field_value);
+		this->_server_name = ConfigHandlingString::ready_string_vector_field_value(field_value);
 	return (true);
 }
 

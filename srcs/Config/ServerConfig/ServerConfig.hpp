@@ -54,11 +54,6 @@ class ServerConfig
 		std::vector<std::string>				_allow_methods;
 		std::vector<std::string>				_index;
 		std::vector<std::string>				_server_name;
-		bool									ready_boolean_field_value(const std::string &field_value);
-		int										ready_int_field_value(const std::string &field_value);
-		size_t									ready_size_t_field_value(const std::string &field_value);
-		std::string								ready_string_field_value(const std::string &field_value);
-		std::vector<std::string>				ready_string_vector_field_value(const std::string &field_value);
 	public:
 		ServerConfig();
 		ServerConfig(const ServerConfig &other);

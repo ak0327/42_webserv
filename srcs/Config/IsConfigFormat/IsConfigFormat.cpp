@@ -3,23 +3,7 @@
 
 int	IsConfigFormat::is_start_location_block(const std::string &config_line)
 {
-	std::string	line_without_ows = HandlingString::obtain_without_ows_value(config_line);
-	size_t	end_pos = 0;
-
-	bool is_printable = HandlingString::is_printable_content(config_line);
-	if (is_printable == false)
-		return (IS_NOT_PRINTABLE);
-	if (std::count(config_line.begin(), config_line.end(), '{') > 1)
-		return (IS_TOO_MANY_CURLY_BRACES);
-	HandlingString::skip_no_ows(line_without_ows, &end_pos);
-	if (line_without_ows.substr(0, end_pos) != "location" || end_pos == line_without_ows.length())
-		return (IS_NOT_EXIST_KEYWORD_LOCATION);
-	HandlingString::skip_ows(line_without_ows, &end_pos);
-	HandlingString::skip_no_ows(line_without_ows, &end_pos);
-	HandlingString::skip_ows(line_without_ows, &end_pos);
-	if (ConfigHandlingString::is_blockstart_endword(line_without_ows.substr(end_pos, line_without_ows.length() - end_pos)) == false)
-		return (IS_NOT_ENDWORD_CURLY_BRACES);
-	return (IS_OK);
+	return (is_start_location_block(config_line, NULL));
 }
 
 // int型に変更してエラーの種類を取得するようにする
@@ -40,9 +24,12 @@ int	IsConfigFormat::is_start_location_block(const std::string &config_line, \
 	HandlingString::skip_ows(line_without_ows, &end_pos);
 	start_pos = end_pos;
 	HandlingString::skip_no_ows(line_without_ows, &end_pos);
-	*config_location_path = line_without_ows.substr(start_pos, end_pos - start_pos);
-	if (!HandlingString::is_printable_content(*config_location_path) || end_pos == line_without_ows.length())
-		return (IS_NOT_FIELD_KEY_PRINTABLE);
+	if (config_location_path != NULL)
+	{
+		*config_location_path = line_without_ows.substr(start_pos, end_pos - start_pos);
+		if (!HandlingString::is_printable_content(*config_location_path) || end_pos == line_without_ows.length())
+			return (IS_NOT_FIELD_KEY_PRINTABLE);
+	}
 	HandlingString::skip_ows(line_without_ows, &end_pos);
 	if (ConfigHandlingString::is_blockstart_endword(line_without_ows.substr(end_pos, line_without_ows.length() - end_pos)) == false)
 		return (IS_NOT_ENDWORD_CURLY_BRACES);
