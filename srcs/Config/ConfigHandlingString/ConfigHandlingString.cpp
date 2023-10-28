@@ -109,6 +109,7 @@ std::string ConfigHandlingString::ready_string_field_value(const std::string &fi
 std::vector<std::string> ConfigHandlingString::ready_string_vector_field_value(const std::string &field_value)
 {
 	std::vector<std::string>	anser_vector;
+	std::string	value;
 	std::istringstream			values_splited_by_empty(field_value);
 	std::string					value_splited_by_empty;
 	size_t	value_start_pos = 0;
@@ -117,7 +118,9 @@ std::vector<std::string> ConfigHandlingString::ready_string_vector_field_value(c
 	while (field_value[value_start_pos] != '\0')
 	{
 		HandlingString::skip_no_ows(field_value, &value_end_pos);
-		anser_vector.push_back(field_value.substr(value_start_pos, value_end_pos - value_start_pos));
+		value = field_value.substr(value_start_pos, value_end_pos - value_start_pos);
+		if (std::count(anser_vector.begin(), anser_vector.end(), value) == 0)
+			anser_vector.push_back(value);
 		HandlingString::skip_ows(field_value, &value_end_pos);
 		value_start_pos = value_end_pos;
 	}
