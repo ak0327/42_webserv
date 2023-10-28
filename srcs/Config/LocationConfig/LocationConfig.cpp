@@ -169,7 +169,7 @@ void	LocationConfig::clear_location_keyword()
 	this->_errorpages.clear();
 }
 
-void LocationConfig::set_server_block_infs(const ServerConfig &other)
+void LocationConfig::init_location_config_with_server_config(const ServerConfig &other)
 {
 	this->set_autoindex(other.get_autoindex());
 	this->set_chunked_transferencoding_allow(other.get_chunked_transferencoding_allow());

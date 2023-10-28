@@ -110,7 +110,7 @@ class LocationConfig
 		bool						set_field_header_field_value(const std::string &field_header, \
 																const std::string &field_value);
 		void						clear_location_keyword(void);
-		void						set_server_block_infs(const ServerConfig &inputes_severconfig);
+		void						init_location_config_with_server_config(const ServerConfig &inputes_severconfig);
 };
 
 #endif  // SRCS_CONFIG_LOCATIONCONFIG_LOCATIONCONFIG_HPP_

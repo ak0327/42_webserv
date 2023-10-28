@@ -111,7 +111,7 @@ void	Config::init_location_config_with_server_config(LocationConfig *location_co
 												bool *in_server_block)
 {
 	location_config->clear_location_keyword();
-	location_config->set_server_block_infs(this->get_same_allconfig(server_name).get_server_config());
+	location_config->init_location_config_with_server_config(this->get_same_allconfig(server_name).get_server_config());
 	*in_server_block = true;
 }
 
@@ -149,7 +149,7 @@ bool	Config::ready_location_config(const std::string	&config_file_name, \
 			{
 				this->_all_configs[*server_name_itr].set_location_config(location_path, location_config);
 				location_config.clear_location_keyword();
-				location_config.set_server_block_infs(this->get_same_allconfig(*server_name_itr).get_server_config());
+				location_config.init_location_config_with_server_config(this->get_same_allconfig(*server_name_itr).get_server_config());
 				in_location_block = false;
 			}
 			else if (IsConfigFormat::is_location_block_format(config_line) == IS_OK)
