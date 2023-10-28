@@ -20,7 +20,7 @@ typedef std::set<std::map<std::string, std::string> > map_set;
 ////////////////////////////////////////////////////////////////////////////////
 /* add */
 
-TEST(TestHttpRequest, NgCaseRequestOnly) {
+TEST(HttpRequest, NgCaseRequestOnly) {
 	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\n";
 	HttpRequest request(TEST_REQUEST);
 
@@ -30,7 +30,7 @@ TEST(TestHttpRequest, NgCaseRequestOnly) {
 	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
 }
 
-TEST(TestHttpRequest, NgInvalidMethod) {
+TEST(HttpRequest, NgInvalidMethod) {
 	const std::string TEST_REQUEST = "get /index.html HTTP/1.1\r\n"
 									 "\r\n";
 	HttpRequest request(TEST_REQUEST);
@@ -41,7 +41,7 @@ TEST(TestHttpRequest, NgInvalidMethod) {
 	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
 }
 
-TEST(TestHttpRequest, NgNoHeaders) {
+TEST(HttpRequest, NgNoHeaders) {
 	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\n"
 									 "\r\n";
 	HttpRequest request(TEST_REQUEST);
@@ -52,7 +52,7 @@ TEST(TestHttpRequest, NgNoHeaders) {
 	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
 }
 
-TEST(TestHttpRequest, NgInvalidHeaderFormat1) {
+TEST(HttpRequest, NgInvalidHeaderFormat1) {
 	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\n"
 									 "Host: www.example.com\r";
 	HttpRequest request(TEST_REQUEST);
@@ -63,7 +63,7 @@ TEST(TestHttpRequest, NgInvalidHeaderFormat1) {
 	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
 }
 
-TEST(TestHttpRequest, NgInvalidHeaderFormat2) {
+TEST(HttpRequest, NgInvalidHeaderFormat2) {
 	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\n"
 									 "\r\n"
 									 "Host: www.example.com\r\n"
@@ -73,6 +73,41 @@ TEST(TestHttpRequest, NgInvalidHeaderFormat2) {
 	EXPECT_EQ("GET", request.get_method());
 	EXPECT_EQ("/index.html", request.get_request_target());
 	EXPECT_EQ("HTTP/1.1", request.get_http_version());
+	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
+}
+
+TEST(HttpRequest, ParseRequestMessage) {
+	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\n"
+									 "Host: example.com\r\n"
+									 "\r\n";
+	HttpRequest request(TEST_REQUEST);
+
+	EXPECT_EQ("GET", request.get_method());
+	EXPECT_EQ("/index.html", request.get_request_target());
+	EXPECT_EQ("HTTP/1.1", request.get_http_version());
+
+	std::string field_name = std::string(HOST);
+	bool has_field_name = request.is_valid_field_name_registered(field_name);
+	EXPECT_TRUE(has_field_name);
+
+	if (has_field_name) {
+		FieldValueBase *field_values = request.get_field_values(field_name);
+		MapFieldValues *multi_field_values = dynamic_cast<MapFieldValues *>(field_values);
+		std::map<std::string, std::string> actual_map = multi_field_values->get_value_map();
+		std::map<std::string, std::string> expected_map = {{std::string(URI_HOST), "example.com"}};
+
+		EXPECT_EQ(expected_map, actual_map);
+
+	} else {
+		ADD_FAILURE() << field_name << " not found";
+	}
+	EXPECT_EQ(STATUS_OK, request.get_status_code());
+}
+
+TEST(HttpRequest, ParseRequestMessageEmpty) {
+	const std::string TEST_REQUEST = "";
+	HttpRequest request(TEST_REQUEST);
+
 	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
 }
 
@@ -280,28 +315,28 @@ bool keyword_doesnot_exist(int line, const char *key, HttpRequest &target)
 	return (true);
 }
 
-TEST(Request, SEGV)
+TEST(HttpRequest, SEGV)
 {
     const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\n\n\n\n";
     HttpRequest httprequest_test1(TEST_REQUEST);
     EXPECT_EQ(httprequest_test1.get_status_code(), 400);
 }
 
-TEST(Request, UNCORRECTFORMATREQUESTLINE1)
+TEST(HttpRequest, UNCORRECTFORMATREQUESTLINE1)
 {
 	const std::string TEST_REQUEST = "GET/index.htmlHTTP/1.1\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
 	EXPECT_EQ(httprequest_test1.get_status_code(), 400);
 }
 
-TEST(Request, UNCORRECTFORMATREQUESTLINE2)
+TEST(HttpRequest, UNCORRECTFORMATREQUESTLINE2)
 {
 	const std::string TEST_REQUEST = "GET /index.html\nHTTP/1.1\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
 	EXPECT_EQ(httprequest_test1.get_status_code(), 400);
 }
 
-TEST(Request, REQUESTLINETEST1)
+TEST(HttpRequest, REQUESTLINETEST1)
 {
 	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
@@ -310,7 +345,7 @@ TEST(Request, REQUESTLINETEST1)
 	EXPECT_EQ(httprequest_test1.get_http_version(), "HTTP/1.1");
 }
 
-TEST(Request, TEST1)
+TEST(HttpRequest, TEST1)
 {
 	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\n"
 									 "Host: www.example.com   \r\n"
@@ -349,7 +384,7 @@ TEST(Request, TEST1)
 	// }
 }
 
-TEST(Request, TOP_WARD_KORON)
+TEST(HttpRequest, TOP_WARD_KORON)
 {
 	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\n"
 									 ": www.example.com\r\n";
@@ -357,7 +392,7 @@ TEST(Request, TOP_WARD_KORON)
 	EXPECT_EQ(httprequest_test1.get_status_code(), 400);
 }
 
-TEST(Request, TEST1_CONTAIN_FORBIDDENWORD)
+TEST(HttpRequest, TEST1_CONTAIN_FORBIDDENWORD)
 {
 	const std::string TEST_REQUEST = "GET /index.html \rHTTP/1.1\r\n"
 									 "Host: www.example.com\r\n"
@@ -368,7 +403,7 @@ TEST(Request, TEST1_CONTAIN_FORBIDDENWORD)
 	EXPECT_EQ(httprequest_test1.get_status_code(), 400);
 }
 
-TEST(Request, NOT_CORRECTRY_FORMAT)
+TEST(HttpRequest, NOT_CORRECTRY_FORMAT)
 {
 	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\n"
 									 "Host: www.example.com\r\n"
@@ -380,7 +415,7 @@ TEST(Request, NOT_CORRECTRY_FORMAT)
 }
 
 
-TEST(Request, TEST1_include_empty)
+TEST(HttpRequest, TEST1_include_empty)
 {
 	const std::string TEST_REQUEST = "GET 	/index.html HTTP/1.1\r\n"
 									 "Host: www.example  .com\r\n"
@@ -392,7 +427,7 @@ TEST(Request, TEST1_include_empty)
 }
 
 // todo:later
-// TEST(Request, AcceptEncoding)
+// TEST(HttpRequest, AcceptEncoding)
 // {
 // 	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\n"
 // 									  "Accept-Encoding: gzip;q=0.5, deflate\r\n";
@@ -411,7 +446,7 @@ TEST(Request, TEST1_include_empty)
 // 	}
 // }
 
-TEST(Request, AcceptEncoding_Error1)
+TEST(HttpRequest, AcceptEncoding_Error1)
 {
 	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\n"
 									  "Accept-Encoding: gzip;;;;;;q=;0.5, deflate\r\n";
@@ -419,14 +454,14 @@ TEST(Request, AcceptEncoding_Error1)
 	EXPECT_EQ(httprequest_test1.get_status_code(), 400);
 }
 
-TEST(Request, AcceptEncoding_Error2)
+TEST(HttpRequest, AcceptEncoding_Error2)
 {
 	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\n"
 									  "Accept-Encoding: gzip;q=0.5, ,,def,l,ate\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST2);
 }
 
-TEST(Request, TEST2)
+TEST(HttpRequest, TEST2)
 {
 	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\n"
 									  "Host: example.com\r\n"
@@ -552,7 +587,7 @@ TEST(Request, TEST2)
 	}
 }
 
-TEST(Request, TEST2ERROR1)
+TEST(HttpRequest, TEST2ERROR1)
 {
 	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\n"
 									  "Accept-Language: en-US,en;;;;q=0.5\r\n";
@@ -561,7 +596,7 @@ TEST(Request, TEST2ERROR1)
 }
 
 // todo:later
-// TEST(Request, TEST2ANYCORON)
+// TEST(HttpRequest, TEST2ANYCORON)
 // {
 // 	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\n"
 // 									  "Accept-Language: en-US,en;q=0.5,,\r\n";
@@ -580,7 +615,7 @@ TEST(Request, TEST2ERROR1)
 // 	}
 // }
 
-TEST(Request, TEST2NOWEIGHTSEMICORON)
+TEST(HttpRequest, TEST2NOWEIGHTSEMICORON)
 {
 	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\n"
 									  "Accept-Language: en-US,en;,,\r\n";
@@ -588,7 +623,7 @@ TEST(Request, TEST2NOWEIGHTSEMICORON)
 	EXPECT_EQ(httprequest_test1.get_status_code(), 400);
 }
 
-TEST(Request, TEST2_include_empty)
+TEST(HttpRequest, TEST2_include_empty)
 {
 	const std::string TEST_REQUEST2 = "GET 		/path/to/resource HTTP/1.1\r\n"
 									  "Host: example.com\r\n"
@@ -608,7 +643,7 @@ TEST(Request, TEST2_include_empty)
 	EXPECT_EQ(httprequest_test1.get_status_code(), 400);
 }
 
-TEST(Request, TEST3)
+TEST(HttpRequest, TEST3)
 {
 	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\n"
 									  "host: example\r\n"
@@ -696,7 +731,7 @@ TEST(Request, TEST3)
 	// }
 }
 
-TEST(Request, TEST3_include_empty)
+TEST(HttpRequest, TEST3_include_empty)
 {
 	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\n"
 									  "If-None-Match:  some  _etag\r\n"
@@ -754,7 +789,7 @@ TEST(Request, TEST3_include_empty)
 	// }
 }
 
-TEST(Request, MAX_FORWARDS_TEST)
+TEST(HttpRequest, MAX_FORWARDS_TEST)
 {
 	const std::string TEST_REQUEST2 = "GET /path/to/resource HTTP/1.1\r\n"
 									  "Max-Forwards: -1\r\n"
@@ -766,7 +801,7 @@ TEST(Request, MAX_FORWARDS_TEST)
 	keyword_doesnot_exist(__LINE__, "max-forwards", httprequest_test1);
 }
 
-TEST(Request, TEST4)
+TEST(HttpRequest, TEST4)
 {
 	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\n"
 									  "Host: example.com\r\n"
@@ -794,7 +829,7 @@ TEST(Request, TEST4)
 	// }
 }
 
-TEST(Request, TEST4_include_empty)
+TEST(HttpRequest, TEST4_include_empty)
 {
 	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\n"
 									  "Host: example.com\r\n"
@@ -822,7 +857,7 @@ TEST(Request, TEST4_include_empty)
 	// }
 }
 
-TEST(Request, TEST5)
+TEST(HttpRequest, TEST5)
 {
 	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\n"
 									  "Host: example.com\r\n"
@@ -859,7 +894,7 @@ TEST(Request, TEST5)
 	// }
 }
 
-TEST(Request, TEST6)
+TEST(HttpRequest, TEST6)
 {
 	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\n"
 									  "Host: example.com\r\n"
@@ -937,7 +972,7 @@ TEST(Request, TEST6)
 	// }
 }
 
-TEST(Request, TEST_CONTENT_LENGTH)
+TEST(HttpRequest, TEST_CONTENT_LENGTH)
 {
 	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\n"
 									  "Content-Length: -1\r\n"
@@ -949,7 +984,7 @@ TEST(Request, TEST_CONTENT_LENGTH)
 	keyword_doesnot_exist(__LINE__, "content-length", httprequest_test1);
 }
 
-TEST(Request, TEST7)
+TEST(HttpRequest, TEST7)
 {
 	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\n"
 									  "Cross-Origin-Embedder-Policy: require-corp\r\n"
@@ -1095,7 +1130,7 @@ TEST(Request, TEST7)
 	}
 }
 
-TEST(Request, TEST8)
+TEST(HttpRequest, TEST8)
 {
 	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\n"
 									  "Host: example.com\r\n"
@@ -1155,7 +1190,7 @@ TEST(Request, TEST8)
 	}
 }
 
-TEST(Request, TEST9)
+TEST(HttpRequest, TEST9)
 {
 	const std::string TEST_REQUEST2 = "GET /example HTTP/1.1\r\n"
 									  "Host: example.com\r\n"

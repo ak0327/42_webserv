@@ -7,6 +7,7 @@
 #include <vector>
 #include "webserv.hpp"
 #include "Color.hpp"
+#include "Constant.hpp"
 #include "Debug.hpp"
 #include "Error.hpp"
 #include "IOMultiplexer.hpp"
@@ -18,12 +19,11 @@
 namespace {
 	int INIT_SIZE = 1;
 	int EPOLL_TIMEOUT = 0;
-	int TIMEOUT = -1;
+	int IO_TIMEOUT = -1;
 	int TIMEOUT_MS = 2500;
 	int INIT_FD = -1;
 
 	int ERROR = -1;
-	int OK = 0;
 }
 
 EPollMultiplexer::EPollMultiplexer(int socket_fd) : _socket_fd(socket_fd),
@@ -69,7 +69,7 @@ Result<int, std::string> EPollMultiplexer::get_io_ready_fd() {
 		return Result<int, std::string>::err("[Server Error] epoll_wait:" + err_info);
 	}
 	if (ready_fd_count == EPOLL_TIMEOUT) {
-		return Result<int, std::string>::ok(TIMEOUT);
+		return Result<int, std::string>::ok(IO_TIMEOUT);
 	}
 	return Result<int, std::string>::ok(this->_new_event.data.fd);
 }
@@ -100,10 +100,9 @@ namespace {
 	const int KEVENT_TIMEOUT = 0;
 	const int INIT_KQ = -1;
 	const int EVENT_COUNT = 1;
-	const int TIMEOUT = -1;
+	const int IO_TIMEOUT = -1;
 
 	const int ERROR = -1;
-	const int OK = 0;
 
 	Result<int, std::string> init_kqueue() {
 		int kq;
@@ -185,7 +184,7 @@ Result<int, std::string> KqueueMultiplexer::get_io_ready_fd() {
 	}
 	new_events = kevent_result.get_ok_value();
 	if (new_events == KEVENT_TIMEOUT) {
-		return Result<int, std::string>::ok(TIMEOUT);
+		return Result<int, std::string>::ok(IO_TIMEOUT);
 	}
 
 	cast_result = cast_fd_uintptr_to_int(this->_new_event.ident);
@@ -231,9 +230,8 @@ namespace {
 	const int INIT_FD = -1;
 	const int MAX_SESSION = 128;
 	const int SELECT_TIMEOUT = 0;
-	const int TIMEOUT = -1;
+	const int IO_TIMEOUT = -1;
 
-	int OK = 0;
 	int ERROR = -1;
 
 	fd_set init_fds(int socket_fd, const std::vector<int> &connect_fds) {
@@ -331,7 +329,7 @@ Result<int, std::string> SelectMultiplexer::get_io_ready_fd() {
 		return Result<int, std::string>::err("[Server Error] select:" + err_info);
 	}
 	if (select_result.get_ok_value() == SELECT_TIMEOUT) {
-		return Result<int, std::string>::ok(TIMEOUT);
+		return Result<int, std::string>::ok(IO_TIMEOUT);
 	}
 
 	fd_result = get_ready_fd(this->_connect_fds, &this->_fds, this->_socket_fd);

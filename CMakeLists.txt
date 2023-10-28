@@ -78,7 +78,6 @@ set(webserv_srcs
 set(http_request_srcs
         srcs/HttpRequest/HttpRequest.cpp
         srcs/HttpRequest/RequestLine/RequestLine.cpp
-        srcs/HttpRequest/ValueWeightArraySet/ValueWeightArraySet.cpp
         )
 
 # Date
@@ -230,7 +229,7 @@ set (unit_test_srcs
         test/unit_test/MultiFieldValues/TestContentLanguage.cpp
         test/unit_test/MultiFieldValues/TestIfMatch.cpp
         test/unit_test/MultiFieldValues/TestIfNoneMatch.cpp
-        test/unit_test/MultiFieldValues/TestOgirin.cpp
+        test/unit_test/MultiFieldValues/TestOrigin.cpp
         test/unit_test/MultiFieldValues/TestTransferEncoding.cpp
 
         # SingleFieldValue

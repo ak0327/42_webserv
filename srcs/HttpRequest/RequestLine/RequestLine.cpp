@@ -10,8 +10,21 @@
 /* constructor, destructor */
 RequestLine::RequestLine() {}
 
+RequestLine::RequestLine(const RequestLine &other) {
+	*this = other;
+}
+
 RequestLine::~RequestLine() {}
 
+RequestLine &RequestLine::operator=(const RequestLine &rhs) {
+	if (this == &rhs) {
+		return *this;
+	}
+	_method = rhs._method;
+	_request_target = rhs._request_target;
+	_http_version = rhs._http_version;
+	return *this;
+}
 
 /* getter */
 std::string	RequestLine::get_method(void) const {

@@ -41,8 +41,8 @@ class HttpRequest {
 	std::map<std::string, int> _field_name_counter;
 
 	HttpRequest();
-	HttpRequest(const HttpRequest &request);
-	const HttpRequest &operator=(const HttpRequest &rhs);
+	HttpRequest(const HttpRequest &other);
+	HttpRequest &operator=(const HttpRequest &rhs);
 
 	/* parse, validate */
 	int parse_and_validate_http_request(const std::string &input);

@@ -184,8 +184,8 @@ run_unit_test	:
 	cmake -S . -B build
 	#cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT_MULTIPLEXER"
 	cmake --build build
-	#./build/unit_test 2>/dev/null
-	./build/unit_test
+	./build/unit_test 2>/dev/null
+	#./build/unit_test
 
 .PHONY	: run_server_test
 run_server_test	:
@@ -223,7 +223,7 @@ run_request_test    :
 #rm -rf build
 	cmake -S . -B build
 	cmake --build build
-	./build/unit_test --gtest_filter=Request*
+	./build/unit_test --gtest_filter=HttpRequest*
 
 .PHONY    : run_handlingstring_test
 run_handlingstring_test    :
@@ -239,22 +239,6 @@ run_httprequest_list_test    :
 	cmake --build build
 	./build/unit_test --gtest_filter=List*
 
-.PHONY    : run_httprequest_twoValueMap_test
-run_httprequest_twoValueMap_test    :
-#rm -rf build
-	cmake -S . -B build
-	cmake --build build
-	./build/unit_test --gtest_filter=TwoValuseSet*
-
-.PHONY    : run_httprequest_array_test
-run_httprequest_array_test    :
-#rm -rf build
-	cmake -S . -B build
-	cmake --build build
-	./build/unit_test --gtest_filter=Array*
-
-################################################################################
-
 .PHONY    : run_string_test
 run_string_test    :
 #rm -rf build
@@ -268,14 +252,6 @@ run_rl_test    :
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestRequestLine*
-
-.PHONY    : run_http_request_test
-run_http_request_test    :
-#rm -rf build
-	cmake -S . -B build
-	cmake --build build
-	./build/unit_test --gtest_filter=TestHttpRequest*
-
 
 .PHONY    : run_single_field_value_test
 run_single_field_value_test    :
