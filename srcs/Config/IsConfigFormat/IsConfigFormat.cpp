@@ -15,6 +15,8 @@ int	IsConfigFormat::is_start_location_block(const std::string &config_line, \
 	size_t	start_pos = 0;
 	size_t	end_pos = 0;
 
+	if (std::count(config_line.begin(), config_line.end(), '{') != 1)
+		return (IS_FORBIDDEN_WORD);
 	bool is_printable = HandlingString::is_printable_content(config_line);
 	if (is_printable == false)
 		return (IS_NOT_PRINTABLE);
@@ -42,6 +44,8 @@ int	IsConfigFormat::is_start_server_block(const std::string &config_line, bool *
 	size_t	start_pos = 0;
 	size_t	end_pos = 0;
 
+	if (std::count(config_line.begin(), config_line.end(), '{') != 1)
+		return (IS_FORBIDDEN_WORD);
 	bool is_printable = HandlingString::is_printable_content(config_line);
 	if (is_printable == false)
 		return (IS_NOT_PRINTABLE);

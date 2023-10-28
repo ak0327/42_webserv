@@ -23,6 +23,7 @@
 #define IS_TOO_MANY_CURLY_BRACES 18
 #define IS_NOT_PRINTABLE 19
 #define IS_NOT_START_CURLY_BRACES 26
+#define IS_FORBIDDEN_WORD 27
 
 class IsConfigFormat
 {

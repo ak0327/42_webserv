@@ -317,6 +317,9 @@ bool Config::report_errorline(const std::string &config_line, const size_t &line
 		case IS_NOT_START_CURLY_BRACES:
 			std::cerr << "IS_NOT_START_CURLY_BRACES" << std::endl;
 			break;
+		case IS_FORBIDDEN_WORD:
+			std::cerr << "IS_FORBIDDEN_WORD" << std::endl;
+			break;
 		default:
 			break;
 	}
