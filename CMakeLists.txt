@@ -5,13 +5,16 @@ set(CMAKE_CXX_STANDARD 98)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -pedantic")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fsanitize=address,undefined -fno-omit-frame-pointer")
+
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D DEBUG")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D USE_SELECT_MULTIPLEXER")
 
 if(DEFINED CUSTOM_FLAGS)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CUSTOM_FLAGS}")
 endif()
 
 message(STATUS "CXX Flags: ${CMAKE_CXX_FLAGS}")
+
 
 # google test ------------------------------------------------------------------
 include(FetchContent)
@@ -33,8 +36,11 @@ enable_testing()
 include_directories(
         includes
         srcs/Const
+        srcs/Client
         srcs/Debug
         srcs/Error
+        srcs/IOMultiplexer
+        srcs/Server
         srcs/Socket
         srcs/StringHandler
         srcs/HttpRequest
@@ -55,8 +61,11 @@ include_directories(
 set(webserv_srcs
         srcs/get_valid_config_file_path.cpp
         srcs/Const/Constant.cpp
+        srcs/Client/Client.cpp
         srcs/Debug/Debug.cpp
         srcs/Error/Error.cpp
+        srcs/IOMultiplexer/IOMultiplexer.cpp
+        srcs/Server/Server.cpp
         srcs/Socket/Socket.cpp
         srcs/StringHandler/StringHandler.cpp
         srcs/StringHandler/HttpMessageParser.cpp
@@ -165,7 +174,9 @@ set (unit_test_srcs
         test/unit_test/is_valid_file_path/test_get_valid_config_file_path.cpp
         test/unit_test/TestError.cpp
         test/unit_test/TestResult.cpp
+        test/unit_test/TestServer.cpp
         test/unit_test/TestSocket.cpp
+
         test/unit_test/TestHttpRequest.cpp
         test/unit_test/TestHandlingString.cpp
         test/unit_test/TestHttpRequest_List.cpp

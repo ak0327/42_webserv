@@ -3,6 +3,7 @@ NAME		=	webserv
 CXX			=	c++
 CXXFLAGS	=	-std=c++98 -Wall -Wextra -Werror -MMD -MP
 CXXFLAGS	+=	-g -fsanitize=address,undefined -fno-omit-frame-pointer
+#CXXFLAGS	+=	-D USE_SELECT_MULTIPLEXER
 
 # SRCS -------------------------------------------------------------------------
 SRCS_DIR	=	srcs
@@ -10,6 +11,25 @@ SRCS_DIR	=	srcs
 #main
 SRCS		=	main.cpp \
 				get_valid_config_file_path.cpp
+#debug
+DEBUG_DIR	=	Debug
+SRCS		+=	$(DEBUG_DIR)/Debug.cpp
+
+#error
+ERROR_DIR	=	Error
+SRCS		+=	$(ERROR_DIR)/Error.cpp
+
+#io
+IO_DIR		=	IOMultiplexer
+SRCS		+=	$(IO_DIR)/IOMultiplexer.cpp
+
+#server
+SERVER_DIR	=	Server
+SRCS		+=	$(SERVER_DIR)/Server.cpp
+
+#socket
+SOCKET_DIR	=	Socket
+SRCS		+=	$(SOCKET_DIR)/Socket.cpp
 
 #const
 CONST_DIR	=	Const
@@ -93,14 +113,23 @@ OBJS		=	$(SRCS:%.cpp=$(OBJS_DIR)/%.o)
 DEPS		=	$(OBJS:%.o=%.d)
 
 
+# CLIENT -----------------------------------------------------------------------
+CLIENT_DIR	=	Client
+CLIENT_SRC	=	$(CLIENT_DIR)/Client.cpp \
+				$(CLIENT_DIR)/client_main.cpp
+CLIENT_OBJ	=	$(CLIENT_SRC:%.cpp=%.o)
+CLIENT_OBJS	=	$(addprefix $(OBJS_DIR)/, $(CLIENT_OBJ))
+
 # INCLUDES ---------------------------------------------------------------------
 INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(CONST_DIR) \
 				$(SRCS_DIR)/$(DEBUG_DIR) \
 				$(SRCS_DIR)/$(ERROR_DIR) \
-				$(SRCS_DIR)/$(SOCKET_DIR) \
-				$(SRCS_DIR)/$(STR_HANDLER) \
-				$(SRCS_DIR)/$(REQUEST_DIR) \
+				$(SRCS_DIR)/$(IO_DIR) \
+				$(SRCS_DIR)/$(SERVER_DIR) \
+        $(SRCS_DIR)/$(SOCKET_DIR) \
+				$(SRCS_DIR)/$(STR_HANDLER)     
+        $(SRCS_DIR)/$(REQUEST_DIR) \
 				$(SRCS_DIR)/$(DATE_DIR) \
 				$(SRCS_DIR)/$(FIELD_VALUE_WITH_WEIGHT) \
 				$(SRCS_DIR)/$(MAP_FIELD_VALUES_DIR) \
@@ -111,6 +140,7 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(REQUEST_DIR)/FieldValueBase \
 				$(SRCS_DIR)/$(REQUEST_DIR)/RequestLine \
 				$(SRCS_DIR)/$(REQUEST_DIR)/ValueAndMapFieldValues
+
 
 INCLUDES	 =	$(addprefix -I, $(INCLUDES_DIR))
 
@@ -132,7 +162,7 @@ clean	:
 
 .PHONY	: fclean
 fclean	: clean
-	rm -f $(NAME)
+	rm -f $(NAME) client
 
 .PHONY	: re
 re		: fclean all
@@ -153,6 +183,23 @@ run_unit_test	:
 	#./build/unit_test 2>/dev/null
 	./build/unit_test
 
+.PHONY	: run_server_test
+run_server_test	:
+	#rm -rf build
+	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
+	#cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG -D USE_SELECT_MULTIPLEXER"
+	cmake --build build
+	#./build/unit_test --gtest_filter=Server* 2>/dev/null
+	./build/unit_test --gtest_filter=Server*
+	#./build/unit_test --gtest_filter=*.ConnectClientCase1
+
+.PHONY	: run_socket_test
+run_socket_test	:
+	#rm -rf build
+	cmake -S . -B build
+	cmake --build build
+	./build/unit_test --gtest_filter=Socket* 2>/dev/null
+
 .PHONY	: run_result_test
 run_result_test	:
 	#rm -rf build
@@ -160,19 +207,12 @@ run_result_test	:
 	cmake --build build
 	./build/unit_test --gtest_filter=Result*
 
-.PHONY	: run_err_test
-run_err_test	:
+.PHONY	: run_errmsg_test
+run_errmsg_test	:
 	#rm -rf build
 	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
 	cmake --build build
 	./build/unit_test --gtest_filter=ErrorMessage*
-
-.PHONY	: run_socket_test
-run_socket_test	:
-	#rm -rf build
-	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
-	cmake --build build
-	./build/unit_test --gtest_filter=SocketUnitTest.*:SocketIntegrationTest.*
 
 .PHONY    : run_request_test
 run_request_test    :
@@ -293,5 +333,10 @@ run_date_test    :
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestDate*
+
+.PHONY	: client
+client	: $(CLIENT_OBJS)
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
 
 -include $(DEPS)

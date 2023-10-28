@@ -1,39 +1,45 @@
 *
 
-!.gitignore
 !.github
 !.github/*
-!config
+!.gitignore
 
 !srcs
 !srcs/Const
+!srcs/Client
 !srcs/Debug
 !srcs/Error
+!srcs/Server
 !srcs/Socket
 !srcs/StringHandler
 !srcs/HttpRequest
 !srcs/HttpRequest/*/
 
-!www
 !includes
-!test
+
 !playground
 
-!*.cpp
-!*.hpp
-!*.yml
+!test
+
+!www
+!config
+
 !*.conf
-!*.txt
+!*.cpp
 !*.h
+!*.hpp
+!*.txt
+!*.yml
 
-!Readme.md
-!Makefile
 !CPPLINT.cfg
-!webserv.drawio
 !CMakeLists.txt
+!Makefile
+!Readme.md
+!webserv.drawio
 
+.DS_Store
 .idea
 .vscode
-.DS_Store
+client_response.txt
 CMakeCache.txt
 Dockerfile
