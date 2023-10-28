@@ -105,24 +105,23 @@ TEST(ConfigReadingTest, config_test_1)
 // compare_vector_report(66, allconfig.get_allowmethods(), anser_allowmethods);
 // compare_vector_report(66, allconfig.get_indexpages(), anser_indexpages);
 
-// EXPECT_EQ(false, astalisk_cgi_path.get_autoindex());
-// EXPECT_EQ(false, astalisk_cgi_path.get_chunked_transferencoding_allow());
-// EXPECT_EQ(1, astalisk_cgi_path.get_server_tokens());
-// EXPECT_EQ(8000, astalisk_cgi_path.get_client_body_buffer_size());
-// EXPECT_EQ(60, astalisk_cgi_path.get_client_body_timeout());
-// EXPECT_EQ(1024, astalisk_cgi_path.get_client_header_buffer_size());
-// EXPECT_EQ(60, astalisk_cgi_path.get_client_header_timeout());
-// EXPECT_EQ(1024, astalisk_cgi_path.get_client_max_body_size());
-// EXPECT_EQ(0, astalisk_cgi_path.get_keepaliverequests());
-// EXPECT_EQ(0, astalisk_cgi_path.get_keepalive_timeout());
-// EXPECT_EQ("", astalisk_cgi_path.get_alias());
-// EXPECT_EQ("", astalisk_cgi_path.get_accesslog());
-// EXPECT_EQ("", astalisk_cgi_path.get_cgi_path());
-// EXPECT_EQ("application/octet-stream", astalisk_cgi_path.get_default_type());
-// EXPECT_EQ("", astalisk_cgi_path.get_errorlog());
-// EXPECT_EQ("", astalisk_cgi_path.get_root());
-// compare_vector_report(66, allconfig.get_allowmethods(), anser_allowmethods);
-// compare_vector_report(83, astalisk_cgi_path.get_indexpages(), anser_indexpage_sets);
+// EXPECT_EQ(false, 								*.get_autoindex());
+// EXPECT_EQ(false, 								*.get_chunked_transferencoding_allow());
+// EXPECT_EQ(1,										*.get_server_tokens());
+// EXPECT_EQ(8000,									*.get_client_body_buffer_size());
+// EXPECT_EQ(60,									*.get_client_body_timeout());
+// EXPECT_EQ(1024,									*.get_client_header_buffer_size());
+// EXPECT_EQ(60,									*.get_client_header_timeout());
+// EXPECT_EQ(1024,									*.get_client_max_body_size());
+// EXPECT_EQ(0,										*.get_keepaliverequests());
+// EXPECT_EQ(0,										*.get_keepalive_timeout());
+// EXPECT_EQ("",									*.get_alias());
+// EXPECT_EQ("",									*.get_accesslog());
+// EXPECT_EQ("",									*.get_cgi_path());
+// EXPECT_EQ("application/octet-stream",			*.get_default_type());
+// EXPECT_EQ("", 									*.get_errorlog());
+// EXPECT_EQ("", 									*.get_root());
+// compare_vector_report(83, anser_indexpage_sets,	*.get_indexpages());
 
 TEST(ConfigReadingTest, config_test_2) 
 {
@@ -225,6 +224,71 @@ TEST(ConfigReadingTest, config_test_3)
 	ServerConfig	allconfig;
 
 	EXPECT_EQ(true, test_config.get_is_config_format());
+}
+
+TEST(ConfigReadingTest, config_test_4) 
+{
+	Config	test_config("config/testconfig4.conf");
+	ServerConfig	allconfig;
+
+	EXPECT_EQ(true, test_config.get_is_config_format());
+	allconfig = test_config.get_same_allconfig("webserv1").get_server_config();
+	LocationConfig	root_path = test_config.get_same_allconfig("webserv1").get_location_config("/");
+
+	// configに記載があるもの server block //
+	EXPECT_EQ(true, allconfig.get_autoindex());
+	EXPECT_EQ(true, allconfig.get_chunked_transferencoding_allow());
+	EXPECT_EQ(1, allconfig.get_server_tokens());
+	EXPECT_EQ(3000, allconfig.get_client_body_buffer_size());
+	EXPECT_EQ(60, allconfig.get_client_body_timeout());
+	EXPECT_EQ(3000, allconfig.get_client_header_buffer_size());
+	EXPECT_EQ(30, allconfig.get_client_header_timeout());
+	EXPECT_EQ(10, allconfig.get_keepalive_requests());
+	EXPECT_EQ(10, allconfig.get_keepalive_timeout());
+	EXPECT_EQ(3000, allconfig.get_client_max_body_size());
+	EXPECT_EQ("access_log", allconfig.get_accesslog());
+	EXPECT_EQ("html/plain", allconfig.get_default_type());
+	EXPECT_EQ("error_log", allconfig.get_errorlog());
+	EXPECT_EQ("4242", allconfig.get_port());
+	EXPECT_EQ("/www/", allconfig.get_root());
+	std::vector<std::string>	anser_allowmethods;
+	anser_allowmethods.push_back("GET");
+	anser_allowmethods.push_back("POST");
+	compare_vector_report(__LINE__, allconfig.get_allow_methods(), anser_allowmethods);
+	std::vector<std::string>	anser_indexpages;
+	anser_indexpages.push_back("index.html");
+	compare_vector_report(__LINE__, allconfig.get_index(), anser_indexpages);
+	// -------------------------------- //
+
+	// configに記載があるもの location block //
+	EXPECT_EQ(false, 								root_path.get_autoindex());
+	EXPECT_EQ(false, 								root_path.get_chunked_transferencoding_allow());
+	EXPECT_EQ(2,									root_path.get_server_tokens());
+	EXPECT_EQ(1000,									root_path.get_client_body_buffer_size());
+	EXPECT_EQ(20,									root_path.get_client_body_timeout());
+	EXPECT_EQ(1000,									root_path.get_client_header_buffer_size());
+	EXPECT_EQ(90,									root_path.get_client_header_timeout());
+	EXPECT_EQ(10000,								root_path.get_client_max_body_size());
+	EXPECT_EQ(2,									root_path.get_keepalive_requests());
+	EXPECT_EQ(60,									root_path.get_keepalive_timeout());
+	EXPECT_EQ("alias",								root_path.get_alias());
+	EXPECT_EQ("access_log_root",					root_path.get_accesslog());
+	EXPECT_EQ("honyara",							root_path.get_cgi_path());
+	EXPECT_EQ("text/js",							root_path.get_default_type());
+	EXPECT_EQ("error_log_root", 					root_path.get_errorlog());
+	EXPECT_EQ("alias_root", 						root_path.get_root());
+	anser_indexpages.clear();
+	anser_indexpages.push_back("index_html.html");
+	compare_vector_report(__LINE__, anser_indexpages, root_path.get_index());
+	// -------------------------------- //
+
+	// configに記載がないもの server block //
+
+	// -------------------------------- //
+
+	// configに記載がないもの location block //
+
+	// -------------------------------- //
 }
 
 TEST(ConfigReadingTest, error_config_test_1) 
