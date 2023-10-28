@@ -24,11 +24,18 @@ size_t	LocationConfig::ready_size_t_field_value(const std::string &field_value)
 std::vector<std::string>	LocationConfig::ready_string_vector_field_value(const std::string &field_value)
 {
 	std::vector<std::string>	anser_vector;
-	std::istringstream	values_splited_by_empty(field_value);
-	std::string	value_splited_by_empty;
+	std::istringstream			values_splited_by_empty(field_value);
+	std::string					value_splited_by_empty;
+	size_t	value_start_pos = 0;
+	size_t	value_end_pos = 0;
 
-	while (std::getline(values_splited_by_empty, value_splited_by_empty, ' '))
-		anser_vector.push_back(value_splited_by_empty);
+	while (field_value[value_start_pos] != '\0')
+	{
+		HandlingString::skip_no_ows(field_value, &value_end_pos);
+		anser_vector.push_back(field_value.substr(value_start_pos, value_end_pos - value_start_pos));
+		HandlingString::skip_ows(field_value, &value_end_pos);
+		value_start_pos = value_end_pos;
+	}
 	return (anser_vector);
 }
 
@@ -37,120 +44,112 @@ bool	LocationConfig::set_field_header_field_value(const std::string &field_heade
 {
 	std::vector<std::string>	field_headers;
 
-	field_headers.push_back("autoindex");
-	field_headers.push_back("chunked_transferencoding_allow");
-	field_headers.push_back("server_tokens");
-	field_headers.push_back("client_body_buffer_size");
-	field_headers.push_back("client_body_timeout");
-	field_headers.push_back("client_header_buffer_size");
-	field_headers.push_back("client_header_timeout");
-	field_headers.push_back("client_max_body_size");
-	field_headers.push_back("keepalive_requests");
-	field_headers.push_back("keepalive_timeout");
-	field_headers.push_back("maxBodySize");
-	field_headers.push_back("accesslog");
-	field_headers.push_back("default_type");
-	field_headers.push_back("errorlog");
-	field_headers.push_back("port");
-	field_headers.push_back("root");
-	field_headers.push_back("allow_methods");
-	field_headers.push_back("index");
-	field_headers.push_back("server_name");
-	field_headers.push_back("cgi_path");
-	field_headers.push_back("alias");
-	field_headers.push_back("upload_path");
-	field_headers.push_back("error_page");
-	field_headers.push_back("return");  // 未実装
+	field_headers.push_back(AUTOINDEX);
+	field_headers.push_back(CHUNKED_TRANSFERENCODING_ALLOW);
+	field_headers.push_back(SERVER_TOKENS);
+	field_headers.push_back(CLIENT_BODY_BUFFER_SIZE);
+	field_headers.push_back(CLIENT_BODY_TIMEOUT);
+	field_headers.push_back(CLIENT_HEADER_BUFFER_SIZE);
+	field_headers.push_back(CLIENT_HEADER_TIMEOUT);
+	field_headers.push_back(CLIENT_MAX_BODY_SIZE);
+	field_headers.push_back(KEEPALIVE_REQUESTS);
+	field_headers.push_back(KEEPALIVE_TIMEOUT);
+	field_headers.push_back(ACCESSLOG);
+	field_headers.push_back(DEFAULT_TYPE);
+	field_headers.push_back(ERRORLOG);
+	field_headers.push_back(ROOT);
+	field_headers.push_back(ALLOW_METHODS);
+	field_headers.push_back(INDEX);
+	field_headers.push_back(SERVER_NAME);
+	field_headers.push_back(CGI_PATH);
+	field_headers.push_back(ALIAS);
+	field_headers.push_back(UPLOAD_PATH);
 
-	// if (std::find(field_headers.begin(), field_headers.end(), field_header) == field_headers.end())
-	// {
-	// 	return false;
-	// } 当てはまらないものをfalseにするかどうか
-	if (field_header == "listen")  // location内で認められていないワードはここではじく？
+	if (std::find(field_headers.begin(), field_headers.end(), field_header) == field_headers.end())
 	{
-		return (false);
+		return false;
 	}
-    if (field_header == "autoindex")
+    if (field_header == AUTOINDEX)
     {
 		if (!(field_value == "on" || field_value == "off"))
 			return false;
 		this->_autoindex = this->ready_boolean_field_value(field_value);
 	}
-    if (field_header ==  "chunked_transferencoding_allow")
+    if (field_header ==  CHUNKED_TRANSFERENCODING_ALLOW)
     {
 		if (!(field_value == "on" || field_value == "off"))
 			return false;
 		this->_chunked_transferencoding_allow = this->ready_boolean_field_value(field_value);
 	}
-    if (field_header ==  "server_tokens")
+    if (field_header ==  SERVER_TOKENS)
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
 		this->_server_tokens = this->ready_int_field_value(field_value);
 	}
-	if (field_header ==  "client_body_buffer_size")
+	if (field_header ==  CLIENT_BODY_BUFFER_SIZE)
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
 		this->_client_body_buffer_size = this->ready_size_t_field_value(field_value);
 	}
-	if (field_header ==  "client_body_timeout")
+	if (field_header ==  CLIENT_BODY_TIMEOUT)
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
 		this->_client_body_timeout = this->ready_size_t_field_value(field_value);
 	}
-	if (field_header ==  "client_header_buffer_size")
+	if (field_header ==  CLIENT_HEADER_BUFFER_SIZE)
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
 		this->_client_header_buffer_size = this->ready_size_t_field_value(field_value);
 	}
-	if (field_header ==  "client_header_timeout")
+	if (field_header ==  CLIENT_HEADER_TIMEOUT)
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
 		this->_client_header_timeout = this->ready_size_t_field_value(field_value);
 	}
-	if (field_header ==  "client_max_body_size")
+	if (field_header ==  CLIENT_MAX_BODY_SIZE)
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
 		this->_client_max_body_size = this->ready_size_t_field_value(field_value);
 	}
-	if (field_header ==  "keepalive_requests")
+	if (field_header ==  KEEPALIVE_REQUESTS)
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
 		this->_keepalive_requests = this->ready_size_t_field_value(field_value);
 	}
-	if (field_header ==  "keepalive_timeout")
+	if (field_header ==  KEEPALIVE_TIMEOUT)
     {
 		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
 			return false;
 		this->_keepalive_timeout = this->ready_size_t_field_value(field_value);
 	}
-	if (field_header ==  "accesslog")
+	if (field_header ==  ACCESSLOG)
 		this->_accesslog = field_value;
-	if (field_header ==  "default_type")
+	if (field_header ==  DEFAULT_TYPE)
 		this->_default_type = field_value;
-	if (field_header ==  "errorlog")
+	if (field_header ==  ERRORLOG)
 		this->_errorlog = field_value;
-	if (field_header ==  "root")
+	if (field_header ==  ROOT)
 		this->_root = field_value;
-	if (field_header ==  "cgi_path")
+	if (field_header ==  CGI_PATH)
 		this->_cgi_path = field_value;
-	if (field_header ==  "alias")
+	if (field_header ==  ALIAS)
 		this->_alias = field_value;
-	if (field_header ==  "upload_path")
+	if (field_header ==  UPLOAD_PATH)
 		this->_upload_path = field_value;
-	if (field_header ==  "allow_methods")
+	if (field_header ==  ALLOW_METHODS)
 		this->_allow_methods = ready_string_vector_field_value(field_value);
-	if (field_header ==  "index")
+	if (field_header ==  INDEX)
 		this->_index = ready_string_vector_field_value(field_value);
-	if (field_header ==  "error_page")
+	if (field_header ==  ERRORPAGES)
 		this->_errorpages = ready_string_vector_field_value(field_value);
-	if (field_header ==  "server_name")
+	if (field_header ==  SERVER_NAME)
 		this->_server_name = ready_string_vector_field_value(field_value);
 	return (true);
 }

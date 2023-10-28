@@ -32,7 +32,10 @@ bool	HandlingString::is_printable_content(const std::string &value)
 	while (pos != value_length)
 	{
 		if (isprint(value[pos]) == false)
-			return (false);
+		{
+			if (!(HandlingString::is_ows(value[pos])))
+				return (false);
+		}
 		pos++;
 	}
 	return (true);

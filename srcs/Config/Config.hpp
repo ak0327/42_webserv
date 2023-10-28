@@ -17,12 +17,12 @@
 #define	IS_OK_START_LOCATION_BLOCK 0
 #define	IS_OK_BLOCK_END 0
 #define	IS_OK_IN_SERVER_BLOCK 0
-#define	IS_NOT_SERVER_CONFIG_FORMAT 17
-#define	IS_NOT_LOCATION_CONFIG_FORMAT 18
-#define	IS_ALREADY_EXIST_FIELD_KEY 19
-#define	NOT_ALLOWED_SERVER_BLOCK_FORMAT 20
-#define NOT_ALLOWED_CONFIG_FORMAT 21
-#define	NOT_END_CONFIG 22
+#define	IS_NOT_SERVER_CONFIG_FORMAT 20
+#define	IS_NOT_LOCATION_CONFIG_FORMAT 21
+#define	IS_ALREADY_EXIST_FIELD_KEY 22
+#define	NOT_ALLOWED_SERVER_BLOCK_FORMAT 23
+#define NOT_ALLOWED_CONFIG_FORMAT 24
+#define	NOT_END_CONFIG 25
 
 // 以下のような配置構成にする必要がある　命名は最適解分からず
 // 何かしらのクラス -> AllConfigと仮称
@@ -61,16 +61,16 @@ class	Config
 		void	set_server_config_to_allconfigs(AllConfig	*Configs, \
 											ServerConfig	*server_config, \
 					std::vector<std::vector<std::string> >	*server_name_list);
-		void	init_server_config_and_allconfigs(AllConfig	*Configs, \
-											ServerConfig	*server_config, \
-								std::vector<std::string>	*field_header_map);
+		void	init_server_config_and_allconfigs_and_field_header_map(AllConfig	*Configs, \
+																	ServerConfig	*server_config, \
+														std::vector<std::string>	*field_header_map);
+		AllConfig	get_same_allconfig(const std::vector<std::string> &server_name);
 	public:
 		explicit Config(const std::string &config_file_name);
 		~Config();
 		bool	get_is_config_format(void){ return this->_is_config_format; }
 		std::map<std::vector<std::string>, AllConfig>	get_all_configs(void);
 		AllConfig	get_same_allconfig(const std::string &server_name);
-		AllConfig	get_same_allconfig(const std::vector<std::string> &server_name);
 };
 
 #endif  // SRCS_CONFIG_CONFIG_HPP_

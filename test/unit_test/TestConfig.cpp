@@ -38,6 +38,35 @@ void	compare_boolean_values_report(bool inputed_boolean, bool expected_boolean)
 // 	}
 // }
 
+TEST(IsConfigFormatTest, AdditionalTest) {
+	Config config_test1("config/");
+	EXPECT_FALSE(config_test1.get_is_config_format());  // KO
+
+	Config config_test2("config/nothing");
+	EXPECT_FALSE(config_test2.get_is_config_format());
+
+	Config config_test3("../../../../../");
+	EXPECT_FALSE(config_test3.get_is_config_format());  // KO
+
+	Config config_test4(".");
+	EXPECT_FALSE(config_test4.get_is_config_format());  // KO
+
+	Config config_test5(" ");
+	EXPECT_FALSE(config_test5.get_is_config_format());
+
+	Config config_test6("/");
+	EXPECT_FALSE(config_test6.get_is_config_format());  // KO
+
+	Config config_test7(".conf/");
+	EXPECT_FALSE(config_test7.get_is_config_format());  // KO
+
+	Config config_test8(".conf");
+	EXPECT_FALSE(config_test8.get_is_config_format());  // KO
+
+	Config config_test9("aaa.conf");
+	EXPECT_FALSE(config_test9.get_is_config_format());  // KO
+}
+
 TEST(IsConfigFormatTest, is_true)
 {
 	Config config_test("config/testconfig1.conf");

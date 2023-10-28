@@ -11,6 +11,7 @@
 #define NO_LAST_SEMICOLON 3
 #define NO_SEMICOLON 4
 #define MULTIPLE_SEMICOLON 5
+#define IS_NOT_FIELD_VALUE_FORMAT 6
 
 
 class ConfigHandlingString

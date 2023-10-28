@@ -51,6 +51,8 @@ int	ConfigHandlingString::is_field_value(const std::string &config_line, size_t 
 		return NO_LAST_SEMICOLON;
 	while (config_line[*pos] != ';')  // valueの終了条件は必ずセミコロンが存在しているかどうかになる
 		*pos = *pos + 1;
+	if (HandlingString::is_ows(config_line[*pos - 1]))
+		return (IS_NOT_FIELD_VALUE_FORMAT);
 	return (IS_OK_FIELD_VALUE);
 }
 

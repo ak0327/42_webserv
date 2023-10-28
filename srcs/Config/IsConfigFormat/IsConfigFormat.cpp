@@ -4,17 +4,19 @@
 int	IsConfigFormat::is_start_location_block(const std::string &config_line)
 {
 	std::string	line_without_ows = HandlingString::obtain_without_ows_value(config_line);
-	size_t	start_pos = 0;
 	size_t	end_pos = 0;
 
+	bool is_printable = HandlingString::is_printable_content(config_line);
+	if (is_printable == false)
+		return (IS_NOT_PRINTABLE);
+	if (std::count(config_line.begin(), config_line.end(), '{') > 1)
+		return (IS_TOO_MANY_CURLY_BRACES);
 	HandlingString::skip_no_ows(line_without_ows, &end_pos);
-	if (line_without_ows.substr(start_pos, end_pos - start_pos) != "location" || end_pos == line_without_ows.length())
+	if (line_without_ows.substr(0, end_pos) != "location" || end_pos == line_without_ows.length())
 		return (IS_NOT_EXIST_KEYWORD_LOCATION);
 	HandlingString::skip_ows(line_without_ows, &end_pos);
-	start_pos = end_pos;
 	HandlingString::skip_no_ows(line_without_ows, &end_pos);
 	HandlingString::skip_ows(line_without_ows, &end_pos);
-	start_pos = end_pos;
 	if (ConfigHandlingString::is_blockstart_endword(line_without_ows.substr(end_pos, line_without_ows.length() - end_pos)) == false)
 		return (IS_NOT_ENDWORD_CURLY_BRACES);
 	return (IS_OK);
@@ -29,6 +31,9 @@ int	IsConfigFormat::is_start_location_block(const std::string &config_line, \
 	size_t	start_pos = 0;
 	size_t	end_pos = 0;
 
+	bool is_printable = HandlingString::is_printable_content(config_line);
+	if (is_printable == false)
+		return (IS_NOT_PRINTABLE);
 	HandlingString::skip_no_ows(line_without_ows, &end_pos);
 	if (line_without_ows.substr(start_pos, end_pos - start_pos) != "location" || end_pos == line_without_ows.length())
 		return (IS_NOT_EXIST_KEYWORD_LOCATION);
@@ -50,13 +55,16 @@ int	IsConfigFormat::is_start_server_block(const std::string &config_line, bool *
 	size_t	start_pos = 0;
 	size_t	end_pos = 0;
 
-	HandlingString::skip_no_ows(line_without_ows, &end_pos);
-	if (line_without_ows.substr(start_pos, end_pos - start_pos) != "server" || end_pos == line_without_ows.length())
-		return (IS_NOT_EXIST_KEYWORD_SERVER);
+	bool is_printable = HandlingString::is_printable_content(config_line);
+	if (is_printable == false)
+		return (IS_NOT_PRINTABLE);
 	if (std::count(line_without_ows.begin(), line_without_ows.end(), '{') == 0)
 		return (IS_NOT_CURLY_BRACES_EXIST);
 	if (std::count(line_without_ows.begin(), line_without_ows.end(), '{') > 1)
 		return (IS_NOT_ONLY_CURLY_BRACES);
+	HandlingString::skip_no_ows(line_without_ows, &end_pos);
+	if (line_without_ows.substr(start_pos, end_pos - start_pos) != "server" || end_pos == line_without_ows.length())
+		return (IS_NOT_EXIST_KEYWORD_SERVER);
 	HandlingString::skip_ows(line_without_ows, &end_pos);
 	if (ConfigHandlingString::is_blockstart_endword(line_without_ows.substr(end_pos, line_without_ows.length() - end_pos)))
 	{
@@ -72,6 +80,10 @@ int	IsConfigFormat::is_location_block_format(const std::string &config_line)
 	size_t	end_pos = 0;
 	int	action_result = IS_OK;
 
+	if (HandlingString::is_printable_content(line_without_ows) == false)
+		return (IS_NOT_PRINTABLE);
+	if (std::count(line_without_ows.begin(), line_without_ows.end(), '{') != 0)
+		return (IS_NOT_START_CURLY_BRACES);
 	action_result = ConfigHandlingString::is_field_header(line_without_ows, &end_pos);
 	if (action_result != IS_OK)
 		return (action_result);
@@ -84,9 +96,8 @@ int	IsConfigFormat::is_location_block_format(const std::string &config_line)
 	return (IS_OK);
 }
 
-int	IsConfigFormat::do_input_field_key_field_value(const std::string	&config_line, \
-															LocationConfig	*location_config, \
-												std::vector<std::string>	*field_header_vector)
+int	IsConfigFormat::input_field_key_field_value(const std::string	&config_line, \
+															LocationConfig	*location_config)
 {
 	size_t	end_pos = 0;
 	std::string	field_header;
@@ -107,11 +118,10 @@ int	IsConfigFormat::do_input_field_key_field_value(const std::string	&config_lin
 		std::cout << "serverconfig -> |" << field_header << "|" << field_value << "|" << std::endl;
 		return (IS_LOCATION_BLOCK_KEY_ALREADY_EXIST);
 	}
-	field_header_vector->push_back(field_header);
 	return (IS_OK);
 }
 
-int	IsConfigFormat::do_input_field_key_field_value(const std::string &config_line, \
+int	IsConfigFormat::input_field_key_field_value(const std::string &config_line, \
 														ServerConfig *server_config, \
 														std::vector<std::string> *field_header_vector)
 {
@@ -147,6 +157,10 @@ int	IsConfigFormat::is_server_block_format(const std::string &config_line, \
 	std::string	field_value;
 	int	action_result = IS_OK;
 
+	if (HandlingString::is_printable_content(line_without_ows) == false)
+		return (IS_NOT_PRINTABLE);
+	if (std::count(line_without_ows.begin(), line_without_ows.end(), '{') != 0)
+		return (IS_NOT_START_CURLY_BRACES);
 	action_result = ConfigHandlingString::is_field_header(line_without_ows, &end_pos);
 	if (action_result != IS_OK)
 		return (action_result);
