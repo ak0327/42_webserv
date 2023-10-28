@@ -61,9 +61,7 @@ SRCS		+=	$(REQUEST_DIR)/HttpRequest.cpp \
 
 SRCS		+= 	$(REQUEST_DIR)/FieldValueBase/FieldValueBase.cpp \
 				$(REQUEST_DIR)/RequestLine/RequestLine.cpp \
-				$(REQUEST_DIR)/SingleFieldValue/SingleFieldValue.cpp \
-				$(REQUEST_DIR)/ValueAndMapFieldValues/ValueAndMapFieldValues.cpp \
-				$(REQUEST_DIR)/ValueAndMapFieldValues/set_content_disposition.cpp \
+				$(REQUEST_DIR)/SingleFieldValue/SingleFieldValue.cpp
 
 DATE_DIR	= 	$(REQUEST_DIR)/Date
 SRCS		+=	$(DATE_DIR)/Date.cpp \
@@ -104,6 +102,10 @@ SINGLE_FIELD_VALUE_DIR = $(REQUEST_DIR)/SingleFieldValue
 SRCS		+=	$(SINGLE_FIELD_VALUE_DIR)/SingleFieldValue.cpp \
 				$(SINGLE_FIELD_VALUE_DIR)/set_single_field_value.cpp
 
+VALUE_AND_MAP_FIELD_VALUES_DIR = $(REQUEST_DIR)/ValueAndMapFieldValues
+SRCS		+=  $(VALUE_AND_MAP_FIELD_VALUES_DIR)/ValueAndMapFieldValues.cpp \
+				$(VALUE_AND_MAP_FIELD_VALUES_DIR)/set_content_disposition.cpp
+
 # OBJS -------------------------------------------------------------------------
 OBJS_DIR	=	objs
 OBJS		=	$(SRCS:%.cpp=$(OBJS_DIR)/%.o)
@@ -122,25 +124,27 @@ CLIENT_OBJS	=	$(addprefix $(OBJS_DIR)/, $(CLIENT_OBJ))
 
 # INCLUDES ---------------------------------------------------------------------
 INCLUDES_DIR =	includes \
+				$(SRCS_DIR)/$(REQUEST_DIR) \
 				$(SRCS_DIR)/$(CONST_DIR) \
 				$(SRCS_DIR)/$(DEBUG_DIR) \
 				$(SRCS_DIR)/$(ERROR_DIR) \
 				$(SRCS_DIR)/$(IO_DIR) \
 				$(SRCS_DIR)/$(SERVER_DIR) \
-        $(SRCS_DIR)/$(SOCKET_DIR) \
-				$(SRCS_DIR)/$(STR_HANDLER)     
-        $(SRCS_DIR)/$(REQUEST_DIR) \
-				$(SRCS_DIR)/$(DATE_DIR) \
-				$(SRCS_DIR)/$(FIELD_VALUE_WITH_WEIGHT) \
-				$(SRCS_DIR)/$(MAP_FIELD_VALUES_DIR) \
-				$(SRCS_DIR)/$(MAP_SET_FIELD_VALUES_DIR) \
-				$(SRCS_DIR)/$(MEDIA_TYPE_DIR) \
-				$(SRCS_DIR)/$(MULTI_FIELD_VALUES_DIR) \
-				$(SRCS_DIR)/$(SINGLE_FIELD_VALUE_DIR) \
-				$(SRCS_DIR)/$(REQUEST_DIR)/FieldValueBase \
-				$(SRCS_DIR)/$(REQUEST_DIR)/RequestLine \
-				$(SRCS_DIR)/$(REQUEST_DIR)/ValueAndMapFieldValues
+				$(SRCS_DIR)/$(SOCKET_DIR) \
+				$(SRCS_DIR)/$(STR_HANDLER) \
+				$(SRCS_DIR)/$(REQUEST_INCLUDES)
 
+REQUEST_INCLUDES =	$(SRCS_DIR)/$(REQUEST_DIR) \
+					$(SRCS_DIR)/$(DATE_DIR) \
+					$(SRCS_DIR)/$(FIELD_VALUE_WITH_WEIGHT) \
+					$(SRCS_DIR)/$(MAP_FIELD_VALUES_DIR) \
+					$(SRCS_DIR)/$(MAP_SET_FIELD_VALUES_DIR) \
+					$(SRCS_DIR)/$(MEDIA_TYPE_DIR) \
+					$(SRCS_DIR)/$(MULTI_FIELD_VALUES_DIR) \
+					$(SRCS_DIR)/$(SINGLE_FIELD_VALUE_DIR) \
+					$(SRCS_DIR)/$(VALUE_AND_MAP_FIELD_VALUES_DIR) \
+					$(SRCS_DIR)/$(REQUEST_DIR)/FieldValueBase \
+					$(SRCS_DIR)/$(REQUEST_DIR)/RequestLine
 
 INCLUDES	 =	$(addprefix -I, $(INCLUDES_DIR))
 
