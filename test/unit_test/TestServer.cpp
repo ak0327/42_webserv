@@ -7,11 +7,11 @@
 #include "webserv.hpp"
 #include "Client.hpp"
 #include "Color.hpp"
+#include "Constant.hpp"
 #include "Debug.hpp"
 #include "Server.hpp"
 
 namespace {
-	int OK = 0;
 	const char *SERVER_IP = "127.0.0.1";
 	const char *SERVER_PORT = "8080";
 
@@ -185,7 +185,7 @@ TEST(ServerUnitTest, ConnectClientCase1) {
 							  server_recv_msg,
 							  client_recv_msg);
 		// EXPECT_EQ(msg, server_recv_msg);
-		EXPECT_EQ("test response", client_recv_msg);
+		EXPECT_EQ("400 BAD REQUEST", client_recv_msg);
 		std::cerr << YELLOW " msg            :[" << msg << "]" RESET << std::endl;
 		std::cerr << YELLOW " server_recv_msg:[" << server_recv_msg << "]" RESET << std::endl;
 		std::cerr << YELLOW " client_recv_msg:[" << client_recv_msg << "]" RESET << std::endl;
@@ -207,7 +207,7 @@ TEST(ServerUnitTest, ConnectClientCase2) {
 							  server_recv_msg,
 							  client_recv_msg);
 		EXPECT_EQ(msg, server_recv_msg);
-		EXPECT_EQ("test response", client_recv_msg);
+		EXPECT_EQ("400 BAD REQUEST", client_recv_msg);
 		std::cerr << YELLOW " msg            :[" << msg << "]" RESET << std::endl;
 		std::cerr << YELLOW " server_recv_msg:[" << server_recv_msg << "]" RESET << std::endl;
 		std::cerr << YELLOW " client_recv_msg:[" << client_recv_msg << "]" RESET << std::endl;
@@ -229,7 +229,7 @@ TEST(ServerUnitTest, ConnectClientCase3) {
 							  server_recv_msg,
 							  client_recv_msg);
 		EXPECT_EQ(msg, server_recv_msg);
-		EXPECT_EQ("test response", client_recv_msg);
+		EXPECT_EQ("400 BAD REQUEST", client_recv_msg);
 		std::cerr << YELLOW " msg            :[" << msg << "]" RESET << std::endl;
 		std::cerr << YELLOW " server_recv_msg:[" << server_recv_msg << "]" RESET << std::endl;
 		std::cerr << YELLOW " client_recv_msg:[" << client_recv_msg << "]" RESET << std::endl;
@@ -252,7 +252,8 @@ TEST(ServerUnitTest, ConnectClientCase4) {
 			"Upgrade-Insecure-Requests: 1\r\n"
 			"If-Modified-Since: Mon, 18 Jul 2016 02:36:04 GMT\r\n"
 			"If-None-Match: \"c561c68d0ba92bbeb8b0fff2a9199f722e3a621a\"\r\n"
-			"Cache-Control: max-age=0\r\n";
+			"Cache-Control: max-age=0\r\n"
+			"\r\n";
 	std::string server_recv_msg;
 	std::string client_recv_msg;
 
@@ -263,7 +264,7 @@ TEST(ServerUnitTest, ConnectClientCase4) {
 							  server_recv_msg,
 							  client_recv_msg);
 		EXPECT_EQ(msg, server_recv_msg);
-		EXPECT_EQ("test response", client_recv_msg);
+		EXPECT_EQ("200 OK", client_recv_msg);
 		std::cerr << YELLOW " msg            :[" << msg << "]" RESET << std::endl;
 		std::cerr << YELLOW " server_recv_msg:[" << server_recv_msg << "]" RESET << std::endl;
 		std::cerr << YELLOW " client_recv_msg:[" << client_recv_msg << "]" RESET << std::endl;
@@ -274,7 +275,7 @@ TEST(ServerUnitTest, ConnectClientCase4) {
 }
 
 TEST(ServerUnitTest, ConnectClientErrorInvalidIP) {
-	std::string msg = "test request";
+	std::string msg = "400 BAD REQUEST";
 	std::string server_recv_msg;
 	std::string client_recv_msg;
 
@@ -286,7 +287,7 @@ TEST(ServerUnitTest, ConnectClientErrorInvalidIP) {
 }
 
 TEST(ServerUnitTest, ConnectClientErrorInvalidPort) {
-	std::string msg = "test request";
+	std::string msg = "400 BAD REQUEST";
 	std::string server_recv_msg;
 	std::string client_recv_msg;
 
@@ -299,7 +300,7 @@ TEST(ServerUnitTest, ConnectClientErrorInvalidPort) {
 
 TEST(ServerUnitTest, ConnectMultiClient2) {
 	int client_count = 2;
-	std::string msg = "test request";
+	std::string msg = "400 BAD REQUEST";
 	std::string server_recv_msg;
 	std::vector<std::string> client_recv_msgs(client_count);
 
@@ -314,7 +315,7 @@ TEST(ServerUnitTest, ConnectMultiClient2) {
 		std::cerr << YELLOW " msg            :[" << msg << "]" RESET << std::endl;
 		std::cerr << YELLOW " server_recv_msg:[" << server_recv_msg << "]" RESET << std::endl;
 		for (int i = 0; i < client_count; ++i) {
-			EXPECT_EQ("test response", client_recv_msgs[i]);
+			EXPECT_EQ("400 BAD REQUEST", client_recv_msgs[i]);
 			std::cerr << YELLOW " client_recv_msg(" << i << "):[" << client_recv_msgs[i] << "]" RESET << std::endl;
 		}
 	}
@@ -325,7 +326,7 @@ TEST(ServerUnitTest, ConnectMultiClient2) {
 
 TEST(ServerUnitTest, ConnectMultiClient5) {
 	int client_count = 5;
-	std::string msg = "test request";
+	std::string msg = "400 BAD REQUEST";
 	std::string server_recv_msg;
 	std::vector<std::string> client_recv_msgs(client_count);
 
@@ -340,7 +341,7 @@ TEST(ServerUnitTest, ConnectMultiClient5) {
 		std::cerr << YELLOW " msg            :[" << msg << "]" RESET << std::endl;
 		std::cerr << YELLOW " server_recv_msg:[" << server_recv_msg << "]" RESET << std::endl;
 		for (int i = 0; i < client_count; ++i) {
-			EXPECT_EQ("test response", client_recv_msgs[i]);
+			EXPECT_EQ("400 BAD REQUEST", client_recv_msgs[i]);
 			std::cerr << YELLOW " client_recv_msg(" << i << "):[" << client_recv_msgs[i] << "]" RESET << std::endl;
 		}
 	}
@@ -351,7 +352,7 @@ TEST(ServerUnitTest, ConnectMultiClient5) {
 
 TEST(ServerUnitTest, ConnectMultiClient20) {
 	int client_count = 20;
-	std::string msg = "test request";
+	std::string msg = "400 BAD REQUEST";
 	std::string server_recv_msg;
 	std::vector<std::string> client_recv_msgs(client_count);
 
@@ -366,7 +367,7 @@ TEST(ServerUnitTest, ConnectMultiClient20) {
 		std::cerr << YELLOW " msg            :[" << msg << "]" RESET << std::endl;
 		std::cerr << YELLOW " server_recv_msg:[" << server_recv_msg << "]" RESET << std::endl;
 		for (int i = 0; i < client_count; ++i) {
-			EXPECT_EQ("test response", client_recv_msgs[i]);
+			EXPECT_EQ("400 BAD REQUEST", client_recv_msgs[i]);
 			std::cerr << YELLOW " client_recv_msg(" << i << "):[" << client_recv_msgs[i] << "]" RESET << std::endl;
 		}
 	}

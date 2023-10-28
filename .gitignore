@@ -3,18 +3,26 @@
 !.github
 !.github/*
 !.gitignore
-!config
 
 !srcs
+!srcs/Const
 !srcs/Client
 !srcs/Debug
 !srcs/Error
 !srcs/Server
 !srcs/Socket
+!srcs/StringHandler
+!srcs/HttpRequest
+!srcs/HttpRequest/*/
+
 !includes
+
 !playground
+
 !test
+
 !www
+!config
 
 !*.conf
 !*.cpp

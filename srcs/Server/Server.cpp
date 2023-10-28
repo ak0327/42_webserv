@@ -16,15 +16,13 @@
 #include "Server.hpp"
 
 namespace {
-	const int OK = 0;
-
 	const int ACCEPT_ERROR = -1;
 	const int CLOSE_ERROR = -1;
 	const int RECV_ERROR = -1;
 	const int SEND_ERROR = -1;
 
 	const int FLAG_NONE = 0;
-	const int TIMEOUT = -1;
+	const int IO_TIMEOUT = -1;
 
 	Result<int, std::string> accept_connection(int socket_fd) {
 		int connect_fd;
@@ -121,6 +119,8 @@ namespace {
 	}
 }  // namespace
 
+////////////////////////////////////////////////////////////////////////////////
+
 Server::Server(const char *server_ip,
 			   const char *server_port) : _socket(server_ip, server_port),
 			   							  _recv_message(),
@@ -148,6 +148,8 @@ Server::Server(const char *server_ip,
 
 Server::~Server() { delete this->_fds; }
 
+////////////////////////////////////////////////////////////////////////////////
+
 void Server::process_client_connection() {
 	Result<int, std::string> fd_ready_result;
 	int ready_fd;
@@ -157,7 +159,7 @@ void Server::process_client_connection() {
 		if (fd_ready_result.is_err()) {
 			throw std::runtime_error(RED + fd_ready_result.get_err_value() + RESET);
 		}
-		if (fd_ready_result.get_ok_value() == TIMEOUT) {
+		if (fd_ready_result.get_ok_value() == IO_TIMEOUT) {
 			std::cerr << "[Server INFO] timeout" << std::endl;
 			break;
 		}
@@ -217,7 +219,7 @@ Result<int, std::string> Server::communicate_with_ready_client(int ready_fd) {
 	DEBUG_SERVER_PRINT("connected. recv:[%s]", this->_recv_message.c_str());
 
 	// request, response
-	HttpRequest request = HttpRequest(this->_recv_message);
+	HttpRequest request(this->_recv_message);
 	HttpResponse response = HttpResponse(request);
 
 	// send
