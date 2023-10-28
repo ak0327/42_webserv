@@ -1,13 +1,11 @@
-#ifndef SRCS_HTTPREQUEST_VALUEWEIGHTARRAYSET_VALUEWEIGHTARRAYSET_HPP_
-#define SRCS_HTTPREQUEST_VALUEWEIGHTARRAYSET_VALUEWEIGHTARRAYSET_HPP_
+#pragma once
 
-#include <map>
-#include <string>
-#include "../../HandlingString/HandlingString.hpp"
-#include "../BaseKeyValueMap/BaseKeyValueMap.hpp"
+# include <map>
+# include <string>
+# include "FieldValueBase.hpp"
+# include "StringHandler.hpp"
 
-class ValueWeightArraySet: public BaseKeyValueMap
-{
+class ValueWeightArraySet: public FieldValueBase {
 	private:
 		std::map<std::string, double> _valueweight_set;  // map型で入れるが
 		// どうせなら重みを加味したようなインプットの流れにしておけば取り出す時に非常に楽になるのでは？
@@ -19,5 +17,3 @@ class ValueWeightArraySet: public BaseKeyValueMap
 		~ValueWeightArraySet();
 		std::map<std::string, double> get_valueweight_set(void) const;
 };
-
-#endif  // SRCS_HTTPREQUEST_VALUEWEIGHTARRAYSET_VALUEWEIGHTARRAYSET_HPP_

@@ -1,7 +1,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
-#include "HandlingString/HandlingString.hpp"
+#include "StringHandler.hpp/StringHandler.hpp/hpp"
 
 namespace {
 	int CONFIG_FILE_INDEX = 1;

@@ -6,10 +6,14 @@
 !config
 
 !srcs
+!srcs/Const
 !srcs/Debug
 !srcs/Error
 !srcs/Socket
+!srcs/StringHandler
 !srcs/HttpRequest
+!srcs/HttpRequest/*/
+
 !www
 !includes
 !test

@@ -1,25 +1,14 @@
-#include "../../srcs/HandlingString/HandlingString.hpp"
-#include "../../srcs/HttpRequest/ValueSet/ValueSet.hpp"
-#include "../../srcs/HttpRequest/TwoValueSet/TwoValueSet.hpp"
-#include "../../srcs/HttpRequest/RequestLine/RequestLine.hpp"
-#include "../../srcs/HttpRequest/ValueArraySet/ValueArraySet.hpp"
-#include "../../srcs/HttpRequest/ValueDateSet/ValueDateSet.hpp"
-#include "../../srcs/HttpRequest/ValueMap/ValueMap.hpp"
-#include "../../srcs/HttpRequest/ValueWeightArraySet/ValueWeightArraySet.hpp"
-#include "../../srcs/HttpRequest/HttpRequest.hpp"
-#include "../../srcs/HttpRequest/SecurityPolicy/SecurityPolicy.hpp"
-#include "gtest/gtest.h"
-#include "../../includes/Color.hpp"
-#include "../../srcs/Error/Error.hpp"
-#include "../../srcs/Debug/Debug.hpp"
-#include "Result.hpp"
-#include <string>
 #include <algorithm>
+#include <string>
+#include "gtest/gtest.h"
+#include "MapSetFieldValues.hpp"
+#include "HttpRequest.hpp"
 
 // GET /example-page HTTP/1.1
 // Host: example.com
 // Connection: close
 // Link: </page1>; rel="next", </page2>; rel="prev"
+typedef std::set<std::map<std::string, std::string> > map_set;
 
 void	compare_inputvalue_truevalue_linkclass_link(std::map<std::string, std::map<std::string, std::string> > test_map_values, std::map<std::string, std::map<std::string, std::string> > true_map_values, size_t line)
 {
@@ -56,8 +45,8 @@ void	compare_inputvalue_truevalue_linkclass_link(std::map<std::string, std::map<
 
 bool	same_class_test_link(int line, const char *key, HttpRequest &target) // 同名関数の使い回しがわからず、linkを接尾煮付ける
 {
-	std::map<std::string, BaseKeyValueMap*>keyvaluemap = target.get_request_keyvalue_map();
-	std::map<std::string, BaseKeyValueMap*>::iterator itr_now = keyvaluemap.begin();
+	std::map<std::string, FieldValueBase*>keyvaluemap = target.get_request_header_fields();
+	std::map<std::string, FieldValueBase*>::iterator itr_now = keyvaluemap.begin();
 	while (itr_now != keyvaluemap.end())
 	{
 		if (itr_now->first == key)
@@ -74,8 +63,8 @@ bool	same_class_test_link(int line, const char *key, HttpRequest &target) // 同
 
 bool	is_not_exist_link(int line, const char *key, HttpRequest &target) // 同名関数の使い回しがわからず、linkを接尾煮付ける
 {
-	std::map<std::string, BaseKeyValueMap*>keyvaluemap = target.get_request_keyvalue_map();
-	std::map<std::string, BaseKeyValueMap*>::iterator itr_now = keyvaluemap.begin();
+	std::map<std::string, FieldValueBase*>keyvaluemap = target.get_request_header_fields();
+	std::map<std::string, FieldValueBase*>::iterator itr_now = keyvaluemap.begin();
 	while (itr_now != keyvaluemap.end())
 	{
 		if (itr_now->first == key)
@@ -90,41 +79,87 @@ bool	is_not_exist_link(int line, const char *key, HttpRequest &target) // 同名
 
 TEST(List, LIST_TEST)
 {
-	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\nLink: </page1>; rel=\"next\", </page2>; rel=\"prev\"\r\n";
-	HttpRequest httprequest_test1(TEST_REQUEST);
-	if (same_class_test_link(__LINE__, "Link", httprequest_test1) == true)
-	{
-		// Thu, 15 Sep 2023 11:45:00 GMT
-		// <https://example.com/style.css>; rel=preload; as=style\r\n
-		std::map<std::string, std::map<std::string, std::string> > test_map_values;
-		std::map<std::string, std::string>	map_value_1;
-		map_value_1["rel"] = "\"next\"";
-		std::map<std::string, std::string>	map_value_2;
-		map_value_2["rel"] = "\"prev\"";
-		test_map_values["</page1>"] = map_value_1;
-		test_map_values["</page2>"] = map_value_2;
-		LinkClass *linkclass = static_cast<LinkClass*>(httprequest_test1.return_value("Link"));
-		compare_inputvalue_truevalue_linkclass_link(linkclass->get_link_valuemap(), test_map_values, __LINE__);
+	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\n"
+									 "Host: example\r\n"
+									 "Link: </page1>; rel=\"next\", </page2>; rel=\"prev\"\r\n"
+									 "\r\n";
+	HttpRequest request(TEST_REQUEST);
+
+
+	std::string field_name = std::string(LINK);
+	bool has_field_name = request.is_valid_field_name_registered(field_name);
+
+	EXPECT_TRUE(has_field_name);
+
+	if (has_field_name) {
+		FieldValueBase *field_values = request.get_field_values(field_name);
+		MapSetFieldValues *map_set_field_values = dynamic_cast<MapSetFieldValues *>(field_values);
+
+		map_set actual_map_set = map_set_field_values->get_map_set_values();
+		map_set expected_map_set = {
+				{
+						{std::string(URI_REFERENCE), "/page1"},
+						{"rel", "\"next\""},
+				}, {
+						{std::string(URI_REFERENCE), "/page2"},
+						{"rel", "\"prev\""},
+				}};
+
+		EXPECT_EQ(actual_map_set.size(), expected_map_set.size());
+
+		map_set::const_iterator actual_map_set_itr = actual_map_set.begin();
+		map_set::const_iterator expected_map_set_itr = expected_map_set.begin();
+
+		while (actual_map_set_itr != actual_map_set.end() && expected_map_set_itr != expected_map_set.end()) {
+			std::map<std::string, std::string> actual_map = *actual_map_set_itr;
+			std::map<std::string, std::string> expected_map = *expected_map_set_itr;;
+
+			EXPECT_EQ(actual_map.size(), expected_map.size());
+			std::map<std::string, std::string>::const_iterator actual_map_itr = actual_map.begin();
+			std::map<std::string, std::string>::const_iterator expected_map_itr = expected_map.begin();
+
+			while (actual_map_itr != actual_map.end() && expected_map_itr != expected_map.end()) {
+				EXPECT_EQ(actual_map_itr->second, expected_map_itr->second);
+
+				++actual_map_itr;
+				++expected_map_itr;
+			}
+			EXPECT_TRUE(actual_map_itr == actual_map.end());
+			EXPECT_TRUE(expected_map_itr == expected_map.end());
+
+			++actual_map_set_itr;
+			++expected_map_set_itr;
+		}
+		EXPECT_TRUE(actual_map_set_itr == actual_map_set.end());
+		EXPECT_TRUE(expected_map_set_itr == expected_map_set.end());
+
+	} else {
+		ADD_FAILURE() << field_name << " not found";
 	}
+
+	EXPECT_EQ(STATUS_OK, request.get_status_code());
 }
 
 TEST(List, LIST_TEST_ERROR_HEADER)
 {
-	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\nL ink: </page1>; rel=\"next\", </page2>; rel=\"prev\"\r\n";
+	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\n"
+									 "L ink: </page1>; rel=\"next\", </page2>; rel=\"prev\"\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
-	is_not_exist_link(__LINE__, "Link", httprequest_test1);
+	is_not_exist_link(__LINE__, "link", httprequest_test1);
 }
 
 TEST(List, LIST_TEST_ERROR)
 {
-	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\nLink: </page1>;;;; rel=\"next\", </page2>; rel=\"prev\"\r\n";
+	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\n"
+									 "Link: </page1>;;;; rel=\"next\", </page2>; rel=\"prev\"\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
-	EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
+	EXPECT_EQ(httprequest_test1.get_status_code(), 400);
 }
 
 TEST(List, LIST_TEST_ERROR1)
 {
-	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\nLink: </page1>; =, </page2>; rel=\"prev\"\r\n";
+	const std::string TEST_REQUEST = "GET /index.html HTTP/1.1\r\n"
+									 "Link: </page1>; =, </page2>; rel=\"prev\"\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
-	EXPECT_EQ(httprequest_test1.get_statuscode(), 400);
+	EXPECT_EQ(httprequest_test1.get_status_code(), 400);
 }

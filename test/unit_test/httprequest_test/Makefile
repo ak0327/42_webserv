@@ -16,7 +16,7 @@ $(NAME)	: $(OBJ)
 request_test_main.o : request_test_main.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-../../../srcs/HandlingStringhandleString.o : ../../../srcs/HandlingString/HandlingString.cpp
+../../../srcs/HandlingStringhandleString.o : ../../../srcs/StringHandler
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 .PHONY	: clean
