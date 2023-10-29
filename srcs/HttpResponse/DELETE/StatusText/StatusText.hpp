@@ -9,6 +9,7 @@ class StatusText
 		std::string	_status_text;
 		std::string	_body_text;
 	public:
+		StatusText();
 		StatusText(const std::string &status_text, const std::string &body_text);
 		~StatusText();
 		std::string	get_status_text(void) const;

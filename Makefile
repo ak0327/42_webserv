@@ -20,7 +20,7 @@ RESPONSE_DIR	=	HttpResponse
 RESPONSE_DELETE_DIR	=	HttpResponse/DELETE
 RESPONSE_DELETE_TESTCONFIG_DIR	=	HttpResponse/DELETE/TestConfig
 SRCS		+=	$(RESPONSE_DELETE_TESTCONFIG_DIR)/.cpp $(RESPONSE_DELETE_DIR)/check_statuscode_delete \
-					$(RESPONSE_DELETE_DIR)/HttpResponse/HttpResponse.cpp
+					$(RESPONSE_DELETE_DIR)/HttpResponse/HttpResponse.cpp $(RESPONSE_DELETE_DIR)/StatuText/StatusText.cpp
 
 #error
 ERROR_DIR	=	Error

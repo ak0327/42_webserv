@@ -1,5 +1,7 @@
 #include "StatusText.hpp"
 
+StatusText::StatusText(){}
+
 StatusText::StatusText(const std::string &status_text, const std::string &body_text)
 {
 	this->_status_text = status_text;
@@ -8,5 +10,5 @@ StatusText::StatusText(const std::string &status_text, const std::string &body_t
 
 StatusText::~StatusText(){}
 
-StatusText::get_status_text(){ return (this->_status_text); }
-StatusText::get_body_text(){ return (this->get_body_text); }
+std::string StatusText::get_status_text() const { return (this->_status_text); }
+std::string StatusText::get_body_text() const { return (this->_body_text); }

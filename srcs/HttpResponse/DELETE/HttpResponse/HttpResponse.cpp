@@ -4,6 +4,7 @@
 #include <vector>
 // #include "../TestConfig.hpp"
 #include "HttpResponse.hpp"
+#include <iostream>
 
 #define	EXIST 		0
 #define	NO_EXIST	1
@@ -87,10 +88,15 @@ bool HttpResponse::is_method_allowed(const std::vector<std::string> &allowed_met
 
 void	HttpResponse::ready_status_text_map()  // 返すbodyの中身は該当のファイルの中身でもいいと思う
 {
-	this->_status_text_map["200"] = StatusText("OK", "<h1>OK<h1>");
-	this->_status_text_map["400"] = StatusText("Not Found", "404 Not Found\r\nResource can't find\r\n\r\n");
-	this->_status_text_map["405"] = StatusText("Method Not Allowed", "405 Method Not Allowed");
-	this->_status_text_map["413"] = StatusText("Request Entity Too Large", "413 Request Entity Too Large");
+	StatusText status_200("OK", "<h1>OK<h1>");
+	StatusText status_400("Not Found", "404 Not Found\r\nResource can't find\r\n\r\n");
+	StatusText status_405("Method Not Allowed", "405 Method Not Allowed");
+	StatusText status_413("Request Entity Too Large", "413 Request Entity Too Large");
+
+	this->_status_text_map["200"] = status_200;
+	this->_status_text_map["400"] = status_400;
+	this->_status_text_map["405"] = status_405;
+	this->_status_text_map["413"] = status_413;
 }
 
 std::string	HttpResponse::ready_now_time() const
@@ -124,23 +130,37 @@ HttpResponse::HttpResponse()
 	Config::_allowmethod.push_back("GET");
 	// 該当のconfigをとってくる関数は切り分けてしまう //
 	// 以下正しいconfigをとってきたものと仮定する
-	if (!(Config::_accesslog != ""))
-		ready_access_log(Config::_accesslog);
-	if (!(Config::_errorlog != ""))
-		ready_error_log(Config::_errorlog);
+	// if (!(Config::_accesslog != ""))
+	// 	ready_access_log(Config::_accesslog);
+	// if (!(Config::_errorlog != ""))
+	// 	ready_error_log(Config::_errorlog);
+	std::cout << "one" << std::endl;
 	if (!(is_request_under_maxsize(Request::_request_all_text, Config::_client_max_body_size)))
-		return (this->make_response("413"));
+	{
+		this->make_response("413");
+		return;
+	}
+	std::cout << "sec" << std::endl;
 	if (!(is_header_under_maxsize(Request::_header_text, Config::_client_header_buffer_size)))
-		return (this->make_response("413"));
+	{
+		this->make_response("413");
+		return;
+	}
+	std::cout << "thi" << std::endl;
 	if (!(is_body_under_maxsize(Request::_request_body, Config::_client_body_buffer_size)))
-		return (this->make_response("413"));
+	{
+		this->make_response("413");
+		return;
+	}
+	std::cout << "four" << std::endl;
 	if (!(Config::_allowmethod).empty())
 	{
 		if (!(is_method_allowed(Config::_allowmethod, Request::_method)))
+		{
 			this->make_response("405");
+			return;
+		}
 	}
 	// if (!(Config::_server_tokens != ))http_versionの比較　数値を扱う方が必要　1.1だけなら確認する必要はない。。。？
 	// バージョン対応していないというステータスコード があったと思うのでそれを置くのもいいかもしれない
 }
-
-void	HttpResponse::make_response(){}
