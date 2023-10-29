@@ -1,4 +1,5 @@
 NAME 		=	webserv
+
 CXX			=	c++
 
 CXXFLAGS	=	-std=c++98 -Wall -Wextra -Werror -MMD -MP
@@ -91,10 +92,13 @@ CLIENT_OBJ	=	$(CLIENT_SRC:%.cpp=%.o)
 CLIENT_OBJS	=	$(addprefix $(OBJS_DIR)/, $(CLIENT_OBJ))
 
 # INCLUDES ---------------------------------------------------------------------
-INCLUDES_DIR =	includes \
-				$(SRCS_DIR)/$(IO_DIR) \
+INCLUDES_DIR = includes \
+				$(SRCS_DIR)/$(CONFIG_DIR) \
 				$(SRCS_DIR)/$(DEBUG_DIR) \
 				$(SRCS_DIR)/$(ERROR_DIR) \
+				$(SRCS_DIR)/$(HANDRING_STR) \
+				$(SRCS_DIR)/$(IO_DIR) \
+				$(SRCS_DIR)/$(NUMERIHANDLE_DIR) \
 				$(SRCS_DIR)/$(SERVER_DIR) \
 				$(SRCS_DIR)/$(SOCKET_DIR)
 

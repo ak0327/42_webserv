@@ -11,7 +11,7 @@ jobs:
 
       - name: Run cpplint
         run: cpplint --recursive srcs
-        
+
       - uses: sarisia/actions-status-discord@v1
         if: always()
         with:
