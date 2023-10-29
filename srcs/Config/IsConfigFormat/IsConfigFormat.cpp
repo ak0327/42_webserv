@@ -106,7 +106,7 @@ int	IsConfigFormat::input_field_key_field_value(const std::string	&config_line, 
 											end_pos - field_value_start_pos));
 	if (location_config->set_field_header_field_value(field_header, field_value) == false)
 	{
-		std::cout << "serverconfig -> |" << field_header << "|" << field_value << "|" << std::endl;
+		std::cerr << "serverconfig -> |" << field_header << "|" << field_value << "|" << std::endl;
 		return (IS_LOCATION_BLOCK_KEY_ALREADY_EXIST);
 	}
 	return (IS_OK);

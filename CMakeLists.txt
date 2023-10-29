@@ -78,7 +78,7 @@ add_executable(webserv
 # unit_test_srcs ---------------------------------------------------------------
 set (unit_test_srcs
         test/unit_test/is_valid_file_path/test_get_valid_config_file_path.cpp
-        test/unit_test/TestConfig.cpp
+        test/unit_test/TestIsConfigFormat.cpp
         test/unit_test/TestError.cpp
         test/unit_test/TestResult.cpp
         test/unit_test/TestServer.cpp

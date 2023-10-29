@@ -66,23 +66,8 @@ SRCS		+=	$(CONFIG_DIR)/AllConfig/AllConfig.cpp \
 OBJS_DIR	=	objs
 OBJS		=	$(SRCS:%.cpp=$(OBJS_DIR)/%.o)
 
-
 # DEPS -------------------------------------------------------------------------
 DEPS		=	$(OBJS:%.o=%.d)
-
-# todo: srcs/includes -> includes
-INCLUDES_DIR = includes \
-				$(SRCS_DIR)/$(ERROR_DIR) \
-				$(SRCS_DIR)/$(DEBUG_DIR) \
-				$(SRCS_DIR)/$(SOCKET_DIR) \
-				$(SRCS_DIR)/$(CONFIG_DIR) \
-				$(SRCS_DIR)/$(HANDRING_STR) \
-				$(SRCS_DIR)/$(IO_DIR) \
-				$(SRCS_DIR)/$(NUMERIHANDLE_DIR) \
-				$(SRCS_DIR)/$(SERVER_DIR) \
-				$(SRCS_DIR)/$(SOCKET_DIR)
-INCLUDES	= $(addprefix -I, $(INCLUDES_DIR))
-
 
 # CLIENT -----------------------------------------------------------------------
 CLIENT_DIR	=	Client
@@ -197,7 +182,7 @@ run_is_config_format_test :
 	#rm -rf build
 	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
 	cmake --build build
-	./build/unit_test --gtest_filter=IsConfigFormatTest*
+	./build/unit_test --gtest_filter=IsConfigFormatTest* 2>/dev/null
 
 .PHONY	: run_utils_test
 run_utils_test :
