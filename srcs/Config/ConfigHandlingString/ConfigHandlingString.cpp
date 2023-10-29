@@ -1,47 +1,48 @@
 #include <vector>
 #include <string>
+#include "Config.hpp"
 #include "ConfigHandlingString.hpp"
+#include "HandlingString.hpp"
 
 bool ConfigHandlingString::is_ignore_line(const std::string &config_line)
 {
-	std::string	line_without_ows = HandlingString::obtain_without_ows_value(config_line);
+	std::string line_without_ows = HandlingString::obtain_without_ows_value(config_line);
 
-	if (line_without_ows[0] == '#' || line_without_ows.empty())
-		return (true);
-	return (false);
+	return (line_without_ows.empty() || line_without_ows[0] == '#');
 }
 
 bool ConfigHandlingString::is_block_end(const std::string &config_line)
 {
-	std::string	line_without_ows = HandlingString::obtain_without_ows_value(config_line);
+	std::string line_without_ows = HandlingString::obtain_without_ows_value(config_line);
 
 	return (line_without_ows == "}");
 }
 
-bool ConfigHandlingString::is_blockstart_endword(const std::string &block_end_word)
+bool ConfigHandlingString::is_block_start(const std::string &block_end_word)
 {
-	// ブロックの始まりかどうか、という意味合いだけどどういう関数名がいいかわからない。。。
 	return (block_end_word == "{");
 }
 
-int	ConfigHandlingString::is_field_header(const std::string &config_line, size_t *pos)
+int ConfigHandlingString::is_field_header(const std::string &config_line, size_t *pos)
 {
 	std::string	line_trim_header;
-	size_t	check_tmp_num = 0;
+	size_t tmp_pos = 0;
 
 	HandlingString::skip_no_ows(config_line, pos);
 	if (config_line[*pos] == '\0')
 		return NO_FIELD_HEADER;
-	line_trim_header = config_line.substr(*pos, config_line.length() - *pos);
-	HandlingString::skip_ows(line_trim_header, &check_tmp_num);
-	if (line_trim_header[check_tmp_num] == '\0')
+
+	line_trim_header = config_line.substr(*pos);
+	HandlingString::skip_ows(line_trim_header, &tmp_pos);
+	if (line_trim_header[tmp_pos] == '\0')
 		return NO_FIELD_VALUE;
-	return IS_OK_FIELD_HEADER;
+	return FIELD_HEADER_OK;
 }
 
 int	ConfigHandlingString::is_field_value(const std::string &config_line, size_t *pos)
 {
 	std::string	field_value_word = config_line.substr(*pos, config_line.length() - *pos);
+
 	if (field_value_word.empty() || field_value_word == ";")
 		return NO_FIELD_VALUE;
 	if (std::count(field_value_word.begin(), field_value_word.end(), ';') == 0)
@@ -53,12 +54,12 @@ int	ConfigHandlingString::is_field_value(const std::string &config_line, size_t 
 	while (config_line[*pos] != ';')  // valueの終了条件は必ずセミコロンが存在しているかどうかになる
 		*pos = *pos + 1;
 	if (HandlingString::is_ows(config_line[*pos - 1]))
-		return (IS_NOT_FIELD_VALUE_FORMAT);
-	return (IS_OK_FIELD_VALUE);
+		return (NOT_FIELD_VALUE_FORMAT);
+	return (FIELD_VALUE_OK);
 }
 
-bool ConfigHandlingString::show_error_message(const std::string &config_line, \
-												const int &error_type)
+bool ConfigHandlingString::show_error_message(const std::string &config_line,
+											  const int &error_type)
 {
 	std::cerr << "*" << config_line << "*" << std::endl;
 	switch (error_type)
@@ -79,16 +80,14 @@ bool ConfigHandlingString::show_error_message(const std::string &config_line, \
             std::cerr << "MULTIPLE SEMICOLON" << std::endl;
             break;
         default:
-            std::cerr << "Invalid choice. Please choose a number between 1 and 3." << std::endl;
+            std::cerr << "FATAL ERROR" << std::endl;
     }
 	return (false);
 }
 
 bool ConfigHandlingString::ready_boolean_field_value(const std::string &field_value)
 {
-	if (field_value == "on")
-		return (true);
-	return (false);
+	return field_value == "on";
 }
 
 int ConfigHandlingString::ready_int_field_value(const std::string &field_value)
@@ -101,28 +100,23 @@ size_t ConfigHandlingString::ready_size_t_field_value(const std::string &field_v
 	return (static_cast<size_t>(NumericHandle::str_to_int(field_value)));
 }
 
-std::string ConfigHandlingString::ready_string_field_value(const std::string &field_value)
-{
-	return (field_value);
-}
-
 std::vector<std::string> ConfigHandlingString::ready_string_vector_field_value(const std::string &field_value)
 {
-	std::vector<std::string>	anser_vector;
+	std::vector<std::string> ret_vector;
 	std::string	value;
-	std::istringstream			values_splited_by_empty(field_value);
-	std::string					value_splited_by_empty;
-	size_t	value_start_pos = 0;
-	size_t	value_end_pos = 0;
+	std::istringstream values_splitted_by_empty(field_value);  // todo: unused -> rm
+	std::string value_splitted_by_empty;   // todo: unused -> rm
+	size_t value_start_pos = 0;
+	size_t value_end_pos = 0;
 
 	while (field_value[value_start_pos] != '\0')
 	{
 		HandlingString::skip_no_ows(field_value, &value_end_pos);
 		value = field_value.substr(value_start_pos, value_end_pos - value_start_pos);
-		if (std::count(anser_vector.begin(), anser_vector.end(), value) == 0)
-			anser_vector.push_back(value);
+		if (std::count(ret_vector.begin(), ret_vector.end(), value) == 0)
+			ret_vector.push_back(value);
 		HandlingString::skip_ows(field_value, &value_end_pos);
 		value_start_pos = value_end_pos;
 	}
-	return (anser_vector);
+	return (ret_vector);
 }

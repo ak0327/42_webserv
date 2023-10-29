@@ -55,12 +55,13 @@ SRCS		+=	$(SOCKET_DIR)/Socket.cpp
 
 #config
 CONFIG_DIR	=	Config
-SRCS		+=	$(CONFIG_DIR)/AllConfig/AllConfig.cpp \
+SRCS		+=	$(CONFIG_DIR)/Config.cpp \
+				$(CONFIG_DIR)/AllConfig/AllConfig.cpp \
 				$(CONFIG_DIR)/ConfigHandlingString/ConfigHandlingString.cpp \
 				$(CONFIG_DIR)/IsConfigFormat/IsConfigFormat.cpp \
 				$(CONFIG_DIR)/LocationConfig/LocationConfig.cpp \
 				$(CONFIG_DIR)/ServerConfig/ServerConfig.cpp \
-				$(CONFIG_DIR)/Config.cpp
+
 
 # OBJS -------------------------------------------------------------------------
 OBJS_DIR	=	objs
@@ -77,8 +78,13 @@ CLIENT_OBJ	=	$(CLIENT_SRC:%.cpp=%.o)
 CLIENT_OBJS	=	$(addprefix $(OBJS_DIR)/, $(CLIENT_OBJ))
 
 # INCLUDES ---------------------------------------------------------------------
-INCLUDES_DIR = includes \
+INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(CONFIG_DIR) \
+				$(SRCS_DIR)/$(CONFIG_DIR)/AllConfig \
+				$(SRCS_DIR)/$(CONFIG_DIR)/ConfigHandlingString \
+				$(SRCS_DIR)/$(CONFIG_DIR)/IsConfigFormat \
+				$(SRCS_DIR)/$(CONFIG_DIR)/LocationConfig \
+				$(SRCS_DIR)/$(CONFIG_DIR)/ServerConfig \
 				$(SRCS_DIR)/$(DEBUG_DIR) \
 				$(SRCS_DIR)/$(ERROR_DIR) \
 				$(SRCS_DIR)/$(HANDRING_STR) \
