@@ -10,6 +10,8 @@
 !srcs/Error
 !srcs/HttpResponse
 !srcs/HttpResponse/*
+!srcs/HttpResponse/DELETE
+!srcs/HttpResponse/DELETE/*
 !srcs/Socket
 !www
 !includes

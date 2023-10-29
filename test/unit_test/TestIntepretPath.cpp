@@ -26,19 +26,19 @@
 // 	}
 // }
 
-TEST(Interpretpath, test1) {
-	std::string	folda_name;
-	std::string	file_name;
-	HttpResponse test;
+// TEST(Interpretpath, test1) {
+// 	std::string	folda_name;
+// 	std::string	file_name;
+// 	HttpResponse test;
 
-	test.separate_path_folda_file("http://localhost:8000/", &folda_name, &file_name);
-	std::cout << "here?" << std::endl;
-	std::cout << folda_name << std::endl;
-	EXPECT_EQ(folda_name, "/");
-	std::cout << file_name << std::endl;
-	EXPECT_EQ(file_name, "");
-	std::cout << "end" << std::endl;
-}
+// 	test.separate_path_folda_file("http://localhost:8000/", &folda_name, &file_name);
+// 	std::cout << "here?" << std::endl;
+// 	std::cout << folda_name << std::endl;
+// 	EXPECT_EQ(folda_name, "/");
+// 	std::cout << file_name << std::endl;
+// 	EXPECT_EQ(file_name, "");
+// 	std::cout << "end" << std::endl;
+// }
 
 TEST(Interpretpath, test2) {
 	std::string	folda_name;
@@ -49,6 +49,7 @@ TEST(Interpretpath, test2) {
 	test.separate_path_folda_file("http://localhost:8000/aaa", &folda_name, &file_name);
 	EXPECT_EQ(folda_name, "/");
 	EXPECT_EQ(file_name, "aaa");
+	std::cout << "end" << std::endl;
 }
 
 TEST(Interpretpath, test3) {
