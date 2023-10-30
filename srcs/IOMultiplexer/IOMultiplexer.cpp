@@ -17,14 +17,18 @@
 #if defined(__linux__) && !defined(USE_SELECT_MULTIPLEXER)
 
 namespace {
-	int INIT_SIZE = 1;
-	int EPOLL_TIMEOUT = 0;
-	int IO_TIMEOUT = -1;
-	int TIMEOUT_MS = 2500;
-	int INIT_FD = -1;
 
-	int ERROR = -1;
-}
+int INIT_SIZE = 1;
+int EPOLL_TIMEOUT = 0;
+int IO_TIMEOUT = -1;
+int TIMEOUT_MS = 2500;
+int INIT_FD = -1;
+
+int ERROR = -1;
+
+}  // namespace
+
+////////////////////////////////////////////////////////////////////////////////
 
 EPollMultiplexer::EPollMultiplexer(int socket_fd) : _socket_fd(socket_fd),
 													_epoll_fd(INIT_FD),
@@ -97,54 +101,58 @@ Result<int, std::string> EPollMultiplexer::clear_fd(int clear_fd) {
 #elif defined(__APPLE__) && !defined(USE_SELECT_MULTIPLEXER)
 
 namespace {
-	const int KEVENT_TIMEOUT = 0;
-	const int INIT_KQ = -1;
-	const int EVENT_COUNT = 1;
-	const int IO_TIMEOUT = -1;
 
-	const int ERROR = -1;
+const int KEVENT_TIMEOUT = 0;
+const int INIT_KQ = -1;
+const int EVENT_COUNT = 1;
+const int IO_TIMEOUT = -1;
 
-	Result<int, std::string> init_kqueue() {
-		int kq;
+const int ERROR = -1;
 
-		errno = 0;
-		kq = kqueue();
-		if (kq == ERROR) {
-			return Result<int, std::string>::err(strerror(errno));
-		}
-		return Result<int, std::string>::ok(kq);
+Result<int, std::string> init_kqueue() {
+	int kq;
+
+	errno = 0;
+	kq = kqueue();
+	if (kq == ERROR) {
+		return Result<int, std::string>::err(strerror(errno));
 	}
+	return Result<int, std::string>::ok(kq);
+}
 
-	Result<int, std::string> kevent_register(int kq, struct kevent *change_event) {
-		errno = 0;
-		if (kevent(kq, change_event, EVENT_COUNT, NULL, 0, NULL) == ERROR) {
-			return Result<int, std::string>::err(strerror(errno));
-		}
-		return Result<int, std::string>::ok(OK);
+Result<int, std::string> kevent_register(int kq, struct kevent *change_event) {
+	errno = 0;
+	if (kevent(kq, change_event, EVENT_COUNT, NULL, 0, NULL) == ERROR) {
+		return Result<int, std::string>::err(strerror(errno));
 	}
+	return Result<int, std::string>::ok(OK);
+}
 
-	Result<int, std::string> kevent_wait(int kq, struct kevent *new_event) {
-		int events;
-		struct timespec	timeout = {};
+Result<int, std::string> kevent_wait(int kq, struct kevent *new_event) {
+	int events;
+	struct timespec	timeout = {};
 
-		timeout.tv_sec = 2;
-		timeout.tv_nsec = 500 * 1000;
+	timeout.tv_sec = 2;
+	timeout.tv_nsec = 500 * 1000;
 
-		errno = 0;
-		events = kevent(kq, NULL, 0, new_event, EVENT_COUNT, &timeout);
-		if (events == ERROR) {
-			return Result<int, std::string>::err(strerror(errno));
-		}
-		return Result<int, std::string>::ok(events);
+	errno = 0;
+	events = kevent(kq, NULL, 0, new_event, EVENT_COUNT, &timeout);
+	if (events == ERROR) {
+		return Result<int, std::string>::err(strerror(errno));
 	}
+	return Result<int, std::string>::ok(events);
+}
 
-	Result<int, std::string> cast_fd_uintptr_to_int(uintptr_t ident) {
-		if (ident > static_cast<uintptr_t>(INT_MAX)) {
-			return Result<int, std::string>::err("invalid fd");
-		}
-		return Result<int, std::string>::ok(static_cast<int>(ident));
+Result<int, std::string> cast_fd_uintptr_to_int(uintptr_t ident) {
+	if (ident > static_cast<uintptr_t>(INT_MAX)) {
+		return Result<int, std::string>::err("invalid fd");
 	}
+	return Result<int, std::string>::ok(static_cast<int>(ident));
+}
+
 }  // namespace
+
+////////////////////////////////////////////////////////////////////////////////
 
 KqueueMultiplexer::KqueueMultiplexer(int socket_fd) : _socket_fd(socket_fd),
 													  _kq(INIT_KQ),
@@ -227,72 +235,76 @@ Result<int, std::string> KqueueMultiplexer::clear_fd(int clear_fd) {
 #else
 
 namespace {
-	const int INIT_FD = -1;
-	const int MAX_SESSION = 128;
-	const int SELECT_TIMEOUT = 0;
-	const int IO_TIMEOUT = -1;
 
-	int ERROR = -1;
+const int INIT_FD = -1;
+const int MAX_SESSION = 128;
+const int SELECT_TIMEOUT = 0;
+const int IO_TIMEOUT = -1;
 
-	fd_set init_fds(int socket_fd, const std::vector<int> &connect_fds) {
-		fd_set fds;
-		std::vector<int>::const_iterator fd;
+int ERROR = -1;
 
-		FD_ZERO(&fds);
-		FD_SET(socket_fd, &fds);
+fd_set init_fds(int socket_fd, const std::vector<int> &connect_fds) {
+	fd_set fds;
+	std::vector<int>::const_iterator fd;
 
-		for (fd = connect_fds.begin(); fd != connect_fds.end(); ++fd) {
-			if (*fd == INIT_FD) {
-				continue;
-			}
-			FD_SET(*fd, &fds);
+	FD_ZERO(&fds);
+	FD_SET(socket_fd, &fds);
+
+	for (fd = connect_fds.begin(); fd != connect_fds.end(); ++fd) {
+		if (*fd == INIT_FD) {
+			continue;
 		}
-		return fds;
+		FD_SET(*fd, &fds);
+	}
+	return fds;
+}
+
+int get_max_fd(const std::vector<int> &connect_fds, int socket_fd) {
+	int max_fd;
+
+	max_fd = *std::max_element(connect_fds.begin(), connect_fds.end());
+	return std::max(max_fd, socket_fd);
+}
+
+Result<int, std::string> select_fds(int max_fd, fd_set *fds) {
+	struct timeval timeout = {};
+	int select_ret;
+
+	// timeout < 1.5sec, communicate error ??
+	timeout.tv_sec = 2;
+	timeout.tv_usec = 500 * 1000;  // 500ms
+
+	errno = 0;
+	select_ret = select(max_fd + 1, fds, NULL, NULL, &timeout);
+	if (select_ret == ERROR) {
+		return Result<int, std::string>::err(strerror(errno));
+	}
+	return Result<int, std::string>::ok(select_ret);
+}
+
+Result<int, int> get_ready_fd(const std::vector<int> &connect_fds,
+							  fd_set *fds, int socket_fd) {
+	std::vector<int>::const_iterator fd;
+
+	if (FD_ISSET(socket_fd, fds)) {
+		return Result<int, int>::ok(socket_fd);
 	}
 
-	int get_max_fd(const std::vector<int> &connect_fds, int socket_fd) {
-		int max_fd;
-
-		max_fd = *std::max_element(connect_fds.begin(), connect_fds.end());
-		return std::max(max_fd, socket_fd);
-	}
-
-	Result<int, std::string> select_fds(int max_fd, fd_set *fds) {
-		struct timeval timeout = {};
-		int select_ret;
-
-		// timeout < 1.5sec, communicate error ??
-		timeout.tv_sec = 2;
-		timeout.tv_usec = 500 * 1000;  // 500ms
-
-		errno = 0;
-		select_ret = select(max_fd + 1, fds, NULL, NULL, &timeout);
-		if (select_ret == ERROR) {
-			return Result<int, std::string>::err(strerror(errno));
+	for (fd = connect_fds.begin(); fd != connect_fds.end(); ++fd) {
+		if (*fd == INIT_FD) {
+			continue;
 		}
-		return Result<int, std::string>::ok(select_ret);
-	}
-
-	Result<int, int> get_ready_fd(const std::vector<int> &connect_fds,
-								  fd_set *fds, int socket_fd) {
-		std::vector<int>::const_iterator fd;
-
-		if (FD_ISSET(socket_fd, fds)) {
-			return Result<int, int>::ok(socket_fd);
+		if (!FD_ISSET(*fd, fds)) {
+			continue;
 		}
-
-		for (fd = connect_fds.begin(); fd != connect_fds.end(); ++fd) {
-			if (*fd == INIT_FD) {
-				continue;
-			}
-			if (!FD_ISSET(*fd, fds)) {
-				continue;
-			}
-			return Result<int, int>::ok(*fd);
-		}
-		return Result<int, int>::err(ERROR);
+		return Result<int, int>::ok(*fd);
 	}
+	return Result<int, int>::err(ERROR);
+}
+
 }  // namespace
+
+////////////////////////////////////////////////////////////////////////////////
 
 SelectMultiplexer::SelectMultiplexer(int socket_fd) {
 	DEBUG_SERVER_PRINT("[I/O multiplexer : select]");

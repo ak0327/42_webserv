@@ -9,39 +9,43 @@
 #include "Color.hpp"
 
 namespace {
-	int INIT_FD = -1;
 
-	int SUCCESS = 0;
-	int ERROR = -1;
+int INIT_FD = -1;
 
-	const char *SERVER_IP = "127.0.0.1";
-	const char *SERVER_PORT = "8080";
+int SUCCESS = 0;
+int ERROR = -1;
 
-	struct sockaddr_in create_addr() {
-		struct sockaddr_in addr = {};
+const char *SERVER_IP = "127.0.0.1";
+const char *SERVER_PORT = "8080";
 
-		addr.sin_family = AF_INET;
-		addr.sin_addr.s_addr = inet_addr(SERVER_IP);
-		addr.sin_port = htons(std::strtol(SERVER_PORT, NULL, 10));
-		return addr;
-	}
+struct sockaddr_in create_addr() {
+	struct sockaddr_in addr = {};
 
-	int create_nonblock_client_fd() {
-		int client_fd;
-		int result_fcntl;
-
-		client_fd = socket(AF_INET, SOCK_STREAM, 0);
-		if (client_fd == INIT_FD) {
-			return ERROR;
-		}
-		result_fcntl = fcntl(client_fd, F_SETFL, O_NONBLOCK);
-		if (result_fcntl == ERROR) {
-			close(client_fd);
-			return ERROR;
-		}
-		return client_fd;
-	}
+	addr.sin_family = AF_INET;
+	addr.sin_addr.s_addr = inet_addr(SERVER_IP);
+	addr.sin_port = htons(std::strtol(SERVER_PORT, NULL, 10));
+	return addr;
 }
+
+int create_nonblock_client_fd() {
+	int client_fd;
+	int result_fcntl;
+
+	client_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (client_fd == INIT_FD) {
+		return ERROR;
+	}
+	result_fcntl = fcntl(client_fd, F_SETFL, O_NONBLOCK);
+	if (result_fcntl == ERROR) {
+		close(client_fd);
+		return ERROR;
+	}
+	return client_fd;
+}
+
+}  // namespace
+
+////////////////////////////////////////////////////////////////////////////////
 
 /* ******************************************* */
 /*               Socket Unit Test              */

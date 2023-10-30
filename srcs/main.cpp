@@ -5,27 +5,26 @@
 #include "Debug.hpp"
 #include "Server.hpp"
 
-// 一旦関係ない
-
 namespace {
-	int CONFIG_FILE_INDEX = 1;
-	// int EXECUTABLE_FILE_ONLY_ARGC = 1;
-	int CONFIG_FILE_GIVEN_ARGC = 2;
-	std::string INVALID_ARGUMENT_ERROR_MSG = "[Error] invalid argument";
 
-	const char *SERVER_IP = "127.0.0.1";
-	const char *SERVER_PORT = "8080";
+int CONFIG_FILE_INDEX = 1;
+int CONFIG_FILE_GIVEN_ARGC = 2;
 
-	void validate_argc(int argc) {
-		// if (argc == EXECUTABLE_FILE_ONLY_ARGC) {
-		// 	return;
-		// }
-		if (argc == CONFIG_FILE_GIVEN_ARGC) {
-			return;
-		}
-		throw std::invalid_argument(INVALID_ARGUMENT_ERROR_MSG);
+const char *SERVER_IP = "127.0.0.1";
+const char *SERVER_PORT = "8080";
+
+void validate_argc(int argc) {
+	const std::string INVALID_ARGUMENT_ERROR_MSG = "[Error] invalid argument";
+
+	if (argc == CONFIG_FILE_GIVEN_ARGC) {
+		return;
 	}
+	throw std::invalid_argument(INVALID_ARGUMENT_ERROR_MSG);
+}
+
 }  // namespace
+
+////////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char **argv) {
 	std::string		config_file_path;

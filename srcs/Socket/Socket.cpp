@@ -10,46 +10,50 @@
 #include "Socket.hpp"
 
 namespace {
-	int INIT_FD = -1;
 
-	int OK = 0;
-	int GETADDRINFO_SUCCESS = 0;
+int INIT_FD = -1;
 
-	int BIND_ERROR = -1;
-	int CLOSE_ERROR = -1;
-	int FCNTL_ERROR = -1;
-	int LISTEN_ERROR = -1;
-	int SETSOCKOPT_ERROR = -1;
-	int SOCKET_ERROR = -1;
+int OK = 0;
+int GETADDRINFO_SUCCESS = 0;
 
-	void set_hints(struct addrinfo *hints) {
-		hints->ai_socktype = SOCK_STREAM;
-		hints->ai_family = AF_UNSPEC;  // allows IPv4 and IPv6
-		hints->ai_flags = AI_PASSIVE | AI_NUMERICHOST | AI_NUMERICSERV;  // socket, IP, PORT
-		hints->ai_protocol = IPPROTO_TCP;
+int BIND_ERROR = -1;
+int CLOSE_ERROR = -1;
+int FCNTL_ERROR = -1;
+int LISTEN_ERROR = -1;
+int SETSOCKOPT_ERROR = -1;
+int SOCKET_ERROR = -1;
+
+void set_hints(struct addrinfo *hints) {
+	hints->ai_socktype = SOCK_STREAM;
+	hints->ai_family = AF_UNSPEC;  // allows IPv4 and IPv6
+	hints->ai_flags = AI_PASSIVE | AI_NUMERICHOST | AI_NUMERICSERV;  // socket, IP, PORT
+	hints->ai_protocol = IPPROTO_TCP;
+}
+
+Result<int, std::string> set_socket_opt(int socket_fd) {
+	const int		opt_val = 1;
+	const socklen_t	opt_len = sizeof(opt_val);
+
+	errno = 0;
+	if (setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt_val, opt_len) == SETSOCKOPT_ERROR) {
+		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
+		return Result<int, std::string>::err(err_info);
 	}
+	return Result<int, std::string>::ok(OK);
+}
 
-	Result<int, std::string> set_socket_opt(int socket_fd) {
-		const int		opt_val = 1;
-		const socklen_t	opt_len = sizeof(opt_val);
-
-		errno = 0;
-		if (setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt_val, opt_len) == SETSOCKOPT_ERROR) {
-			std::string err_info = create_error_info(errno, __FILE__, __LINE__);
-			return Result<int, std::string>::err(err_info);
-		}
-		return Result<int, std::string>::ok(OK);
+Result<int, std::string> close_socket_fd(int socket_fd) {
+	errno = 0;
+	if (close(socket_fd) == CLOSE_ERROR) {
+		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
+		return Result<int, std::string>::err(err_info);
 	}
+	return Result<int, std::string>::ok(OK);
+}
 
-	Result<int, std::string> close_socket_fd(int socket_fd) {
-		errno = 0;
-		if (close(socket_fd) == CLOSE_ERROR) {
-			std::string err_info = create_error_info(errno, __FILE__, __LINE__);
-			return Result<int, std::string>::err(err_info);
-		}
-		return Result<int, std::string>::ok(OK);
-	}
 }  // namespace
+
+////////////////////////////////////////////////////////////////////////////////
 
 Socket::Socket(const char *server_ip,
 			   const char *server_port) : _result(),

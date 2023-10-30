@@ -12,152 +12,157 @@
 #include "Server.hpp"
 
 namespace {
-	const char *SERVER_IP = "127.0.0.1";
-	const char *SERVER_PORT = "8080";
 
-	struct s_server {
-		const char	*server_ip;
-		const char	*server_port;
-		std::string	recv_msg;
-	};
+const char *SERVER_IP = "127.0.0.1";
+const char *SERVER_PORT = "8080";
 
-	struct s_client {
-		int			no;
-		const char	*server_ip;
-		const char	*server_port;
-		std::string	send_msg;
-		std::string	recv_msg;
-	};
+struct s_server {
+	const char	*server_ip;
+	const char	*server_port;
+	std::string	recv_msg;
+};
+
+struct s_client {
+	int			no;
+	const char	*server_ip;
+	const char	*server_port;
+	std::string	send_msg;
+	std::string	recv_msg;
+};
 
 /* helper */
-	void *run_server(void *server_info) {
-		s_server	*s = (s_server *)server_info;
-		bool		is_server_success = true;
+void *run_server(void *server_info) {
+	s_server	*s = (s_server *)server_info;
+	bool		is_server_success = true;
 
-		try {
-			DEBUG_SERVER_PRINT("start");
-			Server server = Server(s->server_ip, s->server_port);
-			DEBUG_SERVER_PRINT("connecting...");
-			server.process_client_connection();
-			s->recv_msg = server.get_recv_message();
-			// vvv this func can print only 1 message vv
-			// printf("server connected. recv:[%s]\n", s->recv_msg.c_str());
-		}
-		catch (std::exception const &e) {
-			is_server_success = false;
-			std::cerr << e.what() << std::endl;
-		}
-		return (void *)(is_server_success);
+	try {
+		DEBUG_SERVER_PRINT("start");
+		Server server = Server(s->server_ip, s->server_port);
+		DEBUG_SERVER_PRINT("connecting...");
+		server.process_client_connection();
+		s->recv_msg = server.get_recv_message();
+		// vvv this func can print only 1 message vv
+		// printf("server connected. recv:[%s]\n", s->recv_msg.c_str());
+	}
+	catch (std::exception const &e) {
+		is_server_success = false;
+		std::cerr << e.what() << std::endl;
+	}
+	return (void *)(is_server_success);
+}
+
+void *run_client(void *client_info) {
+	s_client	*c = (s_client *)client_info;
+	bool		is_client_success = true;
+	std::string msg = c->send_msg;
+
+	if (c->no != 0) {
+		msg += std::to_string(c->no);
 	}
 
-	void *run_client(void *client_info) {
-		s_client	*c = (s_client *)client_info;
-		bool		is_client_success = true;
-		std::string msg = c->send_msg;
+	try {
+		DEBUG_CLIENT_PRINT("no:%d start", c->no);
+		Client client = Client(c->server_ip, c->server_port);
+		sleep(1);
+		DEBUG_CLIENT_PRINT("no:%d connecting...", c->no);
+		client.process_server_connect(msg);
+		c->recv_msg = client.get_recv_message();
+		DEBUG_CLIENT_PRINT("no:%d connected. recv:[%s]", c->no, c->recv_msg.c_str());
+	}
+	catch (std::exception const &e) {
+		is_client_success = false;
+		std::cerr << e.what() << std::endl;
+	}
+	return (void *)(is_client_success);
+}
 
-		if (c->no != 0) {
-			msg += std::to_string(c->no);
-		}
+void run_server_and_client(const char *server_ip,
+						   const char *server_port,
+						   const std::string &client_send_msg,
+						   std::string &server_recv_msg,
+						   std::string &client_recv_msg) {
+	s_server server_info = {server_ip, server_port, ""};
+	s_client client_info = {0, server_ip, server_port, client_send_msg, ""};
+	pthread_t server_tid, client_tid;
+	int ret_server, ret_client;
+	bool is_server_success, is_client_success;
 
-		try {
-			DEBUG_CLIENT_PRINT("no:%d start", c->no);
-			Client client = Client(c->server_ip, c->server_port);
-			sleep(1);
-			DEBUG_CLIENT_PRINT("no:%d connecting...", c->no);
-			client.process_server_connect(msg);
-			c->recv_msg = client.get_recv_message();
-			DEBUG_CLIENT_PRINT("no:%d connected. recv:[%s]", c->no, c->recv_msg.c_str());
-		}
-		catch (std::exception const &e) {
-			is_client_success = false;
-			std::cerr << e.what() << std::endl;
-		}
-		return (void *)(is_client_success);
+	ret_server = pthread_create(&server_tid, NULL, run_server, (void *)&server_info);
+	ret_client = pthread_create(&client_tid, NULL, run_client, (void *)&client_info);
+	if (ret_server != OK || ret_client != OK) {
+		throw std::runtime_error("pthread_create error");
 	}
 
-	void run_server_and_client(const char *server_ip,
-							   const char *server_port,
-							   const std::string &client_send_msg,
-							   std::string &server_recv_msg,
-							   std::string &client_recv_msg) {
-		s_server server_info = {server_ip, server_port, ""};
-		s_client client_info = {0, server_ip, server_port, client_send_msg, ""};
-		pthread_t server_tid, client_tid;
-		int ret_server, ret_client;
-		bool is_server_success, is_client_success;
+	ret_server = pthread_join(server_tid, (void **)&is_server_success);
+	ret_client = pthread_join(client_tid, (void **)&is_client_success);
+	if (ret_server != OK || ret_client != OK) {
+		throw std::runtime_error("pthread_join error");
+	}
+	if (!is_server_success) {
+		throw std::runtime_error("server error");
+	}
+	if (!is_client_success) {
+		throw std::runtime_error("client error");
+	}
+	server_recv_msg = server_info.recv_msg;
+	client_recv_msg = client_info.recv_msg;
+}
 
-		ret_server = pthread_create(&server_tid, NULL, run_server, (void *)&server_info);
-		ret_client = pthread_create(&client_tid, NULL, run_client, (void *)&client_info);
-		if (ret_server != OK || ret_client != OK) {
+std::vector<s_client> init_client_infos(int client_count,
+										const char *server_ip,
+										const char *server_port,
+										const std::string &client_send_msg) {
+	std::vector<s_client> client_infos(client_count, {0, server_ip, server_port, client_send_msg, ""});
+	for (int i = 0; i < client_count; ++i) {
+		client_infos[i].no = i;
+	}
+	return client_infos;
+}
+
+void run_server_and_multi_client(const char *server_ip,
+								 const char *server_port,
+								 const std::string &client_send_msg,
+								 std::string &server_recv_msg,
+								 std::vector<std::string> &client_recv_msgs,
+								 int client_count) {
+	s_server server_info = {server_ip, server_port, ""};
+	std::vector<s_client> client_infos = init_client_infos(client_count, server_ip, server_port, client_send_msg);
+	pthread_t server_tid;
+	std::vector<pthread_t> client_tids(client_count);
+	int ret_server, ret_client;
+	bool is_server_success, is_client_success;
+
+	ret_server = pthread_create(&server_tid, NULL, run_server, (void *)&server_info);
+	if (ret_server != OK) {
+		throw std::runtime_error("pthread_create error");
+	}
+	for (int i = 0; i < client_count; ++i) {
+		ret_client = pthread_create(&client_tids[i], NULL, run_client, (void *)&client_infos[i]);
+		if (ret_client != OK) {
 			throw std::runtime_error("pthread_create error");
 		}
+	}
 
-		ret_server = pthread_join(server_tid, (void **)&is_server_success);
-		ret_client = pthread_join(client_tid, (void **)&is_client_success);
-		if (ret_server != OK || ret_client != OK) {
-			throw std::runtime_error("pthread_join error");
-		}
-		if (!is_server_success) {
-			throw std::runtime_error("server error");
-		}
-		if (!is_client_success) {
+	ret_server = pthread_join(server_tid, (void **)&is_server_success);
+	if (ret_server != OK || !is_server_success) {
+		throw std::runtime_error("server error");
+	}
+	for (int i = 0; i < client_count; ++i) {
+		ret_client = pthread_join(client_tids[i], (void **)&is_client_success);
+		if (ret_client != OK || !is_client_success) {
 			throw std::runtime_error("client error");
 		}
-		server_recv_msg = server_info.recv_msg;
-		client_recv_msg = client_info.recv_msg;
 	}
-
-	std::vector<s_client> init_client_infos(int client_count,
-											const char *server_ip,
-											const char *server_port,
-											const std::string &client_send_msg) {
-		std::vector<s_client> client_infos(client_count, {0, server_ip, server_port, client_send_msg, ""});
-		for (int i = 0; i < client_count; ++i) {
-			client_infos[i].no = i;
-		}
-		return client_infos;
-	}
-
-	void run_server_and_multi_client(const char *server_ip,
-									 const char *server_port,
-									 const std::string &client_send_msg,
-									 std::string &server_recv_msg,
-									 std::vector<std::string> &client_recv_msgs,
-									 int client_count) {
-		s_server server_info = {server_ip, server_port, ""};
-		std::vector<s_client> client_infos = init_client_infos(client_count, server_ip, server_port, client_send_msg);
-		pthread_t server_tid;
-		std::vector<pthread_t> client_tids(client_count);
-		int ret_server, ret_client;
-		bool is_server_success, is_client_success;
-
-		ret_server = pthread_create(&server_tid, NULL, run_server, (void *)&server_info);
-		if (ret_server != OK) {
-			throw std::runtime_error("pthread_create error");
-		}
-		for (int i = 0; i < client_count; ++i) {
-			ret_client = pthread_create(&client_tids[i], NULL, run_client, (void *)&client_infos[i]);
-			if (ret_client != OK) {
-				throw std::runtime_error("pthread_create error");
-			}
-		}
-
-		ret_server = pthread_join(server_tid, (void **)&is_server_success);
-		if (ret_server != OK || !is_server_success) {
-			throw std::runtime_error("server error");
-		}
-		for (int i = 0; i < client_count; ++i) {
-			ret_client = pthread_join(client_tids[i], (void **)&is_client_success);
-			if (ret_client != OK || !is_client_success) {
-				throw std::runtime_error("client error");
-			}
-		}
-		server_recv_msg = server_info.recv_msg;
-		for (int i = 0; i < client_count; ++i) {
-			client_recv_msgs[i] = client_infos[i].recv_msg;
-		}
+	server_recv_msg = server_info.recv_msg;
+	for (int i = 0; i < client_count; ++i) {
+		client_recv_msgs[i] = client_infos[i].recv_msg;
 	}
 }
+
+}  // namespace
+
+////////////////////////////////////////////////////////////////////////////////
+
 // int port = 49152;
 
 TEST(ServerUnitTest, Constructor) {
