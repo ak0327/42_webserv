@@ -114,7 +114,7 @@ bool Config::ready_server_config(const std::string &config_file_name,
 			}
 			return this->report_errorline(config_line, line, result);
 		}
-		if (!in_server_block && !in_location_block)
+		if (in_server_block && !in_location_block)
 		{
 			int result_server_block_action = server_block_action(config_line,
 																 &in_server_block,
