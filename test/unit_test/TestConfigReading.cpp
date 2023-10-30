@@ -1,15 +1,10 @@
-#include <arpa/inet.h>
-#include <fcntl.h>
-#include <netdb.h>
-#include <sys/socket.h>
+#include <algorithm>
 #include <string>
 #include <vector>
 #include "gtest/gtest.h"
-
-#include "../../srcs/Config/Config.hpp"
-#include "../../srcs/Config/IsConfigFormat/IsConfigFormat.hpp"
-#include "../../srcs/HandlingString/HandlingString.hpp"
-#include <algorithm>
+#include "Config.hpp"
+#include "IsConfigFormat.hpp"
+#include "HandlingString.hpp"
 
 void	compare_vector_report(int line, std::vector<std::string> target_vector, std::vector<std::string> anser_vector)
 {
@@ -24,7 +19,7 @@ void	compare_vector_report(int line, std::vector<std::string> target_vector, std
 	}
 }
 
-TEST(ConfigReadingTest, config_test_1) 
+TEST(ConfigReadingTest, ConfigTest1)
 {
 	Config	test_config("config/testconfig1.conf");
 	ServerConfig	allconfig;
@@ -123,7 +118,7 @@ TEST(ConfigReadingTest, config_test_1)
 // EXPECT_EQ("", 									*.get_root());
 // compare_vector_report(83, anser_indexpage_sets,	*.get_indexpages());
 
-TEST(ConfigReadingTest, config_test_2) 
+TEST(ConfigReadingTest, ConfigTest2)
 {
 	Config	test_config("config/testconfig2.conf");
 	ServerConfig	allconfig;
@@ -218,7 +213,7 @@ TEST(ConfigReadingTest, config_test_2)
 	// -------------------------------- //
 }
 
-TEST(ConfigReadingTest, config_test_3) 
+TEST(ConfigReadingTest, ConfigTest3)
 {
 	Config	test_config("config/testconfig3.conf");
 	ServerConfig	allconfig;
@@ -226,7 +221,7 @@ TEST(ConfigReadingTest, config_test_3)
 	EXPECT_EQ(true, test_config.get_is_config_format());
 }
 
-TEST(ConfigReadingTest, config_test_4) 
+TEST(ConfigReadingTest, ConfigTest4)
 {
 	Config	test_config("config/testconfig4.conf");
 	ServerConfig	allconfig;
@@ -291,7 +286,7 @@ TEST(ConfigReadingTest, config_test_4)
 	// -------------------------------- //
 }
 
-TEST(ConfigReadingTest, error_config_test_1) 
+TEST(ConfigReadingTest, ErrorConfigTest1)
 {
 	Config	test_config("error_config/errortestconfig1.conf");
 	ServerConfig	allconfig;
@@ -299,7 +294,7 @@ TEST(ConfigReadingTest, error_config_test_1)
 	EXPECT_EQ(false, test_config.get_is_config_format());
 }
 
-TEST(ConfigReadingTest, error_config_test_2) 
+TEST(ConfigReadingTest, ErrorConfigTest2)
 {
 	Config	test_config("error_config/errortestconfig2.conf");
 	ServerConfig	allconfig;
@@ -307,7 +302,7 @@ TEST(ConfigReadingTest, error_config_test_2)
 	EXPECT_EQ(false, test_config.get_is_config_format());
 }
 
-TEST(ConfigReadingTest, error_config_test_3) 
+TEST(ConfigReadingTest, ErrorConfigTest3)
 {
 	Config	test_config("error_config/errortestconfig3.conf");
 	ServerConfig	allconfig;
@@ -315,7 +310,7 @@ TEST(ConfigReadingTest, error_config_test_3)
 	EXPECT_EQ(false, test_config.get_is_config_format());
 }
 
-TEST(ConfigReadingTest, error_config_test_5) 
+TEST(ConfigReadingTest, ErrorConfigTest5)
 {
 	Config	test_config("error_config/errortestconfig5.conf");
 	ServerConfig	allconfig;
@@ -323,7 +318,7 @@ TEST(ConfigReadingTest, error_config_test_5)
 	EXPECT_EQ(false, test_config.get_is_config_format());
 }
 
-TEST(ConfigReadingTest, error_config_test_6) 
+TEST(ConfigReadingTest, ErrorConfigTest6)
 {
 	Config	test_config("error_config/errortestconfig6.conf");
 	ServerConfig	allconfig;
@@ -331,7 +326,7 @@ TEST(ConfigReadingTest, error_config_test_6)
 	EXPECT_EQ(false, test_config.get_is_config_format());
 }
 
-TEST(ConfigReadingTest, error_config_test_7) 
+TEST(ConfigReadingTest, ErrorConfigTest7)
 {
 	Config	test_config("error_config/errortestconfig7.conf");
 	ServerConfig	allconfig;
@@ -339,7 +334,7 @@ TEST(ConfigReadingTest, error_config_test_7)
 	EXPECT_EQ(false, test_config.get_is_config_format());
 }
 
-TEST(ConfigReadingTest, error_config_test_8) 
+TEST(ConfigReadingTest, ErrorConfigTest8)
 {
 	Config	test_config("error_config/errortestconfig8.conf");
 	ServerConfig	allconfig;
@@ -347,7 +342,7 @@ TEST(ConfigReadingTest, error_config_test_8)
 	EXPECT_EQ(false, test_config.get_is_config_format());
 }
 
-TEST(ConfigReadingTest, error_config_test_9) 
+TEST(ConfigReadingTest, ErrorConfigTest9)
 {
 	Config	test_config("error_config/errortestconfig9.conf");
 	ServerConfig	allconfig;
@@ -355,7 +350,7 @@ TEST(ConfigReadingTest, error_config_test_9)
 	EXPECT_EQ(false, test_config.get_is_config_format());
 }
 
-TEST(ConfigReadingTest, error_config_test_and_get_no_exist_key_1)
+TEST(ConfigReadingTest, ErrorConfigTestand_get_no_exist_key_1)
 {
 	Config	test_config("error_config/errortestconfig1.conf");
 	ServerConfig	allconfig;

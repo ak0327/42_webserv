@@ -1,5 +1,4 @@
-#ifndef SRCS_CONFIG_SERVERCONFIG_SERVERCONFIG_HPP_
-#define	SRCS_CONFIG_SERVERCONFIG_SERVERCONFIG_HPP_
+#pragma once
 
 #include <algorithm>
 #include <iostream>
@@ -7,9 +6,9 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include "../ConfigHandlingString/ConfigHandlingString.hpp"
-#include "../HandlingString/HandlingString.hpp"
-#include "../NumericHandle/NumericHandle.hpp"
+#include "ConfigHandlingString.hpp"
+#include "HandlingString.hpp"
+#include "NumericHandle.hpp"
 
 #define AUTOINDEX "autoindex"
 #define CHUNKED_TRANSFERENCODING_ALLOW "chunked_transferencoding_allow"
@@ -59,6 +58,7 @@ class ServerConfig
 		ServerConfig(const ServerConfig &other);
 		ServerConfig& operator=(const ServerConfig &other);
 		~ServerConfig();
+
 		// getter
 		bool									get_autoindex() const;
 		bool									get_chunked_transferencoding_allow() const;
@@ -100,5 +100,3 @@ class ServerConfig
 		bool									set_field_header_field_value(const std::string &field_header, const std::string &field_value);
 		void									clear_serverconfig();
 };
-
-#endif  // SRCS_CONFIG_SERVERCONFIG_SERVERCONFIG_HPP_

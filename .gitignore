@@ -8,12 +8,13 @@
 
 !srcs
 !srcs/Client
+!srcs/Config
 !srcs/Debug
 !srcs/Error
 !srcs/HandlingString
 !srcs/NumericHandle
+!srcs/Server
 !srcs/Socket
-!srcs/Config
 !www
 !includes
 !playground

@@ -33,18 +33,19 @@ enable_testing()
 include_directories(
         includes
         srcs/Client
-        srcs/Debug
-        srcs/Error
-        srcs/IOMultiplexer
-        srcs/Server
-        srcs/Socket
         srcs/Config
-        srcs/Config/ConfigHandlingString
-        srcs/Config/IsConfigFormat
         srcs/Config/AllConfig
+        srcs/Config/ConfigHandlingString
         srcs/Config/IsConfigFormat
         srcs/Config/LocationConfig
         srcs/Config/ServerConfig
+        srcs/Debug
+        srcs/Error
+        srcs/HandlingString
+        srcs/IOMultiplexer
+        srcs/NumericHandle
+        srcs/Server
+        srcs/Socket
 )
 
 # webserv_srcs -----------------------------------------------------------------
@@ -56,17 +57,17 @@ set(webserv_srcs
         srcs/IOMultiplexer/IOMultiplexer.cpp
         srcs/Server/Server.cpp
         srcs/Socket/Socket.cpp
+        srcs/HandlingString/HandlingString.cpp
+        srcs/NumericHandle/NumericHandle.cpp
         )
 
 set(config_srcs
-        srcs/HandlingString/HandlingString.cpp
-        srcs/NumericHandle/NumericHandle.cpp
+        srcs/Config/Config.cpp
         srcs/Config/AllConfig/AllConfig.cpp
         srcs/Config/ConfigHandlingString/ConfigHandlingString.cpp
+        srcs/Config/IsConfigFormat/IsConfigFormat.cpp
         srcs/Config/LocationConfig/LocationConfig.cpp
         srcs/Config/ServerConfig/ServerConfig.cpp
-        srcs/Config/IsConfigFormat/IsConfigFormat.cpp
-        srcs/Config/Config.cpp
 )
 
 add_executable(webserv
@@ -78,7 +79,7 @@ add_executable(webserv
 # unit_test_srcs ---------------------------------------------------------------
 set (unit_test_srcs
         test/unit_test/is_valid_file_path/test_get_valid_config_file_path.cpp
-        test/unit_test/TestConfig.cpp
+        test/unit_test/TestIsConfigFormat.cpp
         test/unit_test/TestError.cpp
         test/unit_test/TestResult.cpp
         test/unit_test/TestServer.cpp
