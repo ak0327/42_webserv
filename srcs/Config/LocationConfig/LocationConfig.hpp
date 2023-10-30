@@ -62,7 +62,7 @@ class LocationConfig
 	public:
 		LocationConfig();
 		~LocationConfig();
-		LocationConfig &operator=(const LocationConfig &other);
+		LocationConfig& operator=(const LocationConfig &other);
 		bool get_autoindex() const;
 		bool get_chunked_transferencoding_allow() const;
 		bool set_field_header_field_value(const std::string &field_header,
