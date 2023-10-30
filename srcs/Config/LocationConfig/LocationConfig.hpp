@@ -62,6 +62,7 @@ class LocationConfig
 	public:
 		LocationConfig();
 		~LocationConfig();
+		LocationConfig(const LocationConfig &other);
 		LocationConfig& operator=(const LocationConfig &other);
 		bool get_autoindex() const;
 		bool get_chunked_transferencoding_allow() const;
