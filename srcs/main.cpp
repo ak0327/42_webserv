@@ -10,7 +10,6 @@ namespace {
 int CONFIG_FILE_INDEX = 1;
 int CONFIG_FILE_GIVEN_ARGC = 2;
 
-
 void validate_argc(int argc) {
 	const std::string INVALID_ARGUMENT_ERROR_MSG = "[Error] invalid argument";
 
@@ -26,7 +25,7 @@ void validate_argc(int argc) {
 
 int main(int argc, char **argv) {
 	std::string	config_file_path;
-	Config		config;  // todo
+	Config		config;
 
 	try {
 		validate_argc(argc);

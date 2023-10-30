@@ -5,8 +5,27 @@
 template <typename OkType, typename ErrType>
 class Result {
  public:
-	Result() : _is_ok(false), _ok_value(OkType()), _err_value(ErrType()) {}
+	Result()
+		: _is_ok(false),
+		 _ok_value(OkType()),
+		 _err_value(ErrType()) {}
+
+	Result(const Result& other)
+		: _is_ok(other._is_ok),
+		  _ok_value(other._ok_value),
+		  _err_value(other._err_value) {}
+
 	~Result() {}
+
+	Result &operator=(const Result &rhs) {
+		if (this == &rhs) {
+			return *this;
+		}
+		_is_ok = rhs._is_ok;
+		_ok_value = rhs._ok_value;
+		_err_value = rhs._err_value;
+		return *this;
+	}
 
 	static Result ok(const OkType &value) {
 		Result res;

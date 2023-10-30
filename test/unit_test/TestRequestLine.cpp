@@ -14,7 +14,7 @@ TEST(TestRequestLine, ResuestLineOK1) {
 	EXPECT_EQ("GET", request.get_method());
 	EXPECT_EQ("/index.html", request.get_request_target());
 	EXPECT_EQ("HTTP/1.1", request.get_http_version());
-	EXPECT_EQ(true, result.is_ok());
+	EXPECT_TRUE(result.is_ok());
 }
 
 TEST(TestRequestLine, ResuestLineOK2) {
@@ -26,7 +26,7 @@ TEST(TestRequestLine, ResuestLineOK2) {
 	EXPECT_EQ("POST", request.get_method());
 	EXPECT_EQ("/index.html", request.get_request_target());
 	EXPECT_EQ("HTTP/1.1", request.get_http_version());
-	EXPECT_EQ(true, result.is_ok());
+	EXPECT_TRUE(result.is_ok());
 }
 
 TEST(TestRequestLine, ResuestLineOK3) {
@@ -38,7 +38,7 @@ TEST(TestRequestLine, ResuestLineOK3) {
 	EXPECT_EQ("DELETE", request.get_method());
 	EXPECT_EQ("/index.html", request.get_request_target());
 	EXPECT_EQ("HTTP/1.1", request.get_http_version());
-	EXPECT_EQ(true, result.is_ok());
+	EXPECT_TRUE(result.is_ok());
 }
 
 TEST(TestRequestLine, ResuestLineOK4) {
@@ -50,7 +50,7 @@ TEST(TestRequestLine, ResuestLineOK4) {
 	EXPECT_EQ("GET", request.get_method());
 	EXPECT_EQ("/index.html", request.get_request_target());
 	EXPECT_EQ("HTTP/2.0", request.get_http_version());
-	EXPECT_EQ(true, result.is_ok());
+	EXPECT_TRUE(result.is_ok());
 }
 
 TEST(TestRequestLine, ResuestLineOK5) {
@@ -62,7 +62,7 @@ TEST(TestRequestLine, ResuestLineOK5) {
 	EXPECT_EQ("GET", request.get_method());
 	EXPECT_EQ("/index.html", request.get_request_target());
 	EXPECT_EQ("HTTP/3.0", request.get_http_version());
-	EXPECT_EQ(true, result.is_ok());
+	EXPECT_TRUE(result.is_ok());
 }
 
 
@@ -76,7 +76,7 @@ TEST(TestRequestLine, ResuestLineNG1) {
 	EXPECT_EQ("GET", request.get_method());
 	EXPECT_EQ("/index.html", request.get_request_target());
 	EXPECT_EQ("HTTP/1.1 ", request.get_http_version());  // todo: space
-	EXPECT_EQ(true, result.is_err());
+	EXPECT_TRUE(result.is_err());
 }
 
 TEST(TestRequestLine, ResuestLineNG2) {
@@ -88,7 +88,7 @@ TEST(TestRequestLine, ResuestLineNG2) {
 	EXPECT_EQ("GET", request.get_method());
 	EXPECT_EQ("/index.html", request.get_request_target());
 	EXPECT_EQ("", request.get_http_version());
-	EXPECT_EQ(true, result.is_err());
+	EXPECT_TRUE(result.is_err());
 }
 
 TEST(TestRequestLine, ResuestLineNG3) {
@@ -100,7 +100,7 @@ TEST(TestRequestLine, ResuestLineNG3) {
 	EXPECT_EQ("GET", request.get_method());
 	EXPECT_EQ("/index.html", request.get_request_target());
 	EXPECT_EQ("HTTP/1.1", request.get_http_version());
-	EXPECT_EQ(true, result.is_err());
+	EXPECT_TRUE(result.is_err());
 }
 
 TEST(TestRequestLine, ResuestLineNG4) {
@@ -112,7 +112,7 @@ TEST(TestRequestLine, ResuestLineNG4) {
 	EXPECT_EQ("", request.get_method());
 	EXPECT_EQ("", request.get_request_target());
 	EXPECT_EQ("", request.get_http_version());
-	EXPECT_EQ(true, result.is_err());
+	EXPECT_TRUE(result.is_err());
 }
 
 TEST(TestRequestLine, ResuestLineNG5) {
@@ -124,7 +124,7 @@ TEST(TestRequestLine, ResuestLineNG5) {
 	EXPECT_EQ("", request.get_method());
 	EXPECT_EQ("", request.get_request_target());
 	EXPECT_EQ("", request.get_http_version());
-	EXPECT_EQ(true, result.is_err());
+	EXPECT_TRUE(result.is_err());
 }
 
 TEST(TestRequestLine, ResuestLineNG6) {
@@ -136,7 +136,7 @@ TEST(TestRequestLine, ResuestLineNG6) {
 	EXPECT_EQ("", request.get_method());
 	EXPECT_EQ("", request.get_request_target());
 	EXPECT_EQ("", request.get_http_version());
-	EXPECT_EQ(true, result.is_err());
+	EXPECT_TRUE(result.is_err());
 }
 
 TEST(TestRequestLine, ResuestLineNG7) {
@@ -148,7 +148,7 @@ TEST(TestRequestLine, ResuestLineNG7) {
 	EXPECT_EQ("get", request.get_method());
 	EXPECT_EQ("/index.html", request.get_request_target());
 	EXPECT_EQ("HTTP/1.1", request.get_http_version());
-	EXPECT_EQ(true, result.is_err());
+	EXPECT_TRUE(result.is_err());
 }
 
 TEST(TestRequestLine, ResuestLineNG8) {
@@ -160,7 +160,7 @@ TEST(TestRequestLine, ResuestLineNG8) {
 	EXPECT_EQ("delete", request.get_method());
 	EXPECT_EQ("/index.html", request.get_request_target());
 	EXPECT_EQ("HTTP/1.1", request.get_http_version());
-	EXPECT_EQ(true, result.is_err());
+	EXPECT_TRUE(result.is_err());
 }
 
 TEST(TestRequestLine, ResuestLineNG9) {
@@ -172,7 +172,7 @@ TEST(TestRequestLine, ResuestLineNG9) {
 	EXPECT_EQ("GET", request.get_method());
 	EXPECT_EQ("/index.html", request.get_request_target());
 	EXPECT_EQ("HTTP/1.0", request.get_http_version());
-	EXPECT_EQ(true, result.is_err());
+	EXPECT_TRUE(result.is_err());
 }
 
 TEST(TestRequestLine, ResuestLineNG10) {
@@ -184,7 +184,7 @@ TEST(TestRequestLine, ResuestLineNG10) {
 	EXPECT_EQ("GET", request.get_method());
 	EXPECT_EQ("/index.html", request.get_request_target());
 	EXPECT_EQ("HTTP/1.12", request.get_http_version());
-	EXPECT_EQ(true, result.is_err());
+	EXPECT_TRUE(result.is_err());
 }
 
 TEST(TestRequestLine, ResuestLineNG11) {
@@ -196,7 +196,7 @@ TEST(TestRequestLine, ResuestLineNG11) {
 	EXPECT_EQ("GET", request.get_method());
 	EXPECT_EQ("/index.html", request.get_request_target());
 	EXPECT_EQ("http/1.1", request.get_http_version());
-	EXPECT_EQ(true, result.is_err());
+	EXPECT_TRUE(result.is_err());
 }
 
 TEST(TestRequestLine, ResuestLineNG12) {
@@ -208,7 +208,7 @@ TEST(TestRequestLine, ResuestLineNG12) {
 	EXPECT_EQ("GET", request.get_method());
 	EXPECT_EQ("\n/index.html", request.get_request_target());
 	EXPECT_EQ("HTTP/1.1", request.get_http_version());
-	EXPECT_EQ(true, result.is_err());
+	EXPECT_TRUE(result.is_err());
 }
 
 TEST(TestRequestLine, ResuestLineNG13) {
@@ -220,7 +220,7 @@ TEST(TestRequestLine, ResuestLineNG13) {
 	EXPECT_EQ("GET", request.get_method());
 	EXPECT_EQ("", request.get_request_target());
 	EXPECT_EQ("", request.get_http_version());
-	EXPECT_EQ(true, result.is_err());
+	EXPECT_TRUE(result.is_err());
 }
 
 TEST(TestRequestLine, ResuestLineNG14) {
@@ -232,7 +232,7 @@ TEST(TestRequestLine, ResuestLineNG14) {
 	EXPECT_EQ("HEAD", request.get_method());
 	EXPECT_EQ("/index.html", request.get_request_target());
 	EXPECT_EQ("HTTP/1.1", request.get_http_version());
-	EXPECT_EQ(true, result.is_err());
+	EXPECT_TRUE(result.is_err());
 }
 
 TEST(TestRequestLine, ResuestLineNG15) {
@@ -244,7 +244,7 @@ TEST(TestRequestLine, ResuestLineNG15) {
 	EXPECT_EQ("OPTIONS", request.get_method());
 	EXPECT_EQ("/index.html", request.get_request_target());
 	EXPECT_EQ("HTTP/1.1", request.get_http_version());
-	EXPECT_EQ(true, result.is_err());
+	EXPECT_TRUE(result.is_err());
 }
 
 TEST(TestRequestLine, ResuestLineNG16) {
@@ -256,7 +256,7 @@ TEST(TestRequestLine, ResuestLineNG16) {
 	EXPECT_EQ("PUT", request.get_method());
 	EXPECT_EQ("/index.html", request.get_request_target());
 	EXPECT_EQ("HTTP/1.1", request.get_http_version());
-	EXPECT_EQ(true, result.is_err());
+	EXPECT_TRUE(result.is_err());
 }
 
 TEST(TestRequestLine, ResuestLineNG17) {
@@ -268,7 +268,7 @@ TEST(TestRequestLine, ResuestLineNG17) {
 	EXPECT_EQ("TRACE", request.get_method());
 	EXPECT_EQ("/index.html", request.get_request_target());
 	EXPECT_EQ("HTTP/1.1", request.get_http_version());
-	EXPECT_EQ(true, result.is_err());
+	EXPECT_TRUE(result.is_err());
 }
 
 TEST(TestRequestLine, ResuestLineNG18) {
@@ -280,5 +280,5 @@ TEST(TestRequestLine, ResuestLineNG18) {
 	EXPECT_EQ("CONNECT", request.get_method());
 	EXPECT_EQ("/index.html", request.get_request_target());
 	EXPECT_EQ("HTTP/1.1", request.get_http_version());
-	EXPECT_EQ(true, result.is_err());
+	EXPECT_TRUE(result.is_err());
 }

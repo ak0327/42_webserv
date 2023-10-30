@@ -52,7 +52,7 @@ TEST(SocketUnitTest, ConstructorWithArgument) {
 
 	Socket socket = Socket(config);
 
-	EXPECT_EQ(true, socket.is_socket_success());
+	EXPECT_TRUE(socket.is_socket_success());
 
 }
 
@@ -69,9 +69,9 @@ TEST(SocketUnitTest, ConstructorWithValidServerIP) {
 	config.set_ip("000.0000.00000.000000"); config.set_port(std::to_string(port++));
 	Socket socket3 = Socket(config);
 
-	EXPECT_EQ(true, socket1.is_socket_success());
-	EXPECT_EQ(true, socket2.is_socket_success());
-	EXPECT_EQ(true, socket3.is_socket_success());
+	EXPECT_TRUE(socket1.is_socket_success());
+	EXPECT_TRUE(socket2.is_socket_success());
+	EXPECT_TRUE(socket3.is_socket_success());
 
 }
 
@@ -119,19 +119,19 @@ TEST(SocketUnitTest, ConstructorWithInvalidServerIP) {
 	// config.set_ip("255.255.255.255"); config.set_port(std::to_string(port++));
 	// Socket socket13 = Socket("255.255.255.255", std::to_string(port++).c_str());  // Linux OK, todo:error?
 
-	EXPECT_EQ(false, socket1.is_socket_success());
-	EXPECT_EQ(false, socket2.is_socket_success());
-	EXPECT_EQ(false, socket3.is_socket_success());
-	EXPECT_EQ(false, socket4.is_socket_success());
-	EXPECT_EQ(false, socket5.is_socket_success());
-	EXPECT_EQ(false, socket6.is_socket_success());
-	EXPECT_EQ(false, socket7.is_socket_success());
-	EXPECT_EQ(false, socket8.is_socket_success());
-	// EXPECT_EQ(false, socket9.is_socket_success());
-	EXPECT_EQ(false, socket10.is_socket_success());
-	EXPECT_EQ(false, socket11.is_socket_success());
-	EXPECT_EQ(false, socket12.is_socket_success());
-	// EXPECT_EQ(false, socket13.is_socket_success());
+	EXPECT_FALSE(socket1.is_socket_success());
+	EXPECT_FALSE(socket2.is_socket_success());
+	EXPECT_FALSE(socket3.is_socket_success());
+	EXPECT_FALSE(socket4.is_socket_success());
+	EXPECT_FALSE(socket5.is_socket_success());
+	EXPECT_FALSE(socket6.is_socket_success());
+	EXPECT_FALSE(socket7.is_socket_success());
+	EXPECT_FALSE(socket8.is_socket_success());
+	// EXPECT_FALSE(socket9.is_socket_success());
+	EXPECT_FALSE(socket10.is_socket_success());
+	EXPECT_FALSE(socket11.is_socket_success());
+	EXPECT_FALSE(socket12.is_socket_success());
+	// EXPECT_FALSE(socket13.is_socket_success());
 }
 
 TEST(SocketUnitTest, ConstructorWithValidServerPort) {
@@ -149,10 +149,10 @@ TEST(SocketUnitTest, ConstructorWithValidServerPort) {
 	config.set_ip(SERVER_IP); config.set_port("65535");
 	Socket socket4 = Socket(config);
 
-	EXPECT_EQ(true, socket1.is_socket_success());
-	EXPECT_EQ(true, socket2.is_socket_success());
-	EXPECT_EQ(true, socket3.is_socket_success());
-	EXPECT_EQ(true, socket4.is_socket_success());
+	EXPECT_TRUE(socket1.is_socket_success());
+	EXPECT_TRUE(socket2.is_socket_success());
+	EXPECT_TRUE(socket3.is_socket_success());
+	EXPECT_TRUE(socket4.is_socket_success());
 }
 
 TEST(SocketUnitTest, ConstructorWithInvalidServerPort) {
@@ -176,12 +176,12 @@ TEST(SocketUnitTest, ConstructorWithInvalidServerPort) {
 	config.set_ip(SERVER_IP); config.set_port("127.1");
 	Socket socket6 = Socket(config);
 
-	EXPECT_EQ(false, socket1.is_socket_success());
-//	EXPECT_EQ(false, socket2.is_socket_success());
-	// EXPECT_EQ(false, socket3.is_socket_success());
-	EXPECT_EQ(false, socket4.is_socket_success());
-	EXPECT_EQ(false, socket5.is_socket_success());
-	EXPECT_EQ(false, socket6.is_socket_success());
+	EXPECT_FALSE(socket1.is_socket_success());
+//	EXPECT_FALSE(socket2.is_socket_success());
+	// EXPECT_FALSE(socket3.is_socket_success());
+	EXPECT_FALSE(socket4.is_socket_success());
+	EXPECT_FALSE(socket5.is_socket_success());
+	EXPECT_FALSE(socket6.is_socket_success());
 }
 
 TEST(SocketUnitTest, Getter) {
@@ -190,7 +190,7 @@ TEST(SocketUnitTest, Getter) {
 
 	Socket socket = Socket(config);
 
-	EXPECT_EQ(false, socket.is_socket_success());
+	EXPECT_FALSE(socket.is_socket_success());
 	EXPECT_EQ(INIT_FD, socket.get_socket_fd());
 }
 
@@ -207,7 +207,7 @@ TEST(SocketIntegrationTest, ConnectToClient) {
 		struct sockaddr_in addr = {};
 		int client_fd;
 
-		EXPECT_EQ(true, server.is_socket_success());
+		EXPECT_TRUE(server.is_socket_success());
 		EXPECT_NE(INIT_FD, server.get_socket_fd());
 
 		client_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -229,7 +229,7 @@ TEST(SocketIntegrationTest, ConnectOverSomaxconClient) {
 		int client_fd;
 		struct sockaddr_in addr = {};
 
-		EXPECT_EQ(true, server.is_socket_success());
+		EXPECT_TRUE(server.is_socket_success());
 		EXPECT_NE(INIT_FD, server.get_socket_fd());
 
 		/* connect under SOMAXCONN */
