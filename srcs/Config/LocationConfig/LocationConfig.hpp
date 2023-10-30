@@ -63,34 +63,33 @@ class LocationConfig
 		LocationConfig();
 		~LocationConfig();
 		LocationConfig &operator=(const LocationConfig &other);
-		bool get_autoindex();
-		bool get_chunked_transferencoding_allow();
+		bool get_autoindex() const;
+		bool get_chunked_transferencoding_allow() const;
 		bool set_field_header_field_value(const std::string &field_header,
 										  const std::string &field_value);
 
-		int get_server_tokens();
+		int get_server_tokens() const;
 
-		size_t get_client_body_buffer_size();
-		size_t get_client_body_timeout();
-		size_t get_client_header_buffer_size();
-		size_t get_client_header_timeout();
-		size_t get_client_max_body_size();
-		size_t get_keepalive_requests();
-		size_t get_keepalive_timeout();
+		size_t get_client_body_buffer_size() const;
+		size_t get_client_body_timeout() const;
+		size_t get_client_header_buffer_size() const;
+		size_t get_client_header_timeout() const;
+		size_t get_client_max_body_size() const;
+		size_t get_keepalive_requests() const;
+		size_t get_keepalive_timeout() const;
 
-		std::string get_alias();
-		std::string get_accesslog();
-		std::string get_cgi_path();
-		std::string get_default_type();
-		std::string get_errorlog();
-		std::string get_upload_path();
-		std::string get_root();
+		std::string get_alias() const;
+		std::string get_accesslog() const;
+		std::string get_cgi_path() const;
+		std::string get_default_type() const;
+		std::string get_errorlog() const;
+		std::string get_upload_path() const;
+		std::string get_root() const;
 
-		std::vector<std::string> get_allow_methods();
-		std::vector<std::string> get_index();
-		std::vector<std::string> get_server_name();
-		std::vector<std::string> get_errorpages();  // 修正したい
-
+		std::vector<std::string> get_allow_methods() const;
+		std::vector<std::string> get_index() const;
+		std::vector<std::string> get_server_name() const;
+		std::vector<std::string> get_errorpages() const;  // 修正したい
 
 		void set_autoindex(const bool &autoindex);
 		void set_chunked_transferencoding_allow(const bool &chunked_transferencoding_allow);

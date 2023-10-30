@@ -108,14 +108,15 @@ std::vector<std::string> ConfigHandlingString::ready_string_vector_field_value(c
 	std::string value_splitted_by_empty;   // todo: unused -> rm
 	size_t value_start_pos = 0;
 	size_t value_end_pos = 0;
+	std::string	skip_ows_field_value = HandlingString::obtain_without_ows_value(field_value);
 
-	while (field_value[value_start_pos] != '\0')
+	while (skip_ows_field_value[value_start_pos] != '\0')
 	{
-		HandlingString::skip_no_ows(field_value, &value_end_pos);
-		value = field_value.substr(value_start_pos, value_end_pos - value_start_pos);
+		HandlingString::skip_no_ows(skip_ows_field_value, &value_end_pos);
+		value = skip_ows_field_value.substr(value_start_pos, value_end_pos - value_start_pos);
 		if (std::count(ret_vector.begin(), ret_vector.end(), value) == 0)
 			ret_vector.push_back(value);
-		HandlingString::skip_ows(field_value, &value_end_pos);
+		HandlingString::skip_ows(skip_ows_field_value, &value_end_pos);
 		value_start_pos = value_end_pos;
 	}
 	return (ret_vector);

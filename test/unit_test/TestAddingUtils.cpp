@@ -41,11 +41,47 @@ TEST(UtilsTest, IsBlockEnd) {
 
 TEST(UtilsTest, IsFieldHeader) {
 	// todo
+	// TRUE
+	size_t pos = 0;
+	EXPECT_EQ(OK, ConfigHandlingString::is_field_header("aaa aaa;", &pos));
+	pos = 0;
+	EXPECT_EQ(OK, ConfigHandlingString::is_field_header("aaa a;", &pos));
+	pos = 0;
+	EXPECT_EQ(OK, ConfigHandlingString::is_field_header("a aa", &pos));
+	pos = 0;
+	EXPECT_EQ(OK, ConfigHandlingString::is_field_header("aa a a a a", &pos));
+
+	// FALSE
+	pos = 0;
+	EXPECT_NE(OK, ConfigHandlingString::is_field_header("", &pos));
+	pos = 0;
+	EXPECT_NE(OK, ConfigHandlingString::is_field_header("aaa;", &pos));
+	pos = 0;
+	EXPECT_NE(OK, ConfigHandlingString::is_field_header(" ", &pos));
 }
 
 
 TEST(UtilsTest, IsFieldValue) {
 	// todo
+	// TRUE
+	size_t pos = 0;
+	EXPECT_EQ(OK, ConfigHandlingString::is_field_value("aaa;", &pos));
+	pos = 0;
+	EXPECT_EQ(OK, ConfigHandlingString::is_field_value("a;", &pos));
+	pos = 0;
+	EXPECT_EQ(OK, ConfigHandlingString::is_field_value("aa aa;", &pos));
+
+	// FALSE
+	pos = 0;
+	EXPECT_NE(OK, ConfigHandlingString::is_field_value("aa", &pos));
+	pos = 0;
+	EXPECT_NE(OK, ConfigHandlingString::is_field_value("a a", &pos));
+	pos = 0;
+	EXPECT_NE(OK, ConfigHandlingString::is_field_value(";;", &pos));
+	pos = 0;
+	EXPECT_NE(OK, ConfigHandlingString::is_field_value("aa aa ;", &pos));
+	pos = 0;
+	EXPECT_NE(OK, ConfigHandlingString::is_field_value("aa aa; ;", &pos));
 }
 
 TEST(UtilsTest, ReadyStringVectorFieldValue) {

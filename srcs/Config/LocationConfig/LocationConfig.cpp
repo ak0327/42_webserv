@@ -6,6 +6,8 @@ LocationConfig::LocationConfig() {
 
 LocationConfig& LocationConfig::operator=(const LocationConfig &other)
 {
+	if (this == &other)
+		return (*this);
 	this->_autoindex = other.get_autoindex();
 	this->_chunked_transferencoding_allow = other.get_chunked_transferencoding_allow();
 	this->_server_tokens = other.get_server_tokens();
@@ -27,6 +29,7 @@ LocationConfig& LocationConfig::operator=(const LocationConfig &other)
 	this->_index = other.get_index();
 	this->_server_name = other.get_server_name();
 	this->_errorpages = other.get_errorpages();
+	return (*this);
 }
 
 LocationConfig::~LocationConfig(){}
@@ -138,28 +141,28 @@ bool LocationConfig::set_field_header_field_value(const std::string &field_heade
 	return (true);
 }
 
-bool	LocationConfig::get_autoindex() { return (this->_autoindex); }
-bool	LocationConfig::get_chunked_transferencoding_allow() { return (this->_chunked_transferencoding_allow); }
-int		LocationConfig::get_server_tokens() { return (this->_server_tokens); }
-size_t	LocationConfig::get_client_body_buffer_size() { return (this->_client_body_buffer_size); }
-size_t	LocationConfig::get_client_body_timeout() { return (this->_client_body_timeout); }
-size_t	LocationConfig::get_client_header_buffer_size() { return (this->_client_header_buffer_size); }
-size_t	LocationConfig::get_client_header_timeout() { return (this->_client_header_timeout); }
-size_t	LocationConfig::get_client_max_body_size() { return (this->_client_max_body_size); }
-size_t	LocationConfig::get_keepalive_requests() { return (this->_keepalive_requests); }
-size_t	LocationConfig::get_keepalive_timeout() { return (this->_keepalive_timeout); }
-std::string	LocationConfig::get_alias() { return (this->_alias); }
+bool	LocationConfig::get_autoindex() const { return (this->_autoindex); }
+bool	LocationConfig::get_chunked_transferencoding_allow() const { return (this->_chunked_transferencoding_allow); }
+int		LocationConfig::get_server_tokens() const { return (this->_server_tokens); }
+size_t	LocationConfig::get_client_body_buffer_size() const { return (this->_client_body_buffer_size); }
+size_t	LocationConfig::get_client_body_timeout() const { return (this->_client_body_timeout); }
+size_t	LocationConfig::get_client_header_buffer_size() const { return (this->_client_header_buffer_size); }
+size_t	LocationConfig::get_client_header_timeout() const { return (this->_client_header_timeout); }
+size_t	LocationConfig::get_client_max_body_size() const { return (this->_client_max_body_size); }
+size_t	LocationConfig::get_keepalive_requests() const { return (this->_keepalive_requests); }
+size_t	LocationConfig::get_keepalive_timeout() const { return (this->_keepalive_timeout); }
+std::string	LocationConfig::get_alias() const { return (this->_alias); }
 // error_page		LocationConfig::get	_errorpage_set;//これめっちゃおかしい使い方できる　error_page 403 404 500 503 =404 /custom_404.html;
-std::string	LocationConfig::get_accesslog() { return (this->_accesslog); }
-std::string	LocationConfig::get_cgi_path() { return (this->_cgi_path); }
-std::string	LocationConfig::get_default_type() { return (this->_default_type); }
-std::string	LocationConfig::get_errorlog() { return (this->_errorlog); }
-std::string	LocationConfig::get_upload_path() { return (this->_upload_path); }
-std::string	LocationConfig::get_root() { return (this->_root); }
-std::vector<std::string> LocationConfig::get_allow_methods() { return (this->_allow_methods); }
-std::vector<std::string> LocationConfig::get_index() { return (this->_index); }
-std::vector<std::string> LocationConfig::get_server_name() { return (this->_server_name); }
-std::vector<std::string> LocationConfig::get_errorpages() { return (this->_errorpages); }
+std::string	LocationConfig::get_accesslog() const { return (this->_accesslog); }
+std::string	LocationConfig::get_cgi_path() const { return (this->_cgi_path); }
+std::string	LocationConfig::get_default_type() const { return (this->_default_type); }
+std::string	LocationConfig::get_errorlog() const { return (this->_errorlog); }
+std::string	LocationConfig::get_upload_path() const { return (this->_upload_path); }
+std::string	LocationConfig::get_root() const { return (this->_root); }
+std::vector<std::string> LocationConfig::get_allow_methods() const { return (this->_allow_methods); }
+std::vector<std::string> LocationConfig::get_index() const { return (this->_index); }
+std::vector<std::string> LocationConfig::get_server_name() const { return (this->_server_name); }
+std::vector<std::string> LocationConfig::get_errorpages() const { return (this->_errorpages); }
 
 void LocationConfig::set_autoindex(const bool &autoindex) { this->_autoindex = autoindex; }
 void LocationConfig::set_chunked_transferencoding_allow(const bool &chunked_transferencoding_allow)

@@ -178,9 +178,9 @@ bool Config::ready_location_config(const std::string &config_file_name,
 
 		if (!in_server_block && !in_location_block)
 		{
-			IsConfigFormat::is_start_server_block(config_line, &in_server_block);  // todo: check return value??
-			if (in_server_block)
-				init_location_config_with_server_config(&location_config, *server_name_itr, &in_server_block);
+			// int result = IsConfigFormat::is_start_server_block(config_line, &in_server_block);  // todo: check return value??
+			in_server_block = true;
+			init_location_config_with_server_config(&location_config, *server_name_itr, &in_server_block);
 			continue;
 		}
 		if (in_server_block && !in_location_block)
