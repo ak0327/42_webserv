@@ -10,18 +10,17 @@
 #include <stdexcept>
 #include "webserv.hpp"
 #include "Color.hpp"
+#include "Constant.hpp"
 #include "Client.hpp"
 #include "Debug.hpp"
 
 namespace {
 
-const int ERROR = -1;
-
 int create_connect_socket() {
 	int connect_fd;
 	errno = 0;
 	connect_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (connect_fd == ERROR) {
+	if (connect_fd == ERR) {
 		std::string err_str = "[Client Error] socket: " + std::string(strerror(errno));
 		throw std::runtime_error(RED + err_str + RESET);
 	}
@@ -43,7 +42,7 @@ void connect_to_server(int connect_fd, struct sockaddr_in addr) {
 	socklen_t len = sizeof(addr);
 
 	errno = 0;
-	if (connect(connect_fd, (struct sockaddr *)&addr, len) == ERROR) {
+	if (connect(connect_fd, (struct sockaddr *)&addr, len) == ERR) {
 		std::string err_str = "[Client Error] connect: " + std::string(strerror(errno));
 		throw std::runtime_error(RED + err_str + RESET);
 	}
@@ -56,7 +55,7 @@ void send_to_server(int connect_fd, const std::string &send_msg) {
 
 	errno = 0;
 	send_size = send(connect_fd, msg, msg_len, MSG_DONTWAIT);
-	if (send_size == ERROR) {
+	if (send_size == SEND_ERROR) {
 		std::string err_str = "[Client Error] send: " + std::string(strerror(errno));
 		throw std::runtime_error(RED + err_str + RESET);
 	}
@@ -70,7 +69,7 @@ std::string recv_message_from_server(int connect_fd) {
 	while (true) {
 		errno = 0;
 		recv_size = recv(connect_fd, buf, BUFSIZ, 0);
-		if (recv_size == ERROR) {
+		if (recv_size == RECV_ERROR) {
 			std::string err_str = "[Client Error] recv: " + std::string(strerror(errno));
 			throw std::runtime_error(RED + err_str + RESET);
 		}
@@ -94,12 +93,12 @@ Client::Client(const char *server_ip, const char *server_port) {
 }
 
 Client::~Client() {
-	if (_connect_fd != ERROR) {
+	if (_connect_fd != ERR) {
 		errno = 0;
-		if (close(_connect_fd) == ERROR) {
+		if (close(_connect_fd) == ERR) {
 			std::cerr << RED "[Client Error] close: " << strerror(errno) << RESET << std::endl;
 		}
-		_connect_fd = ERROR;
+		_connect_fd = ERR;
 	}
 }
 

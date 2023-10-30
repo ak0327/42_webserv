@@ -1,5 +1,6 @@
 #pragma once
 
+# include <sys/types.h>
 # include <string>
 # include <vector>
 
@@ -9,10 +10,26 @@
 extern const int OK;
 extern const int ERR;
 
+extern const int GETADDRINFO_SUCCESS;
+
+extern const int ACCEPT_ERROR;
+extern const int BIND_ERROR;
+extern const int CLOSE_ERROR;
+extern const int FCNTL_ERROR;
+extern const int LISTEN_ERROR;
+extern const int SETSOCKOPT_ERROR;
+extern const int SOCKET_ERROR;
+extern const int STAT_ERROR;
+
+extern const ssize_t RECV_ERROR;
+extern const ssize_t SEND_ERROR;
+
 ////////////////////////////////////////////////////////////////////////////////
 /* initial value */
 
 extern const int COUNTER_INIT;
+extern const int INIT_FD;
+
 extern const double WEIGHT_INIT;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -21,6 +38,9 @@ extern const double WEIGHT_INIT;
 extern const int SINGLE_OCCURRENCE_LIMIT;
 extern const int PORT_MIN;
 extern const int PORT_MAX;
+
+extern const int IO_TIMEOUT;
+extern const int FLAG_NONE;
 
 ////////////////////////////////////////////////////////////////////////////////
 /* status */
@@ -40,11 +60,20 @@ extern const char SEMICOLON;
 extern const char SINGLE_QUOTE;
 extern const char SLASH;
 
+extern const char PATH_DELIM;
+extern const char EXTENSION_DELIM;
+
 extern const char ELEMENT_SEPARATOR;
 
 extern const char EMPTY[];
 extern const char TIMEOUT[];
 
+extern const char CONFIG_FILE_EXTENSION[];
+
+////////////////////////////////////////////////////////////////////////////////
+/* error message */
+
+extern const char INVALID_PATH_ERROR_MSG[];
 
 ////////////////////////////////////////////////////////////////////////////////
 /* http message */

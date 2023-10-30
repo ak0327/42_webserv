@@ -6,22 +6,11 @@
 #include <cstring>
 #include <iostream>
 #include <string>
+#include "Constant.hpp"
 #include "Error.hpp"
 #include "Socket.hpp"
 
 namespace {
-
-int INIT_FD = -1;
-
-int OK = 0;
-int GETADDRINFO_SUCCESS = 0;
-
-int BIND_ERROR = -1;
-int CLOSE_ERROR = -1;
-int FCNTL_ERROR = -1;
-int LISTEN_ERROR = -1;
-int SETSOCKOPT_ERROR = -1;
-int SOCKET_ERROR = -1;
 
 void set_hints(struct addrinfo *hints) {
 	hints->ai_socktype = SOCK_STREAM;

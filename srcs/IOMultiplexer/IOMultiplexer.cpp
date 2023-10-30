@@ -18,13 +18,12 @@
 
 namespace {
 
-int INIT_SIZE = 1;
-int EPOLL_TIMEOUT = 0;
-int IO_TIMEOUT = -1;
-int TIMEOUT_MS = 2500;
-int INIT_FD = -1;
+const int EPOLL_TIMEOUT = 0;
+const int EPOLL_ERROR = -1;
 
-int ERROR = -1;
+const int INIT_SIZE = 1;
+
+const int TIMEOUT_MS = 2500;
 
 }  // namespace
 
@@ -37,7 +36,7 @@ EPollMultiplexer::EPollMultiplexer(int socket_fd)
 	  _new_event() {
 	errno = 0;
 	this->_epoll_fd = epoll_create(INIT_SIZE);
-	if (this->_epoll_fd == ERROR) {
+	if (this->_epoll_fd == EPOLL_ERROR) {
 		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
 		throw std::runtime_error("[Server Error] epoll_create:" + err_info);
 	}
@@ -53,7 +52,7 @@ EPollMultiplexer::EPollMultiplexer(int socket_fd)
 
 EPollMultiplexer::~EPollMultiplexer() {
 	errno = 0;
-	if (close(this->_epoll_fd) == ERROR) {
+	if (close(this->_epoll_fd) == CLOSE_ERROR) {
 		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
 		std::cerr << "[Server Error] close:" << err_info << std::endl;
 	}
@@ -83,7 +82,7 @@ Result<int, std::string> EPollMultiplexer::register_connect_fd(int connect_fd) {
 	this->_ev.events = EPOLLIN;
 	this->_ev.data.fd = connect_fd;
 	errno = 0;
-	if (epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, connect_fd, &this->_ev) == ERROR) {
+	if (epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, connect_fd, &this->_ev) == EPOLL_ERROR) {
 		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
 		return Result<int, std::string>::err("[Server Error] epoll_ctl:" + err_info);
 	}
@@ -92,7 +91,7 @@ Result<int, std::string> EPollMultiplexer::register_connect_fd(int connect_fd) {
 
 Result<int, std::string> EPollMultiplexer::clear_fd(int clear_fd) {
 	errno = 0;
-	if (epoll_ctl(this->_epoll_fd, EPOLL_CTL_DEL, clear_fd, NULL) == ERROR) {
+	if (epoll_ctl(this->_epoll_fd, EPOLL_CTL_DEL, clear_fd, NULL) == EPOLL_ERROR) {
 		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
 		return Result<int, std::string>::err("[Server Error] epoll_ctl:" + err_info);
 	}
@@ -103,19 +102,19 @@ Result<int, std::string> EPollMultiplexer::clear_fd(int clear_fd) {
 
 namespace {
 
+const int KQUEUE_ERROR = -1;
+const int KEVENT_ERROR = -1;
+
+const int EVENT_COUNT = 1;
 const int KEVENT_TIMEOUT = 0;
 const int INIT_KQ = -1;
-const int EVENT_COUNT = 1;
-const int IO_TIMEOUT = -1;
-
-const int ERROR = -1;
 
 Result<int, std::string> init_kqueue() {
 	int kq;
 
 	errno = 0;
 	kq = kqueue();
-	if (kq == ERROR) {
+	if (kq == KQUEUE_ERROR) {
 		return Result<int, std::string>::err(strerror(errno));
 	}
 	return Result<int, std::string>::ok(kq);
@@ -123,7 +122,7 @@ Result<int, std::string> init_kqueue() {
 
 Result<int, std::string> kevent_register(int kq, struct kevent *change_event) {
 	errno = 0;
-	if (kevent(kq, change_event, EVENT_COUNT, NULL, 0, NULL) == ERROR) {
+	if (kevent(kq, change_event, EVENT_COUNT, NULL, 0, NULL) == KEVENT_ERROR) {
 		return Result<int, std::string>::err(strerror(errno));
 	}
 	return Result<int, std::string>::ok(OK);
@@ -138,7 +137,7 @@ Result<int, std::string> kevent_wait(int kq, struct kevent *new_event) {
 
 	errno = 0;
 	events = kevent(kq, NULL, 0, new_event, EVENT_COUNT, &timeout);
-	if (events == ERROR) {
+	if (events == KEVENT_ERROR) {
 		return Result<int, std::string>::err(strerror(errno));
 	}
 	return Result<int, std::string>::ok(events);
@@ -221,7 +220,7 @@ Result<int, std::string> KqueueMultiplexer::clear_fd(int clear_fd) {
 		err_str = "kevent:" + err_info;
 	}
 	errno = 0;
-	if (close(clear_fd) == ERROR) {
+	if (close(clear_fd) == CLOSE_ERROR) {
 		if (!err_str.empty()) {
 			err_str += " ,";
 		}
@@ -238,12 +237,10 @@ Result<int, std::string> KqueueMultiplexer::clear_fd(int clear_fd) {
 
 namespace {
 
-const int INIT_FD = -1;
-const int MAX_SESSION = 128;
-const int SELECT_TIMEOUT = 0;
-const int IO_TIMEOUT = -1;
+const int SELECT_ERROR = -1;
 
-int ERROR = -1;
+const int SELECT_TIMEOUT = 0;
+const int MAX_SESSION = 128;
 
 fd_set init_fds(int socket_fd, const std::vector<int> &connect_fds) {
 	fd_set fds;
@@ -278,7 +275,7 @@ Result<int, std::string> select_fds(int max_fd, fd_set *fds) {
 
 	errno = 0;
 	select_ret = select(max_fd + 1, fds, NULL, NULL, &timeout);
-	if (select_ret == ERROR) {
+	if (select_ret == SELECT_ERROR) {
 		return Result<int, std::string>::err(strerror(errno));
 	}
 	return Result<int, std::string>::ok(select_ret);
@@ -301,7 +298,7 @@ Result<int, int> get_ready_fd(const std::vector<int> &connect_fds,
 		}
 		return Result<int, int>::ok(*fd);
 	}
-	return Result<int, int>::err(ERROR);
+	return Result<int, int>::err(ERR);
 }
 
 }  // namespace
@@ -322,7 +319,7 @@ SelectMultiplexer::~SelectMultiplexer() {
 			continue;
 		}
 		errno = 0;
-		if (close(this->_connect_fds[i]) == ERROR) {
+		if (close(this->_connect_fds[i]) == CLOSE_ERROR) {
 			std::string err_info = create_error_info(errno, __FILE__, __LINE__);
 			std::cerr << "[Error] close:" << err_info << std::endl;
 		}
@@ -365,7 +362,7 @@ Result<int, std::string> SelectMultiplexer::clear_fd(int clear_fd) {
 
 	FD_CLR(*fd, &this->_fds);
 	errno = 0;
-	if (close(*fd) == ERROR) {
+	if (close(*fd) == CLOSE_ERROR) {
 		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
 		return Result<int, std::string>::err("close:" + err_info);
 	}

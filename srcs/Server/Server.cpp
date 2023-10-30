@@ -9,6 +9,7 @@
 #include <iostream>
 #include "webserv.hpp"
 #include "Color.hpp"
+#include "Constant.hpp"
 #include "Debug.hpp"
 #include "Error.hpp"
 #include "IOMultiplexer.hpp"
@@ -16,14 +17,6 @@
 #include "Server.hpp"
 
 namespace {
-
-const int ACCEPT_ERROR = -1;
-const int CLOSE_ERROR = -1;
-const int RECV_ERROR = -1;
-const int SEND_ERROR = -1;
-
-const int FLAG_NONE = 0;
-const int IO_TIMEOUT = -1;
 
 Result<int, std::string> accept_connection(int socket_fd) {
 	int connect_fd;

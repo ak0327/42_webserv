@@ -5,15 +5,11 @@
 #include <string>
 #include <vector>
 #include "gtest/gtest.h"
-#include "Socket.hpp"
 #include "Color.hpp"
+#include "Constant.hpp"
+#include "Socket.hpp"
 
 namespace {
-
-int INIT_FD = -1;
-
-int SUCCESS = 0;
-int ERROR = -1;
 
 const char *SERVER_IP = "127.0.0.1";
 const char *SERVER_PORT = "8080";
@@ -33,12 +29,12 @@ int create_nonblock_client_fd() {
 
 	client_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (client_fd == INIT_FD) {
-		return ERROR;
+		return ERR;
 	}
 	result_fcntl = fcntl(client_fd, F_SETFL, O_NONBLOCK);
-	if (result_fcntl == ERROR) {
+	if (result_fcntl == ERR) {
 		close(client_fd);
-		return ERROR;
+		return ERR;
 	}
 	return client_fd;
 }
@@ -150,7 +146,7 @@ TEST(SocketIntegrationTest, ConnectToClient) {
 
 		client_fd = socket(AF_INET, SOCK_STREAM, 0);
 		addr = create_addr();
-		EXPECT_EQ(SUCCESS, connect(client_fd, (struct sockaddr *)&addr, sizeof(addr)));
+		EXPECT_EQ(OK, connect(client_fd, (struct sockaddr *)&addr, sizeof(addr)));
 
 		close(client_fd);
 	} catch (std::exception const &e) {
@@ -179,7 +175,7 @@ TEST(SocketIntegrationTest, ConnectOverSomaxconClient) {
 				client_fds.push_back(client_fd);
 				addr = create_addr();
 
-				EXPECT_EQ(SUCCESS, connect(client_fd, (struct sockaddr *)&addr, sizeof(addr)));
+				EXPECT_EQ(OK, connect(client_fd, (struct sockaddr *)&addr, sizeof(addr)));
 			}
 		}
 
@@ -193,7 +189,7 @@ TEST(SocketIntegrationTest, ConnectOverSomaxconClient) {
 			client_fds.push_back(client_fd);
 			addr = create_addr();
 
-			EXPECT_EQ(ERROR, connect(client_fd, (struct sockaddr *)&addr, sizeof(addr)));
+			EXPECT_EQ(ERR, connect(client_fd, (struct sockaddr *)&addr, sizeof(addr)));
 		}
 
 		/* destruct */
