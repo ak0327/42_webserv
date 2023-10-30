@@ -1,6 +1,6 @@
 #include <map>
 #include <string>
-#include "HttpResponse.hpp"
+#include "DeleteHttpResponse.hpp"
 #include <iostream>
 
 // namespace Config
@@ -52,19 +52,26 @@ std::string	make_target_path(const std::string &path)
 // http://nanka/~~
 // なら~~以降が欲しい部分
 
-void	HttpResponse::separate_path_folda_file(const std::string &request_path, std::string *search_folda, std::string *search_file)
+int	DeleteHttpResponse::separate_path_folda_file(const std::string &request_path, std::string *search_folda, std::string *search_file)
 {
 	size_t	path_start_pos = 0;
 
-	std::cout << "here" << std::endl;
+	std::cout << request_path << std::endl;
+	if (std::count(request_path.begin(), request_path.end(), ':') != 1)
+		return IS_NOT_PATH_FORMAT;
 	while (request_path[path_start_pos] != ':')  // skip protocol name
 		path_start_pos++;
-	path_start_pos = path_start_pos + 3;
 	std::cout << "here" << std::endl;
+	if (request_path[path_start_pos + 1] != '/')
+		return IS_NOT_PATH_FORMAT;
+	std::cout << "here" << std::endl;
+	if (request_path[path_start_pos + 2] != '/')
+		return IS_NOT_PATH_FORMAT;
+	std::cout << "here" << std::endl;
+	path_start_pos = path_start_pos + 3;
 	while (request_path[path_start_pos] != '/')  // skip nankaの部分　名前なんだ
 		path_start_pos++;
 	std::string	path = request_path.substr(path_start_pos, request_path.length() - path_start_pos);
-	std::cout << "here" << std::endl;
 	if (path[path.length() - 1] == '/')
 	{
 		*search_folda = path;
@@ -76,10 +83,10 @@ void	HttpResponse::separate_path_folda_file(const std::string &request_path, std
 		*search_folda = path.substr(0, last_slash_pos + 1);
 		*search_file = path.substr(last_slash_pos + 1, path.length() - last_slash_pos - 1);
 	}
-	std::cout << "here" << std::endl;
+	return IS_OK;
 }
 
-std::string	HttpResponse::get_location_path(const std::string &requested_path)
+std::string	DeleteHttpResponse::get_location_path(const std::string &requested_path)
 {
 	std::string	search_folda;
 	std::string	search_file;

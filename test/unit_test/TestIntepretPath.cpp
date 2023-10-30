@@ -1,6 +1,6 @@
 #include <climits>
 #include <string>
-#include "../../srcs/HttpResponse/DELETE/HttpResponse/HttpResponse.hpp"
+#include "../../srcs/HttpResponse/DELETE/DeleteHttpResponse/DeleteHttpResponse.hpp"
 #include "gtest/gtest.h"
 
 // void	separate_path_folda_file(const std::string &request_path, std::string *search_folda, std::string *search_file)
@@ -26,38 +26,32 @@
 // 	}
 // }
 
-// TEST(Interpretpath, test1) {
-// 	std::string	folda_name;
-// 	std::string	file_name;
-// 	HttpResponse test;
+TEST(Interpretpath, test1) {
+	std::string	folda_name;
+	std::string	file_name;
+	DeleteHttpResponse test;
 
-// 	test.separate_path_folda_file("http://localhost:8000/", &folda_name, &file_name);
-// 	std::cout << "here?" << std::endl;
-// 	std::cout << folda_name << std::endl;
-// 	EXPECT_EQ(folda_name, "/");
-// 	std::cout << file_name << std::endl;
-// 	EXPECT_EQ(file_name, "");
-// 	std::cout << "end" << std::endl;
-// }
+	EXPECT_EQ(IS_OK, test.separate_path_folda_file("http://localhost:8000/", &folda_name, &file_name));
+	EXPECT_EQ(folda_name, "/");
+	EXPECT_EQ(file_name, "");
+}
 
 TEST(Interpretpath, test2) {
 	std::string	folda_name;
 	std::string	file_name;
-	HttpResponse test;
+	DeleteHttpResponse test;
 
-	std::cout << "here?" << std::endl;
-	test.separate_path_folda_file("http://localhost:8000/aaa", &folda_name, &file_name);
+	EXPECT_EQ(IS_OK, test.separate_path_folda_file("http://localhost:8000/aaa", &folda_name, &file_name));
 	EXPECT_EQ(folda_name, "/");
 	EXPECT_EQ(file_name, "aaa");
-	std::cout << "end" << std::endl;
 }
 
 TEST(Interpretpath, test3) {
 	std::string	folda_name;
 	std::string	file_name;
-	HttpResponse test;
+	DeleteHttpResponse test;
 
-	test.separate_path_folda_file("http://localhost:8000/aaa/", &folda_name, &file_name);
+	EXPECT_EQ(IS_OK, test.separate_path_folda_file("http://localhost:8000/aaa/", &folda_name, &file_name));
 	EXPECT_EQ(folda_name, "/aaa/");
 	EXPECT_EQ(file_name, "");
 }
@@ -65,9 +59,9 @@ TEST(Interpretpath, test3) {
 TEST(Interpretpath, test4) {
 	std::string	folda_name;
 	std::string	file_name;
-	HttpResponse test;
+	DeleteHttpResponse test;
 
-	test.separate_path_folda_file("http://localhost:8000/aaa/bbb/index.html", &folda_name, &file_name);
+	EXPECT_EQ(IS_OK, test.separate_path_folda_file("http://localhost:8000/aaa/bbb/index.html", &folda_name, &file_name));
 	EXPECT_EQ(folda_name, "/aaa/bbb/");
 	EXPECT_EQ(file_name, "index.html");
 }
@@ -75,9 +69,7 @@ TEST(Interpretpath, test4) {
 TEST(Interpretpath, test5) {
 	std::string	folda_name;
 	std::string	file_name;
-	HttpResponse test;
+	DeleteHttpResponse test;
 
-	test.separate_path_folda_file("aaa", &folda_name, &file_name);
-	EXPECT_EQ(folda_name, "");
-	EXPECT_EQ(file_name, "");
+	EXPECT_EQ(IS_NOT_PATH_FORMAT, test.separate_path_folda_file("aaa", &folda_name, &file_name));
 }

@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 // #include "../TestConfig.hpp"
-#include "HttpResponse.hpp"
+#include "DeleteHttpResponse.hpp"
 #include <iostream>
 
 #define	EXIST 		0
@@ -51,7 +51,7 @@ namespace Request
 	std::string	_request_body = "";
 }  // namespace Request
 
-bool	HttpResponse::is_request_under_maxsize(const std::string &request_text, const size_t &maxsize)
+bool	DeleteHttpResponse::is_request_under_maxsize(const std::string &request_text, const size_t &maxsize)
 {
 	if (request_text.length() >= maxsize)
 	{
@@ -61,7 +61,7 @@ bool	HttpResponse::is_request_under_maxsize(const std::string &request_text, con
 	return (true);
 }
 
-bool	HttpResponse::is_header_under_maxsize(const std::string &header_text, const size_t &maxsize)
+bool	DeleteHttpResponse::is_header_under_maxsize(const std::string &header_text, const size_t &maxsize)
 {
 	if (header_text.length() >= maxsize)
 	{
@@ -71,7 +71,7 @@ bool	HttpResponse::is_header_under_maxsize(const std::string &header_text, const
 	return (true);
 }
 
-bool	HttpResponse::is_body_under_maxsize(const std::string &body_text, const size_t &maxsize)
+bool	DeleteHttpResponse::is_body_under_maxsize(const std::string &body_text, const size_t &maxsize)
 {
 	if (body_text.length() >= maxsize)
 	{
@@ -81,12 +81,12 @@ bool	HttpResponse::is_body_under_maxsize(const std::string &body_text, const siz
 	return (true);
 }
 
-bool HttpResponse::is_method_allowed(const std::vector<std::string> &allowed_method, const std::string &target)
+bool DeleteHttpResponse::is_method_allowed(const std::vector<std::string> &allowed_method, const std::string &target)
 {
 	return (std::count(allowed_method.begin(), allowed_method.end(), target) != 0);
 }
 
-void	HttpResponse::ready_status_text_map()  // 返すbodyの中身は該当のファイルの中身でもいいと思う
+void	DeleteHttpResponse::ready_status_text_map()  // 返すbodyの中身は該当のファイルの中身でもいいと思う
 {
 	StatusText status_200("OK", "<h1>OK<h1>");
 	StatusText status_400("Not Found", "404 Not Found\r\nResource can't find\r\n\r\n");
@@ -99,7 +99,7 @@ void	HttpResponse::ready_status_text_map()  // 返すbodyの中身は該当の�
 	this->_status_text_map["413"] = status_413;
 }
 
-std::string	HttpResponse::ready_now_time() const
+std::string	DeleteHttpResponse::ready_now_time() const
 {
 	char buffer[128];
 	time_t	nowtime = time(nullptr);
@@ -110,7 +110,7 @@ std::string	HttpResponse::ready_now_time() const
     return static_cast<std::string>(buffer);
 }
 
-void	HttpResponse::make_response(const std::string &status_code)
+void	DeleteHttpResponse::make_response(const std::string &status_code)
 {
 	this->_response = "HTTP/1.1 " + status_code + " " + this->_status_text_map[status_code].get_status_text() + "\r\n";
 	this->_response = this->_response + "Date: " + this->ready_now_time() + "\r\n";
@@ -124,7 +124,7 @@ void	HttpResponse::make_response(const std::string &status_code)
 	this->_response = this->_response + this->_status_text_map[status_code].get_body_text();
 }
 
-HttpResponse::HttpResponse()
+DeleteHttpResponse::DeleteHttpResponse()
 {
 	this->_status_code = 200;
 	Config::_allowmethod.push_back("GET");
@@ -134,25 +134,21 @@ HttpResponse::HttpResponse()
 	// 	ready_access_log(Config::_accesslog);
 	// if (!(Config::_errorlog != ""))
 	// 	ready_error_log(Config::_errorlog);
-	std::cout << "one" << std::endl;
 	if (!(is_request_under_maxsize(Request::_request_all_text, Config::_client_max_body_size)))
 	{
 		this->make_response("413");
 		return;
 	}
-	std::cout << "sec" << std::endl;
 	if (!(is_header_under_maxsize(Request::_header_text, Config::_client_header_buffer_size)))
 	{
 		this->make_response("413");
 		return;
 	}
-	std::cout << "thi" << std::endl;
 	if (!(is_body_under_maxsize(Request::_request_body, Config::_client_body_buffer_size)))
 	{
 		this->make_response("413");
 		return;
 	}
-	std::cout << "four" << std::endl;
 	if (!(Config::_allowmethod).empty())
 	{
 		if (!(is_method_allowed(Config::_allowmethod, Request::_method)))
@@ -164,3 +160,5 @@ HttpResponse::HttpResponse()
 	// if (!(Config::_server_tokens != ))http_versionの比較　数値を扱う方が必要　1.1だけなら確認する必要はない。。。？
 	// バージョン対応していないというステータスコード があったと思うのでそれを置くのもいいかもしれない
 }
+
+DeleteHttpResponse::~DeleteHttpResponse(){}

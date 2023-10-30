@@ -45,9 +45,9 @@ set(webserv_srcs
         srcs/Error/Error.cpp
         srcs/HttpResponse/HttpResponse.cpp
         srcs/HttpResponse/GET/get_request_body.cpp
-        srcs/HttpResponse/DELETE/HttpResponse/HttpResponse.cpp
+        srcs/HttpResponse/DELETE/DeleteHttpResponse/DeleteHttpResponse.cpp
         srcs/HttpResponse/DELETE/StatusText/StatusText.cpp
-        srcs/HttpResponse/DELETE/HttpResponse/get_location_path.cpp
+        srcs/HttpResponse/DELETE/DeleteHttpResponse/get_location_path.cpp
         srcs/Socket/Socket.cpp
 )
 
