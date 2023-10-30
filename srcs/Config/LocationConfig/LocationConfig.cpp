@@ -27,7 +27,6 @@ LocationConfig::LocationConfig(const LocationConfig &other)
 	this->_index = other.get_index();
 	this->_server_name = other.get_server_name();
 	this->_errorpages = other.get_errorpages();
-	return (*this);
 }
 
 LocationConfig& LocationConfig::operator=(const LocationConfig &other)
