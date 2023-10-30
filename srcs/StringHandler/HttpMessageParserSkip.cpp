@@ -1417,13 +1417,13 @@ void skip_uri_host(const std::string &str,
 	}
 
 	if (str[pos] == '[') {
-		HttpMessageParser::skip_ip_literal(str, pos, &end);
+		skip_ip_literal(str, pos, &end);
 	} else if (std::isdigit(str[pos])) {
-		HttpMessageParser::skip_ipv4address(str, pos, &end);
-	} else if (HttpMessageParser::is_unreserved(str[pos])
+		skip_ipv4address(str, pos, &end);
+	} else if (is_unreserved(str[pos])
 			   || str[pos] == '%'
-			   || HttpMessageParser::is_sub_delims(str[pos])) {
-		HttpMessageParser::skip_reg_name(str, pos, &end);
+			   || is_sub_delims(str[pos])) {
+		skip_reg_name(str, pos, &end);
 	} else {
 		return;
 	}
@@ -1977,5 +1977,61 @@ void skip_other_range(const std::string &str,
 	}
 	*end_pos = pos + len;
 }
+
+// todo:test
+// absolute-path = 1*( "/" segment )
+void skip_absolute_path(const std::string &str,
+						std::size_t start_pos,
+						std::size_t *end_pos) {
+	std::size_t pos, end;
+
+	if (!end_pos) {
+		return;
+	}
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) {
+		return;
+	}
+	pos = start_pos;
+	while (str[pos]) {
+		if (str[pos] != SLASH) {
+			break;
+		}
+		++pos;
+		skip_segment(str, pos, &end);
+		pos = end;
+	}
+	if (pos == start_pos) {
+		return;
+	}
+	*end_pos = pos;
+}
+
+// origin-form = absolute-path [ "?" query ]
+// todo:test
+void skip_origin_form(const std::string &str,
+					  std::size_t start_pos,
+					  std::size_t *end_pos) {
+	std::size_t pos, end;
+
+	if (!end_pos) {
+		return;
+	}
+	*end_pos = start_pos;
+	if (str.empty() || str.length() <= start_pos) {
+		return;
+	}
+	skip_absolute_path(str, start_pos, &end);
+	if (end == start_pos) {
+		return;
+	}
+	pos = end;
+	if (str[pos] == '?') {
+		skip_query(str, pos + 1, &end);
+		pos = end;
+	}
+	*end_pos = pos;
+}
+
 
 }  // namespace HttpMessageParser

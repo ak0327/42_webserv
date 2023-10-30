@@ -64,17 +64,7 @@ Result<int, int> RequestLine::parse_and_validate(const std::string &line) {
  method = token
   line = "GET / HTTP/1.1"
       head^  ^delim_pos
-
- request-target = origin-form / absolute-form / authority-form / asterisk-form
-  origin-form    = absolute-path [ "?" query ] ; http://www.example.org/where?q=now
-  absolute-form  = absolute-URI ; http://www.example.org/pub/WWW/TheProject.html
-  authority-form = authority ; www.example.com:80
-  asterisk-form  = "*"
-
- HTTP-version  = HTTP-name "/" DIGIT "." DIGIT
-  HTTP-name     = %x48.54.54.50 ; "HTTP", case-sensitive
  */
-
 
 // request-line   = method SP request-target SP HTTP-version CRLF
 // line_wo_end_lf = method SP request-target SP HTTP-version CR
@@ -139,6 +129,10 @@ Result<int, int> RequestLine::parse(const std::string &line_wo_end_lf) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/*
+ request-line = method SP request-target SP HTTP-version
+ https://triple-underscore.github.io/http1-ja.html#p.request-line
+ */
 Result<int, int> RequestLine::validate() const {
 	if (!HttpMessageParser::is_valid_method(this->_method)) {
 		return Result<int, int>::err(ERR);
