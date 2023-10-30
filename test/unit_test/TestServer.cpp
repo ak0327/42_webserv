@@ -34,10 +34,13 @@ struct s_client {
 void *run_server(void *server_info) {
 	s_server	*s = (s_server *)server_info;
 	bool		is_server_success = true;
+	Config		config;
 
+	config.set_ip(s->server_ip);
+	config.set_port(s->server_port);
 	try {
 		DEBUG_SERVER_PRINT("start");
-		Server server = Server(s->server_ip, s->server_port);
+		Server server = Server(config);
 		DEBUG_SERVER_PRINT("connecting...");
 		server.process_client_connection();
 		s->recv_msg = server.get_recv_message();
@@ -166,16 +169,31 @@ void run_server_and_multi_client(const char *server_ip,
 // int port = 49152;
 
 TEST(ServerUnitTest, Constructor) {
-	EXPECT_NO_THROW(Server(SERVER_IP, SERVER_PORT));
+	Config config;
+
+	EXPECT_NO_THROW((Server(config)));
 }
 
 TEST(ServerUnitTest, ConstructorThrowException) {
-	EXPECT_ANY_THROW(Server("hoge", SERVER_PORT));
-	EXPECT_ANY_THROW(Server("42", SERVER_PORT));
-	EXPECT_ANY_THROW(Server("127.0.0.256", SERVER_PORT));
-	EXPECT_ANY_THROW(Server(SERVER_IP, "a"));
-	EXPECT_ANY_THROW(Server(SERVER_IP, "-1"));
-	EXPECT_ANY_THROW(Server("huga", "-1"));
+	Config config;
+
+	config.set_ip("hoge"); config.set_port("8080");
+	EXPECT_ANY_THROW((Server(config)));
+
+	config.set_ip("42"); config.set_port("8080");
+	EXPECT_ANY_THROW((Server(config)));
+
+	config.set_ip("127.0.0.256"); config.set_port("8080");
+	EXPECT_ANY_THROW((Server(config)));
+
+	config.set_ip("127.0.0.1"); config.set_port("a");
+	EXPECT_ANY_THROW((Server(config)));
+
+	config.set_ip("127.0.0.1"); config.set_port("-1");
+	EXPECT_ANY_THROW((Server(config)));
+
+	config.set_ip("huga"); config.set_port("-1");
+	EXPECT_ANY_THROW((Server(config)));
 }
 
 TEST(ServerUnitTest, ConnectClientCase1) {

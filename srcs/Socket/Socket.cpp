@@ -6,6 +6,7 @@
 #include <cstring>
 #include <iostream>
 #include <string>
+#include "Color.hpp"
 #include "Constant.hpp"
 #include "Error.hpp"
 #include "Socket.hpp"
@@ -44,12 +45,12 @@ Result<int, std::string> close_socket_fd(int socket_fd) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Socket::Socket(const char *server_ip, const char *server_port)
-	: _result(),
-	  _socket_fd(INIT_FD),
-	  _addr_info(NULL),
-	  _server_ip(server_ip),
-	  _server_port(server_port) {
+Socket::Socket(const Config &config)
+		: _result(),
+		  _socket_fd(INIT_FD),
+		  _addr_info(NULL),
+		  _server_ip(config.get_server_ip()),
+		  _server_port(config.get_server_port()) {
 	this->_result = init_addr_info();
 	if (this->_result.is_err()) {
 		return;
@@ -71,9 +72,6 @@ Socket::Socket(const char *server_ip, const char *server_port)
 		return;
 	}
 }
-
-// todo
-// Socket::Socket(const Configuration &conf) {}
 
 Socket::~Socket() {
 	Result<int, std::string> close_result;
@@ -97,7 +95,8 @@ Result<int, std::string> Socket::init_addr_info() {
 	struct addrinfo	*ret_addr_info;
 
 	set_hints(&hints);  // todo: setting IPv4, IPv6 from config??
-	errcode = getaddrinfo(this->_server_ip, this->_server_port, &hints, &ret_addr_info);
+	errcode = getaddrinfo(this->_server_ip.c_str(), this->_server_port.c_str(), &hints, &ret_addr_info);
+
 	if (errcode != GETADDRINFO_SUCCESS) {
 		std::string err_info = create_error_info(gai_strerror(errcode), __FILE__, __LINE__);
 		return Result<int, std::string>::err("getaddrinfo:" + err_info);

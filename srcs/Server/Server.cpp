@@ -116,8 +116,8 @@ Result<IOMultiplexer *, std::string> create_io_multiplexer_fds(int socket_fd) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Server::Server(const char *server_ip, const char *server_port)
-	: _socket(server_ip, server_port),
+Server::Server(const Config &config)
+	: _socket(config),
 	  _recv_message(),
 	  _fds(NULL) {
 	Result<int, std::string> socket_result, signal_result;

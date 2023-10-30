@@ -1,12 +1,12 @@
 #pragma once
 
 # include <string>
+# include "webserv.hpp"
 # include "Result.hpp"
 
 class Socket {
  public:
-	Socket(const char *server_ip, const char *server_port);
-	// Socket(const Configuration &conf);
+	explicit Socket(const Config &config);
 	~Socket();
 
 	int	get_socket_fd() const;
@@ -17,8 +17,8 @@ class Socket {
 	Result<int, std::string> _result;
 	int _socket_fd;
 	struct addrinfo *_addr_info;
-	const char *_server_ip;  // Nullable
-	const char *_server_port;
+	std::string _server_ip;  // Nullable?
+	std::string _server_port;
 
 	Result<int, std::string> init_addr_info();
 	Result<int, std::string> create_socket();

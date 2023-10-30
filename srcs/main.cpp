@@ -10,8 +10,6 @@ namespace {
 int CONFIG_FILE_INDEX = 1;
 int CONFIG_FILE_GIVEN_ARGC = 2;
 
-const char *SERVER_IP = "127.0.0.1";
-const char *SERVER_PORT = "8080";
 
 void validate_argc(int argc) {
 	const std::string INVALID_ARGUMENT_ERROR_MSG = "[Error] invalid argument";
@@ -27,16 +25,16 @@ void validate_argc(int argc) {
 ////////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char **argv) {
-	std::string		config_file_path;
-	// Configuration	config;  // todo
+	std::string	config_file_path;
+	Config		config;  // todo
 
 	try {
 		validate_argc(argc);
 		config_file_path = get_valid_config_file_path(argv[CONFIG_FILE_INDEX]);
 		DEBUG_PRINT("config_file_path=[%s]", config_file_path.c_str());
 
-		// config = Configuration(config_file_path);
-		Server server = Server(SERVER_IP, SERVER_PORT);  // load config and setup socket
+		config = Config(config_file_path);
+		Server server = Server(config);
 		server.process_client_connection();
 	}
 	catch (std::exception const &e) {
