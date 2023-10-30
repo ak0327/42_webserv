@@ -7,10 +7,10 @@ Config::Config(const std::string &config_file_name)
 	bool server_success, location_success;
 
 	this->_is_config_format = false;
-	if (config_file_name.find(".conf") == std::string::npos)  // todo: check in main
-	{
-		return;
-	}
+	// if (config_file_name.find(".conf") == std::string::npos)  // todo: check in main
+	// {
+	// 	return;
+	// }
 	if (!(test_open.is_open()))
 	{
 		return;
@@ -67,7 +67,7 @@ int Config::server_block_action(const std::string &config_line,
 		*in_location_block = true;
 		return IS_OK_START_LOCATION_BLOCK;
 	}
-	if (ConfigHandlingString::is_block_end(config_line))
+	if (IsConfigFormat::is_block_end(config_line))
 	{
 		*in_server_block = false;
 		set_server_config_to_allconfigs(configs, server_config, server_name_list);
@@ -78,7 +78,7 @@ int Config::server_block_action(const std::string &config_line,
 	int action_result = IsConfigFormat::is_server_block_format(config_line, *field_headers);
 	if (action_result == CONFIG_FORMAT_OK)
 	{
-		int	done_input_action = IsConfigFormat::input_field_key_field_value(config_line, server_config, field_headers);
+		int	done_input_action = ConfigHandlingString::input_field_key_field_value(config_line, server_config, field_headers);
 		if (done_input_action == CONFIG_FORMAT_OK)
 			return IS_OK_IN_SERVER_BLOCK;
 		return (IS_ALREADY_EXIST_FIELD_KEY);
@@ -103,7 +103,7 @@ bool Config::ready_server_config(const std::string &config_file_name,
 	{
 		// std::cout << config_line << std::endl;
 		line++;
-		if ((ConfigHandlingString::is_ignore_line(config_line))) {
+		if ((IsConfigFormat::is_ignore_line(config_line))) {
 			continue;
 		}
 		if (!in_server_block && !in_location_block)
@@ -130,7 +130,7 @@ bool Config::ready_server_config(const std::string &config_file_name,
 		}
 		if (in_server_block && in_location_block)
 		{
-			if (ConfigHandlingString::is_block_end(config_line))
+			if (IsConfigFormat::is_block_end(config_line))
 			{
 				in_location_block = false;
 				continue;
@@ -159,7 +159,7 @@ void Config::init_location_config_with_server_config(LocationConfig *location_co
 }
 
 bool Config::ready_location_config(const std::string &config_file_name,
-								   std::vector<std::vector<std::string> >::iterator server_name_itr)
+								   std::vector<std::vector<std::string> >::const_iterator server_name_itr)
 {
 	std::ifstream config_lines(config_file_name.c_str());
 	std::string	config_line, location_path;
@@ -172,7 +172,7 @@ bool Config::ready_location_config(const std::string &config_file_name,
 	while (std::getline(config_lines, config_line, '\n'))
 	{
 		line++;
-		if ((ConfigHandlingString::is_ignore_line(config_line))) {
+		if ((IsConfigFormat::is_ignore_line(config_line))) {
 			continue;
 		}
 
@@ -187,13 +187,13 @@ bool Config::ready_location_config(const std::string &config_file_name,
 		{
 			if (IsConfigFormat::is_start_location_block(config_line, &location_path) == CONFIG_FORMAT_OK)
 				in_location_block = true;
-			else if (ConfigHandlingString::is_block_end(config_line))
+			else if (IsConfigFormat::is_block_end(config_line))
 				server_name_itr++;
 			continue;
 		}
 		if (in_server_block && in_location_block)
 		{
-			if (ConfigHandlingString::is_block_end(config_line))
+			if (IsConfigFormat::is_block_end(config_line))
 			{
 				this->_all_configs[*server_name_itr].set_location_config(location_path, location_config);
 				location_config.init_location_keyword();
@@ -203,7 +203,7 @@ bool Config::ready_location_config(const std::string &config_file_name,
 			}
 			if (IsConfigFormat::is_location_block_format(config_line) == CONFIG_FORMAT_OK)
 			{
-				result = IsConfigFormat::input_field_key_field_value(config_line, &location_config);
+				result = ConfigHandlingString::input_field_key_field_value(config_line, &location_config);
 				if (result == CONFIG_FORMAT_OK) {
 					continue;
 				}

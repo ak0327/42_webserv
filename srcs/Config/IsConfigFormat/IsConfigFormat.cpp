@@ -4,6 +4,60 @@
 #include "HandlingString.hpp"
 #include "IsConfigFormat.hpp"
 
+bool IsConfigFormat::is_ignore_line(const std::string &config_line)
+{
+	std::string line_without_ows = HandlingString::obtain_without_ows_value(config_line);
+
+	return (line_without_ows.empty() || line_without_ows[0] == '#');
+}
+
+bool IsConfigFormat::is_block_end(const std::string &config_line)
+{
+	std::string line_without_ows = HandlingString::obtain_without_ows_value(config_line);
+
+	return (line_without_ows == "}");
+}
+
+bool IsConfigFormat::is_block_start(const std::string &block_end_word)
+{
+	return (block_end_word == "{");
+}
+
+int IsConfigFormat::is_field_header(const std::string &config_line, size_t *pos)
+{
+	std::string	line_trim_header;
+	size_t tmp_pos = 0;
+
+	HandlingString::skip_no_ows(config_line, pos);
+	if (config_line[*pos] == '\0')
+		return NO_FIELD_HEADER;
+
+	line_trim_header = config_line.substr(*pos);
+	HandlingString::skip_ows(line_trim_header, &tmp_pos);
+	if (line_trim_header[tmp_pos] == '\0')
+		return NO_FIELD_VALUE;
+	return FIELD_HEADER_OK;
+}
+
+int	IsConfigFormat::is_field_value(const std::string &config_line, size_t *pos)
+{
+	std::string	field_value_word = config_line.substr(*pos, config_line.length() - *pos);
+
+	if (field_value_word.empty() || field_value_word == ";")
+		return NO_FIELD_VALUE;
+	if (std::count(field_value_word.begin(), field_value_word.end(), ';') == 0)
+		return NO_SEMICOLON;
+	if (std::count(field_value_word.begin(), field_value_word.end(), ';') != 1)
+		return MULTIPLE_SEMICOLON;
+	if (field_value_word[field_value_word.length() - 1] != ';')
+		return NO_LAST_SEMICOLON;
+	while (config_line[*pos] != ';')  // valueの終了条件は必ずセミコロンが存在しているかどうかになる
+		*pos = *pos + 1;
+	if (HandlingString::is_ows(config_line[*pos - 1]))
+		return (NOT_FIELD_VALUE_FORMAT);
+	return (FIELD_VALUE_OK);
+}
+
 int IsConfigFormat::is_start_location_block(const std::string &config_line)
 {
 	return (is_start_location_block(config_line, NULL));
@@ -41,7 +95,7 @@ int IsConfigFormat::is_start_location_block(const std::string &config_line,
 			return (NOT_FIELD_KEY_PRINTABLE);
 	}
 	HandlingString::skip_ows(line_without_ows, &end_pos);
-	if (!ConfigHandlingString::is_block_start(line_without_ows.substr(end_pos)))
+	if (!IsConfigFormat::is_block_start(line_without_ows.substr(end_pos)))
 		return (NOT_ENDWORD_CURLY_BRACES);
 	return (CONFIG_FORMAT_OK);
 }
@@ -66,7 +120,7 @@ int	IsConfigFormat::is_start_server_block(const std::string &config_line, bool *
 	|| end_pos == line_without_ows.length())
 		return (NOT_EXIST_KEYWORD_SERVER);
 	HandlingString::skip_ows(line_without_ows, &end_pos);
-	if (ConfigHandlingString::is_block_start(line_without_ows.substr(end_pos)))
+	if (IsConfigFormat::is_block_start(line_without_ows.substr(end_pos)))
 	{
 		*in_server_block = true;
 		return (CONFIG_FORMAT_OK);
@@ -84,67 +138,15 @@ int	IsConfigFormat::is_location_block_format(const std::string &config_line)
 		return (NOT_PRINTABLE);
 	if (std::count(line_without_ows.begin(), line_without_ows.end(), '{') != 0)
 		return (NOT_START_CURLY_BRACES);
-	action_result = ConfigHandlingString::is_field_header(line_without_ows, &end_pos);
+	action_result = IsConfigFormat::is_field_header(line_without_ows, &end_pos);
 	if (action_result != FIELD_HEADER_OK)
 		return (action_result);
 	HandlingString::skip_ows(line_without_ows, &end_pos);
-	action_result = ConfigHandlingString::is_field_value(line_without_ows, &end_pos);
+	action_result = IsConfigFormat::is_field_value(line_without_ows, &end_pos);
 	if (action_result != FIELD_VALUE_OK)
 		return (action_result);
 	if (line_without_ows.length() != end_pos + 1)
 		return (NOT_LAST_WARD_SEMICOLON);
-	return (CONFIG_FORMAT_OK);
-}
-
-int IsConfigFormat::input_field_key_field_value(const std::string &config_line,
-												LocationConfig *location_config)
-{
-	size_t	end_pos = 0;
-	std::string	field_header;
-	std::string	field_value;
-	size_t	field_value_start_pos;
-	std::string	line_without_ows = HandlingString::obtain_without_ows_value(config_line);
-
-	HandlingString::skip_no_ows(line_without_ows, &end_pos);
-	field_header = line_without_ows.substr(0, end_pos);
-	HandlingString::skip_ows(line_without_ows, &end_pos);
-	field_value_start_pos = end_pos;
-	while (line_without_ows[end_pos] != ';')  // valueの終了条件は必ずセミコロンが存在しているかどうかになる
-		end_pos++;
-	field_value = HandlingString::obtain_without_ows_value(
-			line_without_ows.substr(field_value_start_pos, end_pos - field_value_start_pos));
-	if (!location_config->set_field_header_field_value(field_header, field_value))
-	{
-		std::cerr << "serverconfig -> |" << field_header << "|" << field_value << "|" << std::endl;
-		return (LOCATION_BLOCK_KEY_ALREADY_EXIST);
-	}
-	return (CONFIG_FORMAT_OK);
-}
-
-int IsConfigFormat::input_field_key_field_value(const std::string &config_line,
-												ServerConfig *server_config,
-												std::vector<std::string> *field_header_vector)
-{
-	size_t	end_pos = 0;
-	std::string	field_header;
-	std::string	field_value;
-	size_t	field_value_start_pos;
-	std::string	line_without_ows = HandlingString::obtain_without_ows_value(config_line);
-
-	HandlingString::skip_no_ows(line_without_ows, &end_pos);
-	field_header = line_without_ows.substr(0, end_pos);
-	HandlingString::skip_ows(line_without_ows, &end_pos);
-	field_value_start_pos = end_pos;
-	while (line_without_ows[end_pos] != ';')  // valueの終了条件は必ずセミコロンが存在しているかどうかになる
-		end_pos++;
-	field_value = HandlingString::obtain_without_ows_value(
-			line_without_ows.substr(field_value_start_pos, end_pos - field_value_start_pos));
-	if (!server_config->set_field_header_field_value(field_header, field_value))
-	{
-		std::cerr << "serverconfig -> |" << field_header << "|" << field_value << "|" << std::endl;
-		return (SERVER_BLOCK_KEY_ALREADY_EXIST);
-	}
-	field_header_vector->push_back(field_header);
 	return (CONFIG_FORMAT_OK);
 }
 
@@ -161,14 +163,14 @@ int IsConfigFormat::is_server_block_format(const std::string &config_line,
 		return (NOT_PRINTABLE);
 	if (std::count(line_without_ows.begin(), line_without_ows.end(), '{') != 0)
 		return (NOT_START_CURLY_BRACES);
-	action_result = ConfigHandlingString::is_field_header(line_without_ows, &end_pos);
+	action_result = IsConfigFormat::is_field_header(line_without_ows, &end_pos);
 	if (action_result != CONFIG_FORMAT_OK)
 		return (action_result);
 	field_header = line_without_ows.substr(0, end_pos);
 	if (std::find(field_headers.begin(), field_headers.end(), field_header) != field_headers.end())
 		return SERVER_BLOCK_KEY_ALREADY_EXIST;
 	HandlingString::skip_ows(line_without_ows, &end_pos);
-	action_result = ConfigHandlingString::is_field_value(line_without_ows, &end_pos);
+	action_result = IsConfigFormat::is_field_value(line_without_ows, &end_pos);
 	if (action_result != CONFIG_FORMAT_OK)
 		return (action_result);
 	return (CONFIG_FORMAT_OK);

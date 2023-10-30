@@ -3,61 +3,61 @@
 #include "ConfigHandlingString.hpp"
 
 TEST(UtilsTest, IsIgnoreLine) {
-	EXPECT_TRUE(ConfigHandlingString::is_ignore_line(""));
-	EXPECT_TRUE(ConfigHandlingString::is_ignore_line("#"));
-	EXPECT_TRUE(ConfigHandlingString::is_ignore_line("#############"));
-	EXPECT_TRUE(ConfigHandlingString::is_ignore_line(" # "));
-	EXPECT_TRUE(ConfigHandlingString::is_ignore_line(" \t\t\t#        aaaaaaaaaaaaaa "));
+	EXPECT_TRUE(IsConfigFormat::is_ignore_line(""));
+	EXPECT_TRUE(IsConfigFormat::is_ignore_line("#"));
+	EXPECT_TRUE(IsConfigFormat::is_ignore_line("#############"));
+	EXPECT_TRUE(IsConfigFormat::is_ignore_line(" # "));
+	EXPECT_TRUE(IsConfigFormat::is_ignore_line(" \t\t\t#        aaaaaaaaaaaaaa "));
 
-	EXPECT_FALSE(ConfigHandlingString::is_ignore_line("\v #"));
-	EXPECT_FALSE(ConfigHandlingString::is_ignore_line("a #"));
-	EXPECT_FALSE(ConfigHandlingString::is_ignore_line("         a ############"));
+	EXPECT_FALSE(IsConfigFormat::is_ignore_line("\v #"));
+	EXPECT_FALSE(IsConfigFormat::is_ignore_line("a #"));
+	EXPECT_FALSE(IsConfigFormat::is_ignore_line("         a ############"));
 }
 
 
 TEST(UtilsTest, IsBlockStart) {
-	EXPECT_TRUE(ConfigHandlingString::is_block_start("{"));
+	EXPECT_TRUE(IsConfigFormat::is_block_start("{"));
 
-	EXPECT_FALSE(ConfigHandlingString::is_block_start("}"));
-	EXPECT_FALSE(ConfigHandlingString::is_block_start("{{"));
-	EXPECT_FALSE(ConfigHandlingString::is_block_start(""));
-	EXPECT_FALSE(ConfigHandlingString::is_block_start("   "));
-	EXPECT_FALSE(ConfigHandlingString::is_block_start("  }"));
-	EXPECT_FALSE(ConfigHandlingString::is_block_start("{{{{{{"));
-	EXPECT_FALSE(ConfigHandlingString::is_block_start("{    {"));
+	EXPECT_FALSE(IsConfigFormat::is_block_start("}"));
+	EXPECT_FALSE(IsConfigFormat::is_block_start("{{"));
+	EXPECT_FALSE(IsConfigFormat::is_block_start(""));
+	EXPECT_FALSE(IsConfigFormat::is_block_start("   "));
+	EXPECT_FALSE(IsConfigFormat::is_block_start("  }"));
+	EXPECT_FALSE(IsConfigFormat::is_block_start("{{{{{{"));
+	EXPECT_FALSE(IsConfigFormat::is_block_start("{    {"));
 }
 
 TEST(UtilsTest, IsBlockEnd) {
-	EXPECT_TRUE(ConfigHandlingString::is_block_end("}"));
-	EXPECT_TRUE(ConfigHandlingString::is_block_end("  }"));
-	EXPECT_TRUE(ConfigHandlingString::is_block_end("  }                "));
+	EXPECT_TRUE(IsConfigFormat::is_block_end("}"));
+	EXPECT_TRUE(IsConfigFormat::is_block_end("  }"));
+	EXPECT_TRUE(IsConfigFormat::is_block_end("  }                "));
 
-	EXPECT_FALSE(ConfigHandlingString::is_block_end("{"));
-	EXPECT_FALSE(ConfigHandlingString::is_block_end(""));
-	EXPECT_FALSE(ConfigHandlingString::is_block_end("   "));
-	EXPECT_FALSE(ConfigHandlingString::is_block_end("}}}}}"));
-	EXPECT_FALSE(ConfigHandlingString::is_block_end("}    }"));
+	EXPECT_FALSE(IsConfigFormat::is_block_end("{"));
+	EXPECT_FALSE(IsConfigFormat::is_block_end(""));
+	EXPECT_FALSE(IsConfigFormat::is_block_end("   "));
+	EXPECT_FALSE(IsConfigFormat::is_block_end("}}}}}"));
+	EXPECT_FALSE(IsConfigFormat::is_block_end("}    }"));
 }
 
 TEST(UtilsTest, IsFieldHeader) {
 	// todo
 	// TRUE
 	size_t pos = 0;
-	EXPECT_EQ(OK, ConfigHandlingString::is_field_header("aaa aaa;", &pos));
+	EXPECT_EQ(OK, IsConfigFormat::is_field_header("aaa aaa;", &pos));
 	pos = 0;
-	EXPECT_EQ(OK, ConfigHandlingString::is_field_header("aaa a;", &pos));
+	EXPECT_EQ(OK, IsConfigFormat::is_field_header("aaa a;", &pos));
 	pos = 0;
-	EXPECT_EQ(OK, ConfigHandlingString::is_field_header("a aa", &pos));
+	EXPECT_EQ(OK, IsConfigFormat::is_field_header("a aa", &pos));
 	pos = 0;
-	EXPECT_EQ(OK, ConfigHandlingString::is_field_header("aa a a a a", &pos));
+	EXPECT_EQ(OK, IsConfigFormat::is_field_header("aa a a a a", &pos));
 
 	// FALSE
 	pos = 0;
-	EXPECT_NE(OK, ConfigHandlingString::is_field_header("", &pos));
+	EXPECT_NE(OK, IsConfigFormat::is_field_header("", &pos));
 	pos = 0;
-	EXPECT_NE(OK, ConfigHandlingString::is_field_header("aaa;", &pos));
+	EXPECT_NE(OK, IsConfigFormat::is_field_header("aaa;", &pos));
 	pos = 0;
-	EXPECT_NE(OK, ConfigHandlingString::is_field_header(" ", &pos));
+	EXPECT_NE(OK, IsConfigFormat::is_field_header(" ", &pos));
 }
 
 
@@ -65,23 +65,23 @@ TEST(UtilsTest, IsFieldValue) {
 	// todo
 	// TRUE
 	size_t pos = 0;
-	EXPECT_EQ(OK, ConfigHandlingString::is_field_value("aaa;", &pos));
+	EXPECT_EQ(OK, IsConfigFormat::is_field_value("aaa;", &pos));
 	pos = 0;
-	EXPECT_EQ(OK, ConfigHandlingString::is_field_value("a;", &pos));
+	EXPECT_EQ(OK, IsConfigFormat::is_field_value("a;", &pos));
 	pos = 0;
-	EXPECT_EQ(OK, ConfigHandlingString::is_field_value("aa aa;", &pos));
+	EXPECT_EQ(OK, IsConfigFormat::is_field_value("aa aa;", &pos));
 
 	// FALSE
 	pos = 0;
-	EXPECT_NE(OK, ConfigHandlingString::is_field_value("aa", &pos));
+	EXPECT_NE(OK, IsConfigFormat::is_field_value("aa", &pos));
 	pos = 0;
-	EXPECT_NE(OK, ConfigHandlingString::is_field_value("a a", &pos));
+	EXPECT_NE(OK, IsConfigFormat::is_field_value("a a", &pos));
 	pos = 0;
-	EXPECT_NE(OK, ConfigHandlingString::is_field_value(";;", &pos));
+	EXPECT_NE(OK, IsConfigFormat::is_field_value(";;", &pos));
 	pos = 0;
-	EXPECT_NE(OK, ConfigHandlingString::is_field_value("aa aa ;", &pos));
+	EXPECT_NE(OK, IsConfigFormat::is_field_value("aa aa ;", &pos));
 	pos = 0;
-	EXPECT_NE(OK, ConfigHandlingString::is_field_value("aa aa; ;", &pos));
+	EXPECT_NE(OK, IsConfigFormat::is_field_value("aa aa; ;", &pos));
 }
 
 TEST(UtilsTest, ReadyStringVectorFieldValue) {

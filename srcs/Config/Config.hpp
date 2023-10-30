@@ -77,7 +77,7 @@ class Config
 							  const size_t &line,
 							  const int &error_type);
 		bool ready_location_config(const std::string &config_file_name,
-								   std::vector<std::vector<std::string> >::iterator server_name_itr);
+								   std::vector<std::vector<std::string> >::const_iterator server_name_itr);
 		void init_location_config_with_server_config(LocationConfig	*location_config,
 													 const std::vector<std::string>	&server_name,
 													 bool *in_server_block);
