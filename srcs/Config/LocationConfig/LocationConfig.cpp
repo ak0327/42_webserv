@@ -5,6 +5,31 @@ _client_body_buffer_size(8000), _client_body_timeout(60), _client_header_buffer_
 _client_max_body_size(1024), _keepalive_requests(0), _keepalive_timeout(0), _default_type("application/octet-stream")
 {}
 
+LocationConfig& LocationConfig::operator=(const LocationConfig &other)
+{
+	this->_autoindex = other.get_autoindex();
+	this->_chunked_transferencoding_allow = other.get_chunked_transferencoding_allow();
+	this->_server_tokens = other.get_server_tokens();
+	this->_client_body_buffer_size = other.get_client_body_buffer_size();
+	this->_client_body_timeout = other.get_client_body_timeout();
+	this->_client_header_buffer_size = other.get_client_header_buffer_size();
+	this->_client_header_timeout = other.get_client_header_timeout();
+	this->_client_max_body_size = other.get_client_max_body_size();
+	this->_keepalive_requests = other.get_keepalive_requests();
+	this->_keepalive_timeout = other.get_keepalive_timeout();
+	this->_alias = other.get_alias();
+	this->_accesslog = other.get_accesslog();
+	this->_cgi_path = other.get_cgi_path();
+	this->_default_type = other.get_default_type();
+	this->_errorlog = other.get_errorlog();
+	this->_upload_path = other.get_upload_path();
+	this->_root = other.get_root();
+	this->_allow_methods = other.get_allow_methods();
+	this->_index = other.get_index();
+	this->_server_name = other.get_server_name();
+	this->_errorpages = other.get_errorpages();
+}
+
 LocationConfig::~LocationConfig(){}
 
 bool	LocationConfig::set_field_header_field_value(const std::string &field_header, \

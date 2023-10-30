@@ -61,6 +61,7 @@ class LocationConfig
 	public:
 		LocationConfig();
 		~LocationConfig();
+		LocationConfig &operator=(const LocationConfig &other);
 		bool						get_autoindex(void);
 		bool						get_chunked_transferencoding_allow(void);
 		int							get_server_tokens(void);
