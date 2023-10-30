@@ -55,12 +55,12 @@ Result<int, std::string> close_socket_fd(int socket_fd) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Socket::Socket(const char *server_ip,
-			   const char *server_port) : _result(),
-			   							  _socket_fd(INIT_FD),
-										  _addr_info(NULL),
-										  _server_ip(server_ip),
-										  _server_port(server_port) {
+Socket::Socket(const char *server_ip, const char *server_port)
+	: _result(),
+	  _socket_fd(INIT_FD),
+	  _addr_info(NULL),
+	  _server_ip(server_ip),
+	  _server_port(server_port) {
 	this->_result = init_addr_info();
 	if (this->_result.is_err()) {
 		return;

@@ -30,10 +30,11 @@ int ERROR = -1;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-EPollMultiplexer::EPollMultiplexer(int socket_fd) : _socket_fd(socket_fd),
-													_epoll_fd(INIT_FD),
-													_ev(),
-													_new_event() {
+EPollMultiplexer::EPollMultiplexer(int socket_fd)
+	: _socket_fd(socket_fd),
+	  _epoll_fd(INIT_FD),
+	  _ev(),
+	  _new_event() {
 	errno = 0;
 	this->_epoll_fd = epoll_create(INIT_SIZE);
 	if (this->_epoll_fd == ERROR) {
@@ -154,10 +155,11 @@ Result<int, std::string> cast_fd_uintptr_to_int(uintptr_t ident) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-KqueueMultiplexer::KqueueMultiplexer(int socket_fd) : _socket_fd(socket_fd),
-													  _kq(INIT_KQ),
-													  _change_event(),
-													  _new_event() {
+KqueueMultiplexer::KqueueMultiplexer(int socket_fd)
+	: _socket_fd(socket_fd),
+	  _kq(INIT_KQ),
+	  _change_event(),
+	  _new_event() {
 	Result<int, std::string> kq_result, kevent_result;
 
 	DEBUG_SERVER_PRINT("[I/O multiplexer : kqueue]");

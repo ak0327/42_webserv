@@ -123,10 +123,10 @@ Result<IOMultiplexer *, std::string> create_io_multiplexer_fds(int socket_fd) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Server::Server(const char *server_ip,
-			   const char *server_port) : _socket(server_ip, server_port),
-			   							  _recv_message(),
-										  _fds(NULL) {
+Server::Server(const char *server_ip, const char *server_port)
+	: _socket(server_ip, server_port),
+	  _recv_message(),
+	  _fds(NULL) {
 	Result<int, std::string> socket_result, signal_result;
 	Result<IOMultiplexer *, std::string> fds_result;
 
