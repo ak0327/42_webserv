@@ -7,10 +7,10 @@ Config::Config(const std::string &config_file_name)
 	bool server_success, location_success;
 
 	this->_is_config_format = false;
-	// if (config_file_name.find(".conf") == std::string::npos)  // todo: check in main
-	// {
-	// 	return;
-	// }
+	if (config_file_name.find(".conf") == std::string::npos)  // todo: check in main
+	{
+		return;
+	}
 	if (!(test_open.is_open()))
 	{
 		return;

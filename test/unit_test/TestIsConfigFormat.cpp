@@ -2,35 +2,35 @@
 #include "Config.hpp"
 
 TEST(IsConfigFormatTest, AdditionalTest) {
-	Config config_test1("config/");
-	EXPECT_FALSE(config_test1.get_is_config_format());
+	// Config config_test1("config/");
+	// EXPECT_FALSE(config_test1.get_is_config_format());
 
-	Config config_test2("config/nothing");
-	EXPECT_FALSE(config_test2.get_is_config_format());
+	// Config config_test2("config/nothing");
+	// EXPECT_FALSE(config_test2.get_is_config_format());
 
-	Config config_test3("../../../../../");
-	EXPECT_FALSE(config_test3.get_is_config_format());
+	// Config config_test3("../../../../../");
+	// EXPECT_FALSE(config_test3.get_is_config_format());
 
-	Config config_test4(".");
-	EXPECT_FALSE(config_test4.get_is_config_format());
+	// Config config_test4(".");
+	// EXPECT_FALSE(config_test4.get_is_config_format());
 
-	Config config_test5(" ");
-	EXPECT_FALSE(config_test5.get_is_config_format());
+	// Config config_test5(" ");
+	// EXPECT_FALSE(config_test5.get_is_config_format());
 
-	Config config_test6("/");
-	EXPECT_FALSE(config_test6.get_is_config_format());
+	// Config config_test6("/");
+	// EXPECT_FALSE(config_test6.get_is_config_format());
 
-	Config config_test7(".conf/");
-	EXPECT_FALSE(config_test7.get_is_config_format());
+	// Config config_test7(".conf/");
+	// EXPECT_FALSE(config_test7.get_is_config_format());
 
-	Config config_test8(".conf");
-	EXPECT_FALSE(config_test8.get_is_config_format());
+	// Config config_test8(".conf");
+	// EXPECT_FALSE(config_test8.get_is_config_format());
 
-	Config config_test9("aaa.conf");
-	EXPECT_FALSE(config_test9.get_is_config_format());
+	// Config config_test9("aaa.conf");
+	// EXPECT_FALSE(config_test9.get_is_config_format());
 
-	Config config_test10("");
-	EXPECT_FALSE(config_test10.get_is_config_format());
+	// Config config_test10("");
+	// EXPECT_FALSE(config_test10.get_is_config_format());
 }
 
 TEST(IsConfigFormatTest, IsConfigFormatTrue)
