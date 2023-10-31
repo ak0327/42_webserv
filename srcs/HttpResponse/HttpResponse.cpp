@@ -4,18 +4,20 @@
 #include <sstream>
 
 namespace {
-	const std::string HTTP_VERSION = "HTTP/1.1";
 
-	std::map<int, std::string> init_status_codes() {
-		std::map<int, std::string> status_codes;
+const std::string HTTP_VERSION = "HTTP/1.1";
 
-		status_codes[200] = "OK";
+std::map<int, std::string> init_status_codes() {
+	std::map<int, std::string> status_codes;
 
-		status_codes[404] = "Not Found";
-		status_codes[406] = "Not Acceptable";
+	status_codes[200] = "OK";
 
-		return status_codes;
-	}
+	status_codes[404] = "Not Found";
+	status_codes[406] = "Not Acceptable";
+
+	return status_codes;
+}
+
 }  // namespace
 
 HttpResponse::HttpResponse(const HttpRequest &request, const Configuration &config) {
