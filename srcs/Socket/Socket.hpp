@@ -6,7 +6,7 @@
 class Socket {
  public:
 	Socket(const char *server_ip, const char *server_port);
-	// Socket(const Configuration &conf);
+	// Socket(const Config &conf);
 	~Socket();
 
 	int	get_socket_fd() const;

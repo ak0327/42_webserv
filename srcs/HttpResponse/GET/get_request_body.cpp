@@ -2,24 +2,29 @@
 #include <unistd.h>
 #include <cerrno>
 #include <cstdio>
+#include <fstream>
 #include <iostream>
 #include <map>
 #include <sstream>
+#include "Color.hpp"
 #include "Error.hpp"
 #include "HttpResponse.hpp"
 #include "Result.hpp"
 
 namespace {
 
-const std::string PATH_ROOT = "/";
-const std::string PATH_INDEX = "index.html";
-const std::string STATIC_ROOT = "www";  // todo
-const std::string PATH_DELIMITER = "/";
-const std::string NOT_FOUND_PATH = "www/404.html";
+const char EXTENSION_DOT = '.';
 
-const int READ_ERROR = -1;
-const int OPEN_ERROR = -1;
-const int CLOSE_ERROR = -1;
+// tmp -----------------------------
+// const char PATH_ROOT[] = "/";
+// const char PATH_INDEX[] = "index.html";
+const char STATIC_ROOT[] = "www";
+const char NOT_FOUND_PATH[] = "www/404.html";
+// ---------------------------------
+
+const char EMPTY_STR[] = "";
+
+const std::size_t INIT_CONTENT_LENGTH = 0;
 
 std::string decode(const std::string &target) {
 	std::string decoded;
@@ -38,35 +43,50 @@ std::string canonicalize(const std::string &path) {
 
 std::string find_resource_path(const std::string &canonicalized_path,
 							   const std::string &location) {
+	const std::string PATH_DELIMITER = "/";
+
 	// todo
 	return location + PATH_DELIMITER + canonicalized_path;
 }
 
 // location:tmp
 // '/' -> 'index.html'
-std::string get_resource_path(const std::string &target,
+std::string get_resource_path(const std::string &request_target,
 							  const std::map<std::string, std::string> &locations) {
 	std::map<std::string, std::string>::const_iterator itr;
 	std::string decoded_path;
 	std::string canonicalized_path;
 	std::string resource_path;
+	std::string tmp_path;
 
-	decoded_path = decode(target);
+	decoded_path = decode(request_target);
 	canonicalized_path = canonicalize(decoded_path);
+
+
+	// tmp
+	if (request_target == "/") {
+		resource_path = "/index.html";
+	} else if (request_target[0] == '/') {
+		resource_path = request_target;
+	} else {
+		resource_path = "/" + request_target;
+	}
+	return std::string(STATIC_ROOT) + resource_path;
+
 	itr = locations.find(canonicalized_path);  // todo: tmp
 	if (itr == locations.end()) {
-		return STATIC_ROOT + target;
+		return std::string(STATIC_ROOT) + request_target;
 	}
 	resource_path = find_resource_path(canonicalized_path, itr->second);
 	return resource_path;
 }
 
 std::string get_extension(const std::string &path) {
-	size_t	ext_pos;
+	std::size_t ext_pos;
 
-	ext_pos = path.find_last_of('.');
+	ext_pos = path.find_last_of(EXTENSION_DOT);
 	if (ext_pos == std::string::npos) {
-		return "";
+		return std::string(EMPTY_STR);
 	}
 	return path.substr(ext_pos + 1);
 }
@@ -81,40 +101,8 @@ bool is_support_content_type(const std::string &path,
 	return itr != mime_types.end();
 }
 
-Result<std::string, int> get_file_content(const std::string &path, size_t *content_length) {
-	ssize_t	read_size;
-	char	read_buf[BUFSIZ + 1];
-	int		fd;
-	std::string content;
-
-	fd = open(path.c_str(), O_RDONLY);
-	if (fd == OPEN_ERROR) {
-		return Result<std::string, int>::err(404);  // todo: 404?
-	}
-	*content_length = 0;
-	while (true) {
-		read_size = read(fd, read_buf, BUFSIZ);
-		if (read_size == READ_ERROR) {
-			*content_length = 0;
-			break;
-		}
-		if (read_size == 0) {
-			break;
-		}
-		read_buf[read_size] = '\0';
-		*content_length += read_size;
-		content += std::string(read_buf);
-	}
-	errno = 0;
-	if (close(fd) == CLOSE_ERROR) {
-		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
-		std::cerr << "[Error] close: " + err_info << std::endl;
-	}
-	return Result<std::string, int>::ok(content);
-}
-
 // todo: int, double,...
-std::string to_str(size_t num) {
+std::string to_str(std::size_t num) {
 	std::ostringstream oss;
 
 	oss << num;
@@ -123,14 +111,51 @@ std::string to_str(size_t num) {
 
 }  // namespace
 
+////////////////////////////////////////////////////////////////////////////////
+
+// todo: mv lib
+/* return file content and content_length */
+Result<std::string, int> get_file_content(const std::string &file_path,
+										  std::size_t *ret_content_length) {
+	std::ifstream	ifs;
+	std::string		content;
+	std::string		buf;
+	std::size_t		content_length;
+
+	if (ret_content_length) {
+		*ret_content_length = INIT_CONTENT_LENGTH;
+	}
+
+	ifs.open(file_path.c_str(), std::ios::in);
+	if (ifs.fail()) {
+		return Result<std::string, int>::err(STATUS_NOT_FOUND);
+	}
+
+	content_length = INIT_CONTENT_LENGTH;
+	content = EMPTY_STR;
+	while (std::getline(ifs, buf)) {
+		content.append(buf + (ifs.eof() ? "" : "\n"));
+		content_length += buf.length() + (ifs.eof() ? 0 : 1);
+	}
+	if (ret_content_length) {
+		*ret_content_length = content_length;
+	}
+	ifs.close();
+	// if (ifs.fail()) {
+	// 	return Result<std::string, int>::err(STATUS_NOT_FOUND);  // error... why??
+	// }
+	return Result<std::string, int>::ok(content);
+}
+
 int HttpResponse::get_request_body(const HttpRequest &request,
-								   const Configuration &config) {
+								   const Config &config) {
 	std::string path;
 	Result<std::string, int> read_file_result;
-	size_t content_length;
+	std::size_t content_length;
 
 	/* path */
-	path = get_resource_path(request.get_target(), config.get_locations());
+	path = get_resource_path(request.get_request_target(),
+							 config.get_locations());
 
 	/* read file */
 	if (!is_support_content_type(path, config.get_mime_types())) {
@@ -144,7 +169,7 @@ int HttpResponse::get_request_body(const HttpRequest &request,
 		_response_headers["Content-Length"] = to_str(content_length);
 		return 200;  // OK
 	}
-	read_file_result = get_file_content(NOT_FOUND_PATH, &content_length);
+	read_file_result = get_file_content(std::string(NOT_FOUND_PATH), &content_length);
 	if (read_file_result.is_err()) {
 		return 404;  // Not Found
 	}

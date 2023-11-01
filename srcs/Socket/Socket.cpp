@@ -80,7 +80,7 @@ Socket::Socket(const char *server_ip,
 }
 
 // todo
-// Socket::Socket(const Configuration &conf) {}
+// Socket::Socket(const Config &conf) {}
 
 Socket::~Socket() {
 	Result<int, std::string> close_result;

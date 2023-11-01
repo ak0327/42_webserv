@@ -5,7 +5,7 @@
 
 namespace {
 
-const std::string HTTP_VERSION = "HTTP/1.1";
+const char HTTP_VERSION[] = "HTTP/1.1";
 
 std::map<int, std::string> init_status_codes() {
 	std::map<int, std::string> status_codes;
@@ -20,7 +20,7 @@ std::map<int, std::string> init_status_codes() {
 
 }  // namespace
 
-HttpResponse::HttpResponse(const HttpRequest &request, const Configuration &config) {
+HttpResponse::HttpResponse(const HttpRequest &request, const Config &config) {
 	_status_codes = init_status_codes();
 
 	//  todo
@@ -40,7 +40,7 @@ HttpResponse::HttpResponse(const HttpRequest &request, const Configuration &conf
 			break;
 	}
 	std::ostringstream oss;
-	oss << HTTP_VERSION << SP << _status_code << SP << _status_codes[_status_code];
+	oss << std::string(HTTP_VERSION) << SP << _status_code << SP << _status_codes[_status_code];
 	_status_line = oss.str();
 }
 
@@ -71,11 +71,10 @@ std::string HttpResponse::get_response_headers() const {
 	return oss.str();
 }
 
-
 std::string HttpResponse::get_response_message() const {
 	std::string response_message;
 
-	response_message += _status_line;
+	response_message += _status_line + CRLF;
 	response_message += get_response_headers();
 	response_message += CRLF;
 	response_message += _response_body;

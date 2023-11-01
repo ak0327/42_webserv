@@ -2,18 +2,21 @@
 
 # include <map>
 # include <string>
+# include "Result.hpp"
 
+//------------------------------------------------------------------------------
+/* tmp */
 # define CRLF	"\r\n"
 # define SP		" "
+# define STATUS_NOT_FOUND	404
 
-// todo: tmp
-enum method {
+enum e_method {
 	GET,
 	POST,
 	DELETE
 };
 
-class Configuration {
+class Config {
  public:
 	std::map<std::string, std::string> get_locations() const {
 		std::map<std::string, std::string> tmp;
@@ -36,13 +39,42 @@ class Configuration {
 
 class HttpRequest {
  public:
-	enum method get_method() const { return GET; }
-	std::string get_target() const { return "/"; }
+	HttpRequest()
+		: method_(GET), request_target_("/") {}
+	HttpRequest(enum e_method method, const std::string &request_target)
+		: method_(method), request_target_(request_target) {}
+	HttpRequest(const HttpRequest &other) { *this = other; }
+	~HttpRequest() {}
+
+	HttpRequest &operator=(const HttpRequest &rhs) {
+		if (this == &rhs) {
+			return *this;
+		}
+		method_ = rhs.method_;
+		request_target_ = rhs.request_target_;
+		return *this;
+	}
+
+	enum e_method get_method() const { return GET; }
+	std::string get_request_target() const { return request_target_; }
+
+	void set_method(enum e_method method) { method_ = method; }
+	void set_request_target(const std::string &request_target) { request_target_ = request_target; }
+
+ private:
+	enum e_method method_;
+	std::string request_target_;
 };
+
+// todo: mv lib
+Result<std::string, int> get_file_content(const std::string &file_path,
+										  size_t *ret_content_length);
+
+//------------------------------------------------------------------------------
 
 class HttpResponse {
  public:
-	HttpResponse(const HttpRequest &request, const Configuration &config);
+	HttpResponse(const HttpRequest &request, const Config &config);
 	~HttpResponse();
 
 	std::string get_response_message() const;
@@ -68,7 +100,7 @@ class HttpResponse {
 	HttpResponse &operator=(const HttpResponse &rhs);
 
 	// todo: tmp
-	int get_request_body(const HttpRequest &request, const Configuration &config);
+	int get_request_body(const HttpRequest &request, const Config &config);
 	int post_request_body() { return 200; }
 	int delete_request_body() { return 200; }
 

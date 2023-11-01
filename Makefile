@@ -105,4 +105,11 @@ run_socket_test	:
 	./build/unit_test --gtest_filter=SocketUnitTest.*:SocketIntegrationTest.*
 
 
+.PHONY	: run_get_test
+run_get_test	:
+	#rm -rf build
+	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
+	cmake --build build
+	./build/unit_test --gtest_filter=HttpResponseGET*
+
 -include $(DEPS)

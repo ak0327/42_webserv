@@ -23,7 +23,7 @@ namespace {
 
 int main(int argc, char **argv) {
 	std::string		config_file_path;
-	// Configuration	config;  // todo
+	// Config	config;  // todo
 	// Server			server;  // todo
 
 	try {
@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
 		DEBUG_PRINT("config_file_path=[%s]", config_file_path.c_str());
 
 		// if path is 'default', config set to default
-		// config = Configuration(config_file_path);
+		// config = Config(config_file_path);
 
 		// server = Server.start_up(config);  // load config and setup socket
 		// server.run();  // connect to client

@@ -59,6 +59,8 @@ set (unit_test_srcs
         test/unit_test/TestError.cpp
         test/unit_test/TestResult.cpp
         test/unit_test/TestSocket.cpp
+        test/unit_test/HttpResponse/TestGetFileContent.cpp
+        test/unit_test/HttpResponse/TestGetRequestBody.cpp
 )
 
 add_executable(unit_test
