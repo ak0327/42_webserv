@@ -13,7 +13,8 @@
 enum e_method {
 	GET,
 	POST,
-	DELETE
+	DELETE,
+	ERROR
 };
 
 class Config {
@@ -40,8 +41,8 @@ class Config {
 class HttpRequest {
  public:
 	HttpRequest()
-		: method_(GET), request_target_("/") {}
-	HttpRequest(enum e_method method, const std::string &request_target)
+		: method_("GET"), request_target_("/") {}
+	HttpRequest(const std::string &method, const std::string &request_target)
 		: method_(method), request_target_(request_target) {}
 	HttpRequest(const HttpRequest &other) { *this = other; }
 	~HttpRequest() {}
@@ -55,14 +56,18 @@ class HttpRequest {
 		return *this;
 	}
 
-	enum e_method get_method() const { return GET; }
+	std::string get_method() const { return method_; }
 	std::string get_request_target() const { return request_target_; }
 
-	void set_method(enum e_method method) { method_ = method; }
+	void set_method(enum e_method method) {
+		if (method == GET) { method_ = "GET"; }
+		if (method == POST) { method_ = "POST"; }
+		if (method == DELETE) { method_ = "DELETE"; }
+	}
 	void set_request_target(const std::string &request_target) { request_target_ = request_target; }
 
  private:
-	enum e_method method_;
+	std::string method_;
 	std::string request_target_;
 };
 
@@ -100,7 +105,9 @@ class HttpResponse {
 	HttpResponse &operator=(const HttpResponse &rhs);
 
 	// todo: tmp
-	int get_request_body(const HttpRequest &request, const Config &config);
+	int get_request_body(const HttpRequest &request,
+						 const Config &config,
+						 const std::string &path);
 	int post_request_body() { return 200; }
 	int delete_request_body() { return 200; }
 

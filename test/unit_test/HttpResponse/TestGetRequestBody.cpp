@@ -43,7 +43,7 @@ TEST(HttpResponseGET, GetReqestBodySlash) {
 	const std::string expected_response_message = oss.str();
 
 	std::string request_target = "/";
-	HttpRequest request(GET, request_target);
+	HttpRequest request("GET", request_target);
 	Config config;
 
 	HttpResponse response(request, config);
@@ -89,7 +89,7 @@ TEST(HttpResponseGET, GetReqestBodyIndexHtml) {
 	const std::string expected_response_message = oss.str();
 
 	std::string request_target = "index.html";
-	HttpRequest request(GET, request_target);
+	HttpRequest request("GET", request_target);
 	Config config;
 
 	HttpResponse response(request, config);
@@ -120,7 +120,7 @@ TEST(HttpResponseGET, GetReqestBody404) {
 	const std::string expected_response_message = oss.str();
 
 	std::string request_target = "/no_such_file.html";
-	HttpRequest request(GET, request_target);
+	HttpRequest request("GET", request_target);
 
 	Config config;
 
@@ -139,7 +139,7 @@ TEST(HttpResponseGET, GetReqestBody406) {
 	const std::string expected_response_message = oss.str();
 
 	std::string request_target = "/no_such_file.xxxx";
-	HttpRequest request(GET, request_target);
+	HttpRequest request("GET", request_target);
 
 	Config config;
 

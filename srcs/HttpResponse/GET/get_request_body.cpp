@@ -18,7 +18,6 @@ const char EXTENSION_DOT = '.';
 // tmp -----------------------------
 // const char PATH_ROOT[] = "/";
 // const char PATH_INDEX[] = "index.html";
-const char STATIC_ROOT[] = "www";
 const char NOT_FOUND_PATH[] = "www/404.html";
 // ---------------------------------
 
@@ -26,60 +25,6 @@ const char EMPTY_STR[] = "";
 
 const std::size_t INIT_CONTENT_LENGTH = 0;
 
-std::string decode(const std::string &target) {
-	std::string decoded;
-	(void)target;
-
-	return decoded;
-}
-
-// "../" -> "/"
-std::string canonicalize(const std::string &path) {
-	std::string canonicalized;
-	(void)path;
-
-	return canonicalized;
-}
-
-std::string find_resource_path(const std::string &canonicalized_path,
-							   const std::string &location) {
-	const std::string PATH_DELIMITER = "/";
-
-	// todo
-	return location + PATH_DELIMITER + canonicalized_path;
-}
-
-// location:tmp
-// '/' -> 'index.html'
-std::string get_resource_path(const std::string &request_target,
-							  const std::map<std::string, std::string> &locations) {
-	std::map<std::string, std::string>::const_iterator itr;
-	std::string decoded_path;
-	std::string canonicalized_path;
-	std::string resource_path;
-	std::string tmp_path;
-
-	decoded_path = decode(request_target);
-	canonicalized_path = canonicalize(decoded_path);
-
-
-	// tmp
-	if (request_target == "/") {
-		resource_path = "/index.html";
-	} else if (request_target[0] == '/') {
-		resource_path = request_target;
-	} else {
-		resource_path = "/" + request_target;
-	}
-	return std::string(STATIC_ROOT) + resource_path;
-
-	itr = locations.find(canonicalized_path);  // todo: tmp
-	if (itr == locations.end()) {
-		return std::string(STATIC_ROOT) + request_target;
-	}
-	resource_path = find_resource_path(canonicalized_path, itr->second);
-	return resource_path;
-}
 
 std::string get_extension(const std::string &path) {
 	std::size_t ext_pos;
@@ -148,14 +93,11 @@ Result<std::string, int> get_file_content(const std::string &file_path,
 }
 
 int HttpResponse::get_request_body(const HttpRequest &request,
-								   const Config &config) {
-	std::string path;
+								   const Config &config,
+								   const std::string &path) {
 	Result<std::string, int> read_file_result;
 	std::size_t content_length;
-
-	/* path */
-	path = get_resource_path(request.get_request_target(),
-							 config.get_locations());
+	(void)request;
 
 	/* read file */
 	if (!is_support_content_type(path, config.get_mime_types())) {
