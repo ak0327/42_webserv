@@ -101,7 +101,7 @@ int HttpResponse::get_request_body(const HttpRequest &request,
 
 	/* read file */
 	if (!is_support_content_type(path, config.get_mime_types())) {
-		return 406;  // Not Acceptable
+		return STATUS_NOT_ACCEPTABLE;
 	}
 
 	/* return status */
@@ -109,13 +109,13 @@ int HttpResponse::get_request_body(const HttpRequest &request,
 	if (read_file_result.is_ok()) {
 		_response_body = read_file_result.get_ok_value();
 		_response_headers["Content-Length"] = to_str(content_length);
-		return 200;  // OK
+		return STATUS_OK;
 	}
 	read_file_result = get_file_content(std::string(NOT_FOUND_PATH), &content_length);
 	if (read_file_result.is_err()) {
-		return 404;  // Not Found
+		return STATUS_NOT_FOUND;
 	}
 	_response_body = read_file_result.get_ok_value();
 	_response_headers["Content-Length"] = to_str(content_length);
-	return 404;  // Not Found
+	return STATUS_NOT_FOUND;
 }

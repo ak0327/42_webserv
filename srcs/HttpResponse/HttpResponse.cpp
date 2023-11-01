@@ -11,10 +11,10 @@ const char STATIC_ROOT[] = "www";
 std::map<int, std::string> init_status_codes() {
 	std::map<int, std::string> status_codes;
 
-	status_codes[200] = "OK";
+	status_codes[STATUS_OK] = "OK";
 
-	status_codes[404] = "Not Found";
-	status_codes[406] = "Not Acceptable";
+	status_codes[STATUS_NOT_FOUND] = "Not Found";
+	status_codes[STATUS_NOT_ACCEPTABLE] = "Not Acceptable";
 
 	return status_codes;
 }
@@ -112,7 +112,7 @@ HttpResponse::HttpResponse(const HttpRequest &request, const Config &config) {
 			_status_code = delete_request_body();
 			break;
 		default:
-			_status_code = 400;  	// tmp
+			_status_code = STATUS_BAD_REQUEST;
 			break;
 	}
 	status_line_oss << std::string(HTTP_VERSION)
