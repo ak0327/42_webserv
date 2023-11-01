@@ -1,32 +1,13 @@
 #include "ServerConfig.hpp"
 
-ServerConfig::ServerConfig(): _autoindex(false), _chunked_transferencoding_allow(false), _server_tokens(1),
-_client_body_buffer_size(8000), _client_body_timeout(60), _client_header_buffer_size(1024),
-_client_header_timeout(60), _keepalive_requests(0), _keepalive_timeout(0), _client_max_body_size(1024),
-_default_type("application/octet-stream"){}
+ServerConfig::ServerConfig():
+{
+	init_server_config();
+}
 
 ServerConfig::ServerConfig(const ServerConfig &other)
 {
-	this->_autoindex =	other._autoindex;
-	this->_chunked_transferencoding_allow =	other._chunked_transferencoding_allow;
-	// this->// _errorpage;  // これめっちゃおかしい使い方 =	other->// _errorpage;  // これめっちゃおかしい使い方で
-	this->_server_tokens =	other._server_tokens;
-	this->_client_body_buffer_size = other._client_body_buffer_size;
-	this->_client_body_timeout = other._client_body_timeout;
-	this->_client_header_buffer_size =	other._client_header_buffer_size;
-	this->_client_header_timeout =	other._client_header_timeout;
-	this->_keepalive_requests =	other._keepalive_requests;
-	this->_keepalive_timeout =	other._keepalive_timeout;
-	this->_client_max_body_size =	other._client_max_body_size;
-	// this->// _locations =	other->// _locations;
-	this->_accesslog =	other._accesslog;
-	this->_default_type =	other._default_type;
-	this->_errorlog =	other._errorlog;
-	this->_port =	other._port;
-	this->_root =	other._root;
-	this->_allow_methods = other._allow_methods;
-	this->_index = other._index;
-	this->_server_name = other._server_name;
+	*this = other;
 }
 
 ServerConfig& ServerConfig::operator=(const ServerConfig &other)
@@ -37,21 +18,20 @@ ServerConfig& ServerConfig::operator=(const ServerConfig &other)
 	}
 	this->_autoindex =	other._autoindex;
 	this->_chunked_transferencoding_allow =	other._chunked_transferencoding_allow;
-	// this->// _errorpage;  // これめっちゃおかしい使い方 =	other->// _errorpage;  // これめっちゃおかしい使い方で
-	this->_server_tokens =	other._server_tokens;
+	this->_server_tokens = other._server_tokens;
 	this->_client_body_buffer_size = other._client_body_buffer_size;
 	this->_client_body_timeout = other._client_body_timeout;
-	this->_client_header_buffer_size =	other._client_header_buffer_size;
-	this->_client_header_timeout =	other._client_header_timeout;
+	this->_client_header_buffer_size = other._client_header_buffer_size;
+	this->_client_header_timeout = other._client_header_timeout;
 	this->_keepalive_requests =	other._keepalive_requests;
-	this->_keepalive_timeout =	other._keepalive_timeout;
-	this->_client_max_body_size =	other._client_max_body_size;
-	// this->// _locations =	other->// _locations;
-	this->_accesslog =	other._accesslog;
-	this->_default_type =	other._default_type;
-	this->_errorlog =	other._errorlog;
-	this->_port =	other._port;
-	this->_root =	other._root;
+	this->_keepalive_timeout = other._keepalive_timeout;
+	this->_client_max_body_size = other._client_max_body_size;
+	this->_accesslog = other._accesslog;
+	this->_default_type = other._default_type;
+	this->_errorlog = other._errorlog;
+	this->_cgi_extension = other._cgi_extension;
+	this->_port = other._port;
+	this->_root = other._root;
 	this->_allow_methods = other._allow_methods;
 	this->_index = other._index;
 	this->_server_name = other._server_name;
@@ -181,7 +161,6 @@ bool	ServerConfig::set_field_header_field_value(const std::string &field_header,
 
 void	ServerConfig::set_autoindex(const bool &boolean){ this->_autoindex = boolean; }
 void	ServerConfig::set_chunked_transferencoding_allow(const bool &boolean){ this->_chunked_transferencoding_allow = boolean; }
-// void	ServerConfig::set_errorpage;  // これめっちゃおか
 void	ServerConfig::set_server_tokens(const int &server_tokens){ this->_server_tokens = server_tokens; }
 void	ServerConfig::set_client_body_buffer_size(const size_t &client_body_buffer_size){ this->_client_body_buffer_size = client_body_buffer_size; }
 void	ServerConfig::set_client_body_timeout(const size_t &client_body_timeout){ this->_client_body_timeout = client_body_timeout; }
@@ -193,7 +172,7 @@ void	ServerConfig::set_client_header_timeout(const size_t &client_header_timeout
 void	ServerConfig::set_keepalive_requests(const size_t &keepaliverequests){ this->_keepalive_requests = keepaliverequests; }
 void	ServerConfig::set_keepalive_timeout(const size_t &keepalive_timeout){ this->_keepalive_timeout = keepalive_timeout; }
 void	ServerConfig::set_client_max_body_size(const size_t &client_max_body_size){ this->_client_max_body_size = client_max_body_size; }
-// void		ServerConfig::set_locations();
+
 void	ServerConfig::set_accesslog(const std::string &access_log){ this->_accesslog = access_log; }
 void	ServerConfig::set_default_type(const std::string &default_type){ this->_default_type = default_type; }
 void	ServerConfig::set_errorlog(const std::string &error_log){ this->_errorlog = error_log; }
@@ -205,7 +184,7 @@ void	ServerConfig::set_server_name(const std::vector<std::string> &server_name){
 
 bool	ServerConfig::get_autoindex() const { return (this->_autoindex); }
 bool	ServerConfig::get_chunked_transferencoding_allow() const { return (this->_chunked_transferencoding_allow); }
-// ErrorPage 							get_errorpage;  // これめっちゃおか
+
 int		ServerConfig::get_server_tokens() const { return (this->_server_tokens); }
 size_t	ServerConfig::get_client_body_buffer_size() const { return (this->_client_body_buffer_size); }
 size_t	ServerConfig::get_client_body_timeout() const { return (this->_client_body_timeout); }
@@ -214,7 +193,7 @@ size_t	ServerConfig::get_client_header_timeout() const { return (this->_client_h
 size_t	ServerConfig::get_keepalive_requests() const { return (this->_keepalive_requests); }
 size_t	ServerConfig::get_keepalive_timeout() const { return (this->_keepalive_timeout); }
 size_t 	ServerConfig::get_client_max_body_size() const { return (this->_client_max_body_size); }
-// std::map<std::string, LocationConfig>get	_locations;
+
 std::string	ServerConfig::get_accesslog() const { return (this->_accesslog); }
 std::string	ServerConfig::get_default_type() const { return (this->_default_type); }
 std::string	ServerConfig::get_errorlog() const { return (this->_errorlog); }
@@ -224,34 +203,30 @@ std::vector<std::string>	ServerConfig::get_allow_methods() const { return (this-
 std::vector<std::string>	ServerConfig::get_index() const { return (this->_index); }
 std::vector<std::string>	ServerConfig::get_server_name() const { return (this->_server_name); }
 
-// autoindex(false)
-// _chunked_transferencoding_allow(false)
-// _server_tokens(1)
-// _client_body_buffer_size(8000)
-// _client_body_timeout(60)
-// _client_header_buffer_size(1024)
-// _client_header_timeout(60)
-// _client_maxbody_size(1048576)
-// _keepalive_requests(0)
-// _keepalive_timeout(0)
-// _maxBodySize(1024)
-// _default_type("application/octet-stream")
 void	ServerConfig::clear_serverconfig()
 {
-	this->set_autoindex(false);
-	this->set_chunked_transferencoding_allow(false);
-	this->set_server_tokens(1);
-	this->set_client_body_buffer_size(8000);
-	this->set_client_header_timeout(60);
-	this->set_keepalive_requests(0);
-	this->set_keepalive_timeout(0);
-	this->set_client_max_body_size(1024);
-	this->set_accesslog("");
-	this->set_default_type("");
-	this->set_default_type("application/octet-stream");
-	this->set_errorlog("");
-	this->set_port("");
-	this->set_root("");
+	init_server_config();
+}
+
+void ServerConfig::init_server_config()
+{
+	this->_autoindex = false;
+	this->_chunked_transferencoding_allow = false;
+	this->_server_tokens = 1;
+	this->_client_body_buffer_size = 8000;
+	this->_client_body_timeout = 60;
+	this->_client_header_buffer_size = 1024;
+	this->_client_header_timeout = 60;
+	this->_keepalive_requests = 0;
+	this->_keepalive_timeout = 0;
+	this->_client_max_body_size = 1024;
+	this->_default_type = "application/octet-stream";
+	this->_accesslog = "";
+	this->_cgi_extension = "";
+	this->_errorlog = "";
+	this->_port = "";
+	this->_root = "";
 	this->_allow_methods.clear();
 	this->_index.clear();
+	this->_server_name.clear();
 }

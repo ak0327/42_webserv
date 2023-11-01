@@ -40,16 +40,19 @@ TEST(UtilsTest, IsBlockEnd) {
 }
 
 TEST(UtilsTest, IsFieldHeader) {
-	// todo
 	// TRUE
 	size_t pos = 0;
 	EXPECT_EQ(OK, IsConfigFormat::is_field_header("aaa aaa;", &pos));
+	EXPECT_EQ(pos, 3);
 	pos = 0;
 	EXPECT_EQ(OK, IsConfigFormat::is_field_header("aaa a;", &pos));
+	EXPECT_EQ(pos, 3);
 	pos = 0;
 	EXPECT_EQ(OK, IsConfigFormat::is_field_header("a aa", &pos));
+	EXPECT_EQ(pos, 2);
 	pos = 0;
 	EXPECT_EQ(OK, IsConfigFormat::is_field_header("aa a a a a", &pos));
+	EXPECT_EQ(pos, 3);
 
 	// FALSE
 	pos = 0;
@@ -62,14 +65,16 @@ TEST(UtilsTest, IsFieldHeader) {
 
 
 TEST(UtilsTest, IsFieldValue) {
-	// todo
 	// TRUE
 	size_t pos = 0;
 	EXPECT_EQ(OK, IsConfigFormat::is_field_value("aaa;", &pos));
+	EXPECT_EQ(pos, 3);
 	pos = 0;
 	EXPECT_EQ(OK, IsConfigFormat::is_field_value("a;", &pos));
+	EXPECT_EQ(pos, 1);
 	pos = 0;
 	EXPECT_EQ(OK, IsConfigFormat::is_field_value("aa aa;", &pos));
+	EXPECT_EQ(pos, 5);
 
 	// FALSE
 	pos = 0;

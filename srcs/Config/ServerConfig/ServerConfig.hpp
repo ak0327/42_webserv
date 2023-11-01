@@ -53,6 +53,7 @@ class ServerConfig
 		std::vector<std::string>				_allow_methods;
 		std::vector<std::string>				_index;
 		std::vector<std::string>				_server_name;
+		void	init_server_config();
 	public:
 		ServerConfig();
 		ServerConfig(const ServerConfig &other);

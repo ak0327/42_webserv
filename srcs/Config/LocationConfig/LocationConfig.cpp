@@ -6,27 +6,7 @@ LocationConfig::LocationConfig() {
 
 LocationConfig::LocationConfig(const LocationConfig &other)
 {
-	this->_autoindex = other.get_autoindex();
-	this->_chunked_transferencoding_allow = other.get_chunked_transferencoding_allow();
-	this->_server_tokens = other.get_server_tokens();
-	this->_client_body_buffer_size = other.get_client_body_buffer_size();
-	this->_client_body_timeout = other.get_client_body_timeout();
-	this->_client_header_buffer_size = other.get_client_header_buffer_size();
-	this->_client_header_timeout = other.get_client_header_timeout();
-	this->_client_max_body_size = other.get_client_max_body_size();
-	this->_keepalive_requests = other.get_keepalive_requests();
-	this->_keepalive_timeout = other.get_keepalive_timeout();
-	this->_alias = other.get_alias();
-	this->_accesslog = other.get_accesslog();
-	this->_cgi_path = other.get_cgi_path();
-	this->_default_type = other.get_default_type();
-	this->_errorlog = other.get_errorlog();
-	this->_upload_path = other.get_upload_path();
-	this->_root = other.get_root();
-	this->_allow_methods = other.get_allow_methods();
-	this->_index = other.get_index();
-	this->_server_name = other.get_server_name();
-	this->_errorpages = other.get_errorpages();
+	*this = other;
 }
 
 LocationConfig& LocationConfig::operator=(const LocationConfig &other)
@@ -177,7 +157,6 @@ size_t	LocationConfig::get_client_max_body_size() const { return (this->_client_
 size_t	LocationConfig::get_keepalive_requests() const { return (this->_keepalive_requests); }
 size_t	LocationConfig::get_keepalive_timeout() const { return (this->_keepalive_timeout); }
 std::string	LocationConfig::get_alias() const { return (this->_alias); }
-// error_page		LocationConfig::get	_errorpage_set;//これめっちゃおかしい使い方できる　error_page 403 404 500 503 =404 /custom_404.html;
 std::string	LocationConfig::get_accesslog() const { return (this->_accesslog); }
 std::string	LocationConfig::get_cgi_path() const { return (this->_cgi_path); }
 std::string	LocationConfig::get_default_type() const { return (this->_default_type); }
@@ -264,17 +243,27 @@ void LocationConfig::init_location_config_with_server_config(const ServerConfig 
 {
 	this->set_autoindex(server_config.get_autoindex());
 	this->set_chunked_transferencoding_allow(server_config.get_chunked_transferencoding_allow());
+
 	this->set_server_tokens(server_config.get_server_tokens());
+
 	this->set_client_body_buffer_size(server_config.get_client_body_buffer_size());
+	this->set_client_body_timeout(server_config.get_client_body_timeout());
+	this->set_client_header_buffer_size(server_config.get_client_header_buffer_size());
 	this->set_client_header_timeout(server_config.get_client_header_timeout());
 	this->set_client_max_body_size(server_config.get_client_max_body_size());
 	this->set_keepaliverequests(server_config.get_keepalive_requests());
 	this->set_keepalive_timeout(server_config.get_keepalive_timeout());
+
+	this->set_alias("");
 	this->set_accesslog(server_config.get_accesslog());
-	this->set_default_type(server_config.get_default_type());
+	this->set_cgi_path("");
 	this->set_default_type(server_config.get_default_type());
 	this->set_errorlog(server_config.get_errorlog());
+	this->set_upload_path("");
 	this->set_root(server_config.get_root());
+
 	this->set_allow_methods(server_config.get_allow_methods());
-	this->_index.clear();
+	this->set_index(server_config.get_index());
+	this->set_server_name(server_config.get_server_name());
+	this->set_errorpages(server_config.get_errorpages());
 }

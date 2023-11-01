@@ -82,42 +82,6 @@ TEST(ConfigReadingTest, ConfigTest1)
 	// -------------------------------- //
 }
 
-// EXPECT_EQ(false, allconfig.get_autoindex());
-// EXPECT_EQ(false, allconfig.get_chunked_transferencoding_allow());
-// EXPECT_EQ(1, allconfig.get_server_tokens());
-// EXPECT_EQ(8000, allconfig.get_client_body_buffer_size());
-// EXPECT_EQ(60, allconfig.get_client_body_timeout());
-// EXPECT_EQ(1024, allconfig.get_client_header_buffer_size());
-// EXPECT_EQ(60, allconfig.get_client_header_timeout());
-// EXPECT_EQ(0, allconfig.get_keepalive_requests());
-// EXPECT_EQ(0, allconfig.get_keepalive_timeout());
-// EXPECT_EQ(1024, allconfig.get_client_max_body_size());
-// EXPECT_EQ("", allconfig.get_accesslog());
-// EXPECT_EQ("application/octet-stream", allconfig.get_default_type());
-// EXPECT_EQ("", allconfig.get_errorlog());
-// EXPECT_EQ("", allconfig.get_port());
-// EXPECT_EQ("", allconfig.get_root());
-// compare_vector_report(66, allconfig.get_allowmethods(), anser_allowmethods);
-// compare_vector_report(66, allconfig.get_indexpages(), anser_indexpages);
-
-// EXPECT_EQ(false, 								*.get_autoindex());
-// EXPECT_EQ(false, 								*.get_chunked_transferencoding_allow());
-// EXPECT_EQ(1,										*.get_server_tokens());
-// EXPECT_EQ(8000,									*.get_client_body_buffer_size());
-// EXPECT_EQ(60,									*.get_client_body_timeout());
-// EXPECT_EQ(1024,									*.get_client_header_buffer_size());
-// EXPECT_EQ(60,									*.get_client_header_timeout());
-// EXPECT_EQ(1024,									*.get_client_max_body_size());
-// EXPECT_EQ(0,										*.get_keepaliverequests());
-// EXPECT_EQ(0,										*.get_keepalive_timeout());
-// EXPECT_EQ("",									*.get_alias());
-// EXPECT_EQ("",									*.get_accesslog());
-// EXPECT_EQ("",									*.get_cgi_path());
-// EXPECT_EQ("application/octet-stream",			*.get_default_type());
-// EXPECT_EQ("", 									*.get_errorlog());
-// EXPECT_EQ("", 									*.get_root());
-// compare_vector_report(83, anser_indexpage_sets,	*.get_indexpages());
-
 TEST(ConfigReadingTest, ConfigTest2)
 {
 	Config	test_config("config/testconfig2.conf");
