@@ -90,7 +90,7 @@ class HttpResponse {
 	std::string get_response_message() const;
 
  private:
-	std::map<int, std::string> _status_codes;
+	std::map<int, std::string> _status_reason_phrase;
 	int _status_code;  // todo: std::string?
 	// ...
 	std::map<std::string, std::string> _headers;
@@ -116,5 +116,5 @@ class HttpResponse {
 	int post_request_body() { return 200; }
 	int delete_request_body() { return 200; }
 
-	std::string get_response_headers() const;
+	std::string get_field_lines() const;
 };

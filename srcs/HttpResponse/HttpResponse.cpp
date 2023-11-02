@@ -8,15 +8,15 @@ namespace {
 const char HTTP_VERSION[] = "HTTP/1.1";
 const char STATIC_ROOT[] = "www";
 
-std::map<int, std::string> init_status_codes() {
-	std::map<int, std::string> status_codes;
+std::map<int, std::string> init_status_reason_phrase() {
+	std::map<int, std::string> status_reason_phrase;
 
-	status_codes[STATUS_OK] = "OK";
+	status_reason_phrase[STATUS_OK] = "OK";
 
-	status_codes[STATUS_NOT_FOUND] = "Not Found";
-	status_codes[STATUS_NOT_ACCEPTABLE] = "Not Acceptable";
+	status_reason_phrase[STATUS_NOT_FOUND] = "Not Found";
+	status_reason_phrase[STATUS_NOT_ACCEPTABLE] = "Not Acceptable";
 
-	return status_codes;
+	return status_reason_phrase;
 }
 
 std::string decode(const std::string &target) {
@@ -95,7 +95,7 @@ HttpResponse::HttpResponse(const HttpRequest &request, const Config &config) {
 	enum e_method		method;
 	std::ostringstream	status_line_oss;
 
-	_status_codes = init_status_codes();
+	_status_reason_phrase = init_status_reason_phrase();
 	path = get_resource_path(request.get_request_target(),
 							 config.get_locations());
 	method = get_enum_method(request.get_method());
@@ -115,12 +115,13 @@ HttpResponse::HttpResponse(const HttpRequest &request, const Config &config) {
 			_status_code = STATUS_BAD_REQUEST;
 			break;
 	}
+
+	// status-line = HTTP-version SP status-code SP [ reason-phrase ]
 	status_line_oss << std::string(HTTP_VERSION)
 					<< SP
 					<< _status_code
 					<< SP
-					<< _status_codes[_status_code]
-					<< CRLF;
+					<< _status_reason_phrase[_status_code];
 	_status_line = status_line_oss.str();
 }
 
@@ -141,7 +142,8 @@ HttpResponse &HttpResponse::operator=(const HttpResponse &rhs) {
 	return *this;
 }
 
-std::string HttpResponse::get_response_headers() const {
+// field-line = field-name ":" OWS field-values OWS
+std::string HttpResponse::get_field_lines() const {
 	std::map<std::string, std::string>::const_iterator itr;
 	std::ostringstream response_headers_oss;
 	std::string field_name, field_value;
@@ -155,11 +157,18 @@ std::string HttpResponse::get_response_headers() const {
 	return response_headers_oss.str();
 }
 
+/*
+ HTTP-message = start-line CRLF
+				*( field-line CRLF )
+				CRLF
+				[ message-body ]
+ https://triple-underscore.github.io/http1-ja.html#http.message
+ */
 std::string HttpResponse::get_response_message() const {
 	std::string response_message;
 
-	response_message.append(_status_line);
-	response_message.append(get_response_headers());
+	response_message.append(_status_line + CRLF);
+	response_message.append(get_field_lines());
 	response_message.append(CRLF);
 	response_message.append(_response_body);
 	return response_message;
