@@ -1,6 +1,7 @@
 #include "ServerConfig.hpp"
+#include "../Config/Config.hpp"
 
-ServerConfig::ServerConfig():
+ServerConfig::ServerConfig()
 {
 	init_server_config();
 }

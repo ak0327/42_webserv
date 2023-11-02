@@ -10,27 +10,6 @@
 #include "HandlingString.hpp"
 #include "NumericHandle.hpp"
 
-#define AUTOINDEX "autoindex"
-#define CHUNKED_TRANSFERENCODING_ALLOW "chunked_transferencoding_allow"
-#define SERVER_TOKENS "server_tokens"
-#define CLIENT_BODY_BUFFER_SIZE "client_body_buffer_size"
-#define CLIENT_BODY_TIMEOUT "client_body_timeout"
-#define CLIENT_HEADER_BUFFER_SIZE "client_header_buffer_size"
-#define CLIENT_HEADER_TIMEOUT "client_header_timeout"
-#define KEEPALIVE_REQUESTS "keepalive_requests"
-#define KEEPALIVE_TIMEOUT "keepalive_timeout"
-#define CLIENT_MAX_BODY_SIZE "client_max_body_size"
-#define ACCESSLOG "accesslog"
-#define CGI_EXTENSIONS "cgi_extension"
-#define DEFAULT_TYPE "default_type"
-#define ERRORLOG "errorlog"
-#define LISTEN "listen"
-#define PORT "port"
-#define ROOT "root"
-#define ALLOW_METHODS "allow_methods"
-#define INDEX "index"
-#define SERVER_NAME "server_name"
-
 class ServerConfig
 {
 	private:

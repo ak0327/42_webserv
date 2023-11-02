@@ -38,8 +38,10 @@ TEST(ConfigReadingTest, ConfigTest1)
 
 	// configに記載があるもの location block //
 	std::vector<std::string>	anser_allowmethods;
-	anser_allowmethods.push_back("POST");
-	compare_vector_report(__LINE__, astalisk_cgi_path.get_index(), anser_allowmethods);
+	std::vector<std::string>	anser_index;
+	anser_index.push_back("index.html");
+	anser_index.push_back("index.php");
+	compare_vector_report(__LINE__, astalisk_cgi_path.get_index(), anser_index);
 	EXPECT_EQ("test/index.php", astalisk_cgi_path.get_cgi_path());
 	// -------------------------------- //
 
@@ -109,8 +111,11 @@ TEST(ConfigReadingTest, ConfigTest2)
 
 	// configに記載があるもの location block //
 	std::vector<std::string>	anser_allowmethods;
+	std::vector<std::string>	anser_index;
+	anser_index.push_back("index.html");
+	anser_index.push_back("index.php");
 	anser_allowmethods.push_back("POST");
-	compare_vector_report(__LINE__, astalisk_cgi_path.get_index(), anser_allowmethods);
+	compare_vector_report(__LINE__, astalisk_cgi_path.get_index(), anser_index);
 	EXPECT_EQ("test/index.php", astalisk_cgi_path.get_cgi_path());
 
 	EXPECT_EQ("./docs/", root_path.get_alias());

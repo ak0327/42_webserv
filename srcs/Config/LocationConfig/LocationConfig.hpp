@@ -4,6 +4,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include "../AllConfig/AllConfig.hpp"
 #include "ServerConfig.hpp"
 
 class LocationConfig

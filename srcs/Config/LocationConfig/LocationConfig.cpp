@@ -1,4 +1,5 @@
 #include "LocationConfig.hpp"
+#include "../Config/Config.hpp"
 
 LocationConfig::LocationConfig() {
 	init_location_keyword();
@@ -265,5 +266,5 @@ void LocationConfig::init_location_config_with_server_config(const ServerConfig 
 	this->set_allow_methods(server_config.get_allow_methods());
 	this->set_index(server_config.get_index());
 	this->set_server_name(server_config.get_server_name());
-	this->set_errorpages(server_config.get_errorpages());
+	this->_errorpages.clear();
 }
