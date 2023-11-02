@@ -14,7 +14,6 @@
 # define STATUS_NOT_FOUND		404
 # define STATUS_NOT_ACCEPTABLE	406
 
-
 enum e_method {
 	GET,
 	POST,
