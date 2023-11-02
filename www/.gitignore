@@ -5,5 +5,8 @@
 !images
 !images/*
 
+!autoindex_files
+!autoindex_files/**
+
 !*.html
 !*.css
