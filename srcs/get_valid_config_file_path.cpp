@@ -5,6 +5,7 @@
 // can't operate nginx
 //   o-r nginx.conf
 //   o-x nginx/
+
 namespace {
 	const std::string CONFIG_FILE_EXTENSION = "conf";
 	char PATH_DELIM = '/';

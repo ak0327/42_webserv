@@ -45,6 +45,7 @@ set(webserv_srcs
         srcs/Error/Error.cpp
         srcs/HttpResponse/HttpResponse.cpp
         srcs/HttpResponse/GET/get_request_body.cpp
+        srcs/HttpResponse/GET/get_directory_listing.cpp
         srcs/Socket/Socket.cpp
 )
 
@@ -61,6 +62,7 @@ set (unit_test_srcs
         test/unit_test/TestSocket.cpp
         test/unit_test/HttpResponse/TestGetFileContent.cpp
         test/unit_test/HttpResponse/TestGetRequestBody.cpp
+        test/unit_test/HttpResponse/TestAutoIndex.cpp
 )
 
 add_executable(unit_test

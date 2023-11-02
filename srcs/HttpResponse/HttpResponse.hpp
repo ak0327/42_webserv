@@ -1,6 +1,7 @@
 #pragma once
 
 # include <map>
+# include <set>
 # include <string>
 # include "Result.hpp"
 
@@ -23,6 +24,10 @@ enum e_method {
 
 class Config {
  public:
+	Config() : autoindex_(false) {}
+	explicit Config(bool autoindex) : autoindex_(autoindex) {}
+	~Config() {}
+
 	std::map<std::string, std::string> get_locations() const {
 		std::map<std::string, std::string> tmp;
 		return tmp;
@@ -40,6 +45,12 @@ class Config {
 		types["png"] = "image/png";
 		return types;
 	}
+
+	bool get_autoindex() const { return autoindex_; }
+	void set_autoindex(bool autoindex) { autoindex_ = autoindex; }
+
+ private:
+	bool autoindex_;
 };
 
 class HttpRequest {
@@ -75,9 +86,36 @@ class HttpRequest {
 	std::string request_target_;
 };
 
+
+struct file_info {
+	std::string	name;
+	off_t		size;
+	std::string	last_modified_time;  // dd-mm-yy hh:mm
+};
+
+
 // todo: mv lib
+
 Result<std::string, int> get_file_content(const std::string &file_path,
-										  size_t *ret_content_length);
+										  std::size_t *ret_content_length,
+										  const std::map<std::string, std::string> &mime_types);
+
+Result<std::string, int> get_path_content(const std::string &path,
+										  bool autoindex,
+										  std::size_t *ret_content_length,
+										  const std::map<std::string, std::string> &mime_types);
+
+Result<std::string, int> get_directory_listing(const std::string &directory_path,
+											   std::size_t *ret_content_length);
+Result<std::string, int> get_directory_listing_html(const std::string &path,
+													const std::set<file_info> &directories,
+													const std::set<file_info> &files);
+
+bool is_directory(const std::string &path);
+std::string get_timestamp(struct timespec time);
+
+
+bool operator<(const file_info &lhs, const file_info &rhs);
 
 //------------------------------------------------------------------------------
 
@@ -111,7 +149,8 @@ class HttpResponse {
 	// todo: tmp
 	int get_request_body(const HttpRequest &request,
 						 const Config &config,
-						 const std::string &path);
+						 const std::string &path,
+						 bool autoindex);
 	int post_request_body() { return 200; }
 	int delete_request_body() { return 200; }
 

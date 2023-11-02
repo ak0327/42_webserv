@@ -1,7 +1,8 @@
-#include "HttpResponse.hpp"
-
 #include <iostream>
 #include <sstream>
+
+#include "Color.hpp"
+#include "HttpResponse.hpp"
 
 namespace {
 
@@ -86,6 +87,12 @@ enum e_method get_enum_method(const std::string &method) {
 	return ERROR;
 }
 
+bool get_autoindex(const std::string &request_target, const Config &config) {
+	(void)request_target;
+
+	return config.get_autoindex();
+}
+
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -93,17 +100,19 @@ enum e_method get_enum_method(const std::string &method) {
 HttpResponse::HttpResponse(const HttpRequest &request, const Config &config) {
 	std::string			path;
 	enum e_method		method;
+	bool				autoindex;
 	std::ostringstream	status_line_oss;
 
 	_status_reason_phrase = init_status_reason_phrase();
 	path = get_resource_path(request.get_request_target(),
 							 config.get_locations());
+	autoindex = get_autoindex(request.get_request_target(), config);
 	method = get_enum_method(request.get_method());
 
 	//  request -> method -> status, header, body
 	switch (method) {
 		case GET:
-			_status_code = get_request_body(request, config, path);
+			_status_code = get_request_body(request, config, path, autoindex);
 			break;
 		case POST:
 			_status_code = post_request_body();

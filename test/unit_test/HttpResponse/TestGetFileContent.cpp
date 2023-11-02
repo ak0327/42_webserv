@@ -34,9 +34,10 @@ TEST(HttpResponseGET, GetFileContentIndexHtml) {
 	Result<std::string, int> result;
 	std::string file_path;
 	std::size_t content_length;
+	Config config;
 
 	file_path = "www/index.html";
-	result = get_file_content(file_path, &content_length);
+	result = get_file_content(file_path, &content_length, config.get_mime_types());
 	EXPECT_TRUE(result.is_ok());
 	if (result.is_err()) {
 		FAIL() << "unexpected result";
@@ -61,9 +62,10 @@ TEST(HttpResponseGET, GetFileContentIndexCss) {
 	Result<std::string, int> result;
 	std::string file_path;
 	std::size_t content_length;
+	Config config;
 
 	file_path = "www/index.css";
-	result = get_file_content(file_path, &content_length);
+	result = get_file_content(file_path, &content_length, config.get_mime_types());
 	EXPECT_TRUE(result.is_ok());
 	if (result.is_err()) {
 		FAIL() << "unexpected result";
@@ -77,9 +79,10 @@ TEST(HttpResponseGET, GetFileContentFileNotExist) {
 	Result<std::string, int> result;
 	std::string file_path;
 	std::size_t content_length;
+	Config config;
 
 	file_path = "hoge";
-	result = get_file_content(file_path, &content_length);
+	result = get_file_content(file_path, &content_length, config.get_mime_types());
 	EXPECT_TRUE(result.is_err());
 	EXPECT_EQ(expected_length, content_length);
 }

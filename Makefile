@@ -22,6 +22,7 @@ SRCS		+=	$(ERROR_DIR)/Error.cpp
 #HttpResponse
 RESPONSE_DIR =	HttpResponse
 SRCS		+=	$(RESPONSE_DIR)/HttpResponse.cpp \
+				$(RESPONSE_DIR)/GET/get_directory_listing.cpp \
 				$(RESPONSE_DIR)/GET/get_request_body.cpp
 
 #socket
@@ -111,5 +112,13 @@ run_get_test	:
 	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
 	cmake --build build
 	./build/unit_test --gtest_filter=HttpResponseGET*
+
+
+.PHONY	: run_autoindex_test
+run_autoindex_test	:
+	#rm -rf build
+	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
+	cmake --build build
+	./build/unit_test --gtest_filter=*AutoIndex*
 
 -include $(DEPS)
