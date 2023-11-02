@@ -1,5 +1,6 @@
 #pragma once
 
+# include <sys/types.h>
 # include <map>
 # include <set>
 # include <string>
@@ -14,6 +15,7 @@
 # define STATUS_BAD_REQUEST		400
 # define STATUS_NOT_FOUND		404
 # define STATUS_NOT_ACCEPTABLE	406
+# define STATUS_SERVER_ERROR	500
 
 enum e_method {
 	GET,
@@ -93,31 +95,9 @@ struct file_info {
 	std::string	last_modified_time;  // dd-mm-yy hh:mm
 };
 
-
-// todo: mv lib
-
-Result<std::string, int> get_file_content(const std::string &file_path,
-										  std::size_t *ret_content_length,
-										  const std::map<std::string, std::string> &mime_types);
-
-Result<std::string, int> get_path_content(const std::string &path,
-										  bool autoindex,
-										  std::size_t *ret_content_length,
-										  const std::map<std::string, std::string> &mime_types);
-
-Result<std::string, int> get_directory_listing(const std::string &directory_path,
-											   std::size_t *ret_content_length);
-Result<std::string, int> get_directory_listing_html(const std::string &path,
-													const std::set<file_info> &directories,
-													const std::set<file_info> &files);
-
-bool is_directory(const std::string &path);
-std::string get_timestamp(struct timespec time);
-
+//------------------------------------------------------------------------------
 
 bool operator<(const file_info &lhs, const file_info &rhs);
-
-//------------------------------------------------------------------------------
 
 class HttpResponse {
  public:
@@ -128,6 +108,8 @@ class HttpResponse {
 
  private:
 	std::map<int, std::string> _status_reason_phrase;
+	std::map<int, std::string> _err_page_paths;
+
 	int _status_code;  // todo: std::string?
 	// ...
 	std::map<std::string, std::string> _headers;
@@ -155,4 +137,18 @@ class HttpResponse {
 	int delete_request_body() { return 200; }
 
 	std::string get_field_lines() const;
+
+	Result<std::string, int> get_path_content(const std::string &path,
+											  bool autoindex,
+											  std::size_t *ret_content_length,
+											  const std::map<std::string, std::string> &mime_types);
+
+	Result<std::string, int> get_file_content(const std::string &file_path,
+											  std::size_t *ret_content_length,
+											  const std::map<std::string, std::string> &mime_types);
+
+	Result<std::string, int> get_directory_listing(const std::string &directory_path,
+												   std::size_t *ret_content_length);
+
+	bool is_directory(const std::string &path);
 };

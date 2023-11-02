@@ -13,5 +13,5 @@ TEST(HttpResponseGet, AutoIndexGetDirectoryListening) {
 	HttpResponse response(request, config);
 
 	// now: just print for check body
-	std::cout << CYAN << response.get_response_message() << RESET << std::endl;
+	std::cerr << CYAN << response.get_response_message() << RESET << std::endl;
 }

@@ -97,6 +97,38 @@ TEST(HttpResponseGET, GetReqestBodyIndexHtml) {
 	EXPECT_EQ(expected_response_message, response.get_response_message());
 }
 
+TEST(HttpResponseGET, GetReqestBodyIndexCss) {
+	const std::string expected_content = "h2 {\n"
+										 "    color: red;\n"
+										 "}\n"
+										 "\n"
+										 "h3 {\n"
+										 "    color: blue;\n"
+										 "}\n"
+										 "\n"
+										 "h5 {\n"
+										 "    color: yellow;\n"
+										 "}";
+	const std::size_t expected_content_len = expected_content.length();
+	const std::string expected_status_line = "HTTP/1.1 200 OK";
+
+	std::ostringstream oss;
+	oss << expected_status_line << CRLF;
+	oss << "Content-Length: " << expected_content_len << CRLF;
+	oss << CRLF;
+	oss << expected_content;
+
+	const std::string expected_response_message = oss.str();
+
+	std::string request_target = "index.css";
+	HttpRequest request("GET", request_target);
+	Config config;
+
+	HttpResponse response(request, config);
+
+	EXPECT_EQ(expected_response_message, response.get_response_message());
+}
+
 TEST(HttpResponseGET, GetReqestBody404) {
 	const std::string expected_content = "<!DOCTYPE html>\n"
 										 "<html lang=\"en\">\n"
@@ -130,11 +162,24 @@ TEST(HttpResponseGET, GetReqestBody404) {
 }
 
 TEST(HttpResponseGET, GetReqestBody406) {
+	const std::string expected_content = "<!DOCTYPE html>\n"
+										 "<html lang=\"en\">\n"
+										 "<head>\n"
+										 "    <meta charset=\"UTF-8\">\n"
+										 "    <title>406 Not acceptable</title>\n"
+										 "</head>\n"
+										 "<body>\n"
+										 "    <h1>406 Not acceptable</h1>\n"
+										 "</body>\n"
+										 "</html>";
+	const std::size_t expected_content_len = expected_content.length();
 	const std::string expected_status_line = "HTTP/1.1 406 Not Acceptable";
 
 	std::ostringstream oss;
 	oss << expected_status_line << CRLF;
+	oss << "Content-Length: " << expected_content_len << CRLF;
 	oss << CRLF;
+	oss << expected_content;
 
 	const std::string expected_response_message = oss.str();
 

@@ -24,27 +24,19 @@ const int STAT_ERROR = -1;
 const int CLOSEDIR_ERROR = -1;
 const DIR* OPENDIR_ERROR = NULL;
 
-}  // namespace
-
-////////////////////////////////////////////////////////////////////////////////
-
-bool operator<(const file_info &lhs, const file_info &rhs) {
-	return lhs.name < rhs.name;
-}
-
-std::string get_timestamp(struct timespec time) {
-	const std::size_t BUFSIZE = 30;
-	char formatted_time[BUFSIZE];
-	struct tm time_info;
-
-	localtime_r(&time.tv_sec, &time_info);
-	strftime(formatted_time, sizeof(formatted_time), "%d-%b-%Y %H:%M", &time_info);
-	return std::string(formatted_time);
-}
-
 const char CURRENT_DIR[] = ".";
 const char PARENT_DIR[] = "..";
 const char hidden_file_prefix = '.';
+
+std::string get_timestamp(time_t time) {
+	const std::size_t BUFSIZE = 30;
+	struct tm time_info;
+	char formatted_time[BUFSIZE];
+
+	localtime_r(&time, &time_info);
+	strftime(formatted_time, sizeof(formatted_time), "%d-%b-%Y %H:%M", &time_info);
+	return std::string(formatted_time);
+}
 
 Result<int, int> get_file_info(const std::string &directory_path_end_with_slash,
 							   std::set<file_info> *ret_directories,
@@ -55,6 +47,7 @@ Result<int, int> get_file_info(const std::string &directory_path_end_with_slash,
 	struct file_info info;
 	std::string filepath;
 	std::string filename;
+	int stat_result;
 
 	std::set<file_info> directories, files;
 
@@ -96,15 +89,21 @@ Result<int, int> get_file_info(const std::string &directory_path_end_with_slash,
 
 		errno = 0;
 		// std::cout << CYAN << "filepath:[" << filepath << "]" << RESET << std::endl;
-		if (stat(filepath.c_str(), &stat_buf) == STAT_ERROR) {
+		stat_result = stat(filepath.c_str(), &stat_buf);
+		if (stat_result == STAT_ERROR && !(errno == EACCES || errno == ENOENT)) {  // todo: linux
+			// std::cout << CYAN << "errno:" << errno << RESET << std::endl;
 			err_info = create_error_info(errno, __FILE__, __LINE__);
 			is_err = true;
 			break;
 		}
 		info.name = filename;
 		info.size = stat_buf.st_size;
-		info.last_modified_time = get_timestamp(stat_buf.st_mtimespec);
 
+#if defined(__linux__)
+		info.last_modified_time = get_timestamp(stat_buf.st_mtime);
+#else
+		info.last_modified_time = get_timestamp(stat_buf.st_mtimespec.tv_sec);
+#endif
 		if (S_ISDIR(stat_buf.st_mode)) {
 			info.name += "/";
 			directories.insert(info);
@@ -225,8 +224,12 @@ std::string get_directory_path_end_with_slash(const std::string &directory_path)
 	return directory_path + "/";
 }
 
-Result<std::string, int> get_directory_listing(const std::string &directory_path,
-											   std::size_t *ret_content_length) {
+}  // namespace
+
+////////////////////////////////////////////////////////////////////////////////
+
+Result<std::string, int> HttpResponse::get_directory_listing(const std::string &directory_path,
+															 std::size_t *ret_content_length) {
 	std::string					content;
 	std::string					directory_path_end_with_slash;
 	std::set<file_info>			directories;
@@ -248,4 +251,8 @@ Result<std::string, int> get_directory_listing(const std::string &directory_path
 	content = get_content_result.get_ok_value();
 	*ret_content_length = content.length();
 	return Result<std::string, int>::ok(content);
+}
+
+bool operator<(const file_info &lhs, const file_info &rhs) {
+	return lhs.name < rhs.name;
 }

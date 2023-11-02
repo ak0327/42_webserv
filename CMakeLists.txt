@@ -44,8 +44,9 @@ set(webserv_srcs
         srcs/Debug/Debug.cpp
         srcs/Error/Error.cpp
         srcs/HttpResponse/HttpResponse.cpp
-        srcs/HttpResponse/GET/get_request_body.cpp
         srcs/HttpResponse/GET/get_directory_listing.cpp
+        srcs/HttpResponse/GET/get_file_content.cpp
+        srcs/HttpResponse/GET/get_request_body.cpp
         srcs/Socket/Socket.cpp
 )
 
@@ -60,7 +61,6 @@ set (unit_test_srcs
         test/unit_test/TestError.cpp
         test/unit_test/TestResult.cpp
         test/unit_test/TestSocket.cpp
-        test/unit_test/HttpResponse/TestGetFileContent.cpp
         test/unit_test/HttpResponse/TestGetRequestBody.cpp
         test/unit_test/HttpResponse/TestAutoIndex.cpp
 )
