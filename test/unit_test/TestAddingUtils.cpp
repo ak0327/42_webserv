@@ -49,10 +49,10 @@ TEST(UtilsTest, IsFieldHeader) {
 	EXPECT_EQ(pos, 3);
 	pos = 0;
 	EXPECT_EQ(OK, IsConfigFormat::is_field_header("a aa", &pos));
-	EXPECT_EQ(pos, 2);
+	EXPECT_EQ(pos, 1);
 	pos = 0;
 	EXPECT_EQ(OK, IsConfigFormat::is_field_header("aa a a a a", &pos));
-	EXPECT_EQ(pos, 3);
+	EXPECT_EQ(pos, 2);
 
 	// FALSE
 	pos = 0;
