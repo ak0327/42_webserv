@@ -84,15 +84,7 @@ int HttpResponse::get_request_body(const HttpRequest &request,
 	}
 
 	err_code = read_file_result.get_err_value();
-	err_page_path = _err_page_paths[err_code];
-
-	read_file_result = get_file_content(err_page_path,
-										&content_length,
-										config.get_mime_types());
-	if (read_file_result.is_err()) {
-		return STATUS_NOT_FOUND;
-	}
-	_response_body = read_file_result.get_ok_value();
-	_response_headers["Content-Length"] = to_str(content_length);
+	_response_body = _error_pages[err_code];
+	_response_headers["Content-Length"] = to_str(_response_body.length());  // todo: use original to_str()
 	return err_code;
 }

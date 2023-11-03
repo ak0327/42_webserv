@@ -44,6 +44,7 @@ set(webserv_srcs
         srcs/Debug/Debug.cpp
         srcs/Error/Error.cpp
         srcs/HttpResponse/HttpResponse.cpp
+        srcs/HttpResponse/error_pages.cpp
         srcs/HttpResponse/GET/get_directory_listing.cpp
         srcs/HttpResponse/GET/get_file_content.cpp
         srcs/HttpResponse/GET/get_request_body.cpp

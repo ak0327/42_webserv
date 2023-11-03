@@ -20,14 +20,15 @@ std::map<int, std::string> init_status_reason_phrase() {
 	return status_reason_phrase;
 }
 
-std::map<int, std::string> init_err_page_paths() {
-	std::map<int, std::string> err_page_paths;
+std::map<int, std::string> init_error_pages() {
+	std::map<int, std::string> error_pages;
 
-	err_page_paths[STATUS_NOT_FOUND] = "www/404.html";
-	err_page_paths[STATUS_NOT_ACCEPTABLE] = "www/406.html";
-	err_page_paths[STATUS_SERVER_ERROR] = "www/50x.html";
+	error_pages[STATUS_NOT_FOUND] = std::string(error_404_page);
+	error_pages[STATUS_NOT_ACCEPTABLE] = std::string(error_406_page);
 
-	return err_page_paths;
+	error_pages[STATUS_SERVER_ERROR] = std::string(error_500_page);
+
+	return error_pages;
 }
 
 std::string decode(const std::string &target) {
@@ -114,7 +115,7 @@ HttpResponse::HttpResponse(const HttpRequest &request, const Config &config) {
 	std::ostringstream	status_line_oss;
 
 	_status_reason_phrase = init_status_reason_phrase();
-	_err_page_paths = init_err_page_paths();
+	_error_pages = init_error_pages();
 
 	path = get_resource_path(request.get_request_target(),
 							 config.get_locations());

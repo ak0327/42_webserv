@@ -130,16 +130,7 @@ TEST(HttpResponseGET, GetReqestBodyIndexCss) {
 }
 
 TEST(HttpResponseGET, GetReqestBody404) {
-	const std::string expected_content = "<!DOCTYPE html>\n"
-										 "<html lang=\"en\">\n"
-										 "<head>\n"
-										 "    <meta charset=\"UTF-8\">\n"
-										 "    <title>404 Not found</title>\n"
-										 "</head>\n"
-										 "<body>\n"
-										 "    <h1>404 Not found</h1>\n"
-										 "</body>\n"
-										 "</html>";
+	const std::string expected_content = std::string(error_404_page);
 	const std::size_t expected_content_len = expected_content.length();
 	const std::string expected_status_line = "HTTP/1.1 404 Not Found";
 
@@ -162,16 +153,7 @@ TEST(HttpResponseGET, GetReqestBody404) {
 }
 
 TEST(HttpResponseGET, GetReqestBody406) {
-	const std::string expected_content = "<!DOCTYPE html>\n"
-										 "<html lang=\"en\">\n"
-										 "<head>\n"
-										 "    <meta charset=\"UTF-8\">\n"
-										 "    <title>406 Not acceptable</title>\n"
-										 "</head>\n"
-										 "<body>\n"
-										 "    <h1>406 Not acceptable</h1>\n"
-										 "</body>\n"
-										 "</html>";
+	const std::string expected_content = std::string(error_406_page);
 	const std::size_t expected_content_len = expected_content.length();
 	const std::string expected_status_line = "HTTP/1.1 406 Not Acceptable";
 
