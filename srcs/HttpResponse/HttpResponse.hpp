@@ -179,8 +179,7 @@ class HttpResponse {
 											  const std::map<std::string, std::string> &mime_types);
 
 	Result<std::string, int> get_file_content(const std::string &file_path,
-											  std::size_t *ret_content_length,
-											  const std::map<std::string, std::string> &mime_types);
+											  const std::map<std::string, std::string> &mime_types) const;
 
 	Result<std::string, int> get_directory_listing(const std::string &directory_path,
 												   std::size_t *ret_content_length);
