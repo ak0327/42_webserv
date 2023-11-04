@@ -23,6 +23,7 @@
 !*.conf
 !*.txt
 !*.h
+!*.py
 
 !Readme.md
 !Makefile

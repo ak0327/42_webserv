@@ -8,5 +8,9 @@
 !autoindex_files
 !autoindex_files/**
 
+!cgi-bin
+!cgi-bin/**
+
 !*.html
 !*.css
+!*.py

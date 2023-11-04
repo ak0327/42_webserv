@@ -46,6 +46,7 @@ set(webserv_srcs
         srcs/HttpResponse/HttpResponse.cpp
         srcs/HttpResponse/error_pages.cpp
         srcs/HttpResponse/GET/get_directory_listing.cpp
+        srcs/HttpResponse/GET/get_cgi_result.cpp
         srcs/HttpResponse/GET/get_file_content.cpp
         srcs/HttpResponse/GET/get_request_body.cpp
         srcs/Socket/Socket.cpp
@@ -62,8 +63,10 @@ set (unit_test_srcs
         test/unit_test/TestError.cpp
         test/unit_test/TestResult.cpp
         test/unit_test/TestSocket.cpp
-        test/unit_test/HttpResponse/TestGetRequestBody.cpp
         test/unit_test/HttpResponse/TestAutoIndex.cpp
+        test/unit_test/HttpResponse/TestCGI.cpp
+        test/unit_test/HttpResponse/TestGetInterpreter.cpp
+        test/unit_test/HttpResponse/TestGetRequestBody.cpp
 )
 
 add_executable(unit_test

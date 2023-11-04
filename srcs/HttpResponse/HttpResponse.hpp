@@ -4,6 +4,7 @@
 # include <map>
 # include <set>
 # include <string>
+# include <vector>
 # include "Result.hpp"
 
 //------------------------------------------------------------------------------
@@ -58,6 +59,20 @@ enum e_method {
 	DELETE,
 	ERROR
 };
+
+struct file_info {
+	std::string	name;
+	off_t		size;
+	std::string	last_modified_time;  // dd-mm-yy hh:mm
+};
+
+bool operator<(const file_info &lhs, const file_info &rhs);
+std::string get_extension(const std::string &path);
+bool is_directory(const std::string &path);
+Result<std::vector<std::string>, int> get_interpreter(const std::string &file_path);
+
+// todo: mv config?
+bool is_cgi_file(const std::string &path);
 
 class Config {
  public:
@@ -123,16 +138,7 @@ class HttpRequest {
 	std::string request_target_;
 };
 
-
-struct file_info {
-	std::string	name;
-	off_t		size;
-	std::string	last_modified_time;  // dd-mm-yy hh:mm
-};
-
 //------------------------------------------------------------------------------
-
-bool operator<(const file_info &lhs, const file_info &rhs);
 
 class HttpResponse {
  public:
@@ -176,13 +182,13 @@ class HttpResponse {
 	Result<std::string, int> get_path_content(const std::string &path,
 											  bool autoindex,
 											  std::size_t *ret_content_length,
-											  const std::map<std::string, std::string> &mime_types);
+											  const std::map<std::string, std::string> &mime_types) const;
 
 	Result<std::string, int> get_file_content(const std::string &file_path,
 											  const std::map<std::string, std::string> &mime_types) const;
 
-	Result<std::string, int> get_directory_listing(const std::string &directory_path,
-												   std::size_t *ret_content_length);
+	Result<std::string, int> get_directory_listing(const std::string &directory_path) const;
 
-	bool is_directory(const std::string &path);
+	Result<std::string, int> get_cgi_result(const std::string &file_path,
+											const std::string &query) const;
 };

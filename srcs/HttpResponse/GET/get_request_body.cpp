@@ -39,7 +39,7 @@ std::string to_str(std::size_t num) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool HttpResponse::is_directory(const std::string &path) {
+bool is_directory(const std::string &path) {
 	struct stat	stat_buf = {};
 
 	if (stat(path.c_str(), &stat_buf) == STAT_ERROR) {
@@ -48,19 +48,34 @@ bool HttpResponse::is_directory(const std::string &path) {
 	return S_ISDIR(stat_buf.st_mode);  // todo: permission
 }
 
+bool is_cgi_file(const std::string &path) {
+	const std::string extension = get_extension(path);
+	return extension == "py" || extension == "php";  // tmp
+}
+
 Result<std::string, int> HttpResponse::get_path_content(const std::string &path,
 														bool autoindex,
 														std::size_t *ret_content_length,
-														const std::map<std::string, std::string> &mime_types) {
+														const std::map<std::string, std::string> &mime_types) const {
+	Result<std::string, int> get_content_result;
+	std::string content;
+
 	if (ret_content_length) {
 		*ret_content_length = INIT_CONTENT_LENGTH;
 	}
 
 	if (autoindex && is_directory(path)) {
-		return get_directory_listing(path, ret_content_length);
+		get_content_result = get_directory_listing(path);
+	} else if (is_cgi_file(path)) {
+		get_content_result = get_cgi_result(path, "");
 	} else {
-		return get_file_content(path, ret_content_length, mime_types);
+		get_content_result = get_file_content(path, mime_types);
 	}
+
+	if (ret_content_length && get_content_result.is_ok()) {
+		*ret_content_length = get_content_result.get_ok_value().length();
+	}
+	return get_content_result;
 }
 
 int HttpResponse::get_request_body(const HttpRequest &request,

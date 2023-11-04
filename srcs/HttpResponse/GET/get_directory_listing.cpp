@@ -33,8 +33,8 @@ std::string get_timestamp(time_t time) {
 	struct tm time_info;
 	char formatted_time[BUFSIZE];
 
-	localtime_r(&time, &time_info);
-	strftime(formatted_time, sizeof(formatted_time), "%d-%b-%Y %H:%M", &time_info);
+	localtime_r(&time, &time_info);  // todo: can use?
+	strftime(formatted_time, sizeof(formatted_time), "%d-%b-%Y %H:%M", &time_info);  // todo: can use?
 	return std::string(formatted_time);
 }
 
@@ -228,8 +228,7 @@ std::string get_directory_path_end_with_slash(const std::string &directory_path)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Result<std::string, int> HttpResponse::get_directory_listing(const std::string &directory_path,
-															 std::size_t *ret_content_length) {
+Result<std::string, int> HttpResponse::get_directory_listing(const std::string &directory_path) const {
 	std::string					content;
 	std::string					directory_path_end_with_slash;
 	std::set<file_info>			directories;
@@ -239,17 +238,18 @@ Result<std::string, int> HttpResponse::get_directory_listing(const std::string &
 
 	directory_path_end_with_slash = get_directory_path_end_with_slash(directory_path);
 
-	get_info_result = get_file_info(directory_path_end_with_slash, &directories, &files);
+	get_info_result = get_file_info(directory_path_end_with_slash,
+									&directories, &files);
 	if (get_info_result.is_err()) {
 		return Result<std::string, int>::err(ERR);
 	}
 
-	get_content_result = get_directory_listing_html(directory_path_end_with_slash, directories, files);
+	get_content_result = get_directory_listing_html(directory_path_end_with_slash,
+													directories, files);
 	if (get_content_result.is_err()) {
 		return Result<std::string, int>::err(ERR);
 	}
 	content = get_content_result.get_ok_value();
-	*ret_content_length = content.length();
 	return Result<std::string, int>::ok(content);
 }
 

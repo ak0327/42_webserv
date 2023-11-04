@@ -24,20 +24,8 @@ namespace {
 
 const char EXTENSION_DOT = '.';
 const char EMPTY_STR[] = "";
-const std::size_t INIT_CONTENT_LENGTH = 0;
 
 // ---------------------------------
-
-
-std::string get_extension(const std::string &path) {
-	std::size_t ext_pos;
-
-	ext_pos = path.find_last_of(EXTENSION_DOT);
-	if (ext_pos == std::string::npos) {
-		return std::string(EMPTY_STR);
-	}
-	return path.substr(ext_pos + 1);
-}
 
 bool is_support_content_type(const std::string &path,
 							 const std::map<std::string, std::string> &mime_types) {
@@ -50,6 +38,17 @@ bool is_support_content_type(const std::string &path,
 }
 
 }  // namespace
+
+// todo: mv lib
+std::string get_extension(const std::string &path) {
+	std::size_t ext_pos;
+
+	ext_pos = path.find_last_of(EXTENSION_DOT);
+	if (ext_pos == std::string::npos) {
+		return std::string(EMPTY_STR);
+	}
+	return path.substr(ext_pos + 1);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
