@@ -91,6 +91,10 @@ bool is_userinfo(const std::string &str);
 bool is_authority(const std::string &str);
 bool is_mailbox(const std::string &str);
 bool is_atom(const std::string &str);
+bool is_origin_form(const std::string &str);
+bool is_absolure_form(const std::string &str);
+bool is_authority_form(const std::string &str);
+bool is_asterisk_form(const std::string &str);
 
 bool is_path_empty(const std::string &str, std::size_t start_pos);
 
@@ -348,6 +352,14 @@ void skip_suffix_range(const std::string &str,
 void skip_other_range(const std::string &str,
 					  std::size_t start_pos,
 					  std::size_t *end_pos);
+
+void skip_origin_form(const std::string &str,
+					  std::size_t start_pos,
+					  std::size_t *end_pos);
+
+void skip_absolute_path(const std::string &str,
+						std::size_t start_pos,
+						std::size_t *end_pos);
 
 Result<std::size_t, int> skip_ows_delimiter_ows(const std::string &field_value,
 												char delimiter,

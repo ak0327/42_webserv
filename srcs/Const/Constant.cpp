@@ -5,12 +5,29 @@
 /* return value */
 
 const int OK = 0;
-const int ERR = 1;
+const int ERR = -1;
+
+const int GETADDRINFO_SUCCESS = 0;
+
+const int ACCEPT_ERROR = -1;
+const int BIND_ERROR = -1;
+const int CLOSE_ERROR = -1;
+const int FCNTL_ERROR = -1;
+const int LISTEN_ERROR = -1;
+const int SETSOCKOPT_ERROR = -1;
+const int SOCKET_ERROR = -1;
+const int STAT_ERROR = -1;
+
+const ssize_t RECV_ERROR = -1;
+const ssize_t SEND_ERROR = -1;
 
 ////////////////////////////////////////////////////////////////////////////////
 /* initial value */
 
 const int COUNTER_INIT = 0;
+const int INIT_FD = -1;
+const int FLAG_NONE = 0;
+
 const double WEIGHT_INIT = 1.0;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -19,6 +36,8 @@ const double WEIGHT_INIT = 1.0;
 const int SINGLE_OCCURRENCE_LIMIT = 1;
 const int PORT_MIN = 0;
 const int PORT_MAX = 65535;
+
+const int IO_TIMEOUT = -1;
 
 ////////////////////////////////////////////////////////////////////////////////
 /* status */
@@ -38,10 +57,20 @@ const char EQUAL_SIGN = '=';
 const char SINGLE_QUOTE = '\'';
 const char SLASH = '/';
 
+const char PATH_DELIM = '/';
+const char EXTENSION_DELIM = '.';
+
 const char ELEMENT_SEPARATOR = COMMA;
 
 const char EMPTY[] = "";
 const char TIMEOUT[] = "timeout";
+
+const char CONFIG_FILE_EXTENSION[] = "conf";
+
+////////////////////////////////////////////////////////////////////////////////
+/* error message */
+
+const char INVALID_PATH_ERROR_MSG[] = "invalid file path";
 
 ////////////////////////////////////////////////////////////////////////////////
 /* http message */

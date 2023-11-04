@@ -577,23 +577,64 @@ bool is_end_with_cr(const std::string &str) {
 	return (!str.empty() && str[str.length() - 1] == CR);
 }
 
+// method = token
 bool is_valid_method(const std::string &method) {
 	std::vector<std::string>::const_iterator itr;
 
+	if (method.empty() || !is_token(method)) {
+		return false;
+	}
 	itr = std::find(METHODS.begin(), METHODS.end(), method);
 	return itr != METHODS.end();
 }
 
+// origin-form = absolute-path [ "?" query ]
+bool is_origin_form(const std::string &str) {
+	std::size_t end;
+
+	if (str.empty()) {
+		return false;
+	}
+	skip_origin_form(str, 0, &end);
+	return str[end] == '\0';
+}
+
+// absolute-form = absolute-URI
+bool is_absolure_form(const std::string &str) {
+	return is_absolute_uri(str);
+}
+
+// authority-form = authority
+bool is_authority_form(const std::string &str) {
+	return is_authority(str);
+}
+
+// asterisk-form = "*"
+bool is_asterisk_form(const std::string &str) {
+	return str == "*";
+}
+
+// request-target = origin-form / absolute-form / authority-form / asterisk-form
 bool is_valid_request_target(const std::string &request_target) {
 	if (request_target.empty()) {
 		return false;
 	}
-	return HttpMessageParser::is_print(request_target);
+	return (is_origin_form(request_target)
+			|| is_absolure_form(request_target)
+			|| is_authority_form(request_target)
+			|| is_asterisk_form(request_target));
 }
 
+/*
+ HTTP-version = HTTP-name "/" DIGIT "." DIGIT
+  HTTP-name   = %x48.54.54.50 ; "HTTP", case-sensitive
+ */
 bool is_valid_http_version(const std::string &http_version) {
 	std::vector<std::string>::const_iterator itr;
 
+	if (http_version.empty()) {
+		return false;
+	}
 	itr = std::find(HTTP_VERSIONS.begin(), HTTP_VERSIONS.end(), http_version);
 	return itr != HTTP_VERSIONS.end();
 }
@@ -862,7 +903,7 @@ bool is_unreserved(char c) {
 
 // sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
 bool is_sub_delims(char c) {
-	const std::string sub_delims = "!$&'()*+,;=\"";
+	const std::string sub_delims = "!$&'()*+,;=";
 
 	return StringHandler::is_char_in_str(c, sub_delims);
 }

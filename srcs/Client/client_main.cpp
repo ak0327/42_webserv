@@ -3,15 +3,15 @@
 #include "Client.hpp"
 #include "Color.hpp"
 
-namespace {
-	std::string RESPONSE_MSG = "GET / HTTP/1.1\r\n"
-							   "Host: 127.0.0.1\r\n"
-							   "\r\n";
-	std::string SERVER_IP = "127.0.0.1";
-	std::string SERVER_PORT = "8080";
-}  // namespace
+////////////////////////////////////////////////////////////////////////////////
 
 int main() {
+	const std::string RESPONSE_MSG = "GET / HTTP/1.1\r\n"
+									 "Host: 127.0.0.1\r\n"
+									 "\r\n";
+	const std::string SERVER_IP = "127.0.0.1";
+	const std::string SERVER_PORT = "8080";
+
 	try {
 		std::cout << "Request message:[" << std::endl;
 		std::cout << YELLOW << RESPONSE_MSG << RESET "\n]" << std::endl;

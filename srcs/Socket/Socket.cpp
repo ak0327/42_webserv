@@ -6,57 +6,51 @@
 #include <cstring>
 #include <iostream>
 #include <string>
+#include "Color.hpp"
+#include "Constant.hpp"
 #include "Error.hpp"
 #include "Socket.hpp"
 
 namespace {
-	int INIT_FD = -1;
 
-	int OK = 0;
-	int GETADDRINFO_SUCCESS = 0;
+void set_hints(struct addrinfo *hints) {
+	hints->ai_socktype = SOCK_STREAM;
+	hints->ai_family = AF_UNSPEC;  // allows IPv4 and IPv6
+	hints->ai_flags = AI_PASSIVE | AI_NUMERICHOST | AI_NUMERICSERV;  // socket, IP, PORT
+	hints->ai_protocol = IPPROTO_TCP;
+}
 
-	int BIND_ERROR = -1;
-	int CLOSE_ERROR = -1;
-	int FCNTL_ERROR = -1;
-	int LISTEN_ERROR = -1;
-	int SETSOCKOPT_ERROR = -1;
-	int SOCKET_ERROR = -1;
+Result<int, std::string> set_socket_opt(int socket_fd) {
+	const int		opt_val = 1;
+	const socklen_t	opt_len = sizeof(opt_val);
 
-	void set_hints(struct addrinfo *hints) {
-		hints->ai_socktype = SOCK_STREAM;
-		hints->ai_family = AF_UNSPEC;  // allows IPv4 and IPv6
-		hints->ai_flags = AI_PASSIVE | AI_NUMERICHOST | AI_NUMERICSERV;  // socket, IP, PORT
-		hints->ai_protocol = IPPROTO_TCP;
+	errno = 0;
+	if (setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt_val, opt_len) == SETSOCKOPT_ERROR) {
+		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
+		return Result<int, std::string>::err(err_info);
 	}
+	return Result<int, std::string>::ok(OK);
+}
 
-	Result<int, std::string> set_socket_opt(int socket_fd) {
-		const int		opt_val = 1;
-		const socklen_t	opt_len = sizeof(opt_val);
-
-		errno = 0;
-		if (setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt_val, opt_len) == SETSOCKOPT_ERROR) {
-			std::string err_info = create_error_info(errno, __FILE__, __LINE__);
-			return Result<int, std::string>::err(err_info);
-		}
-		return Result<int, std::string>::ok(OK);
+Result<int, std::string> close_socket_fd(int socket_fd) {
+	errno = 0;
+	if (close(socket_fd) == CLOSE_ERROR) {
+		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
+		return Result<int, std::string>::err(err_info);
 	}
+	return Result<int, std::string>::ok(OK);
+}
 
-	Result<int, std::string> close_socket_fd(int socket_fd) {
-		errno = 0;
-		if (close(socket_fd) == CLOSE_ERROR) {
-			std::string err_info = create_error_info(errno, __FILE__, __LINE__);
-			return Result<int, std::string>::err(err_info);
-		}
-		return Result<int, std::string>::ok(OK);
-	}
 }  // namespace
 
-Socket::Socket(const char *server_ip,
-			   const char *server_port) : _result(),
-			   							  _socket_fd(INIT_FD),
-										  _addr_info(NULL),
-										  _server_ip(server_ip),
-										  _server_port(server_port) {
+////////////////////////////////////////////////////////////////////////////////
+
+Socket::Socket(const Config &config)
+		: _result(),
+		  _socket_fd(INIT_FD),
+		  _addr_info(NULL),
+		  _server_ip(config.get_server_ip()),
+		  _server_port(config.get_server_port()) {
 	this->_result = init_addr_info();
 	if (this->_result.is_err()) {
 		return;
@@ -78,9 +72,6 @@ Socket::Socket(const char *server_ip,
 		return;
 	}
 }
-
-// todo
-// Socket::Socket(const Configuration &conf) {}
 
 Socket::~Socket() {
 	Result<int, std::string> close_result;
@@ -104,7 +95,8 @@ Result<int, std::string> Socket::init_addr_info() {
 	struct addrinfo	*ret_addr_info;
 
 	set_hints(&hints);  // todo: setting IPv4, IPv6 from config??
-	errcode = getaddrinfo(this->_server_ip, this->_server_port, &hints, &ret_addr_info);
+	errcode = getaddrinfo(this->_server_ip.c_str(), this->_server_port.c_str(), &hints, &ret_addr_info);
+
 	if (errcode != GETADDRINFO_SUCCESS) {
 		std::string err_info = create_error_info(gai_strerror(errcode), __FILE__, __LINE__);
 		return Result<int, std::string>::err("getaddrinfo:" + err_info);

@@ -2378,6 +2378,139 @@ TEST(TestHttpMessageParser, SkipMailBox) {
 
 }
 
+TEST(TestHttpMessageParser, SkipAbsolutePath) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "/";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_absolute_path(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "/a/b/c";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_absolute_path(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_absolute_path(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 10;
+	HttpMessageParser::skip_absolute_path(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "   ";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_absolute_path(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "/a/b/c hoge";
+	//           ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_absolute_path(str, pos, &end);
+	EXPECT_EQ(6, end);
+
+	str = "/a/b/c?hoge";
+	//           ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_absolute_path(str, pos, &end);
+	EXPECT_EQ(6, end);
+}
+
+TEST(TestHttpMessageParser, SkipOriginForm) {
+	std::size_t pos, end;
+	std::string str;
+
+	str = "/";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_origin_form(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "////";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_origin_form(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "/a/b/c/";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_origin_form(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "/a/b/c";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_origin_form(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "/a/b/c/../../../";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_origin_form(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_origin_form(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "";
+	//     012345678901234567890
+	pos = 10;
+	HttpMessageParser::skip_origin_form(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "   ";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_origin_form(str, pos, &end);
+	EXPECT_EQ(pos, end);
+
+	str = "/a/b/c hoge";
+	//           ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_origin_form(str, pos, &end);
+	EXPECT_EQ(6, end);
+
+	str = "/a/b/c?hoge";
+	//                ^end
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_origin_form(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+
+	str = "/a/b/c?hoge?/a/?";
+	//     012345678901234567890
+	pos = 0;
+	HttpMessageParser::skip_origin_form(str, pos, &end);
+	EXPECT_EQ(str.length(), end);
+}
+
+// TEST(TestHttpMessageParser, ) {
+// 	std::size_t pos, end;
+// 	std::string str;
+//
+// 	str = "";
+// 	//     012345678901234567890
+// 	pos = 0;
+// 	HttpMessageParser::skip_(str, pos, &end);
+// 	EXPECT_EQ(str.length(), end);
+// }
+
 // TEST(TestHttpMessageParser, ) {
 // 	std::size_t pos, end;
 // 	std::string str;
