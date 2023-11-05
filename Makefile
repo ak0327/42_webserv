@@ -8,12 +8,13 @@ CXXFLAGS	+=	-g -fsanitize=address,undefined -fno-omit-frame-pointer
 SRCS_DIR	=	srcs
 
 #main
-SRCS		=	$(SRCS_DIR)/main.cpp
-SRCS		+=	$(SRCS_DIR)/get_valid_config_file_path.cpp
+SRCS		=	main.cpp \
+				get_valid_config_file_path.cpp
 
 #debug
 DEBUG_DIR	=	Debug
 SRCS		+=	$(DEBUG_DIR)/Debug.cpp
+
 
 #error
 ERROR_DIR	=	Error
@@ -28,14 +29,10 @@ SRCS		+=	$(RESPONSE_DIR)/HttpResponse.cpp \
 				$(RESPONSE_DIR)/GET/get_file_content.cpp \
 				$(RESPONSE_DIR)/GET/get_request_body.cpp
 
-
-RESPONSE_DELETE_DIR	= $(RESPONSE_DIR)/DELETE
-RESPONSE_DELETE_TESTCONFIG_DIR	= HttpResponse/DELETE/TestConfig
-SRCS		+=	$(RESPONSE_DELETE_TESTCONFIG_DIR)/.cpp \
-				$(RESPONSE_DELETE_DIR)/check_statuscode_delete \
-				$(RESPONSE_DELETE_DIR)/DeleteHttpResponse/DeleteHttpResponse.cpp \
-				$(RESPONSE_DELETE_DIR)/StatuText/StatusText.cpp \
-				$(RESPONSE_DELETE_DIR)/DeleteHttpResponse/get_location_path.cpp
+RESPONSE_DELETE_DIR	= HttpResponse/DELETE
+SRCS		+=	$(RESPONSE_DELETE_DIR)/DeleteHttpResponse/DeleteHttpResponse.cpp \
+				$(RESPONSE_DELETE_DIR)/DeleteHttpResponse/get_location_path.cpp \
+				$(RESPONSE_DELETE_DIR)/StatusText/StatusText.cpp
 
 #socket
 SOCKET_DIR	=	Socket
@@ -56,6 +53,8 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(DEBUG_DIR) \
 				$(SRCS_DIR)/$(ERROR_DIR) \
 				$(SRCS_DIR)/$(RESPONSE_DIR) \
+				$(SRCS_DIR)/$(RESPONSE_DELETE_DIR)/DeleteHttpResponse \
+				$(SRCS_DIR)/$(RESPONSE_DELETE_DIR)/StatusText \
 				$(SRCS_DIR)/$(SOCKET_DIR)
 
 INCLUDES	 =	$(addprefix -I, $(INCLUDES_DIR))

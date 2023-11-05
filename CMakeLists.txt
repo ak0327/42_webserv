@@ -76,7 +76,7 @@ set (unit_test_srcs
         test/unit_test/HttpResponse/TestCGI.cpp
         test/unit_test/HttpResponse/TestGetInterpreter.cpp
         test/unit_test/HttpResponse/TestGetRequestBody.cpp
-        test/unit_test/TestIntepretPath.cpp
+        test/unit_test/TestInterpretPath.cpp
 )
 
 add_executable(unit_test
