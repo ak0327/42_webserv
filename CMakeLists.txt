@@ -68,7 +68,7 @@ set (unit_test_srcs
         test/unit_test/TestError.cpp
         test/unit_test/TestResult.cpp
         test/unit_test/TestSocket.cpp
-        test/unit_test/TestIntepretPath.cpp
+        test/unit_test/TestInterpretPath.cpp
 )
 
 add_executable(unit_test
