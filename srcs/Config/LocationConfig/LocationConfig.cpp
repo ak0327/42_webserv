@@ -1,8 +1,8 @@
+#include "Config.hpp"
 #include "LocationConfig.hpp"
-#include "../Config/Config.hpp"
 
 LocationConfig::LocationConfig() {
-	init_location_keyword();
+	init_location_config();
 }
 
 LocationConfig::LocationConfig(const LocationConfig &other)
@@ -40,10 +40,9 @@ LocationConfig& LocationConfig::operator=(const LocationConfig &other)
 
 LocationConfig::~LocationConfig(){}
 
-bool LocationConfig::set_field_header_field_value(const std::string &field_header,
-												  const std::string &field_value)
-{
+bool LocationConfig::is_valid_field_header_in_location(const std::string &field_header) {
 	std::vector<std::string> field_headers;
+	std::vector<std::string>::const_iterator itr;
 
 	field_headers.push_back(AUTOINDEX);
 	field_headers.push_back(CHUNKED_TRANSFERENCODING_ALLOW);
@@ -66,7 +65,14 @@ bool LocationConfig::set_field_header_field_value(const std::string &field_heade
 	field_headers.push_back(ALIAS);
 	field_headers.push_back(UPLOAD_PATH);
 
-	if (std::find(field_headers.begin(), field_headers.end(), field_header) == field_headers.end()) {
+	itr = std::find(field_headers.begin(), field_headers.end(), field_header);
+	return itr != field_headers.end();
+}
+
+bool LocationConfig::set_field_header_field_value(const std::string &field_header,
+												  const std::string &field_value)
+{
+	if (!is_valid_field_header_in_location(field_header)) {
 		return false;
 	}
 
@@ -210,7 +216,7 @@ void LocationConfig::set_index(const std::vector<std::string> &index) { this->_i
 void LocationConfig::set_server_name(const std::vector<std::string> &server_name) { this->_server_name = server_name; }
 void LocationConfig::set_errorpages(const std::vector<std::string> &errorpages) { this->_errorpages = errorpages; }
 
-void LocationConfig::init_location_keyword()
+void LocationConfig::init_location_config()
 {
 	this->_autoindex = false;
 	this->_chunked_transferencoding_allow = false;
@@ -239,7 +245,6 @@ void LocationConfig::init_location_keyword()
 	this->_errorpages.clear();
 }
 
-// todo: implement ConfigDetail Class, use copy assignment constructor
 void LocationConfig::init_location_config_with_server_config(const ServerConfig &server_config)
 {
 	this->set_autoindex(server_config.get_autoindex());

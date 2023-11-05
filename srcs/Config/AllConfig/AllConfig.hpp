@@ -1,9 +1,9 @@
 #pragma once
 
-#include <map>
-#include <string>
-#include "LocationConfig.hpp"
-#include "ServerConfig.hpp"
+# include <map>
+# include <string>
+# include "LocationConfig.hpp"
+# include "ServerConfig.hpp"
 
 class AllConfig
 {
@@ -28,6 +28,5 @@ class AllConfig
 
 		ServerConfig get_server_config() const;
 		LocationConfig get_location_config(const std::string &location_path);
-		std::map<std::string, LocationConfig> get_location_config_map();
+		std::map<std::string, LocationConfig> get_location_config_map() const;
 };
-

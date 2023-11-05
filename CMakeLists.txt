@@ -55,12 +55,13 @@ set(webserv_srcs
         srcs/Debug/Debug.cpp
         srcs/Error/Error.cpp
         srcs/IOMultiplexer/IOMultiplexer.cpp
-        srcs/Server/Server.cpp
-        srcs/Socket/Socket.cpp
         srcs/HandlingString/HandlingString.cpp
         srcs/NumericHandle/NumericHandle.cpp
+        srcs/Server/Server.cpp
+        srcs/Socket/Socket.cpp
         )
 
+# Config
 set(config_srcs
         srcs/Config/Config.cpp
         srcs/Config/AllConfig/AllConfig.cpp
@@ -68,32 +69,42 @@ set(config_srcs
         srcs/Config/IsConfigFormat/IsConfigFormat.cpp
         srcs/Config/LocationConfig/LocationConfig.cpp
         srcs/Config/ServerConfig/ServerConfig.cpp
+        )
+
+list(APPEND webserv_srcs
+        ${config_srcs}
 )
 
 add_executable(webserv
         srcs/main.cpp
         ${webserv_srcs}
-        ${config_srcs}
         )
 
 # unit_test_srcs ---------------------------------------------------------------
-set (unit_test_srcs
+set(unit_test_srcs
         test/unit_test/is_valid_file_path/test_get_valid_config_file_path.cpp
-        test/unit_test/TestIsConfigFormat.cpp
         test/unit_test/TestError.cpp
         test/unit_test/TestResult.cpp
         test/unit_test/TestServer.cpp
         test/unit_test/TestSocket.cpp
-        test/unit_test/TestIsConfigLineFormat.cpp
-        test/unit_test/TestConfigReading.cpp
+        )
+
+set(config_test_srcs
         test/unit_test/TestAddingUtils.cpp
-)
+        test/unit_test/TestConfigReading.cpp
+        test/unit_test/TestIsConfigFormat.cpp
+        test/unit_test/TestIsConfigLineFormat.cpp
+        )
+
+list(APPEND unit_test_srcs
+        ${config_test_srcs}
+        )
+
 
 add_executable(unit_test
         ${webserv_srcs}
         ${unit_test_srcs}
-        ${config_srcs}
-        )
+)
 
 # test -------------------------------------------------------------------------
 target_link_libraries(

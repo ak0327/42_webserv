@@ -97,6 +97,7 @@ TEST(IsConfigLineTest, IsLocationBlockFormatFormat)
 	EXPECT_NE(CONFIG_FORMAT_OK, IsConfigFormat::is_location_block_format("a;"));
 	EXPECT_NE(CONFIG_FORMAT_OK, IsConfigFormat::is_location_block_format("a; ;"));
 	EXPECT_NE(CONFIG_FORMAT_OK, IsConfigFormat::is_location_block_format("a b;\r;"));
+	EXPECT_NE(CONFIG_FORMAT_OK, IsConfigFormat::is_location_block_format("key val ; "));
 }
 
 TEST(IsConfigLineTest, IsStartServerBlock)

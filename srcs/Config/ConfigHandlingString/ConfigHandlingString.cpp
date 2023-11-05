@@ -66,23 +66,30 @@ std::vector<std::string> ConfigHandlingString::ready_string_vector_field_value(c
 	return (ret_vector);
 }
 
-int ConfigHandlingString::input_field_key_field_value(const std::string &config_line,
-												LocationConfig *location_config)
-{
-	size_t	end_pos = 0;
-	std::string	field_header;
-	std::string	field_value;
-	size_t	field_value_start_pos;
+void ConfigHandlingString::get_field_header_and_field_value(const std::string &config_line,
+															std::string *ret_field_header,
+															std::string *ret_field_value) {
+	size_t end_pos = 0;
+	size_t field_value_start_pos;
 	std::string	line_without_ows = HandlingString::obtain_without_ows_value(config_line);
 
 	HandlingString::skip_no_ows(line_without_ows, &end_pos);
-	field_header = line_without_ows.substr(0, end_pos);
+	*ret_field_header = line_without_ows.substr(0, end_pos);
 	HandlingString::skip_ows(line_without_ows, &end_pos);
 	field_value_start_pos = end_pos;
 	while (line_without_ows[end_pos] != ';')
 		end_pos++;
-	field_value = HandlingString::obtain_without_ows_value(
+	*ret_field_value = HandlingString::obtain_without_ows_value(
 			line_without_ows.substr(field_value_start_pos, end_pos - field_value_start_pos));
+}
+
+int ConfigHandlingString::input_field_key_field_value(const std::string &config_line,
+													  LocationConfig *location_config)
+{
+	std::string	field_header;
+	std::string	field_value;
+
+	get_field_header_and_field_value(config_line, &field_header, &field_value);
 	if (!location_config->set_field_header_field_value(field_header, field_value))
 	{
 		std::cerr << "serverconfig -> |" << field_header << "|" << field_value << "|" << std::endl;
@@ -92,23 +99,13 @@ int ConfigHandlingString::input_field_key_field_value(const std::string &config_
 }
 
 int ConfigHandlingString::input_field_key_field_value(const std::string &config_line,
-												ServerConfig *server_config,
-												std::vector<std::string> *field_header_vector)
+													  ServerConfig *server_config,
+													  std::vector<std::string> *field_header_vector)
 {
-	size_t	end_pos = 0;
 	std::string	field_header;
 	std::string	field_value;
-	size_t	field_value_start_pos;
-	std::string	line_without_ows = HandlingString::obtain_without_ows_value(config_line);
 
-	HandlingString::skip_no_ows(line_without_ows, &end_pos);
-	field_header = line_without_ows.substr(0, end_pos);
-	HandlingString::skip_ows(line_without_ows, &end_pos);
-	field_value_start_pos = end_pos;
-	while (line_without_ows[end_pos] != ';')
-		end_pos++;
-	field_value = HandlingString::obtain_without_ows_value(
-			line_without_ows.substr(field_value_start_pos, end_pos - field_value_start_pos));
+	get_field_header_and_field_value(config_line, &field_header, &field_value);
 	if (!server_config->set_field_header_field_value(field_header, field_value))
 	{
 		std::cerr << "serverconfig -> |" << field_header << "|" << field_value << "|" << std::endl;

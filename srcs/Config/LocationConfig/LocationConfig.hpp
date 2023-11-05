@@ -4,7 +4,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include "../AllConfig/AllConfig.hpp"
+#include "AllConfig.hpp"
 #include "ServerConfig.hpp"
 
 class LocationConfig
@@ -36,11 +36,15 @@ class LocationConfig
 		std::vector<std::string> _server_name;
 		std::vector<std::string> _errorpages;
 
+		bool is_valid_field_header_in_location(const std::string &field_header);
+
 	public:
 		LocationConfig();
-		~LocationConfig();
 		LocationConfig(const LocationConfig &other);
+		~LocationConfig();
+
 		LocationConfig& operator=(const LocationConfig &other);
+
 		bool get_autoindex() const;
 		bool get_chunked_transferencoding_allow() const;
 		bool set_field_header_field_value(const std::string &field_header,
@@ -91,6 +95,7 @@ class LocationConfig
 		void set_index(const std::vector<std::string> &index);
 		void set_server_name(const std::vector<std::string> &server_name);
 		void set_errorpages(const std::vector<std::string> &errorpages);
-		void init_location_keyword();
+
+		void init_location_config();
 		void init_location_config_with_server_config(const ServerConfig &inputes_severconfig);
 };

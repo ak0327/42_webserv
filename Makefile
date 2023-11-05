@@ -87,7 +87,7 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(CONFIG_DIR)/ServerConfig \
 				$(SRCS_DIR)/$(DEBUG_DIR) \
 				$(SRCS_DIR)/$(ERROR_DIR) \
-				$(SRCS_DIR)/$(HANDRING_STR) \
+				$(SRCS_DIR)/$(HANDLING_STR) \
 				$(SRCS_DIR)/$(IO_DIR) \
 				$(SRCS_DIR)/$(NUMERIHANDLE_DIR) \
 				$(SRCS_DIR)/$(SERVER_DIR) \
@@ -162,13 +162,6 @@ run_errmsg_test	:
 	cmake --build build
 	./build/unit_test --gtest_filter=ErrorMessage*
 
-# .PHONY	: run_socket_test
-# run_socket_test	:
-# 	#rm -rf build
-# 	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
-# 	cmake --build build
-# 	./build/unit_test --gtest_filter=SocketUnitTest.*:SocketIntegrationTest.*
-
 .PHONY	: run_config_reading_test
 run_config_reading_test	:
 	#rm -rf build
@@ -188,7 +181,8 @@ run_is_config_format_test :
 	#rm -rf build
 	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
 	cmake --build build
-	./build/unit_test --gtest_filter=IsConfigFormatTest* 2>/dev/null
+#	./build/unit_test --gtest_filter=IsConfigFormatTest* 2>/dev/null
+	./build/unit_test --gtest_filter=IsConfigFormatTest*
 
 .PHONY	: run_utils_test
 run_utils_test :

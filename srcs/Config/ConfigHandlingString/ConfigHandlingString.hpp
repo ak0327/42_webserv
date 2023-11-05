@@ -24,7 +24,9 @@ class ConfigHandlingString
 		static int input_field_key_field_value(const std::string &config_line,
 												ServerConfig *server_config,
 												std::vector<std::string> *field_header_vector);
-
+		static void get_field_header_and_field_value(const std::string &config_line,
+													 std::string *ret_field_header,
+													 std::string *ret_field_value);
 		static size_t ready_size_t_field_value(const std::string &field_value);
 
 		static std::vector<std::string> ready_string_vector_field_value(const std::string &field_value);

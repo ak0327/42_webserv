@@ -13,8 +13,8 @@ class IsConfigFormat
 	private:
 		IsConfigFormat();
 		IsConfigFormat(const IsConfigFormat &other);
-		IsConfigFormat& operator=(const IsConfigFormat &other);
 		~IsConfigFormat();
+		IsConfigFormat& operator=(const IsConfigFormat &other);
 
 	public:
 		static bool is_ignore_line(const std::string &config_line);
