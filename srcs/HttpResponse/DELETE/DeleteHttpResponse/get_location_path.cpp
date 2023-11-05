@@ -1,8 +1,69 @@
-#include <map>
-#include <string>
 #include "DeleteHttpResponse.hpp"
-#include <iostream>
 
+// reserved    = gen-delims / sub-delims
+//     gen-delims  = ":" / "/" / "?" / "#" / "[" / "]" / "@"
+//     sub-delims  = "!" / "$" / "&" / "'" / "(" / ")"
+//                   "*" / "+" / "," / ";" / "="
+
+
+// 許可されているformは下記の四種類
+// 1 origin-form 2 absolute-form 3 authority-form 4 asterisk-form
+// いかにそれぞれのFMTを記載していく
+//
+// 1 origin-form
+// origin-form = absolute-path [ "?" query ]
+//     absolute-path = 1*( "/" segment )
+// 2absolute-form
+// absolute-form = absolute-URI
+//    absolute-URI = <absolute-URI, [URI] > ; 絶対 URI
+//        absolute-URI  = scheme ":" hier-part [ "?" query ]
+//            scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
+//            hier-part   = "//" authority path-abempty
+//                          path-absolute
+//                          path-rootless
+//                          path-empty
+//                authority = [ userinfo "@" ] host [ ":" port ]
+//                    userinfo = *( unreserved / pct-encoded / sub-delims / ":" )
+//                    pct-encoded = "%" HEXDIG HEXDIG
+//                    host = IP-literal / IPv4address / reg-name
+//                        IP-literal = "[" ( IPv6address / IPvFuture  ) "]"
+//                            IPv6address = 6( h16 ":" ) ls32
+//                                          "::" 5( h16 ":" ) ls32
+//                                         [ h16 ] "::" 4( h16 ":" ) ls32
+//                                         [ *1( h16 ":" ) h16 ] "::" 3( h16 ":" ) ls32
+//                                         [ *2( h16 ":" ) h16 ] "::" 2( h16 ":" ) ls32
+//                                         [ *3( h16 ":" ) h16 ] "::" h16 ":"   ls32
+//                                         [ *4( h16 ":" ) h16 ] "::" ls32
+//                                         [ *5( h16 ":" ) h16 ] "::" h16
+//                                         [ *6( h16 ":" ) h16 ] "::"
+//                                ls32 = ( h16 ":" h16 ) / IPv4address
+//                                ; アドレスの下位 32 ビット
+//                                h16 = 1*4HEXDIG
+//                                ; 16 進数字で表現される 16 ビットのアドレス
+//                            IPvFuture = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
+//                            IPv4address = dec-octet "." dec-octet "." dec-octet "." dec-octet
+//                                dec-octet = DIGIT ; 0-9
+//                                            %x31-39 DIGIT ; 10-99
+//                                            "1" 2DIGIT ; 100-199
+//                                            "2" %x30-34 DIGIT ; 200-249
+//                                            "25" %x30-35 ; 250-255
+//                            reg-name = *( unreserved / pct-encoded / sub-delims )
+//                    port = *DIGIT
+//                path-abempty = *( "/" segment )
+//                    segment = *pchar
+//                        pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
+//                path-absolute = "/" [ segment-nz *( "/" segment ) ]
+//                    segment-nz = 1*pchar
+//                path-rootless = segment-nz *( "/" segment )
+//                path-noscheme = segment-nz-nc *( "/" segment )
+//                    segment-nz-nc = 1*( unreserved / pct-encoded / sub-delims / "@" )
+//                path-empty = 0<pchar>
+// 3authority-form
+// authority-form = uri-host ":" port
+//     uri-host = IP-literal / IPv4address / reg-name
+//     port = *DIGIT
+// 4 asterisk-form
+// asterisk-form = "*"
 // namespace Config
 // {
 // 	std::string	alias;
@@ -49,51 +110,96 @@ std::string	make_target_path(const std::string &path)
 	return (path);
 }
 
-// http://nanka/~~
-// なら~~以降が欲しい部分
+std::string	DeleteHttpResponse::skip_authority(const std::string &target_path)
+{
+	size_t	path_start_pos = 3;
 
-int	DeleteHttpResponse::separate_path_folda_file(const std::string &request_path, std::string *search_folda, std::string *search_file)
+	while (target_path[path_start_pos] != '/')
+		path_start_pos++;
+	return (target_path.substr(path_start_pos));
+}
+
+bool	DeleteHttpResponse::is_authority(const std::string &request_path)
+{
+	return (request_path[0] == '/' && request_path[1] == '/');
+}
+
+std::string	DeleteHttpResponse::trim_scheme_and_query(const std::string &target_uri)
 {
 	size_t	path_start_pos = 0;
+	size_t	path_end_pos = target_uri.length();
 
-	std::cout << request_path << std::endl;
-	if (std::count(request_path.begin(), request_path.end(), ':') != 1)
-		return IS_NOT_PATH_FORMAT;
-	while (request_path[path_start_pos] != ':')  // skip protocol name
+	while (target_uri[path_start_pos] != ':')
 		path_start_pos++;
-	std::cout << "here" << std::endl;
-	if (request_path[path_start_pos + 1] != '/')
-		return IS_NOT_PATH_FORMAT;
-	std::cout << "here" << std::endl;
-	if (request_path[path_start_pos + 2] != '/')
-		return IS_NOT_PATH_FORMAT;
-	std::cout << "here" << std::endl;
-	path_start_pos = path_start_pos + 3;
-	while (request_path[path_start_pos] != '/')  // skip nankaの部分　名前なんだ
-		path_start_pos++;
-	std::string	path = request_path.substr(path_start_pos, request_path.length() - path_start_pos);
-	if (path[path.length() - 1] == '/')
+	path_start_pos++;
+	if (std::count(target_uri.begin(), target_uri.end(), '?') != 0)
 	{
-		*search_folda = path;
-		*search_file = "";
+		while (target_uri[path_end_pos] != '?')
+			path_end_pos--;
+		path_end_pos--;
 	}
-	else
+	return (target_uri.substr(path_start_pos, path_end_pos));
+}
+
+std::string	DeleteHttpResponse::trim_query(const std::string &target_uri)
+{
+	if (std::count(target_uri.begin(), target_uri.end(), '?') == 0)
+		return (target_uri);
+	size_t	query_pos = target_uri.length();
+	while (target_uri[query_pos] != '?')
+		query_pos = query_pos - 1;
+	query_pos--;
+	return (target_uri.substr(query_pos));
+}
+
+bool	DeleteHttpResponse::is_asterisk_form(const std::string &target_uri)
+{
+	return (target_uri == "*");
+}
+
+bool	DeleteHttpResponse::is_authority_form(const std::string &target_uri)
+{
+	size_t	pos = 0;
+
+	if (std::count(target_uri.begin(), target_uri.end(), ':') == 0)
+		return (false);
+	while (target_uri[pos] != ':')
+		pos++;
+	pos++;
+	while (target_uri[pos] != '\0')
 	{
-		size_t	last_slash_pos = path.rfind('/');
-		*search_folda = path.substr(0, last_slash_pos + 1);
-		*search_file = path.substr(last_slash_pos + 1, path.length() - last_slash_pos - 1);
+		if (isdigit(target_uri[pos]) == false)
+			return (false);
+		pos++;
 	}
-	return IS_OK;
+	return (true);
+}
+
+bool	DeleteHttpResponse::is_origin_form(const std::string &target_uri)
+{
+	return (target_uri[0] == '/');
+}
+
+std::string	DeleteHttpResponse::get_location_from_requestline_targeturi(const std::string &target_uri)
+{
+	if (is_origin_form(target_uri))
+		return (trim_query(target_uri));
+	if (is_authority_form(target_uri) || is_asterisk_form(target_uri))
+		return "";
+	std::string hier_part = trim_scheme_and_query(target_uri);
+	if (is_authority(hier_part))
+	{
+		std::string path_abempty = skip_authority(hier_part);
+		return (trim_query(path_abempty));
+	}
+	return (trim_query(hier_part));
 }
 
 std::string	DeleteHttpResponse::get_location_path(const std::string &requested_path)
 {
-	std::string	search_folda;
-	std::string	search_file;
-
-	// requestでくるpathを受け取る
-	// 探すものがディレクティブかファイルかどうかを判定、どっかに持っておく
-	separate_path_folda_file(requested_path, &search_folda, &search_file);
+	// この先の処理を書くのにまだメモ書き消さないで欲しいです
+	// request lineでくるpathを受け取り、locationを切り出す
+	std::string location_path =  get_location_from_requestline_targeturi(requested_path);
 	// まずaliasが設定されているかを確認する
 		// -- 設定されていればパスの塗り替え
 		// (aliasがない場合)次にrootが設定されているかを確認する

@@ -1,10 +1,9 @@
 #include <algorithm>
+#include <iostream>
 #include <map>
 #include <string>
 #include <vector>
-// #include "../TestConfig.hpp"
 #include "DeleteHttpResponse.hpp"
-#include <iostream>
 
 #define	EXIST 		0
 #define	NO_EXIST	1
@@ -104,7 +103,7 @@ std::string	DeleteHttpResponse::ready_now_time() const
 	char buffer[128];
 	time_t	nowtime = time(nullptr);
     tm*		nowtimestruct = NULL;
-	
+
 	gmtime_r(&nowtime, nowtimestruct);
     strftime(buffer, sizeof(buffer), "%a, %d %b %Y %H:%M:%S GMT", nowtimestruct);
     return static_cast<std::string>(buffer);
