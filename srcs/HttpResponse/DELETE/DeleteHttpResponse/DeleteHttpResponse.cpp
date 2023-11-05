@@ -101,7 +101,7 @@ void	DeleteHttpResponse::ready_status_text_map()  // 返すbodyの中身は該�
 std::string	DeleteHttpResponse::ready_now_time() const
 {
 	char buffer[128];
-	time_t	nowtime = time(nullptr);
+	time_t	nowtime = time(NULL);
     tm*		nowtimestruct = NULL;
 
 	gmtime_r(&nowtime, nowtimestruct);
