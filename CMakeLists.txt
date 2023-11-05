@@ -49,8 +49,17 @@ set(webserv_srcs
         srcs/HttpResponse/GET/get_cgi_result.cpp
         srcs/HttpResponse/GET/get_file_content.cpp
         srcs/HttpResponse/GET/get_request_body.cpp
+        srcs/HttpResponse/DELETE/DeleteHttpResponse/DeleteHttpResponse.cpp
+        srcs/HttpResponse/DELETE/StatusText/StatusText.cpp
+        srcs/HttpResponse/DELETE/DeleteHttpResponse/get_location_path.cpp
         srcs/Socket/Socket.cpp
 )
+
+# httpresponse -----------------------------------------------------------------
+# set(webserv_srcs
+# srcs/Debug/Debug.cpp
+# srcs/Error/Error.cpp
+# )
 
 add_executable(webserv
         srcs/main.cpp
@@ -67,6 +76,7 @@ set (unit_test_srcs
         test/unit_test/HttpResponse/TestCGI.cpp
         test/unit_test/HttpResponse/TestGetInterpreter.cpp
         test/unit_test/HttpResponse/TestGetRequestBody.cpp
+        test/unit_test/TestIntepretPath.cpp
 )
 
 add_executable(unit_test
