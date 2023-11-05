@@ -11,6 +11,9 @@
 /* tmp */
 # define CRLF	"\r\n"
 # define SP		" "
+# define LF		"\n"
+
+# define CR		"\r"
 
 # define STATUS_OK				200
 # define STATUS_BAD_REQUEST		400

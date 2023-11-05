@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <cerrno>
 #include <cstdlib>
+#include <ctime>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -104,6 +105,10 @@ int execute_cgi_script_in_child(int socket_fds[2],
 	return EXIT_FAILURE;
 }
 
+void wait_for_seconds(int seconds) {
+	clock_t end_time = clock() + seconds * CLOCKS_PER_SEC;
+	while (clock() < end_time) {}
+}
 
 }  // namespace
 
@@ -149,6 +154,9 @@ Result<std::string, int> get_cgi_result_via_socket(int socket_fds[2], int pid) {
 	bool		is_error = false;
 	Result<int, std::string> socketpair_result, fork_result;
 	Result<int, std::string> parent_proc_result;
+	int child_status;
+	pid_t wait_result;
+	const int	kTIMEOUT_SEC = 2;
 
 	errno = 0;
 	if (close(socket_fds[OUT]) == CLOSE_ERROR) {
@@ -157,19 +165,13 @@ Result<std::string, int> get_cgi_result_via_socket(int socket_fds[2], int pid) {
 		return Result<std::string, int>::err(ERR);
 	}
 
-	// errno = 0;
-	// if (fcntl(socket_fds[IN], F_SETFL, O_NONBLOCK | FD_CLOEXEC) == ERR) {
-	// 	err_info = create_error_info(errno, __FILE__, __LINE__);
-	// 	std::cerr << err_info << std::endl;  // todo: tmp
-	// 	is_error = true;
-	// }
+	wait_for_seconds(kTIMEOUT_SEC);
 
 	cgi_result = "";
 	while (true) {
-		// if (is_error) { break; }
 		errno = 0;
-		read_bytes = recv(socket_fds[IN], buf, BUFSIZ - 1, FLAG_NONE);
-		// read_bytes = recv(socket_fds[IN], buf, BUFSIZ - 1, MSG_DONTWAIT);
+		// read_bytes = recv(socket_fds[IN], buf, BUFSIZ - 1, FLAG_NONE);
+		read_bytes = recv(socket_fds[IN], buf, BUFSIZ - 1, MSG_DONTWAIT);
 		if (read_bytes == -1) {
 			err_info = create_error_info(errno, __FILE__, __LINE__);
 			std::cerr << err_info << std::endl;  // todo: tmp
@@ -190,10 +192,11 @@ Result<std::string, int> get_cgi_result_via_socket(int socket_fds[2], int pid) {
 		return Result<std::string, int>::err(ERR);
 	}
 
-	int status = 0;
 	errno = 0;
-	pid_t ret = waitpid(pid, &status, WNOHANG);
-	if (ret == ERR && errno != ECHILD) {
+	child_status = EXIT_SUCCESS;
+	wait_result = waitpid(pid, &child_status, WNOHANG);
+	// std::cout << CYAN << "errno:" << errno << ", ECHILD:" << ECHILD << RESET << std::endl;
+	if (wait_result == ERR && errno != ECHILD) {
 		errno = 0;
 		if (kill(pid, SIGKILL) == ERR) {
 			err_info = create_error_info(errno, __FILE__, __LINE__);
@@ -201,16 +204,9 @@ Result<std::string, int> get_cgi_result_via_socket(int socket_fds[2], int pid) {
 			is_error = true;
 		}
 	}
-	// std::cout << CYAN << "errno:" << errno << ", ECHILD:" << ECHILD << RESET << std::endl;
-
-	if (status != 0) {
+	if (child_status != EXIT_SUCCESS) {
 		is_error = true;
 	}
-
-	// if (pid > 0) {
-	// 	int status;
-	// 	waitpid(pid, &status, 0);
-	// }
 
 	if (is_error) {
 		return Result<std::string, int>::err(ERR);
@@ -218,15 +214,38 @@ Result<std::string, int> get_cgi_result_via_socket(int socket_fds[2], int pid) {
 	return Result<std::string, int>::ok(cgi_result);
 }
 
+void skip_field_lines(std::istringstream *iss) {
+	std::string line;
+
+	while (getline(*iss, line) && !line.empty()) {}
+}
+
+// todo: tmp
+// 一旦、ヘッダーを全て削除し、bodyのみとする
+// field-lineはparseしたり、上流のfield-lineとの結合が必要...
+Result<std::string, int> translate_to_http_protocol(const std::string &cgi_result) {
+	std::string	cgi_body, line;
+	std::istringstream iss(cgi_result);
+
+	skip_field_lines(&iss);
+
+	while (getline(iss, line)) {
+		line.append(LF);
+		cgi_body.append(line);
+	}
+	// std::cout << YELLOW << "cgi_body[" << cgi_body << "]" << RESET << std::endl;
+	return Result<std::string, int>::ok(cgi_body);
+}
+
 Result<std::string, int> HttpResponse::get_cgi_result(const std::string &file_path,
 													  const std::string &query) const {
-	// std::string	cgi_result;
-	// Result<std::string, int> get_cgi_result;
 	std::string refactor_content;
 	std::string err_info;
 	int			socket_fds[2];
 	pid_t		pid;
 	Result<int, std::string> socketpair_result;
+	Result<std::string, int> execute_cgi_result, translate_result;
+	std::string body;
 
 	socketpair_result = create_socketpair(socket_fds);
 	if (socketpair_result.is_err()) {
@@ -246,12 +265,10 @@ Result<std::string, int> HttpResponse::get_cgi_result(const std::string &file_pa
 	if (pid == CHILD_PROC) {
 		std::exit(execute_cgi_script_in_child(socket_fds, file_path, query));
 	}
-	return get_cgi_result_via_socket(socket_fds, pid);
 
-	// todo: LF -> CRLF, refactor field-lines,...
-	// get_cgi_result = get_cgi_result_via_socket(socket_fds, pid);
-	// if (get_cgi_result.is_err()) {
-		// return Result<std::string, int>::err(ERR);
-	// }
-	// cgi_result = get_cgi_result.get_ok_value();
+	execute_cgi_result = get_cgi_result_via_socket(socket_fds, pid);
+	if (execute_cgi_result.is_err()) {
+		return Result<std::string, int>::err(ERR);
+	}
+	return translate_to_http_protocol(execute_cgi_result.get_ok_value());
 }

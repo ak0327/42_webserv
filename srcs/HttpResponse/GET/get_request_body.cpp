@@ -67,6 +67,12 @@ Result<std::string, int> HttpResponse::get_path_content(const std::string &path,
 	if (autoindex && is_directory(path)) {
 		get_content_result = get_directory_listing(path);
 	} else if (is_cgi_file(path)) {
+		// todo ------------------
+		// create_cgi_request();
+		// get_cgi_response();
+		// get_cgi_field_lines();
+		// get_cgi_request_body();
+		// -----------------------
 		get_content_result = get_cgi_result(path, "");
 	} else {
 		get_content_result = get_file_content(path, mime_types);
