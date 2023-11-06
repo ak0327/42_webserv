@@ -4,6 +4,22 @@
 #include "HandlingString.hpp"
 #include "IsConfigFormat.hpp"
 
+bool IsConfigFormat::is_empty_file(const std::string &config_file_name)
+{
+	std::ifstream config_lines(config_file_name.c_str());
+	std::string	config_line;
+
+	while (std::getline(config_lines, config_line, '\n'))
+	{
+		if ((IsConfigFormat::is_ignore_line(config_line)))
+			continue;
+		if (config_line.empty())
+			continue;
+		return (false);
+	}
+	return (true);
+}
+
 bool IsConfigFormat::is_ignore_line(const std::string &config_line)
 {
 	std::string line_without_ows = HandlingString::obtain_without_ows_value(config_line);

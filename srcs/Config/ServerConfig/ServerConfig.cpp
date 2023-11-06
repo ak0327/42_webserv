@@ -60,7 +60,6 @@ bool	ServerConfig::set_field_header_field_value(const std::string &field_header,
 	field_headers.push_back(CGI_EXTENSIONS);
 	field_headers.push_back(DEFAULT_TYPE);
 	field_headers.push_back(ERRORLOG);
-	field_headers.push_back(PORT);
 	field_headers.push_back(ROOT);
 	field_headers.push_back(ALLOW_METHODS);
 	field_headers.push_back(INDEX);
@@ -132,23 +131,20 @@ bool	ServerConfig::set_field_header_field_value(const std::string &field_header,
 			return false;
 		this->_keepalive_timeout = ConfigHandlingString::ready_size_t_field_value(field_value);
 	}
+	if (field_header == LISTEN)
+	{
+		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
+			return false;
+		this->_port = ConfigHandlingString::ready_size_t_field_value(field_value);
+	}
 	if (field_header == ACCESSLOG)
 		this->_accesslog = HandlingString::obtain_without_ows_value(field_value);
 	if (field_header == CGI_EXTENSIONS)
 		this->_cgi_extension = HandlingString::obtain_without_ows_value(field_value);
 	if (field_header == DEFAULT_TYPE)
 		this->_default_type = HandlingString::obtain_without_ows_value(field_value);
-	if (field_header == LISTEN)
-		this->_port = HandlingString::obtain_without_ows_value(field_value);
 	if (field_header == ERRORLOG)
 		this->_errorlog = HandlingString::obtain_without_ows_value(field_value);
-	if (field_header == PORT)
-	{
-		// requestないと照合する際はstring型で扱いそうなので意図的にstd::string型にしている
-		if (!(NumericHandle::is_positive_and_under_intmax_int(field_value)))
-			return false;
-		this->_port = HandlingString::obtain_without_ows_value(field_value);
-	}
 	if (field_header == ROOT)
 		this->_root = HandlingString::obtain_without_ows_value(field_value);
 	if (field_header == ALLOW_METHODS)
@@ -173,11 +169,11 @@ void ServerConfig::set_client_header_timeout(const size_t &client_header_timeout
 void ServerConfig::set_keepalive_requests(const size_t &keepalive_requests) { this->_keepalive_requests = keepalive_requests; }
 void ServerConfig::set_keepalive_timeout(const size_t &keepalive_timeout) { this->_keepalive_timeout = keepalive_timeout; }
 void ServerConfig::set_client_max_body_size(const size_t &max_body_size) { this->_client_max_body_size = max_body_size; }
+void ServerConfig::set_port(const size_t &port) { this->_port = port; }
 
 void ServerConfig::set_accesslog(const std::string &access_log) { this->_accesslog = access_log; }
 void ServerConfig::set_default_type(const std::string &default_type) { this->_default_type = default_type; }
 void ServerConfig::set_errorlog(const std::string &error_log) { this->_errorlog = error_log; }
-void ServerConfig::set_port(const std::string &port) { this->_port = port; }
 void ServerConfig::set_root(const std::string &root) { this->_root = root; }
 void ServerConfig::set_allow_methods(const std::vector<std::string> &allow_methods) { this->_allow_methods = allow_methods; }
 void ServerConfig::set_index(const std::vector<std::string> &index) { this->_index = index; }
@@ -195,12 +191,12 @@ size_t ServerConfig::get_client_header_timeout() const { return (this->_client_h
 size_t ServerConfig::get_keepalive_requests() const { return (this->_keepalive_requests); }
 size_t ServerConfig::get_keepalive_timeout() const { return (this->_keepalive_timeout); }
 size_t ServerConfig::get_client_max_body_size() const { return (this->_client_max_body_size); }
+size_t ServerConfig::get_port() const { return (this->_port); }
 
 std::string	ServerConfig::get_accesslog() const { return (this->_accesslog); }
 std::string	ServerConfig::get_cgi_extension() const { return (this->_cgi_extension); }
 std::string	ServerConfig::get_default_type() const { return (this->_default_type); }
 std::string	ServerConfig::get_errorlog() const { return (this->_errorlog); }
-std::string	ServerConfig::get_port() const { return (this->_port); }
 std::string	ServerConfig::get_root() const { return (this->_root); }
 std::vector<std::string> ServerConfig::get_allow_methods() const { return (this->_allow_methods); }
 std::vector<std::string> ServerConfig::get_index() const { return (this->_index); }
@@ -225,12 +221,12 @@ void ServerConfig::init_server_config()
 	this->_client_max_body_size = 1024;
 	this->_keepalive_requests = 0;
 	this->_keepalive_timeout = 0;
+	this->_port = 80;
 
 	this->_accesslog = "";
 	this->_cgi_extension = "";
 	this->_default_type = "application/octet-stream";
 	this->_errorlog = "";
-	this->_port = "";
 	this->_root = "";
 
 	this->_allow_methods.clear();

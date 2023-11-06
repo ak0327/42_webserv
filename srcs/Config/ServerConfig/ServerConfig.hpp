@@ -25,12 +25,12 @@ class ServerConfig
 		size_t _client_max_body_size;
 		size_t _keepalive_requests;
 		size_t _keepalive_timeout;
+		size_t _port;
 
 		std::string _accesslog;
 		std::string _cgi_extension;
 		std::string _default_type;
 		std::string _errorlog;
-		std::string _port;
 		std::string _root;
 
 		std::vector<std::string> _allow_methods;
@@ -56,11 +56,11 @@ class ServerConfig
 		size_t get_keepalive_requests() const;
 		size_t get_keepalive_timeout() const;
 		size_t get_client_max_body_size() const;
+		size_t get_port() const;
 		std::string get_accesslog() const;
 		std::string get_cgi_extension() const;
 		std::string get_default_type() const;
 		std::string get_errorlog() const;
-		std::string get_port() const;
 		std::string get_root() const;
 		std::vector<std::string> get_allow_methods() const;
 		std::vector<std::string> get_index() const;
@@ -77,10 +77,10 @@ class ServerConfig
 		void set_keepalive_requests(const size_t &keepalive_requests);
 		void set_keepalive_timeout(const size_t &keepalive_timeout);
 		void set_client_max_body_size(const size_t &max_body_size);
+		void set_port(const size_t &port);
 		void set_accesslog(const std::string &access_log);
 		void set_default_type(const std::string &default_type);
 		void set_errorlog(const std::string &error_log);
-		void set_port(const std::string &port);
 		void set_root(const std::string &root);
 		void set_allow_methods(const std::vector<std::string> &allow_methods);
 		void set_index(const std::vector<std::string> &indexpags);

@@ -17,9 +17,10 @@ class IsConfigFormat
 		IsConfigFormat& operator=(const IsConfigFormat &other);
 
 	public:
-		static bool is_ignore_line(const std::string &config_line);
 		static bool is_block_end(const std::string &config_line);
 		static bool is_block_start(const std::string &block_end_word);
+		static bool is_empty_file(const std::string &config_file_name);
+		static bool is_ignore_line(const std::string &config_line);
 
 		static int is_field_header(const std::string &config_line, size_t *pos);
 		static int is_field_value(const std::string &config_line, size_t *pos);

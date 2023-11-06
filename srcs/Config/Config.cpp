@@ -13,7 +13,9 @@ Config::Config(const std::string &config_file_name)
 	if (!(test_open.is_open())) {
 		return;
 	}
-
+	if (IsConfigFormat::is_empty_file(config_file_name)){
+		return;
+	}
 	server_success = this->ready_server_config(config_file_name, &server_name_list);
 	if (!server_success) {
 		return;
@@ -26,12 +28,6 @@ Config::Config(const std::string &config_file_name)
 }
 
 Config::~Config() {}
-
-// ready_系の関数では格納を行なっているが
-// ready系の関数が二つあるのはtestconfig2のようなserverblockの要素が
-// 後に存在してしまう可能性があるため
-// serverblockの情報の取得→locationblockの情報を取得
-// 上記の流れを行いたい場合どうしても二回開く必要がある（要相談
 
 void Config::set_server_config_to_allconfigs(AllConfig *configs,
 											 ServerConfig *server_config,
@@ -174,7 +170,6 @@ bool Config::ready_location_config(const std::string &config_file_name,
 		if ((IsConfigFormat::is_ignore_line(config_line))) {
 			continue;
 		}
-
 		if (!in_server_block && !in_location_block)
 		{
 			in_server_block = true;

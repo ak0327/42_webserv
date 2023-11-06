@@ -29,7 +29,7 @@ TEST(ConfigReadingTest, ConfigTest1)
 	LocationConfig	asterisk_cgi_path = test_config.get_allconfig("aaa").get_location_config("*.cgi");
 
 	// configに記載があるもの server block //
-	EXPECT_EQ("4242", allconfig.get_port());
+	EXPECT_EQ(4242, allconfig.get_port());
 	std::vector<std::string>	answer_indexpage_sets;
 	answer_indexpage_sets.push_back("index.html");
 	answer_indexpage_sets.push_back("index.php");
@@ -116,7 +116,7 @@ TEST(ConfigReadingTest, ConfigTest2)
 	EXPECT_EQ(".cgi", allconfig.get_cgi_extension());
 	EXPECT_EQ("application/octet-stream", allconfig.get_default_type());
 	EXPECT_EQ("", allconfig.get_errorlog());
-	EXPECT_EQ("4242", allconfig.get_port());
+	EXPECT_EQ(4242, allconfig.get_port());
 	EXPECT_EQ("", allconfig.get_root());
 
 	answer_server_name = {"webserv1", "webserve_extention", "aa"};
@@ -305,7 +305,7 @@ TEST(ConfigReadingTest, ConfigTest4)
 	EXPECT_EQ("access_log", allconfig.get_accesslog());
 	EXPECT_EQ("html/plain", allconfig.get_default_type());
 	EXPECT_EQ("error_log", allconfig.get_errorlog());
-	EXPECT_EQ("4242", allconfig.get_port());
+	EXPECT_EQ(4242, allconfig.get_port());
 	EXPECT_EQ("/www/", allconfig.get_root());
 	std::vector<std::string>	answer_allowmethods;
 	answer_allowmethods.push_back("GET");
