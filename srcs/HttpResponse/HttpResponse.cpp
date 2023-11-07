@@ -13,7 +13,7 @@ std::map<int, std::string> init_status_reason_phrase() {
 	std::map<int, std::string> status_reason_phrase;
 
 	status_reason_phrase[STATUS_OK] = "OK";
-
+	status_reason_phrase[STATUS_BAD_REQUEST] = "Bad Request";
 	status_reason_phrase[STATUS_NOT_FOUND] = "Not Found";
 	status_reason_phrase[STATUS_NOT_ACCEPTABLE] = "Not Acceptable";
 
@@ -22,6 +22,8 @@ std::map<int, std::string> init_status_reason_phrase() {
 
 std::map<int, std::string> init_error_pages() {
 	std::map<int, std::string> error_pages;
+
+	error_pages[STATUS_BAD_REQUEST] = std::string(error_400_page);
 
 	error_pages[STATUS_NOT_FOUND] = std::string(error_404_page);
 	error_pages[STATUS_NOT_ACCEPTABLE] = std::string(error_406_page);

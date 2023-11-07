@@ -35,6 +35,7 @@ include_directories(
         srcs/Debug
         srcs/Error
         srcs/HttpResponse
+        srcs/IOMultiplexer
         srcs/Socket
 )
 
@@ -44,6 +45,7 @@ set(webserv_srcs
         srcs/Debug/Debug.cpp
         srcs/Error/Error.cpp
         srcs/HttpResponse/HttpResponse.cpp
+        srcs/IOMultiplexer/IOMultiplexer.cpp
         srcs/HttpResponse/error_pages.cpp
         srcs/HttpResponse/GET/get_directory_listing.cpp
         srcs/HttpResponse/GET/get_cgi_result.cpp

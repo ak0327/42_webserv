@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
 
+i = 0
 while True:
-    continue
+    print(i)
+    i += 1

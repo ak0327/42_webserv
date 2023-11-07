@@ -12,6 +12,7 @@
 !srcs/HttpResponse/*
 !srcs/HttpResponse/DELETE
 !srcs/HttpResponse/DELETE/*
+!srcs/IOMultiplexer
 !srcs/Socket
 !www
 !includes

@@ -14,6 +14,7 @@
 #include "Color.hpp"
 #include "Error.hpp"
 #include "HttpResponse.hpp"
+#include "IOMultiplexer.hpp"
 #include "Result.hpp"
 
 extern char **environ;
@@ -23,6 +24,8 @@ namespace {
 
 const int OK = 0;
 const int ERR = -1;
+const int IO_TIMEOUT = -1;
+
 const int CLOSE_ERROR = -1;
 const int DUP_ERROR = -1;
 const int FORK_ERROR = -1;
@@ -31,8 +34,8 @@ const int SOCKETPAIR_ERROR = -1;
 const int FLAG_NONE = 0;
 const int CHILD_PROC = 0;
 
-const std::size_t IN = 0;
-const std::size_t OUT = 1;
+const std::size_t READ = 0;
+const std::size_t WRITE = 1;
 
 Result<int, std::string> create_socketpair(int socket_fds[2]) {
 	std::string err_info;
@@ -78,21 +81,21 @@ int execute_cgi_script_in_child(int socket_fds[2],
 	argv = get_argv_for_execve(interpreter, file_path);
 
 	errno = 0;
-	if (close(socket_fds[IN]) == CLOSE_ERROR) {
+	if (close(socket_fds[READ]) == CLOSE_ERROR) {
 		err_info = create_error_info(errno, __FILE__, __LINE__);
 		std::cerr << err_info << std::endl;  // todo: tmp -> log?
 		return EXIT_FAILURE;
 	}
 
 	errno = 0;
-	if (dup2(socket_fds[OUT], STDOUT_FILENO) == DUP_ERROR) {
+	if (dup2(socket_fds[WRITE], STDOUT_FILENO) == DUP_ERROR) {
 		err_info = create_error_info(errno, __FILE__, __LINE__);
 		std::cerr << err_info << std::endl;  // todo: tmp -> log?
 		return EXIT_FAILURE;
 	}
 
 	errno = 0;
-	if (close(socket_fds[OUT]) == CLOSE_ERROR) {
+	if (close(socket_fds[WRITE]) == CLOSE_ERROR) {
 		err_info = create_error_info(errno, __FILE__, __LINE__);
 		std::cerr << err_info << std::endl;  // todo: tmp -> log?
 		return EXIT_FAILURE;
@@ -105,9 +108,11 @@ int execute_cgi_script_in_child(int socket_fds[2],
 	return EXIT_FAILURE;
 }
 
-void wait_for_seconds(int seconds) {
-	clock_t end_time = clock() + seconds * CLOCKS_PER_SEC;
-	while (clock() < end_time) {}
+bool is_exec_timeout(time_t start_time, int timeout_sec) {
+	time_t current_time = time(NULL);
+	double elapsed_time = difftime(current_time, start_time);
+
+	return (timeout_sec <= elapsed_time);
 }
 
 }  // namespace
@@ -146,32 +151,90 @@ Result<std::vector<std::string>, int> get_interpreter(const std::string &file_pa
 	return Result<std::vector<std::string>, int>::err(ERR);
 }
 
+// tmp
+Result<int, int> wait_for_io_ready(int fd) {
+	IOMultiplexer *fds;
+	Result<int, std::string> fd_ready_result;
+	std::string err_info;
+	int ready_fd;
+
+	try {
+#if defined(__linux__) && !defined(USE_SELECT_MULTIPLEXER)
+		fds = new EPollMultiplexer(fd);
+#elif defined(__APPLE__) && !defined(USE_SELECT_MULTIPLEXER)
+		fds = new KqueueMultiplexer(fd);
+#else
+		fds = new SelectMultiplexer(fd);
+#endif
+
+		while (true) {
+			fd_ready_result = fds->get_io_ready_fd();
+			if (fd_ready_result.is_err()) {
+				err_info = fd_ready_result.get_err_value();
+				std::cerr << err_info << std::endl;  // todo: tmp
+				delete fds;
+				return Result<int, int>::err(ERR);
+			}
+			if (fd_ready_result.get_ok_value() == IO_TIMEOUT) {
+				std::cerr << "[CGI Error] timeout" << std::endl;
+				delete fds;
+				return Result<int, int>::ok(IO_TIMEOUT);
+			}
+			ready_fd = fd_ready_result.get_ok_value();
+			break;
+		}
+		delete fds;
+		return Result<int, int>::ok(ready_fd);
+	} catch (std::bad_alloc const &e) {
+		err_info = create_error_info("Failed to allocate memory", __FILE__, __LINE__);
+		std::cerr << err_info << std::endl;  // todo: tmp
+		return Result<int, int>::err(ERR);
+	}
+}
+
 Result<std::string, int> get_cgi_result_via_socket(int socket_fds[2], int pid) {
 	std::string	cgi_result;
 	std::string err_info;
 	char		buf[BUFSIZ];
 	ssize_t 	read_bytes;
 	bool		is_error = false;
+	bool		is_timeout = false;
 	Result<int, std::string> socketpair_result, fork_result;
 	Result<int, std::string> parent_proc_result;
+	Result<int, int> io_result;
 	int child_status;
 	pid_t wait_result;
-	const int	kTIMEOUT_SEC = 2;
+	time_t start_time;
+	int kTIMEOUT_SEC = 2;
 
 	errno = 0;
-	if (close(socket_fds[OUT]) == CLOSE_ERROR) {
+	if (close(socket_fds[WRITE]) == CLOSE_ERROR) {
 		err_info = create_error_info(errno, __FILE__, __LINE__);
 		std::cerr << err_info << std::endl;  // todo: tmp
-		return Result<std::string, int>::err(ERR);
+		return Result<std::string, int>::err(STATUS_SERVER_ERROR);
 	}
 
-	wait_for_seconds(kTIMEOUT_SEC);
+	io_result = wait_for_io_ready(socket_fds[READ]);
+	if (io_result.is_err()) {
+		is_error = true;
+	} else if (io_result.get_ok_value() == IO_TIMEOUT) {
+		is_timeout = true;
+	}
 
+	start_time = time(NULL);
 	cgi_result = "";
 	while (true) {
+		if (is_error || is_timeout) {
+			break;
+		}
+
+		if (is_exec_timeout(start_time, kTIMEOUT_SEC)) {
+			is_timeout = true;
+			break;
+		}
+
 		errno = 0;
-		// read_bytes = recv(socket_fds[IN], buf, BUFSIZ - 1, FLAG_NONE);
-		read_bytes = recv(socket_fds[IN], buf, BUFSIZ - 1, MSG_DONTWAIT);
+		read_bytes = recv(socket_fds[READ], buf, BUFSIZ - 1, FLAG_NONE);
 		if (read_bytes == -1) {
 			err_info = create_error_info(errno, __FILE__, __LINE__);
 			std::cerr << err_info << std::endl;  // todo: tmp
@@ -186,19 +249,19 @@ Result<std::string, int> get_cgi_result_via_socket(int socket_fds[2], int pid) {
 	}
 
 	errno = 0;
-	if (close(socket_fds[IN]) == CLOSE_ERROR) {
+	if (close(socket_fds[READ]) == CLOSE_ERROR) {
 		err_info = create_error_info(errno, __FILE__, __LINE__);
 		std::cerr << err_info << std::endl;  // todo: tmp
-		return Result<std::string, int>::err(ERR);
+		is_error = true;
 	}
 
 	errno = 0;
 	child_status = EXIT_SUCCESS;
 	wait_result = waitpid(pid, &child_status, WNOHANG);
 	// std::cout << CYAN << "errno:" << errno << ", ECHILD:" << ECHILD << RESET << std::endl;
-	if (wait_result == ERR && errno != ECHILD) {
+	if (wait_result == STATUS_SERVER_ERROR && errno != ECHILD) {
 		errno = 0;
-		if (kill(pid, SIGKILL) == ERR) {
+		if (kill(pid, SIGKILL) == STATUS_SERVER_ERROR) {
 			err_info = create_error_info(errno, __FILE__, __LINE__);
 			std::cerr << err_info << std::endl;  // todo: tmp
 			is_error = true;
@@ -207,9 +270,12 @@ Result<std::string, int> get_cgi_result_via_socket(int socket_fds[2], int pid) {
 	if (child_status != EXIT_SUCCESS) {
 		is_error = true;
 	}
-
+	if (is_timeout) {
+		std::cerr << "[Error] CGI Script Execution Timeout" << std::endl;  // todo: tmp
+		return Result<std::string, int>::err(STATUS_BAD_REQUEST);  // todo: tmp
+	}
 	if (is_error) {
-		return Result<std::string, int>::err(ERR);
+		return Result<std::string, int>::err(STATUS_SERVER_ERROR);  // todo: tmp
 	}
 	return Result<std::string, int>::ok(cgi_result);
 }
@@ -251,7 +317,7 @@ Result<std::string, int> HttpResponse::get_cgi_result(const std::string &file_pa
 	if (socketpair_result.is_err()) {
 		err_info = socketpair_result.get_err_value();
 		std::cerr << "[Error] socketpair: " << err_info << std::endl;  // todo: tmp
-		return Result<std::string, int>::err(ERR);
+		return Result<std::string, int>::err(STATUS_SERVER_ERROR);  // todo: tmp
 	}
 
 	errno = 0;
@@ -259,7 +325,7 @@ Result<std::string, int> HttpResponse::get_cgi_result(const std::string &file_pa
 	if (pid == FORK_ERROR) {
 		err_info = create_error_info(errno, __FILE__, __LINE__);
 		std::cerr << err_info << std::endl;  // todo: tmp
-		return Result<std::string, int>::err(ERR);
+		return Result<std::string, int>::err(STATUS_SERVER_ERROR);  // todo: tmp
 	}
 
 	if (pid == CHILD_PROC) {
@@ -268,7 +334,7 @@ Result<std::string, int> HttpResponse::get_cgi_result(const std::string &file_pa
 
 	execute_cgi_result = get_cgi_result_via_socket(socket_fds, pid);
 	if (execute_cgi_result.is_err()) {
-		return Result<std::string, int>::err(ERR);
+		return Result<std::string, int>::err(execute_cgi_result.get_err_value());
 	}
 	return translate_to_http_protocol(execute_cgi_result.get_ok_value());
 }

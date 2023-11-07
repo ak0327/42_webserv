@@ -20,6 +20,10 @@ SRCS		+=	$(DEBUG_DIR)/Debug.cpp
 ERROR_DIR	=	Error
 SRCS		+=	$(ERROR_DIR)/Error.cpp
 
+#io
+IO_DIR		=	IOMultiplexer
+SRCS		+=	$(IO_DIR)/IOMultiplexer.cpp
+
 #HttpResponse
 RESPONSE_DIR =	HttpResponse
 SRCS		+=	$(RESPONSE_DIR)/HttpResponse.cpp \
@@ -52,6 +56,7 @@ DEPS		=	$(OBJS:%.o=%.d)
 INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(DEBUG_DIR) \
 				$(SRCS_DIR)/$(ERROR_DIR) \
+				$(SRCS_DIR)/$(IO_DIR) \
 				$(SRCS_DIR)/$(RESPONSE_DIR) \
 				$(SRCS_DIR)/$(RESPONSE_DELETE_DIR)/DeleteHttpResponse \
 				$(SRCS_DIR)/$(RESPONSE_DELETE_DIR)/StatusText \
