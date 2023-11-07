@@ -29,7 +29,10 @@ const int IO_TIMEOUT = -1;
 const int CLOSE_ERROR = -1;
 const int DUP_ERROR = -1;
 const int FORK_ERROR = -1;
+const int KILL_ERROR = -1;
 const int SOCKETPAIR_ERROR = -1;
+
+const pid_t WAIT_ERROR = -1;
 const ssize_t RECV_ERROR = -1;
 
 const int FLAG_NONE = 0;
@@ -210,16 +213,33 @@ Result<int, int> wait_child_process(pid_t child_pid) {
 	errno = 0;
 	child_status = EXIT_SUCCESS;
 	wait_result = waitpid(child_pid, &child_status, WNOHANG);
-	// std::cout << CYAN << "errno:" << errno << ", ECHILD:" << ECHILD << RESET << std::endl;
-	if (wait_result == STATUS_SERVER_ERROR && errno != ECHILD) {
-		errno = 0;
-		if (kill(child_pid, SIGKILL) == STATUS_SERVER_ERROR) {
-			err_info = create_error_info(errno, __FILE__, __LINE__);
-			std::cerr << err_info << std::endl;  // todo: tmp
-			return Result<int, int>::err(ERR);
-		}
+	child_status = WEXITSTATUS(child_status);
+
+	if (wait_result == child_pid) {
+		return Result<int, int>::ok(child_status);
 	}
-	return Result<int, int>::ok(WEXITSTATUS(child_status));
+
+	if (wait_result == WAIT_ERROR) {
+		if (errno == ECHILD) {
+			return Result<int, int>::ok(child_status);
+		}
+		err_info = create_error_info(errno, __FILE__, __LINE__);
+		std::cerr << err_info << std::endl;
+		return Result<int, int>::err(ERR);
+	}
+
+	if (kill(child_pid, SIGKILL) == KILL_ERROR) {
+		err_info = create_error_info(errno, __FILE__, __LINE__);
+		std::cerr << err_info << std::endl;
+		return Result<int, int>::err(ERR);
+	}
+
+	if (waitpid(child_pid, &child_status, FLAG_NONE) == WAIT_ERROR) {
+		err_info = create_error_info(errno, __FILE__, __LINE__);
+		std::cerr << err_info << std::endl;
+		return Result<int, int>::err(ERR);
+	}
+	return Result<int, int>::ok(child_status);
 }
 
 Result<std::string, int> recv_cgi_result(int read_fd, bool *is_error, bool *is_timeout) {
