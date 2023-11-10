@@ -37,7 +37,7 @@ class ServerConfig
 		std::vector<std::string> _index;
 		std::vector<std::string> _server_name;
 
-		std::map<size_t, std::string> _error_pages;
+		ErrorPage _error_pages;
 
 		void init_server_config();
 

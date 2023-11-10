@@ -69,6 +69,7 @@ set(config_srcs
         srcs/Config/IsConfigFormat/IsConfigFormat.cpp
         srcs/Config/LocationConfig/LocationConfig.cpp
         srcs/Config/ServerConfig/ServerConfig.cpp
+        srcs/Config/ErrorPage/ErrorPage.cpp
         )
 
 list(APPEND webserv_srcs

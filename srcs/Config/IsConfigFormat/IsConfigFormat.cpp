@@ -197,11 +197,11 @@ bool IsConfigFormat::is_statuscodes(const std::string &target_string)
 	size_t	status_code_start_pos = 0;
 	size_t	status_code_end_pos = 0;
 
-	while (target_string[pos] != '\0')
+	while (target_string[status_code_start_pos] != '\0')
 	{
 		HandlingString::skip_no_ows(target_string, &status_code_end_pos);
 		std::string	status_code = target_string.substr(status_code_start_pos, \
-														status_code_end_pos - status_code_start_pos)
+														status_code_end_pos - status_code_start_pos);
 		if (NumericHandle::is_positive_and_under_intmax_int(status_code) == false)
 			return (false);
 		HandlingString::skip_ows(target_string, &status_code_end_pos);
@@ -216,10 +216,10 @@ bool IsConfigFormat::is_uri(const std::string &target_string)
 	size_t	pos = 0;
 	while (target_string[pos] != '\0')
 	{
-		if !(std::isalpha(target_string[pos]) || std::isdigit(target_string[pos]))
+		if (!(std::isalpha(target_string[pos]) || std::isdigit(target_string[pos])))
 		{
 			if (target_string[pos] != '_' && target_string[pos] != '.' && target_string[pos] != '~' \
-			target_string[pos] != '%' && target_string[pos] != '/')
+			&& target_string[pos] != '%' && target_string[pos] != '/')
 				return false;
 		}
 		pos++;
@@ -252,11 +252,11 @@ bool	IsConfigFormat::is_errorpage_with_response(const std::string &field_value)
 	std::string	code = field_value_without_ows.substr(pos - 1);
 	if (IsConfigFormat::is_statuscodes(field_value_without_ows) == false)
 		return (false);
-	HandlingString::skip_ows(ffield_value_without_ows, &pos);
+	HandlingString::skip_ows(field_value_without_ows, &pos);
 	if (std::isdigit(field_value_without_ows[pos]))
 	{
 		size_t	response_statuscode_start_pos = pos;
-		while (std::isdigit(field_value_without_code[pos]))
+		while (std::isdigit(field_value_without_ows[pos]))
 			pos++;
 		std::string	response_statuscode = field_value_without_ows.substr(response_statuscode_start_pos, \
 																			pos);

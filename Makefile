@@ -61,6 +61,7 @@ SRCS		+=	$(CONFIG_DIR)/Config.cpp \
 				$(CONFIG_DIR)/IsConfigFormat/IsConfigFormat.cpp \
 				$(CONFIG_DIR)/LocationConfig/LocationConfig.cpp \
 				$(CONFIG_DIR)/ServerConfig/ServerConfig.cpp \
+				$(CONFIG_DIR)/ErrorPage/ErrorPage.cpp
 
 
 # OBJS -------------------------------------------------------------------------

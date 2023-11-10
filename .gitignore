@@ -9,10 +9,10 @@
 !srcs
 !srcs/Client
 !srcs/Config
+!srcs/Config/ErrorPage
+!srcs/Config/ErrorPage/*
 !srcs/Debug
 !srcs/Error
-!srcs/ErrorPage
-!srcs/ErrorPage/*
 !srcs/HandlingString
 !srcs/NumericHandle
 !srcs/Server

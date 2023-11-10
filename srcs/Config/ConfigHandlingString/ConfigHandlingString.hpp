@@ -2,6 +2,7 @@
 
 # include <string>
 # include <vector>
+# include "../ErrorPage/ErrorPage.hpp"
 
 class LocationConfig;
 class ServerConfig;
@@ -19,7 +20,7 @@ class ConfigHandlingString
 		static bool ready_boolean_field_value(const std::string &field_value);
 
 		static int ready_int_field_value(const std::string &field_value);
-		static std::map<int, std::string> ready_error_page(const std::string &field_value);
+		static ErrorPage ready_error_page(const std::string &field_value);
 		static int input_field_key_field_value(const std::string &config_line,
 												LocationConfig *location_config);
 		static int input_field_key_field_value(const std::string &config_line,

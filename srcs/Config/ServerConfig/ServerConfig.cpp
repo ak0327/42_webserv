@@ -157,7 +157,7 @@ bool	ServerConfig::set_field_header_field_value(const std::string &field_header,
 	{
 		if (!(IsConfigFormat::is_errorpage_format(field_value) == false))
 			return false;
-		this->_error_pages = 
+		this->_error_pages = ConfigHandlingString::ready_error_page(field_value);
 	}
 	return (true);
 }
