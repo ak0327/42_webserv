@@ -1,5 +1,5 @@
-#ifndef ErrorPage_HPP
-#define ErrorPage_HPP
+#ifndef SRCS_CONFIG_ERRORPAGE_ERRORPAGE_HPP_
+#define SRCS_CONFIG_ERRORPAGE_ERRORPAGE_HPP_
 
 #include <vector>
 #include <string>
@@ -19,7 +19,7 @@ class ErrorPage
 		void	ready_code(const std::string &codes);
 	public:
 		ErrorPage();
-		ErrorPage(const std::string &field_value);
+		explicit ErrorPage(const std::string &field_value);
 		ErrorPage(const ErrorPage &other);
 		ErrorPage& operator=(const ErrorPage &other);
 		~ErrorPage();
@@ -31,4 +31,4 @@ class ErrorPage
 		void	set_error_page(const std::string &field_value);
 };
 
-#endif
+#endif  // SRCS_CONFIG_ERRORPAGE_ERRORPAGE_HPP_
