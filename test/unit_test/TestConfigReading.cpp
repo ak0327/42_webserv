@@ -362,7 +362,7 @@ TEST(ConfigReadingTest, ErrorConfigTestand_get_no_exist_key_1)
 
 TEST(ConfigReagingTest, ErrorPage)
 {
-	Config	test_config("config/testconfig1.conf");
+	Config	test_config("config/testconfigerrorpage.conf");
 	ServerConfig	allconfig;
 
 	EXPECT_EQ(true, test_config.get_is_config_format());
