@@ -21,7 +21,6 @@ void	ErrorPage::ready_code(const std::string &codes)
 		this->_code.push_back(NumericHandle::str_to_int(status_code));
 		HandlingString::skip_ows(codes, &status_code_end_pos);
 		status_code_start_pos = status_code_end_pos;
-		status_code_start_pos++;
 	}
 }
 
@@ -31,9 +30,9 @@ void	ErrorPage::ready_errorpage(const std::string &field_value)
 
 	while (HandlingString::is_ows(field_value[pos]) || std::isdigit(field_value[pos]))
 		pos++;
-	std::string	status_codes = field_value.substr(pos);
+	std::string	status_codes = field_value.substr(0, pos - 1);
 	this->ready_code(status_codes);
-	std::string	uri = field_value.substr(pos + 1, field_value.length() - (pos + 1));
+	std::string	uri = field_value.substr(pos, field_value.length() - pos);
 	this->_uri = HandlingString::obtain_without_ows_value(uri);
 }
 
@@ -75,6 +74,13 @@ void	ErrorPage::set_error_page(const std::string &field_value)
 		this->ready_errorpage_with_response(field_value);
 	else
 		this->ready_errorpage(field_value);
+}
+
+void	ErrorPage::clear()
+{
+	this->_code.clear();
+	this->_uri = "";
+	this->_response_statuscode = 0;
 }
 
 ErrorPage::ErrorPage(const ErrorPage &other)

@@ -238,9 +238,13 @@ TEST(ConfigReadingTest, ConfigTest2)
 	//         # error_page 404 docs/error_page/404.html;
 	//     }
 	LocationConfig error_page = webserv_config.get_location_config("/error_page/");
-	answer_error_pages = {"404", "docs/error_page/404.html"};
 	// todo: map[404] = "docs/error_page/404.html";
-	EXPECT_EQ(answer_error_pages, error_page.get_errorpages());
+	std::vector<size_t> anser_errorpage_code;
+	anser_errorpage_code.push_back(404);
+	anser_errorpage_code.push_back(405);
+	anser_errorpage_code.push_back(501);
+	EXPECT_EQ("docs/error_page/404.html", error_page.get_errorpages().get_uri());
+	EXPECT_EQ(anser_errorpage_code, error_page.get_errorpages().get_code());
 
 
 	//     location /upload/ {
@@ -354,4 +358,76 @@ TEST(ConfigReadingTest, ErrorConfigTestand_get_no_exist_key_1)
 
 	EXPECT_EQ(false, test_config.get_is_config_format());
 	test_config.get_allconfig("webserv2");
+}
+
+TEST(ConfigReagingTest, ErrorPage)
+{
+	Config	test_config("config/testconfig1.conf");
+	ServerConfig	allconfig;
+
+	EXPECT_EQ(true, test_config.get_is_config_format());
+	allconfig = test_config.get_allconfig("aaa").get_server_config();
+	LocationConfig	asterisk_cgi_path = test_config.get_allconfig("aaa").get_location_config("*.cgi");
+
+	// configに記載があるもの server block //
+	EXPECT_EQ(4242, allconfig.get_port());
+	std::vector<std::string>	answer_indexpage_sets;
+	answer_indexpage_sets.push_back("index.html");
+	answer_indexpage_sets.push_back("index.php");
+	compare_vector_report(__LINE__, allconfig.get_index(), answer_indexpage_sets);
+	// -------------------------------- //
+
+	// configに記載があるもの location block //
+	std::vector<std::string>	answer_allowmethods;
+	std::vector<std::string>	answer_index;
+	answer_index.push_back("index.html");
+	answer_index.push_back("index.php");
+	compare_vector_report(__LINE__, asterisk_cgi_path.get_index(), answer_index);
+	EXPECT_EQ("test/index.php", asterisk_cgi_path.get_cgi_path());
+	// -------------------------------- //
+
+	// configに記載がないもの server block //
+	EXPECT_EQ(false, allconfig.get_autoindex());
+	EXPECT_EQ(false, allconfig.get_chunked_transferencoding_allow());
+	EXPECT_EQ(1, allconfig.get_server_tokens());
+	EXPECT_EQ(8000, allconfig.get_client_body_buffer_size());
+	EXPECT_EQ(60, allconfig.get_client_body_timeout());
+	EXPECT_EQ(1024, allconfig.get_client_header_buffer_size());
+	EXPECT_EQ(60, allconfig.get_client_header_timeout());
+	EXPECT_EQ(0, allconfig.get_keepalive_requests());
+	EXPECT_EQ(0, allconfig.get_keepalive_timeout());
+	EXPECT_EQ(1024, allconfig.get_client_max_body_size());
+	EXPECT_EQ("", allconfig.get_accesslog());
+	EXPECT_EQ("application/octet-stream", allconfig.get_default_type());
+	EXPECT_EQ("", allconfig.get_errorlog());
+	EXPECT_EQ("", allconfig.get_root());
+	answer_allowmethods.clear();
+	compare_vector_report(__LINE__, allconfig.get_allow_methods(), answer_allowmethods);
+	// -------------------------------- //
+
+	// configに記載がないもの location block //
+	EXPECT_EQ(false, asterisk_cgi_path.get_autoindex());
+	EXPECT_EQ(false, asterisk_cgi_path.get_chunked_transferencoding_allow());
+	EXPECT_EQ(1, asterisk_cgi_path.get_server_tokens());
+	EXPECT_EQ(8000, asterisk_cgi_path.get_client_body_buffer_size());
+	EXPECT_EQ(60, asterisk_cgi_path.get_client_body_timeout());
+	EXPECT_EQ(1024, asterisk_cgi_path.get_client_header_buffer_size());
+	EXPECT_EQ(60, asterisk_cgi_path.get_client_header_timeout());
+	EXPECT_EQ(1024, asterisk_cgi_path.get_client_max_body_size());
+	EXPECT_EQ(0, asterisk_cgi_path.get_keepalive_requests());
+	EXPECT_EQ(0, asterisk_cgi_path.get_keepalive_timeout());
+	EXPECT_EQ("", asterisk_cgi_path.get_alias());
+	EXPECT_EQ("", asterisk_cgi_path.get_accesslog());
+	EXPECT_EQ("application/octet-stream", asterisk_cgi_path.get_default_type());
+	EXPECT_EQ("", asterisk_cgi_path.get_errorlog());
+	EXPECT_EQ("", asterisk_cgi_path.get_root());
+	compare_vector_report(__LINE__, asterisk_cgi_path.get_index(), answer_indexpage_sets);
+	std::vector<size_t> anser_errorpage_code;
+	anser_errorpage_code.push_back(404);
+	anser_errorpage_code.push_back(405);
+	anser_errorpage_code.push_back(502);
+	EXPECT_EQ("docs/error_page/404.html", asterisk_cgi_path.get_errorpages().get_uri());
+	EXPECT_EQ(anser_errorpage_code, asterisk_cgi_path.get_errorpages().get_code());
+	EXPECT_EQ(201, asterisk_cgi_path.get_errorpages().get_response_statuscode());
+	// -------------------------------- //
 }

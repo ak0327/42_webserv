@@ -64,6 +64,7 @@ bool LocationConfig::is_valid_field_header_in_location(const std::string &field_
 	field_headers.push_back(CGI_PATH);
 	field_headers.push_back(ALIAS);
 	field_headers.push_back(UPLOAD_PATH);
+	field_headers.push_back(ERRORPAGES);
 
 	itr = std::find(field_headers.begin(), field_headers.end(), field_header);
 	return itr != field_headers.end();
@@ -146,7 +147,9 @@ bool LocationConfig::set_field_header_field_value(const std::string &field_heade
 	} else if (field_header ==  INDEX) {
 		this->_index = ConfigHandlingString::ready_string_vector_field_value(field_value);
 	} else if (field_header ==  ERRORPAGES) {
-		this->_errorpages = ConfigHandlingString::ready_string_vector_field_value(field_value);
+		if (!(IsConfigFormat::is_errorpage_format(field_value) == false))
+			return false;
+		this->_errorpages = ConfigHandlingString::ready_error_page(field_value);
 	} else if (field_header ==  SERVER_NAME) {
 		this->_server_name = ConfigHandlingString::ready_string_vector_field_value(field_value);
 	}
@@ -173,7 +176,7 @@ std::string	LocationConfig::get_root() const { return (this->_root); }
 std::vector<std::string> LocationConfig::get_allow_methods() const { return (this->_allow_methods); }
 std::vector<std::string> LocationConfig::get_index() const { return (this->_index); }
 std::vector<std::string> LocationConfig::get_server_name() const { return (this->_server_name); }
-std::vector<std::string> LocationConfig::get_errorpages() const { return (this->_errorpages); }
+ErrorPage LocationConfig::get_errorpages() const { return (this->_errorpages); }
 
 void LocationConfig::set_autoindex(const bool &autoindex) { this->_autoindex = autoindex; }
 void LocationConfig::set_chunked_transferencoding_allow(const bool &chunked_transferencoding_allow)
@@ -214,7 +217,7 @@ void LocationConfig::set_root(const std::string &root) { this->_root = root; }
 void LocationConfig::set_allow_methods(const std::vector<std::string> &allow_methods) { this->_allow_methods = allow_methods; }
 void LocationConfig::set_index(const std::vector<std::string> &index) { this->_index = index; }
 void LocationConfig::set_server_name(const std::vector<std::string> &server_name) { this->_server_name = server_name; }
-void LocationConfig::set_errorpages(const std::vector<std::string> &errorpages) { this->_errorpages = errorpages; }
+void LocationConfig::set_errorpages(const ErrorPage &errorpages) { this->_errorpages = errorpages; }
 
 void LocationConfig::init_location_config()
 {

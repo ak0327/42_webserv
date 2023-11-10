@@ -6,6 +6,7 @@
 #include <vector>
 #include "AllConfig.hpp"
 #include "ServerConfig.hpp"
+#include "../ErrorPage/ErrorPage.hpp"
 
 class LocationConfig
 {
@@ -34,7 +35,8 @@ class LocationConfig
 		std::vector<std::string> _allow_methods;
 		std::vector<std::string> _index;
 		std::vector<std::string> _server_name;
-		std::vector<std::string> _errorpages;
+		
+		ErrorPage _errorpages;
 
 		bool is_valid_field_header_in_location(const std::string &field_header);
 
@@ -71,7 +73,8 @@ class LocationConfig
 		std::vector<std::string> get_allow_methods() const;
 		std::vector<std::string> get_index() const;
 		std::vector<std::string> get_server_name() const;
-		std::vector<std::string> get_errorpages() const;  // 修正したい
+		
+		ErrorPage get_errorpages() const;
 
 		void set_autoindex(const bool &autoindex);
 		void set_chunked_transferencoding_allow(const bool &chunked_transferencoding_allow);
@@ -94,7 +97,7 @@ class LocationConfig
 		void set_allow_methods(const std::vector<std::string> &allow_methods);
 		void set_index(const std::vector<std::string> &index);
 		void set_server_name(const std::vector<std::string> &server_name);
-		void set_errorpages(const std::vector<std::string> &errorpages);
+		void set_errorpages(const ErrorPage &errorpages);
 
 		void init_location_config();
 		void init_location_config_with_server_config(const ServerConfig &inputes_severconfig);

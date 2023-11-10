@@ -29,6 +29,7 @@ class ErrorPage
 		std::vector<size_t>	get_code(void) const;
 
 		void	set_error_page(const std::string &field_value);
+		void	clear();
 };
 
 #endif  // SRCS_CONFIG_ERRORPAGE_ERRORPAGE_HPP_
