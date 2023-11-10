@@ -35,7 +35,7 @@ class LocationConfig
 		std::vector<std::string> _allow_methods;
 		std::vector<std::string> _index;
 		std::vector<std::string> _server_name;
-		
+
 		ErrorPage _errorpages;
 
 		bool is_valid_field_header_in_location(const std::string &field_header);
@@ -73,7 +73,7 @@ class LocationConfig
 		std::vector<std::string> get_allow_methods() const;
 		std::vector<std::string> get_index() const;
 		std::vector<std::string> get_server_name() const;
-		
+
 		ErrorPage get_errorpages() const;
 
 		void set_autoindex(const bool &autoindex);
