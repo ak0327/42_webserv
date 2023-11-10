@@ -153,6 +153,12 @@ bool	ServerConfig::set_field_header_field_value(const std::string &field_header,
 		this->_index = ConfigHandlingString::ready_string_vector_field_value(field_value);
 	if (field_header == SERVER_NAME)
 		this->_server_name = ConfigHandlingString::ready_string_vector_field_value(field_value);
+	if (field_header == ERRORPAGES)
+	{
+		if (!(IsConfigFormat::is_errorpage_format(field_value) == false))
+			return false;
+		this->_error_pages = 
+	}
 	return (true);
 }
 

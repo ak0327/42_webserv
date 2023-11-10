@@ -278,7 +278,7 @@ TEST(ConfigReadingTest, ConfigTest3)
 	Config	test_config("config/testconfig3.conf");
 	ServerConfig	allconfig;
 
-	EXPECT_EQ(true, test_config.get_is_config_format());
+	EXPECT_EQ(false, test_config.get_is_config_format());
 }
 
 TEST(ConfigReadingTest, ConfigTest4)

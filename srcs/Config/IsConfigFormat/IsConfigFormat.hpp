@@ -32,4 +32,10 @@ class IsConfigFormat
 										 bool *in_server_block);
 		static int is_server_block_format(const std::string	&config_line,
 										  std::vector<std::string> field_headers);
+		
+		static bool	is_errorpage_format(const std::string &field_value);
+		static bool	is_errorpage_with_response(const std::string &field_value);
+		static bool is_errorpage(const std::string &field_value);
+		static bool	is_statuscodes(const std::string &target_string);
+		static bool	is_uri(const std::string &target_string);
 };

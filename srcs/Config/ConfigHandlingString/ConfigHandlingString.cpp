@@ -66,6 +66,11 @@ std::vector<std::string> ConfigHandlingString::ready_string_vector_field_value(c
 	return (ret_vector);
 }
 
+std::map<size_t, std::string> ConfigHandlingString::ready_error_page(const std::string &field_value)
+{
+
+}
+
 void ConfigHandlingString::get_field_header_and_field_value(const std::string &config_line,
 															std::string *ret_field_header,
 															std::string *ret_field_value) {

@@ -11,6 +11,8 @@
 !srcs/Config
 !srcs/Debug
 !srcs/Error
+!srcs/ErrorPage
+!srcs/ErrorPage/*
 !srcs/HandlingString
 !srcs/NumericHandle
 !srcs/Server

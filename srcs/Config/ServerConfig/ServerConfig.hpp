@@ -37,6 +37,8 @@ class ServerConfig
 		std::vector<std::string> _index;
 		std::vector<std::string> _server_name;
 
+		std::map<size_t, std::string> _error_pages;
+
 		void init_server_config();
 
 	public:
@@ -62,6 +64,7 @@ class ServerConfig
 		std::string get_default_type() const;
 		std::string get_errorlog() const;
 		std::string get_root() const;
+		std::map<size_t, std::string> get_error_pages() const;
 		std::vector<std::string> get_allow_methods() const;
 		std::vector<std::string> get_index() const;
 		std::vector<std::string> get_server_name() const;
@@ -81,6 +84,7 @@ class ServerConfig
 		void set_accesslog(const std::string &access_log);
 		void set_default_type(const std::string &default_type);
 		void set_errorlog(const std::string &error_log);
+		void set_error_pages(const std::map<size_t, std::string> &error_pages);
 		void set_root(const std::string &root);
 		void set_allow_methods(const std::vector<std::string> &allow_methods);
 		void set_index(const std::vector<std::string> &indexpags);
