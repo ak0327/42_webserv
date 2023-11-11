@@ -147,7 +147,7 @@ bool LocationConfig::set_field_header_field_value(const std::string &field_heade
 	} else if (field_header ==  INDEX) {
 		this->_index = ConfigHandlingString::ready_string_vector_field_value(field_value);
 	} else if (field_header ==  ERRORPAGES) {
-		if (!(IsConfigFormat::is_errorpage_format(field_value) == false))
+		if (IsConfigFormat::is_errorpage_format(field_value) == false)
 			return false;
 		this->_errorpages = ConfigHandlingString::ready_error_page(field_value);
 	} else if (field_header ==  SERVER_NAME) {

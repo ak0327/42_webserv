@@ -431,3 +431,38 @@ TEST(ConfigReadingTest, ErrorPage)
 	EXPECT_EQ(201, asterisk_cgi_path.get_errorpages().get_response_statuscode());
 	// -------------------------------- //
 }
+
+TEST(ConfigReadingTest, ErrorPage1)
+{
+	Config	test_config("config/testconfigerrorpage2.conf");
+	ServerConfig	allconfig;
+
+	EXPECT_EQ(true, test_config.get_is_config_format());
+	allconfig = test_config.get_allconfig("aaa").get_server_config();
+	LocationConfig	asterisk_cgi_path = test_config.get_allconfig("aaa").get_location_config("*.cgi");
+
+	std::vector<size_t> anser_errorpage_code;
+	anser_errorpage_code.push_back(404);
+	anser_errorpage_code.push_back(405);
+	anser_errorpage_code.push_back(502);
+	EXPECT_EQ("222docs/error_page/404.html", asterisk_cgi_path.get_errorpages().get_uri());
+	EXPECT_EQ(anser_errorpage_code, asterisk_cgi_path.get_errorpages().get_code());
+	EXPECT_EQ(201, asterisk_cgi_path.get_errorpages().get_response_statuscode());
+	// -------------------------------- //
+}
+
+TEST(ConfigReadingTest, ErrorPage_False1)
+{
+	Config	test_config("error_config/testconfigerrorpageerror.conf");
+	ServerConfig	allconfig;
+
+	EXPECT_EQ(false, test_config.get_is_config_format());
+}
+
+TEST(ConfigReadingTest, ErrorPage_False2)
+{
+	Config	test_config("error_config/testconfigerrorpageerror2.conf");
+	ServerConfig	allconfig;
+
+	EXPECT_EQ(false, test_config.get_is_config_format());
+}
