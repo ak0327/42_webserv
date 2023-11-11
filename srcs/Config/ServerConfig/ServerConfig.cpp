@@ -65,6 +65,7 @@ bool	ServerConfig::set_field_header_field_value(const std::string &field_header,
 	field_headers.push_back(INDEX);
 	field_headers.push_back(SERVER_NAME);
 	field_headers.push_back(LISTEN);
+	field_headers.push_back(ERRORPAGES);
 
 	if (std::find(field_headers.begin(), field_headers.end(), field_header) == field_headers.end())
 	{
@@ -157,7 +158,6 @@ bool	ServerConfig::set_field_header_field_value(const std::string &field_header,
 	{
 		if (!(IsConfigFormat::is_errorpage_format(field_value) == false))
 			return false;
-		std::cout << "here" << std::endl;
 		this->_error_pages = ConfigHandlingString::ready_error_page(field_value);
 	}
 	return (true);

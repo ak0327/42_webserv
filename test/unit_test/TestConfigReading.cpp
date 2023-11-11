@@ -360,7 +360,7 @@ TEST(ConfigReadingTest, ErrorConfigTestand_get_no_exist_key_1)
 	test_config.get_allconfig("webserv2");
 }
 
-TEST(ConfigReagingTest, ErrorPage)
+TEST(ConfigReadingTest, ErrorPage)
 {
 	Config	test_config("config/testconfigerrorpage.conf");
 	ServerConfig	allconfig;

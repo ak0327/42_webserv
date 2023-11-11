@@ -45,6 +45,7 @@ void	ErrorPage::ready_errorpage_with_response(const std::string &field_value)
 		pos++;
 	std::string	codes = field_value_without_ows.substr(0, pos - 1);
 	ready_code(codes);
+	pos++;
 	HandlingString::skip_ows(field_value_without_ows, &pos);
 	if (std::isdigit(field_value_without_ows[pos]))
 	{
@@ -52,7 +53,7 @@ void	ErrorPage::ready_errorpage_with_response(const std::string &field_value)
 		while (std::isdigit(field_value_without_ows[pos]))
 			pos++;
 		std::string	response_statuscode = field_value_without_ows.substr(response_statuscode_start_pos, \
-																			pos);
+																			pos - response_statuscode_start_pos);
 		this->_response_statuscode = NumericHandle::str_to_int(response_statuscode);
 	}
 	HandlingString::skip_ows(field_value_without_ows, &pos);
