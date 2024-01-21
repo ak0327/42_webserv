@@ -225,20 +225,6 @@ run_request_test    :
 	cmake --build build
 	./build/unit_test --gtest_filter=HttpRequest*
 
-.PHONY    : run_handlingstring_test
-run_handlingstring_test    :
-#rm -rf build
-	cmake -S . -B build
-	cmake --build build
-	./build/unit_test --gtest_filter=HandlingString*
-
-.PHONY    : run_httprequest_list_test
-run_httprequest_list_test    :
-#rm -rf build
-	cmake -S . -B build
-	cmake --build build
-	./build/unit_test --gtest_filter=List*
-
 .PHONY    : run_string_test
 run_string_test    :
 #rm -rf build
