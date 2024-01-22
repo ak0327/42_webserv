@@ -30,6 +30,7 @@
 !*.hpp
 !*.txt
 !*.yml
+!*.md
 
 !CPPLINT.cfg
 !CMakeLists.txt
