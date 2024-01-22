@@ -176,12 +176,6 @@ set (unit_test_srcs
         test/unit_test/TestServer.cpp
         test/unit_test/TestSocket.cpp
 
-        test/unit_test/TestHttpRequest.cpp
-        test/unit_test/TestHandlingString.cpp
-        test/unit_test/TestHttpRequest_List.cpp
-        test/unit_test/TestHttpRequest_Array.cpp
-
-        # add
         test/unit_test/TestStringHandler.cpp
         test/unit_test/TestRequestLine.cpp
 
