@@ -47,15 +47,6 @@
   - images: `/data/images`
 
 * server block
-  - Request URI `/` -> `/data/www`
-  - For example
-    - Request URI stating with `/images/`
-      - Request : `http://localhost/images/example.png`
-      - Response: `/data/images/example.png`
-        - no such file -> `404 error`
-    - Request URI NOT starting with `/images/` -> mapped onto `/data/www` 
-      - Request : `http://localhost/some/example.html`
-      - Response: `/data/www/some/example.html`
   ```
   http {
     server {
@@ -70,12 +61,21 @@
     }
   }  
   ```
+  - Request URI `/` -> `/data/www`
+  - For example
+    - Request URI stating with `/images/`
+      - Request : `http://localhost/images/example.png`
+      - Response: `/data/images/example.png`
+        - no such file -> `404 error`
+    - Request URI NOT starting with `/images/` -> mapped onto `/data/www` 
+      - Request : `http://localhost/some/example.html`
+      - Response: `/data/www/some/example.html`
 
 * URIマッチング 
   - 正確なマッチ `=`
     - `location = /path`
     - URIが完全に一致する場合のみマッチ
-    - 最も高いの優先順位
+    - 最も高い優先順位
   - 優先的プレフィックスマッチ `^~`
     - `location ^~ /path`
     - URIが指定されたプレフィックスで始まる場合にマッチ
@@ -89,7 +89,6 @@
     - `location /path`
     - URIが指定されたプレフィックスで始まる場合にマッチ
     - 最も低い優先順位
-
 
 
 <hr>
@@ -240,9 +239,11 @@
 
 ### 2-3) 構文
 * 必要十分の設定項目とするが、nginxと共用できる構文解釈とする
+
 * CGI, POST(upload)はnginxと異なる構文となる
   * nginxはdefaultでスクリプトを実行できないため、FastCGIなどを使用する必要があるため
   * Apacheはスクリプトの直接的な実行をサポートしているらしい
+
 * webservで解釈する必要があるブロック、ディレクティブとその記述方法は`2-1)`の通り
   * 解釈するブロックを以下に列挙する（順不同）
     - `http`
@@ -262,31 +263,31 @@
     - `webserv_cgi`
     - `webserv_cgi_pass`
     - `webserv_cgi_param`
+
 * blockの構文(ABNF)
   * http block
     ```
     http_block = [
-    *(SP/LF)  "http"                    1*(SP/LF)  "{"  1*(SP/LF)
-                       *server_block                    1*(SP/LF)
-              "}"                                       1*(SP/LF) ]
+    *(SP / LF)  "http"                    1*(SP / LF)  "{"  1*(SP / LF)
+                         *server_block                      1*(SP / LF)
+              "}"                                           1*(SP / LF) ]
     ```
   * server block
     ```
     server_block = [
-    "server"                  1*(SP/LF)  "{"  1*(SP/LF)
-             *location_block                  1*(SP/LF)
-             *directive_line                  1*(SP/LF)
-    "}"                                       1*(SP/LF) ]
+    "server"                  1*(SP / LF)  "{"  1*(SP / LF)
+             *location_block                    1*(SP / LF)
+             *directive_line                    1*(SP / LF)
+    "}"                                         1*(SP / LF) ]
     ```
   * location block
     ```
     location_block = [
-    "location"  1*(SP/LF)  pattern  target   1*(SP/LF)  "{"  1*(SP/LF)
-                           *directive_line                   1*(SP/LF)
-    "}"                                                      1*(SP/LF) ]
+    "location"  1*(SP / LF)  pattern     URI   1*(SP / LF)  "{"  1*(SP / LF)
+                             *directive_line                     1*(SP / LF)
+    "}"                                                          1*(SP / LF) ]
     
-    pattern = "=" 1*SP / "^~" 1*SP / ""
-    target = URI
+    pattern = ("=" 1*SP / "^~" 1*SP / "")
     ```
   * directive line
     ```
@@ -296,11 +297,152 @@
   * Grammar
     - `SP` : ` ` (space)
     - `LF` : `\n`
-    - `*` : 0回以上の繰り返し
-    - `n*` : n回以上の繰り返し
+    - `/` : or
+    - `*X` : 0回以上の`X`の繰り返し
+    - `n*X` : n回以上の`X`の繰り返し
     - `"string"` : string
     - `directive` : ディレクティブ
     - `parameter` : ディレクティブに対応するパラメータ
+
+* directiveの構文(nginx guide参照)
+  * nginxに倣いつつシンプル化する
+  * delimiterもシンプルにして軽めの実装にする予定
+  * listen
+    ```
+    "listen" ( address[:port] / port ) [default_server]  ";"
+    ```
+    * cf) nginx syntax
+      ```
+      listen address[:port]
+       [default_server]
+       [ssl]
+       [http2 | quic]
+       [proxy_protocol]
+       [setfib=number]
+       [fastopen=number]
+       [backlog=number]
+       [rcvbuf=size]
+       [sndbuf=size]
+       [accept_filter=filter]
+       [deferred]
+       [bind]
+       [ipv6only=on|off]
+       [reuseport]
+       [so_keepalive=on|off|[keepidle]:[keepintvl]:[keepcnt]];
+  
+      listen port
+       [default_server]
+       [ssl]
+       [http2 | quic]
+       [proxy_protocol]
+       [setfib=number]
+       [fastopen=number]
+       [backlog=number]
+       [rcvbuf=size]
+       [sndbuf=size]
+       [accept_filter=filter]
+       [deferred]
+       [bind]
+       [ipv6only=on|off]
+       [reuseport]
+       [so_keepalive=on|off|[keepidle]:[keepintvl]:[keepcnt]];
+  
+      listen unix:path
+       [default_server]
+       [ssl]
+       [http2 | quic]
+       [proxy_protocol]
+       [backlog=number]
+       [rcvbuf=size]
+       [sndbuf=size]
+       [accept_filter=filter]
+       [deferred]
+       [bind]
+       [so_keepalive=on|off|[keepidle]:[keepintvl]:[keepcnt]];
+      ```
+    * Default: listen *:80 | *:8000;
+    * Context: server
+    * https://nginx.org/en/docs/http/ngx_http_core_module.html#listen
+
+  * server_name
+    ```
+    "server_name" name ... ";"
+    ```
+    * Default: server_name "";
+    * Context: server
+    * https://nginx.org/en/docs/http/ngx_http_core_module.html#server_name
+
+  * error_page
+    ```
+    "error_page" code ... uri ";"
+    300 <= code <= 599; except 499
+    ```
+    * cf) nginx
+      ```
+      "error_page" code ... [=[response]] uri ";"
+      ```
+    * Default: -
+    * Context: http, server, location, if in location
+    * https://nginx.org/en/docs/http/ngx_http_core_module.html#error_page
+
+  * client_max_body_size
+    ```
+    "client_max_body_size" size ";"
+    ```
+    * Default: client_max_body_size 1m;
+    * Context: http, server, location
+    * Setting size to 0
+      * disables checking of client request body size
+    * If the size in a request exceeds the configured value
+      * the 413 (Request Entity Too Large) error is returned to the client
+    * https://nginx.org/en/docs/http/ngx_http_core_module.html#client_max_body_size
+
+  * return
+    ```
+    "return" code [text] ";" 
+    ```
+    * return code URL;
+    * return URL;
+    * Default: —
+    * Context: server, location, if
+    * https://nginx.org/en/docs/http/ngx_http_rewrite_module.html#return
+
+  * rewrite
+    ```
+    "rewrite" regex replacement ";"
+    ```
+    * cf) nginx
+      ```
+      "rewrite" regex replacement [flag] ";"
+      ```
+    * Default: -
+    * Context: server, location, if
+    * https://nginx.org/en/docs/http/ngx_http_rewrite_module.html#rewrite
+
+  * root
+    ```
+    "root" path ";"
+    ```
+    * Default: root html;
+    * Context: http, server, location, if in location
+    * https://nginx.org/en/docs/http/ngx_http_core_module.html#root
+
+  * autoindex
+    ```
+    "autoindex" on | off ";"
+    ```
+    * Default: autoindex off;
+    * Context: http, server, location
+    * https://nginx.org/en/docs/http/ngx_http_autoindex_module.html#autoindex
+
+  * index
+    ```
+    "index" file ... ";" 
+    ```
+    * Default: index index.html;
+    * Context: http, server, location
+    * https://nginx.org/en/docs/http/ngx_http_index_module.html#index
+
 
 ### 2-4) データの保持
 * `configuration class`に各設定値を詰める
