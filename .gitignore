@@ -5,8 +5,9 @@
 !.gitignore
 
 !srcs
-!srcs/Const
 !srcs/Client
+!srcs/Configuration
+!srcs/Const
 !srcs/Debug
 !srcs/Error
 !srcs/Server
