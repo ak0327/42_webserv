@@ -30,10 +30,6 @@ class Configuration {
 	AbstractSyntaxTree ast_;
 	Result<int, std::string> result_;
 
-	Result<std::string, std::string> read_conf_file(const std::string &file_path);
-	Result<std::vector<Token>, std::string> tokenize(const std::string &conf_data);
-	Result<AbstractSyntaxTree, std::string> parse(const std::vector<Token> &tokens);
-	Result<int, std::string> validate_ast(const AbstractSyntaxTree &ast);
 	// -- tmp: 既存のテスト用 --
 	std::string ip_;
 	std::string port_;
