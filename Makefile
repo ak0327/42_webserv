@@ -9,8 +9,8 @@ CXXFLAGS	+=	-g -fsanitize=address,undefined -fno-omit-frame-pointer
 SRCS_DIR	=	srcs
 
 #main
-SRCS		=	main.cpp \
-				get_valid_config_file_path.cpp
+SRCS		=	main.cpp
+
 #debug
 DEBUG_DIR	=	Debug
 SRCS		+=	$(DEBUG_DIR)/Debug.cpp

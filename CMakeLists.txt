@@ -59,7 +59,6 @@ include_directories(
 
 # webserv_srcs -----------------------------------------------------------------
 set(webserv_srcs
-        srcs/get_valid_config_file_path.cpp
         srcs/Const/Constant.cpp
         srcs/Client/Client.cpp
         srcs/Debug/Debug.cpp
@@ -170,7 +169,6 @@ add_executable(webserv
 ################################################################################
 # unit_test_srcs ---------------------------------------------------------------
 set (unit_test_srcs
-        test/unit_test/is_valid_file_path/test_get_valid_config_file_path.cpp
         test/unit_test/TestError.cpp
         test/unit_test/TestResult.cpp
         test/unit_test/TestServer.cpp

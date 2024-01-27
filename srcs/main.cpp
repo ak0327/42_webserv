@@ -25,17 +25,16 @@ void validate_argc(int argc) {
 ////////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char **argv) {
-	std::string	config_file_path;
-	Config		config;
+	char *config_file_path;
 	Configuration config;
 
 	try {
 		validate_argc(argc);
-		config_file_path = get_valid_config_file_path(argv[CONFIG_FILE_INDEX]);
-		DEBUG_PRINT("config_file_path=[%s]", config_file_path.c_str());
 
-		config = Config(config_file_path);
+		config_file_path = argv[CONFIG_FILE_INDEX];
+		DEBUG_PRINT("config_file_path=[%s]", config_file_path);
 		config = Configuration(config_file_path);
+
 		Server server = Server(config);
 		server.process_client_connection();
 	}
