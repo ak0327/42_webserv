@@ -3,18 +3,20 @@
 # include <string>
 
 enum e_token_kind {
-	kWord,
 	kBraces,
 	kBlockName,
+	kBlockParam,
 	kDirectiveName,
 	kDirectiveParam,
-	kSemicolin
+	kSemicolin,
+	kError
+};
+
+enum e_param_type {
+	kInit,
+	kBlock,
+	kDirective
 };
 
 struct Token {
-	std::string word;
-	e_token_kind kind;
-};
-
-class Tokenizer {
 };

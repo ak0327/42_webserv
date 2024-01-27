@@ -37,6 +37,12 @@ include_directories(
         includes
         srcs/Const
         srcs/Client
+        srcs/Configuration/AbstractSyntaxTree
+        srcs/Configuration/FileHandler
+        srcs/Configuration/Parser
+        srcs/Configuration/Token
+        srcs/Configuration/Tokenizer
+        srcs/Configuration
         srcs/Debug
         srcs/Error
         srcs/IOMultiplexer
@@ -61,6 +67,12 @@ include_directories(
 set(webserv_srcs
         srcs/Const/Constant.cpp
         srcs/Client/Client.cpp
+        srcs/Configuration/AbstractSyntaxTree/AbstractSyntaxTree.cpp
+        srcs/Configuration/FileHandler/FileHandler.cpp
+        srcs/Configuration/Parser/Parser.cpp
+        srcs/Configuration/Token/Token.cpp
+        srcs/Configuration/Tokenizer/Tokenizer.cpp
+        srcs/Configuration/Configuration.cpp
         srcs/Debug/Debug.cpp
         srcs/Error/Error.cpp
         srcs/IOMultiplexer/IOMultiplexer.cpp
