@@ -5,8 +5,9 @@
 !.gitignore
 
 !srcs
-!srcs/Const
 !srcs/Client
+!srcs/Configuration
+!srcs/Const
 !srcs/Debug
 !srcs/Error
 !srcs/Server
@@ -30,6 +31,7 @@
 !*.hpp
 !*.txt
 !*.yml
+!*.md
 
 !CPPLINT.cfg
 !CMakeLists.txt
