@@ -2,11 +2,12 @@
 
 # include <string>
 # include "webserv.hpp"
+# include "Configuration.hpp"
 # include "Result.hpp"
 
 class Socket {
  public:
-	explicit Socket(const Config &config);
+	explicit Socket(const Configuration &config);
 	~Socket();
 
 	int	get_socket_fd() const;

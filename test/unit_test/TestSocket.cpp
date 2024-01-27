@@ -6,6 +6,7 @@
 #include <vector>
 #include "gtest/gtest.h"
 #include "Color.hpp"
+#include "Configuration.hpp"
 #include "Constant.hpp"
 #include "Socket.hpp"
 
@@ -47,7 +48,7 @@ int create_nonblock_client_fd() {
 /*               Socket Unit Test              */
 /* ******************************************* */
 TEST(SocketUnitTest, ConstructorWithArgument) {
-	Config config;
+	Configuration config;
 	config.set_ip(SERVER_IP); config.set_port(SERVER_PORT);
 
 	Socket socket = Socket(config);
@@ -58,7 +59,7 @@ TEST(SocketUnitTest, ConstructorWithArgument) {
 
 TEST(SocketUnitTest, ConstructorWithValidServerIP) {
 	int port = 49152;
-	Config config;
+	Configuration config;
 
 	config.set_ip("127.0.0.1"); config.set_port(std::to_string(port++));
 	Socket socket1 = Socket(config);
@@ -77,7 +78,7 @@ TEST(SocketUnitTest, ConstructorWithValidServerIP) {
 
 TEST(SocketUnitTest, ConstructorWithInvalidServerIP) {
 	int port = 49152;
-	Config config;
+	Configuration config;
 
 	config.set_ip("127.0.0.0.1"); config.set_port(std::to_string(port++));
 	Socket socket1 = Socket(config);
@@ -135,7 +136,7 @@ TEST(SocketUnitTest, ConstructorWithInvalidServerIP) {
 }
 
 TEST(SocketUnitTest, ConstructorWithValidServerPort) {
-	Config config;
+	Configuration config;
 
 	config.set_ip(SERVER_IP); config.set_port("0");
 	Socket socket1 = Socket(config);  // ephemeral port
@@ -156,7 +157,7 @@ TEST(SocketUnitTest, ConstructorWithValidServerPort) {
 }
 
 TEST(SocketUnitTest, ConstructorWithInvalidServerPort) {
-	Config config;
+	Configuration config;
 
 	config.set_ip(SERVER_IP); config.set_port("-1");
 	Socket socket1 = Socket(config);
@@ -185,7 +186,7 @@ TEST(SocketUnitTest, ConstructorWithInvalidServerPort) {
 }
 
 TEST(SocketUnitTest, Getter) {
-	Config config;
+	Configuration config;
 	config.set_ip(""); config.set_port("");
 
 	Socket socket = Socket(config);
@@ -200,7 +201,7 @@ TEST(SocketUnitTest, Getter) {
 /* ******************************************* */
 TEST(SocketIntegrationTest, ConnectToClient) {
 	try {
-		Config config;
+		Configuration config;
 		config.set_ip(SERVER_IP); config.set_port(SERVER_PORT);
 
 		Socket server = Socket(config);
@@ -222,7 +223,7 @@ TEST(SocketIntegrationTest, ConnectToClient) {
 
 TEST(SocketIntegrationTest, ConnectOverSomaxconClient) {
 	try {
-		Config config;
+		Configuration config;
 		config.set_ip(SERVER_IP); config.set_port(SERVER_PORT);
 
 		Socket server = Socket(config);

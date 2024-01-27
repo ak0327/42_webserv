@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include "webserv.hpp"
+#include "Configuration.hpp"
 #include "Debug.hpp"
 #include "Server.hpp"
 
@@ -26,6 +27,7 @@ void validate_argc(int argc) {
 int main(int argc, char **argv) {
 	std::string	config_file_path;
 	Config		config;
+	Configuration config;
 
 	try {
 		validate_argc(argc);
@@ -33,6 +35,7 @@ int main(int argc, char **argv) {
 		DEBUG_PRINT("config_file_path=[%s]", config_file_path.c_str());
 
 		config = Config(config_file_path);
+		config = Configuration(config_file_path);
 		Server server = Server(config);
 		server.process_client_connection();
 	}
