@@ -190,7 +190,9 @@ re		: fclean all
 
 .PHONY	: lint
 lint	:
-	python3 -m cpplint --recursive srcs
+	python3 -m cpplint --recursive srcs \
+	&& echo "\033[0;32mCPPLINT DONE\033[0m" \
+	|| echo "\033[0;31mCPPLINT ERROR\033[0m"
 
 .PHONY	: request_test
 request_test: 
@@ -315,6 +317,20 @@ run_date_test    :
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestDate*
+
+.PHONY    : run_file_test
+run_file_test    :
+#rm -rf build
+	cmake -S . -B build
+	cmake --build build
+	./build/unit_test --gtest_filter=TestFileHandler*
+
+.PHONY    : run_token_test
+run_token_test    :
+#rm -rf build
+	cmake -S . -B build
+	cmake --build build
+	./build/unit_test --gtest_filter=TestTokenizer*
 
 .PHONY	: client
 client	: $(CLIENT_OBJS)
