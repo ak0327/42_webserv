@@ -39,6 +39,10 @@ const int PORT_MAX = 65535;
 
 const int IO_TIMEOUT = -1;
 
+const int OFFSET_NONE = 0;
+
+const std::size_t FILE_SIZE_LIMIT = 65535;
+
 ////////////////////////////////////////////////////////////////////////////////
 /* status */
 

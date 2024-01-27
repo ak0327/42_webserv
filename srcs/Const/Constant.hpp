@@ -42,6 +42,10 @@ extern const int PORT_MAX;
 extern const int IO_TIMEOUT;
 extern const int FLAG_NONE;
 
+extern const int OFFSET_NONE;
+
+extern const std::size_t FILE_SIZE_LIMIT;
+
 ////////////////////////////////////////////////////////////////////////////////
 /* status */
 
