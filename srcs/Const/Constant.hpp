@@ -77,7 +77,9 @@ extern const char CONFIG_FILE_EXTENSION[];
 ////////////////////////////////////////////////////////////////////////////////
 /* error message */
 
+extern const char INVALID_ARG_ERROR_MSG[];
 extern const char INVALID_PATH_ERROR_MSG[];
+extern const char FILE_SIZE_TOO_LARGE_ERROR_MSG[];
 
 ////////////////////////////////////////////////////////////////////////////////
 /* http message */
