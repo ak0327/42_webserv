@@ -5,6 +5,7 @@
 # include "AbstractSyntaxTree.hpp"
 # include "Parser.hpp"
 # include "Result.hpp"
+# include "Token.hpp"
 # include "Tokenizer.hpp"
 
 class Configuration {

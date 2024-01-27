@@ -3,6 +3,7 @@
 #include "Configuration.hpp"
 #include "Constant.hpp"
 #include "FileHandler.hpp"
+#include "Token.hpp"
 
 Configuration::Configuration(const char *file_path) {
 	Result<std::string, std::string> read_result;
@@ -85,8 +86,10 @@ Result<std::string, std::string> Configuration::get_configration_file_contents(c
 
 
 Result<std::deque<Token>, std::string> Configuration::tokenize(const std::string &conf_data) {
+	std::deque<Token> tokens;
 	(void)conf_data;
-	return Result<std::deque<Token>, std::string>::ok(tokens.get_tokens());
+
+	return Result<std::deque<Token>, std::string>::ok(tokens);
 }
 
 
