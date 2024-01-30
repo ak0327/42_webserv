@@ -7,6 +7,7 @@
 #include "webserv.hpp"
 #include "Client.hpp"
 #include "Color.hpp"
+#include "Configuration.hpp"
 #include "Constant.hpp"
 #include "Debug.hpp"
 #include "Server.hpp"
@@ -34,7 +35,7 @@ struct s_client {
 void *run_server(void *server_info) {
 	s_server	*s = (s_server *)server_info;
 	bool		is_server_success = true;
-	Config		config;
+	Configuration		config;
 
 	config.set_ip(s->server_ip);
 	config.set_port(s->server_port);
@@ -169,13 +170,13 @@ void run_server_and_multi_client(const char *server_ip,
 // int port = 49152;
 
 TEST(ServerUnitTest, Constructor) {
-	Config config;
+	Configuration config;
 
 	EXPECT_NO_THROW((Server(config)));
 }
 
 TEST(ServerUnitTest, ConstructorThrowException) {
-	Config config;
+	Configuration config;
 
 	config.set_ip("hoge"); config.set_port("8080");
 	EXPECT_ANY_THROW((Server(config)));

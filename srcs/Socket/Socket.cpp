@@ -45,7 +45,7 @@ Result<int, std::string> close_socket_fd(int socket_fd) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Socket::Socket(const Config &config)
+Socket::Socket(const Configuration &config)
 		: _result(),
 		  _socket_fd(INIT_FD),
 		  _addr_info(NULL),

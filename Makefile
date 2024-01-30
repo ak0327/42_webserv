@@ -9,8 +9,8 @@ CXXFLAGS	+=	-g -fsanitize=address,undefined -fno-omit-frame-pointer
 SRCS_DIR	=	srcs
 
 #main
-SRCS		=	main.cpp \
-				get_valid_config_file_path.cpp
+SRCS		=	main.cpp
+
 #debug
 DEBUG_DIR	=	Debug
 SRCS		+=	$(DEBUG_DIR)/Debug.cpp
@@ -106,6 +106,17 @@ VALUE_AND_MAP_FIELD_VALUES_DIR = $(REQUEST_DIR)/ValueAndMapFieldValues
 SRCS		+=  $(VALUE_AND_MAP_FIELD_VALUES_DIR)/ValueAndMapFieldValues.cpp \
 				$(VALUE_AND_MAP_FIELD_VALUES_DIR)/set_content_disposition.cpp
 
+
+# configuration
+CONFIG_DIR	=	Configuration
+SRCS		+=	$(CONFIG_DIR)/AbstractSyntaxTree/AbstractSyntaxTree.cpp \
+				$(CONFIG_DIR)/FileHandler/FileHandler.cpp \
+				$(CONFIG_DIR)/Parser/Parser.cpp \
+				$(CONFIG_DIR)/Token/Token.cpp \
+				$(CONFIG_DIR)/Tokenizer/Tokenizer.cpp \
+				$(CONFIG_DIR)/Configuration.cpp
+
+
 # OBJS -------------------------------------------------------------------------
 OBJS_DIR	=	objs
 OBJS		=	$(SRCS:%.cpp=$(OBJS_DIR)/%.o)
@@ -132,7 +143,13 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(SERVER_DIR) \
 				$(SRCS_DIR)/$(SOCKET_DIR) \
 				$(SRCS_DIR)/$(STR_HANDLER) \
-				$(SRCS_DIR)/$(REQUEST_INCLUDES)
+				$(SRCS_DIR)/$(REQUEST_INCLUDES) \
+				$(SRCS_DIR)/$(CONFIG_DIR)/AbstractSyntaxTree \
+				$(SRCS_DIR)/$(CONFIG_DIR)/FileHandler \
+				$(SRCS_DIR)/$(CONFIG_DIR)/Parser \
+				$(SRCS_DIR)/$(CONFIG_DIR)/Token \
+				$(SRCS_DIR)/$(CONFIG_DIR)/Tokenizer \
+				$(SRCS_DIR)/$(CONFIG_DIR)
 
 REQUEST_INCLUDES =	$(SRCS_DIR)/$(REQUEST_DIR) \
 					$(SRCS_DIR)/$(DATE_DIR) \
@@ -173,7 +190,9 @@ re		: fclean all
 
 .PHONY	: lint
 lint	:
-	python3 -m cpplint --recursive srcs
+	python3 -m cpplint --recursive srcs \
+	&& echo "\033[0;32mCPPLINT DONE\033[0m" \
+	|| echo "\033[0;31mCPPLINT ERROR\033[0m"
 
 .PHONY	: request_test
 request_test: 
@@ -292,13 +311,26 @@ run_media_test    :
 	cmake --build build
 	./build/unit_test --gtest_filter=TestMediaType*
 
-
 .PHONY    : run_date_test
 run_date_test    :
 #rm -rf build
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestDate*
+
+.PHONY    : run_file_test
+run_file_test    :
+#rm -rf build
+	cmake -S . -B build
+	cmake --build build
+	./build/unit_test --gtest_filter=TestFileHandler*
+
+.PHONY    : run_token_test
+run_token_test    :
+#rm -rf build
+	cmake -S . -B build
+	cmake --build build
+	./build/unit_test --gtest_filter=TestTokenizer*
 
 .PHONY	: client
 client	: $(CLIENT_OBJS)

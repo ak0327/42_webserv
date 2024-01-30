@@ -39,6 +39,10 @@ const int PORT_MAX = 65535;
 
 const int IO_TIMEOUT = -1;
 
+const int OFFSET_NONE = 0;
+
+const std::size_t FILE_SIZE_LIMIT = 65535;
+
 ////////////////////////////////////////////////////////////////////////////////
 /* status */
 
@@ -70,7 +74,9 @@ const char CONFIG_FILE_EXTENSION[] = "conf";
 ////////////////////////////////////////////////////////////////////////////////
 /* error message */
 
-const char INVALID_PATH_ERROR_MSG[] = "invalid file path";
+const char INVALID_ARG_ERROR_MSG[] = "[Error] invalid argument";
+const char INVALID_PATH_ERROR_MSG[] = "[Error] invalid file path";
+const char FILE_SIZE_TOO_LARGE_ERROR_MSG[] = "[Error] file size too large";
 
 ////////////////////////////////////////////////////////////////////////////////
 /* http message */

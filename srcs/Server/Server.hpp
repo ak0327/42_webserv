@@ -4,6 +4,7 @@
 # include <vector>
 # include "webserv.hpp"
 # include "Constant.hpp"
+# include "Configuration.hpp"
 # include "HttpRequest.hpp"
 # include "IOMultiplexer.hpp"
 # include "Result.hpp"
@@ -11,7 +12,7 @@
 
 class Server {
  public:
-	explicit Server(const Config &config);
+	explicit Server(const Configuration &config);
 	~Server();
 
 	void process_client_connection();

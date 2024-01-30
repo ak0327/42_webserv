@@ -42,6 +42,10 @@ extern const int PORT_MAX;
 extern const int IO_TIMEOUT;
 extern const int FLAG_NONE;
 
+extern const int OFFSET_NONE;
+
+extern const std::size_t FILE_SIZE_LIMIT;
+
 ////////////////////////////////////////////////////////////////////////////////
 /* status */
 
@@ -73,7 +77,9 @@ extern const char CONFIG_FILE_EXTENSION[];
 ////////////////////////////////////////////////////////////////////////////////
 /* error message */
 
+extern const char INVALID_ARG_ERROR_MSG[];
 extern const char INVALID_PATH_ERROR_MSG[];
+extern const char FILE_SIZE_TOO_LARGE_ERROR_MSG[];
 
 ////////////////////////////////////////////////////////////////////////////////
 /* http message */
