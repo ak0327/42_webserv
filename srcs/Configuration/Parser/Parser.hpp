@@ -32,7 +32,7 @@ class Parser {
 	Parser &operator=(const Parser &rhs);
 
 	Result<int, std::string> get_result() const;
-	HttpConfig get_config();
+	HttpConfig get_config() const;
 
  private:
 	HttpConfig http_config_;

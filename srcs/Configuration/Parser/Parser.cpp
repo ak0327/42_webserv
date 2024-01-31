@@ -3,6 +3,10 @@
 #include "FileHandler.hpp"
 #include "Parser.hpp"
 
+
+Parser::Parser() {}
+
+
 Parser::Parser(const char *file_path) {
 	Result<std::string, std::string> read_result;
 	Result<std::deque<Token>, std::string> tokenize_result;
@@ -49,6 +53,24 @@ Parser::Parser(const char *file_path) {
 }
 
 
+Parser::Parser(const Parser &other) {
+	*this = other;
+}
+
+
+Parser::~Parser() {}
+
+
+Parser &Parser::operator=(const Parser &rhs) {
+	if (this == &rhs) {
+		return *this;
+	}
+	this->http_config_ = rhs.http_config_;
+	this->result_ = rhs.result_;
+	return *this;
+}
+
+
 Result<std::string, std::string> Parser::get_configration_file_contents(const char *file_path) {
 	FileHandler file_handler(file_path, CONFIG_FILE_EXTENSION);
 	Result<int, std::string> file_result;
@@ -84,3 +106,8 @@ Result<int, std::string> Parser::validate_ast(const AbstractSyntaxTree &ast) {
 	(void)ast;
 	return Result<int, std::string>::ok(OK);
 }
+
+
+Result<int, std::string> Parser::get_result() const { return result_; }
+
+HttpConfig Parser::get_config() const { return http_config_; }
