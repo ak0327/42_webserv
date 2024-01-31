@@ -37,6 +37,7 @@ Configuration &Configuration::operator=(const Configuration &rhs) {
 		return *this;
 	}
 
+	this->http_config_ = rhs.http_config_;
 	this->result_ = rhs.result_;
 	return *this;
 }
