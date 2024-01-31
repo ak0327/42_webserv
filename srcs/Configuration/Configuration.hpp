@@ -2,6 +2,7 @@
 
 # include <deque>
 # include <string>
+# include <vector>
 # include "AbstractSyntaxTree.hpp"
 # include "Parser.hpp"
 # include "Result.hpp"
@@ -13,6 +14,7 @@ class Configuration {
 	explicit Configuration(const char *file_path);
 	Configuration(const Configuration &other);
 	~Configuration();
+
 	Configuration &operator=(const Configuration &rhs);
 
 	Result<int, std::string> get_result();
@@ -26,18 +28,11 @@ class Configuration {
 	// ------------------------
 
  private:
-	std::string conf_data_;
-	std::deque<Token> tokens_;
-	AbstractSyntaxTree ast_;
+	HttpConfig http_config_;
 	Result<int, std::string> result_;
 
 	// -- tmp: 既存のテスト用 --
 	std::string ip_;
 	std::string port_;
 	// ------------------------
-
-	static Result<std::string, std::string> get_configration_file_contents(const char *file_path);
-	static Result<std::deque<Token>, std::string> tokenize(const std::string &conf_data);
-	static Result<AbstractSyntaxTree, std::string> parse(const std::deque<Token> &tokens);
-	static Result<int, std::string> validate_ast(const AbstractSyntaxTree &ast);
 };

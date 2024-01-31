@@ -4,44 +4,22 @@
 #include "Constant.hpp"
 #include "FileHandler.hpp"
 #include "Token.hpp"
+#include "Parser.hpp"
 
 Configuration::Configuration(const char *file_path) {
-	Result<std::string, std::string> read_result;
-	Result<std::deque<Token>, std::string> tokenize_result;
-	Result<AbstractSyntaxTree, std::string> parse_result;
-	Result<int, std::string> validate_result;
+	Parser parser;
+	Result<int, std::string> parse_result;
 	std::string error_msg;
 
-	read_result = get_configration_file_contents(file_path);
-	if (read_result.is_err()) {
-		error_msg = read_result.get_err_value();
-		this->result_ = Result<int, std::string>::err(error_msg);
-		return;
-	}
-	this->conf_data_ = read_result.get_ok_value();
-
-	tokenize_result = tokenize(this->conf_data_);
-	if (tokenize_result.is_err()) {
-		error_msg = tokenize_result.get_err_value();
-		this->result_ = Result<int, std::string>::err(error_msg);
-		return;
-	}
-	this->tokens_ = tokenize_result.get_ok_value();
-
-	parse_result = parse(this->tokens_);
+	parser = Parser(file_path);
+	parse_result = parser.get_result();
 	if (parse_result.is_err()) {
 		error_msg = parse_result.get_err_value();
 		this->result_ = Result<int, std::string>::err(error_msg);
 		return;
 	}
-	this->ast_ = parse_result.get_ok_value();
 
-	validate_result = validate_ast(this->ast_);
-	if (validate_result.is_err()) {
-		error_msg = validate_result.get_err_value();
-		this->result_ = Result<int, std::string>::err(error_msg);
-		return;
-	}
+	this->http_config_ = parser.get_config();
 	this->result_ = Result<int, std::string>::ok(OK);
 }
 
@@ -59,9 +37,6 @@ Configuration &Configuration::operator=(const Configuration &rhs) {
 		return *this;
 	}
 
-	this->conf_data_ = rhs.conf_data_;
-	this->tokens_ = rhs.tokens_;
-	this->ast_ = rhs.ast_;
 	this->result_ = rhs.result_;
 	return *this;
 }
