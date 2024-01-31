@@ -45,38 +45,74 @@ Configuration &Configuration::operator=(const Configuration &rhs) {
 Result<int, std::string> Configuration::get_result() { return this->result_; }
 
 
-Result<std::string, std::string> Configuration::get_configration_file_contents(const char *file_path) {
-	FileHandler file_handler(file_path, CONFIG_FILE_EXTENSION);
-	Result<int, std::string> file_result;
-	std::string file_contents, error_msg;
-
-	file_result = file_handler.get_result();
-	if (file_result.is_err()) {
-		error_msg = file_result.get_err_value();
-		return Result<std::string, std::string>::err(error_msg);
-	}
-	file_contents = file_handler.get_contents();
-	return Result<std::string, std::string>::ok(file_contents);
+std::string Configuration::get_default_port() {
+	// todo: default portをhttp_config_から取得
+	return "80";
 }
 
-
-Result<std::deque<Token>, std::string> Configuration::tokenize(const std::string &conf_data) {
-	std::deque<Token> tokens;
-	(void)conf_data;
-
-	return Result<std::deque<Token>, std::string>::ok(tokens);
+std::string Configuration::get_default_server_name() {
+	// todo: default server_nameをhttp_config_から取得
+	return "";
 }
 
-
-Result<AbstractSyntaxTree, std::string> Configuration::parse(const std::deque<Token> &tokens) {
-	AbstractSyntaxTree ast;
-
-	(void)tokens;
-	return Result<AbstractSyntaxTree, std::string>::ok(ast);
+std::string Configuration::get_root(const std::string &server_name,
+									const std::string &location) {
+	(void)server_name;
+	(void)location;
+	// todo: default rootをhttp_config_から取得
+	return "www";
 }
 
+std::string Configuration::get_error_page(int status_code) {
+	(void)status_code;
+	// todo: status_codeに対応するerror_pageをhttp_config_から取得
+	return "404.html";
+}
 
-Result<int, std::string> Configuration::validate_ast(const AbstractSyntaxTree &ast) {
-	(void)ast;
-	return Result<int, std::string>::ok(OK);
+std::vector<std::string> Configuration::get_index(const std::string &server_name,
+												  const std::string &location) {
+	std::vector<std::string> index;
+	(void)server_name;
+	(void)location;
+	// todo: server_name, locationに対応するindexをhttp_config_から取得
+	index.push_back("index.html");
+	return index;
+}
+
+std::string Configuration::get_index_page(const std::string &server_name,
+										  const std::string &location) {
+	std::vector<std::string> index;
+
+	index = get_index(server_name, location);
+	// todo: はじめに見つかったindexをindex pageとして返す
+	return index[0];
+}
+
+bool Configuration::get_autoindex(const std::string &server_name,
+								  const std::string &location) {
+	(void)server_name;
+	(void)location;
+	// todo: server_name, locationに対応するautoindexをhttp_config_から取得
+	return false;
+}
+
+bool Configuration::is_method_allowed(const std::string &server_name,
+									  const std::string &location,
+									  const std::string &method) {
+	(void)server_name;
+	(void)location;
+	(void)method;
+	// todo: server_name, locationにおけるmethodの使用可否をhttp_config_から取得
+	return true;
+}
+
+std::size_t Configuration::get_max_body_size(const std::string &server_name,
+											 const std::string &location) {
+	(void)server_name;
+	(void)location;
+
+	// todo: server_name, locationで許容されるmax_body_sizeをhttp_config_から取得
+	const std::size_t KB = 1024;
+	const std::size_t MB = KB * KB;
+	return 20 * MB;
 }
