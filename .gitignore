@@ -28,7 +28,7 @@
 !test
 
 !www
-!config
+!conf
 
 !*.conf
 !*.cpp

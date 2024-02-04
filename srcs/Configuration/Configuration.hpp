@@ -2,6 +2,7 @@
 
 # include <deque>
 # include <string>
+# include <vector>
 # include "AbstractSyntaxTree.hpp"
 # include "Parser.hpp"
 # include "Result.hpp"
@@ -13,9 +14,32 @@ class Configuration {
 	explicit Configuration(const char *file_path);
 	Configuration(const Configuration &other);
 	~Configuration();
+
 	Configuration &operator=(const Configuration &rhs);
 
 	Result<int, std::string> get_result();
+
+
+	// getter
+	std::string get_default_port();
+	std::string get_default_server_name();
+
+	std::string get_root(const std::string &server_name,
+						 const std::string &location);
+	std::string get_error_page(int status_code);
+	std::vector<std::string> get_index(const std::string &server_name,
+									   const std::string &location);
+	std::string get_index_page(const std::string &server_name,
+							   const std::string &location);
+
+	bool get_autoindex(const std::string &server_name,
+					   const std::string &location);
+	bool is_method_allowed(const std::string &server_name,
+						   const std::string &location,
+						   const std::string &method);
+	std::size_t get_max_body_size(const std::string &server_name,
+								  const std::string &location);
+
 
 	// -- tmp: 既存のテスト用 --
 	Configuration() : ip_("127.0.0.1"), port_("8080") {}
@@ -26,18 +50,11 @@ class Configuration {
 	// ------------------------
 
  private:
-	std::string conf_data_;
-	std::deque<Token> tokens_;
-	AbstractSyntaxTree ast_;
+	HttpConfig http_config_;
 	Result<int, std::string> result_;
 
 	// -- tmp: 既存のテスト用 --
 	std::string ip_;
 	std::string port_;
 	// ------------------------
-
-	static Result<std::string, std::string> get_configration_file_contents(const char *file_path);
-	static Result<std::deque<Token>, std::string> tokenize(const std::string &conf_data);
-	static Result<AbstractSyntaxTree, std::string> parse(const std::deque<Token> &tokens);
-	static Result<int, std::string> validate_ast(const AbstractSyntaxTree &ast);
 };
