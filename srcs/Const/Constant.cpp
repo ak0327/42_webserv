@@ -60,6 +60,9 @@ const char DOUBLE_QUOTE = '"';
 const char EQUAL_SIGN = '=';
 const char SINGLE_QUOTE = '\'';
 const char SLASH = '/';
+const char LBRACES = '{';
+const char RBRACES = '}';
+const char COMMENT_SYMBOL = '#';
 
 const char PATH_DELIM = '/';
 const char EXTENSION_DELIM = '.';
@@ -462,3 +465,38 @@ std::vector<std::string> init_sh_tokens() {
 	sh_tokens.push_back("xslt");
 	return sh_tokens;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+/* configuration */
+
+const std::vector<std::string> BLOCK_NAMES = init_block_names();
+const std::vector<std::string> DIRECTIVE_NAMES = init_directive_names();
+
+std::vector<std::string> init_block_names() {
+	std::vector<std::string> block_names;
+
+	block_names.push_back("events");
+	block_names.push_back("http");
+	block_names.push_back("server");
+	block_names.push_back("location");
+	return block_names;
+}
+
+std::vector<std::string> init_directive_names() {
+	std::vector<std::string> directive_names;
+
+	directive_names.push_back("listen");
+	directive_names.push_back("server_name");
+	directive_names.push_back("error_page");
+	directive_names.push_back("client_max_body_size");
+	directive_names.push_back("rewrite");
+	directive_names.push_back("return");
+	directive_names.push_back("root");
+	directive_names.push_back("autoindex");
+	directive_names.push_back("index");
+	directive_names.push_back("webserv_cgi");
+	directive_names.push_back("webserv_cgi_pass");
+	directive_names.push_back("webserv_cgi_param");
+	return directive_names;
+}
+

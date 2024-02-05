@@ -63,6 +63,9 @@ extern const char EQUAL_SIGN;
 extern const char SEMICOLON;
 extern const char SINGLE_QUOTE;
 extern const char SLASH;
+extern const char LBRACES;
+extern const char RBRACES;
+extern const char COMMENT_SYMBOL;
 
 extern const char PATH_DELIM;
 extern const char EXTENSION_DELIM;
@@ -283,3 +286,12 @@ std::vector<std::string> init_months();
 extern const std::vector<std::string> SH_TOKENS;
 
 std::vector<std::string> init_sh_tokens();
+
+////////////////////////////////////////////////////////////////////////////////
+/* configuration */
+
+extern const std::vector<std::string> BLOCK_NAMES;
+extern const std::vector<std::string> DIRECTIVE_NAMES;
+
+std::vector<std::string> init_block_names();
+std::vector<std::string> init_directive_names();
