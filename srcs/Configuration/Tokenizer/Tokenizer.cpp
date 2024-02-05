@@ -15,7 +15,7 @@ bool is_token_kind_braces(const std::string &token_str) {
 }
 
 
-bool is_token_kind_braces(e_token_kind kind) {
+bool is_token_kind_braces(TokenKind kind) {
 	return kind == kTokenKindBraces;
 }
 
@@ -28,7 +28,7 @@ bool is_token_kind_block_name(const std::string &token_str) {
 }
 
 
-bool is_token_kind_block_name(e_token_kind kind) {
+bool is_token_kind_block_name(TokenKind kind) {
 	return kind == kTokenKindBlockName;
 }
 
@@ -41,7 +41,7 @@ bool is_token_kind_directive_name(const std::string &token_str) {
 }
 
 
-bool is_token_kind_directive_name(e_token_kind kind) {
+bool is_token_kind_directive_name(TokenKind kind) {
 	return kind == kTokenKindDirectiveName;
 }
 
@@ -51,17 +51,17 @@ bool is_token_kind_semicolon(const std::string &token_str) {
 }
 
 
-bool is_token_kind_semicolon(e_token_kind kind) {
+bool is_token_kind_semicolon(TokenKind kind) {
 	return kind == kTokenKindSemicolin;
 }
 
 
-bool is_token_kind_parameter(e_token_kind kind) {
+bool is_token_kind_parameter(TokenKind kind) {
 	return (kind == kTokenKindBlockParam || kind == kTokenKindDirectiveParam);
 }
 
 
-bool is_token_kind_init(e_token_kind kind) {
+bool is_token_kind_init(TokenKind kind) {
 	return kind == kTokenKindInit;
 }
 
@@ -71,7 +71,7 @@ bool is_token_kind_line_feed(const std::string &token_str) {
 }
 
 
-bool is_token_kind_line_feed(e_token_kind kind) {
+bool is_token_kind_line_feed(TokenKind kind) {
 	return kind == kTokenKindLineFeed;
 }
 
@@ -81,7 +81,7 @@ bool is_token_kind_comment(const std::string &token_str) {
 }
 
 
-bool is_token_kind_comment(e_token_kind kind) {
+bool is_token_kind_comment(TokenKind kind) {
 	return kind == kTokenKindComment;
 }
 
@@ -205,7 +205,7 @@ std::deque<Token> Tokenizer::init_tokens(const std::deque<std::string> &split) {
 }
 
 
-void Tokenizer::remove_token(std::deque<Token> *tokens, e_token_kind remove_kind) {
+void Tokenizer::remove_token(std::deque<Token> *tokens, TokenKind remove_kind) {
 	std::deque<Token>::iterator token;
 
 	if (!tokens) { return; }
@@ -247,8 +247,8 @@ void Tokenizer::tagging_line_feed(std::deque<Token> *tokens) {
 
 
 void Tokenizer::tagging_token(std::deque<Token> *tokens,
-							 bool (*is_tagging_token)(const std::string &),
-							 e_token_kind tagging_kind) {
+                              bool (*is_tagging_token)(const std::string &),
+                              TokenKind tagging_kind) {
 	std::deque<Token>::iterator token;
 
 	if (!tokens) { return; }
@@ -331,9 +331,9 @@ void Tokenizer::tagging_comment(std::deque<Token> *tokens) {
 
 
 void Tokenizer::tagging_tokens(std::deque<Token> *tokens,
-							  bool (*is_range_start)(e_token_kind),
-							  bool (*is_range_end)(e_token_kind),
-							  e_token_kind tagging_kind) {
+                               bool (*is_range_start)(TokenKind),
+                               bool (*is_range_end)(TokenKind),
+                               TokenKind tagging_kind) {
 	std::deque<Token>::iterator token;
 	bool is_param;
 

@@ -8,8 +8,8 @@ Token::Token()
 
 
 Token::Token(const std::string &str,
-			 e_token_kind kind,
-			 std::size_t line_number)
+             TokenKind kind,
+             std::size_t line_number)
 	: str_(str),
 	  kind_(kind),
 	  line_number_(line_number) {}
@@ -34,7 +34,7 @@ Token &Token::operator=(const Token &rhs) {
 }
 
 
-std::string Token::get_token_kind_str(e_token_kind kind) {
+std::string Token::get_token_kind_str(TokenKind kind) {
 	switch (kind) {
 		case kTokenKindInit:
 			return "Init";

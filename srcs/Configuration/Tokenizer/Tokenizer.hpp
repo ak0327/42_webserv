@@ -32,7 +32,7 @@ class Tokenizer {
 	Result<int, std::string> result_;
 
 	static std::deque<Token> init_tokens(const std::deque<std::string> &split);
-	static void remove_token(std::deque<Token> *tokens, e_token_kind remove_kind);
+	static void remove_token(std::deque<Token> *tokens, TokenKind remove_kind);
 
 	static void tagging_line_feed(std::deque<Token> *tokens);
 	static void tagging_comment(std::deque<Token> *tokens);
@@ -47,12 +47,12 @@ class Tokenizer {
 	static void tagging_directive_param(std::deque<Token> *tokens);
 
 	static void tagging_token(std::deque<Token> *tokens,
-							 bool (*is_tagging_token)(const std::string &),
-							 e_token_kind tagging_kind);
+                              bool (*is_tagging_token)(const std::string &),
+                              TokenKind tagging_kind);
 	static void tagging_tokens(std::deque<Token> *tokens,
-							   bool (*is_range_start)(e_token_kind),
-							   bool (*is_range_end)(e_token_kind),
-							   e_token_kind tagging_kind);
+                               bool (*is_range_start)(TokenKind),
+                               bool (*is_range_end)(TokenKind),
+                               TokenKind tagging_kind);
 };
 
 std::ostream &operator<<(std::ostream &out, Tokenizer &tokenizer);
