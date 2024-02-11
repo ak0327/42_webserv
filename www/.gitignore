@@ -1,9 +1,0 @@
-*
-
-!.gitignore
-
-!images
-!images/*
-
-!*.html
-!*.css
