@@ -188,6 +188,7 @@ set (unit_test_srcs
 
         test/unit_test/TestStringHandler.cpp
         test/unit_test/TestFileHandler.cpp
+        test/unit_test/TestTokenizer.cpp
 
         test/unit_test/TestRequestLine.cpp
 

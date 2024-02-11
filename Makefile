@@ -199,7 +199,6 @@ request_test:
 
 .PHONY	: run_unit_test
 run_unit_test	:
-	#rm -rf build
 	cmake -S . -B build
 	#cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT_MULTIPLEXER"
 	cmake --build build
@@ -208,7 +207,6 @@ run_unit_test	:
 
 .PHONY	: run_server_test
 run_server_test	:
-	#rm -rf build
 	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
 	#cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG -D USE_SELECT_MULTIPLEXER"
 	cmake --build build
@@ -218,117 +216,98 @@ run_server_test	:
 
 .PHONY	: run_socket_test
 run_socket_test	:
-	#rm -rf build
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=Socket* 2>/dev/null
 
 .PHONY	: run_result_test
 run_result_test	:
-	#rm -rf build
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=Result*
 
 .PHONY	: run_errmsg_test
 run_errmsg_test	:
-	#rm -rf build
 	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
 	cmake --build build
 	./build/unit_test --gtest_filter=ErrorMessage*
 
 .PHONY    : run_request_test
 run_request_test    :
-#rm -rf build
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=HttpRequest*
 
 .PHONY    : run_string_test
 run_string_test    :
-#rm -rf build
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestStringHandler*:TestHttpMessageParser*
 
 .PHONY    : run_rl_test
 run_rl_test    :
-#rm -rf build
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestRequestLine*
 
 .PHONY    : run_single_field_value_test
 run_single_field_value_test    :
-#rm -rf build
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestSingleFieldValue*
 
-
 .PHONY    : run_multi_field_values_test
 run_multi_field_values_test    :
-#rm -rf build
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestMultiFieldValues*
 
-
 .PHONY    : run_map_field_values_test
 run_map_field_values_test    :
-#rm -rf build
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestMapFieldValues*
 
-
 .PHONY    : run_map_set_field_values_test
 run_map_set_field_values_test    :
-#rm -rf build
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestMapSetFieldValues*
 
-
 .PHONY    : run_value_and_map_test
 run_value_and_map_test    :
-#rm -rf build
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestValueAndMapFieldValues*
 
 .PHONY    : run_weight_test
 run_weight_test    :
-#rm -rf build
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestFieldValueWithWeight*
 
 .PHONY    : run_media_test
 run_media_test    :
-#rm -rf build
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestMediaType*
 
 .PHONY    : run_date_test
 run_date_test    :
-#rm -rf build
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestDate*
 
 .PHONY    : run_file_test
 run_file_test    :
-#rm -rf build
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestFileHandler*
 
 .PHONY    : run_token_test
 run_token_test    :
-#rm -rf build
-	cmake -S . -B build
+	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
+	#cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestTokenizer*
 
