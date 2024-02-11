@@ -27,7 +27,8 @@
 
 !test
 
-!www
+!html
+!html/**
 !conf
 
 !*.conf
