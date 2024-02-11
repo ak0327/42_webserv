@@ -469,6 +469,32 @@ std::vector<std::string> init_sh_tokens() {
 ////////////////////////////////////////////////////////////////////////////////
 /* configuration */
 
+const char EVENTS_BLOCK[] = "events";
+const char HTTP_BLOCK[] = "http";
+const char SERVER_BLOCK[] = "server";
+const char LOCATIONS_BLOCK[] = "location";
+
+const char LISTEN_DIRECTIVE[] = "listen";
+const char SERVER_NAME_DIRECTIVE[] = "server_name";
+const char RETURN_DIRECTIVE[] = "return";
+
+const char ROOT_DIRECTIVE[] = "root";
+const char INDEX_DIRECTIVE[] = "index";
+const char LIMIT_EXCEPT_DIRECTIVE[] = "limit_except";
+const char ERROR_PAGE_DIRECTIVE[] = "error_page";
+const char AUTOINDEX_DIRECTIVE[] = "autoindex";
+const char BODY_SIZE_DIRECTIVE[] = "client_max_body_size";
+
+const char ALLOW_DIRECTIVE[] = "allow";
+const char DENY_DIRECTIVE[] = "deny";
+
+const char CGI_DIRECTIVE[] = "webserv_cgi";
+const char CGI_PASS_DIRECTIVE[] = "webserv_cgi_pass";
+const char CGI_PARAM_DIRECTIVE[] = "webserv_cgi_param";
+
+const char LEFT_PAREN[] = "{";
+const char RIGHT_PAREN[] = "}";
+
 const std::vector<std::string> BLOCK_NAMES = init_block_names();
 const std::vector<std::string> DIRECTIVE_NAMES = init_directive_names();
 
@@ -494,9 +520,11 @@ std::vector<std::string> init_directive_names() {
 	directive_names.push_back("root");
 	directive_names.push_back("autoindex");
 	directive_names.push_back("index");
+	directive_names.push_back("limit_except");
+	directive_names.push_back("allow");  // inside limit_except
+	directive_names.push_back("deny");  // inside limit_except
 	directive_names.push_back("webserv_cgi");
 	directive_names.push_back("webserv_cgi_pass");
 	directive_names.push_back("webserv_cgi_param");
 	return directive_names;
 }
-

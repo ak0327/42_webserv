@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -pedantic")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fsanitize=address,undefined -fno-omit-frame-pointer")
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D UTEST")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D DEBUG")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D USE_SELECT_MULTIPLEXER")
 
@@ -37,7 +38,6 @@ include_directories(
         includes
         srcs/Const
         srcs/Client
-        srcs/Configuration/AbstractSyntaxTree
         srcs/Configuration/FileHandler
         srcs/Configuration/Parser
         srcs/Configuration/Token
@@ -61,13 +61,14 @@ include_directories(
         srcs/HttpRequest/SingleFieldValue
         srcs/HttpRequest/ValueWeightArraySet
         srcs/HttpRequest/ValueAndMapFieldValues
+
+        test/unit_test/includes
 )
 
 # webserv_srcs -----------------------------------------------------------------
 set(webserv_srcs
         srcs/Const/Constant.cpp
         srcs/Client/Client.cpp
-        srcs/Configuration/AbstractSyntaxTree/AbstractSyntaxTree.cpp
         srcs/Configuration/FileHandler/FileHandler.cpp
         srcs/Configuration/Parser/Parser.cpp
         srcs/Configuration/Token/Token.cpp
@@ -189,6 +190,8 @@ set (unit_test_srcs
         test/unit_test/TestStringHandler.cpp
         test/unit_test/TestFileHandler.cpp
         test/unit_test/TestTokenizer.cpp
+        test/unit_test/TestParserFunc.cpp
+        test/unit_test/TestParse.cpp
 
         test/unit_test/TestRequestLine.cpp
 

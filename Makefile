@@ -109,8 +109,7 @@ SRCS		+=  $(VALUE_AND_MAP_FIELD_VALUES_DIR)/ValueAndMapFieldValues.cpp \
 
 # configuration
 CONFIG_DIR	=	Configuration
-SRCS		+=	$(CONFIG_DIR)/AbstractSyntaxTree/AbstractSyntaxTree.cpp \
-				$(CONFIG_DIR)/FileHandler/FileHandler.cpp \
+SRCS		+=	$(CONFIG_DIR)/FileHandler/FileHandler.cpp \
 				$(CONFIG_DIR)/Parser/Parser.cpp \
 				$(CONFIG_DIR)/Token/Token.cpp \
 				$(CONFIG_DIR)/Tokenizer/Tokenizer.cpp \
@@ -144,7 +143,6 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(SOCKET_DIR) \
 				$(SRCS_DIR)/$(STR_HANDLER) \
 				$(SRCS_DIR)/$(REQUEST_INCLUDES) \
-				$(SRCS_DIR)/$(CONFIG_DIR)/AbstractSyntaxTree \
 				$(SRCS_DIR)/$(CONFIG_DIR)/FileHandler \
 				$(SRCS_DIR)/$(CONFIG_DIR)/Parser \
 				$(SRCS_DIR)/$(CONFIG_DIR)/Token \
@@ -310,6 +308,15 @@ run_token_test    :
 	#cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestTokenizer*
+
+.PHONY    : run_parse_test
+run_parse_test    :
+	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
+	#cmake -S . -B build
+	cmake --build build
+	./build/unit_test --gtest_filter=TestParser*
+	#./build/unit_test --gtest_filter=TestParser:TestParse
+	#./build/unit_test --gtest_filter=TestParser.ParseServer
 
 .PHONY	: client
 client	: $(CLIENT_OBJS)
