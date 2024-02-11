@@ -88,24 +88,24 @@ std::string recv_message_from_server(int connect_fd) {
 ////////////////////////////////////////////////////////////////////////////////
 
 Client::Client(const char *server_ip, const char *server_port) {
-	this->_connect_fd = create_connect_socket();
-	this->_addr = create_connect_addr(server_ip, server_port);
+	this->connect_fd_ = create_connect_socket();
+	this->addr_ = create_connect_addr(server_ip, server_port);
 }
 
 Client::~Client() {
-	if (_connect_fd != ERR) {
+	if (connect_fd_ != ERR) {
 		errno = 0;
-		if (close(_connect_fd) == ERR) {
+		if (close(connect_fd_) == ERR) {
 			std::cerr << RED "[Client Error] close: " << strerror(errno) << RESET << std::endl;
 		}
-		_connect_fd = ERR;
+        connect_fd_ = ERR;
 	}
 }
 
 void Client::process_server_connect(const std::string &send_msg) {
-	connect_to_server(this->_connect_fd, this->_addr);
-	send_to_server(this->_connect_fd, send_msg);
-	this->_recv_message = recv_message_from_server(this->_connect_fd);
+	connect_to_server(this->connect_fd_, this->addr_);
+	send_to_server(this->connect_fd_, send_msg);
+	this->recv_message_ = recv_message_from_server(this->connect_fd_);
 }
 
-std::string Client::get_recv_message() const { return this->_recv_message; }
+std::string Client::get_recv_message() const { return this->recv_message_; }

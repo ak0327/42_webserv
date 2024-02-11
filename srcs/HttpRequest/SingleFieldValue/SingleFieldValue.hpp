@@ -16,5 +16,5 @@ class SingleFieldValue: public FieldValueBase {
 	std::string get_value() const;
 
  private:
-	std::string	_value;
+	std::string	value_;
 };

@@ -15,11 +15,11 @@ class Socket {
 	bool is_socket_success() const;
 
  private:
-	Result<int, std::string> _result;
-	int _socket_fd;
-	struct addrinfo *_addr_info;
-	std::string _server_ip;  // Nullable?
-	std::string _server_port;
+	Result<int, std::string> result_;
+	int socket_fd_;
+	struct addrinfo *addr_info_;
+	std::string server_ip_;  // Nullable?
+	std::string server_port_;
 
 	Result<int, std::string> init_addr_info();
 	Result<int, std::string> create_socket();

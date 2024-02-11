@@ -206,6 +206,6 @@ Result<int, int> HttpRequest::set_te(const std::string &field_name,
 	}
 
 	t_codings_set = result.get_ok_value();
-	this->_request_header_fields[field_name] = new FieldValueWithWeightSet(t_codings_set);
+	this->request_header_fields_[field_name] = new FieldValueWithWeightSet(t_codings_set);
 	return Result<int, int>::ok(OK);
 }

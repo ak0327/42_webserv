@@ -351,6 +351,6 @@ Result<int, int> HttpRequest::set_link(const std::string &field_name,
 	}
 	link_values = result.get_ok_value();
 
-	this->_request_header_fields[field_name] = new MapSetFieldValues(link_values);
+	this->request_header_fields_[field_name] = new MapSetFieldValues(link_values);
 	return Result<int, int>::ok(STATUS_OK);
 }

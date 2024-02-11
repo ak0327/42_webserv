@@ -15,7 +15,7 @@ class Client {
 	void process_server_connect(const std::string &send_msg);
 
  private:
-	int _connect_fd;
-	std::string _recv_message;
-	struct sockaddr_in _addr;
+	int connect_fd_;
+	std::string recv_message_;
+	struct sockaddr_in addr_;
 };

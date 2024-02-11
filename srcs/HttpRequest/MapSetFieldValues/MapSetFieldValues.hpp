@@ -17,5 +17,5 @@ class MapSetFieldValues : public FieldValueBase {
 	std::set<std::map<std::string, std::string> > get_map_set_values() const;
 
  private:
-	std::set<std::map<std::string, std::string> > _map_set_values;
+	std::set<std::map<std::string, std::string> > map_set_values_;
 };

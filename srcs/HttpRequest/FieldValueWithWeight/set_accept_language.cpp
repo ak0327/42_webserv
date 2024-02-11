@@ -199,6 +199,6 @@ Result<int, int> HttpRequest::set_accept_language(const std::string &field_name,
 	}
 
 	language_range_weight_set = result.get_ok_value();
-	this->_request_header_fields[field_name] = new FieldValueWithWeightSet(language_range_weight_set);
+	this->request_header_fields_[field_name] = new FieldValueWithWeightSet(language_range_weight_set);
 	return Result<int, int>::ok(OK);
 }

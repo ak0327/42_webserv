@@ -17,5 +17,5 @@ class MultiFieldValues : public FieldValueBase {
 	std::set<std::string> get_values() const;
 
  private:
-	std::set<std::string> _field_values;
+	std::set<std::string> field_values_;
 };

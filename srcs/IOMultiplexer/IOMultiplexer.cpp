@@ -30,21 +30,21 @@ const int TIMEOUT_MS = 2500;
 ////////////////////////////////////////////////////////////////////////////////
 
 EPollMultiplexer::EPollMultiplexer(int socket_fd)
-	: _socket_fd(socket_fd),
-	  _epoll_fd(INIT_FD),
-	  _ev(),
-	  _new_event() {
+	: socket_fd_(socket_fd),
+	  epoll_fd_(INIT_FD),
+	  ev_(),
+	  new_event_() {
 	errno = 0;
-	this->_epoll_fd = epoll_create(INIT_SIZE);
-	if (this->_epoll_fd == EPOLL_ERROR) {
+	this->epoll_fd_ = epoll_create(INIT_SIZE);
+	if (this->epoll_fd_ == EPOLL_ERROR) {
 		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
 		throw std::runtime_error("[Server Error] epoll_create:" + err_info);
 	}
 
-	this->_ev.data.fd = this->_socket_fd;
-	this->_ev.events = EPOLLIN;
+	this->ev_.data.fd = this->socket_fd_;
+	this->ev_.events = EPOLLIN;
 	errno = 0;
-	if (epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, this->_socket_fd, &this->_ev) == -1) {
+	if (epoll_ctl(this->epoll_fd_, EPOLL_CTL_ADD, this->socket_fd_, &this->ev_) == -1) {
 		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
 		throw std::runtime_error("[Server Error] epoll_ctl:" + err_info);
 	}
@@ -52,37 +52,37 @@ EPollMultiplexer::EPollMultiplexer(int socket_fd)
 
 EPollMultiplexer::~EPollMultiplexer() {
 	errno = 0;
-	if (close(this->_epoll_fd) == CLOSE_ERROR) {
+	if (close(this->epoll_fd_) == CLOSE_ERROR) {
 		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
 		std::cerr << "[Server Error] close:" << err_info << std::endl;
 	}
-	this->_epoll_fd = INIT_FD;
+	this->epoll_fd_ = INIT_FD;
 }
 
 Result<int, std::string> EPollMultiplexer::get_io_ready_fd() {
 	int ready_fd_count;
 
 	errno = 0;
-	ready_fd_count = epoll_wait(this->_epoll_fd, &this->_new_event, 1, TIMEOUT_MS);
+	ready_fd_count = epoll_wait(this->epoll_fd_, &this->new_event_, 1, TIMEOUT_MS);
 	if (ready_fd_count == -1) {
 		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
 		return Result<int, std::string>::err("[Server Error] epoll_wait:" + err_info);
 	}
-	if (this->_new_event.events & EPOLLERR) {
+	if (this->new_event_.events & EPOLLERR) {
 		std::string err_info = create_error_info("I/O Error occurred", __FILE__, __LINE__);
 		return Result<int, std::string>::err("[Server Error] epoll_wait:" + err_info);
 	}
 	if (ready_fd_count == EPOLL_TIMEOUT) {
 		return Result<int, std::string>::ok(IO_TIMEOUT);
 	}
-	return Result<int, std::string>::ok(this->_new_event.data.fd);
+	return Result<int, std::string>::ok(this->new_event_.data.fd);
 }
 
 Result<int, std::string> EPollMultiplexer::register_connect_fd(int connect_fd) {
-	this->_ev.events = EPOLLIN;
-	this->_ev.data.fd = connect_fd;
+	this->ev_.events = EPOLLIN;
+	this->ev_.data.fd = connect_fd;
 	errno = 0;
-	if (epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, connect_fd, &this->_ev) == EPOLL_ERROR) {
+	if (epoll_ctl(this->epoll_fd_, EPOLL_CTL_ADD, connect_fd, &this->ev_) == EPOLL_ERROR) {
 		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
 		return Result<int, std::string>::err("[Server Error] epoll_ctl:" + err_info);
 	}
@@ -91,7 +91,7 @@ Result<int, std::string> EPollMultiplexer::register_connect_fd(int connect_fd) {
 
 Result<int, std::string> EPollMultiplexer::clear_fd(int clear_fd) {
 	errno = 0;
-	if (epoll_ctl(this->_epoll_fd, EPOLL_CTL_DEL, clear_fd, NULL) == EPOLL_ERROR) {
+	if (epoll_ctl(this->epoll_fd_, EPOLL_CTL_DEL, clear_fd, NULL) == EPOLL_ERROR) {
 		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
 		return Result<int, std::string>::err("[Server Error] epoll_ctl:" + err_info);
 	}
@@ -155,10 +155,10 @@ Result<int, std::string> cast_fd_uintptr_to_int(uintptr_t ident) {
 ////////////////////////////////////////////////////////////////////////////////
 
 KqueueMultiplexer::KqueueMultiplexer(int socket_fd)
-	: _socket_fd(socket_fd),
-	  _kq(INIT_KQ),
-	  _change_event(),
-	  _new_event() {
+	: socket_fd_(socket_fd),
+      kq_(INIT_KQ),
+      change_event_(),
+      new_event_() {
 	Result<int, std::string> kq_result, kevent_result;
 
 	DEBUG_SERVER_PRINT("[I/O multiplexer : kqueue]");
@@ -168,10 +168,10 @@ KqueueMultiplexer::KqueueMultiplexer(int socket_fd)
 		std::string err_info = create_error_info(kq_result.get_err_value(), __FILE__, __LINE__);
 		throw std::runtime_error("[Server Error] kqueue:" + err_info);
 	}
-	this->_kq = kq_result.get_ok_value();
+	this->kq_ = kq_result.get_ok_value();
 
-	EV_SET(&this->_change_event, this->_socket_fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
-	kevent_result = kevent_register(this->_kq, &this->_change_event);
+	EV_SET(&this->change_event_, this->socket_fd_, EVFILT_READ, EV_ADD, 0, 0, NULL);
+	kevent_result = kevent_register(this->kq_, &this->change_event_);
 	if (kevent_result.is_err()) {
 		std::string err_info = create_error_info(kevent_result.get_err_value(), __FILE__, __LINE__);
 		throw std::runtime_error("[Server Error] kevent:" + err_info);
@@ -186,7 +186,7 @@ Result<int, std::string> KqueueMultiplexer::get_io_ready_fd() {
 	Result<int, std::string> kevent_result, cast_result;
 	int new_events;
 
-	kevent_result = kevent_wait(this->_kq, &this->_new_event);
+	kevent_result = kevent_wait(this->kq_, &this->new_event_);
 	if (kevent_result.is_err()) {
 		std::string err_info = create_error_info(kevent_result.get_err_value(), __FILE__, __LINE__);
 		return Result<int, std::string>::err("[Server Error] kevent:" + err_info);
@@ -196,7 +196,7 @@ Result<int, std::string> KqueueMultiplexer::get_io_ready_fd() {
 		return Result<int, std::string>::ok(IO_TIMEOUT);
 	}
 
-	cast_result = cast_fd_uintptr_to_int(this->_new_event.ident);
+	cast_result = cast_fd_uintptr_to_int(this->new_event_.ident);
 	if (cast_result.is_err()) {
 		std::string err_info = create_error_info(cast_result.get_err_value(), __FILE__, __LINE__);
 		return Result<int, std::string>::err("[Server Error]" + err_info);
@@ -205,16 +205,16 @@ Result<int, std::string> KqueueMultiplexer::get_io_ready_fd() {
 }
 
 Result<int, std::string> KqueueMultiplexer::register_connect_fd(int connect_fd) {
-	EV_SET(&this->_change_event, connect_fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
-	return kevent_register(this->_kq, &this->_change_event);
+	EV_SET(&this->change_event_, connect_fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
+	return kevent_register(this->kq_, &this->change_event_);
 }
 
 Result<int, std::string> KqueueMultiplexer::clear_fd(int clear_fd) {
 	Result<int, std::string> kevent_result;
 	std::string err_str, err_info;
 
-	EV_SET(&this->_change_event, clear_fd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
-	kevent_result = kevent_register(this->_kq, &this->_change_event);
+	EV_SET(&this->change_event_, clear_fd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+	kevent_result = kevent_register(this->kq_, &this->change_event_);
 	if (kevent_result.is_err()) {
 		err_info = create_error_info(kevent_result.get_err_value(), __FILE__, __LINE__);
 		err_str = "kevent:" + err_info;
@@ -308,22 +308,22 @@ Result<int, int> get_ready_fd(const std::vector<int> &connect_fds,
 SelectMultiplexer::SelectMultiplexer(int socket_fd) {
 	DEBUG_SERVER_PRINT("[I/O multiplexer : select]");
 
-	this->_socket_fd = socket_fd;
-	this->_connect_fds = std::vector<int>(MAX_SESSION, INIT_FD);
-	this->_fds = init_fds(this->_socket_fd, this->_connect_fds);
+	this->socket_fd_ = socket_fd;
+	this->connect_fds_ = std::vector<int>(MAX_SESSION, INIT_FD);
+	this->fds_ = init_fds(this->socket_fd_, this->connect_fds_);
 }
 
 SelectMultiplexer::~SelectMultiplexer() {
 	for (int i = 0; i < MAX_SESSION; ++i) {
-		if (this->_connect_fds[i] == INIT_FD) {
+		if (this->connect_fds_[i] == INIT_FD) {
 			continue;
 		}
 		errno = 0;
-		if (close(this->_connect_fds[i]) == CLOSE_ERROR) {
+		if (close(this->connect_fds_[i]) == CLOSE_ERROR) {
 			std::string err_info = create_error_info(errno, __FILE__, __LINE__);
 			std::cerr << "[Error] close:" << err_info << std::endl;
 		}
-		this->_connect_fds[i] = INIT_FD;
+		this->connect_fds_[i] = INIT_FD;
 	}
 }
 
@@ -332,9 +332,9 @@ Result<int, std::string> SelectMultiplexer::get_io_ready_fd() {
 	Result<int, std::string> select_result;
 	Result<int, int> fd_result;
 
-	this->_fds = init_fds(this->_socket_fd, this->_connect_fds);
-	max_fd = get_max_fd(this->_connect_fds, this->_socket_fd);
-	select_result = select_fds(max_fd, &this->_fds);
+	this->fds_ = init_fds(this->socket_fd_, this->connect_fds_);
+	max_fd = get_max_fd(this->connect_fds_, this->socket_fd_);
+	select_result = select_fds(max_fd, &this->fds_);
 	if (select_result.is_err()) {
 		std::string err_info = create_error_info(select_result.get_err_value(), __FILE__, __LINE__);
 		return Result<int, std::string>::err("[Server Error] select:" + err_info);
@@ -343,7 +343,7 @@ Result<int, std::string> SelectMultiplexer::get_io_ready_fd() {
 		return Result<int, std::string>::ok(IO_TIMEOUT);
 	}
 
-	fd_result = get_ready_fd(this->_connect_fds, &this->_fds, this->_socket_fd);
+	fd_result = get_ready_fd(this->connect_fds_, &this->fds_, this->socket_fd_);
 	if (fd_result.is_err()) {
 		std::string err_info = create_error_info("ready fd not found", __FILE__, __LINE__);
 		return Result<int, std::string>::err("[Server Error] " + err_info);
@@ -352,15 +352,15 @@ Result<int, std::string> SelectMultiplexer::get_io_ready_fd() {
 }
 
 Result<int, std::string> SelectMultiplexer::clear_fd(int clear_fd) {
-	std::vector<int>::iterator fd = std::find(this->_connect_fds.begin(),
-											  this->_connect_fds.end(),
+	std::vector<int>::iterator fd = std::find(this->connect_fds_.begin(),
+											  this->connect_fds_.end(),
 											  clear_fd);
-	if (fd == this->_connect_fds.end()) {
+	if (fd == this->connect_fds_.end()) {
 		std::string err_info = create_error_info("clear fd not found", __FILE__, __LINE__);
 		return Result<int, std::string>::err("[Server Error] " + err_info);
 	}
 
-	FD_CLR(*fd, &this->_fds);
+	FD_CLR(*fd, &this->fds_);
 	errno = 0;
 	if (close(*fd) == CLOSE_ERROR) {
 		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
@@ -371,10 +371,10 @@ Result<int, std::string> SelectMultiplexer::clear_fd(int clear_fd) {
 }
 
 Result<int, std::string> SelectMultiplexer::register_connect_fd(int connect_fd) {
-	std::vector<int>::iterator fd = std::find(this->_connect_fds.begin(),
-											  this->_connect_fds.end(),
+	std::vector<int>::iterator fd = std::find(this->connect_fds_.begin(),
+											  this->connect_fds_.end(),
 											  INIT_FD);
-	if (fd == this->_connect_fds.end()) {
+	if (fd == this->connect_fds_.end()) {
 		std::string err_info = create_error_info("over max connection", __FILE__, __LINE__);
 		return Result<int, std::string>::err("[Server Info] " + err_info);
 	}

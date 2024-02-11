@@ -25,14 +25,14 @@ class Date : public FieldValueBase {
 	bool is_err() const;
 
  private:
-	std::string	_day_name;
-	std::string _day;
-	std::string _month;
-	std::string _year;
-	std::string _hour;
-	std::string _minute;
-	std::string _second;
-	std::string _gmt;
-	date_format _format;
-	Result<int, int> _result;
+	std::string	day_name_;
+	std::string day_;
+	std::string month_;
+	std::string year_;
+	std::string hour_;
+	std::string minute_;
+	std::string second_;
+	std::string gmt_;
+	date_format format_;
+	Result<int, int> result_;
 };

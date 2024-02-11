@@ -25,7 +25,7 @@ Result<int, int> HttpRequest::set_upgrade(const std::string &field_name,
 													   true);
 	if (result.is_ok()) {
 		keep_alive_info = result.get_ok_value();
-		this->_request_header_fields[field_name] = new MapFieldValues(keep_alive_info);
+		this->request_header_fields_[field_name] = new MapFieldValues(keep_alive_info);
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }

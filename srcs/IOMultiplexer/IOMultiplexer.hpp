@@ -32,10 +32,10 @@ class EPollMultiplexer : public IOMultiplexer {
 	virtual Result<int, std::string> register_connect_fd(int connect_fd);
 	virtual Result<int, std::string> clear_fd(int clear_fd);
  private:
-	int _socket_fd;
-	int _epoll_fd;
-	struct epoll_event _ev;
-	struct epoll_event _new_event;
+	int socket_fd_;
+	int epoll_fd_;
+	struct epoll_event ev_;
+	struct epoll_event new_event_;
 };
 
 #elif defined(__APPLE__) && !defined(USE_SELECT_MULTIPLEXER)
@@ -49,10 +49,10 @@ class KqueueMultiplexer : public IOMultiplexer {
 	virtual Result<int, std::string> clear_fd(int clear_fd);
 
  private:
-	int _socket_fd;
-	int _kq;
-	struct kevent _change_event;
-	struct kevent _new_event;
+	int socket_fd_;
+	int kq_;
+	struct kevent change_event_;
+	struct kevent new_event_;
 };
 
 #else
@@ -66,11 +66,11 @@ class SelectMultiplexer : public IOMultiplexer {
 	virtual Result<int, std::string> clear_fd(int clear_fd);
 
  private:
-	int _socket_fd;
-	std::vector<int> _connect_fds;
+	int socket_fd_;
+	std::vector<int> connect_fds_;
 	// std::vector<int> _ready_fds;
 	// std::vector<int> _active_fds;
-	fd_set _fds;
+	fd_set fds_;
 };
 
 #endif

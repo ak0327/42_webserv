@@ -275,6 +275,6 @@ Result<int, int> HttpRequest::set_via(const std::string &field_name,
 	}
 	via = result.get_ok_value();
 
-	this->_request_header_fields[field_name] = new MapSetFieldValues(via);
+	this->request_header_fields_[field_name] = new MapSetFieldValues(via);
 	return Result<int, int>::ok(STATUS_OK);
 }

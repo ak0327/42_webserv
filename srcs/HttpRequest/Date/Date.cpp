@@ -481,7 +481,7 @@ Date::Date(const std::string &http_date) {
 								   &hour, &minute, &second,
 								   &gmt);
 	if (parse_result.is_err()) {
-		this->_result = Result<int, int>::err(ERR);
+		this->result_ = Result<int, int>::err(ERR);
 		return;
 	}
 	format = parse_result.get_ok_value();
@@ -492,21 +492,21 @@ Date::Date(const std::string &http_date) {
 										 hour, minute, second,
 										 gmt);
 	if (validate_result.is_err()) {
-		this->_result = Result<int, int>::err(ERR);
+		this->result_ = Result<int, int>::err(ERR);
 		return;
 	}
 
-	this->_day_name = day_name;
-	this->_day = day;
-	this->_month = month;
-	this->_year = year;
-	this->_hour = hour;
-	this->_minute = minute;
-	this->_second = second;
-	this->_gmt = gmt;
-	this->_format = format;
+	this->day_name_ = day_name;
+	this->day_ = day;
+	this->month_ = month;
+	this->year_ = year;
+	this->hour_ = hour;
+	this->minute_ = minute;
+	this->second_ = second;
+	this->gmt_ = gmt;
+	this->format_ = format;
 
-	this->_result = Result<int, int>::ok(OK);
+	this->result_ = Result<int, int>::ok(OK);
 }
 
 Date::Date(const Date &other) {
@@ -517,28 +517,28 @@ Date &Date::operator=(const Date &rhs) {
 	if (this == &rhs) {
 		return *this;
 	}
-	this->_day_name = rhs._day_name;
-	this->_day = rhs._day;
-	this->_month = rhs._month;
-	this->_year = rhs._year;
-	this->_hour = rhs._hour;
-	this->_minute = rhs._minute;
-	this->_second = rhs._second;
-	this->_gmt = rhs._gmt;
-	this->_result = rhs._result;
+	this->day_name_ = rhs.day_name_;
+	this->day_ = rhs.day_;
+	this->month_ = rhs.month_;
+	this->year_ = rhs.year_;
+	this->hour_ = rhs.hour_;
+	this->minute_ = rhs.minute_;
+	this->second_ = rhs.second_;
+	this->gmt_ = rhs.gmt_;
+	this->result_ = rhs.result_;
 	return (*this);
 }
 
 Date::~Date() {}
 
-std::string Date::get_day_name() const { return this->_day_name; }
-std::string Date::get_day() const { return this->_day; }
-std::string Date::get_month() const { return this->_month; }
-std::string Date::get_year() const { return this->_year; }
-std::string Date::get_hour() const { return this->_hour; }
-std::string Date::get_minute() const { return this->_minute; }
-std::string Date::get_second() const { return this->_second; }
-std::string Date::get_gmt() const { return this->_gmt; }
-date_format Date::get_format() const { return this->_format; }
-bool Date::is_ok() const { return this->_result.is_ok(); }
-bool Date::is_err() const { return this->_result.is_err(); }
+std::string Date::get_day_name() const { return this->day_name_; }
+std::string Date::get_day() const { return this->day_; }
+std::string Date::get_month() const { return this->month_; }
+std::string Date::get_year() const { return this->year_; }
+std::string Date::get_hour() const { return this->hour_; }
+std::string Date::get_minute() const { return this->minute_; }
+std::string Date::get_second() const { return this->second_; }
+std::string Date::get_gmt() const { return this->gmt_; }
+date_format Date::get_format() const { return this->format_; }
+bool Date::is_ok() const { return this->result_.is_ok(); }
+bool Date::is_err() const { return this->result_.is_err(); }
