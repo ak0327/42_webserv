@@ -7,9 +7,9 @@
 !srcs
 !srcs/Client
 !srcs/Configuration
-!srcs/Configuration/AbstractSyntaxTree
 !srcs/Configuration/FileHandler
 !srcs/Configuration/Parser
+!srcs/Configuration/Parser/RecursiveDescentParser
 !srcs/Configuration/Token
 !srcs/Configuration/Tokenizer
 !srcs/Const
