@@ -425,9 +425,9 @@ TEST(TestTokenizer, SplitData) {
 			"http", "{", "\n",
 			"server", "{", "\n",
 			"listen", "80", ";", "\n",
-			"server_name", "example.com", "www.example.com", ";", "\n",
+			"server_name", "example.com", "html.example.com", ";", "\n",
 			"\n",
-			"root", "/var/www/html", ";", "\n",
+			"root", "/var/html/html", ";", "\n",
 			"}", "\n",
 			"\n",
 			"location", "/some-directory/", "{", "\n",
@@ -513,10 +513,10 @@ TEST(TestTokenizer, TestTokenizerValidationOK) {
 	expected.push_back(Token(";", 						kTokenKindSemicolin, 		6));
 	expected.push_back(Token("server_name", 				kTokenKindDirectiveName, 	7));
 	expected.push_back(Token("example.com", 				kTokenKindDirectiveParam,	7));
-	expected.push_back(Token("www.example.com",			kTokenKindDirectiveParam,	7));
+	expected.push_back(Token("html.example.com",			kTokenKindDirectiveParam,	7));
 	expected.push_back(Token(";", 						kTokenKindSemicolin, 		7));
 	expected.push_back(Token("root", 						kTokenKindDirectiveName, 	9));
-	expected.push_back(Token("/var/www/html", 			kTokenKindDirectiveParam, 	9));
+	expected.push_back(Token("/var/html/html", 			kTokenKindDirectiveParam, 	9));
 	expected.push_back(Token(";", 						kTokenKindSemicolin, 		9));
 	expected.push_back(Token("}", 						kTokenKindBraces, 			10));
 	expected.push_back(Token("location", 					kTokenKindBlockName, 		12));
@@ -681,10 +681,10 @@ TEST(TestTokenizer, TestTokenizerValidationNG) {
 	expected.push_back(Token("{", 				kTokenKindBraces, 			7));
 	expected.push_back(Token("server_name", 		kTokenKindDirectiveName, 	8));
 	expected.push_back(Token("example.com", 		kTokenKindDirectiveParam, 	8));
-	expected.push_back(Token("www.example.com",	kTokenKindDirectiveParam, 	8));
+	expected.push_back(Token("html.example.com",	kTokenKindDirectiveParam, 	8));
 	expected.push_back(Token(";", 				kTokenKindSemicolin, 		8));
 	expected.push_back(Token("root", 				kTokenKindDirectiveName, 	10));
-	expected.push_back(Token("/var/www/html", 	kTokenKindDirectiveParam, 	10));
+	expected.push_back(Token("/var/html/html", 	kTokenKindDirectiveParam, 	10));
 	expected.push_back(Token(";",	 				kTokenKindSemicolin, 		10));
 	expected.push_back(Token("}", 				kTokenKindBraces, 			11));
 	expected.push_back(Token("location", 			kTokenKindBlockName, 		13));

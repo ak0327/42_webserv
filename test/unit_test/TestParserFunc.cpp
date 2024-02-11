@@ -1059,7 +1059,7 @@ TEST(TestParser, ParseRootDirective) {
     // -------------------------------------------------------------------------
 
     // duplicated: unit ok -> error in parse_default_config
-    expected = "www";
+    expected = "html";
 
     cnt = 0;
     tokens = {};
@@ -1073,7 +1073,7 @@ TEST(TestParser, ParseRootDirective) {
 
     cnt = 0;
     tokens = {};
-    tokens.push_back(Token("www", kTokenKindDirectiveParam, ++cnt));  // ng: duplicated
+    tokens.push_back(Token("html", kTokenKindDirectiveParam, ++cnt));  // ng: duplicated
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
@@ -2204,7 +2204,7 @@ TEST(TestParser, ParseDefaultConfig) {
     cnt = 0;
     tokens = {};
     tokens.push_back(Token("root",          kTokenKindDirectiveName, ++cnt));
-    tokens.push_back(Token("www",           kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token("html",           kTokenKindDirectiveParam, ++cnt));
     tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
 
     tokens.push_back(Token("index",         kTokenKindDirectiveName, ++cnt));
@@ -2226,7 +2226,7 @@ TEST(TestParser, ParseDefaultConfig) {
     current = tokens.begin();
 
     expected = {};
-    expected.root_path = "www";
+    expected.root_path = "html";
     expected.index_pages = {"index.html", "index.htm"};
     expected.autoindex = false;
     expected.max_body_size_bytes = 0;
@@ -2246,7 +2246,7 @@ TEST(TestParser, ParseDefaultConfig) {
     tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
 
     tokens.push_back(Token("root",          kTokenKindDirectiveName, ++cnt));
-    tokens.push_back(Token("www",           kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token("html",           kTokenKindDirectiveParam, ++cnt));
     tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
 
     tokens.push_back(Token("index",         kTokenKindDirectiveName, ++cnt));
@@ -2260,7 +2260,7 @@ TEST(TestParser, ParseDefaultConfig) {
     current = tokens.begin();
 
     expected = {};
-    expected.root_path = "www";
+    expected.root_path = "html";
     expected.index_pages = {"index.htm"};
     expected.autoindex = false;
     expected.max_body_size_bytes = 1 * ConfigInitValue::GB;
@@ -2302,7 +2302,7 @@ TEST(TestParser, ParseDefaultConfig) {
     tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
 
     tokens.push_back(Token("root",          kTokenKindDirectiveName, ++cnt));  // ng
-    tokens.push_back(Token("www",           kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token("html",           kTokenKindDirectiveParam, ++cnt));
     tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();

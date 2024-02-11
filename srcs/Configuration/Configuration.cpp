@@ -61,7 +61,7 @@ std::string Configuration::get_root(const std::string &server_name,
 	(void)server_name;
 	(void)location;
 	// todo: default rootをhttp_config_から取得
-	return "www";
+	return "html";
 }
 
 std::string Configuration::get_error_page(int status_code) {

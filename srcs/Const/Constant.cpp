@@ -217,7 +217,7 @@ const char UPGRADE_INSECURE_REQUESTS[] = "upgrade-insecure-requests";
 const char USER_AGENT[] = "user-agent";
 const char VARY[] = "vary";
 const char VIA[] = "via";
-const char WWW_AUTHENTICATE[] = "www-authenticate";
+const char WWW_AUTHENTICATE[] = "html-authenticate";
 const char X_CUSTOM_HEADER[] = "x-custom-header";
 
 const std::vector<std::string> FIELD_NAMES = init_field_names();

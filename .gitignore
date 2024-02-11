@@ -27,7 +27,7 @@
 
 !test
 
-!www
+!html
 !conf
 
 !*.conf
@@ -44,9 +44,6 @@
 !Readme.md
 !webserv.drawio
 
-.DS_Store
-.idea
-.vscode
 client_response.txt
 CMakeCache.txt
 Dockerfile

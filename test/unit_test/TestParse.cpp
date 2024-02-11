@@ -62,7 +62,7 @@ TEST(TestParser, ParseOK) {
     server_config.server_names.insert("webserv");
     server_config.server_names.insert("server1");
 
-    server_config.root_path = "www";
+    server_config.root_path = "html";
 
     server_config.error_pages = {
         {404, "/404.html"},
@@ -95,7 +95,7 @@ TEST(TestParser, ParseOK) {
     server_config.locations["/post"] = location_config;
 
     location_config = {};
-    location_config.root_path = "www";
+    location_config.root_path = "html";
     server_config.locations["=/50x.html"] = location_config;
 
     expected.servers.push_back(server_config);
@@ -120,7 +120,7 @@ TEST(TestParser, ParseOK) {
 
     server_config.server_names.insert("cgi_server");
 
-    server_config.root_path = "www";
+    server_config.root_path = "html";
 
     location_config = {};
     server_config.locations["^~/cgi-bin/"] = location_config;
@@ -147,7 +147,7 @@ TEST(TestParser, ParseOK) {
     server_config.server_names.insert("webserv");
     server_config.server_names.insert("server1");
 
-    server_config.root_path = "www";
+    server_config.root_path = "html";
 
     server_config.error_pages = {
         {404, "/404.html"},
@@ -180,7 +180,7 @@ TEST(TestParser, ParseOK) {
     server_config.locations["/post"] = location_config;
 
     location_config = {};
-    location_config.root_path = "www";
+    location_config.root_path = "html";
     server_config.locations["=/50x.html"] = location_config;
 
     expected.servers.push_back(server_config);
@@ -195,7 +195,7 @@ TEST(TestParser, ParseOK) {
 
     server_config.server_names.insert("cgi_server");
 
-    server_config.root_path = "www";
+    server_config.root_path = "html";
 
     location_config = {};
     server_config.locations["^~/cgi-bin/"] = location_config;
