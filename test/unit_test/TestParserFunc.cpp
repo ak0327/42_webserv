@@ -2,8 +2,6 @@
 #include <iomanip>
 #include <list>
 #include <vector>
-#include <mach/thread_info.h>
-
 #include "Constant.hpp"
 #include "Color.hpp"
 #include "FileHandler.hpp"
