@@ -159,7 +159,7 @@ Result<int, int> HttpRequest::set_keep_alive(const std::string &field_name,
 	result = parse_and_validate_keep_alive_info(field_value);
 	if (result.is_ok()) {
 		keep_alive_info = result.get_ok_value();
-		this->_request_header_fields[field_name] = new MapFieldValues(keep_alive_info);
+		this->request_header_fields_[field_name] = new MapFieldValues(keep_alive_info);
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }

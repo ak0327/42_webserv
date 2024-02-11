@@ -88,7 +88,7 @@ Result<int, int> HttpRequest::set_range(const std::string &field_name,
 													   HttpMessageParser::skip_noop);
 	if (result.is_ok()) {
 		range_specifier = result.get_ok_value();
-		this->_request_header_fields[field_name] = new MapFieldValues(range_specifier);
+		this->request_header_fields_[field_name] = new MapFieldValues(range_specifier);
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }

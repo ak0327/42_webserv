@@ -25,15 +25,12 @@ void validate_argc(int argc) {
 ////////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char **argv) {
-	char *config_file_path;
-	Configuration config;
-
 	try {
 		validate_argc(argc);
 
-		config_file_path = argv[CONFIG_FILE_INDEX];
+        char *config_file_path = argv[CONFIG_FILE_INDEX];
 		DEBUG_PRINT("config_file_path=[%s]", config_file_path);
-		config = Configuration(config_file_path);
+		Configuration config(config_file_path);
 
 		Server server = Server(config);
 		server.process_client_connection();

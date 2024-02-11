@@ -54,17 +54,17 @@ Result<double, int> parse_weight(const std::string &field_value,
 ////////////////////////////////////////////////////////////////////////////////
 
 FieldValueWithWeight::FieldValueWithWeight()
-	: _field_value(NULL),
-	  _weight(WEIGHT_INIT) {}
+	: field_value_(NULL),
+      weight_(WEIGHT_INIT) {}
 
 FieldValueWithWeight::FieldValueWithWeight(FieldValueBase *field_value,
 										   double weight)
-	: _field_value(field_value),
-	  _weight(weight) {
+	: field_value_(field_value),
+      weight_(weight) {
 }
 
 FieldValueWithWeight::FieldValueWithWeight(const FieldValueWithWeight &other)
-	: _field_value(NULL) {
+	: field_value_(NULL) {
 	*this = other;
 }
 
@@ -74,48 +74,48 @@ FieldValueWithWeight &FieldValueWithWeight::operator=(const FieldValueWithWeight
 	}
 
 	FieldValueBase *copy_ptr = NULL;
-	if (dynamic_cast<MapFieldValues *>(rhs._field_value)) {
-		copy_ptr = new MapFieldValues(*(static_cast<MapFieldValues *>(rhs._field_value)));
-	} else if (dynamic_cast<MapSetFieldValues *>(rhs._field_value)) {
-		copy_ptr = new MapSetFieldValues(*(static_cast<MapSetFieldValues *>(rhs._field_value)));
-	} else if (dynamic_cast<MediaType *>(rhs._field_value)) {
-		copy_ptr = new MediaType(*(static_cast<MediaType *>(rhs._field_value)));
-	} else if (dynamic_cast<MultiFieldValues *>(rhs._field_value)) {
-		copy_ptr = new MultiFieldValues(*(static_cast<MultiFieldValues *>(rhs._field_value)));
-	} else if (dynamic_cast<SingleFieldValue *>(rhs._field_value)) {
-		copy_ptr = new SingleFieldValue(*(static_cast<SingleFieldValue *>(rhs._field_value)));
-	} else if (dynamic_cast<ValueAndMapFieldValues *>(rhs._field_value)) {
-		copy_ptr = new ValueAndMapFieldValues(*(static_cast<ValueAndMapFieldValues *>(rhs._field_value)));
+	if (dynamic_cast<MapFieldValues *>(rhs.field_value_)) {
+		copy_ptr = new MapFieldValues(*(static_cast<MapFieldValues *>(rhs.field_value_)));
+	} else if (dynamic_cast<MapSetFieldValues *>(rhs.field_value_)) {
+		copy_ptr = new MapSetFieldValues(*(static_cast<MapSetFieldValues *>(rhs.field_value_)));
+	} else if (dynamic_cast<MediaType *>(rhs.field_value_)) {
+		copy_ptr = new MediaType(*(static_cast<MediaType *>(rhs.field_value_)));
+	} else if (dynamic_cast<MultiFieldValues *>(rhs.field_value_)) {
+		copy_ptr = new MultiFieldValues(*(static_cast<MultiFieldValues *>(rhs.field_value_)));
+	} else if (dynamic_cast<SingleFieldValue *>(rhs.field_value_)) {
+		copy_ptr = new SingleFieldValue(*(static_cast<SingleFieldValue *>(rhs.field_value_)));
+	} else if (dynamic_cast<ValueAndMapFieldValues *>(rhs.field_value_)) {
+		copy_ptr = new ValueAndMapFieldValues(*(static_cast<ValueAndMapFieldValues *>(rhs.field_value_)));
 	}
 
-	delete this->_field_value;
-	this->_field_value = copy_ptr;
+	delete this->field_value_;
+	this->field_value_ = copy_ptr;
 
-	this->_weight = rhs._weight;
+	this->weight_ = rhs.weight_;
 	return *this;
 }
 
 bool FieldValueWithWeight::operator<(const FieldValueWithWeight &rhs) const {
-	return this->_weight < rhs._weight;
+	return this->weight_ < rhs.weight_;
 }
 
 FieldValueWithWeight::~FieldValueWithWeight() {
-	delete this->_field_value;
-	this->_field_value = NULL;
+	delete this->field_value_;
+	this->field_value_ = NULL;
 }
 
 FieldValueBase *FieldValueWithWeight::get_field_value() const {
-	return this->_field_value;
+	return this->field_value_;
 }
 
 double FieldValueWithWeight::get_weight() const {
-	return this->_weight;
+	return this->weight_;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 FieldValueWithWeightSet::FieldValueWithWeightSet(const std::set<FieldValueWithWeight> &field_values)
-	: _field_values(field_values) {}
+	: field_values_(field_values) {}
 
 FieldValueWithWeightSet::FieldValueWithWeightSet(const FieldValueWithWeightSet &other) {
 	*this = other;
@@ -125,14 +125,14 @@ FieldValueWithWeightSet &FieldValueWithWeightSet::operator=(const FieldValueWith
 	if (this == &rhs) {
 		return *this;
 	}
-	this->_field_values = rhs._field_values;
+	this->field_values_ = rhs.field_values_;
 	return *this;
 }
 
 FieldValueWithWeightSet::~FieldValueWithWeightSet() {}
 
 std::set<FieldValueWithWeight> FieldValueWithWeightSet::get_field_values() const {
-	return this->_field_values;
+	return this->field_values_;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

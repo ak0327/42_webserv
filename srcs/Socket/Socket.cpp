@@ -46,29 +46,29 @@ Result<int, std::string> close_socket_fd(int socket_fd) {
 ////////////////////////////////////////////////////////////////////////////////
 
 Socket::Socket(const Configuration &config)
-		: _result(),
-		  _socket_fd(INIT_FD),
-		  _addr_info(NULL),
-		  _server_ip(config.get_server_ip()),
-		  _server_port(config.get_server_port()) {
-	this->_result = init_addr_info();
-	if (this->_result.is_err()) {
+		: result_(),
+          socket_fd_(INIT_FD),
+          addr_info_(NULL),
+          server_ip_(config.get_server_ip()),
+          server_port_(config.get_server_port()) {
+	this->result_ = init_addr_info();
+	if (this->result_.is_err()) {
 		return;
 	}
-	this->_result = create_socket();
-	if (this->_result.is_err()) {
+	this->result_ = create_socket();
+	if (this->result_.is_err()) {
 		return;
 	}
-	this->_result = bind_socket();
-	if (this->_result.is_err()) {
+	this->result_ = bind_socket();
+	if (this->result_.is_err()) {
 		return;
 	}
-	this->_result = listen_socket();
-	if (this->_result.is_err()) {
+	this->result_ = listen_socket();
+	if (this->result_.is_err()) {
 		return;
 	}
-	this->_result = set_fd_to_nonblock();
-	if (this->_result.is_err()) {
+	this->result_ = set_fd_to_nonblock();
+	if (this->result_.is_err()) {
 		return;
 	}
 }
@@ -76,16 +76,16 @@ Socket::Socket(const Configuration &config)
 Socket::~Socket() {
 	Result<int, std::string> close_result;
 
-	if (this->_addr_info != NULL) {
-		freeaddrinfo(this->_addr_info);
-		this->_addr_info = NULL;
+	if (this->addr_info_ != NULL) {
+		freeaddrinfo(this->addr_info_);
+		this->addr_info_ = NULL;
 	}
-	if (this->_socket_fd != INIT_FD) {
-		close_result = close_socket_fd(this->_socket_fd);
+	if (this->socket_fd_ != INIT_FD) {
+		close_result = close_socket_fd(this->socket_fd_);
 		if (close_result.is_err()) {
 			std::cerr << "close:" << close_result.get_err_value() << std::endl;
 		}
-		this->_socket_fd = INIT_FD;
+		this->socket_fd_ = INIT_FD;
 	}
 }
 
@@ -95,20 +95,20 @@ Result<int, std::string> Socket::init_addr_info() {
 	struct addrinfo	*ret_addr_info;
 
 	set_hints(&hints);  // todo: setting IPv4, IPv6 from config??
-	errcode = getaddrinfo(this->_server_ip.c_str(), this->_server_port.c_str(), &hints, &ret_addr_info);
+	errcode = getaddrinfo(this->server_ip_.c_str(), this->server_port_.c_str(), &hints, &ret_addr_info);
 
 	if (errcode != GETADDRINFO_SUCCESS) {
 		std::string err_info = create_error_info(gai_strerror(errcode), __FILE__, __LINE__);
 		return Result<int, std::string>::err("getaddrinfo:" + err_info);
 	}
-	this->_addr_info = ret_addr_info;
+	this->addr_info_ = ret_addr_info;
 	return Result<int, std::string>::ok(OK);
 }
 
 Result<int, std::string> Socket::create_socket() {
-	const int	ai_family = this->_addr_info->ai_family;
-	const int	ai_socktype = this->_addr_info->ai_socktype;
-	const int	ai_protocol = this->_addr_info->ai_protocol;
+	const int	ai_family = this->addr_info_->ai_family;
+	const int	ai_socktype = this->addr_info_->ai_socktype;
+	const int	ai_protocol = this->addr_info_->ai_protocol;
 	int			socket_fd;
 
 	errno = 0;
@@ -117,22 +117,22 @@ Result<int, std::string> Socket::create_socket() {
 		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
 		return Result<int, std::string>::err("socket:" + err_info);
 	}
-	this->_socket_fd = socket_fd;
+	this->socket_fd_ = socket_fd;
 	return Result<int, std::string>::ok(OK);
 }
 
 Result<int, std::string> Socket::bind_socket() const {
 	Result<int, std::string>	set_opt_result;
-	const struct sockaddr		*ai_addr = this->_addr_info->ai_addr;
-	const socklen_t				ai_addrlen = this->_addr_info->ai_addrlen;
+	const struct sockaddr		*ai_addr = this->addr_info_->ai_addr;
+	const socklen_t				ai_addrlen = this->addr_info_->ai_addrlen;
 
-	set_opt_result = set_socket_opt(this->_socket_fd);
+	set_opt_result = set_socket_opt(this->socket_fd_);
 	if (set_opt_result.is_err()) {
 		return set_opt_result;
 	}
 
 	errno = 0;
-	if (bind(this->_socket_fd, ai_addr, ai_addrlen) == BIND_ERROR) {
+	if (bind(this->socket_fd_, ai_addr, ai_addrlen) == BIND_ERROR) {
 		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
 		return Result<int, std::string>::err("bind:" + err_info);
 	}
@@ -141,7 +141,7 @@ Result<int, std::string> Socket::bind_socket() const {
 
 Result<int, std::string> Socket::listen_socket() const {
 	errno = 0;
-	if (listen(this->_socket_fd, SOMAXCONN) == LISTEN_ERROR) {
+	if (listen(this->socket_fd_, SOMAXCONN) == LISTEN_ERROR) {
 		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
 		return Result<int, std::string>::err("listen:" + err_info);
 	}
@@ -150,13 +150,13 @@ Result<int, std::string> Socket::listen_socket() const {
 
 Result<int, std::string> Socket::set_fd_to_nonblock() const {
 	errno = 0;
-	if (fcntl(this->_socket_fd, F_SETFL, O_NONBLOCK | FD_CLOEXEC) == FCNTL_ERROR) {
+	if (fcntl(this->socket_fd_, F_SETFL, O_NONBLOCK | FD_CLOEXEC) == FCNTL_ERROR) {
 		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
 		return Result<int, std::string>::err("fcntl:" + err_info);
 	}
 	return Result<int, std::string>::ok(OK);
 }
 
-int Socket::get_socket_fd() const { return this->_socket_fd; }
-Result<int, std::string> Socket::get_socket_result() const { return this->_result; }
-bool Socket::is_socket_success() const { return this->_result.is_ok(); }
+int Socket::get_socket_fd() const { return this->socket_fd_; }
+Result<int, std::string> Socket::get_socket_result() const { return this->result_; }
+bool Socket::is_socket_success() const { return this->result_.is_ok(); }

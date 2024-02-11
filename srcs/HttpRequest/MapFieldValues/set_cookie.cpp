@@ -107,7 +107,7 @@ Result<int, int> HttpRequest::set_cookie(const std::string &field_name,
 													   skip_to_next_cookie_pair);
 	if (result.is_ok()) {
 		cookie_string = result.get_ok_value();
-		this->_request_header_fields[field_name] = new MapFieldValues(cookie_string);
+		this->request_header_fields_[field_name] = new MapFieldValues(cookie_string);
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }

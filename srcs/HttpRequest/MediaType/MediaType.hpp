@@ -25,10 +25,10 @@ class MediaType : public FieldValueBase {
 	bool is_err() const;
 
  private:
-	std::string _type;
-	std::string _subtype;
-	std::map<std::string, std::string> _parameters;
-	Result<int, int> _result;
+	std::string type_;
+	std::string subtype_;
+	std::map<std::string, std::string> parameters_;
+	Result<int, int> result_;
 
 	Result<int, int> parse(const std::string &field_value);
 	Result<int, int> validate();

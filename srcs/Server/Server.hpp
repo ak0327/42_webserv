@@ -19,9 +19,9 @@ class Server {
 	std::string get_recv_message() const;  // todo: for test, debug
 
  private:
-	Socket _socket;
-	std::string _recv_message;  // for test. this variable valid only connect with 1 client
-	IOMultiplexer *_fds;
+	Socket socket_;
+	std::string recv_message_;  // for test. this variable valid only connect with 1 client
+	IOMultiplexer *fds_;
 
 	Result<int, std::string> communicate_with_client(int ready_fd);
 	Result<int, std::string> accept_and_store_connect_fd();

@@ -20,7 +20,7 @@ class RequestLine {
 	Result<int, int> parse(const std::string &line);
 	Result<int, int> validate() const;
 
-	std::string _method;
-	std::string _request_target;
-	std::string _http_version;
+	std::string method_;
+	std::string request_target_;
+	std::string http_version_;
 };

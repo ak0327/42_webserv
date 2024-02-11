@@ -14,32 +14,32 @@ MediaType::MediaType(const std::string &field_value) {
 
 	parse_result = this->parse(field_value);
 	if (parse_result.is_err()) {
-		this->_result = Result<int, int>::err(ERR);
+		this->result_ = Result<int, int>::err(ERR);
 		return;
 	}
 
 	validate_result = this->validate();
 	if (validate_result.is_err()) {
-		this->_result = Result<int, int>::err(ERR);
+		this->result_ = Result<int, int>::err(ERR);
 		return;
 	}
-	this->_result = Result<int, int>::ok(OK);
+	this->result_ = Result<int, int>::ok(OK);
 }
 
 MediaType::MediaType(const std::string &type,
 					 const std::string &subtype,
 					 const std::map<std::string, std::string> &parameters)
-	: _type(type),
-	  _subtype(subtype),
-	  _parameters(parameters) {
+	: type_(type),
+      subtype_(subtype),
+      parameters_(parameters) {
 	Result<int, int> validate_result;
 
 	validate_result = this->validate();
 	if (validate_result.is_err()) {
-		this->_result = Result<int, int>::err(ERR);
+		this->result_ = Result<int, int>::err(ERR);
 		return;
 	}
-	this->_result = Result<int, int>::ok(OK);
+	this->result_ = Result<int, int>::ok(OK);
 }
 
 MediaType::MediaType(const MediaType &other) {
@@ -50,9 +50,9 @@ MediaType &MediaType::operator=(const MediaType &rhs) {
 	if (this == &rhs) {
 		return *this;
 	}
-	this->_type = rhs._type;
-	this->_subtype = rhs._subtype;
-	this->_parameters = rhs._parameters;
+	this->type_ = rhs.type_;
+	this->subtype_ = rhs.subtype_;
+	this->parameters_ = rhs.parameters_;
 	return *this;
 }
 
@@ -74,9 +74,9 @@ Result<int, int> MediaType::parse(const std::string &field_value) {
 		return Result<int, int>::err(ERR);
 	}
 	result = HttpMessageParser::parse_madia_type(field_value, 0, &end,
-												 &this->_type,
-												 &this->_subtype,
-												 &this->_parameters);
+												 &this->type_,
+												 &this->subtype_,
+												 &this->parameters_);
 	if (result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}
@@ -88,13 +88,13 @@ Result<int, int> MediaType::parse(const std::string &field_value) {
 
 
 Result<int, int> MediaType::validate() {
-	if (!HttpMessageParser::is_valid_type(this->_type)) {
+	if (!HttpMessageParser::is_valid_type(this->type_)) {
 		return Result<int, int>::err(ERR);
 	}
-	if (!HttpMessageParser::is_valid_subtype(this->_subtype)) {
+	if (!HttpMessageParser::is_valid_subtype(this->subtype_)) {
 		return Result<int, int>::err(ERR);
 	}
-	if (!HttpMessageParser::is_valid_parameters(this->_parameters)) {
+	if (!HttpMessageParser::is_valid_parameters(this->parameters_)) {
 		return Result<int, int>::err(ERR);
 	}
 	return Result<int, int>::ok(OK);
@@ -103,8 +103,8 @@ Result<int, int> MediaType::validate() {
 ////////////////////////////////////////////////////////////////////////////////
 /* getter */
 
-std::string MediaType::get_type() const { return this->_type; }
-std::string MediaType::get_subtype() const { return this->_subtype; }
-std::map<std::string, std::string> MediaType::get_parameters() const { return this->_parameters; }
-bool MediaType::is_ok() const { return this->_result.is_ok(); }
-bool MediaType::is_err() const { return this->_result.is_err(); }
+std::string MediaType::get_type() const { return this->type_; }
+std::string MediaType::get_subtype() const { return this->subtype_; }
+std::map<std::string, std::string> MediaType::get_parameters() const { return this->parameters_; }
+bool MediaType::is_ok() const { return this->result_.is_ok(); }
+bool MediaType::is_err() const { return this->result_.is_err(); }

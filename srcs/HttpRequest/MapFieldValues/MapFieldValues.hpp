@@ -27,6 +27,6 @@ class MapFieldValues : public FieldValueBase {
 	static bool is_key_only(const std::string &value);
 
  private:
-	std::string _unique_value;
-	std::map<std::string, std::string> _value_map;
+	std::string unique_value_;
+	std::map<std::string, std::string> value_map_;
 };

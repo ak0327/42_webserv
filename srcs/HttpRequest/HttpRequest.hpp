@@ -31,14 +31,14 @@ class HttpRequest {
 	FieldValueBase *get_field_values(const std::string &field_name);
 
  private:
-	int _status_code;
-	RequestLine _request_line;
-	std::map<std::string, FieldValueBase*> _request_header_fields;
-	std::string _message_body;
+	int status_code_;
+	RequestLine request_line_;
+	std::map<std::string, FieldValueBase*> request_header_fields_;
+	std::string message_body_;
 
 	typedef Result<int, int> (HttpRequest::*func_ptr)(const std::string&, const std::string&);
-	std::map<std::string, func_ptr> _field_value_parser;
-	std::map<std::string, int> _field_name_counter;
+	std::map<std::string, func_ptr> field_value_parser_;
+	std::map<std::string, int> field_name_counter_;
 
 	HttpRequest();
 	HttpRequest(const HttpRequest &other);

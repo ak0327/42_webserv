@@ -99,15 +99,15 @@ Result<std::string, int> get_field_line_by_remove_cr(const std::string &line_end
 HttpRequest::HttpRequest(const std::string &input) {
 	init_field_name_parser();
 	init_field_name_counter();
-	this->_status_code = parse_and_validate_http_request(input);
+	this->status_code_ = parse_and_validate_http_request(input);
 }
 
 HttpRequest::~HttpRequest()
 {
 	std::map<std::string, FieldValueBase*>::iterator itr;
 
-	itr = this->_request_header_fields.begin();
-	while (itr != this->_request_header_fields.end()) {
+	itr = this->request_header_fields_.begin();
+	while (itr != this->request_header_fields_.end()) {
 		delete itr->second;
 		++itr;
 	}
@@ -115,8 +115,8 @@ HttpRequest::~HttpRequest()
 
 void HttpRequest::clear_field_values_of(const std::string &field_name) {
 	if (is_valid_field_name_registered(field_name)) {
-		delete this->_request_header_fields[field_name];
-		this->_request_header_fields.erase(field_name);
+		delete this->request_header_fields_[field_name];
+		this->request_header_fields_.erase(field_name);
 	}
 }
 
@@ -138,7 +138,7 @@ int HttpRequest::parse_and_validate_http_request(const std::string &input) {
 
 	// start-line CRLF
 	std::getline(ss, line, LF);
-	request_line_result = this->_request_line.parse_and_validate(line);
+	request_line_result = this->request_line_.parse_and_validate(line);
 	if (request_line_result.is_err()) {
 		return STATUS_BAD_REQUEST;
 	}
@@ -163,7 +163,7 @@ int HttpRequest::parse_and_validate_http_request(const std::string &input) {
 	}
 
 	// [ message-body ]
-	_message_body = parse_message_body(&ss);
+	message_body_ = parse_message_body(&ss);
 	return STATUS_OK;
 }
 
@@ -212,7 +212,7 @@ Result<int, int> HttpRequest::parse_and_validate_field_lines(std::stringstream *
 		if (is_field_name_supported_parsing(field_name)) {
 			increment_field_name_counter(field_name);
 
-			parse_result = (this->*_field_value_parser[field_name])(field_name, field_value);
+			parse_result = (this->*field_value_parser_[field_name])(field_name, field_value);
 			if (parse_result.is_err()) {
 				return Result<int, int>::err(parse_result.get_err_value());
 			}
@@ -283,23 +283,23 @@ std::string HttpRequest::parse_message_body(std::stringstream *ss) {
 }
 
 bool HttpRequest::is_valid_field_name_registered(const std::string &field_name) {
-	return this->_request_header_fields.count(field_name) != 0;
+	return this->request_header_fields_.count(field_name) != 0;
 }
 
 // call this function after increment
 bool HttpRequest::is_field_name_repeated_in_request(const std::string &field_name) {
-	return SINGLE_OCCURRENCE_LIMIT < this->_field_name_counter[field_name];
+	return SINGLE_OCCURRENCE_LIMIT < this->field_name_counter_[field_name];
 }
 
 void HttpRequest::increment_field_name_counter(const std::string &field_name) {
-	this->_field_name_counter[field_name]++;
+	this->field_name_counter_[field_name]++;
 }
 
 bool HttpRequest::is_field_name_supported_parsing(const std::string &field_name) {
 	if (HttpMessageParser::is_ignore_field_name(field_name)) {
 		return false;
 	}
-	return this->_field_value_parser.count(field_name) != 0;
+	return this->field_value_parser_.count(field_name) != 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -308,7 +308,7 @@ void HttpRequest::init_field_name_counter() {
 	std::vector<std::string>::const_iterator itr;
 
 	for (itr = FIELD_NAMES.begin(); itr != FIELD_NAMES.end(); ++itr) {
-		this->_field_name_counter[*itr] = COUNTER_INIT;
+		this->field_name_counter_[*itr] = COUNTER_INIT;
 	}
 }
 
@@ -363,29 +363,29 @@ void HttpRequest::init_field_name_parser() {
 	map[std::string(USER_AGENT)] = &HttpRequest::set_user_agent;
 	map[std::string(VIA)] = &HttpRequest::set_via;
 
-	this->_field_value_parser = map;
+	this->field_value_parser_ = map;
 }
 
 std::string HttpRequest::get_method() const {
-	return this->_request_line.get_method();
+	return this->request_line_.get_method();
 }
 
 std::string HttpRequest::get_request_target() const {
-	return this->_request_line.get_request_target();
+	return this->request_line_.get_request_target();
 }
 
 std::string HttpRequest::get_http_version() const {
-	return this->_request_line.get_http_version();
+	return this->request_line_.get_http_version();
 }
 
 FieldValueBase* HttpRequest::get_field_values(const std::string &key) {
-	return this->_request_header_fields[key];
+	return this->request_header_fields_[key];
 }
 
 std::map<std::string, FieldValueBase*> HttpRequest::get_request_header_fields(void) {
-	return this->_request_header_fields;
+	return this->request_header_fields_;
 }
 
 int	HttpRequest::get_status_code() const {
-	return this->_status_code;
+	return this->status_code_;
 }

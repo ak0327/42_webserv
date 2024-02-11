@@ -141,7 +141,7 @@ Result<int, int> HttpRequest::set_host(const std::string &field_name,
 	}
 	host = result.get_ok_value();
 
-	this->_request_header_fields[field_name] = new MapFieldValues(host);
+	this->request_header_fields_[field_name] = new MapFieldValues(host);
 	return Result<int, int>::ok(STATUS_OK);
 }
 
@@ -160,6 +160,6 @@ Result<int, int> HttpRequest::set_alt_used(const std::string &field_name,
 	}
 	host = result.get_ok_value();
 
-	this->_request_header_fields[field_name] = new MapFieldValues(host);
+	this->request_header_fields_[field_name] = new MapFieldValues(host);
 	return Result<int, int>::ok(STATUS_OK);
 }

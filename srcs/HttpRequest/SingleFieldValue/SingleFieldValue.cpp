@@ -1,22 +1,22 @@
 #include "SingleFieldValue.hpp"
 
 SingleFieldValue::SingleFieldValue(const std::string &value)
-	: _value(value) {}
+	: value_(value) {}
 
 SingleFieldValue::SingleFieldValue(const SingleFieldValue &other)
-	: _value(other.get_value()) {}
+	: value_(other.get_value()) {}
 
 
 SingleFieldValue& SingleFieldValue::operator=(const SingleFieldValue &rhs) {
 	if (this == &rhs) {
 		return *this;
 	}
-	this->_value = rhs.get_value();
+	this->value_ = rhs.get_value();
 	return *this;
 }
 
 SingleFieldValue::~SingleFieldValue(){}
 
 std::string SingleFieldValue::get_value() const {
-	return this->_value;
+	return this->value_;
 }

@@ -320,7 +320,7 @@ Result<int, int> HttpRequest::set_multi_field_values(const std::string &field_na
 
 	field_values = parse_field_values(field_value);
 	if (is_valid_field_values(field_values, syntax_validate_func)) {
-		this->_request_header_fields[field_name] = new MultiFieldValues(field_values);
+		this->request_header_fields_[field_name] = new MultiFieldValues(field_values);
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }
@@ -435,7 +435,7 @@ Result<int, int> HttpRequest::set_origin(const std::string &field_name,
 	}
 	origin_set_or_null = result.get_ok_value();
 
-	this->_request_header_fields[field_name] = new MultiFieldValues(origin_set_or_null);
+	this->request_header_fields_[field_name] = new MultiFieldValues(origin_set_or_null);
 	return Result<int, int>::ok(STATUS_OK);
 }
 

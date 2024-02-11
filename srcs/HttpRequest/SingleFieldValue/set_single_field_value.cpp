@@ -93,7 +93,7 @@ Result<int, int> HttpRequest::set_access_control_request_method(const std::strin
 	clear_field_values_of(field_name);
 
 	if (HttpMessageParser::is_valid_method(field_value)) {
-		this->_request_header_fields[field_name] = new SingleFieldValue(field_value);
+		this->request_header_fields_[field_name] = new SingleFieldValue(field_value);
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }
@@ -111,7 +111,7 @@ Result<int, int> HttpRequest::set_connection(const std::string &field_name,
 
 	lower_field_value = StringHandler::to_lower(field_value);
 	if (lower_field_value == "close" || lower_field_value == "keep-alive") {
-		this->_request_header_fields[field_name] = new SingleFieldValue(lower_field_value);
+		this->request_header_fields_[field_name] = new SingleFieldValue(lower_field_value);
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }
@@ -136,7 +136,7 @@ Result<int, int> HttpRequest::set_content_length(const std::string &field_name,
 		return Result<int, int>::err(STATUS_BAD_REQUEST);
 	}
 	num_str = StringHandler::to_string(length);
-	this->_request_header_fields[field_name] = new SingleFieldValue(num_str);
+	this->request_header_fields_[field_name] = new SingleFieldValue(num_str);
 	return Result<int, int>::ok(STATUS_OK);
 }
 
@@ -148,7 +148,7 @@ Result<int, int> HttpRequest::set_content_location(const std::string &field_name
 
 	if (HttpMessageParser::is_absolute_uri(field_value)
 		|| HttpMessageParser::is_partial_uri(field_value)) {
-		this->_request_header_fields[field_name] = new SingleFieldValue(field_value);
+		this->request_header_fields_[field_name] = new SingleFieldValue(field_value);
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }
@@ -165,7 +165,7 @@ Result<int, int> HttpRequest::set_expect(const std::string &field_name,
 
 	lower_field_value = StringHandler::to_lower(field_value);
 	if (lower_field_value == "100-continue") {
-		this->_request_header_fields[field_name] = new SingleFieldValue(lower_field_value);
+		this->request_header_fields_[field_name] = new SingleFieldValue(lower_field_value);
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }
@@ -177,7 +177,7 @@ Result<int, int> HttpRequest::set_from(const std::string &field_name,
 	clear_field_values_of(field_name);
 
 	if (HttpMessageParser::is_mailbox(field_value)) {
-		this->_request_header_fields[field_name] = new SingleFieldValue(field_value);
+		this->request_header_fields_[field_name] = new SingleFieldValue(field_value);
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }
@@ -198,7 +198,7 @@ Result<int, int> HttpRequest::set_if_range(const std::string &field_name,
 	is_date = HttpMessageParser::is_http_date(field_value);
 
 	if (is_entity_tag || is_date) {
-		this->_request_header_fields[field_name] = new SingleFieldValue(field_value);
+		this->request_header_fields_[field_name] = new SingleFieldValue(field_value);
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }
@@ -215,7 +215,7 @@ Result<int, int> HttpRequest::set_max_forwards(const std::string &field_name,
 	max_forwards = HttpMessageParser::to_integer_num(field_value, &succeed);
 	if (succeed) {
 		num_str = StringHandler::to_string(max_forwards);
-		this->_request_header_fields[field_name] = new SingleFieldValue(num_str);
+		this->request_header_fields_[field_name] = new SingleFieldValue(num_str);
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }
@@ -228,7 +228,7 @@ Result<int, int> HttpRequest::set_referer(const std::string &field_name,
 
 	if (HttpMessageParser::is_absolute_uri(field_value)
 		|| HttpMessageParser::is_partial_uri(field_value)) {
-		this->_request_header_fields[field_name] = new SingleFieldValue(field_value);
+		this->request_header_fields_[field_name] = new SingleFieldValue(field_value);
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }
@@ -250,7 +250,7 @@ Result<int, int> HttpRequest::set_sec_fetch_dest(const std::string &field_name,
 
 	itr = std::find(SH_TOKENS.begin(), SH_TOKENS.end(), field_value);
 	if (itr != SH_TOKENS.end()) {
-		this->_request_header_fields[field_name] = new SingleFieldValue(field_value);
+		this->request_header_fields_[field_name] = new SingleFieldValue(field_value);
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }
@@ -274,7 +274,7 @@ Result<int, int> HttpRequest::set_sec_fetch_mode(const std::string &field_name,
 		|| field_value == "no-cors"
 		|| field_value == "same-origin"
 		|| field_value == "websocket") {
-		this->_request_header_fields[field_name] = new SingleFieldValue(field_value);
+		this->request_header_fields_[field_name] = new SingleFieldValue(field_value);
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }
@@ -288,7 +288,7 @@ Result<int, int> HttpRequest::set_sec_fetch_site(const std::string &field_name,
 	|| field_value == "same-origin"
 	|| field_value == "same-site"
 	|| field_value == "none") {
-		this->_request_header_fields[field_name] = new SingleFieldValue(field_value);
+		this->request_header_fields_[field_name] = new SingleFieldValue(field_value);
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }
@@ -298,7 +298,7 @@ Result<int, int> HttpRequest::set_sec_fetch_user(const std::string &field_name,
 												 const std::string &field_value) {
 	clear_field_values_of(field_name);
 	if (field_value == "?1") {
-		this->_request_header_fields[field_name] = new SingleFieldValue(field_value);
+		this->request_header_fields_[field_name] = new SingleFieldValue(field_value);
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }
@@ -308,7 +308,7 @@ Result<int, int> HttpRequest::set_sec_purpose(const std::string &field_name,
 											  const std::string &field_value) {
 	clear_field_values_of(field_name);
 	if (field_value == "prefetch") {
-		this->_request_header_fields[field_name] = new SingleFieldValue(field_value);
+		this->request_header_fields_[field_name] = new SingleFieldValue(field_value);
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }
@@ -321,7 +321,7 @@ Result<int, int> HttpRequest::set_sec_purpose(const std::string &field_name,
 Result<int, int> HttpRequest::set_service_worker_navigation_preload(const std::string &field_name,
 																	const std::string &field_value) {
 	clear_field_values_of(field_name);
-	this->_request_header_fields[field_name] = new SingleFieldValue(field_value);
+	this->request_header_fields_[field_name] = new SingleFieldValue(field_value);
 	return Result<int, int>::ok(STATUS_OK);
 }
 
@@ -334,7 +334,7 @@ Result<int, int> HttpRequest::set_trailer(const std::string &field_name,
 
 	lower_field_value = StringHandler::to_lower(field_value);
 	if (is_trailer_allowed_field_name(lower_field_value)) {
-		this->_request_header_fields[field_name] = new SingleFieldValue(lower_field_value);
+		this->request_header_fields_[field_name] = new SingleFieldValue(lower_field_value);
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }
@@ -345,7 +345,7 @@ Result<int, int> HttpRequest::set_upgrade_insecure_requests(const std::string &f
 	clear_field_values_of(field_name);
 
 	if (field_value == "1") {
-		this->_request_header_fields[field_name] = new SingleFieldValue(field_value);
+		this->request_header_fields_[field_name] = new SingleFieldValue(field_value);
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }
@@ -367,15 +367,7 @@ Result<int, int> HttpRequest::set_user_agent(const std::string &field_name,
 	clear_field_values_of(field_name);
 	result = validate_user_agent(field_value);
 	if (result.is_ok()) {
-		this->_request_header_fields[field_name] = new SingleFieldValue(field_value);
+		this->request_header_fields_[field_name] = new SingleFieldValue(field_value);
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }
-
-
-
-
-
-
-
-

@@ -362,8 +362,8 @@ Result<int, int> HttpRequest::set_content_disposition(const std::string &field_n
 													&disposition_type,
 													&disposition_param);
 	if (result.is_ok()) {
-		this->_request_header_fields[field_name] = new ValueAndMapFieldValues(disposition_type,
-																			  disposition_param);
+		this->request_header_fields_[field_name] = new ValueAndMapFieldValues(disposition_type,
+                                                                              disposition_param);
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }
