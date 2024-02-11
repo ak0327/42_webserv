@@ -5,8 +5,14 @@
 !.gitignore
 
 !srcs
-!srcs/Const
 !srcs/Client
+!srcs/Configuration
+!srcs/Configuration/FileHandler
+!srcs/Configuration/Parser
+!srcs/Configuration/Parser/RecursiveDescentParser
+!srcs/Configuration/Token
+!srcs/Configuration/Tokenizer
+!srcs/Const
 !srcs/Debug
 !srcs/Error
 !srcs/Server
@@ -22,7 +28,7 @@
 !test
 
 !www
-!config
+!conf
 
 !*.conf
 !*.cpp
@@ -30,6 +36,7 @@
 !*.hpp
 !*.txt
 !*.yml
+!*.md
 
 !CPPLINT.cfg
 !CMakeLists.txt

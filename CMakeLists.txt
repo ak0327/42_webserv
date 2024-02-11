@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -pedantic")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fsanitize=address,undefined -fno-omit-frame-pointer")
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D UTEST")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D DEBUG")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D USE_SELECT_MULTIPLEXER")
 
@@ -37,6 +38,11 @@ include_directories(
         includes
         srcs/Const
         srcs/Client
+        srcs/Configuration/FileHandler
+        srcs/Configuration/Parser
+        srcs/Configuration/Token
+        srcs/Configuration/Tokenizer
+        srcs/Configuration
         srcs/Debug
         srcs/Error
         srcs/IOMultiplexer
@@ -55,13 +61,19 @@ include_directories(
         srcs/HttpRequest/SingleFieldValue
         srcs/HttpRequest/ValueWeightArraySet
         srcs/HttpRequest/ValueAndMapFieldValues
+
+        test/unit_test/includes
 )
 
 # webserv_srcs -----------------------------------------------------------------
 set(webserv_srcs
-        srcs/get_valid_config_file_path.cpp
         srcs/Const/Constant.cpp
         srcs/Client/Client.cpp
+        srcs/Configuration/FileHandler/FileHandler.cpp
+        srcs/Configuration/Parser/Parser.cpp
+        srcs/Configuration/Token/Token.cpp
+        srcs/Configuration/Tokenizer/Tokenizer.cpp
+        srcs/Configuration/Configuration.cpp
         srcs/Debug/Debug.cpp
         srcs/Error/Error.cpp
         srcs/IOMultiplexer/IOMultiplexer.cpp
@@ -170,13 +182,17 @@ add_executable(webserv
 ################################################################################
 # unit_test_srcs ---------------------------------------------------------------
 set (unit_test_srcs
-        test/unit_test/is_valid_file_path/test_get_valid_config_file_path.cpp
         test/unit_test/TestError.cpp
         test/unit_test/TestResult.cpp
         test/unit_test/TestServer.cpp
         test/unit_test/TestSocket.cpp
 
         test/unit_test/TestStringHandler.cpp
+        test/unit_test/TestFileHandler.cpp
+        test/unit_test/TestTokenizer.cpp
+        test/unit_test/TestParserFunc.cpp
+        test/unit_test/TestParse.cpp
+
         test/unit_test/TestRequestLine.cpp
 
         # HttpMessageParser

@@ -10,6 +10,7 @@
 #include "webserv.hpp"
 #include "Color.hpp"
 #include "Constant.hpp"
+#include "Configuration.hpp"
 #include "Debug.hpp"
 #include "Error.hpp"
 #include "IOMultiplexer.hpp"
@@ -116,7 +117,7 @@ Result<IOMultiplexer *, std::string> create_io_multiplexer_fds(int socket_fd) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Server::Server(const Config &config)
+Server::Server(const Configuration &config)
 	: _socket(config),
 	  _recv_message(),
 	  _fds(NULL) {

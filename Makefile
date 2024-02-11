@@ -9,8 +9,8 @@ CXXFLAGS	+=	-g -fsanitize=address,undefined -fno-omit-frame-pointer
 SRCS_DIR	=	srcs
 
 #main
-SRCS		=	main.cpp \
-				get_valid_config_file_path.cpp
+SRCS		=	main.cpp
+
 #debug
 DEBUG_DIR	=	Debug
 SRCS		+=	$(DEBUG_DIR)/Debug.cpp
@@ -106,6 +106,16 @@ VALUE_AND_MAP_FIELD_VALUES_DIR = $(REQUEST_DIR)/ValueAndMapFieldValues
 SRCS		+=  $(VALUE_AND_MAP_FIELD_VALUES_DIR)/ValueAndMapFieldValues.cpp \
 				$(VALUE_AND_MAP_FIELD_VALUES_DIR)/set_content_disposition.cpp
 
+
+# configuration
+CONFIG_DIR	=	Configuration
+SRCS		+=	$(CONFIG_DIR)/FileHandler/FileHandler.cpp \
+				$(CONFIG_DIR)/Parser/Parser.cpp \
+				$(CONFIG_DIR)/Token/Token.cpp \
+				$(CONFIG_DIR)/Tokenizer/Tokenizer.cpp \
+				$(CONFIG_DIR)/Configuration.cpp
+
+
 # OBJS -------------------------------------------------------------------------
 OBJS_DIR	=	objs
 OBJS		=	$(SRCS:%.cpp=$(OBJS_DIR)/%.o)
@@ -132,7 +142,12 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(SERVER_DIR) \
 				$(SRCS_DIR)/$(SOCKET_DIR) \
 				$(SRCS_DIR)/$(STR_HANDLER) \
-				$(SRCS_DIR)/$(REQUEST_INCLUDES)
+				$(SRCS_DIR)/$(REQUEST_INCLUDES) \
+				$(SRCS_DIR)/$(CONFIG_DIR)/FileHandler \
+				$(SRCS_DIR)/$(CONFIG_DIR)/Parser \
+				$(SRCS_DIR)/$(CONFIG_DIR)/Token \
+				$(SRCS_DIR)/$(CONFIG_DIR)/Tokenizer \
+				$(SRCS_DIR)/$(CONFIG_DIR)
 
 REQUEST_INCLUDES =	$(SRCS_DIR)/$(REQUEST_DIR) \
 					$(SRCS_DIR)/$(DATE_DIR) \
@@ -173,14 +188,15 @@ re		: fclean all
 
 .PHONY	: lint
 lint	:
-	python3 -m cpplint --recursive srcs
+	python3 -m cpplint --recursive srcs \
+	&& echo "\033[0;32mCPPLINT DONE\033[0m" \
+	|| echo "\033[0;31mCPPLINT ERROR\033[0m"
 
 .PHONY	: request_test
 request_test: 
 
 .PHONY	: run_unit_test
 run_unit_test	:
-	#rm -rf build
 	cmake -S . -B build
 	#cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT_MULTIPLEXER"
 	cmake --build build
@@ -189,7 +205,6 @@ run_unit_test	:
 
 .PHONY	: run_server_test
 run_server_test	:
-	#rm -rf build
 	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
 	#cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG -D USE_SELECT_MULTIPLEXER"
 	cmake --build build
@@ -199,106 +214,109 @@ run_server_test	:
 
 .PHONY	: run_socket_test
 run_socket_test	:
-	#rm -rf build
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=Socket* 2>/dev/null
 
 .PHONY	: run_result_test
 run_result_test	:
-	#rm -rf build
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=Result*
 
 .PHONY	: run_errmsg_test
 run_errmsg_test	:
-	#rm -rf build
 	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
 	cmake --build build
 	./build/unit_test --gtest_filter=ErrorMessage*
 
 .PHONY    : run_request_test
 run_request_test    :
-#rm -rf build
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=HttpRequest*
 
 .PHONY    : run_string_test
 run_string_test    :
-#rm -rf build
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestStringHandler*:TestHttpMessageParser*
 
 .PHONY    : run_rl_test
 run_rl_test    :
-#rm -rf build
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestRequestLine*
 
 .PHONY    : run_single_field_value_test
 run_single_field_value_test    :
-#rm -rf build
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestSingleFieldValue*
 
-
 .PHONY    : run_multi_field_values_test
 run_multi_field_values_test    :
-#rm -rf build
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestMultiFieldValues*
 
-
 .PHONY    : run_map_field_values_test
 run_map_field_values_test    :
-#rm -rf build
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestMapFieldValues*
 
-
 .PHONY    : run_map_set_field_values_test
 run_map_set_field_values_test    :
-#rm -rf build
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestMapSetFieldValues*
 
-
 .PHONY    : run_value_and_map_test
 run_value_and_map_test    :
-#rm -rf build
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestValueAndMapFieldValues*
 
 .PHONY    : run_weight_test
 run_weight_test    :
-#rm -rf build
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestFieldValueWithWeight*
 
 .PHONY    : run_media_test
 run_media_test    :
-#rm -rf build
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestMediaType*
 
-
 .PHONY    : run_date_test
 run_date_test    :
-#rm -rf build
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestDate*
+
+.PHONY    : run_file_test
+run_file_test    :
+	cmake -S . -B build
+	cmake --build build
+	./build/unit_test --gtest_filter=TestFileHandler*
+
+.PHONY    : run_token_test
+run_token_test    :
+	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
+	#cmake -S . -B build
+	cmake --build build
+	./build/unit_test --gtest_filter=TestTokenizer*
+
+.PHONY    : run_parse_test
+run_parse_test    :
+	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
+	#cmake -S . -B build
+	cmake --build build
+	./build/unit_test --gtest_filter=TestParser*
+	#./build/unit_test --gtest_filter=TestParser:TestParse
+	#./build/unit_test --gtest_filter=TestParser.ParseServer
 
 .PHONY	: client
 client	: $(CLIENT_OBJS)

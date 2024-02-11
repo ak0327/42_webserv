@@ -42,6 +42,10 @@ extern const int PORT_MAX;
 extern const int IO_TIMEOUT;
 extern const int FLAG_NONE;
 
+extern const int OFFSET_NONE;
+
+extern const std::size_t FILE_SIZE_LIMIT;
+
 ////////////////////////////////////////////////////////////////////////////////
 /* status */
 
@@ -59,6 +63,9 @@ extern const char EQUAL_SIGN;
 extern const char SEMICOLON;
 extern const char SINGLE_QUOTE;
 extern const char SLASH;
+extern const char LBRACES;
+extern const char RBRACES;
+extern const char COMMENT_SYMBOL;
 
 extern const char PATH_DELIM;
 extern const char EXTENSION_DELIM;
@@ -73,7 +80,9 @@ extern const char CONFIG_FILE_EXTENSION[];
 ////////////////////////////////////////////////////////////////////////////////
 /* error message */
 
+extern const char INVALID_ARG_ERROR_MSG[];
 extern const char INVALID_PATH_ERROR_MSG[];
+extern const char FILE_SIZE_TOO_LARGE_ERROR_MSG[];
 
 ////////////////////////////////////////////////////////////////////////////////
 /* http message */
@@ -277,3 +286,38 @@ std::vector<std::string> init_months();
 extern const std::vector<std::string> SH_TOKENS;
 
 std::vector<std::string> init_sh_tokens();
+
+////////////////////////////////////////////////////////////////////////////////
+/* configuration */
+
+extern const char EVENTS_BLOCK[];
+extern const char HTTP_BLOCK[];
+extern const char SERVER_BLOCK[];
+extern const char LOCATIONS_BLOCK[];
+
+extern const char LISTEN_DIRECTIVE[];
+extern const char SERVER_NAME_DIRECTIVE[];
+extern const char RETURN_DIRECTIVE[];
+
+extern const char ROOT_DIRECTIVE[];
+extern const char INDEX_DIRECTIVE[];
+extern const char LIMIT_EXCEPT_DIRECTIVE[];
+extern const char ERROR_PAGE_DIRECTIVE[];
+extern const char AUTOINDEX_DIRECTIVE[];
+extern const char BODY_SIZE_DIRECTIVE[];
+
+extern const char ALLOW_DIRECTIVE[];
+extern const char DENY_DIRECTIVE[];
+
+extern const char CGI_DIRECTIVE[];
+extern const char CGI_PASS_DIRECTIVE[];
+extern const char CGI_PARAM_DIRECTIVE[];
+
+extern const char LEFT_PAREN[];
+extern const char RIGHT_PAREN[];
+
+extern const std::vector<std::string> BLOCK_NAMES;
+extern const std::vector<std::string> DIRECTIVE_NAMES;
+
+std::vector<std::string> init_block_names();
+std::vector<std::string> init_directive_names();
