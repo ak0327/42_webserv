@@ -180,7 +180,7 @@ Result<int, std::string> Server::accept_and_store_connect_fd() {
 
     Result<int, std::string> fd_store_result = this->fds_->register_connect_fd(connect_fd);
 	if (fd_store_result.is_err()) {
-		const std::string err_info = create_error_info(fd_store_result.get_err_value(), __FILE__, __LINE__);
+		std::string err_info = create_error_info(fd_store_result.get_err_value(), __FILE__, __LINE__);
 		std::cerr << "[Server Error]" << err_info << std::endl;
 		errno = 0;
 		if (close(connect_fd) == CLOSE_ERROR) {
