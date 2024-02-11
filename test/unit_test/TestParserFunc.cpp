@@ -226,7 +226,7 @@ TEST(TestParser, ParseDirectiveParam) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_directive_param(current, tokens.end(), actual, test_directive);
+    result = ParserTestFriend::parse_directive_param(&current, tokens.end(), &actual, test_directive);
 
     ASSERT_TRUE(result.is_ok());
     EXPECT_EQ(expected, actual);
@@ -241,7 +241,7 @@ TEST(TestParser, ParseDirectiveParam) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_directive_param(current, tokens.end(), actual, test_directive);
+    result = ParserTestFriend::parse_directive_param(&current, tokens.end(), &actual, test_directive);
 
     ASSERT_TRUE(result.is_ok());
     EXPECT_EQ(expected, actual);
@@ -256,7 +256,7 @@ TEST(TestParser, ParseDirectiveParam) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_directive_param(current, tokens.end(), actual, test_directive);
+    result = ParserTestFriend::parse_directive_param(&current, tokens.end(), &actual, test_directive);
 
     ASSERT_TRUE(result.is_ok());
     EXPECT_EQ(expected, actual);
@@ -270,7 +270,7 @@ TEST(TestParser, ParseDirectiveParam) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_directive_param(current, tokens.end(), actual, test_directive);
+    result = ParserTestFriend::parse_directive_param(&current, tokens.end(), &actual, test_directive);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -281,7 +281,7 @@ TEST(TestParser, ParseDirectiveParam) {
     expected = "test";
     tokens = {};  // token in empty
     current = tokens.begin();
-    result = ParserTestFriend::parse_directive_param(current, tokens.end(), actual, test_directive);
+    result = ParserTestFriend::parse_directive_param(&current, tokens.end(), &actual, test_directive);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -295,7 +295,7 @@ TEST(TestParser, ParseDirectiveParam) {
     tokens.push_back(Token(expected, kTokenKindDirectiveParam, ++cnt));
     tokens.push_back(Token(expected, kTokenKindDirectiveParam, ++cnt));  // ";" nothing
     current = tokens.begin();
-    result = ParserTestFriend::parse_directive_param(current, tokens.end(), actual, test_directive);
+    result = ParserTestFriend::parse_directive_param(&current, tokens.end(), &actual, test_directive);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -311,7 +311,7 @@ TEST(TestParser, ParseDirectiveParam) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_directive_param(current, tokens.end(), actual, test_directive);
+    result = ParserTestFriend::parse_directive_param(&current, tokens.end(), &actual, test_directive);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -324,7 +324,7 @@ TEST(TestParser, ParseDirectiveParam) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_directive_param(current, tokens.end(), actual, test_directive);
+    result = ParserTestFriend::parse_directive_param(&current, tokens.end(), &actual, test_directive);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -337,7 +337,7 @@ TEST(TestParser, ParseDirectiveParam) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_directive_param(current, tokens.end(), actual, test_directive);
+    result = ParserTestFriend::parse_directive_param(&current, tokens.end(), &actual, test_directive);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -363,7 +363,7 @@ TEST(TestParser, ParseDirectiveParams) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_directive_params(current, tokens.end(), actual, test_directive);
+    result = ParserTestFriend::parse_directive_params(&current, tokens.end(), &actual, test_directive);
 
     ASSERT_TRUE(result.is_ok());
     EXPECT_EQ(expected, actual);
@@ -380,7 +380,7 @@ TEST(TestParser, ParseDirectiveParams) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_directive_params(current, tokens.end(), actual, test_directive);
+    result = ParserTestFriend::parse_directive_params(&current, tokens.end(), &actual, test_directive);
 
     ASSERT_TRUE(result.is_ok());
     EXPECT_EQ(expected, actual);
@@ -397,7 +397,7 @@ TEST(TestParser, ParseDirectiveParams) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_directive_params(current, tokens.end(), actual, test_directive);
+    result = ParserTestFriend::parse_directive_params(&current, tokens.end(), &actual, test_directive);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -410,7 +410,7 @@ TEST(TestParser, ParseDirectiveParams) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_directive_params(current, tokens.end(), actual, test_directive);
+    result = ParserTestFriend::parse_directive_params(&current, tokens.end(), &actual, test_directive);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -421,7 +421,7 @@ TEST(TestParser, ParseDirectiveParams) {
     tokens = {};  // empty
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_directive_params(current, tokens.end(), actual, test_directive);
+    result = ParserTestFriend::parse_directive_params(&current, tokens.end(), &actual, test_directive);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -447,7 +447,7 @@ TEST(TestParser, ParseSetParams) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_set_params(current, tokens.end(), actual, test_directive);
+    result = ParserTestFriend::parse_set_params(&current, tokens.end(), &actual, test_directive);
 
     ASSERT_TRUE(result.is_ok());
     EXPECT_EQ(expected, actual);
@@ -464,7 +464,7 @@ TEST(TestParser, ParseSetParams) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_set_params(current, tokens.end(), actual, test_directive);
+    result = ParserTestFriend::parse_set_params(&current, tokens.end(), &actual, test_directive);
 
     ASSERT_TRUE(result.is_ok());
     EXPECT_EQ(expected, actual);
@@ -481,7 +481,7 @@ TEST(TestParser, ParseSetParams) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_set_params(current, tokens.end(), actual, test_directive);
+    result = ParserTestFriend::parse_set_params(&current, tokens.end(), &actual, test_directive);
 
     ASSERT_TRUE(result.is_ok());
     EXPECT_EQ(expected, actual);
@@ -500,7 +500,7 @@ TEST(TestParser, ParseSetParams) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_set_params(current, tokens.end(), actual, test_directive);
+    result = ParserTestFriend::parse_set_params(&current, tokens.end(), &actual, test_directive);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -513,7 +513,7 @@ TEST(TestParser, ParseSetParams) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_set_params(current, tokens.end(), actual, test_directive);
+    result = ParserTestFriend::parse_set_params(&current, tokens.end(), &actual, test_directive);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -524,7 +524,7 @@ TEST(TestParser, ParseSetParams) {
     tokens = {};  // empty
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_set_params(current, tokens.end(), actual, test_directive);
+    result = ParserTestFriend::parse_set_params(&current, tokens.end(), &actual, test_directive);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -630,7 +630,7 @@ TEST(TestParser, ParseListenDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_listen_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_listen_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     expect_eq_listens(expected, actual, __LINE__);
@@ -647,7 +647,7 @@ TEST(TestParser, ParseListenDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_listen_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_listen_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     expect_eq_listens(expected, actual, __LINE__);
@@ -664,7 +664,7 @@ TEST(TestParser, ParseListenDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_listen_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_listen_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     expect_eq_listens(expected, actual, __LINE__);
@@ -682,7 +682,7 @@ TEST(TestParser, ParseListenDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_listen_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_listen_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     expect_eq_listens(expected, actual, __LINE__);
@@ -702,7 +702,7 @@ TEST(TestParser, ParseListenDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_listen_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_listen_directive(&current, tokens.end(), &actual);
     ASSERT_TRUE(result.is_ok());
 
     tokens = {};
@@ -711,7 +711,7 @@ TEST(TestParser, ParseListenDirective) {
     tokens.push_back(Token("#", kTokenKindComment, 3));
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
     current = tokens.begin();
-    result = ParserTestFriend::parse_listen_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_listen_directive(&current, tokens.end(), &actual);
     ASSERT_TRUE(result.is_ok());
 
     tokens = {};
@@ -719,7 +719,7 @@ TEST(TestParser, ParseListenDirective) {
     tokens.push_back(Token("default_server", kTokenKindDirectiveParam, ++cnt));
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
     current = tokens.begin();
-    result = ParserTestFriend::parse_listen_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_listen_directive(&current, tokens.end(), &actual);
     ASSERT_TRUE(result.is_ok());
 
     tokens = {};
@@ -727,7 +727,7 @@ TEST(TestParser, ParseListenDirective) {
     tokens.push_back(Token("127.0.0.1", kTokenKindDirectiveParam, ++cnt));
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
     current = tokens.begin();
-    result = ParserTestFriend::parse_listen_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_listen_directive(&current, tokens.end(), &actual);
 
 
     ASSERT_TRUE(result.is_ok());
@@ -747,7 +747,7 @@ TEST(TestParser, ParseListenDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_listen_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_listen_directive(&current, tokens.end(), &actual);
     ASSERT_TRUE(result.is_ok());
 
     tokens = {};
@@ -756,7 +756,7 @@ TEST(TestParser, ParseListenDirective) {
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
-    result = ParserTestFriend::parse_listen_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_listen_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     expect_eq_listens(expected, actual, __LINE__);
@@ -772,7 +772,7 @@ TEST(TestParser, ParseListenDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_listen_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_listen_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -783,7 +783,7 @@ TEST(TestParser, ParseListenDirective) {
     tokens = {};  // ng
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_listen_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_listen_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -798,7 +798,7 @@ TEST(TestParser, ParseListenDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_listen_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_listen_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -812,7 +812,7 @@ TEST(TestParser, ParseListenDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_listen_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_listen_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -826,7 +826,7 @@ TEST(TestParser, ParseListenDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_listen_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_listen_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -843,7 +843,7 @@ TEST(TestParser, ParseListenDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_listen_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_listen_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -871,7 +871,7 @@ TEST(TestParser, ParseReturnDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_return_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_return_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     expect_eq_return(expected, actual, __LINE__);
@@ -889,7 +889,7 @@ TEST(TestParser, ParseReturnDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_return_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_return_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     expect_eq_return(expected, actual, __LINE__);
@@ -909,7 +909,7 @@ TEST(TestParser, ParseReturnDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_return_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_return_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     expect_eq_return(expected, actual, __LINE__);
@@ -929,7 +929,7 @@ TEST(TestParser, ParseReturnDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_return_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_return_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     expect_eq_return(expected, actual, __LINE__);
@@ -945,7 +945,7 @@ TEST(TestParser, ParseReturnDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_return_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_return_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -959,7 +959,7 @@ TEST(TestParser, ParseReturnDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_return_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_return_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -973,7 +973,7 @@ TEST(TestParser, ParseReturnDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_return_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_return_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -989,7 +989,7 @@ TEST(TestParser, ParseReturnDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_return_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_return_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1001,7 +1001,7 @@ TEST(TestParser, ParseReturnDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_return_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_return_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1014,7 +1014,7 @@ TEST(TestParser, ParseReturnDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_return_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_return_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1029,7 +1029,7 @@ TEST(TestParser, ParseReturnDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_return_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_return_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1053,14 +1053,14 @@ TEST(TestParser, ParseRootDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_root_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_root_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     EXPECT_EQ(expected, actual);
 
     // -------------------------------------------------------------------------
 
-    // duplicated: unit ok -> error in parse_default_config()
+    // duplicated: unit ok -> error in parse_default_config
     expected = "www";
 
     cnt = 0;
@@ -1070,7 +1070,7 @@ TEST(TestParser, ParseRootDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_root_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_root_directive(&current, tokens.end(), &actual);
     ASSERT_TRUE(result.is_ok());
 
     cnt = 0;
@@ -1079,7 +1079,7 @@ TEST(TestParser, ParseRootDirective) {
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
-    result = ParserTestFriend::parse_root_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_root_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
 
@@ -1093,7 +1093,7 @@ TEST(TestParser, ParseRootDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_root_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_root_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1108,7 +1108,7 @@ TEST(TestParser, ParseRootDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_root_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_root_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1119,7 +1119,7 @@ TEST(TestParser, ParseRootDirective) {
     tokens = {};  // ng
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_root_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_root_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1146,7 +1146,7 @@ TEST(TestParser, ParseLimitExceptDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_limit_except_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_limit_except_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     expect_eq_limit_except(expected, actual, __LINE__);
@@ -1164,7 +1164,7 @@ TEST(TestParser, ParseLimitExceptDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_limit_except_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_limit_except_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     expect_eq_limit_except(expected, actual, __LINE__);
@@ -1182,7 +1182,7 @@ TEST(TestParser, ParseLimitExceptDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_limit_except_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_limit_except_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     expect_eq_limit_except(expected, actual, __LINE__);
@@ -1204,7 +1204,7 @@ TEST(TestParser, ParseLimitExceptDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_limit_except_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_limit_except_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     expect_eq_limit_except(expected, actual, __LINE__);
@@ -1225,7 +1225,7 @@ TEST(TestParser, ParseLimitExceptDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_limit_except_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_limit_except_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     expect_eq_limit_except(expected, actual, __LINE__);
@@ -1238,7 +1238,7 @@ TEST(TestParser, ParseLimitExceptDirective) {
     tokens = {};  // ng
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_limit_except_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_limit_except_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1252,7 +1252,7 @@ TEST(TestParser, ParseLimitExceptDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_limit_except_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_limit_except_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1267,7 +1267,7 @@ TEST(TestParser, ParseLimitExceptDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_limit_except_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_limit_except_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1283,7 +1283,7 @@ TEST(TestParser, ParseLimitExceptDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_limit_except_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_limit_except_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1299,7 +1299,7 @@ TEST(TestParser, ParseLimitExceptDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_limit_except_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_limit_except_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1315,7 +1315,7 @@ TEST(TestParser, ParseLimitExceptDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_limit_except_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_limit_except_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1333,7 +1333,7 @@ TEST(TestParser, ParseLimitExceptDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_limit_except_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_limit_except_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1352,7 +1352,7 @@ TEST(TestParser, ParseLimitExceptDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_limit_except_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_limit_except_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1381,7 +1381,7 @@ TEST(TestParser, ParseErrorPageDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_error_page_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_error_page_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     EXPECT_EQ(expected, actual);
@@ -1400,7 +1400,7 @@ TEST(TestParser, ParseErrorPageDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_error_page_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_error_page_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     EXPECT_EQ(expected, actual);
@@ -1419,7 +1419,7 @@ TEST(TestParser, ParseErrorPageDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_error_page_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_error_page_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     EXPECT_EQ(expected, actual);
@@ -1444,7 +1444,7 @@ TEST(TestParser, ParseErrorPageDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_error_page_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_error_page_directive(&current, tokens.end(), &actual);
 
 
     // error_page_directive 2
@@ -1459,7 +1459,7 @@ TEST(TestParser, ParseErrorPageDirective) {
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
-    result = ParserTestFriend::parse_error_page_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_error_page_directive(&current, tokens.end(), &actual);
 
 
     // error_page_directive 3
@@ -1470,7 +1470,7 @@ TEST(TestParser, ParseErrorPageDirective) {
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
-    result = ParserTestFriend::parse_error_page_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_error_page_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     EXPECT_EQ(expected, actual);
@@ -1490,7 +1490,7 @@ TEST(TestParser, ParseErrorPageDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_error_page_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_error_page_directive(&current, tokens.end(), &actual);
 
 
     // error_page_directive 1
@@ -1501,7 +1501,7 @@ TEST(TestParser, ParseErrorPageDirective) {
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
-    result = ParserTestFriend::parse_error_page_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_error_page_directive(&current, tokens.end(), &actual);
 
     // error_page_directive 3
     cnt = 0;
@@ -1511,7 +1511,7 @@ TEST(TestParser, ParseErrorPageDirective) {
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
-    result = ParserTestFriend::parse_error_page_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_error_page_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     EXPECT_EQ(expected, actual);
@@ -1524,7 +1524,7 @@ TEST(TestParser, ParseErrorPageDirective) {
     tokens = {};  // ng
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_error_page_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_error_page_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1538,7 +1538,7 @@ TEST(TestParser, ParseErrorPageDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_error_page_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_error_page_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1553,7 +1553,7 @@ TEST(TestParser, ParseErrorPageDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_error_page_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_error_page_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1568,7 +1568,7 @@ TEST(TestParser, ParseErrorPageDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_error_page_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_error_page_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1583,7 +1583,7 @@ TEST(TestParser, ParseErrorPageDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_error_page_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_error_page_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1598,7 +1598,7 @@ TEST(TestParser, ParseErrorPageDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_error_page_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_error_page_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1613,7 +1613,7 @@ TEST(TestParser, ParseErrorPageDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_error_page_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_error_page_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1634,7 +1634,7 @@ TEST(TestParser, ParseAutoindexDirective) {
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
-    result = ParserTestFriend::parse_autoindex_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_autoindex_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     EXPECT_TRUE(actual);
@@ -1648,7 +1648,7 @@ TEST(TestParser, ParseAutoindexDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_autoindex_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_autoindex_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     EXPECT_TRUE(actual);
@@ -1662,7 +1662,7 @@ TEST(TestParser, ParseAutoindexDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_autoindex_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_autoindex_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     EXPECT_FALSE(actual);
@@ -1676,7 +1676,7 @@ TEST(TestParser, ParseAutoindexDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_autoindex_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_autoindex_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     EXPECT_FALSE(actual);
@@ -1690,7 +1690,7 @@ TEST(TestParser, ParseAutoindexDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_autoindex_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_autoindex_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1705,7 +1705,7 @@ TEST(TestParser, ParseAutoindexDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_autoindex_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_autoindex_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1719,7 +1719,7 @@ TEST(TestParser, ParseAutoindexDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_autoindex_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_autoindex_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1733,7 +1733,7 @@ TEST(TestParser, ParseAutoindexDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_autoindex_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_autoindex_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1747,7 +1747,7 @@ TEST(TestParser, ParseAutoindexDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_autoindex_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_autoindex_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1762,7 +1762,7 @@ TEST(TestParser, ParseAutoindexDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_autoindex_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_autoindex_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1777,7 +1777,7 @@ TEST(TestParser, ParseAutoindexDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_autoindex_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_autoindex_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1792,7 +1792,7 @@ TEST(TestParser, ParseAutoindexDirective) {
 
     actual = {};
     current = tokens.begin();
-    result = ParserTestFriend::parse_autoindex_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_autoindex_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1815,7 +1815,7 @@ TEST(TestParser, ParseBodySizeDirective) {
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
-    result = ParserTestFriend::parse_body_size_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     EXPECT_EQ(expected, actual);
@@ -1830,7 +1830,7 @@ TEST(TestParser, ParseBodySizeDirective) {
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
-    result = ParserTestFriend::parse_body_size_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     EXPECT_EQ(expected, actual);
@@ -1845,7 +1845,7 @@ TEST(TestParser, ParseBodySizeDirective) {
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
-    result = ParserTestFriend::parse_body_size_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     EXPECT_EQ(expected, actual);
@@ -1860,7 +1860,7 @@ TEST(TestParser, ParseBodySizeDirective) {
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
-    result = ParserTestFriend::parse_body_size_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     EXPECT_EQ(expected, actual);
@@ -1875,7 +1875,7 @@ TEST(TestParser, ParseBodySizeDirective) {
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
-    result = ParserTestFriend::parse_body_size_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     EXPECT_EQ(expected, actual);
@@ -1890,7 +1890,7 @@ TEST(TestParser, ParseBodySizeDirective) {
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
-    result = ParserTestFriend::parse_body_size_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     EXPECT_EQ(expected, actual);
@@ -1905,7 +1905,7 @@ TEST(TestParser, ParseBodySizeDirective) {
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
-    result = ParserTestFriend::parse_body_size_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     EXPECT_EQ(expected, actual);
@@ -1920,7 +1920,7 @@ TEST(TestParser, ParseBodySizeDirective) {
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
-    result = ParserTestFriend::parse_body_size_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     EXPECT_EQ(expected, actual);
@@ -1935,7 +1935,7 @@ TEST(TestParser, ParseBodySizeDirective) {
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
-    result = ParserTestFriend::parse_body_size_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     EXPECT_EQ(expected, actual);
@@ -1949,14 +1949,14 @@ TEST(TestParser, ParseBodySizeDirective) {
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
-    result = ParserTestFriend::parse_body_size_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     EXPECT_EQ(expected, actual);
 
     // -------------------------------------------------------------------------
 
-    // duplicated: unit ok -> error in parse_default_config()
+    // duplicated: unit ok -> error in parse_default_config
     expected = 2 * ConfigInitValue::MB;
 
     cnt = 0;
@@ -1965,7 +1965,7 @@ TEST(TestParser, ParseBodySizeDirective) {
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
-    result = ParserTestFriend::parse_body_size_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
     ASSERT_TRUE(result.is_ok());
 
     cnt = 0;
@@ -1974,7 +1974,7 @@ TEST(TestParser, ParseBodySizeDirective) {
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
-    result = ParserTestFriend::parse_body_size_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     EXPECT_EQ(expected, actual);
@@ -1986,7 +1986,7 @@ TEST(TestParser, ParseBodySizeDirective) {
     cnt = 0;
     tokens = {};  // ng
     current = tokens.begin();
-    result = ParserTestFriend::parse_body_size_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -1998,7 +1998,7 @@ TEST(TestParser, ParseBodySizeDirective) {
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));  // ng
 
     current = tokens.begin();
-    result = ParserTestFriend::parse_body_size_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2011,7 +2011,7 @@ TEST(TestParser, ParseBodySizeDirective) {
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
-    result = ParserTestFriend::parse_body_size_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2024,7 +2024,7 @@ TEST(TestParser, ParseBodySizeDirective) {
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
-    result = ParserTestFriend::parse_body_size_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2039,7 +2039,7 @@ TEST(TestParser, ParseBodySizeDirective) {
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
-    result = ParserTestFriend::parse_body_size_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2052,7 +2052,7 @@ TEST(TestParser, ParseBodySizeDirective) {
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
-    result = ParserTestFriend::parse_body_size_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2065,7 +2065,7 @@ TEST(TestParser, ParseBodySizeDirective) {
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
-    result = ParserTestFriend::parse_body_size_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2078,7 +2078,7 @@ TEST(TestParser, ParseBodySizeDirective) {
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
-    result = ParserTestFriend::parse_body_size_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2091,7 +2091,7 @@ TEST(TestParser, ParseBodySizeDirective) {
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
-    result = ParserTestFriend::parse_body_size_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2104,7 +2104,7 @@ TEST(TestParser, ParseBodySizeDirective) {
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
-    result = ParserTestFriend::parse_body_size_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2117,7 +2117,7 @@ TEST(TestParser, ParseBodySizeDirective) {
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
-    result = ParserTestFriend::parse_body_size_directive(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2140,7 +2140,7 @@ TEST(TestParser, ParseDefaultConfig) {
 
     expected = {};
     actual = {};
-    result = ParserTestFriend::parse_default_config(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_default_config(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     expect_eq_default_config(expected, actual, __LINE__);
@@ -2196,7 +2196,7 @@ TEST(TestParser, ParseDefaultConfig) {
     };
 
     actual = {};
-    result = ParserTestFriend::parse_default_config(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_default_config(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     expect_eq_default_config(expected, actual, __LINE__);
@@ -2234,7 +2234,7 @@ TEST(TestParser, ParseDefaultConfig) {
     expected.max_body_size_bytes = 0;
 
     actual = {};
-    result = ParserTestFriend::parse_default_config(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_default_config(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     expect_eq_default_config(expected, actual, __LINE__);
@@ -2268,7 +2268,7 @@ TEST(TestParser, ParseDefaultConfig) {
     expected.max_body_size_bytes = 1 * ConfigInitValue::GB;
 
     actual = {};
-    result = ParserTestFriend::parse_default_config(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_default_config(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     expect_eq_default_config(expected, actual, __LINE__);
@@ -2286,7 +2286,7 @@ TEST(TestParser, ParseDefaultConfig) {
 
     current = tokens.begin();
 
-    result = ParserTestFriend::parse_default_config(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_default_config(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2309,7 +2309,7 @@ TEST(TestParser, ParseDefaultConfig) {
 
     current = tokens.begin();
 
-    result = ParserTestFriend::parse_default_config(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_default_config(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2333,7 +2333,7 @@ TEST(TestParser, ParseDefaultConfig) {
 
     current = tokens.begin();
 
-    result = ParserTestFriend::parse_default_config(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_default_config(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2358,7 +2358,7 @@ TEST(TestParser, ParseDefaultConfig) {
 
     current = tokens.begin();
 
-    result = ParserTestFriend::parse_default_config(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_default_config(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2377,7 +2377,7 @@ TEST(TestParser, ParseDefaultConfig) {
 
     current = tokens.begin();
 
-    result = ParserTestFriend::parse_default_config(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_default_config(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2393,7 +2393,7 @@ TEST(TestParser, ParseDefaultConfig) {
 
     current = tokens.begin();
 
-    result = ParserTestFriend::parse_default_config(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_default_config(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2408,7 +2408,7 @@ TEST(TestParser, ParseDefaultConfig) {
 
     current = tokens.begin();
 
-    result = ParserTestFriend::parse_default_config(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_default_config(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2432,7 +2432,7 @@ TEST(TestParser, ParseLocationPath) {
     tokens.push_back(Token("{",     kTokenKindBraces, ++cnt));
     current = tokens.begin();
 
-    result = ParserTestFriend::parse_location_path(current, tokens.end());
+    result = ParserTestFriend::parse_location_path(&current, tokens.end());
 
     ASSERT_TRUE(result.is_ok());
     actual = result.get_ok_value();
@@ -2447,7 +2447,7 @@ TEST(TestParser, ParseLocationPath) {
     tokens.push_back(Token("{",     kTokenKindBraces, ++cnt));
     current = tokens.begin();
 
-    result = ParserTestFriend::parse_location_path(current, tokens.end());
+    result = ParserTestFriend::parse_location_path(&current, tokens.end());
 
     ASSERT_TRUE(result.is_ok());
     actual = result.get_ok_value();
@@ -2463,7 +2463,7 @@ TEST(TestParser, ParseLocationPath) {
     tokens.push_back(Token("{",     kTokenKindBraces, ++cnt));
     current = tokens.begin();
 
-    result = ParserTestFriend::parse_location_path(current, tokens.end());
+    result = ParserTestFriend::parse_location_path(&current, tokens.end());
 
     ASSERT_TRUE(result.is_ok());
     actual = result.get_ok_value();
@@ -2479,7 +2479,7 @@ TEST(TestParser, ParseLocationPath) {
     tokens.push_back(Token("{",     kTokenKindBraces, ++cnt));
     current = tokens.begin();
 
-    result = ParserTestFriend::parse_location_path(current, tokens.end());
+    result = ParserTestFriend::parse_location_path(&current, tokens.end());
 
     ASSERT_TRUE(result.is_ok());
     actual = result.get_ok_value();
@@ -2493,7 +2493,7 @@ TEST(TestParser, ParseLocationPath) {
     tokens.push_back(Token("{",     kTokenKindBraces, ++cnt));
     current = tokens.begin();
 
-    result = ParserTestFriend::parse_location_path(current, tokens.end());
+    result = ParserTestFriend::parse_location_path(&current, tokens.end());
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2505,7 +2505,7 @@ TEST(TestParser, ParseLocationPath) {
     tokens.push_back(Token("{",     kTokenKindBraces, ++cnt));
     current = tokens.begin();
 
-    result = ParserTestFriend::parse_location_path(current, tokens.end());
+    result = ParserTestFriend::parse_location_path(&current, tokens.end());
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2518,7 +2518,7 @@ TEST(TestParser, ParseLocationPath) {
     tokens.push_back(Token("{",     kTokenKindBraces, ++cnt));
     current = tokens.begin();
 
-    result = ParserTestFriend::parse_location_path(current, tokens.end());
+    result = ParserTestFriend::parse_location_path(&current, tokens.end());
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2531,7 +2531,7 @@ TEST(TestParser, ParseLocationPath) {
     tokens.push_back(Token("{",     kTokenKindBraces, ++cnt));
     current = tokens.begin();
 
-    result = ParserTestFriend::parse_location_path(current, tokens.end());
+    result = ParserTestFriend::parse_location_path(&current, tokens.end());
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2544,7 +2544,7 @@ TEST(TestParser, ParseLocationPath) {
     tokens.push_back(Token("{",     kTokenKindBraces, ++cnt));
     current = tokens.begin();
 
-    result = ParserTestFriend::parse_location_path(current, tokens.end());
+    result = ParserTestFriend::parse_location_path(&current, tokens.end());
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2556,7 +2556,7 @@ TEST(TestParser, ParseLocationPath) {
     tokens.push_back(Token("{",     kTokenKindBraces, ++cnt));
     current = tokens.begin();
 
-    result = ParserTestFriend::parse_location_path(current, tokens.end());
+    result = ParserTestFriend::parse_location_path(&current, tokens.end());
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2568,7 +2568,7 @@ TEST(TestParser, ParseLocationPath) {
     tokens.push_back(Token("{",     kTokenKindBraces, ++cnt));
     current = tokens.begin();
 
-    result = ParserTestFriend::parse_location_path(current, tokens.end());
+    result = ParserTestFriend::parse_location_path(&current, tokens.end());
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2580,7 +2580,7 @@ TEST(TestParser, ParseLocationPath) {
     tokens.push_back(Token("{",         kTokenKindBraces, ++cnt));
     current = tokens.begin();
 
-    result = ParserTestFriend::parse_location_path(current, tokens.end());
+    result = ParserTestFriend::parse_location_path(&current, tokens.end());
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2594,7 +2594,7 @@ TEST(TestParser, ParseLocationPath) {
     tokens.push_back(Token("{",     kTokenKindBraces, ++cnt));
     current = tokens.begin();
 
-    result = ParserTestFriend::parse_location_path(current, tokens.end());
+    result = ParserTestFriend::parse_location_path(&current, tokens.end());
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2607,7 +2607,7 @@ TEST(TestParser, ParseLocationPath) {
     tokens.push_back(Token("{",         kTokenKindBraces, ++cnt));
     current = tokens.begin();
 
-    result = ParserTestFriend::parse_location_path(current, tokens.end());
+    result = ParserTestFriend::parse_location_path(&current, tokens.end());
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2639,7 +2639,7 @@ TEST(TestParser, ParseLocation) {
     expected["/"] = location_config;
 
     actual = {};
-    result = ParserTestFriend::parse_location(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_location(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     expect_eq_locations(expected, actual, __LINE__);
@@ -2690,7 +2690,7 @@ TEST(TestParser, ParseLocation) {
     expected["path"] = location_config;
 
     actual = {};
-    result = ParserTestFriend::parse_location(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_location(&current, tokens.end(), &actual);
 
     print_error_msg(result, __LINE__);
 
@@ -2742,7 +2742,7 @@ TEST(TestParser, ParseLocation) {
     expected["/old_page"] = location_config;
 
     actual = {};
-    result = ParserTestFriend::parse_location(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_location(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     expect_eq_locations(expected, actual, __LINE__);
@@ -2757,7 +2757,7 @@ TEST(TestParser, ParseLocation) {
 
 
     actual = {};
-    result = ParserTestFriend::parse_location(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_location(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2775,7 +2775,7 @@ TEST(TestParser, ParseLocation) {
 
 
     actual = {};
-    result = ParserTestFriend::parse_location(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_location(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2792,7 +2792,7 @@ TEST(TestParser, ParseLocation) {
 
 
     actual = {};
-    result = ParserTestFriend::parse_location(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_location(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2816,7 +2816,7 @@ TEST(TestParser, ParseLocation) {
 
 
     actual = {};
-    result = ParserTestFriend::parse_location(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_location(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2835,7 +2835,7 @@ TEST(TestParser, ParseLocation) {
 
 
     actual = {};
-    result = ParserTestFriend::parse_location(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_location(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2858,7 +2858,7 @@ TEST(TestParser, ParseLocation) {
     expected["/path"] = location_config;
 
     actual = {};
-    result = ParserTestFriend::parse_location(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_location(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2873,7 +2873,7 @@ TEST(TestParser, ParseLocation) {
     current = tokens.begin();
 
     actual = {};
-    result = ParserTestFriend::parse_location(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_location(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2897,7 +2897,7 @@ TEST(TestParser, ParseLocation) {
 
 
     actual = {};
-    result = ParserTestFriend::parse_location(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_location(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2928,7 +2928,7 @@ TEST(TestParser, ParseLocation) {
 
 
     actual = {};
-    result = ParserTestFriend::parse_location(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_location(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -2956,7 +2956,7 @@ TEST(TestParser, ParseLocation) {
 
 
     actual = {};
-    result = ParserTestFriend::parse_location(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_location(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -3006,7 +3006,7 @@ TEST(TestParser, ParseServer) {
     expected.server_names.insert("localhost");
 
     actual = {};
-    result = ParserTestFriend::parse_server_block(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_server_block(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     expect_eq_server_config(expected, actual, __LINE__);
@@ -3146,7 +3146,7 @@ TEST(TestParser, ParseServer) {
     expected.locations["/old_page"] = location_config;
 
     actual = {};
-    result = ParserTestFriend::parse_server_block(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_server_block(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
     expect_eq_server_config(expected, actual, __LINE__);
@@ -3192,7 +3192,7 @@ TEST(TestParser, ParseServer) {
     current = tokens.begin();
 
     actual = {};
-    result = ParserTestFriend::parse_server_block(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_server_block(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
@@ -3228,7 +3228,7 @@ TEST(TestParser, ParseServer) {
     current = tokens.begin();
 
     actual = {};
-    result = ParserTestFriend::parse_server_block(current, tokens.end(), actual);
+    result = ParserTestFriend::parse_server_block(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);

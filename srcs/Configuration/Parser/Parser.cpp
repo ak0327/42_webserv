@@ -1,4 +1,7 @@
 #include <deque>
+#include <limits>
+#include <set>
+#include <utility>
 #include "Constant.hpp"
 #include "FileHandler.hpp"
 #include "Parser.hpp"
@@ -39,8 +42,8 @@ Parser::Parser(const char *file_path) {
 	}
 	HttpConfig http_config = parse_result.get_ok_value();
 
-    set_default_server_name(http_config);
-    set_default_listen(http_config);
+    set_default_server_name(&http_config);
+    set_default_listen(&http_config);
 
     Result<int, std::string> validate_result = validate(http_config);
 	if (validate_result.is_err()) {
@@ -132,7 +135,6 @@ Result<int, std::string> validate_server(const std::vector<ServerConfig> &server
 
         std::set<std::string>::const_iterator server_name;
         for (server_name = server_names.begin(); server_name != server_names.end(); ++server_name) {
-
             std::vector<ListenDirective>::const_iterator listen;
             for (listen = listens.begin(); listen != listens.end(); ++listen) {
                 ServerInfo info = ServerInfo(*server_name, listen->address, listen->port);
@@ -155,7 +157,6 @@ Result<int, std::string> validate_server(const std::vector<ServerConfig> &server
 
 
 Result<int, std::string> Parser::validate(const HttpConfig &http_config) {
-
     Result<int, std::string> listen_result = validate_listen(http_config.servers);
     if (listen_result.is_err()) {
         const std::string error_msg = listen_result.get_err_value();
@@ -171,9 +172,9 @@ Result<int, std::string> Parser::validate(const HttpConfig &http_config) {
 }
 
 
-void Parser::set_default_listen(HttpConfig &http_config) {
-    std::vector<ServerConfig>::iterator server_config = http_config.servers.begin();
-    while (server_config != http_config.servers.end()) {
+void Parser::set_default_listen(HttpConfig *http_config) {
+    std::vector<ServerConfig>::iterator server_config = http_config->servers.begin();
+    while (server_config != http_config->servers.end()) {
         if (server_config->listens.empty()) {
             server_config->listens.push_back(ListenDirective());
         }
@@ -182,9 +183,9 @@ void Parser::set_default_listen(HttpConfig &http_config) {
 }
 
 
-void Parser::set_default_server_name(HttpConfig &http_config) {
-    std::vector<ServerConfig>::iterator server_config = http_config.servers.begin();
-    while (server_config != http_config.servers.end()) {
+void Parser::set_default_server_name(HttpConfig *http_config) {
+    std::vector<ServerConfig>::iterator server_config = http_config->servers.begin();
+    while (server_config != http_config->servers.end()) {
         if (server_config->server_names.empty()) {
             server_config->server_names.insert(ConfigInitValue::kDefaultServerName);
         }
@@ -429,7 +430,7 @@ Result<std::string, std::string> Parser::parse_location_path(TokenConstItr *curr
     std::string suffix;
     if (expect(current, end, kTokenKindBlockParam)) {
         suffix = (*current)->str_;
-        ++current;
+        ++(*current);
     }
 
     // std::cout << CYAN << "prefix:" << prefix << ", suffix:" << suffix << RESET << std::endl;
@@ -509,20 +510,19 @@ Result<int, std::string> Parser::parse_location(TokenConstItr *current,
         const std::string error_msg = create_syntax_err_msg(*current, end, RIGHT_PAREN);
         return Result<int, std::string>::err(error_msg);
     }
-
     return Result<int, std::string>::ok(OK);
 }
 
 
-bool is_duplicated(int &cnt) {
-    ++cnt;
-    return cnt != 1;
+bool is_duplicated(int *cnt) {
+    ++(*cnt);
+    return *cnt != 1;
 }
 
-void clear_initial_value(std::set<std::string> *params, int &cnt) {
-    ++cnt;
+void clear_initial_value(std::set<std::string> *params, int *cnt) {
+    ++(*cnt);
 
-    if (cnt == 1) {
+    if (*cnt == 1) {
         params->clear();
     }
 }
@@ -553,11 +553,11 @@ Result<int, std::string> Parser::parse_location_block(TokenConstItr *current,
             result = parse_return_directive(current, end, &location_config->redirection);
 
         } else if (consume(current, end, LIMIT_EXCEPT_DIRECTIVE)) {
-            if (is_duplicated(limit_except_cnt)) {
+            if (is_duplicated(&limit_except_cnt)) {
                 const std::string error_msg = create_duplicated_directive_err_msg(*current, end, LIMIT_EXCEPT_DIRECTIVE);
                 return Result<int, std::string>::err(error_msg);
             }
-            result = parse_limit_except_directive(current, end,&location_config->limit_except);
+            result = parse_limit_except_directive(current, end, &location_config->limit_except);
 
         } else {
             result = parse_default_config(current, end, location_config);
@@ -593,28 +593,28 @@ Result<int, std::string> Parser::parse_default_config(TokenConstItr *current,
     while (*current != end) {
         Result<int, std::string> result;
         if (consume(current, end, ROOT_DIRECTIVE)){
-            if (is_duplicated(root_cnt)) {
+            if (is_duplicated(&root_cnt)) {
                 const std::string error_msg = create_duplicated_directive_err_msg(*current, end, ROOT_DIRECTIVE);
                 return Result<int, std::string>::err(error_msg);
             }
             result = parse_root_directive(current, end, &default_config->root_path);
 
         } else if (consume(current, end, INDEX_DIRECTIVE)) {
-            clear_initial_value(&default_config->index_pages, index_cnt);
+            clear_initial_value(&default_config->index_pages, &index_cnt);
             result = parse_set_params(current, end, &default_config->index_pages, INDEX_DIRECTIVE);
 
         } else if (consume(current, end, ERROR_PAGE_DIRECTIVE)) {
             result = parse_error_page_directive(current, end, &default_config->error_pages);
 
         } else if (consume(current, end, AUTOINDEX_DIRECTIVE)) {
-            if (is_duplicated(autoindex_cnt)) {
+            if (is_duplicated(&autoindex_cnt)) {
                 const std::string error_msg = create_duplicated_directive_err_msg(*current, end, AUTOINDEX_DIRECTIVE);
                 return Result<int, std::string>::err(error_msg);
             }
             result = parse_autoindex_directive(current, end, &default_config->autoindex);
 
         } else if (consume(current, end, BODY_SIZE_DIRECTIVE)) {
-            if (is_duplicated(max_body_size_cnt)) {
+            if (is_duplicated(&max_body_size_cnt)) {
                 const std::string error_msg = create_duplicated_directive_err_msg(*current, end, BODY_SIZE_DIRECTIVE);
                 return Result<int, std::string>::err(error_msg);
             }
@@ -708,7 +708,7 @@ Result<int, std::string> Parser::parse_listen_directive(TokenConstItr *current,
         }
         listen_directive.is_default_server = true;
     }
-    listen_directives.push_back(listen_directive);
+    listen_directives->push_back(listen_directive);
     return Result<int, std::string>::ok(OK);
 }
 
@@ -738,7 +738,7 @@ Result<int, std::string> Parser::parse_directive_params(TokenConstItr *current,
         return Result<int, std::string>::err(error_msg);
     }
 
-    params.insert(params.end(), parsed_params.begin(), parsed_params.end());
+    params->insert((*params).end(), parsed_params.begin(), parsed_params.end());
     return Result<int, std::string>::ok(OK);
 }
 
@@ -757,8 +757,9 @@ Result<int, std::string> Parser::parse_set_params(TokenConstItr *current,
         return Result<int, std::string>::err(error_msg);
     }
 
-    for (std::vector<std::string>::const_iterator itr = parsed_params.begin(); itr != parsed_params.end(); ++itr) {
-        params.insert(*itr);
+    std::vector<std::string>::const_iterator itr;
+    for (itr = parsed_params.begin(); itr != parsed_params.end(); ++itr) {
+        params->insert(*itr);
     }
     return Result<int, std::string>::ok(OK);
 }
@@ -910,7 +911,6 @@ Result<int, std::string> Parser::parse_access_rule(TokenConstItr *current,
             return Result<int, std::string>::err(error_msg);
         }
         rules->push_back(AccessRule(control, specifier));
-
     }
     return Result<int, std::string>::ok(OK);
 }
@@ -936,7 +936,7 @@ Result<int, std::string> Parser::parse_limit_except_directive(TokenConstItr *cur
         Method excluded_method = result.get_ok_value();
         limit_except->excluded_methods.insert(excluded_method);
 
-        ++current;
+        ++(*current);
     }
     if (limit_except->excluded_methods.empty()) {
         const std::string error_msg = create_invalid_num_of_arg_err_msg(*current, end, LIMIT_EXCEPT_DIRECTIVE);
@@ -973,9 +973,13 @@ bool Parser::is_valid_error_code(StatusCode code) {
 //               ^current           ^end
 Result<int, std::string> Parser::parse_error_page_directive(TokenConstItr *current,
                                                             const TokenConstItr end,
-                                                            std::map<StatusCode, std::string> &error_pages) {
+                                                            std::map<StatusCode, std::string> *error_pages) {
     std::vector<std::string> error_page_params;
     Result<int, std::string> result;
+
+    if (!current || !error_pages) {
+        return Result<int, std::string>::err("fatal error");
+    }
 
     result = parse_directive_params(current, end, &error_page_params, ERROR_PAGE_DIRECTIVE);
     if (result.is_err()) {
@@ -999,7 +1003,7 @@ Result<int, std::string> Parser::parse_error_page_directive(TokenConstItr *curre
             const std::string error_msg = create_invalid_value_err_msg(*param, ERROR_PAGE_DIRECTIVE);
             return Result<int, std::string>::err(error_msg);
         }
-        error_pages[code] = error_page;  // overwrite
+        (*error_pages)[code] = error_page;  // overwrite
     }
     return Result<int, std::string>::ok(OK);
 }
@@ -1030,7 +1034,7 @@ Result<int, std::string> Parser::parse_autoindex_directive(TokenConstItr *curren
         oss << " in \""  << AUTOINDEX_DIRECTIVE  << "\" directive, it must be \"on\" or \"off\"";;
         return Result<int, std::string>::err(oss.str());
     }
-    autoindex = (autoindex_param == "on") ? true : false;
+    *autoindex = (autoindex_param == "on") ? true : false;
     return Result<int, std::string>::ok(OK);
 }
 
@@ -1101,7 +1105,7 @@ Result<int, std::string> Parser::parse_body_size_directive(TokenConstItr *curren
     }
 
     Result<int, std::string> param_result;
-    param_result = parse_directive_param(current, end, body_size_param, BODY_SIZE_DIRECTIVE);
+    param_result = parse_directive_param(current, end, &body_size_param, BODY_SIZE_DIRECTIVE);
     if (param_result.is_err()) {
         const std::string error_msg = param_result.get_err_value();
         return Result<int, std::string>::err(error_msg);
@@ -1112,7 +1116,7 @@ Result<int, std::string> Parser::parse_body_size_directive(TokenConstItr *curren
         const std::string error_msg = create_invalid_value_err_msg(body_size_param, BODY_SIZE_DIRECTIVE);
         return Result<int, std::string>::err(error_msg);
     }
-    max_body_size_bytes = size_result.get_ok_value();
+    *max_body_size_bytes = size_result.get_ok_value();
     return Result<int, std::string>::ok(OK);
 }
 

@@ -2,6 +2,7 @@
 
 # include <deque>
 # include <map>
+# include <set>
 # include <string>
 # include <vector>
 # include "ConfigStruct.hpp"
@@ -33,8 +34,8 @@ class Parser {
 
 	static Result<HttpConfig, std::string> parse(const std::deque<Token> &tokens);
 	static Result<int, std::string> validate(const HttpConfig &http_config);
-	void set_default_listen(HttpConfig &http_config);
-	void set_default_server_name(HttpConfig &http_config);
+	void set_default_listen(HttpConfig *http_config);
+	void set_default_server_name(HttpConfig *http_config);
 	void set_default_server();
 
 	// Recursive descent parse func
