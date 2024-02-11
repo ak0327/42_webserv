@@ -74,14 +74,12 @@ Socket::Socket(const Configuration &config)
 }
 
 Socket::~Socket() {
-	Result<int, std::string> close_result;
-
 	if (this->addr_info_ != NULL) {
 		freeaddrinfo(this->addr_info_);
 		this->addr_info_ = NULL;
 	}
 	if (this->socket_fd_ != INIT_FD) {
-		close_result = close_socket_fd(this->socket_fd_);
+        Result<int, std::string> close_result = close_socket_fd(this->socket_fd_);
 		if (close_result.is_err()) {
 			std::cerr << "close:" << close_result.get_err_value() << std::endl;
 		}
@@ -91,11 +89,10 @@ Socket::~Socket() {
 
 Result<int, std::string> Socket::init_addr_info() {
 	struct addrinfo	hints = {};
-	int				errcode;
 	struct addrinfo	*ret_addr_info;
 
 	set_hints(&hints);  // todo: setting IPv4, IPv6 from config??
-	errcode = getaddrinfo(this->server_ip_.c_str(), this->server_port_.c_str(), &hints, &ret_addr_info);
+	int errcode = getaddrinfo(this->server_ip_.c_str(), this->server_port_.c_str(), &hints, &ret_addr_info);
 
 	if (errcode != GETADDRINFO_SUCCESS) {
 		std::string err_info = create_error_info(gai_strerror(errcode), __FILE__, __LINE__);
@@ -109,10 +106,9 @@ Result<int, std::string> Socket::create_socket() {
 	const int	ai_family = this->addr_info_->ai_family;
 	const int	ai_socktype = this->addr_info_->ai_socktype;
 	const int	ai_protocol = this->addr_info_->ai_protocol;
-	int			socket_fd;
 
 	errno = 0;
-	socket_fd = socket(ai_family, ai_socktype, ai_protocol);
+	int socket_fd = socket(ai_family, ai_socktype, ai_protocol);
 	if (socket_fd == SOCKET_ERROR) {
 		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
 		return Result<int, std::string>::err("socket:" + err_info);
@@ -122,11 +118,10 @@ Result<int, std::string> Socket::create_socket() {
 }
 
 Result<int, std::string> Socket::bind_socket() const {
-	Result<int, std::string>	set_opt_result;
-	const struct sockaddr		*ai_addr = this->addr_info_->ai_addr;
-	const socklen_t				ai_addrlen = this->addr_info_->ai_addrlen;
+	const struct sockaddr *ai_addr = this->addr_info_->ai_addr;
+	const socklen_t ai_addrlen = this->addr_info_->ai_addrlen;
 
-	set_opt_result = set_socket_opt(this->socket_fd_);
+    Result<int, std::string> set_opt_result = set_socket_opt(this->socket_fd_);
 	if (set_opt_result.is_err()) {
 		return set_opt_result;
 	}

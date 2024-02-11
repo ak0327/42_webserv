@@ -121,21 +121,18 @@ Server::Server(const Configuration &config)
 	: socket_(config),
       recv_message_(),
       fds_(NULL) {
-	Result<int, std::string> socket_result, signal_result;
-	Result<IOMultiplexer *, std::string> fds_result;
-
-	socket_result = this->socket_.get_socket_result();
+    Result<int, std::string> socket_result = this->socket_.get_socket_result();
 	if (socket_result.is_err()) {
 		std::string socket_err_msg = socket_result.get_err_value();
 		throw std::runtime_error(RED "[Server Error] Initialization error: " + socket_err_msg + RESET);
 	}
 
-	signal_result = set_signal();
+    Result<int, std::string> signal_result = set_signal();
 	if (signal_result.is_err()) {
 		throw std::runtime_error(RED "[Server Error] Initialization error: signal: " + signal_result.get_err_value() + RESET);
 	}
 
-	fds_result = create_io_multiplexer_fds(this->socket_.get_socket_fd());
+    Result<IOMultiplexer *, std::string> fds_result = create_io_multiplexer_fds(this->socket_.get_socket_fd());
 	if (fds_result.is_err()) {
 		throw std::runtime_error(RED "[Server Error] Initialization error: " + fds_result.get_err_value() + RESET);
 	}
@@ -147,11 +144,8 @@ Server::~Server() { delete this->fds_; }
 ////////////////////////////////////////////////////////////////////////////////
 
 void Server::process_client_connection() {
-	Result<int, std::string> fd_ready_result;
-	int ready_fd;
-
 	while (true) {
-		fd_ready_result = this->fds_->get_io_ready_fd();
+        Result<int, std::string> fd_ready_result = this->fds_->get_io_ready_fd();
 		if (fd_ready_result.is_err()) {
 			throw std::runtime_error(RED + fd_ready_result.get_err_value() + RESET);
 		}
@@ -160,7 +154,7 @@ void Server::process_client_connection() {
 			break;
 		}
 
-		ready_fd = fd_ready_result.get_ok_value();
+		int ready_fd = fd_ready_result.get_ok_value();
 		fd_ready_result = communicate_with_client(ready_fd);
 		if (fd_ready_result.is_err()) {
 			throw std::runtime_error(RED + fd_ready_result.get_err_value() + RESET);
@@ -177,20 +171,16 @@ Result<int, std::string> Server::communicate_with_client(int ready_fd) {
 }
 
 Result<int, std::string> Server::accept_and_store_connect_fd() {
-	int connect_fd;
-	std::string err_info;
-	Result<int, std::string> accept_result, fd_store_result;
-
-	accept_result = accept_connection(this->socket_.get_socket_fd());
+    Result<int, std::string> accept_result = accept_connection(this->socket_.get_socket_fd());
 	if (accept_result.is_err()) {
-		err_info = create_error_info(accept_result.get_err_value(), __FILE__, __LINE__);
+		const std::string err_info = create_error_info(accept_result.get_err_value(), __FILE__, __LINE__);
 		return Result<int, std::string>::err("[Server Error] accept: " + err_info);
 	}
-	connect_fd = accept_result.get_ok_value();
+	int connect_fd = accept_result.get_ok_value();
 
-	fd_store_result = this->fds_->register_connect_fd(connect_fd);
+    Result<int, std::string> fd_store_result = this->fds_->register_connect_fd(connect_fd);
 	if (fd_store_result.is_err()) {
-		err_info = create_error_info(fd_store_result.get_err_value(), __FILE__, __LINE__);
+		const std::string err_info = create_error_info(fd_store_result.get_err_value(), __FILE__, __LINE__);
 		std::cerr << "[Server Error]" << err_info << std::endl;
 		errno = 0;
 		if (close(connect_fd) == CLOSE_ERROR) {
@@ -202,13 +192,9 @@ Result<int, std::string> Server::accept_and_store_connect_fd() {
 }
 
 Result<int, std::string> Server::communicate_with_ready_client(int ready_fd) {
-	Result<std::string, std::string>recv_result;
-	Result<int, std::string> send_result, clear_result;
-	std::string err_info;
-
-	recv_result = recv_request(ready_fd);
+    Result<std::string, std::string> recv_result = recv_request(ready_fd);
 	if (recv_result.is_err()) {
-		err_info = create_error_info(recv_result.get_err_value(), __FILE__, __LINE__);
+		const std::string err_info = create_error_info(recv_result.get_err_value(), __FILE__, __LINE__);
 		return Result<int, std::string>::err("[Server Error] recv: " + err_info);
 	}
 	this->recv_message_ = recv_result.get_ok_value();
@@ -219,16 +205,16 @@ Result<int, std::string> Server::communicate_with_ready_client(int ready_fd) {
 	HttpResponse response = HttpResponse(request);
 
 	// send
-	send_result = send_response(ready_fd, response);
+    Result<int, std::string> send_result = send_response(ready_fd, response);
 	if (send_result.is_err()) {
 		// printf(BLUE "   server send error\n" RESET);
-		err_info = create_error_info(send_result.get_err_value(), __FILE__, __LINE__);
+		const std::string err_info = create_error_info(send_result.get_err_value(), __FILE__, __LINE__);
 		return Result<int, std::string>::err("[Server Error] send: " + err_info);
 	}
 
-	clear_result = this->fds_->clear_fd(ready_fd);
+    Result<int, std::string> clear_result = this->fds_->clear_fd(ready_fd);
 	if (clear_result.is_err()) {
-		err_info = create_error_info(clear_result.get_err_value(), __FILE__, __LINE__);
+		const std::string err_info = create_error_info(clear_result.get_err_value(), __FILE__, __LINE__);
 		std::cerr << "[Server Error] clear_fd: " + err_info << std::endl;
 	}
 	return Result<int, std::string>::ok(OK);

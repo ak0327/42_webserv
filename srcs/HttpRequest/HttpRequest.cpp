@@ -133,27 +133,26 @@ void HttpRequest::clear_field_values_of(const std::string &field_name) {
 int HttpRequest::parse_and_validate_http_request(const std::string &input) {
 	std::stringstream	ss(input);
 	std::string 		line;
-	Result<int, int>	request_line_result;
-	Result<int, int>	field_line_result;
 
 	// start-line CRLF
 	std::getline(ss, line, LF);
-	request_line_result = this->request_line_.parse_and_validate(line);
+    Result<int, int> request_line_result = this->request_line_.parse_and_validate(line);
 	if (request_line_result.is_err()) {
 		return STATUS_BAD_REQUEST;
 	}
 
 	// *( field-line CRLF )
 	try {
-		field_line_result = parse_and_validate_field_lines(&ss);
+        Result<int, int> field_line_result = parse_and_validate_field_lines(&ss);
+
+        if (field_line_result.is_err()) {
+            if (field_line_result.get_err_value() == STATUS_SERVER_ERROR) {
+                return STATUS_SERVER_ERROR;
+            }
+            return STATUS_BAD_REQUEST;
+        }
 	} catch (const std::bad_alloc &e) {
 		return STATUS_SERVER_ERROR;
-	}
-	if (field_line_result.is_err()) {
-		if (field_line_result.get_err_value() == STATUS_SERVER_ERROR) {
-			return STATUS_SERVER_ERROR;
-		}
-		return STATUS_BAD_REQUEST;
 	}
 
 	// CRLF
@@ -178,11 +177,8 @@ int HttpRequest::parse_and_validate_http_request(const std::string &input) {
  field-line = field-name ":" OWS field-value OWS
  */
 Result<int, int> HttpRequest::parse_and_validate_field_lines(std::stringstream *ss) {
-	std::string	line_end_with_cr, field_line, field_name, field_value;
-	Result<std::string, int> field_line_result;
-	Result<int, int> parse_result;
-
 	while (true) {
+        std::string	line_end_with_cr;
 		std::getline(*ss, line_end_with_cr, LF);
 		if (ss->eof()) {
 			return Result<int, int>::err(ERR);
@@ -192,13 +188,14 @@ Result<int, int> HttpRequest::parse_and_validate_field_lines(std::stringstream *
 			break;
 		}
 
-		field_line_result = get_field_line_by_remove_cr(line_end_with_cr);
+        Result<std::string, int> field_line_result = get_field_line_by_remove_cr(line_end_with_cr);
 		if (field_line_result.is_err()) {
 			return Result<int, int>::err(ERR);
 		}
-		field_line = field_line_result.get_ok_value();
+		std::string field_line = field_line_result.get_ok_value();
 
-		parse_result = parse_field_line(field_line, &field_name, &field_value);
+        std::string	field_name, field_value;
+        Result<int, int> parse_result = parse_field_line(field_line, &field_name, &field_value);
 		if (parse_result.is_err()) {
 			return Result<int, int>::err(ERR);
 		}
@@ -232,19 +229,15 @@ Result<int, int> HttpRequest::parse_and_validate_field_lines(std::stringstream *
 Result<int, int> HttpRequest::parse_field_line(const std::string &field_line,
 								  std::string *ret_field_name,
 								  std::string *ret_field_value) {
-	Result<std::string, int> field_name_result, field_value_result;
-	std::string			field_name, field_value;
-	std::size_t			pos;
-
 	if (!ret_field_name || !ret_field_value) { return Result<int, int>::err(ERR); }
 
 	// field-name
-	pos = 0;
-	field_name_result = parse_field_name(field_line, &pos);
+	std::size_t pos = 0;
+    Result<std::string, int> field_name_result = parse_field_name(field_line, &pos);
 	if (field_name_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}
-	field_name = field_name_result.get_ok_value();
+	std::string field_name = field_name_result.get_ok_value();
 
 	// ":"
 	if (field_line[pos] != ':') {
@@ -258,11 +251,11 @@ Result<int, int> HttpRequest::parse_field_line(const std::string &field_line,
 	}
 
 	// field-value
-	field_value_result = parse_field_value(field_line, &pos);
+    Result<std::string, int> field_value_result = parse_field_value(field_line, &pos);
 	if (field_value_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}
-	field_value = field_value_result.get_ok_value();
+    std::string field_value = field_value_result.get_ok_value();
 
 	// OWS
 	while (HttpMessageParser::is_whitespace(field_line[pos])) {
@@ -306,7 +299,6 @@ bool HttpRequest::is_field_name_supported_parsing(const std::string &field_name)
 
 void HttpRequest::init_field_name_counter() {
 	std::vector<std::string>::const_iterator itr;
-
 	for (itr = FIELD_NAMES.begin(); itr != FIELD_NAMES.end(); ++itr) {
 		this->field_name_counter_[*itr] = COUNTER_INIT;
 	}

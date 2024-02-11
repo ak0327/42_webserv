@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
 		DEBUG_PRINT("config_file_path=[%s]", config_file_path);
 		Configuration config(config_file_path);
 
-		Server server = Server(config);
+		Server server(config);
 		server.process_client_connection();
 	}
 	catch (std::exception const &e) {
