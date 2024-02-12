@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <deque>
 #include <iostream>
 #include <set>
 #include "webserv.hpp"
@@ -19,6 +20,8 @@
 #include "Server.hpp"
 
 namespace {
+
+const int MAX_SESSION = 128;
 
 ServerResult accept_connection(int socket_fd) {
 	int connect_fd;
@@ -132,6 +135,7 @@ Server::Server(const Configuration &config)
 Server::~Server() {
     delete this->fds_;
     delete_sockets();
+    close_client_fds();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -180,10 +184,23 @@ ServerResult Server::create_sockets(const std::vector<ServerConfig> &server_conf
 
 
 void Server::delete_sockets() {
-    for (std::map<Fd, Socket *>::iterator itr = this->sockets_.begin(); itr != this->sockets_.end(); ++itr) {
+    std::map<Fd, Socket *>::iterator itr;
+    for (itr = this->sockets_.begin(); itr != this->sockets_.end(); ++itr) {
         delete itr->second;
     }
     this->sockets_.clear();
+}
+
+
+void Server::close_client_fds() {
+    std::deque<int>::iterator fd;
+    for (fd = this->client_fds_.begin(); fd != this->client_fds_.end(); ++fd) {
+        if (*fd == INIT_FD) {
+            continue;
+        }
+        close(*fd);
+    }
+    this->client_fds_.clear();
 }
 
 
@@ -201,12 +218,13 @@ Result<IOMultiplexer *, std::string> Server::create_io_multiplexer_fds() {
             int socket_fd = socket->first;
 
 #if defined(__linux__) && !defined(USE_SELECT_MULTIPLEXER)
-                fds->register_socket_fd(socket_fd);
+            fds->register_socket_fd(socket_fd);
 #elif defined(__APPLE__) && !defined(USE_SELECT_MULTIPLEXER)
-                fds->register_socket_fd(socket_fd);
+            fds->register_fd(socket_fd);
 #else
-                fds->register_socket_fd(socket_fd);
+            fds->register_fd(socket_fd);
 #endif
+            this->socket_fds_.push_back(socket_fd);
         }
         return Result<IOMultiplexer *, std::string>::ok(fds);
     } catch (std::bad_alloc const &e) {
@@ -215,7 +233,9 @@ Result<IOMultiplexer *, std::string> Server::create_io_multiplexer_fds() {
     }
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////
+
 
 void Server::process_client_connection() {
 	while (true) {
@@ -236,27 +256,36 @@ void Server::process_client_connection() {
 	}
 }
 
+
 bool Server::is_socket_fd(int fd) const {
     return this->sockets_.find(fd) != this->sockets_.end();
 }
 
+
 ServerResult Server::communicate_with_client(int ready_fd) {
 	if (is_socket_fd(ready_fd)) {
-		return accept_and_store_connect_fd(ready_fd);
+		return accept_connect_fd(ready_fd);
 	} else {
 		return communicate_with_ready_client(ready_fd);
 	}
 }
 
-ServerResult Server::accept_and_store_connect_fd(int socket_fd) {
+
+ServerResult Server::accept_connect_fd(int socket_fd) {
+    if (MAX_SESSION <= this->client_fds_.size()) {
+        std::cerr << "[Server Error] exceed max connection" << std::endl;
+        return ServerResult::ok(OK);  // todo: continue, ok?
+    }
+
     ServerResult accept_result = accept_connection(socket_fd);
 	if (accept_result.is_err()) {
 		const std::string err_info = create_error_info(accept_result.get_err_value(), __FILE__, __LINE__);
 		return ServerResult::err("[Server Error] accept: " + err_info);
 	}
 	int connect_fd = accept_result.get_ok_value();
+    this->client_fds_.push_back(connect_fd);
 
-    ServerResult fd_store_result = this->fds_->register_connect_fd(connect_fd);
+    ServerResult fd_store_result = this->fds_->register_fd(connect_fd);
 	if (fd_store_result.is_err()) {
 		std::string err_info = create_error_info(fd_store_result.get_err_value(), __FILE__, __LINE__);
 		std::cerr << "[Server Error]" << err_info << std::endl;
@@ -268,6 +297,7 @@ ServerResult Server::accept_and_store_connect_fd(int socket_fd) {
 	}
 	return ServerResult::ok(OK);
 }
+
 
 ServerResult Server::communicate_with_ready_client(int connect_fd) {
     Result<std::string, std::string> recv_result = recv_request(connect_fd);
@@ -290,12 +320,13 @@ ServerResult Server::communicate_with_ready_client(int connect_fd) {
 		return ServerResult::err("[Server Error] send: " + err_info);
 	}
 
-    ServerResult clear_result = this->fds_->clear_connect_fd(connect_fd);
+    ServerResult clear_result = this->fds_->clear_fd(connect_fd);
 	if (clear_result.is_err()) {
 		const std::string err_info = create_error_info(clear_result.get_err_value(), __FILE__, __LINE__);
 		std::cerr << "[Server Error] clear_fd: " + err_info << std::endl;
 	}
 	return ServerResult::ok(OK);
 }
+
 
 std::string Server::get_recv_message() const { return this->recv_message_; }  // todo: for test, debug

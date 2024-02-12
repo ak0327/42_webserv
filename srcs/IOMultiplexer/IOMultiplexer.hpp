@@ -1,6 +1,5 @@
 #pragma once
 
-# include <deque>
 # include <iostream>
 # include <string>
 # include <vector>
@@ -13,15 +12,15 @@
 #  include <sys/time.h>
 # else
 #  include <sys/select.h>
+#  include <deque>
 # endif
 
 class IOMultiplexer {
  public:
 	virtual ~IOMultiplexer() {}
 	virtual Result<int, std::string> get_io_ready_fd() = 0;
-    virtual Result<int, std::string> register_socket_fd(int socket_fd) = 0;
-    virtual Result<int, std::string> register_connect_fd(int connect_fd) = 0;
-	virtual Result<int, std::string> clear_connect_fd(int clear_fd) = 0;
+    virtual Result<int, std::string> register_fd(int fd) = 0;
+    virtual Result<int, std::string> clear_fd(int fd) = 0;
 };
 
 #if defined(__linux__) && !defined(USE_SELECT_MULTIPLEXER)
@@ -31,9 +30,9 @@ class EPollMultiplexer : public IOMultiplexer {
 	EPollMultiplexer();
 	virtual ~EPollMultiplexer();
 	virtual Result<int, std::string> get_io_ready_fd();
-    virtual Result<int, std::string> register_socket_fd(int socket_fd);
-	virtual Result<int, std::string> register_connect_fd(int connect_fd);
-	virtual Result<int, std::string> clear_connect_fd(int clear_fd);
+    virtual Result<int, std::string> register_fd(int fd);
+    virtual Result<int, std::string> clear_fd(int fd);
+
  private:
 	int epoll_fd_;
 	struct epoll_event ev_;
@@ -47,14 +46,17 @@ class KqueueMultiplexer : public IOMultiplexer {
 	KqueueMultiplexer();
 	virtual ~KqueueMultiplexer();
 	virtual Result<int, std::string> get_io_ready_fd();
-    virtual Result<int, std::string> register_socket_fd(int socket_fd);
-	virtual Result<int, std::string> register_connect_fd(int connect_fd);
-	virtual Result<int, std::string> clear_connect_fd(int clear_fd);
+    virtual Result<int, std::string> register_fd(int fd);
+    virtual Result<int, std::string> clear_fd(int fd);
 
  private:
 	int kq_;
 	struct kevent change_event_;
 	struct kevent new_event_;
+
+    Result<int, std::string> init_kqueue();
+    Result<int, std::string> kevent_wait();
+    Result<int, std::string> kevent_register();
 };
 
 #else
@@ -64,18 +66,18 @@ class SelectMultiplexer : public IOMultiplexer {
 	SelectMultiplexer();
 	virtual ~SelectMultiplexer();
 	virtual Result<int, std::string> get_io_ready_fd();
-    virtual Result<int, std::string> register_socket_fd(int socket_fd);
-	virtual Result<int, std::string> register_connect_fd(int connect_fd);
-	virtual Result<int, std::string> clear_connect_fd(int clear_fd);
+    virtual Result<int, std::string> register_fd(int fd);
+	virtual Result<int, std::string> clear_fd(int fd);
 
  private:
-    std::deque<int> socket_fds_;
-	std::deque<int> connect_fds_;
-	fd_set fds_;
+    std::deque<int> fds_;
+	fd_set fd_set_;
     int max_fd_;
 
     void init_fds();
-    Result<int, int> register_fd(int fd, std::deque<int> *fd_deque);
+    int get_max_fd() const;
+    int get_ready_fd() const;
+    Result<int, std::string> select_fds();
 };
 
 #endif

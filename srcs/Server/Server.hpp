@@ -1,5 +1,6 @@
 #pragma once
 
+# include <deque>
 # include <map>
 # include <string>
 # include <vector>
@@ -28,8 +29,11 @@ class Server {
 	std::string recv_message_;  // for test. this variable valid only connect with 1 client
 	IOMultiplexer *fds_;
 
-	ServerResult communicate_with_client(int ready_fd);
-	ServerResult accept_and_store_connect_fd(int socket_fd);
+    std::deque<int> socket_fds_;
+    std::deque<int> client_fds_;
+
+    ServerResult communicate_with_client(int ready_fd);
+	ServerResult accept_connect_fd(int socket_fd);
 	ServerResult communicate_with_ready_client(int connect_fd);
 
     ServerResult create_sockets(const std::vector<ServerConfig> &server_configs);
@@ -37,4 +41,5 @@ class Server {
 
     bool is_socket_fd(int fd) const;
     void delete_sockets();
+    void close_client_fds();
 };
