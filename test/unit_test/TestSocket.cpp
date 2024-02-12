@@ -48,10 +48,7 @@ int create_nonblock_client_fd() {
 /*               Socket Unit Test              */
 /* ******************************************* */
 TEST(SocketUnitTest, ConstructorWithArgument) {
-	Configuration config;
-	config.set_ip(SERVER_IP); config.set_port(SERVER_PORT);
-
-	Socket socket = Socket(config);
+	Socket socket = Socket(SERVER_IP, SERVER_PORT);
 
 	EXPECT_TRUE(socket.is_socket_success());
 
@@ -59,62 +56,32 @@ TEST(SocketUnitTest, ConstructorWithArgument) {
 
 TEST(SocketUnitTest, ConstructorWithValidServerIP) {
 	int port = 49152;
-	Configuration config;
 
-	config.set_ip("127.0.0.1"); config.set_port(std::to_string(port++));
-	Socket socket1 = Socket(config);
-
-	config.set_ip("0.0.0.0"); config.set_port(std::to_string(port++));
-	Socket socket2 = Socket(config);
-
-	config.set_ip("000.0000.00000.000000"); config.set_port(std::to_string(port++));
-	Socket socket3 = Socket(config);
+	Socket socket1 = Socket("127.0.0.1", std::to_string(port++));
+	Socket socket2 = Socket("0.0.0.0", std::to_string(port++));
+	Socket socket3 = Socket("000.0000.00000.000000", std::to_string(port++));
 
 	EXPECT_TRUE(socket1.is_socket_success());
 	EXPECT_TRUE(socket2.is_socket_success());
 	EXPECT_TRUE(socket3.is_socket_success());
-
 }
 
 TEST(SocketUnitTest, ConstructorWithInvalidServerIP) {
 	int port = 49152;
 	Configuration config;
 
-	config.set_ip("127.0.0.0.1"); config.set_port(std::to_string(port++));
-	Socket socket1 = Socket(config);
-
-	config.set_ip("256.0.0.0"); config.set_port(std::to_string(port++));
-	Socket socket2 = Socket(config);
-
-	config.set_ip("-1"); config.set_port(std::to_string(port++));
-	Socket socket3 = Socket(config);
-
-	config.set_ip("a.0.0.0"); config.set_port(std::to_string(port++));
-	Socket socket4 = Socket(config);
-
-	config.set_ip("127:0.0.1"); config.set_port(std::to_string(port++));
-	Socket socket5 = Socket(config);
-
-	config.set_ip("127,0.0.1"); config.set_port(std::to_string(port++));
-	Socket socket6 = Socket(config);
-
-	config.set_ip("127.0.0.-1"); config.set_port(std::to_string(port++));
-	Socket socket7 = Socket(config);
-
-	config.set_ip("2147483647.2147483647.2147483647.2147483647"); config.set_port(std::to_string(port++));
-	Socket socket8 = Socket(config);
-
-	// config.set_ip(""); config.set_port(std::to_string(port++));
-	// Socket socket9 = Socket("", std::to_string(port++).c_str());  todo: ok?
-
-	config.set_ip("hoge"); config.set_port(std::to_string(port++));
-	Socket socket10 = Socket(config);
-
-	config.set_ip("0001.0001.0001.0001"); config.set_port(std::to_string(port++));
-	Socket socket11 = Socket(config);
-
-	config.set_ip("255.255.255.254"); config.set_port(std::to_string(port++));
-	Socket socket12 = Socket(config);
+	Socket socket1 = Socket("127.0.0.0.1", std::to_string(port++));
+	Socket socket2 = Socket("256.0.0.0", std::to_string(port++));
+	Socket socket3 = Socket("-1", std::to_string(port++));
+	Socket socket4 = Socket("a.0.0.0", std::to_string(port++));
+	Socket socket5 = Socket("127:0.0.1", std::to_string(port++));
+	Socket socket6 = Socket("127,0.0.1", std::to_string(port++));
+	Socket socket7 = Socket("127.0.0.-1", std::to_string(port++));
+	Socket socket8 = Socket("2147483647.2147483647.2147483647.2147483647", std::to_string(port++));
+	// Socket socket9 = Socket("", std::to_string(port++));  todo: ok?
+	Socket socket10 = Socket("hoge", std::to_string(port++));
+	Socket socket11 = Socket("0001.0001.0001.0001", std::to_string(port++));
+	Socket socket12 = Socket("255.255.255.254", std::to_string(port++));
 
 
 	// config.set_ip("255.255.255.255"); config.set_port(std::to_string(port++));
@@ -138,17 +105,10 @@ TEST(SocketUnitTest, ConstructorWithInvalidServerIP) {
 TEST(SocketUnitTest, ConstructorWithValidServerPort) {
 	Configuration config;
 
-	config.set_ip(SERVER_IP); config.set_port("0");
-	Socket socket1 = Socket(config);  // ephemeral port
-
-	config.set_ip(SERVER_IP); config.set_port("0000");
-	Socket socket2 = Socket(config);
-
-	config.set_ip(SERVER_IP); config.set_port("8080");
-	Socket socket3 = Socket(config);
-
-	config.set_ip(SERVER_IP); config.set_port("65535");
-	Socket socket4 = Socket(config);
+	Socket socket1 = Socket(SERVER_IP, "0");  // ephemeral port
+	Socket socket2 = Socket(SERVER_IP, "0000");
+	Socket socket3 = Socket(SERVER_IP, "8080");
+	Socket socket4 = Socket(SERVER_IP, "65535");
 
 	EXPECT_TRUE(socket1.is_socket_success());
 	EXPECT_TRUE(socket2.is_socket_success());
@@ -159,23 +119,17 @@ TEST(SocketUnitTest, ConstructorWithValidServerPort) {
 TEST(SocketUnitTest, ConstructorWithInvalidServerPort) {
 	Configuration config;
 
-	config.set_ip(SERVER_IP); config.set_port("-1");
-	Socket socket1 = Socket(config);
+	Socket socket1 = Socket(SERVER_IP, "-1");
 
 	// config.set_ip(SERVER_IP); config.set_port("65536");
-//	Socket socket2 = Socket(config);  // uisingned short 65536->0(ephemeral port)
+//	Socket socket2 = Socket(SERVER_IP, SERVER_PORT);  // uisingned short 65536->0(ephemeral port)
 
 	// config.set_ip(SERVER_IP); config.set_port("");
-	// Socket socket3 = Socket(config);	// strtol->0 (tmp)
+	// Socket socket3 = Socket(SERVER_IP, SERVER_PORT);	// strtol->0 (tmp)
 
-	config.set_ip(SERVER_IP); config.set_port("hoge");
-	Socket socket4 = Socket(config);
-
-	config.set_ip(SERVER_IP); config.set_port("--123123");
-	Socket socket5 = Socket(config);
-
-	config.set_ip(SERVER_IP); config.set_port("127.1");
-	Socket socket6 = Socket(config);
+	Socket socket4 = Socket(SERVER_IP, "hoge");
+	Socket socket5 = Socket(SERVER_IP, "--123123");
+	Socket socket6 = Socket(SERVER_IP, "127.1");
 
 	EXPECT_FALSE(socket1.is_socket_success());
 //	EXPECT_FALSE(socket2.is_socket_success());
@@ -186,10 +140,7 @@ TEST(SocketUnitTest, ConstructorWithInvalidServerPort) {
 }
 
 TEST(SocketUnitTest, Getter) {
-	Configuration config;
-	config.set_ip(""); config.set_port("");
-
-	Socket socket = Socket(config);
+	Socket socket = Socket("", "");
 
 	EXPECT_FALSE(socket.is_socket_success());
 	EXPECT_EQ(INIT_FD, socket.get_socket_fd());
@@ -201,10 +152,7 @@ TEST(SocketUnitTest, Getter) {
 /* ******************************************* */
 TEST(SocketIntegrationTest, ConnectToClient) {
 	try {
-		Configuration config;
-		config.set_ip(SERVER_IP); config.set_port(SERVER_PORT);
-
-		Socket server = Socket(config);
+		Socket server = Socket(SERVER_IP, SERVER_PORT);
 		struct sockaddr_in addr = {};
 		int client_fd;
 
@@ -223,10 +171,7 @@ TEST(SocketIntegrationTest, ConnectToClient) {
 
 TEST(SocketIntegrationTest, ConnectOverSomaxconClient) {
 	try {
-		Configuration config;
-		config.set_ip(SERVER_IP); config.set_port(SERVER_PORT);
-
-		Socket server = Socket(config);
+		Socket server = Socket(SERVER_IP, SERVER_PORT);
 		int client_fd;
 		struct sockaddr_in addr = {};
 

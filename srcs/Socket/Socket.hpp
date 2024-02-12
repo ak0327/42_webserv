@@ -30,5 +30,4 @@ class Socket {
 	Result<int, std::string> bind_socket() const;
 	Result<int, std::string> listen_socket() const;
 	Result<int, std::string> set_fd_to_nonblock() const;
-
 };

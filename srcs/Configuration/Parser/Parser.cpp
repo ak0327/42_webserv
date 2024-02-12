@@ -103,21 +103,23 @@ Result<HttpConfig, std::string> Parser::parse(const std::deque<Token> &tokens) {
 }
 
 
+// server_block内に同一のip, portはNG
 Result<int, std::string> validate_listen(const std::vector<ServerConfig> &server_configs) {
     std::vector<ServerConfig>::const_iterator server_config;
     for (server_config = server_configs.begin(); server_config != server_configs.end(); ++server_config) {
         const std::vector<ListenDirective> listens = server_config->listens;
 
-        std::set<ListenDirective> listen_directives;
+        std::set<AddressPortPair> address_port_pairs;
 
         std::vector<ListenDirective>::const_iterator listen;
         for (listen = listens.begin(); listen != listens.end(); ++listen) {
-            if (listen_directives.find(*listen) != listen_directives.end()) {
+            AddressPortPair pair = std::make_pair(listen->address, listen->port);
+            if (address_port_pairs.find(pair) != address_port_pairs.end()) {
                 std::ostringstream oss;
                 oss << "duplicate listen \"" << listen->address << ":" << listen->port << "\"";
                 return Result<int, std::string>::err(oss.str());
             }
-            listen_directives.insert(*listen);
+            address_port_pairs.insert(pair);
         }
     }
     return Result<int, std::string>::ok(OK);

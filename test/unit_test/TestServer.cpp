@@ -175,28 +175,6 @@ TEST(ServerUnitTest, Constructor) {
 	EXPECT_NO_THROW((Server(config)));
 }
 
-TEST(ServerUnitTest, ConstructorThrowException) {
-	Configuration config;
-
-	config.set_ip("hoge"); config.set_port("8080");
-	EXPECT_ANY_THROW((Server(config)));
-
-	config.set_ip("42"); config.set_port("8080");
-	EXPECT_ANY_THROW((Server(config)));
-
-	config.set_ip("127.0.0.256"); config.set_port("8080");
-	EXPECT_ANY_THROW((Server(config)));
-
-	config.set_ip("127.0.0.1"); config.set_port("a");
-	EXPECT_ANY_THROW((Server(config)));
-
-	config.set_ip("127.0.0.1"); config.set_port("-1");
-	EXPECT_ANY_THROW((Server(config)));
-
-	config.set_ip("huga"); config.set_port("-1");
-	EXPECT_ANY_THROW((Server(config)));
-}
-
 TEST(ServerUnitTest, ConnectClientCase1) {
 	std::string msg = "test request";
 	std::string server_recv_msg;
