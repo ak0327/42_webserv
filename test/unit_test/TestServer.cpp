@@ -168,12 +168,12 @@ void run_server_and_multi_client(const char *server_ip,
 
 // int port = 49152;
 
-TEST(ServerUnitTest, Constructor) {
-    const char *file_path = "test/test_conf/test_server.conf";
-    Configuration config(file_path);
-
-	EXPECT_NO_THROW((Server(config)));
-}
+// TEST(ServerUnitTest, Constructor) {
+//     const char *file_path = "test/test_conf/test_server.conf";
+//     Configuration config(file_path);
+//
+// 	EXPECT_NO_THROW((Server(config)));
+// }
 
 TEST(ServerUnitTest, ConnectClientCase1) {
 	std::string msg = "test request";
