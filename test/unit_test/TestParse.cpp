@@ -72,29 +72,33 @@ TEST(TestParser, ParseOK) {
         {504, "/50x.html"},
     };
 
-    location_config = {};
+    // location "/"
+    location_config = LocationConfig(server_config);
     location_config.root_path = "html";
     location_config.index_pages = {"index.html", "index.htm"};
     server_config.locations["/"] = location_config;
 
-    location_config = {};
+    // location "/old.html"
+    location_config = LocationConfig(server_config);
     location_config.redirection.return_on = true;
     location_config.redirection.code = 301;
     location_config.redirection.text = "/new.html";
     server_config.locations["/old.html"] = location_config;
 
-    location_config = {};
+    // location "/upload"
+    location_config = LocationConfig(server_config);
     location_config.autoindex = true;
     server_config.locations["/upload"] = location_config;
 
-    location_config = {};
+    // location "/post"
+    location_config = LocationConfig(server_config);
     location_config.limit_except.excluded_methods = {kPOST, kDELETE};
     location_config.limit_except.rules.push_back(AccessRule(kDENY, "all"));
     location_config.max_body_size_bytes = 20 * ConfigInitValue::MB;
     location_config.root_path = "/upload";
     server_config.locations["/post"] = location_config;
 
-    location_config = {};
+    location_config = LocationConfig(server_config);
     location_config.root_path = "www";
     server_config.locations["=/50x.html"] = location_config;
 
@@ -103,6 +107,7 @@ TEST(TestParser, ParseOK) {
     actual = parser1.get_config();
     result = parser1.get_result();
 
+    // print_error_msg(result, __LINE__);
     EXPECT_TRUE(result.is_ok());
     expect_eq_http_config(expected, actual, __LINE__);
 
@@ -122,7 +127,7 @@ TEST(TestParser, ParseOK) {
 
     server_config.root_path = "www";
 
-    location_config = {};
+    location_config = LocationConfig(server_config);
     server_config.locations["^~/cgi-bin/"] = location_config;
 
     expected.servers.push_back(server_config);
@@ -130,6 +135,7 @@ TEST(TestParser, ParseOK) {
     actual = parser2.get_config();
     result = parser2.get_result();
 
+    // print_error_msg(result, __LINE__);
     EXPECT_TRUE(result.is_ok());
     expect_eq_http_config(expected, actual, __LINE__);
 
@@ -157,29 +163,29 @@ TEST(TestParser, ParseOK) {
         {504, "/50x.html"},
     };
 
-    location_config = {};
+    location_config = LocationConfig(server_config);
     location_config.root_path = "html";
     location_config.index_pages = {"index.html", "index.htm"};
     server_config.locations["/"] = location_config;
 
-    location_config = {};
+    location_config = LocationConfig(server_config);
     location_config.redirection.return_on = true;
     location_config.redirection.code = 301;
     location_config.redirection.text = "/new.html";
     server_config.locations["/old.html"] = location_config;
 
-    location_config = {};
+    location_config = LocationConfig(server_config);
     location_config.autoindex = true;
     server_config.locations["/upload"] = location_config;
 
-    location_config = {};
+    location_config = LocationConfig(server_config);
     location_config.limit_except.excluded_methods = {kPOST, kDELETE};
     location_config.limit_except.rules.push_back(AccessRule(kDENY, "all"));
     location_config.max_body_size_bytes = 20 * ConfigInitValue::MB;
     location_config.root_path = "/upload";
     server_config.locations["/post"] = location_config;
 
-    location_config = {};
+    location_config = LocationConfig(server_config);
     location_config.root_path = "www";
     server_config.locations["=/50x.html"] = location_config;
 
@@ -197,7 +203,7 @@ TEST(TestParser, ParseOK) {
 
     server_config.root_path = "www";
 
-    location_config = {};
+    location_config = LocationConfig(server_config);
     server_config.locations["^~/cgi-bin/"] = location_config;
 
     expected.servers.push_back(server_config);
@@ -205,6 +211,7 @@ TEST(TestParser, ParseOK) {
     actual = parser3.get_config();
     result = parser3.get_result();
 
+    // print_error_msg(result, __LINE__);
     EXPECT_TRUE(result.is_ok());
     expect_eq_http_config(expected, actual, __LINE__);
 }

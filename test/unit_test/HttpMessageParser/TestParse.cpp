@@ -109,7 +109,7 @@ TEST(TestHttpMessageParser, ParsePort) {
 	EXPECT_EQ(3, end);
 
 	str = "255.255.255.255:8080";
-	//                start^   ^end
+	//                start^   ^endl
 	//     01234567890123456789
 	start = 16;
 	result = HttpMessageParser::parse_port(str, start, &end);
@@ -424,28 +424,3 @@ TEST(TestHttpMessageParser, ParseParameters) {
 	EXPECT_EQ(expected, actual);
 	EXPECT_EQ(12, end);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
