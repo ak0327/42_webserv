@@ -10,6 +10,10 @@ class Socket {
 	explicit Socket(const std::string &ip_addr, const std::string &port);
 	~Socket();
 
+    Socket();
+    Socket(const Socket &other);
+    Socket &operator=(const Socket &rhs);
+
 	int	get_socket_fd() const;
 	Result<int, std::string> get_socket_result() const;
 	bool is_socket_success() const;
@@ -26,4 +30,5 @@ class Socket {
 	Result<int, std::string> bind_socket() const;
 	Result<int, std::string> listen_socket() const;
 	Result<int, std::string> set_fd_to_nonblock() const;
+
 };

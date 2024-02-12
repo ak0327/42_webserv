@@ -45,12 +45,16 @@ Result<int, std::string> close_socket_fd(int socket_fd) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+Socket::Socket()
+    : socket_fd_(INIT_FD),
+      addr_info_(NULL) {}
+
 Socket::Socket(const std::string &ip_addr, const std::string &port)
-		: result_(),
-          socket_fd_(INIT_FD),
-          addr_info_(NULL),
-          server_ip_(ip_addr),
-          server_port_(port) {
+    : result_(),
+      socket_fd_(INIT_FD),
+      addr_info_(NULL),
+      server_ip_(ip_addr),
+      server_port_(port) {
 	this->result_ = init_addr_info();
 	if (this->result_.is_err()) {
 		return;
@@ -73,6 +77,10 @@ Socket::Socket(const std::string &ip_addr, const std::string &port)
 	}
 }
 
+Socket::Socket(const Socket &other) {
+    *this = other;
+}
+
 Socket::~Socket() {
 	if (this->addr_info_ != NULL) {
 		freeaddrinfo(this->addr_info_);
@@ -85,6 +93,18 @@ Socket::~Socket() {
 		}
 		this->socket_fd_ = INIT_FD;
 	}
+}
+
+Socket &Socket::operator=(const Socket &rhs) {
+    if (this == &rhs) {
+        return *this;
+    }
+    this->result_ = rhs.result_;
+    this->socket_fd_ = rhs.socket_fd_;
+    this->addr_info_ = rhs.addr_info_;  // todo
+    this->server_ip_ = rhs.server_ip_;
+    this->server_port_ = rhs.server_port_;
+    return *this;
 }
 
 Result<int, std::string> Socket::init_addr_info() {
