@@ -150,8 +150,8 @@ ServerResult Server::create_sockets(const std::vector<ServerConfig> &server_conf
         std::vector<ListenDirective>::const_iterator listen;
         for (listen = listens.begin(); listen != listens.end(); ++listen) {
             address_port_pairs.insert(AddressPortPair(listen->address, listen->port));
-            std::cout << "address_port_pair -> ip: " << listen->address
-                      << ", port: " << listen->port << std::endl;
+            // std::cout << "address_port_pair -> ip: " << listen->address
+            //           << ", port: " << listen->port << std::endl;
         }
     }
 
@@ -162,12 +162,12 @@ ServerResult Server::create_sockets(const std::vector<ServerConfig> &server_conf
 
         try {
             Socket* socket = new Socket(pair->first, pair->second);
-            std::cout << "create_sockets -> ip: " << pair->first
-                      << ", port: " << pair->second << std::endl;
+            // std::cout << "create_sockets -> ip: " << pair->first
+            //           << ", port: " << pair->second << std::endl;
             if (socket->is_socket_success()) {
                 int socket_fd = socket->get_socket_fd();
                 sockets_[socket_fd] = socket;
-                std::cout << "socket_fd: " << socket_fd << std::endl;
+                // std::cout << "socket_fd: " << socket_fd << std::endl;
                 continue;
             }
             const std::string error_msg = socket->get_socket_result().get_err_value();
