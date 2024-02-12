@@ -290,7 +290,7 @@ ServerResult Server::communicate_with_ready_client(int connect_fd) {
 		return ServerResult::err("[Server Error] send: " + err_info);
 	}
 
-    ServerResult clear_result = this->fds_->clear_fd(connect_fd);
+    ServerResult clear_result = this->fds_->clear_connect_fd(connect_fd);
 	if (clear_result.is_err()) {
 		const std::string err_info = create_error_info(clear_result.get_err_value(), __FILE__, __LINE__);
 		std::cerr << "[Server Error] clear_fd: " + err_info << std::endl;

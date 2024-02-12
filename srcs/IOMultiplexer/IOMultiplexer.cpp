@@ -88,7 +88,7 @@ Result<int, std::string> EPollMultiplexer::register_connect_fd(int connect_fd) {
 	return Result<int, std::string>::ok(OK);
 }
 
-Result<int, std::string> EPollMultiplexer::clear_fd(int clear_fd) {
+Result<int, std::string> EPollMultiplexer::clear_connect_fd(int clear_fd) {
 	errno = 0;
 	if (epoll_ctl(this->epoll_fd_, EPOLL_CTL_DEL, clear_fd, NULL) == EPOLL_ERROR) {
 		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
@@ -209,7 +209,7 @@ Result<int, std::string> KqueueMultiplexer::register_connect_fd(int connect_fd) 
 	return kevent_register(this->kq_, &this->change_event_);
 }
 
-Result<int, std::string> KqueueMultiplexer::clear_fd(int clear_fd) {
+Result<int, std::string> KqueueMultiplexer::clear_connect_fd(int clear_fd) {
 	Result<int, std::string> kevent_result;
 	std::string err_str, err_info;
 
@@ -242,7 +242,7 @@ const int SELECT_ERROR = -1;
 const int SELECT_TIMEOUT = 0;
 const int MAX_SESSION = 128;
 
-int get_max_fd(const std::vector<int> &socket_fds, const std::vector<int> &connect_fds) {
+int get_max_fd(const std::deque<int> &socket_fds, const std::deque<int> &connect_fds) {
     int socket_max_fd = INIT_FD;
     int client_max_fd = INIT_FD;
 
@@ -255,46 +255,7 @@ int get_max_fd(const std::vector<int> &socket_fds, const std::vector<int> &conne
     return std::max(client_max_fd, socket_max_fd);
 }
 
-Result<int, std::string> select_fds(int max_fd, fd_set *fds) {
-	struct timeval timeout = {};
-	int select_ret;
 
-	// timeout < 1.5sec, communicate error ??
-	timeout.tv_sec = 2;
-	timeout.tv_usec = 500 * 1000;  // 500ms
-
-	errno = 0;
-	select_ret = select(max_fd + 1, fds, NULL, NULL, &timeout);
-	if (select_ret == SELECT_ERROR) {
-		return Result<int, std::string>::err(strerror(errno));
-	}
-	return Result<int, std::string>::ok(select_ret);
-}
-
-Result<int, int> get_ready_fd(fd_set *fds,
-                              const std::vector<int> &socket_fds,
-                              const std::vector<int> &connect_fds) {
-    for (std::vector<int>::const_iterator fd = socket_fds.begin(); fd != socket_fds.end(); ++fd) {
-        if (*fd == INIT_FD) {
-            continue;
-        }
-        if (!FD_ISSET(*fd, fds)) {
-            continue;
-        }
-        return Result<int, int>::ok(*fd);
-    }
-
-    for (std::vector<int>::const_iterator fd = connect_fds.begin(); fd != connect_fds.end(); ++fd) {
-		if (*fd == INIT_FD) {
-			continue;
-		}
-		if (!FD_ISSET(*fd, fds)) {
-			continue;
-		}
-		return Result<int, int>::ok(*fd);
-	}
-	return Result<int, int>::err(ERR);
-}
 
 }  // namespace
 
@@ -302,15 +263,12 @@ Result<int, int> get_ready_fd(fd_set *fds,
 
 SelectMultiplexer::SelectMultiplexer() {
 	DEBUG_SERVER_PRINT("[I/O multiplexer : select]");
-
     FD_ZERO(&fds_);
-	// this->connect_fds_ = std::vector<int>(MAX_SESSION, INIT_FD);
-	// this->fds_ = init_fds(this->socket_fd_, this->connect_fds_);
 }
 
 
 SelectMultiplexer::~SelectMultiplexer() {
-	for (int i = 0; i < this->connect_fds_.size(); ++i) {
+	for (std::size_t i = 0; i < this->connect_fds_.size(); ++i) {
 		if (this->connect_fds_[i] == INIT_FD) {
 			continue;
 		}
@@ -341,6 +299,46 @@ void SelectMultiplexer::init_fds() {
     }
 }
 
+Result<int, std::string> select_fds(int max_fd, fd_set *fds) {
+    struct timeval timeout = {};
+    int select_ret;
+
+    // timeout < 1.5sec, communicate error ??
+    timeout.tv_sec = 2;
+    timeout.tv_usec = 500 * 1000;  // 500ms
+
+    errno = 0;
+    select_ret = select(max_fd + 1, fds, NULL, NULL, &timeout);
+    if (select_ret == SELECT_ERROR) {
+        return Result<int, std::string>::err(strerror(errno));
+    }
+    return Result<int, std::string>::ok(select_ret);
+}
+
+Result<int, int> get_ready_fd(fd_set *fds,
+                              const std::deque<int> &socket_fds,
+                              const std::deque<int> &connect_fds) {
+    for (std::deque<int>::const_iterator fd = socket_fds.begin(); fd != socket_fds.end(); ++fd) {
+        if (*fd == INIT_FD) {
+            continue;
+        }
+        if (!FD_ISSET(*fd, fds)) {
+            continue;
+        }
+        return Result<int, int>::ok(*fd);
+    }
+
+    for (std::deque<int>::const_iterator fd = connect_fds.begin(); fd != connect_fds.end(); ++fd) {
+        if (*fd == INIT_FD) {
+            continue;
+        }
+        if (!FD_ISSET(*fd, fds)) {
+            continue;
+        }
+        return Result<int, int>::ok(*fd);
+    }
+    return Result<int, int>::err(ERR);
+}
 
 Result<int, std::string> SelectMultiplexer::get_io_ready_fd() {
 	Result<int, std::string> select_result;
@@ -367,10 +365,10 @@ Result<int, std::string> SelectMultiplexer::get_io_ready_fd() {
 }
 
 
-Result<int, std::string> SelectMultiplexer::clear_fd(int clear_fd) {
-	std::vector<int>::iterator fd = std::find(this->connect_fds_.begin(),
-											  this->connect_fds_.end(),
-											  clear_fd);
+Result<int, std::string> SelectMultiplexer::clear_connect_fd(int clear_fd) {
+	std::deque<int>::iterator fd = std::find(this->connect_fds_.begin(),
+											 this->connect_fds_.end(),
+											 clear_fd);
 	if (fd == this->connect_fds_.end()) {
 		std::string err_info = create_error_info("clear fd not found", __FILE__, __LINE__);
 		return Result<int, std::string>::err("[Server Error] " + err_info);
@@ -382,34 +380,48 @@ Result<int, std::string> SelectMultiplexer::clear_fd(int clear_fd) {
 		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
 		return Result<int, std::string>::err("close:" + err_info);
 	}
-	*fd = INIT_FD;
+	this->connect_fds_.erase(fd);
 	return Result<int, std::string>::ok(OK);
 }
 
 
+Result<int, int> SelectMultiplexer::register_fd(int fd, std::deque<int> *fd_deque) {
+    if (!fd_deque) {
+        return Result<int, int>::err(ERR);
+    }
+
+    if (FD_ISSET(fd, &this->fds_)) {
+        return Result<int, int>::err(ERR);
+    }
+
+    fd_deque->push_back(fd);
+    FD_SET(fd, &this->fds_);
+    this->max_fd_ = std::max(this->max_fd_, fd);
+    return Result<int, int>::ok(OK);
+}
+
+
 Result<int, std::string> SelectMultiplexer::register_socket_fd(int socket_fd) {
-    if (FD_ISSET(socket_fd, &this->fds_)) {
+    Result<int, int> register_result = register_fd(socket_fd, &this->socket_fds_);
+    if (register_result.is_err()) {
         std::string err_info = create_error_info("socket_fd already registered", __FILE__, __LINE__);
         return Result<int, std::string>::err("[Server Error] " + err_info);
     }
-
-    socket_fds_.push_back(socket_fd);
-    FD_SET(socket_fd, &this->fds_);
-    this->max_fd_ = std::max(this->max_fd_, socket_fd);
     return Result<int, std::string>::ok(OK);
 }
 
 
 Result<int, std::string> SelectMultiplexer::register_connect_fd(int connect_fd) {
-	std::vector<int>::iterator fd = std::find(this->connect_fds_.begin(),
-											  this->connect_fds_.end(),
-											  INIT_FD);
-	if (fd == this->connect_fds_.end()) {
-		std::string err_info = create_error_info("over max connection", __FILE__, __LINE__);
-		return Result<int, std::string>::err("[Server Info] " + err_info);
-	}
-	*fd = connect_fd;
-	return Result<int, std::string>::ok(OK);
+    if (MAX_SESSION <= this->connect_fds_.size()) {
+        std::string err_info = create_error_info("over max connection", __FILE__, __LINE__);
+        return Result<int, std::string>::err("[Server Info] " + err_info);
+    }
+    Result<int, int> register_result = register_fd(connect_fd, &this->connect_fds_);
+    if (register_result.is_err()) {
+        std::string err_info = create_error_info("connect_fd already registered", __FILE__, __LINE__);
+        return Result<int, std::string>::err("[Server Error] " + err_info);
+    }
+    return Result<int, std::string>::ok(OK);
 }
 
 #endif
