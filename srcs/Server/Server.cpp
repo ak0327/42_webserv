@@ -161,7 +161,7 @@ ServerResult Server::create_sockets(const std::vector<ServerConfig> &server_conf
         const std::string port = pair->second;
 
         try {
-            Socket* socket = new Socket(pair->first, pair->second);
+            Socket *socket = new Socket(pair->first, pair->second);
             // std::cout << "create_sockets -> ip: " << pair->first
             //           << ", port: " << pair->second << std::endl;
             if (socket->is_socket_success()) {
