@@ -33,12 +33,11 @@ struct s_client {
 
 /* helper */
 void *run_server(void *server_info) {
-	s_server	*s = (s_server *)server_info;
-	bool		is_server_success = true;
-	Configuration		config;
+	s_server *s = (s_server *)server_info;
+	bool is_server_success = true;
+    const char *file_path = "test/test_conf/test_server.conf";
+    Configuration config(file_path);
 
-	config.set_ip(s->server_ip);
-	config.set_port(s->server_port);
 	try {
 		DEBUG_SERVER_PRINT("start");
 		Server server = Server(config);
@@ -56,8 +55,8 @@ void *run_server(void *server_info) {
 }
 
 void *run_client(void *client_info) {
-	s_client	*c = (s_client *)client_info;
-	bool		is_client_success = true;
+	s_client *c = (s_client *)client_info;
+	bool is_client_success = true;
 	std::string msg = c->send_msg;
 
 	if (c->no != 0) {
@@ -170,31 +169,10 @@ void run_server_and_multi_client(const char *server_ip,
 // int port = 49152;
 
 TEST(ServerUnitTest, Constructor) {
-	Configuration config;
+    const char *file_path = "test/test_conf/test_server.conf";
+    Configuration config(file_path);
 
 	EXPECT_NO_THROW((Server(config)));
-}
-
-TEST(ServerUnitTest, ConstructorThrowException) {
-	Configuration config;
-
-	config.set_ip("hoge"); config.set_port("8080");
-	EXPECT_ANY_THROW((Server(config)));
-
-	config.set_ip("42"); config.set_port("8080");
-	EXPECT_ANY_THROW((Server(config)));
-
-	config.set_ip("127.0.0.256"); config.set_port("8080");
-	EXPECT_ANY_THROW((Server(config)));
-
-	config.set_ip("127.0.0.1"); config.set_port("a");
-	EXPECT_ANY_THROW((Server(config)));
-
-	config.set_ip("127.0.0.1"); config.set_port("-1");
-	EXPECT_ANY_THROW((Server(config)));
-
-	config.set_ip("huga"); config.set_port("-1");
-	EXPECT_ANY_THROW((Server(config)));
 }
 
 TEST(ServerUnitTest, ConnectClientCase1) {
@@ -220,7 +198,7 @@ TEST(ServerUnitTest, ConnectClientCase1) {
 }
 
 TEST(ServerUnitTest, ConnectClientCase2) {
-	std::string msg = "";
+	std::string msg;
 	std::string server_recv_msg;
 	std::string client_recv_msg;
 
@@ -398,4 +376,11 @@ TEST(ServerUnitTest, ConnectMultiClient20) {
 	catch (std::exception const &e) {
 		FAIL() << e.what();
 	}
+}
+
+
+TEST(ServerUnitTest, TestMultiServer) {
+    Configuration config("test/test_conf/test_multi_server.conf");
+
+    EXPECT_NO_THROW(Server server(config));
 }

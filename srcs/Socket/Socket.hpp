@@ -7,8 +7,9 @@
 
 class Socket {
  public:
-	explicit Socket(const Configuration &config);
+	explicit Socket(const std::string &ip_addr, const std::string &port);
 	~Socket();
+
 
 	int	get_socket_fd() const;
 	Result<int, std::string> get_socket_result() const;
@@ -18,7 +19,7 @@ class Socket {
 	Result<int, std::string> result_;
 	int socket_fd_;
 	struct addrinfo *addr_info_;
-	std::string server_ip_;  // Nullable?
+	std::string server_ip_;
 	std::string server_port_;
 
 	Result<int, std::string> init_addr_info();
@@ -26,4 +27,8 @@ class Socket {
 	Result<int, std::string> bind_socket() const;
 	Result<int, std::string> listen_socket() const;
 	Result<int, std::string> set_fd_to_nonblock() const;
+
+    Socket();
+    Socket(const Socket &other);
+    Socket &operator=(const Socket &rhs);
 };

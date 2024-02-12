@@ -12,65 +12,74 @@
 #  include <sys/time.h>
 # else
 #  include <sys/select.h>
+#  include <deque>
 # endif
 
 class IOMultiplexer {
  public:
 	virtual ~IOMultiplexer() {}
 	virtual Result<int, std::string> get_io_ready_fd() = 0;
-	virtual Result<int, std::string> register_connect_fd(int connect_fd) = 0;
-	virtual Result<int, std::string> clear_fd(int clear_fd) = 0;
+    virtual Result<int, std::string> register_fd(int fd) = 0;
+    virtual Result<int, std::string> clear_fd(int fd) = 0;
 };
 
 #if defined(__linux__) && !defined(USE_SELECT_MULTIPLEXER)
 
 class EPollMultiplexer : public IOMultiplexer {
  public:
-	explicit EPollMultiplexer(int socket_fd);
+	EPollMultiplexer();
 	virtual ~EPollMultiplexer();
 	virtual Result<int, std::string> get_io_ready_fd();
-	virtual Result<int, std::string> register_connect_fd(int connect_fd);
-	virtual Result<int, std::string> clear_fd(int clear_fd);
+    virtual Result<int, std::string> register_fd(int fd);
+    virtual Result<int, std::string> clear_fd(int fd);
+
  private:
-	int socket_fd_;
 	int epoll_fd_;
 	struct epoll_event ev_;
 	struct epoll_event new_event_;
+
+    Result<int, std::string> init_epoll();
 };
 
 #elif defined(__APPLE__) && !defined(USE_SELECT_MULTIPLEXER)
 
 class KqueueMultiplexer : public IOMultiplexer {
  public:
-	explicit KqueueMultiplexer(int socket_fd);
+	KqueueMultiplexer();
 	virtual ~KqueueMultiplexer();
 	virtual Result<int, std::string> get_io_ready_fd();
-	virtual Result<int, std::string> register_connect_fd(int connect_fd);
-	virtual Result<int, std::string> clear_fd(int clear_fd);
+    virtual Result<int, std::string> register_fd(int fd);
+    virtual Result<int, std::string> clear_fd(int fd);
 
  private:
-	int socket_fd_;
 	int kq_;
 	struct kevent change_event_;
 	struct kevent new_event_;
+
+    Result<int, std::string> init_kqueue();
+    Result<int, std::string> kevent_wait();
+    Result<int, std::string> kevent_register();
 };
 
 #else
 
 class SelectMultiplexer : public IOMultiplexer {
  public:
-	explicit SelectMultiplexer(int socket_fd);
+	SelectMultiplexer();
 	virtual ~SelectMultiplexer();
 	virtual Result<int, std::string> get_io_ready_fd();
-	virtual Result<int, std::string> register_connect_fd(int connect_fd);
-	virtual Result<int, std::string> clear_fd(int clear_fd);
+    virtual Result<int, std::string> register_fd(int fd);
+	virtual Result<int, std::string> clear_fd(int fd);
 
  private:
-	int socket_fd_;
-	std::vector<int> connect_fds_;
-	// std::vector<int> _ready_fds;
-	// std::vector<int> _active_fds;
-	fd_set fds_;
+    std::deque<int> fds_;
+	fd_set fd_set_;
+    int max_fd_;
+
+    void init_fds();
+    int get_max_fd() const;
+    int get_ready_fd() const;
+    Result<int, std::string> select_fds();
 };
 
 #endif
