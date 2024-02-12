@@ -123,18 +123,24 @@ Server::Server(const Configuration &config)
       fds_(NULL) {
     Result<int, std::string> socket_result = this->socket_.get_socket_result();
 	if (socket_result.is_err()) {
-		std::string socket_err_msg = socket_result.get_err_value();
-		throw std::runtime_error(RED "[Server Error] Initialization error: " + socket_err_msg + RESET);
+		const std::string socket_err_msg = socket_result.get_err_value();
+        std::ostringstream oss;
+        oss << RED << "[Server Error] Initialization error: " << socket_err_msg << RESET;
+		throw std::runtime_error(oss.str());
 	}
 
     Result<int, std::string> signal_result = set_signal();
 	if (signal_result.is_err()) {
-		throw std::runtime_error(RED "[Server Error] Initialization error: signal: " + signal_result.get_err_value() + RESET);
+        std::ostringstream oss;
+        oss << RED << "[Server Error] Initialization error: signal: " << signal_result.get_err_value() << RESET;
+        throw std::runtime_error(oss.str());
 	}
 
     Result<IOMultiplexer *, std::string> fds_result = create_io_multiplexer_fds(this->socket_.get_socket_fd());
 	if (fds_result.is_err()) {
-		throw std::runtime_error(RED "[Server Error] Initialization error: " + fds_result.get_err_value() + RESET);
+        std::ostringstream oss;
+        oss << RED << "[Server Error] Initialization error: " << fds_result.get_err_value() << RESET;
+        throw std::runtime_error(oss.str());
 	}
 	this->fds_ = fds_result.get_ok_value();
 }
