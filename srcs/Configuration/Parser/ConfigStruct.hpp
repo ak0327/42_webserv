@@ -145,8 +145,13 @@ struct LocationConfig : public DefaultConfig {
     LimitExceptDirective limit_except;
 
     LocationConfig()
-        : redirection(),
-          limit_except() {}
+            : redirection(),
+              limit_except() {}
+
+    explicit LocationConfig(const DefaultConfig &other)
+            : DefaultConfig(other),
+              redirection(),
+              limit_except() {}
 };
 
 struct ServerConfig : public DefaultConfig  {
