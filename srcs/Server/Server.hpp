@@ -24,7 +24,7 @@ class Server {
 	std::string get_recv_message() const;  // todo: for test, debug
 
  private:
-	std::map<Fd, Socket> sockets_;
+	std::map<Fd, Socket *> sockets_;
 	std::string recv_message_;  // for test. this variable valid only connect with 1 client
 	IOMultiplexer *fds_;
 
@@ -36,4 +36,5 @@ class Server {
     Result<IOMultiplexer *, std::string> create_io_multiplexer_fds();
 
     bool is_socket_fd(int fd) const;
+    void delete_sockets();
 };

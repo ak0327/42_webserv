@@ -129,7 +129,10 @@ Server::Server(const Configuration &config)
 	this->fds_ = fds_result.get_ok_value();
 }
 
-Server::~Server() { delete this->fds_; }
+Server::~Server() {
+    delete this->fds_;
+    delete_sockets();
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -143,6 +146,8 @@ ServerResult Server::create_sockets(const std::vector<ServerConfig> &server_conf
         std::vector<ListenDirective>::const_iterator listen;
         for (listen = listens.begin(); listen != listens.end(); ++listen) {
             address_port_pairs.insert(AddressPortPair(listen->address, listen->port));
+            std::cout << "address_port_pair -> ip: " << listen->address
+                      << ", port: " << listen->port << std::endl;
         }
     }
 
@@ -151,38 +156,63 @@ ServerResult Server::create_sockets(const std::vector<ServerConfig> &server_conf
         const std::string address = pair->first;
         const std::string port = pair->second;
 
-        Socket socket(address, port);
-        if (socket.is_socket_success()) {
-            int socket_fd = socket.get_socket_fd();
-            this->sockets_[socket_fd] = socket;
-            continue;
+        try {
+            Socket* socket = new Socket(pair->first, pair->second);
+            std::cout << "create_sockets -> ip: " << pair->first
+                      << ", port: " << pair->second << std::endl;
+            if (socket->is_socket_success()) {
+                int socket_fd = socket->get_socket_fd();
+                sockets_[socket_fd] = socket;
+                std::cout << "socket_fd: " << socket_fd << std::endl;
+                continue;
+            }
+            const std::string error_msg = socket->get_socket_result().get_err_value();
+            delete socket;
+            return ServerResult::err(error_msg);
         }
-        return ServerResult::err(socket.get_socket_result().get_err_value());
+        catch (std::bad_alloc const &e) {
+            std::string err_info = create_error_info("Failed to allocate memory", __FILE__, __LINE__);
+            return ServerResult ::err(err_info);
+        }
     }
     return ServerResult::ok(OK);
 }
 
-Result<IOMultiplexer *, std::string> Server::create_io_multiplexer_fds() {
-    IOMultiplexer *fds = NULL;
 
+void Server::delete_sockets() {
+    for (std::map<Fd, Socket *>::iterator itr = this->sockets_.begin(); itr != this->sockets_.end(); ++itr) {
+        delete itr->second;
+    }
+    this->sockets_.clear();
+}
+
+
+Result<IOMultiplexer *, std::string> Server::create_io_multiplexer_fds() {
     try {
-        std::map<Fd, Socket>::const_iterator socket;
+#if defined(__linux__) && !defined(USE_SELECT_MULTIPLEXER)
+        IOMultiplexer *fds = new EPollMultiplexer();
+#elif defined(__APPLE__) && !defined(USE_SELECT_MULTIPLEXER)
+        IOMultiplexer *fds = new KqueueMultiplexer();
+#else
+        IOMultiplexer *fds = new SelectMultiplexer();
+#endif
+        std::map<Fd, Socket *>::const_iterator socket;
         for (socket = this->sockets_.begin(); socket != this->sockets_.end(); ++socket) {
             int socket_fd = socket->first;
 
 #if defined(__linux__) && !defined(USE_SELECT_MULTIPLEXER)
-            fds = new EPollMultiplexer(socket_fd);
+                fds->register_socket_fd(socket_fd);
 #elif defined(__APPLE__) && !defined(USE_SELECT_MULTIPLEXER)
-            fds = new KqueueMultiplexer(socket_fd);
+                fds->register_socket_fd(socket_fd);
 #else
-            fds = new SelectMultiplexer(socket_fd);
+                fds->register_socket_fd(socket_fd);
 #endif
         }
+        return Result<IOMultiplexer *, std::string>::ok(fds);
     } catch (std::bad_alloc const &e) {
         std::string err_info = create_error_info("Failed to allocate memory", __FILE__, __LINE__);
         return Result<IOMultiplexer *, std::string>::err(err_info);
     }
-    return Result<IOMultiplexer *, std::string>::ok(fds);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

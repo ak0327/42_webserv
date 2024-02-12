@@ -48,7 +48,7 @@ int create_nonblock_client_fd() {
 /*               Socket Unit Test              */
 /* ******************************************* */
 TEST(SocketUnitTest, ConstructorWithArgument) {
-	Socket socket = Socket(SERVER_IP, SERVER_PORT);
+	Socket socket(SERVER_IP, SERVER_PORT);
 
 	EXPECT_TRUE(socket.is_socket_success());
 
@@ -57,9 +57,9 @@ TEST(SocketUnitTest, ConstructorWithArgument) {
 TEST(SocketUnitTest, ConstructorWithValidServerIP) {
 	int port = 49152;
 
-	Socket socket1 = Socket("127.0.0.1", std::to_string(port++));
-	Socket socket2 = Socket("0.0.0.0", std::to_string(port++));
-	Socket socket3 = Socket("000.0000.00000.000000", std::to_string(port++));
+	Socket socket1("127.0.0.1", std::to_string(port++));
+	Socket socket2("0.0.0.0", std::to_string(port++));
+	Socket socket3("000.0000.00000.000000", std::to_string(port++));
 
 	EXPECT_TRUE(socket1.is_socket_success());
 	EXPECT_TRUE(socket2.is_socket_success());
@@ -69,22 +69,22 @@ TEST(SocketUnitTest, ConstructorWithValidServerIP) {
 TEST(SocketUnitTest, ConstructorWithInvalidServerIP) {
 	int port = 49152;
 
-	Socket socket1 = Socket("127.0.0.0.1", std::to_string(port++));
-	Socket socket2 = Socket("256.0.0.0", std::to_string(port++));
-	Socket socket3 = Socket("-1", std::to_string(port++));
-	Socket socket4 = Socket("a.0.0.0", std::to_string(port++));
-	Socket socket5 = Socket("127:0.0.1", std::to_string(port++));
-	Socket socket6 = Socket("127,0.0.1", std::to_string(port++));
-	Socket socket7 = Socket("127.0.0.-1", std::to_string(port++));
-	Socket socket8 = Socket("2147483647.2147483647.2147483647.2147483647", std::to_string(port++));
-	// Socket socket9 = Socket("", std::to_string(port++));  todo: ok?
-	Socket socket10 = Socket("hoge", std::to_string(port++));
-	Socket socket11 = Socket("0001.0001.0001.0001", std::to_string(port++));
-	Socket socket12 = Socket("255.255.255.254", std::to_string(port++));
+	Socket socket1("127.0.0.0.1", std::to_string(port++));
+	Socket socket2("256.0.0.0", std::to_string(port++));
+	Socket socket3("-1", std::to_string(port++));
+	Socket socket4("a.0.0.0", std::to_string(port++));
+	Socket socket5("127:0.0.1", std::to_string(port++));
+	Socket socket6("127,0.0.1", std::to_string(port++));
+	Socket socket7("127.0.0.-1", std::to_string(port++));
+	Socket socket8("2147483647.2147483647.2147483647.2147483647", std::to_string(port++));
+	// Socket socket9("", std::to_string(port++));  todo: ok?
+	Socket socket10("hoge", std::to_string(port++));
+	Socket socket11("0001.0001.0001.0001", std::to_string(port++));
+	Socket socket12("255.255.255.254", std::to_string(port++));
 
 
 	// config.set_ip("255.255.255.255"); config.set_port(std::to_string(port++));
-	// Socket socket13 = Socket("255.255.255.255", std::to_string(port++).c_str());  // Linux OK, todo:error?
+	// Socket socket13("255.255.255.255", std::to_string(port++).c_str());  // Linux OK, todo:error?
 
 	EXPECT_FALSE(socket1.is_socket_success());
 	EXPECT_FALSE(socket2.is_socket_success());
@@ -102,10 +102,10 @@ TEST(SocketUnitTest, ConstructorWithInvalidServerIP) {
 }
 
 TEST(SocketUnitTest, ConstructorWithValidServerPort) {
-	Socket socket1 = Socket(SERVER_IP, "0");  // ephemeral port
-	Socket socket2 = Socket(SERVER_IP, "0000");
-	Socket socket3 = Socket(SERVER_IP, "8080");
-	Socket socket4 = Socket(SERVER_IP, "65535");
+	Socket socket1(SERVER_IP, "0");  // ephemeral port
+	Socket socket2(SERVER_IP, "0000");
+	Socket socket3(SERVER_IP, "8080");
+	Socket socket4(SERVER_IP, "65535");
 
 	EXPECT_TRUE(socket1.is_socket_success());
 	EXPECT_TRUE(socket2.is_socket_success());
@@ -114,15 +114,15 @@ TEST(SocketUnitTest, ConstructorWithValidServerPort) {
 }
 
 TEST(SocketUnitTest, ConstructorWithInvalidServerPort) {
-	Socket socket1 = Socket(SERVER_IP, "-1");
+	Socket socket1(SERVER_IP, "-1");
 	// config.set_ip(SERVER_IP); config.set_port("65536");
-//	Socket socket2 = Socket(SERVER_IP, SERVER_PORT);  // uisingned short 65536->0(ephemeral port)
+//	Socket socket2(SERVER_IP, SERVER_PORT);  // uisingned short 65536->0(ephemeral port)
 
 	// config.set_ip(SERVER_IP); config.set_port("");
-	// Socket socket3 = Socket(SERVER_IP, SERVER_PORT);	// strtol->0 (tmp)
-	Socket socket4 = Socket(SERVER_IP, "hoge");
-	Socket socket5 = Socket(SERVER_IP, "--123123");
-	Socket socket6 = Socket(SERVER_IP, "127.1");
+	// Socket socket3(SERVER_IP, SERVER_PORT);	// strtol->0 (tmp)
+	Socket socket4(SERVER_IP, "hoge");
+	Socket socket5(SERVER_IP, "--123123");
+	Socket socket6(SERVER_IP, "127.1");
 
 	EXPECT_FALSE(socket1.is_socket_success());
 //	EXPECT_FALSE(socket2.is_socket_success());
@@ -133,7 +133,7 @@ TEST(SocketUnitTest, ConstructorWithInvalidServerPort) {
 }
 
 TEST(SocketUnitTest, Getter) {
-	Socket socket = Socket("", "");
+	Socket socket("", "");
 
 	EXPECT_FALSE(socket.is_socket_success());
 	EXPECT_EQ(INIT_FD, socket.get_socket_fd());
@@ -145,7 +145,7 @@ TEST(SocketUnitTest, Getter) {
 /* ******************************************* */
 TEST(SocketIntegrationTest, ConnectToClient) {
 	try {
-		Socket server = Socket(SERVER_IP, SERVER_PORT);
+		Socket server(SERVER_IP, SERVER_PORT);
 		struct sockaddr_in addr = {};
 		int client_fd;
 
@@ -164,7 +164,7 @@ TEST(SocketIntegrationTest, ConnectToClient) {
 
 TEST(SocketIntegrationTest, ConnectOverSomaxconClient) {
 	try {
-		Socket server = Socket(SERVER_IP, SERVER_PORT);
+		Socket server(SERVER_IP, SERVER_PORT);
 		int client_fd;
 		struct sockaddr_in addr = {};
 

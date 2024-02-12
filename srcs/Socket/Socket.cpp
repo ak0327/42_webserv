@@ -45,9 +45,6 @@ Result<int, std::string> close_socket_fd(int socket_fd) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Socket::Socket()
-    : socket_fd_(INIT_FD),
-      addr_info_(NULL) {}
 
 Socket::Socket(const std::string &ip_addr, const std::string &port)
     : result_(),
@@ -77,12 +74,10 @@ Socket::Socket(const std::string &ip_addr, const std::string &port)
 	}
 }
 
-Socket::Socket(const Socket &other) {
-    *this = other;
-}
 
 Socket::~Socket() {
-	if (this->addr_info_ != NULL) {
+    // std::cout << CYAN << "~Socket called" << RESET << std::endl;
+    if (this->addr_info_ != NULL) {
 		freeaddrinfo(this->addr_info_);
 		this->addr_info_ = NULL;
 	}
@@ -95,24 +90,14 @@ Socket::~Socket() {
 	}
 }
 
-Socket &Socket::operator=(const Socket &rhs) {
-    if (this == &rhs) {
-        return *this;
-    }
-    this->result_ = rhs.result_;
-    this->socket_fd_ = rhs.socket_fd_;
-    this->addr_info_ = rhs.addr_info_;  // todo
-    this->server_ip_ = rhs.server_ip_;
-    this->server_port_ = rhs.server_port_;
-    return *this;
-}
 
 Result<int, std::string> Socket::init_addr_info() {
 	struct addrinfo	hints = {};
 	struct addrinfo	*ret_addr_info;
 
 	set_hints(&hints);  // todo: setting IPv4, IPv6 from config??
-	int errcode = getaddrinfo(this->server_ip_.c_str(), this->server_port_.c_str(), &hints, &ret_addr_info);
+    const char *ip = (this->server_ip_ != "*") ? this->server_ip_.c_str() : NULL;
+	int errcode = getaddrinfo(ip, this->server_port_.c_str(), &hints, &ret_addr_info);
 
 	if (errcode != GETADDRINFO_SUCCESS) {
 		std::string err_info = create_error_info(gai_strerror(errcode), __FILE__, __LINE__);
@@ -121,6 +106,7 @@ Result<int, std::string> Socket::init_addr_info() {
 	this->addr_info_ = ret_addr_info;
 	return Result<int, std::string>::ok(OK);
 }
+
 
 Result<int, std::string> Socket::create_socket() {
 	const int	ai_family = this->addr_info_->ai_family;

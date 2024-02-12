@@ -18,7 +18,8 @@ class IOMultiplexer {
  public:
 	virtual ~IOMultiplexer() {}
 	virtual Result<int, std::string> get_io_ready_fd() = 0;
-	virtual Result<int, std::string> register_connect_fd(int connect_fd) = 0;
+    virtual Result<int, std::string> register_socket_fd(int socket_fd) = 0;
+    virtual Result<int, std::string> register_connect_fd(int connect_fd) = 0;
 	virtual Result<int, std::string> clear_fd(int clear_fd) = 0;
 };
 
@@ -26,13 +27,13 @@ class IOMultiplexer {
 
 class EPollMultiplexer : public IOMultiplexer {
  public:
-	explicit EPollMultiplexer(int socket_fd);
+	EPollMultiplexer();
 	virtual ~EPollMultiplexer();
 	virtual Result<int, std::string> get_io_ready_fd();
+    virtual Result<int, std::string> register_socket_fd(int socket_fd);
 	virtual Result<int, std::string> register_connect_fd(int connect_fd);
 	virtual Result<int, std::string> clear_fd(int clear_fd);
  private:
-	int socket_fd_;
 	int epoll_fd_;
 	struct epoll_event ev_;
 	struct epoll_event new_event_;
@@ -42,14 +43,14 @@ class EPollMultiplexer : public IOMultiplexer {
 
 class KqueueMultiplexer : public IOMultiplexer {
  public:
-	explicit KqueueMultiplexer(int socket_fd);
+	KqueueMultiplexer();
 	virtual ~KqueueMultiplexer();
 	virtual Result<int, std::string> get_io_ready_fd();
+    virtual Result<int, std::string> register_socket_fd(int socket_fd);
 	virtual Result<int, std::string> register_connect_fd(int connect_fd);
 	virtual Result<int, std::string> clear_fd(int clear_fd);
 
  private:
-	int socket_fd_;
 	int kq_;
 	struct kevent change_event_;
 	struct kevent new_event_;
@@ -59,18 +60,20 @@ class KqueueMultiplexer : public IOMultiplexer {
 
 class SelectMultiplexer : public IOMultiplexer {
  public:
-	explicit SelectMultiplexer(int socket_fd);
+	SelectMultiplexer();
 	virtual ~SelectMultiplexer();
 	virtual Result<int, std::string> get_io_ready_fd();
+    virtual Result<int, std::string> register_socket_fd(int socket_fd);
 	virtual Result<int, std::string> register_connect_fd(int connect_fd);
 	virtual Result<int, std::string> clear_fd(int clear_fd);
 
  private:
-	int socket_fd_;
+    std::vector<int> socket_fds_;
 	std::vector<int> connect_fds_;
-	// std::vector<int> _ready_fds;
-	// std::vector<int> _active_fds;
 	fd_set fds_;
+    int max_fd_;
+
+    void init_fds();
 };
 
 #endif
