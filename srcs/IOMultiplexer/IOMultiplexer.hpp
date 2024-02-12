@@ -37,6 +37,8 @@ class EPollMultiplexer : public IOMultiplexer {
 	int epoll_fd_;
 	struct epoll_event ev_;
 	struct epoll_event new_event_;
+
+    Result<int, std::string> init_epoll();
 };
 
 #elif defined(__APPLE__) && !defined(USE_SELECT_MULTIPLEXER)

@@ -218,7 +218,7 @@ Result<IOMultiplexer *, std::string> Server::create_io_multiplexer_fds() {
             int socket_fd = socket->first;
 
 #if defined(__linux__) && !defined(USE_SELECT_MULTIPLEXER)
-            fds->register_socket_fd(socket_fd);
+            fds->register_fd(socket_fd);
 #elif defined(__APPLE__) && !defined(USE_SELECT_MULTIPLEXER)
             fds->register_fd(socket_fd);
 #else

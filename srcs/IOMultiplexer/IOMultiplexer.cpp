@@ -29,25 +29,16 @@ const int TIMEOUT_MS = 2500;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-EPollMultiplexer::EPollMultiplexer(int socket_fd)
+EPollMultiplexer::EPollMultiplexer()
 	: epoll_fd_(INIT_FD),
 	  ev_(),
 	  new_event_() {
-	errno = 0;
-	this->epoll_fd_ = epoll_create(INIT_SIZE);
-	if (this->epoll_fd_ == EPOLL_ERROR) {
-		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
-		throw std::runtime_error("[Server Error] epoll_create:" + err_info);
-	}
-
-	this->ev_.data.fd = this->socket_fd_;
-	this->ev_.events = EPOLLIN;
-	errno = 0;
-	if (epoll_ctl(this->epoll_fd_, EPOLL_CTL_ADD, this->socket_fd_, &this->ev_) == -1) {
-		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
-		throw std::runtime_error("[Server Error] epoll_ctl:" + err_info);
-	}
+    Result<int, std::string> init_result = init_epoll();
+    if (init_result.is_err()) {
+        throw std::runtime_error(init_result.get_err_value());
+    }
 }
+
 
 EPollMultiplexer::~EPollMultiplexer() {
 	errno = 0;
@@ -58,12 +49,22 @@ EPollMultiplexer::~EPollMultiplexer() {
 	this->epoll_fd_ = INIT_FD;
 }
 
-Result<int, std::string> EPollMultiplexer::get_io_ready_fd() {
-	int ready_fd_count;
 
+Result<int, std::string> EPollMultiplexer::init_epoll() {
+    errno = 0;
+    this->epoll_fd_ = epoll_create(INIT_SIZE);
+    if (this->epoll_fd_ == EPOLL_ERROR) {
+        std::string err_info = create_error_info(errno, __FILE__, __LINE__);
+        return Result<int, std::string>::err("[Server Error] epoll_create:" + err_info);
+    }
+    return Result<int, std::string>::ok(OK);
+}
+
+
+Result<int, std::string> EPollMultiplexer::get_io_ready_fd() {
 	errno = 0;
-	ready_fd_count = epoll_wait(this->epoll_fd_, &this->new_event_, 1, TIMEOUT_MS);
-	if (ready_fd_count == -1) {
+	int ready_fd_count = epoll_wait(this->epoll_fd_, &this->new_event_, 1, TIMEOUT_MS);
+	if (ready_fd_count == EPOLL_ERROR) {
 		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
 		return Result<int, std::string>::err("[Server Error] epoll_wait:" + err_info);
 	}
@@ -71,26 +72,28 @@ Result<int, std::string> EPollMultiplexer::get_io_ready_fd() {
 		std::string err_info = create_error_info("I/O Error occurred", __FILE__, __LINE__);
 		return Result<int, std::string>::err("[Server Error] epoll_wait:" + err_info);
 	}
+
 	if (ready_fd_count == EPOLL_TIMEOUT) {
 		return Result<int, std::string>::ok(IO_TIMEOUT);
 	}
 	return Result<int, std::string>::ok(this->new_event_.data.fd);
 }
 
-Result<int, std::string> EPollMultiplexer::register_connect_fd(int connect_fd) {
+
+Result<int, std::string> EPollMultiplexer::register_fd(int fd) {
 	this->ev_.events = EPOLLIN;
-	this->ev_.data.fd = connect_fd;
+	this->ev_.data.fd = fd;
 	errno = 0;
-	if (epoll_ctl(this->epoll_fd_, EPOLL_CTL_ADD, connect_fd, &this->ev_) == EPOLL_ERROR) {
+	if (epoll_ctl(this->epoll_fd_, EPOLL_CTL_ADD, fd, &this->ev_) == EPOLL_ERROR) {
 		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
 		return Result<int, std::string>::err("[Server Error] epoll_ctl:" + err_info);
 	}
 	return Result<int, std::string>::ok(OK);
 }
 
-Result<int, std::string> EPollMultiplexer::clear_connect_fd(int clear_fd) {
+Result<int, std::string> EPollMultiplexer::clear_fd(int fd) {
 	errno = 0;
-	if (epoll_ctl(this->epoll_fd_, EPOLL_CTL_DEL, clear_fd, NULL) == EPOLL_ERROR) {
+	if (epoll_ctl(this->epoll_fd_, EPOLL_CTL_DEL, fd, NULL) == EPOLL_ERROR) {
 		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
 		return Result<int, std::string>::err("[Server Error] epoll_ctl:" + err_info);
 	}
