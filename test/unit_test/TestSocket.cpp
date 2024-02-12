@@ -68,7 +68,6 @@ TEST(SocketUnitTest, ConstructorWithValidServerIP) {
 
 TEST(SocketUnitTest, ConstructorWithInvalidServerIP) {
 	int port = 49152;
-	Configuration config;
 
 	Socket socket1 = Socket("127.0.0.0.1", std::to_string(port++));
 	Socket socket2 = Socket("256.0.0.0", std::to_string(port++));
@@ -103,8 +102,6 @@ TEST(SocketUnitTest, ConstructorWithInvalidServerIP) {
 }
 
 TEST(SocketUnitTest, ConstructorWithValidServerPort) {
-	Configuration config;
-
 	Socket socket1 = Socket(SERVER_IP, "0");  // ephemeral port
 	Socket socket2 = Socket(SERVER_IP, "0000");
 	Socket socket3 = Socket(SERVER_IP, "8080");
@@ -117,16 +114,12 @@ TEST(SocketUnitTest, ConstructorWithValidServerPort) {
 }
 
 TEST(SocketUnitTest, ConstructorWithInvalidServerPort) {
-	Configuration config;
-
 	Socket socket1 = Socket(SERVER_IP, "-1");
-
 	// config.set_ip(SERVER_IP); config.set_port("65536");
 //	Socket socket2 = Socket(SERVER_IP, SERVER_PORT);  // uisingned short 65536->0(ephemeral port)
 
 	// config.set_ip(SERVER_IP); config.set_port("");
 	// Socket socket3 = Socket(SERVER_IP, SERVER_PORT);	// strtol->0 (tmp)
-
 	Socket socket4 = Socket(SERVER_IP, "hoge");
 	Socket socket5 = Socket(SERVER_IP, "--123123");
 	Socket socket6 = Socket(SERVER_IP, "127.1");
