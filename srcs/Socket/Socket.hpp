@@ -7,7 +7,7 @@
 
 class Socket {
  public:
-	explicit Socket(const Configuration &config);
+	explicit Socket(const std::string &ip_addr, const std::string &port);
 	~Socket();
 
 	int	get_socket_fd() const;

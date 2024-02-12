@@ -45,12 +45,12 @@ Result<int, std::string> close_socket_fd(int socket_fd) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Socket::Socket(const Configuration &config)
+Socket::Socket(const std::string &ip_addr, const std::string &port)
 		: result_(),
           socket_fd_(INIT_FD),
           addr_info_(NULL),
-          server_ip_(config.get_server_ip()),
-          server_port_(config.get_server_port()) {
+          server_ip_(ip_addr),
+          server_port_(port) {
 	this->result_ = init_addr_info();
 	if (this->result_.is_err()) {
 		return;
