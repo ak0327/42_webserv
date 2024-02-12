@@ -212,7 +212,7 @@ TEST(TestParser, ParseDirectiveParam) {
     const std::string test_directive = "test_param";
     std::string expected, actual;
     Result<int, std::string> result;
-    TokenConstItr current;
+    TokenItr current;
     std::deque<Token> tokens;
     int cnt;
 
@@ -270,8 +270,8 @@ TEST(TestParser, ParseDirectiveParam) {
     current = tokens.begin();
     result = ParserTestFriend::parse_directive_param(&current, tokens.end(), &actual, test_directive);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -281,8 +281,8 @@ TEST(TestParser, ParseDirectiveParam) {
     current = tokens.begin();
     result = ParserTestFriend::parse_directive_param(&current, tokens.end(), &actual, test_directive);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
 
     // -------------------------------------------------------------------------
@@ -295,8 +295,8 @@ TEST(TestParser, ParseDirectiveParam) {
     current = tokens.begin();
     result = ParserTestFriend::parse_directive_param(&current, tokens.end(), &actual, test_directive);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -311,8 +311,8 @@ TEST(TestParser, ParseDirectiveParam) {
     current = tokens.begin();
     result = ParserTestFriend::parse_directive_param(&current, tokens.end(), &actual, test_directive);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -324,8 +324,8 @@ TEST(TestParser, ParseDirectiveParam) {
     current = tokens.begin();
     result = ParserTestFriend::parse_directive_param(&current, tokens.end(), &actual, test_directive);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -337,8 +337,8 @@ TEST(TestParser, ParseDirectiveParam) {
     current = tokens.begin();
     result = ParserTestFriend::parse_directive_param(&current, tokens.end(), &actual, test_directive);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
 }
 
@@ -347,7 +347,7 @@ TEST(TestParser, ParseDirectiveParams) {
     const std::string test_directive = "test_params";
     std::vector<std::string> expected, actual;
     Result<int, std::string> result;
-    TokenConstItr current;
+    TokenItr current;
     std::deque<Token> tokens;
     int cnt;
 
@@ -397,8 +397,8 @@ TEST(TestParser, ParseDirectiveParams) {
     current = tokens.begin();
     result = ParserTestFriend::parse_directive_params(&current, tokens.end(), &actual, test_directive);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -410,8 +410,8 @@ TEST(TestParser, ParseDirectiveParams) {
     current = tokens.begin();
     result = ParserTestFriend::parse_directive_params(&current, tokens.end(), &actual, test_directive);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -421,8 +421,8 @@ TEST(TestParser, ParseDirectiveParams) {
     current = tokens.begin();
     result = ParserTestFriend::parse_directive_params(&current, tokens.end(), &actual, test_directive);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
 }
 
@@ -431,7 +431,7 @@ TEST(TestParser, ParseSetParams) {
     const std::string test_directive = "test_set_params";
     std::set<std::string> expected, actual;
     Result<int, std::string> result;
-    TokenConstItr current;
+    TokenItr current;
     std::deque<Token> tokens;
     int cnt;
 
@@ -500,8 +500,8 @@ TEST(TestParser, ParseSetParams) {
     current = tokens.begin();
     result = ParserTestFriend::parse_set_params(&current, tokens.end(), &actual, test_directive);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -513,8 +513,8 @@ TEST(TestParser, ParseSetParams) {
     current = tokens.begin();
     result = ParserTestFriend::parse_set_params(&current, tokens.end(), &actual, test_directive);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -524,8 +524,8 @@ TEST(TestParser, ParseSetParams) {
     current = tokens.begin();
     result = ParserTestFriend::parse_set_params(&current, tokens.end(), &actual, test_directive);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
 }
 
@@ -614,7 +614,7 @@ TEST(TestParser, ParseListenDirective) {
     const std::string test_directive = "test_listen";
     std::vector<ListenDirective> expected, actual;
     Result<int, std::string> result;
-    TokenConstItr current;
+    TokenItr current;
     std::deque<Token> tokens;
     int cnt;
 
@@ -772,8 +772,8 @@ TEST(TestParser, ParseListenDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_listen_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -783,8 +783,8 @@ TEST(TestParser, ParseListenDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_listen_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -798,8 +798,8 @@ TEST(TestParser, ParseListenDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_listen_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -812,8 +812,8 @@ TEST(TestParser, ParseListenDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_listen_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -826,8 +826,8 @@ TEST(TestParser, ParseListenDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_listen_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -843,8 +843,8 @@ TEST(TestParser, ParseListenDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_listen_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 }
 
 
@@ -852,7 +852,7 @@ TEST(TestParser, ParseReturnDirective) {
     const std::string test_directive = "test_return";
     ReturnDirective expected, actual;
     Result<int, std::string> result;
-    TokenConstItr current;
+    TokenItr current;
     std::deque<Token> tokens;
     int cnt;
 
@@ -945,8 +945,8 @@ TEST(TestParser, ParseReturnDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_return_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -959,8 +959,8 @@ TEST(TestParser, ParseReturnDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_return_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -973,8 +973,8 @@ TEST(TestParser, ParseReturnDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_return_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -989,8 +989,8 @@ TEST(TestParser, ParseReturnDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_return_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -1001,8 +1001,8 @@ TEST(TestParser, ParseReturnDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_return_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -1014,8 +1014,8 @@ TEST(TestParser, ParseReturnDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_return_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -1029,8 +1029,8 @@ TEST(TestParser, ParseReturnDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_return_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 }
 
 
@@ -1038,7 +1038,7 @@ TEST(TestParser, ParseRootDirective) {
     const std::string test_directive = "test_root";
     std::string expected, actual;
     Result<int, std::string> result;
-    TokenConstItr current;
+    TokenItr current;
     std::deque<Token> tokens;
     int cnt;
 
@@ -1093,8 +1093,8 @@ TEST(TestParser, ParseRootDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_root_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -1108,8 +1108,8 @@ TEST(TestParser, ParseRootDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_root_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -1119,8 +1119,8 @@ TEST(TestParser, ParseRootDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_root_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
 }
 
@@ -1129,7 +1129,7 @@ TEST(TestParser, ParseLimitExceptDirective) {
     const std::string test_directive = "test_limit_exception";
     LimitExceptDirective expected, actual;
     Result<int, std::string> result;
-    TokenConstItr current;
+    TokenItr current;
     std::deque<Token> tokens;
     int cnt;
 
@@ -1238,8 +1238,8 @@ TEST(TestParser, ParseLimitExceptDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_limit_except_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -1252,8 +1252,8 @@ TEST(TestParser, ParseLimitExceptDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_limit_except_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -1267,8 +1267,8 @@ TEST(TestParser, ParseLimitExceptDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_limit_except_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -1283,8 +1283,8 @@ TEST(TestParser, ParseLimitExceptDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_limit_except_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -1299,8 +1299,8 @@ TEST(TestParser, ParseLimitExceptDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_limit_except_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -1315,8 +1315,8 @@ TEST(TestParser, ParseLimitExceptDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_limit_except_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -1333,8 +1333,8 @@ TEST(TestParser, ParseLimitExceptDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_limit_except_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -1352,8 +1352,8 @@ TEST(TestParser, ParseLimitExceptDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_limit_except_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
 
 }
@@ -1363,7 +1363,7 @@ TEST(TestParser, ParseErrorPageDirective) {
     const std::string test_directive = "test_error_page";
     std::map<StatusCode, std::string> expected, actual;
     Result<int, std::string> result;
-    TokenConstItr current;
+    TokenItr current;
     std::deque<Token> tokens;
     int cnt;
 
@@ -1524,8 +1524,8 @@ TEST(TestParser, ParseErrorPageDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_error_page_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -1538,8 +1538,8 @@ TEST(TestParser, ParseErrorPageDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_error_page_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -1553,8 +1553,8 @@ TEST(TestParser, ParseErrorPageDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_error_page_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -1568,8 +1568,8 @@ TEST(TestParser, ParseErrorPageDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_error_page_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -1583,8 +1583,8 @@ TEST(TestParser, ParseErrorPageDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_error_page_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -1598,8 +1598,8 @@ TEST(TestParser, ParseErrorPageDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_error_page_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -1613,8 +1613,8 @@ TEST(TestParser, ParseErrorPageDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_error_page_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 }
 
 
@@ -1622,7 +1622,7 @@ TEST(TestParser, ParseAutoindexDirective) {
     const std::string test_directive = "test_autoindex";
     bool actual;
     Result<int, std::string> result;
-    TokenConstItr current;
+    TokenItr current;
     std::deque<Token> tokens;
     int cnt;
 
@@ -1690,8 +1690,8 @@ TEST(TestParser, ParseAutoindexDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_autoindex_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -1705,8 +1705,8 @@ TEST(TestParser, ParseAutoindexDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_autoindex_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -1719,8 +1719,8 @@ TEST(TestParser, ParseAutoindexDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_autoindex_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -1733,8 +1733,8 @@ TEST(TestParser, ParseAutoindexDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_autoindex_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -1747,8 +1747,8 @@ TEST(TestParser, ParseAutoindexDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_autoindex_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
 
     // -------------------------------------------------------------------------
@@ -1762,8 +1762,8 @@ TEST(TestParser, ParseAutoindexDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_autoindex_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -1777,8 +1777,8 @@ TEST(TestParser, ParseAutoindexDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_autoindex_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -1792,8 +1792,8 @@ TEST(TestParser, ParseAutoindexDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_autoindex_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 }
 
 
@@ -1801,7 +1801,7 @@ TEST(TestParser, ParseBodySizeDirective) {
     const std::string test_directive = "test_autoindex";
     std::size_t expected, actual;
     Result<int, std::string> result;
-    TokenConstItr current;
+    TokenItr current;
     std::deque<Token> tokens;
     int cnt;
 
@@ -1986,8 +1986,8 @@ TEST(TestParser, ParseBodySizeDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -1998,8 +1998,8 @@ TEST(TestParser, ParseBodySizeDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -2011,8 +2011,8 @@ TEST(TestParser, ParseBodySizeDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -2024,8 +2024,8 @@ TEST(TestParser, ParseBodySizeDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -2039,8 +2039,8 @@ TEST(TestParser, ParseBodySizeDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -2052,8 +2052,8 @@ TEST(TestParser, ParseBodySizeDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -2065,8 +2065,8 @@ TEST(TestParser, ParseBodySizeDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -2078,8 +2078,8 @@ TEST(TestParser, ParseBodySizeDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -2091,8 +2091,8 @@ TEST(TestParser, ParseBodySizeDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -2104,8 +2104,8 @@ TEST(TestParser, ParseBodySizeDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -2117,8 +2117,8 @@ TEST(TestParser, ParseBodySizeDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 }
 
 
@@ -2128,7 +2128,7 @@ TEST(TestParser, ParseBodySizeDirective) {
 TEST(TestParser, ParseDefaultConfig) {
     std::deque<Token> tokens;
     DefaultConfig expected, actual;
-    TokenConstItr current;
+    TokenItr current;
     Result<int, std::string> result;
     int cnt;
 
@@ -2286,8 +2286,8 @@ TEST(TestParser, ParseDefaultConfig) {
 
     result = ParserTestFriend::parse_default_config(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -2309,8 +2309,8 @@ TEST(TestParser, ParseDefaultConfig) {
 
     result = ParserTestFriend::parse_default_config(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -2333,8 +2333,8 @@ TEST(TestParser, ParseDefaultConfig) {
 
     result = ParserTestFriend::parse_default_config(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -2358,8 +2358,8 @@ TEST(TestParser, ParseDefaultConfig) {
 
     result = ParserTestFriend::parse_default_config(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -2377,8 +2377,8 @@ TEST(TestParser, ParseDefaultConfig) {
 
     result = ParserTestFriend::parse_default_config(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -2393,8 +2393,8 @@ TEST(TestParser, ParseDefaultConfig) {
 
     result = ParserTestFriend::parse_default_config(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -2408,15 +2408,15 @@ TEST(TestParser, ParseDefaultConfig) {
 
     result = ParserTestFriend::parse_default_config(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
 }
 
 
 TEST(TestParser, ParseLocationPath) {
     std::deque<Token> tokens;
-    TokenConstItr current;
+    TokenItr current;
     Result<std::string, std::string> result;
     std::string expected, actual;
     int cnt;
@@ -2493,8 +2493,8 @@ TEST(TestParser, ParseLocationPath) {
 
     result = ParserTestFriend::parse_location_path(&current, tokens.end());
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -2505,8 +2505,8 @@ TEST(TestParser, ParseLocationPath) {
 
     result = ParserTestFriend::parse_location_path(&current, tokens.end());
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -2518,8 +2518,8 @@ TEST(TestParser, ParseLocationPath) {
 
     result = ParserTestFriend::parse_location_path(&current, tokens.end());
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -2531,8 +2531,8 @@ TEST(TestParser, ParseLocationPath) {
 
     result = ParserTestFriend::parse_location_path(&current, tokens.end());
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -2544,8 +2544,8 @@ TEST(TestParser, ParseLocationPath) {
 
     result = ParserTestFriend::parse_location_path(&current, tokens.end());
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
     tokens = {};
@@ -2556,8 +2556,8 @@ TEST(TestParser, ParseLocationPath) {
 
     result = ParserTestFriend::parse_location_path(&current, tokens.end());
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -2568,8 +2568,8 @@ TEST(TestParser, ParseLocationPath) {
 
     result = ParserTestFriend::parse_location_path(&current, tokens.end());
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -2580,8 +2580,8 @@ TEST(TestParser, ParseLocationPath) {
 
     result = ParserTestFriend::parse_location_path(&current, tokens.end());
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -2594,8 +2594,8 @@ TEST(TestParser, ParseLocationPath) {
 
     result = ParserTestFriend::parse_location_path(&current, tokens.end());
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -2607,49 +2607,39 @@ TEST(TestParser, ParseLocationPath) {
 
     result = ParserTestFriend::parse_location_path(&current, tokens.end());
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
 }
 
 // "location"  path  "{"  directive_name ... "}"
-// ^current
-TEST(TestParser, ParseLocation) {
+//                        ^current
+TEST(TestParser, ParseLocationBlock) {
     std::deque<Token> tokens;
-    std::map<std::string, LocationConfig> expected, actual;
-    LocationConfig location_config;
-    TokenConstItr current;
+    LocationConfig expected, actual;
+    TokenItr current;
     Result<int, std::string> result;
     int cnt;
 
 
     cnt = 0;
     tokens = {};
-    tokens.push_back(Token("location",   kTokenKindBlockName, ++cnt));
-    tokens.push_back(Token("/",          kTokenKindBlockParam, ++cnt));
-    tokens.push_back(Token("{",          kTokenKindBraces, ++cnt));
     tokens.push_back(Token("}",          kTokenKindBraces, ++cnt));
 
     current = tokens.begin();
 
-    location_config = {};
     expected = {};
-    expected["/"] = location_config;
 
     actual = {};
-    result = ParserTestFriend::parse_location(&current, tokens.end(), &actual);
+    result = ParserTestFriend::parse_location_block(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
-    expect_eq_locations(expected, actual, __LINE__);
+    expect_eq_location_config(expected, actual, __LINE__);
 
     // -------------------------------------------------------------------------
 
     cnt = 0;
     tokens = {};
-    tokens.push_back(Token("location",      kTokenKindBlockName, ++cnt));
-    tokens.push_back(Token("path",          kTokenKindBlockParam, ++cnt));
-    tokens.push_back(Token("{",             kTokenKindBraces, ++cnt));
-
     tokens.push_back(Token("root",          kTokenKindDirectiveName, ++cnt));
     tokens.push_back(Token("html",          kTokenKindDirectiveParam, ++cnt));
     tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
@@ -2677,32 +2667,23 @@ TEST(TestParser, ParseLocation) {
 
     current = tokens.begin();
 
-    location_config = {};
-    location_config.root_path = "html";
-    location_config.index_pages = {"index.html", "index.htm"};
-    location_config.limit_except.excluded_methods = {kGET};
-    location_config.autoindex = true;
-    location_config.max_body_size_bytes = 2 * ConfigInitValue::MB;
-
     expected = {};
-    expected["path"] = location_config;
+    expected.root_path = "html";
+    expected.index_pages = {"index.html", "index.htm"};
+    expected.limit_except.excluded_methods = {kGET};
+    expected.autoindex = true;
+    expected.max_body_size_bytes = 2 * ConfigInitValue::MB;
 
     actual = {};
-    result = ParserTestFriend::parse_location(&current, tokens.end(), &actual);
-
-    print_error_msg(result, __LINE__);
+    result = ParserTestFriend::parse_location_block(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
-    expect_eq_locations(expected, actual, __LINE__);
+    expect_eq_location_config(expected, actual, __LINE__);
 
     // -------------------------------------------------------------------------
 
     cnt = 0;
     tokens = {};
-    tokens.push_back(Token("location",      kTokenKindBlockName, ++cnt));
-    tokens.push_back(Token("/old_page",     kTokenKindBlockParam, ++cnt));
-    tokens.push_back(Token("{",             kTokenKindBraces, ++cnt));
-
     tokens.push_back(Token("return",        kTokenKindDirectiveName, ++cnt));
     tokens.push_back(Token("301",           kTokenKindDirectiveParam, ++cnt));
     tokens.push_back(Token("/new_page",     kTokenKindDirectiveParam, ++cnt));
@@ -2729,81 +2710,58 @@ TEST(TestParser, ParseLocation) {
 
     current = tokens.begin();
 
-    location_config = {};
-    location_config.redirection.return_on = true;
-    location_config.redirection.code = 301;
-    location_config.redirection.text = "/new_page";
-    location_config.limit_except.excluded_methods = {kGET, kDELETE};
-    location_config.limit_except.rules.push_back(AccessRule(kDENY, "all"));
-
     expected = {};
-    expected["/old_page"] = location_config;
+    expected.redirection.return_on = true;
+    expected.redirection.code = 301;
+    expected.redirection.text = "/new_page";
+    expected.limit_except.excluded_methods = {kGET, kDELETE};
+    expected.limit_except.rules.push_back(AccessRule(kDENY, "all"));
 
     actual = {};
-    result = ParserTestFriend::parse_location(&current, tokens.end(), &actual);
+    result = ParserTestFriend::parse_location_block(&current, tokens.end(), &actual);
 
     ASSERT_TRUE(result.is_ok());
-    expect_eq_locations(expected, actual, __LINE__);
+    expect_eq_location_config(expected, actual, __LINE__);
 
 
     ////////////////////////////////////////////////////////////////////////////
 
-    cnt = 0;
-    tokens = {};
-
-    current = tokens.begin();
-
-
-    actual = {};
-    result = ParserTestFriend::parse_location(&current, tokens.end(), &actual);
-
-    ASSERT_TRUE(result.is_err());
-    print_error_msg(result, __LINE__);
-
-    // -------------------------------------------------------------------------
 
     cnt = 0;
     tokens = {};
-    tokens.push_back(Token("ng",        kTokenKindDirectiveParam, ++cnt));  // ng
-    tokens.push_back(Token("{",         kTokenKindBraces, ++cnt));
-
+    tokens.push_back(Token("{",         kTokenKindBraces, ++cnt));  // ng
     tokens.push_back(Token("}",         kTokenKindBraces, ++cnt));
 
     current = tokens.begin();
 
 
     actual = {};
-    result = ParserTestFriend::parse_location(&current, tokens.end(), &actual);
+    result = ParserTestFriend::parse_location_block(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
     cnt = 0;
     tokens = {};
-    tokens.push_back(Token("location",  kTokenKindBlockName, ++cnt));
-    tokens.push_back(Token("{",         kTokenKindBraces, ++cnt));
+    tokens.push_back(Token(";",         kTokenKindSemicolin, ++cnt));    // ng
     tokens.push_back(Token("}",         kTokenKindBraces, ++cnt));
 
     current = tokens.begin();
 
 
     actual = {};
-    result = ParserTestFriend::parse_location(&current, tokens.end(), &actual);
+    result = ParserTestFriend::parse_location_block(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
 
     cnt = 0;
     tokens = {};
-    tokens.push_back(Token("location",  kTokenKindBlockName, ++cnt));
-    tokens.push_back(Token("/path",     kTokenKindBlockParam, ++cnt));
-    tokens.push_back(Token("{",         kTokenKindBraces, ++cnt));
-
     tokens.push_back(Token("listen",    kTokenKindDirectiveName, ++cnt));  // ng
     tokens.push_back(Token("8080",      kTokenKindDirectiveParam, ++cnt));
     tokens.push_back(Token(";",         kTokenKindSemicolin, ++cnt));
@@ -2814,100 +2772,15 @@ TEST(TestParser, ParseLocation) {
 
 
     actual = {};
-    result = ParserTestFriend::parse_location(&current, tokens.end(), &actual);
+    result = ParserTestFriend::parse_location_block(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
     cnt = 0;
     tokens = {};
-    tokens.push_back(Token("/path",     kTokenKindBlockParam, ++cnt));
-    tokens.push_back(Token("ng",        kTokenKindDirectiveParam, ++cnt));  // ng
-    tokens.push_back(Token("{",         kTokenKindBraces, ++cnt));
-
-    tokens.push_back(Token("}",         kTokenKindBraces, ++cnt));
-
-    current = tokens.begin();
-
-
-    actual = {};
-    result = ParserTestFriend::parse_location(&current, tokens.end(), &actual);
-
-    ASSERT_TRUE(result.is_err());
-    print_error_msg(result, __LINE__);
-
-    // -------------------------------------------------------------------------
-
-    cnt = 0;
-    tokens = {};
-    tokens.push_back(Token("location",  kTokenKindBlockName, ++cnt));
-    tokens.push_back(Token("/path",     kTokenKindBlockParam, ++cnt));
-    tokens.push_back(Token(";",         kTokenKindSemicolin, ++cnt));  // ng
-    tokens.push_back(Token("{",         kTokenKindBraces, ++cnt));
-
-    tokens.push_back(Token("}",         kTokenKindBraces, ++cnt));
-
-    current = tokens.begin();
-
-
-    expected = {};
-    expected["/path"] = location_config;
-
-    actual = {};
-    result = ParserTestFriend::parse_location(&current, tokens.end(), &actual);
-
-    ASSERT_TRUE(result.is_err());
-    print_error_msg(result, __LINE__);
-
-    // -------------------------------------------------------------------------
-
-    cnt = 0;
-    tokens = {};
-    tokens.push_back(Token("location",  kTokenKindBlockName, ++cnt));
-    tokens.push_back(Token("/path",     kTokenKindDirectiveParam, ++cnt));
-
-    current = tokens.begin();
-
-    actual = {};
-    result = ParserTestFriend::parse_location(&current, tokens.end(), &actual);
-
-    ASSERT_TRUE(result.is_err());
-    print_error_msg(result, __LINE__);
-
-    // -------------------------------------------------------------------------
-
-    cnt = 0;
-    tokens = {};
-    tokens.push_back(Token("location",  kTokenKindBlockName, ++cnt));
-    tokens.push_back(Token("/path",     kTokenKindBlockParam, ++cnt));
-    tokens.push_back(Token("{",         kTokenKindBraces, ++cnt));
-
-    tokens.push_back(Token("location",  kTokenKindDirectiveName, ++cnt));  // ng
-    tokens.push_back(Token("xxx",       kTokenKindDirectiveParam, ++cnt));
-    tokens.push_back(Token("{",         kTokenKindBraces, ++cnt));
-    tokens.push_back(Token("}",         kTokenKindBraces, ++cnt));
-
-    tokens.push_back(Token("}",         kTokenKindBraces, ++cnt));
-
-    current = tokens.begin();
-
-
-    actual = {};
-    result = ParserTestFriend::parse_location(&current, tokens.end(), &actual);
-
-    ASSERT_TRUE(result.is_err());
-    print_error_msg(result, __LINE__);
-
-    // -------------------------------------------------------------------------
-
-    cnt = 0;
-    tokens = {};
-    tokens.push_back(Token("location",      kTokenKindBlockName, ++cnt));
-    tokens.push_back(Token("/path",         kTokenKindBlockParam, ++cnt));
-    tokens.push_back(Token("{",             kTokenKindBraces, ++cnt));
-
     tokens.push_back(Token("limit_except",  kTokenKindDirectiveName, ++cnt));
     tokens.push_back(Token("GET",           kTokenKindDirectiveParam, ++cnt));
     tokens.push_back(Token("DELETE",        kTokenKindDirectiveParam, ++cnt));
@@ -2926,24 +2799,15 @@ TEST(TestParser, ParseLocation) {
 
 
     actual = {};
-    result = ParserTestFriend::parse_location(&current, tokens.end(), &actual);
+    result = ParserTestFriend::parse_location_block(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
     cnt = 0;
     tokens = {};
-    tokens.push_back(Token("location",      kTokenKindBlockName, ++cnt));
-    tokens.push_back(Token("/path",         kTokenKindBlockParam, ++cnt));
-    tokens.push_back(Token("{",             kTokenKindBraces, ++cnt));
-
-    tokens.push_back(Token("limit_except",  kTokenKindDirectiveName, ++cnt));
-    tokens.push_back(Token("GET",           kTokenKindDirectiveParam, ++cnt));
-    tokens.push_back(Token("{",             kTokenKindBraces, ++cnt));
-    tokens.push_back(Token("}",             kTokenKindBraces, ++cnt));
-
     tokens.push_back(Token("limit_except",  kTokenKindDirectiveName, ++cnt));  // ng
     tokens.push_back(Token("DELETE",        kTokenKindDirectiveParam, ++cnt));
     tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
@@ -2954,10 +2818,10 @@ TEST(TestParser, ParseLocation) {
 
 
     actual = {};
-    result = ParserTestFriend::parse_location(&current, tokens.end(), &actual);
+    result = ParserTestFriend::parse_location_block(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
 }
 
@@ -2969,7 +2833,7 @@ TEST(TestParser, ParseServer) {
     ServerConfig expected, actual;
     LocationConfig location_config;
     ListenDirective listen;
-    TokenConstItr current;
+    TokenItr current;
     Result<int, std::string> result;
     int cnt;
 
@@ -3016,17 +2880,18 @@ TEST(TestParser, ParseServer) {
     tokens.push_back(Token("server",        kTokenKindBlockName, ++cnt));
     tokens.push_back(Token("{",             kTokenKindBraces, ++cnt));
 
-    tokens.push_back(Token("listen",        kTokenKindDirectiveName, ++cnt));           // server
-    tokens.push_back(Token("8080",          kTokenKindDirectiveParam, ++cnt));          // server
-    tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));               // server
+    tokens.push_back(Token("listen",        kTokenKindDirectiveName, ++cnt));       // server
+    tokens.push_back(Token("8080",          kTokenKindDirectiveParam, ++cnt));      // server
+    tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));           // server
 
-    tokens.push_back(Token("error_page",    kTokenKindDirectiveName, ++cnt));           // server
-    tokens.push_back(Token("400",           kTokenKindDirectiveParam, ++cnt));          // server
-    tokens.push_back(Token("server_error_page",kTokenKindDirectiveParam, ++cnt));   // server
-    tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));               // server
+    tokens.push_back(Token("error_page",    kTokenKindDirectiveName, ++cnt));       // server
+    tokens.push_back(Token("400",           kTokenKindDirectiveParam, ++cnt));      // server
+    tokens.push_back(Token("404",           kTokenKindDirectiveParam, ++cnt));      // server
+    tokens.push_back(Token("server40x",     kTokenKindDirectiveParam, ++cnt));      // server
+    tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));           // server
 
     tokens.push_back(Token("location",      kTokenKindBlockName, ++cnt));           // location
-    tokens.push_back(Token("/path",         kTokenKindBlockParam, ++cnt));      // location
+    tokens.push_back(Token("/path",         kTokenKindBlockParam, ++cnt));          // location
     tokens.push_back(Token("{",             kTokenKindBraces, ++cnt));              // location
 
     tokens.push_back(Token("root",          kTokenKindDirectiveName, ++cnt));       // location
@@ -3051,17 +2916,17 @@ TEST(TestParser, ParseServer) {
     tokens.push_back(Token("2m",            kTokenKindDirectiveParam, ++cnt));      // location
     tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));           // location
 
-    tokens.push_back(Token("error_page",    kTokenKindDirectiveName, ++cnt));       // location
+    tokens.push_back(Token("error_page",    kTokenKindDirectiveName, ++cnt));       // location update server
     tokens.push_back(Token("404",           kTokenKindDirectiveParam, ++cnt));      // location
-    tokens.push_back(Token("/404.html",     kTokenKindDirectiveParam, ++cnt));      // location
+    tokens.push_back(Token("path404",       kTokenKindDirectiveParam, ++cnt));      // location
     tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));           // location
 
-    tokens.push_back(Token("error_page",    kTokenKindDirectiveName, ++cnt));       // location
+    tokens.push_back(Token("error_page",    kTokenKindDirectiveName, ++cnt));       // location update server
     tokens.push_back(Token("500",           kTokenKindDirectiveParam, ++cnt));      // location
     tokens.push_back(Token("502",           kTokenKindDirectiveParam, ++cnt));      // location
     tokens.push_back(Token("503",           kTokenKindDirectiveParam, ++cnt));      // location
     tokens.push_back(Token("504",           kTokenKindDirectiveParam, ++cnt));      // location
-    tokens.push_back(Token("/50x.html",     kTokenKindDirectiveParam, ++cnt));      // location
+    tokens.push_back(Token("path50x",       kTokenKindDirectiveParam, ++cnt));      // location
     tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));           // location
 
     tokens.push_back(Token("}",             kTokenKindBraces, ++cnt));              // location
@@ -3075,7 +2940,7 @@ TEST(TestParser, ParseServer) {
 
 
     tokens.push_back(Token("location",      kTokenKindBlockName, ++cnt));       // location
-    tokens.push_back(Token("/old_page",     kTokenKindBlockParam, ++cnt));  // location
+    tokens.push_back(Token("/old_page",     kTokenKindBlockParam, ++cnt));      // location
     tokens.push_back(Token("{",             kTokenKindBraces, ++cnt));          // location
 
     tokens.push_back(Token("return",        kTokenKindDirectiveName, ++cnt));   // location
@@ -3085,7 +2950,7 @@ TEST(TestParser, ParseServer) {
 
     tokens.push_back(Token("error_page",    kTokenKindDirectiveName, ++cnt));   // location
     tokens.push_back(Token("400",           kTokenKindDirectiveParam, ++cnt));  // location
-    tokens.push_back(Token("test_error",    kTokenKindDirectiveParam, ++cnt));  // location
+    tokens.push_back(Token("old400",        kTokenKindDirectiveParam, ++cnt));  // location
     tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));       // location
 
     tokens.push_back(Token("}",             kTokenKindBraces, ++cnt));          // location
@@ -3098,7 +2963,7 @@ TEST(TestParser, ParseServer) {
 
     tokens.push_back(Token("error_page",    kTokenKindDirectiveName, ++cnt));   // server
     tokens.push_back(Token("599",           kTokenKindDirectiveParam, ++cnt));  // server
-    tokens.push_back(Token("error",         kTokenKindDirectiveParam, ++cnt));  // server
+    tokens.push_back(Token("server599",     kTokenKindDirectiveParam, ++cnt));  // server
     tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));       // server
 
 
@@ -3113,35 +2978,80 @@ TEST(TestParser, ParseServer) {
     expected.server_names.insert("a");
     expected.server_names.insert("b");
     expected.error_pages = {
-        {400, "server_error_page"},
-        {599, "error"},
+        {400, "server40x"},
+        {404, "server40x"},
+        {599, "server599"},
     };
 
 
-    location_config = {};
+    location_config = LocationConfig(expected);
     location_config.root_path = "html";
     location_config.index_pages = {"index.html", "index.htm"};
     location_config.limit_except.excluded_methods = {kGET};
     location_config.autoindex = true;
     location_config.max_body_size_bytes = 2 * ConfigInitValue::MB;
     location_config.error_pages = {
-        {404, "/404.html"},
-        {500, "/50x.html"},
-        {502, "/50x.html"},
-        {503, "/50x.html"},
-        {504, "/50x.html"},
+        {400, "server40x"},
+        {404, "path404"},
+        {599, "server599"},
+        {500, "path50x"},
+        {502, "path50x"},
+        {503, "path50x"},
+        {504, "path50x"},
     };
     expected.locations["/path"] = location_config;
 
-    location_config = {};
+    location_config = LocationConfig(expected);
     location_config.redirection.return_on = true;
     location_config.redirection.code = 301;
     location_config.redirection.text = "/new_page";
     location_config.error_pages = {
-        {400, "test_error"},
+        {400, "old400"},
+        {404, "server40x"},
+        {599, "server599"},
     };
 
     expected.locations["/old_page"] = location_config;
+
+    actual = {};
+    result = ParserTestFriend::parse_server_block(&current, tokens.end(), &actual);
+
+    // print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_ok());
+    expect_eq_server_config(expected, actual, __LINE__);
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+
+    tokens.push_back(Token("server",    kTokenKindBlockName, ++cnt));
+    tokens.push_back(Token("{",         kTokenKindBraces, ++cnt));
+
+    tokens.push_back(Token("location",  kTokenKindBlockName, ++cnt));
+    tokens.push_back(Token("/path",     kTokenKindBlockParam, ++cnt));
+    tokens.push_back(Token("{",         kTokenKindBraces, ++cnt));
+
+    tokens.push_back(Token("root",      kTokenKindDirectiveName, ++cnt));
+    tokens.push_back(Token("html",      kTokenKindDirectiveParam, ++cnt));  // default
+    tokens.push_back(Token(";",         kTokenKindSemicolin, ++cnt));
+
+    tokens.push_back(Token("}",         kTokenKindBraces, ++cnt));
+
+    tokens.push_back(Token("root",      kTokenKindDirectiveName, ++cnt));
+    tokens.push_back(Token("hoge",      kTokenKindDirectiveParam, ++cnt));  // change
+    tokens.push_back(Token(";",         kTokenKindSemicolin, ++cnt));
+
+    tokens.push_back(Token("}",         kTokenKindBraces, ++cnt));
+
+    current = tokens.begin();
+
+    expected = {};
+    expected.root_path = "hoge";
+
+    location_config = LocationConfig(expected);
+    location_config.root_path = "html";
+    expected.locations["/path"] = location_config;
 
     actual = {};
     result = ParserTestFriend::parse_server_block(&current, tokens.end(), &actual);
@@ -3192,8 +3102,8 @@ TEST(TestParser, ParseServer) {
     actual = {};
     result = ParserTestFriend::parse_server_block(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
     // -------------------------------------------------------------------------
 
@@ -3228,6 +3138,79 @@ TEST(TestParser, ParseServer) {
     actual = {};
     result = ParserTestFriend::parse_server_block(&current, tokens.end(), &actual);
 
-    ASSERT_TRUE(result.is_err());
     print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+
+    tokens.push_back(Token("server",    kTokenKindBlockName, ++cnt));
+    tokens.push_back(Token("{",         kTokenKindBraces, ++cnt));
+
+    tokens.push_back(Token("listen",    kTokenKindDirectiveName, ++cnt));
+    tokens.push_back(Token("8080",      kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";",         kTokenKindSemicolin, ++cnt));
+
+    tokens.push_back(Token("location",  kTokenKindBlockName, ++cnt));
+    tokens.push_back(Token("/path",     kTokenKindBlockParam, ++cnt));
+    tokens.push_back(Token("/path",     kTokenKindBlockParam, ++cnt));  // ng
+    tokens.push_back(Token("{",         kTokenKindBraces, ++cnt));
+
+    tokens.push_back(Token("root",      kTokenKindDirectiveName, ++cnt));
+    tokens.push_back(Token("html",      kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";",         kTokenKindSemicolin, ++cnt));
+
+    tokens.push_back(Token("}",         kTokenKindBraces, ++cnt));
+
+    tokens.push_back(Token("}",         kTokenKindBraces, ++cnt));
+
+    current = tokens.begin();
+
+    actual = {};
+    result = ParserTestFriend::parse_server_block(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+
+    tokens.push_back(Token("server",    kTokenKindBlockName, ++cnt));
+    tokens.push_back(Token("{",         kTokenKindBraces, ++cnt));
+
+    tokens.push_back(Token("listen",    kTokenKindDirectiveName, ++cnt));
+    tokens.push_back(Token("8080",      kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";",         kTokenKindSemicolin, ++cnt));
+
+    tokens.push_back(Token("location",  kTokenKindBlockName, ++cnt));
+    tokens.push_back(Token("a",         kTokenKindBlockParam, ++cnt));
+    tokens.push_back(Token("{",         kTokenKindBraces, ++cnt));
+
+    tokens.push_back(Token("root",      kTokenKindDirectiveName, ++cnt));
+    tokens.push_back(Token("html",      kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";",         kTokenKindSemicolin, ++cnt));
+
+    tokens.push_back(Token("location",  kTokenKindBlockName, ++cnt));  // ng
+    tokens.push_back(Token("b",         kTokenKindBlockParam, ++cnt));
+    tokens.push_back(Token("{",         kTokenKindBraces, ++cnt));
+
+    tokens.push_back(Token("}",         kTokenKindBraces, ++cnt));
+
+    tokens.push_back(Token("}",         kTokenKindBraces, ++cnt));
+
+    tokens.push_back(Token("}",         kTokenKindBraces, ++cnt));
+
+    current = tokens.begin();
+
+    actual = {};
+    result = ParserTestFriend::parse_server_block(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+
 }
