@@ -148,11 +148,10 @@ struct LocationConfig : public DefaultConfig {
             : redirection(),
               limit_except() {}
 
-    LocationConfig(const DefaultConfig &other)
+    explicit LocationConfig(const DefaultConfig &other)
             : DefaultConfig(other),
               redirection(),
               limit_except() {}
-
 };
 
 struct ServerConfig : public DefaultConfig  {
