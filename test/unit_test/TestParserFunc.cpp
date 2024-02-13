@@ -106,23 +106,23 @@ void expect_eq_server_config(const ServerConfig &expected,
     expect_eq_listens(expected.listens, actual.listens, line);
 
     // default_server
-    if (expected.default_server && actual.default_server) {
-        expect_eq_listen(*expected.default_server, *actual.default_server, line);
-    } else if (!(!expected.default_server && !actual.default_server)) {
+    if (expected.default_listen && actual.default_listen) {
+        expect_eq_listen(*expected.default_listen, *actual.default_listen, line);
+    } else if (!(!expected.default_listen && !actual.default_listen)) {
         FAIL() << "  at L:" << line << std::endl;
     }
 
     // server_names
     EXPECT_EQ(expected.server_names, actual.server_names) << "  at L:" << line << std::endl;
 
-    // default_server
-    if (expected.default_server && actual.default_server) {
-        expect_eq_listen(*expected.default_server, *actual.default_server, line);
-        // std::cout << CYAN << "default_server ok" << RESET << std::endl;
-    } else if (!(!expected.default_server && !actual.default_server)) {
+    // default_listen
+    if (expected.default_listen && actual.default_listen) {
+        expect_eq_listen(*expected.default_listen, *actual.default_listen, line);
+        // std::cout << CYAN << "default_listen ok" << RESET << std::endl;
+    } else if (!(!expected.default_listen && !actual.default_listen)) {
         FAIL() << "  at L:" << line << std::endl;
     } else {
-        // std::cout << CYAN << "default_server is null" << RESET << std::endl;
+        // std::cout << CYAN << "default_listen is null" << RESET << std::endl;
     }
 
     // locations

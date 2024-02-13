@@ -204,10 +204,10 @@ void Parser::set_default_server() {
         std::vector<ListenDirective> &listens = server_config->listens;
         std::vector<ListenDirective>::iterator listen = listens.begin();
 
-        server_config->default_server = &(*listen);
+        server_config->default_listen = &(*listen);
         while (listen != listens.end()) {
             if (listen->is_default_server) {
-                server_config->default_server = &(*listen);
+                server_config->default_listen = &(*listen);
                 break;
             }
             ++listen;

@@ -57,7 +57,7 @@ TEST(TestParser, ParseOK) {
     listen = {};
     listen = ListenDirective(ConfigInitValue::kDefaultAddress, "8080", false);
     server_config.listens.push_back(listen);
-    server_config.default_server = &listen;
+    server_config.default_listen = &listen;
 
     server_config.server_names.insert("webserv");
     server_config.server_names.insert("server1");
@@ -121,7 +121,7 @@ TEST(TestParser, ParseOK) {
     listen = ListenDirective(ConfigInitValue::kDefaultAddress, "8484", true);
     server_config.listens.push_back(ListenDirective(ConfigInitValue::kDefaultAddress, "4242", false));
     server_config.listens.push_back(listen);
-    server_config.default_server = &listen;
+    server_config.default_listen = &listen;
 
     server_config.server_names.insert("cgi_server");
 
@@ -148,7 +148,7 @@ TEST(TestParser, ParseOK) {
     server_config = {};
     listen = ListenDirective(ConfigInitValue::kDefaultAddress, "8080", false);
     server_config.listens.push_back(listen);
-    server_config.default_server = &listen;
+    server_config.default_listen = &listen;
 
     server_config.server_names.insert("webserv");
     server_config.server_names.insert("server1");
@@ -197,7 +197,7 @@ TEST(TestParser, ParseOK) {
     ListenDirective listen2 = ListenDirective(ConfigInitValue::kDefaultAddress, "8484", true);
     server_config.listens.push_back(ListenDirective(ConfigInitValue::kDefaultAddress, "4242", false));
     server_config.listens.push_back(listen2);
-    server_config.default_server = &listen2;
+    server_config.default_listen = &listen2;
 
     server_config.server_names.insert("cgi_server");
 
