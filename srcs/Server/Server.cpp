@@ -108,7 +108,7 @@ Server::Server(const Configuration &config)
 	: sockets_(),
       recv_message_(),
       fds_(NULL) {
-    ServerResult socket_result = create_sockets(config.get_server_configs());
+    ServerResult socket_result = create_sockets(config);
 	if (socket_result.is_err()) {
 		const std::string socket_err_msg = socket_result.get_err_value();
         std::ostringstream oss;
@@ -140,30 +140,20 @@ Server::~Server() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ServerResult Server::create_sockets(const std::vector<ServerConfig> &server_configs) {
-    std::vector<ServerConfig>::const_iterator server_config;
-    std::set<AddressPortPair> address_port_pairs;
+ServerResult Server::create_sockets(const Configuration &config) {
+    const std::map<ServerInfo, const ServerConfig *> &server_configs = config.get_server_configs();
 
-    for (server_config = server_configs.begin(); server_config != server_configs.end(); ++server_config) {
-        const std::vector<ListenDirective> listens = server_config->listens;
+    std::map<ServerInfo, const ServerConfig *>::const_iterator servers;
+    for (servers = server_configs.begin(); servers != server_configs.end(); ++servers) {
+        const std::string address = servers->first.address;
+        const std::string port = servers->first.port;
 
-        std::vector<ListenDirective>::const_iterator listen;
-        for (listen = listens.begin(); listen != listens.end(); ++listen) {
-            address_port_pairs.insert(AddressPortPair(listen->address, listen->port));
-            // std::cout << "address_port_pair -> ip: " << listen->address
-            //           << ", port: " << listen->port << std::endl;
-        }
-    }
-
-    std::set<AddressPortPair>::const_iterator pair;
-    for (pair = address_port_pairs.begin(); pair != address_port_pairs.end(); ++pair) {
-        const std::string address = pair->first;
-        const std::string port = pair->second;
+        // std::cout << CYAN
+        // << "create_sockets -> ip: " << address
+        // << ", port: " << port << RESET << std::endl;
 
         try {
-            Socket *socket = new Socket(pair->first, pair->second);
-            // std::cout << "create_sockets -> ip: " << pair->first
-            //           << ", port: " << pair->second << std::endl;
+            Socket *socket = new Socket(address, port);
             if (socket->is_socket_success()) {
                 int socket_fd = socket->get_socket_fd();
                 sockets_[socket_fd] = socket;
