@@ -150,12 +150,12 @@ std::map<ServerInfo, const ServerConfig *> Configuration::get_server_configs() c
 }
 
 
-ServerConfig Configuration::get_server_config(const ServerInfo &server_info) const {
+Result<ServerConfig, int> Configuration::get_server_config(const ServerInfo &server_info) const {
     std::map<ServerInfo, const ServerConfig *>::const_iterator server_config;
     server_config = this->server_configs_.find(server_info);
 
     if (server_config != this->server_configs_.end()) {
-        return *server_config->second;
+        return Result<ServerConfig, int>::ok(*server_config->second);
     } else {
         AddressPortPair pair(server_info.address, server_info.port);
         return get_default_server(pair);
@@ -163,14 +163,14 @@ ServerConfig Configuration::get_server_config(const ServerInfo &server_info) con
 }
 
 
-ServerConfig Configuration::get_default_server(const AddressPortPair &pair) const {
+Result<ServerConfig, int> Configuration::get_default_server(const AddressPortPair &pair) const {
     std::map<AddressPortPair, const ServerConfig *> ::const_iterator default_server;
     default_server = this->default_servers_.find(pair);
 
     if (default_server != this->default_servers_.end()) {
-        return *default_server->second;
+        return Result<ServerConfig, int>::ok(*default_server->second);
     } else {
-        return *this->server_configs_.begin()->second;  // todo: tmp
+        return Result<ServerConfig, int>::err(ERR);
     }
 }
 
@@ -197,17 +197,25 @@ std::string Configuration::get_root(const ServerConfig &server_config,
 }
 
 
-std::string Configuration::get_root(const ServerInfo &server_info,
-                                    const std::string &location_path) const {
-    const ServerConfig server_config = get_server_config(server_info);
-    return get_root(server_config, location_path);
+Result<std::string, int> Configuration::get_root(const ServerInfo &server_info,
+                                                 const std::string &location_path) const {
+    Result<ServerConfig, int> server_config_result = get_server_config(server_info);
+    if (server_config_result.is_err()) {
+        return Result<std::string, int>::err(ERR);
+    }
+    ServerConfig server_config = server_config_result.get_ok_value();
+    return Result<std::string, int>::ok(get_root(server_config, location_path));
 }
 
 
-std::string Configuration::get_root(const AddressPortPair &address_port_pair,
-                                    const std::string &location_path) const {
-    const ServerConfig server_config = get_default_server(address_port_pair);
-    return get_root(server_config, location_path);
+Result<std::string, int> Configuration::get_root(const AddressPortPair &address_port_pair,
+                                                 const std::string &location_path) const {
+    Result<ServerConfig, int> server_config_result = get_default_server(address_port_pair);
+    if (server_config_result.is_err()) {
+        return Result<std::string, int>::err(ERR);
+    }
+    ServerConfig server_config = server_config_result.get_ok_value();
+    return Result<std::string, int>::ok(get_root(server_config, location_path));
 }
 
 
@@ -237,17 +245,25 @@ std::string Configuration::get_index(const ServerConfig &server_config,
 }
 
 
-std::string Configuration::get_index(const ServerInfo &server_info,
-                                     const std::string &location_path) const {
-    const ServerConfig server_config = get_server_config(server_info);
-    return get_index(server_config, location_path);
+Result<std::string, int> Configuration::get_index(const ServerInfo &server_info,
+                                                  const std::string &location_path) const {
+    Result<ServerConfig, int> server_config_result = get_server_config(server_info);
+    if (server_config_result.is_err()) {
+        return Result<std::string, int>::err(ERR);
+    }
+    ServerConfig server_config = server_config_result.get_ok_value();
+    return Result<std::string, int>::ok(get_index(server_config, location_path));
 }
 
 
-std::string Configuration::get_index(const AddressPortPair &address_port_pair,
-                                     const std::string &location_path) const {
-    const ServerConfig server_config = get_default_server(address_port_pair);
-    return get_index(server_config, location_path);
+Result<std::string, int> Configuration::get_index(const AddressPortPair &address_port_pair,
+                                                  const std::string &location_path) const {
+    Result<ServerConfig, int> server_config_result = get_default_server(address_port_pair);
+    if (server_config_result.is_err()) {
+        return Result<std::string, int>::err(ERR);
+    }
+    ServerConfig server_config = server_config_result.get_ok_value();
+    return Result<std::string, int>::ok(get_index(server_config, location_path));
 }
 
 
@@ -274,7 +290,11 @@ Result<std::string, int> Configuration::get_error_page(const ServerConfig &serve
 Result<std::string, int> Configuration::get_error_page(const ServerInfo &server_info,
                                                        const std::string &location_path,
                                                        const StatusCode &code) const {
-    const ServerConfig server_config = get_server_config(server_info);
+    Result<ServerConfig, int> server_config_result = get_server_config(server_info);
+    if (server_config_result.is_err()) {
+        return Result<std::string, int>::err(ERR);
+    }
+    ServerConfig server_config = server_config_result.get_ok_value();
     return get_error_page(server_config, location_path, code);
 }
 
@@ -282,7 +302,11 @@ Result<std::string, int> Configuration::get_error_page(const ServerInfo &server_
 Result<std::string, int> Configuration::get_error_page(const AddressPortPair &address_port_pair,
                                                        const std::string &location_path,
                                                        const StatusCode &code) const {
-    const ServerConfig server_config = get_default_server(address_port_pair);
+    Result<ServerConfig, int> server_config_result = get_default_server(address_port_pair);
+    if (server_config_result.is_err()) {
+        return Result<std::string, int>::err(ERR);
+    }
+    ServerConfig server_config = server_config_result.get_ok_value();
     return get_error_page(server_config, location_path, code);
 }
 
@@ -298,17 +322,25 @@ bool Configuration::is_autoindex_on(const ServerConfig &server_config,
 }
 
 
-bool Configuration::is_autoindex_on(const ServerInfo &server_info,
+Result<bool, int> Configuration::is_autoindex_on(const ServerInfo &server_info,
                                     const std::string &location_path) const {
-    const ServerConfig server_config = get_server_config(server_info);
-    return is_autoindex_on(server_config, location_path);
+    Result<ServerConfig, int> server_config_result = get_server_config(server_info);
+    if (server_config_result.is_err()) {
+        return Result<bool, int>::err(ERR);
+    }
+    ServerConfig server_config = server_config_result.get_ok_value();
+    return Result<bool, int>::ok(is_autoindex_on(server_config, location_path));
 }
 
 
-bool Configuration::is_autoindex_on(const AddressPortPair &address_port_pair,
+Result<bool, int> Configuration::is_autoindex_on(const AddressPortPair &address_port_pair,
                                     const std::string &location_path) const {
-    const ServerConfig server_config = get_default_server(address_port_pair);
-    return is_autoindex_on(server_config, location_path);
+    Result<ServerConfig, int> server_config_result = get_default_server(address_port_pair);
+    if (server_config_result.is_err()) {
+        return Result<bool, int>::err(ERR);
+    }
+    ServerConfig server_config = server_config_result.get_ok_value();
+    return Result<bool, int>::ok(is_autoindex_on(server_config, location_path));
 }
 
 
@@ -325,23 +357,34 @@ bool Configuration::is_method_allowed(const ServerConfig &server_config,
     std::set<Method> &excluded_methods = limit_except.excluded_methods;
 
     // todo: deny, accept
+    if (excluded_methods.empty()) {
+        return true;
+    }
     return excluded_methods.find(method) != excluded_methods.end();
 }
 
 
-bool Configuration::is_method_allowed(const ServerInfo &server_info,
+Result<bool, int> Configuration::is_method_allowed(const ServerInfo &server_info,
                                       const std::string &location_path,
                                       const Method &method) const {
-    const ServerConfig server_config = get_server_config(server_info);
-    return is_method_allowed(server_config, location_path, method);
+    Result<ServerConfig, int> server_config_result = get_server_config(server_info);
+    if (server_config_result.is_err()) {
+        return Result<bool, int>::err(ERR);
+    }
+    ServerConfig server_config = server_config_result.get_ok_value();
+    return Result<bool, int>::ok(is_method_allowed(server_config, location_path, method));
 }
 
 
-bool Configuration::is_method_allowed(const AddressPortPair &address_port_pair,
+Result<bool, int> Configuration::is_method_allowed(const AddressPortPair &address_port_pair,
                                       const std::string &location_path,
                                       const Method &method) const {
-    const ServerConfig server_config = get_default_server(address_port_pair);
-    return is_method_allowed(server_config, location_path, method);
+    Result<ServerConfig, int> server_config_result = get_default_server(address_port_pair);
+    if (server_config_result.is_err()) {
+        return Result<bool, int>::err(ERR);
+    }
+    ServerConfig server_config = server_config_result.get_ok_value();
+    return Result<bool, int>::ok(is_method_allowed(server_config, location_path, method));
 }
 
 
@@ -359,17 +402,25 @@ bool Configuration::is_redirect(const ServerConfig &server_config,
 }
 
 
-bool Configuration::is_redirect(const ServerInfo &server_info,
-                                const std::string &location_path) const {
-    const ServerConfig server_config = get_server_config(server_info);
-    return is_redirect(server_config, location_path);
+Result<bool, int> Configuration::is_redirect(const ServerInfo &server_info,
+                                             const std::string &location_path) const {
+    Result<ServerConfig, int> server_config_result = get_server_config(server_info);
+    if (server_config_result.is_err()) {
+        return Result<bool, int>::err(ERR);
+    }
+    ServerConfig server_config = server_config_result.get_ok_value();
+    return Result<bool, int>::ok(is_redirect(server_config, location_path));
 }
 
 
-bool Configuration::is_redirect(const AddressPortPair &address_port_pair,
-                                const std::string &location_path) const {
-    const ServerConfig server_config = get_default_server(address_port_pair);
-    return is_redirect(server_config, location_path);
+Result<bool, int> Configuration::is_redirect(const AddressPortPair &address_port_pair,
+                                             const std::string &location_path) const {
+    Result<ServerConfig, int> server_config_result = get_default_server(address_port_pair);
+    if (server_config_result.is_err()) {
+        return Result<bool, int>::err(ERR);
+    }
+    ServerConfig server_config = server_config_result.get_ok_value();
+    return Result<bool, int>::ok(is_redirect(server_config, location_path));
 }
 
 
@@ -391,14 +442,22 @@ Result<ReturnDirective, int> Configuration::get_redirect(const ServerConfig &ser
 
 Result<ReturnDirective, int> Configuration::get_redirect(const ServerInfo &server_info,
                                                          const std::string &location_path) const {
-    const ServerConfig server_config = get_server_config(server_info);
+    Result<ServerConfig, int> server_config_result = get_server_config(server_info);
+    if (server_config_result.is_err()) {
+        return Result<ReturnDirective, int>::err(ERR);
+    }
+    ServerConfig server_config = server_config_result.get_ok_value();
     return get_redirect(server_config, location_path);
 }
 
 
 Result<ReturnDirective, int> Configuration::get_redirect(const AddressPortPair &address_port_pair,
                                                          const std::string &location_path) const {
-    const ServerConfig server_config = get_default_server(address_port_pair);
+    Result<ServerConfig, int> server_config_result = get_default_server(address_port_pair);
+    if (server_config_result.is_err()) {
+        return Result<ReturnDirective, int>::err(ERR);
+    }
+    ServerConfig server_config = server_config_result.get_ok_value();
     return get_redirect(server_config, location_path);
 }
 
@@ -414,15 +473,23 @@ std::size_t Configuration::get_max_body_size(const ServerConfig &server_config,
 }
 
 
-std::size_t Configuration::get_max_body_size(const ServerInfo &server_info,
+Result<std::size_t, int> Configuration::get_max_body_size(const ServerInfo &server_info,
                                              const std::string &location_path) const {
-    const ServerConfig server_config = get_server_config(server_info);
-    return get_max_body_size(server_config, location_path);
+    Result<ServerConfig, int> server_config_result = get_server_config(server_info);
+    if (server_config_result.is_err()) {
+        return Result<std::size_t, int>::err(ERR);
+    }
+    ServerConfig server_config = server_config_result.get_ok_value();
+    return Result<std::size_t, int>::ok(get_max_body_size(server_config, location_path));
 }
 
 
-std::size_t Configuration::get_max_body_size(const AddressPortPair &address_port_pair,
+Result<std::size_t, int> Configuration::get_max_body_size(const AddressPortPair &address_port_pair,
                                              const std::string &location_path) const {
-    const ServerConfig server_config = get_default_server(address_port_pair);
-    return get_max_body_size(server_config, location_path);
+    Result<ServerConfig, int> server_config_result = get_default_server(address_port_pair);
+    if (server_config_result.is_err()) {
+        return Result<std::size_t, int>::err(ERR);
+    }
+    ServerConfig server_config = server_config_result.get_ok_value();
+    return Result<std::size_t, int>::ok(get_max_body_size(server_config, location_path));
 }

@@ -11,12 +11,16 @@ namespace ConfigInitValue {
 const std::size_t KB = 1024;
 const std::size_t MB = KB * KB;
 const std::size_t GB = KB * KB * KB;
+const std::size_t kDefaultBodySize = 1 * MB;
 
 const char kDefaultRoot[] = "html";
 const char kDefaultIndex[] = "index.html";
 const char kDefaultAddress[] = "*";
 const char kDefaultPort[] = "80";
 const char kDefaultServerName[] = "";
+
+const bool kDefaultAutoindex = false;
+const bool kDefaultRedirectOn = false;
 
 }  // namespace ConfigInitValue
 
@@ -117,7 +121,7 @@ struct ReturnDirective {
     std::string text;
 
     ReturnDirective()
-        : return_on(false),
+        : return_on(ConfigInitValue::kDefaultRedirectOn),
           code(),
           text() {}
 };
@@ -133,7 +137,7 @@ struct DefaultConfig {
         : root_path(ConfigInitValue::kDefaultRoot),
           index_pages(),
           error_pages(),
-          autoindex(false),
+          autoindex(ConfigInitValue::kDefaultAutoindex),
           max_body_size_bytes(1 * ConfigInitValue::MB) {
         index_pages.insert(ConfigInitValue::kDefaultIndex);
     }
