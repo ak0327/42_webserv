@@ -241,7 +241,7 @@ std::string Configuration::get_index(const ServerConfig &server_config,
         }
         ifs.close();
     }
-    return ConfigInitValue::kDefaultIndex;
+    return ConfigInitValue::kDefaultIndex;  // todo: default?
 }
 
 

@@ -22,6 +22,7 @@ class Configuration {
     std::map<ServerInfo, const ServerConfig *> get_server_configs() const;
     Result<ServerConfig, int> get_server_config(const ServerInfo &server_info) const;
 
+
     static std::string get_root(const ServerConfig &server_config,
                                 const std::string &location_path);
     Result<std::string, int> get_root(const ServerInfo &server_info,

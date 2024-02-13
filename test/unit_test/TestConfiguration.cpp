@@ -616,3 +616,76 @@ TEST(TestConf, ConfigurationGetterOK1) {
     ASSERT_TRUE(server_config_result.is_err());
 
 }
+
+
+TEST(TestConf, ConfigurationGetterOK2) {
+    Result<int, std::string> result;
+    Configuration config("test/test_conf/ok/conf_ok1.conf");
+
+    std::string location_path, root, index, error_page;
+    bool autoindex, is_redirect;
+    std::size_t max_body_size;
+    ReturnDirective redirect;
+    Result<std::string, int> error_page_result;
+    Result<ReturnDirective, int> redirect_result;
+    ServerConfig server_config;
+    Result<ServerConfig, int> server_config_result;
+
+    result = config.get_result();
+
+    // print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_ok());
+
+    ServerInfo server_info = ServerInfo("a", "*", "81");
+    server_config_result = config.get_server_config(server_info);
+    ASSERT_TRUE(server_config_result.is_ok());
+    server_config = server_config_result.get_ok_value();
+
+    location_path = "a";
+
+    root = "root_a";
+    index = "index.html";
+    autoindex = false;
+    is_redirect = false;
+    max_body_size = ConfigInitValue::kDefaultBodySize;
+
+    EXPECT_EQ(root, Configuration::get_root(server_config, location_path));
+    EXPECT_EQ(index, Configuration::get_index(server_config, location_path));
+
+    EXPECT_EQ(autoindex, config.is_autoindex_on(server_config, location_path));
+    EXPECT_TRUE(config.is_method_allowed(server_config, location_path, kGET));
+    EXPECT_TRUE(config.is_method_allowed(server_config, location_path, kPOST));
+    EXPECT_TRUE(config.is_method_allowed(server_config, location_path, kDELETE));
+    EXPECT_EQ(is_redirect, config.is_redirect(server_config, location_path));
+
+    EXPECT_EQ(max_body_size, config.get_max_body_size(server_config, location_path));
+
+    error_page_result = Configuration::get_error_page(server_config, location_path, 400);
+    EXPECT_TRUE(error_page_result.is_err());
+
+
+
+    // location_path = "c";  // not_found
+    //
+    // root = "root_a";
+    // index = "index.html";
+    // autoindex = false;
+    // is_redirect = false;
+    // max_body_size = ConfigInitValue::kDefaultBodySize;
+    //
+    // EXPECT_EQ(root, Configuration::get_root(server_config, location_path));
+    // EXPECT_EQ(index, Configuration::get_index(server_config, location_path));
+    //
+    // EXPECT_EQ(autoindex, config.is_autoindex_on(server_config, location_path));
+    // EXPECT_TRUE(config.is_method_allowed(server_config, location_path, kGET));
+    // EXPECT_TRUE(config.is_method_allowed(server_config, location_path, kPOST));
+    // EXPECT_TRUE(config.is_method_allowed(server_config, location_path, kDELETE));
+    // EXPECT_EQ(is_redirect, config.is_redirect(server_config, location_path));
+    //
+    // EXPECT_EQ(max_body_size, config.get_max_body_size(server_config, location_path));
+    //
+    // error_page_result = Configuration::get_error_page(server_config, location_path, 400);
+    // EXPECT_TRUE(error_page_result.is_err());
+
+
+}
