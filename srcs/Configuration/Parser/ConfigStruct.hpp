@@ -155,13 +155,11 @@ struct LocationConfig : public DefaultConfig {
 
 struct ServerConfig : public DefaultConfig  {
     std::vector<ListenDirective> listens;
-    ListenDirective *default_listen;
     std::set<std::string> server_names;
     std::map<LocationPath, LocationConfig> locations;
 
     ServerConfig()
         : listens(),
-          default_server(NULL),
           server_names(),
           locations() {}
 };

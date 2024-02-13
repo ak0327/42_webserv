@@ -35,9 +35,10 @@ class Parser {
 
 	static Result<HttpConfig, std::string> parse(const std::deque<Token> &tokens);
 	static Result<int, std::string> validate(const HttpConfig &http_config);
-	void set_default_listen(HttpConfig *http_config);
-	void set_default_server_name(HttpConfig *http_config);
-	void set_default_server();
+    void fill_unspecified_directives(HttpConfig *http_config);
+	void fill_unspecified_listen(HttpConfig *http_config);
+	void fill_unspecified_server_name(HttpConfig *http_config);
+	void set_default_listen();
 
 	// Recursive descent parse func
     static bool is_at_end(TokenItr *current, const TokenItr end);
