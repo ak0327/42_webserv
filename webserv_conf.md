@@ -540,4 +540,3 @@
   - `./webserv -t`: nginxと同様に、`*.conf`の構文チェックoption`-t`を実装し、
     - 構文OK/NGを評価
     - `nginx -t`の結果との比較による整合性評価
-
