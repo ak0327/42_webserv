@@ -142,15 +142,15 @@ Result<int, std::string> Configuration::set_default_servers() {
 }
 
 
-Result<int, std::string> Configuration::get_result() { return this->result_; }
+Result<int, std::string> Configuration::get_result() const { return this->result_; }
 
 
-const std::map<ServerInfo, const ServerConfig *> &Configuration::get_server_configs() const {
+std::map<ServerInfo, const ServerConfig *> Configuration::get_server_configs() const {
     return this->server_configs_;
 }
 
 
-const ServerConfig &Configuration::get_server_config(const ServerInfo &server_info) const {
+ServerConfig Configuration::get_server_config(const ServerInfo &server_info) const {
     std::map<ServerInfo, const ServerConfig *>::const_iterator server_config;
     server_config = this->server_configs_.find(server_info);
 
@@ -163,7 +163,7 @@ const ServerConfig &Configuration::get_server_config(const ServerInfo &server_in
 }
 
 
-const ServerConfig &Configuration::get_default_server(const AddressPortPair &pair) const {
+ServerConfig Configuration::get_default_server(const AddressPortPair &pair) const {
     std::map<AddressPortPair, const ServerConfig *> ::const_iterator default_server;
     default_server = this->default_servers_.find(pair);
 
@@ -172,4 +172,257 @@ const ServerConfig &Configuration::get_default_server(const AddressPortPair &pai
     } else {
         return *this->server_configs_.begin()->second;  // todo: tmp
     }
+}
+
+
+Result<LocationConfig, int> Configuration::get_location_config(const ServerConfig &server_config,
+                                                               const std::string &location_path) {
+    std::map<LocationPath, LocationConfig>::const_iterator location;
+    location = server_config.locations.find(location_path);
+    if (location == server_config.locations.end()) {
+        return Result<LocationConfig, int>::err(ERR);
+    }
+    return Result<LocationConfig, int>::ok(location->second);
+}
+
+
+std::string Configuration::get_root(const ServerConfig &server_config,
+                                    const std::string &location_path) {
+    Result<LocationConfig, int> location_result = get_location_config(server_config, location_path);
+    if (location_result.is_ok()) {
+        LocationConfig location = location_result.get_ok_value();
+        return location.root_path;
+    }
+    return server_config.root_path;
+}
+
+
+std::string Configuration::get_root(const ServerInfo &server_info,
+                                    const std::string &location_path) const {
+    const ServerConfig server_config = get_server_config(server_info);
+    return get_root(server_config, location_path);
+}
+
+
+std::string Configuration::get_root(const AddressPortPair &address_port_pair,
+                                    const std::string &location_path) const {
+    const ServerConfig server_config = get_default_server(address_port_pair);
+    return get_root(server_config, location_path);
+}
+
+
+std::string Configuration::get_index(const ServerConfig &server_config,
+                                     const std::string &location_path) {
+    std::set<std::string> index_pages;
+
+    Result<LocationConfig, int> location_result = get_location_config(server_config, location_path);
+    if (location_result.is_ok()) {
+        LocationConfig location_config = location_result.get_ok_value();
+        index_pages = location_config.index_pages;
+    } else {
+        index_pages = server_config.index_pages;
+    }
+
+    const std::string root = get_root(server_config, location_path);
+    for (std::set<std::string>::const_iterator page = index_pages.begin(); page != index_pages.end(); ++page) {
+        const std::string path = root + "/" + *page;
+        std::ifstream ifs(path.c_str());
+
+        if (ifs.is_open()) {
+            return *page;
+        }
+        ifs.close();
+    }
+    return ConfigInitValue::kDefaultIndex;
+}
+
+
+std::string Configuration::get_index(const ServerInfo &server_info,
+                                     const std::string &location_path) const {
+    const ServerConfig server_config = get_server_config(server_info);
+    return get_index(server_config, location_path);
+}
+
+
+std::string Configuration::get_index(const AddressPortPair &address_port_pair,
+                                     const std::string &location_path) const {
+    const ServerConfig server_config = get_default_server(address_port_pair);
+    return get_index(server_config, location_path);
+}
+
+
+Result<std::string, int> Configuration::get_error_page(const ServerConfig &server_config,
+                                                       const std::string &location_path,
+                                                       const StatusCode &code) {
+    std::map<StatusCode, std::string> error_pages;
+
+    Result<LocationConfig, int> location_result = get_location_config(server_config, location_path);
+    if (location_result.is_ok()) {
+        LocationConfig location_config = location_result.get_ok_value();
+        error_pages = location_config.error_pages;
+    } else {
+        error_pages = server_config.error_pages;
+    }
+
+    if (error_pages.find(code) == error_pages.end()) {
+        return Result<std::string, int>::err(ERR);
+    }
+    return Result<std::string, int>::ok(error_pages[code]);
+}
+
+
+Result<std::string, int> Configuration::get_error_page(const ServerInfo &server_info,
+                                                       const std::string &location_path,
+                                                       const StatusCode &code) const {
+    const ServerConfig server_config = get_server_config(server_info);
+    return get_error_page(server_config, location_path, code);
+}
+
+
+Result<std::string, int> Configuration::get_error_page(const AddressPortPair &address_port_pair,
+                                                       const std::string &location_path,
+                                                       const StatusCode &code) const {
+    const ServerConfig server_config = get_default_server(address_port_pair);
+    return get_error_page(server_config, location_path, code);
+}
+
+
+bool Configuration::is_autoindex_on(const ServerConfig &server_config,
+                                    const std::string &location_path) {
+    Result<LocationConfig, int> location_result = get_location_config(server_config, location_path);
+    if (location_result.is_ok()) {
+        LocationConfig location = location_result.get_ok_value();
+        return location.autoindex;
+    }
+    return server_config.autoindex;
+}
+
+
+bool Configuration::is_autoindex_on(const ServerInfo &server_info,
+                                    const std::string &location_path) const {
+    const ServerConfig server_config = get_server_config(server_info);
+    return is_autoindex_on(server_config, location_path);
+}
+
+
+bool Configuration::is_autoindex_on(const AddressPortPair &address_port_pair,
+                                    const std::string &location_path) const {
+    const ServerConfig server_config = get_default_server(address_port_pair);
+    return is_autoindex_on(server_config, location_path);
+}
+
+
+bool Configuration::is_method_allowed(const ServerConfig &server_config,
+                                      const std::string &location_path,
+                                      const Method &method) {
+    Result<LocationConfig, int> location_result = get_location_config(server_config, location_path);
+    if (location_result.is_err()) {
+        return true;
+    }
+
+    LocationConfig location_config = location_result.get_ok_value();
+    LimitExceptDirective &limit_except = location_config.limit_except;
+    std::set<Method> &excluded_methods = limit_except.excluded_methods;
+
+    // todo: deny, accept
+    return excluded_methods.find(method) != excluded_methods.end();
+}
+
+
+bool Configuration::is_method_allowed(const ServerInfo &server_info,
+                                      const std::string &location_path,
+                                      const Method &method) const {
+    const ServerConfig server_config = get_server_config(server_info);
+    return is_method_allowed(server_config, location_path, method);
+}
+
+
+bool Configuration::is_method_allowed(const AddressPortPair &address_port_pair,
+                                      const std::string &location_path,
+                                      const Method &method) const {
+    const ServerConfig server_config = get_default_server(address_port_pair);
+    return is_method_allowed(server_config, location_path, method);
+}
+
+
+// todo: server block ?
+bool Configuration::is_redirect(const ServerConfig &server_config,
+                                const std::string &location_path) {
+    Result<LocationConfig, int> location_result = get_location_config(server_config, location_path);
+    if (location_result.is_err()) {
+        return false;
+    }
+
+    LocationConfig location_config = location_result.get_ok_value();
+    ReturnDirective redirection = location_config.redirection;
+    return redirection.return_on;
+}
+
+
+bool Configuration::is_redirect(const ServerInfo &server_info,
+                                const std::string &location_path) const {
+    const ServerConfig server_config = get_server_config(server_info);
+    return is_redirect(server_config, location_path);
+}
+
+
+bool Configuration::is_redirect(const AddressPortPair &address_port_pair,
+                                const std::string &location_path) const {
+    const ServerConfig server_config = get_default_server(address_port_pair);
+    return is_redirect(server_config, location_path);
+}
+
+
+Result<ReturnDirective, int> Configuration::get_redirect(const ServerConfig &server_config,
+                                                         const std::string &location_path) {
+    Result<LocationConfig, int> location_result = get_location_config(server_config, location_path);
+    if (location_result.is_err()) {
+        return Result<ReturnDirective, int>::err(ERR);
+    }
+
+    LocationConfig location_config = location_result.get_ok_value();
+    ReturnDirective redirection = location_config.redirection;
+    if (!redirection.return_on) {
+        return Result<ReturnDirective, int>::err(ERR);
+    }
+    return Result<ReturnDirective, int>::ok(redirection);
+}
+
+
+Result<ReturnDirective, int> Configuration::get_redirect(const ServerInfo &server_info,
+                                                         const std::string &location_path) const {
+    const ServerConfig server_config = get_server_config(server_info);
+    return get_redirect(server_config, location_path);
+}
+
+
+Result<ReturnDirective, int> Configuration::get_redirect(const AddressPortPair &address_port_pair,
+                                                         const std::string &location_path) const {
+    const ServerConfig server_config = get_default_server(address_port_pair);
+    return get_redirect(server_config, location_path);
+}
+
+
+std::size_t Configuration::get_max_body_size(const ServerConfig &server_config,
+                                             const std::string &location_path) {
+    Result<LocationConfig, int> location_result = get_location_config(server_config, location_path);
+    if (location_result.is_ok()) {
+        LocationConfig location = location_result.get_ok_value();
+        return location.max_body_size_bytes;
+    }
+    return server_config.max_body_size_bytes;
+}
+
+
+std::size_t Configuration::get_max_body_size(const ServerInfo &server_info,
+                                             const std::string &location_path) const {
+    const ServerConfig server_config = get_server_config(server_info);
+    return get_max_body_size(server_config, location_path);
+}
+
+
+std::size_t Configuration::get_max_body_size(const AddressPortPair &address_port_pair,
+                                             const std::string &location_path) const {
+    const ServerConfig server_config = get_default_server(address_port_pair);
+    return get_max_body_size(server_config, location_path);
 }
