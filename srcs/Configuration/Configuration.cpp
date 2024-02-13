@@ -19,7 +19,9 @@ Configuration::Configuration(const char *file_path) {
 		return;
 	}
 
-	this->http_config_ = parser.get_config();
+    this->http_config_ = parser.get_config();
+    set_server_configs();
+
 	this->result_ = Result<int, std::string>::ok(OK);
 }
 
@@ -43,9 +45,30 @@ Configuration &Configuration::operator=(const Configuration &rhs) {
 }
 
 
+void Configuration::set_server_configs() {
+    const std::vector<ServerConfig> &server_configs = this->http_config_.servers;
+
+    std::vector<ServerConfig>::const_iterator server_config;
+    for (server_config = server_configs.begin(); server_config != server_configs.end(); ++server_config) {
+        const std::vector<ListenDirective> &listens = server_config->listens;
+        const std::set<std::string> &server_names = server_config->server_names;
+
+        std::set<std::string>::const_iterator server_name;
+        for (server_name = server_names.begin(); server_name != server_names.end(); ++server_name) {
+            std::vector<ListenDirective>::const_iterator listen;
+            for (listen = listens.begin(); listen != listens.end(); ++listen) {
+                ServerInfo info = ServerInfo(*server_name, listen->address, listen->port);
+
+                this->server_configs_[info] = &(*server_config);
+            }
+        }
+    }
+}
+
+
 Result<int, std::string> Configuration::get_result() { return this->result_; }
 
 
-const std::vector<ServerConfig> &Configuration::get_server_configs() const {
-    return this->http_config_.servers;
+const std::map<ServerInfo, const ServerConfig *> &Configuration::get_server_configs() const {
+    return this->server_configs_;
 }

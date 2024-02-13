@@ -34,7 +34,6 @@ enum AccessControl {
 };
 
 
-// for duplicate validation
 struct ServerInfo {
     std::string server_name;
     std::string address;

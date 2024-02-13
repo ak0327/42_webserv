@@ -17,10 +17,13 @@ class Configuration {
 	Configuration &operator=(const Configuration &rhs);
 
 	Result<int, std::string> get_result();
-
-    const std::vector<ServerConfig> &get_server_configs() const;
+    const std::map<ServerInfo, const ServerConfig *> &get_server_configs() const;
 
  private:
 	HttpConfig http_config_;
-	Result<int, std::string> result_;
+    std::map<ServerInfo, const ServerConfig *> server_configs_;
+
+    Result<int, std::string> result_;
+
+    void set_server_configs();
 };
