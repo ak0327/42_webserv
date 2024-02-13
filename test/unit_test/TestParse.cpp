@@ -26,9 +26,10 @@ std::set<std::string> get_conf_files(const std::string &directory_path) {
             if (entry->d_type == DT_REG) {
                 std::string file_name = entry->d_name;
                 if (file_name.size() > 5 && file_name.substr(file_name.size() - 5) == ".conf") {
-                    std::ostringstream oss;
-                    oss << directory_path << "/" << file_name;
-                    conf_files.insert(oss.str());
+                    std::string path = directory_path;
+                    path.append("/");
+                    path.append(file_name);
+                    conf_files.insert(path);
                 }
             }
         }
