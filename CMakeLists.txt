@@ -192,6 +192,7 @@ set (unit_test_srcs
         test/unit_test/TestTokenizer.cpp
         test/unit_test/TestParserFunc.cpp
         test/unit_test/TestParse.cpp
+        test/unit_test/TestConfiguration.cpp
 
         test/unit_test/TestRequestLine.cpp
 

@@ -419,27 +419,28 @@ TEST(TestTokenizer, SplitData) {
 	data = file_handler2.get_contents();
 
 	expected = {
-			"events", "{", "\n",
-			"}", "\n",
-			"\n",
-			"http", "{", "\n",
-			"server", "{", "\n",
-			"listen", "80", ";", "\n",
-			"server_name", "example.com", "www.example.com", ";", "\n",
-			"\n",
-			"root", "/var/www/html", ";", "\n",
-			"}", "\n",
-			"\n",
-			"location", "/some-directory/", "{", "\n",
-			"autoindex", "on", ";", "\n",
-			"}", "\n",
-			"\n",
-			"location", "/uploads", "{", "\n",
-			"client_max_body_size", "20M", ";", "\n",
-									  "root", "/path/to/upload/directory", ";", "\n",
-			"}", "\n",
-			"}",
-	};
+            "events", "{", "\n",
+            "}", "\n",
+            "\n",
+            "http", "{", "\n",
+            "server", "{", "\n",
+            "listen", "80", ";", "\n",
+            "server_name", "example.com", "www.example.com", ";", "\n",
+            "\n",
+            "root", "/var/www/html", ";", "\n",
+            "\n",
+            "location", "/some-directory/", "{", "\n",
+            "autoindex", "on", ";", "\n",
+            "}", "\n",
+            "\n",
+            "location", "/uploads", "{", "\n",
+            "client_max_body_size","20M", ";", "\n",
+            "root", "/path/to/upload/directory", ";", "\n",
+            "}", "\n",
+            "\n",
+            "}", "\n",
+            "}"
+    };
 	actual = Tokenizer::split_data(data);
 
 	EXPECT_EQ(expected, actual);
@@ -504,10 +505,13 @@ TEST(TestTokenizer, TestTokenizerValidationOK) {
 	expected.push_back(Token("events",					kTokenKindBlockName, 		1));
 	expected.push_back(Token("{",							kTokenKindBraces, 			1));
 	expected.push_back(Token("}", 						kTokenKindBraces, 			2));
+
 	expected.push_back(Token("http",						kTokenKindBlockName, 		4));
 	expected.push_back(Token("{", 						kTokenKindBraces, 			4));
-	expected.push_back(Token("server", 					kTokenKindBlockName,		5));
+
+    expected.push_back(Token("server", 					kTokenKindBlockName,		5));
 	expected.push_back(Token("{", 						kTokenKindBraces, 			5));
+
 	expected.push_back(Token("listen", 					kTokenKindDirectiveName,	6));
 	expected.push_back(Token("80", 						kTokenKindDirectiveParam, 	6));
 	expected.push_back(Token(";", 						kTokenKindSemicolin, 		6));
@@ -518,25 +522,28 @@ TEST(TestTokenizer, TestTokenizerValidationOK) {
 	expected.push_back(Token("root", 						kTokenKindDirectiveName, 	9));
 	expected.push_back(Token("/var/www/html", 			kTokenKindDirectiveParam, 	9));
 	expected.push_back(Token(";", 						kTokenKindSemicolin, 		9));
-	expected.push_back(Token("}", 						kTokenKindBraces, 			10));
-	expected.push_back(Token("location", 					kTokenKindBlockName, 		12));
-	expected.push_back(Token("/some-directory/", 			kTokenKindBlockParam, 		12));
-	expected.push_back(Token("{", 						kTokenKindBraces, 			12));
-	expected.push_back(Token("autoindex",					kTokenKindDirectiveName, 	13));
-	expected.push_back(Token("on", 						kTokenKindDirectiveParam, 	13));
-	expected.push_back(Token(";", 						kTokenKindSemicolin, 		13));
-	expected.push_back(Token("}", 						kTokenKindBraces, 			14));
-	expected.push_back(Token("location", 					kTokenKindBlockName, 		16));
-	expected.push_back(Token("/uploads", 					kTokenKindBlockParam, 		16));
-	expected.push_back(Token("{", 						kTokenKindBraces, 			16));
-	expected.push_back(Token("client_max_body_size", 		kTokenKindDirectiveName, 	17));
-	expected.push_back(Token("20M", 						kTokenKindDirectiveParam, 	17));
-	expected.push_back(Token(";",							kTokenKindSemicolin, 		17));
-	expected.push_back(Token("root", 						kTokenKindDirectiveName, 	18));
-	expected.push_back(Token("/path/to/upload/directory",	kTokenKindDirectiveParam, 	18));
-	expected.push_back(Token(";", 						kTokenKindSemicolin, 		18));
-	expected.push_back(Token("}", 						kTokenKindBraces, 			19));
+
+	expected.push_back(Token("location", 					kTokenKindBlockName, 		11));
+	expected.push_back(Token("/some-directory/", 			kTokenKindBlockParam, 		11));
+	expected.push_back(Token("{", 						kTokenKindBraces, 			11));
+	expected.push_back(Token("autoindex",					kTokenKindDirectiveName, 	12));
+	expected.push_back(Token("on", 						kTokenKindDirectiveParam, 	12));
+	expected.push_back(Token(";", 						kTokenKindSemicolin, 		12));
+	expected.push_back(Token("}", 						kTokenKindBraces, 			13));
+
+    expected.push_back(Token("location", 					kTokenKindBlockName, 		15));
+	expected.push_back(Token("/uploads", 					kTokenKindBlockParam, 		15));
+	expected.push_back(Token("{", 						kTokenKindBraces, 			15));
+	expected.push_back(Token("client_max_body_size", 		kTokenKindDirectiveName, 	16));
+	expected.push_back(Token("20M", 						kTokenKindDirectiveParam, 	16));
+	expected.push_back(Token(";",							kTokenKindSemicolin, 		16));
+	expected.push_back(Token("root", 						kTokenKindDirectiveName, 	17));
+	expected.push_back(Token("/path/to/upload/directory",	kTokenKindDirectiveParam, 	17));
+	expected.push_back(Token(";", 						kTokenKindSemicolin, 		17));
+	expected.push_back(Token("}", 						kTokenKindBraces, 			18));
+
 	expected.push_back(Token("}", 						kTokenKindBraces, 			20));
+    expected.push_back(Token("}", 						kTokenKindBraces, 			21));
 
 	actual = tokenizer.get_tokens();
 	result = tokenizer.get_result();

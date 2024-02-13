@@ -17,10 +17,7 @@
 #include "gtest/gtest.h"
 
 
-namespace {
-
-
-std::set<std::string> get_conf_files(const std::string& directory_path) {
+std::set<std::string> get_conf_files(const std::string &directory_path) {
     std::set<std::string> conf_files;
     DIR *dir = opendir(directory_path.c_str());
     if (dir) {
@@ -29,7 +26,9 @@ std::set<std::string> get_conf_files(const std::string& directory_path) {
             if (entry->d_type == DT_REG) {
                 std::string file_name = entry->d_name;
                 if (file_name.size() > 5 && file_name.substr(file_name.size() - 5) == ".conf") {
-                    conf_files.insert(directory_path + "/" + file_name);
+                    std::ostringstream oss;
+                    oss << directory_path << "/" << file_name;
+                    conf_files.insert(oss.str());
                 }
             }
         }
@@ -37,9 +36,6 @@ std::set<std::string> get_conf_files(const std::string& directory_path) {
     }
     return conf_files;
 }
-
-
-}  // namespace
 
 
 TEST(TestParser, ParseOK) {
@@ -57,7 +53,6 @@ TEST(TestParser, ParseOK) {
     listen = {};
     listen = ListenDirective(ConfigInitValue::kDefaultAddress, "8080", false);
     server_config.listens.push_back(listen);
-    server_config.default_listen = &listen;
 
     server_config.server_names.insert("webserv");
     server_config.server_names.insert("server1");
@@ -121,7 +116,6 @@ TEST(TestParser, ParseOK) {
     listen = ListenDirective(ConfigInitValue::kDefaultAddress, "8484", true);
     server_config.listens.push_back(ListenDirective(ConfigInitValue::kDefaultAddress, "4242", false));
     server_config.listens.push_back(listen);
-    server_config.default_listen = &listen;
 
     server_config.server_names.insert("cgi_server");
 
@@ -148,7 +142,6 @@ TEST(TestParser, ParseOK) {
     server_config = {};
     listen = ListenDirective(ConfigInitValue::kDefaultAddress, "8080", false);
     server_config.listens.push_back(listen);
-    server_config.default_listen = &listen;
 
     server_config.server_names.insert("webserv");
     server_config.server_names.insert("server1");
@@ -197,7 +190,6 @@ TEST(TestParser, ParseOK) {
     ListenDirective listen2 = ListenDirective(ConfigInitValue::kDefaultAddress, "8484", true);
     server_config.listens.push_back(ListenDirective(ConfigInitValue::kDefaultAddress, "4242", false));
     server_config.listens.push_back(listen2);
-    server_config.default_listen = &listen2;
 
     server_config.server_names.insert("cgi_server");
 
@@ -225,7 +217,7 @@ TEST(TestParser, ParseHttpBlockOK) {
 
         Parser parser(itr->c_str());
         Result<int, std::string> result = parser.get_result();
-        ASSERT_TRUE(result.is_ok());
+        EXPECT_TRUE(result.is_ok());
     }
 }
 
@@ -240,7 +232,7 @@ TEST(TestParser, ParseHttpBlockNG) {
 
         Result<int, std::string> result = parser.get_result();
         print_error_msg(result, __LINE__);
-        ASSERT_TRUE(result.is_err());
+        EXPECT_TRUE(result.is_err());
     }
 }
 
@@ -254,7 +246,7 @@ TEST(TestParser, ParseServerBlockOK) {
         Parser parser(itr->c_str());
         Result<int, std::string> result = parser.get_result();
         // print_error_msg(result, __LINE__);
-        ASSERT_TRUE(result.is_ok());
+        EXPECT_TRUE(result.is_ok());
     }
 }
 
@@ -269,7 +261,7 @@ TEST(TestParser, ParseServerBlockNG) {
 
         Result<int, std::string> result = parser.get_result();
         print_error_msg(result, __LINE__);
-        ASSERT_TRUE(result.is_err());
+        EXPECT_TRUE(result.is_err());
     }
 }
 
@@ -283,7 +275,7 @@ TEST(TestParser, ParseLocationBlockOK) {
         Parser parser(itr->c_str());
         Result<int, std::string> result = parser.get_result();
         // print_error_msg(result, __LINE__);
-        ASSERT_TRUE(result.is_ok());
+        EXPECT_TRUE(result.is_ok());
     }
 }
 
@@ -298,6 +290,6 @@ TEST(TestParser, ParseLocationBlockNG) {
 
         Result<int, std::string> result = parser.get_result();
         print_error_msg(result, __LINE__);
-        ASSERT_TRUE(result.is_err());
+        EXPECT_TRUE(result.is_err());
     }
 }

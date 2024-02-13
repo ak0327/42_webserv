@@ -319,6 +319,14 @@ run_parse_test    :
 	#./build/unit_test --gtest_filter=TestParser:TestParse
 	#./build/unit_test --gtest_filter=TestParser.ParseServer
 
+.PHONY    : run_conf_test
+run_conf_test    :
+	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
+	#cmake -S . -B build
+	cmake --build build
+	./build/unit_test --gtest_filter=TestConf*
+
+
 .PHONY	: client
 client	: $(CLIENT_OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $^

@@ -51,6 +51,10 @@ void expect_eq_locations(const std::map<std::string, LocationConfig> &expected,
                          const std::map<std::string, LocationConfig> &actual,
                          const std::size_t line);
 
+
+std::set<std::string> get_conf_files(const std::string &directory_path);
+
+
 template <typename OkType>
 void print_error_msg(Result<OkType, std::string> result, const std::size_t line);
 
