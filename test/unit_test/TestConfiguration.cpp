@@ -17,7 +17,7 @@
 #include "gtest/gtest.h"
 
 
-TEST(TestConf, ConfigurationOK) {
+TEST(TestConfig, ConfigurationOK) {
     std::set<std::string> conf_files = get_conf_files("test/test_conf/ok");
 
     for (std::set<std::string>::const_iterator itr = conf_files.begin(); itr != conf_files.end(); ++itr) {
@@ -32,7 +32,7 @@ TEST(TestConf, ConfigurationOK) {
 }
 
 
-TEST(TestConf, ConfigurationNG) {
+TEST(TestConfig, ConfigurationNG) {
     std::set<std::string> conf_files = get_conf_files("test/test_conf/ng/ng_configuration");
 
     for (std::set<std::string>::const_iterator itr = conf_files.begin(); itr != conf_files.end(); ++itr) {
@@ -109,7 +109,7 @@ void expect_eq_redirect(const ServerConfig &server_config,
 }
 
 
-TEST(TestConf, ConfigurationGetterOK1) {
+TEST(TestConfig, ConfigurationGetterOK1) {
     Result<int, std::string> result;
     Configuration config("test/test_conf/ok/parse_ok1.conf");
 
@@ -806,7 +806,7 @@ TEST(TestConf, ConfigurationGetterOK1) {
 }
 
 
-TEST(TestConf, ConfigurationGetterOK2) {
+TEST(TestConfig, ConfigurationGetterOK2) {
     Result<int, std::string> result;
     Configuration config("test/test_conf/ok/conf_ok1.conf");
 
