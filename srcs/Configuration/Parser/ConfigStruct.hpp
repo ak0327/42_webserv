@@ -11,12 +11,16 @@ namespace ConfigInitValue {
 const std::size_t KB = 1024;
 const std::size_t MB = KB * KB;
 const std::size_t GB = KB * KB * KB;
+const std::size_t kDefaultBodySize = 1 * MB;
 
 const char kDefaultRoot[] = "html";
 const char kDefaultIndex[] = "index.html";
 const char kDefaultAddress[] = "*";
 const char kDefaultPort[] = "80";
 const char kDefaultServerName[] = "";
+
+const bool kDefaultAutoindex = false;
+const bool kDefaultRedirectOn = false;
 
 }  // namespace ConfigInitValue
 
@@ -34,7 +38,6 @@ enum AccessControl {
 };
 
 
-// for duplicate validation
 struct ServerInfo {
     std::string server_name;
     std::string address;
@@ -102,11 +105,13 @@ struct ListenDirective {
 };
 
 struct LimitExceptDirective {
+    bool limited;
     std::set<Method> excluded_methods;
     std::vector<AccessRule> rules;  // allow, deny <- not support in webserv
 
     LimitExceptDirective()
-        : excluded_methods(),
+        : limited(false),
+          excluded_methods(),
           rules() {}
 };
 
@@ -118,7 +123,7 @@ struct ReturnDirective {
     std::string text;
 
     ReturnDirective()
-        : return_on(false),
+        : return_on(ConfigInitValue::kDefaultRedirectOn),
           code(),
           text() {}
 };
@@ -134,7 +139,7 @@ struct DefaultConfig {
         : root_path(ConfigInitValue::kDefaultRoot),
           index_pages(),
           error_pages(),
-          autoindex(false),
+          autoindex(ConfigInitValue::kDefaultAutoindex),
           max_body_size_bytes(1 * ConfigInitValue::MB) {
         index_pages.insert(ConfigInitValue::kDefaultIndex);
     }
@@ -156,13 +161,11 @@ struct LocationConfig : public DefaultConfig {
 
 struct ServerConfig : public DefaultConfig  {
     std::vector<ListenDirective> listens;
-    ListenDirective *default_server;
     std::set<std::string> server_names;
     std::map<LocationPath, LocationConfig> locations;
 
     ServerConfig()
         : listens(),
-          default_server(NULL),
           server_names(),
           locations() {}
 };

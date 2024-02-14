@@ -42,8 +42,7 @@ Parser::Parser(const char *file_path) {
 	}
 	HttpConfig http_config = parse_result.get_ok_value();
 
-    set_default_server_name(&http_config);
-    set_default_listen(&http_config);
+    fill_unspecified_directives(&http_config);
 
     Result<int, std::string> validate_result = validate(http_config);
 	if (validate_result.is_err()) {
@@ -54,7 +53,6 @@ Parser::Parser(const char *file_path) {
 
     this->http_config_ = http_config;
 	this->result_ = Result<int, std::string>::ok(OK);
-    set_default_server();
 }
 
 
@@ -174,7 +172,12 @@ Result<int, std::string> Parser::validate(const HttpConfig &http_config) {
 }
 
 
-void Parser::set_default_listen(HttpConfig *http_config) {
+void Parser::fill_unspecified_directives(HttpConfig *http_config) {
+    fill_unspecified_listen(http_config);
+    fill_unspecified_server_name(http_config);
+}
+
+void Parser::fill_unspecified_listen(HttpConfig *http_config) {
     std::vector<ServerConfig>::iterator server_config = http_config->servers.begin();
     while (server_config != http_config->servers.end()) {
         if (server_config->listens.empty()) {
@@ -185,32 +188,11 @@ void Parser::set_default_listen(HttpConfig *http_config) {
 }
 
 
-void Parser::set_default_server_name(HttpConfig *http_config) {
+void Parser::fill_unspecified_server_name(HttpConfig *http_config) {
     std::vector<ServerConfig>::iterator server_config = http_config->servers.begin();
     while (server_config != http_config->servers.end()) {
         if (server_config->server_names.empty()) {
             server_config->server_names.insert(ConfigInitValue::kDefaultServerName);
-        }
-        ++server_config;
-    }
-}
-
-
-
-void Parser::set_default_server() {
-    std::vector<ServerConfig>::iterator server_config = this->http_config_.servers.begin();
-
-    while (server_config != this->http_config_.servers.end()) {
-        std::vector<ListenDirective> &listens = server_config->listens;
-        std::vector<ListenDirective>::iterator listen = listens.begin();
-
-        server_config->default_server = &(*listen);
-        while (listen != listens.end()) {
-            if (listen->is_default_server) {
-                server_config->default_server = &(*listen);
-                break;
-            }
-            ++listen;
         }
         ++server_config;
     }

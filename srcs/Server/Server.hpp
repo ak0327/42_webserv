@@ -36,7 +36,7 @@ class Server {
 	ServerResult accept_connect_fd(int socket_fd);
 	ServerResult communicate_with_ready_client(int connect_fd);
 
-    ServerResult create_sockets(const std::vector<ServerConfig> &server_configs);
+    ServerResult create_sockets(const Configuration &config);
     Result<IOMultiplexer *, std::string> create_io_multiplexer_fds();
 
     bool is_socket_fd(int fd) const;
