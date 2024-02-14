@@ -23,15 +23,15 @@ class Configuration {
     Result<ServerConfig, int> get_server_config(const ServerInfo &server_info) const;
 
 
-    static std::string get_root(const ServerConfig &server_config,
-                                const std::string &location_path);
+    static Result<std::string, int> get_root(const ServerConfig &server_config,
+                                             const std::string &location_path);
     Result<std::string, int> get_root(const ServerInfo &server_info,
                                       const std::string &location_path) const;
     Result<std::string, int> get_root(const AddressPortPair &address_port_pair,
                                       const std::string &location_path) const;
 
-    static std::string get_index(const ServerConfig &server_config,
-                                 const std::string &location_path);
+    static Result<std::string, int> get_index(const ServerConfig &server_config,
+                                              const std::string &location_path);
     Result<std::string, int> get_index(const ServerInfo &server_info,
                                        const std::string &location_path) const;
     Result<std::string, int> get_index(const AddressPortPair &address_port_pair,
@@ -47,16 +47,16 @@ class Configuration {
                                             const std::string &location_path,
                                             const StatusCode &code) const;
 
-    static bool is_autoindex_on(const ServerConfig &server_config,
-                                const std::string &location_path);
+    static Result<bool, int> is_autoindex_on(const ServerConfig &server_config,
+                                             const std::string &location_path);
     Result<bool, int> is_autoindex_on(const ServerInfo &server_info,
                                       const std::string &location_path) const;
     Result<bool, int> is_autoindex_on(const AddressPortPair &address_port_pair,
                                       const std::string &location_path) const;
 
-    static bool is_method_allowed(const ServerConfig &server_config,
-                                  const std::string &location_path,
-                                  const Method &method);
+    static Result<bool, int> is_method_allowed(const ServerConfig &server_config,
+                                               const std::string &location_path,
+                                               const Method &method);
     Result<bool, int> is_method_allowed(const ServerInfo &server_info,
                                         const std::string &location_path,
                                         const Method &method) const;
@@ -64,8 +64,8 @@ class Configuration {
                                         const std::string &location_path,
                                         const Method &method) const;
 
-    static bool is_redirect(const ServerConfig &server_config,
-                            const std::string &location_path);
+    static Result<bool, int> is_redirect(const ServerConfig &server_config,
+                                         const std::string &location_path);
     Result<bool, int> is_redirect(const ServerInfo &server_info,
                                   const std::string &location_path) const;
     Result<bool, int> is_redirect(const AddressPortPair &address_port_pair,
@@ -78,8 +78,8 @@ class Configuration {
     Result<ReturnDirective, int> get_redirect(const AddressPortPair &address_port_pair,
                                               const std::string &location_path) const;
 
-    static std::size_t get_max_body_size(const ServerConfig &server_config,
-                                         const std::string &location_path);
+    static Result<std::size_t , int> get_max_body_size(const ServerConfig &server_config,
+                                                       const std::string &location_path);
     Result<std::size_t, int> get_max_body_size(const ServerInfo &server_info,
                                                const std::string &location_path) const;
     Result<std::size_t, int> get_max_body_size(const AddressPortPair &address_port_pair,

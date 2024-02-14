@@ -105,11 +105,13 @@ struct ListenDirective {
 };
 
 struct LimitExceptDirective {
+    bool limited;
     std::set<Method> excluded_methods;
     std::vector<AccessRule> rules;  // allow, deny <- not support in webserv
 
     LimitExceptDirective()
-        : excluded_methods(),
+        : limited(false),
+          excluded_methods(),
           rules() {}
 };
 
