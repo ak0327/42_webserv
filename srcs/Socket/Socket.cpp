@@ -26,7 +26,7 @@ Result<int, std::string> set_socket_opt(int socket_fd) {
 
 	errno = 0;
 	if (setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt_val, opt_len) == SETSOCKOPT_ERROR) {
-		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
+		std::string err_info = CREATE_ERROR_INFO_ERRNO(errno);
 		return Result<int, std::string>::err(err_info);
 	}
 	return Result<int, std::string>::ok(OK);
@@ -35,7 +35,7 @@ Result<int, std::string> set_socket_opt(int socket_fd) {
 Result<int, std::string> close_socket_fd(int socket_fd) {
 	errno = 0;
 	if (close(socket_fd) == CLOSE_ERROR) {
-		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
+		std::string err_info = CREATE_ERROR_INFO_ERRNO(errno);
 		return Result<int, std::string>::err(err_info);
 	}
 	return Result<int, std::string>::ok(OK);
@@ -100,7 +100,7 @@ Result<int, std::string> Socket::init_addr_info() {
 	int errcode = getaddrinfo(ip, this->server_port_.c_str(), &hints, &ret_addr_info);
 
 	if (errcode != GETADDRINFO_SUCCESS) {
-		std::string err_info = create_error_info(gai_strerror(errcode), __FILE__, __LINE__);
+		std::string err_info = CREATE_ERROR_INFO_STR(gai_strerror(errcode));
 		return Result<int, std::string>::err("getaddrinfo:" + err_info);
 	}
 	this->addr_info_ = ret_addr_info;
@@ -116,7 +116,7 @@ Result<int, std::string> Socket::create_socket() {
 	errno = 0;
 	int socket_fd = socket(ai_family, ai_socktype, ai_protocol);
 	if (socket_fd == SOCKET_ERROR) {
-		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
+		std::string err_info = CREATE_ERROR_INFO_ERRNO(errno);
 		return Result<int, std::string>::err("socket:" + err_info);
 	}
 	this->socket_fd_ = socket_fd;
@@ -134,7 +134,7 @@ Result<int, std::string> Socket::bind_socket() const {
 
 	errno = 0;
 	if (bind(this->socket_fd_, ai_addr, ai_addrlen) == BIND_ERROR) {
-		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
+		std::string err_info = CREATE_ERROR_INFO_ERRNO(errno);
 		return Result<int, std::string>::err("bind:" + err_info);
 	}
 	return Result<int, std::string>::ok(OK);
@@ -143,7 +143,7 @@ Result<int, std::string> Socket::bind_socket() const {
 Result<int, std::string> Socket::listen_socket() const {
 	errno = 0;
 	if (listen(this->socket_fd_, SOMAXCONN) == LISTEN_ERROR) {
-		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
+		std::string err_info = CREATE_ERROR_INFO_ERRNO(errno);
 		return Result<int, std::string>::err("listen:" + err_info);
 	}
 	return Result<int, std::string>::ok(OK);
@@ -152,7 +152,7 @@ Result<int, std::string> Socket::listen_socket() const {
 Result<int, std::string> Socket::set_fd_to_nonblock() const {
 	errno = 0;
 	if (fcntl(this->socket_fd_, F_SETFL, O_NONBLOCK | FD_CLOEXEC) == FCNTL_ERROR) {
-		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
+		std::string err_info = CREATE_ERROR_INFO_ERRNO(errno);
 		return Result<int, std::string>::err("fcntl:" + err_info);
 	}
 	return Result<int, std::string>::ok(OK);

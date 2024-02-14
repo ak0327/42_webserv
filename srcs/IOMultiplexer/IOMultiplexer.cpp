@@ -43,7 +43,7 @@ EPollMultiplexer::EPollMultiplexer()
 EPollMultiplexer::~EPollMultiplexer() {
 	errno = 0;
 	if (close(this->epoll_fd_) == CLOSE_ERROR) {
-		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
+		std::string err_info = CREATE_ERROR_INFO_ERRNO(errno);
 		std::cerr << "[Server Error] close:" << err_info << std::endl;
 	}
 	this->epoll_fd_ = INIT_FD;
@@ -54,7 +54,7 @@ Result<int, std::string> EPollMultiplexer::init_epoll() {
     errno = 0;
     this->epoll_fd_ = epoll_create(INIT_SIZE);
     if (this->epoll_fd_ == EPOLL_ERROR) {
-        std::string err_info = create_error_info(errno, __FILE__, __LINE__);
+        std::string err_info = CREATE_ERROR_INFO_ERRNO(errno);
         return Result<int, std::string>::err("[Server Error] epoll_create:" + err_info);
     }
     return Result<int, std::string>::ok(OK);
@@ -65,11 +65,11 @@ Result<int, std::string> EPollMultiplexer::get_io_ready_fd() {
 	errno = 0;
 	int ready_fd_count = epoll_wait(this->epoll_fd_, &this->new_event_, 1, TIMEOUT_MS);
 	if (ready_fd_count == EPOLL_ERROR) {
-		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
+		std::string err_info = CREATE_ERROR_INFO_ERRNO(errno);
 		return Result<int, std::string>::err("[Server Error] epoll_wait:" + err_info);
 	}
 	if (this->new_event_.events & EPOLLERR) {
-		std::string err_info = create_error_info("I/O Error occurred", __FILE__, __LINE__);
+		std::string err_info = CREATE_ERROR_INFO_STR("I/O Error occurred");
 		return Result<int, std::string>::err("[Server Error] epoll_wait:" + err_info);
 	}
 
@@ -85,7 +85,7 @@ Result<int, std::string> EPollMultiplexer::register_fd(int fd) {
 	this->ev_.data.fd = fd;
 	errno = 0;
 	if (epoll_ctl(this->epoll_fd_, EPOLL_CTL_ADD, fd, &this->ev_) == EPOLL_ERROR) {
-		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
+		std::string err_info = CREATE_ERROR_INFO_ERRNO(errno);
 		return Result<int, std::string>::err("[Server Error] epoll_ctl:" + err_info);
 	}
 	return Result<int, std::string>::ok(OK);
@@ -94,7 +94,7 @@ Result<int, std::string> EPollMultiplexer::register_fd(int fd) {
 Result<int, std::string> EPollMultiplexer::clear_fd(int fd) {
 	errno = 0;
 	if (epoll_ctl(this->epoll_fd_, EPOLL_CTL_DEL, fd, NULL) == EPOLL_ERROR) {
-		std::string err_info = create_error_info(errno, __FILE__, __LINE__);
+		std::string err_info = CREATE_ERROR_INFO_ERRNO(errno);
 		return Result<int, std::string>::err("[Server Error] epoll_ctl:" + err_info);
 	}
 	return Result<int, std::string>::ok(OK);
@@ -131,7 +131,7 @@ KqueueMultiplexer::KqueueMultiplexer()
 
     Result<int, std::string> kq_result = init_kqueue();
 	if (kq_result.is_err()) {
-		std::string err_info = create_error_info(kq_result.get_err_value(), __FILE__, __LINE__);
+		std::string err_info = CREATE_ERROR_INFO_STR(kq_result.get_err_value());
 		throw std::runtime_error("[Server Error] kqueue:" + err_info);
 	}
 	this->kq_ = kq_result.get_ok_value();
@@ -149,7 +149,7 @@ Result<int, std::string> KqueueMultiplexer::get_io_ready_fd() {
 
 	kevent_result = kevent_wait();
 	if (kevent_result.is_err()) {
-		std::string err_info = create_error_info(kevent_result.get_err_value(), __FILE__, __LINE__);
+		std::string err_info = CREATE_ERROR_INFO_STR(kevent_result.get_err_value());
 		return Result<int, std::string>::err("[Server Error] kevent: " + err_info);
 	}
 	new_events = kevent_result.get_ok_value();
@@ -159,7 +159,7 @@ Result<int, std::string> KqueueMultiplexer::get_io_ready_fd() {
 
 	cast_result = cast_fd_uintptr_to_int(this->new_event_.ident);
 	if (cast_result.is_err()) {
-		std::string err_info = create_error_info(cast_result.get_err_value(), __FILE__, __LINE__);
+		std::string err_info = CREATE_ERROR_INFO_STR(cast_result.get_err_value());
 		return Result<int, std::string>::err("[Server Error]" + err_info);
 	}
 	return Result<int, std::string>::ok(cast_result.get_ok_value());
@@ -207,7 +207,7 @@ Result<int, std::string> KqueueMultiplexer::register_fd(int fd) {
 	EV_SET(&this->change_event_, fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
     Result<int, std::string> kevent_result = kevent_register();
     if (kevent_result.is_err()) {
-        std::string err_info = create_error_info(kevent_result.get_err_value(), __FILE__, __LINE__);
+        std::string err_info = CREATE_ERROR_INFO_STR(kevent_result.get_err_value());
         return Result<int, std::string>::err("[Server Error] kevent: " + err_info);
     }
     return Result<int, std::string>::ok(OK);
@@ -220,7 +220,7 @@ Result<int, std::string> KqueueMultiplexer::clear_fd(int fd) {
 	EV_SET(&this->change_event_, fd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
 	kevent_result = kevent_register();
 	if (kevent_result.is_err()) {
-		const std::string err_info = create_error_info(kevent_result.get_err_value(), __FILE__, __LINE__);
+		const std::string err_info = CREATE_ERROR_INFO_STR(kevent_result.get_err_value());
 		return Result<int, std::string>::err("kevent: " + err_info);
 	}
 	return Result<int, std::string>::ok(OK);
@@ -308,7 +308,7 @@ Result<int, std::string> SelectMultiplexer::get_io_ready_fd() {
 	this->max_fd_ = get_max_fd();
     Result<int, std::string> select_result = select_fds();
 	if (select_result.is_err()) {
-		std::string err_info = create_error_info(select_result.get_err_value(), __FILE__, __LINE__);
+		std::string err_info = CREATE_ERROR_INFO_STR(select_result.get_err_value());
 		return Result<int, std::string>::err("[Server Error] select:" + err_info);
 	}
 	if (select_result.get_ok_value() == SELECT_TIMEOUT) {
@@ -325,14 +325,14 @@ Result<int, std::string> SelectMultiplexer::clear_fd(int clear_fd) {
 											 this->fds_.end(),
 											 clear_fd);
 	if (fd == this->fds_.end()) {
-		std::string err_info = create_error_info("clear fd not found", __FILE__, __LINE__);
+		std::string err_info = CREATE_ERROR_INFO_STR("clear fd not found");
 		return Result<int, std::string>::err("[Server Error] " + err_info);
 	}
 
 	FD_CLR(*fd, &this->fd_set_);
 	// errno = 0;
 	// if (close(*fd) == CLOSE_ERROR) {
-	// 	std::string err_info = create_error_info(errno, __FILE__, __LINE__);
+	// 	std::string err_info = CREATE_ERROR_INFO_ERRNO(errno);
 	// 	return Result<int, std::string>::err("close:" + err_info);
 	// }
 	this->fds_.erase(fd);
@@ -342,7 +342,7 @@ Result<int, std::string> SelectMultiplexer::clear_fd(int clear_fd) {
 
 Result<int, std::string> SelectMultiplexer::register_fd(int fd) {
     if (FD_ISSET(fd, &this->fd_set_)) {
-        std::string err_info = create_error_info("fd already registered", __FILE__, __LINE__);
+        std::string err_info = CREATE_ERROR_INFO_STR("fd already registered");
         return Result<int, std::string>::err(err_info);
     }
 

@@ -77,23 +77,23 @@ ServerResult set_signal() {
 
 	errno = 0;
 	if (signal(SIGABRT, stop_by_signal) == SIG_ERR) {
-		err_info = create_error_info(errno, __FILE__, __LINE__);
+		err_info = CREATE_ERROR_INFO_ERRNO(errno);
 		return ServerResult::err(err_info);
 	}
 	if (signal(SIGINT, stop_by_signal) == SIG_ERR) {
-		err_info = create_error_info(errno, __FILE__, __LINE__);
+		err_info = CREATE_ERROR_INFO_ERRNO(errno);
 		return ServerResult::err(err_info);
 	}
 	if (signal(SIGTERM, stop_by_signal) == SIG_ERR) {
-		err_info = create_error_info(errno, __FILE__, __LINE__);
+		err_info = CREATE_ERROR_INFO_ERRNO(errno);
 		return ServerResult::err(err_info);
 	}
 	if (signal(SIGPIPE, SIG_IGN) == SIG_ERR) {
-		err_info = create_error_info(errno, __FILE__, __LINE__);
+		err_info = CREATE_ERROR_INFO_ERRNO(errno);
 		return ServerResult::err(err_info);
 	}
 	if (signal(SIGCHLD, SIG_IGN) == SIG_ERR) {
-		err_info = create_error_info(errno, __FILE__, __LINE__);
+		err_info = CREATE_ERROR_INFO_ERRNO(errno);
 		return ServerResult::err(err_info);
 	}
 	return ServerResult::ok(OK);
@@ -165,7 +165,7 @@ ServerResult Server::create_sockets(const Configuration &config) {
             return ServerResult::err(error_msg);
         }
         catch (std::bad_alloc const &e) {
-            std::string err_info = create_error_info("Failed to allocate memory", __FILE__, __LINE__);
+            std::string err_info = CREATE_ERROR_INFO_STR("Failed to allocate memory");
             return ServerResult ::err(err_info);
         }
     }
@@ -218,7 +218,7 @@ Result<IOMultiplexer *, std::string> Server::create_io_multiplexer_fds() {
         }
         return Result<IOMultiplexer *, std::string>::ok(fds);
     } catch (std::bad_alloc const &e) {
-        std::string err_info = create_error_info("Failed to allocate memory", __FILE__, __LINE__);
+        std::string err_info = CREATE_ERROR_INFO_STR("Failed to allocate memory");
         return Result<IOMultiplexer *, std::string>::err(err_info);
     }
 }
@@ -269,7 +269,7 @@ ServerResult Server::accept_connect_fd(int socket_fd) {
 
     ServerResult accept_result = accept_connection(socket_fd);
 	if (accept_result.is_err()) {
-		const std::string err_info = create_error_info(accept_result.get_err_value(), __FILE__, __LINE__);
+		const std::string err_info = CREATE_ERROR_INFO_STR(accept_result.get_err_value());
 		return ServerResult::err("[Server Error] accept: " + err_info);
 	}
 	int connect_fd = accept_result.get_ok_value();
@@ -277,11 +277,11 @@ ServerResult Server::accept_connect_fd(int socket_fd) {
 
     ServerResult fd_store_result = this->fds_->register_fd(connect_fd);
 	if (fd_store_result.is_err()) {
-		std::string err_info = create_error_info(fd_store_result.get_err_value(), __FILE__, __LINE__);
+		std::string err_info = CREATE_ERROR_INFO_STR(fd_store_result.get_err_value());
 		std::cerr << "[Server Error]" << err_info << std::endl;
 		errno = 0;
 		if (close(connect_fd) == CLOSE_ERROR) {
-			err_info = create_error_info(errno, __FILE__, __LINE__);
+			err_info = CREATE_ERROR_INFO_ERRNO(errno);
 			std::cerr << "[Server Error] close: "<< err_info << std::endl;
 		}
 	}
@@ -292,7 +292,7 @@ ServerResult Server::accept_connect_fd(int socket_fd) {
 ServerResult Server::communicate_with_ready_client(int connect_fd) {
     Result<std::string, std::string> recv_result = recv_request(connect_fd);
 	if (recv_result.is_err()) {
-		const std::string err_info = create_error_info(recv_result.get_err_value(), __FILE__, __LINE__);
+		const std::string err_info = CREATE_ERROR_INFO_STR(recv_result.get_err_value());
 		return ServerResult::err("[Server Error] recv: " + err_info);
 	}
 	this->recv_message_ = recv_result.get_ok_value();
@@ -306,13 +306,13 @@ ServerResult Server::communicate_with_ready_client(int connect_fd) {
     ServerResult send_result = send_response(connect_fd, response);
 	if (send_result.is_err()) {
 		// printf(BLUE "   server send error\n" RESET);
-		const std::string err_info = create_error_info(send_result.get_err_value(), __FILE__, __LINE__);
+		const std::string err_info = CREATE_ERROR_INFO_STR(send_result.get_err_value());
 		return ServerResult::err("[Server Error] send: " + err_info);
 	}
 
     ServerResult clear_result = this->fds_->clear_fd(connect_fd);
 	if (clear_result.is_err()) {
-		const std::string err_info = create_error_info(clear_result.get_err_value(), __FILE__, __LINE__);
+		const std::string err_info = CREATE_ERROR_INFO_STR(clear_result.get_err_value());
 		std::cerr << "[Server Error] clear_fd: " + err_info << std::endl;
 	}
 	return ServerResult::ok(OK);
