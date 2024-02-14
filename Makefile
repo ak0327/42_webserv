@@ -107,13 +107,15 @@ SRCS		+=  $(VALUE_AND_MAP_FIELD_VALUES_DIR)/ValueAndMapFieldValues.cpp \
 				$(VALUE_AND_MAP_FIELD_VALUES_DIR)/set_content_disposition.cpp
 
 
-# configuration
 CONFIG_DIR	=	Configuration
 SRCS		+=	$(CONFIG_DIR)/FileHandler/FileHandler.cpp \
 				$(CONFIG_DIR)/Parser/Parser.cpp \
 				$(CONFIG_DIR)/Token/Token.cpp \
 				$(CONFIG_DIR)/Tokenizer/Tokenizer.cpp \
 				$(CONFIG_DIR)/Configuration.cpp
+
+CLIENT_SESSION_DIR	=	ClientSession
+SRCS		+=	$(CLIENT_SESSION_DIR)/ClientSession.cpp
 
 
 # OBJS -------------------------------------------------------------------------
@@ -147,7 +149,8 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(CONFIG_DIR)/Parser \
 				$(SRCS_DIR)/$(CONFIG_DIR)/Token \
 				$(SRCS_DIR)/$(CONFIG_DIR)/Tokenizer \
-				$(SRCS_DIR)/$(CONFIG_DIR)
+				$(SRCS_DIR)/$(CONFIG_DIR) \
+				$(SRCS_DIR)/$(CLIENT_SESSION_DIR)
 
 REQUEST_INCLUDES =	$(SRCS_DIR)/$(REQUEST_DIR) \
 					$(SRCS_DIR)/$(DATE_DIR) \
