@@ -109,6 +109,7 @@ void expect_eq_server_config(const ServerConfig &expected,
     EXPECT_EQ(expected.server_names, actual.server_names) << "  at L:" << line << std::endl;
 
 
+
     // locations
     ASSERT_EQ(expected.locations.size(), actual.locations.size()) << "  at L:" << line << std::endl;
     std::map<std::string, LocationConfig>::const_iterator expected_itr = expected.locations.begin();

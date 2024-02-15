@@ -5,6 +5,7 @@
 # include <string>
 # include <sstream>
 # include <vector>
+# include "ConfigStruct.hpp"
 # include "Date.hpp"
 # include "FieldValueBase.hpp"
 # include "MapFieldValues.hpp"
@@ -15,6 +16,7 @@
 
 class HttpRequest {
  public:
+	HttpRequest();
 	explicit HttpRequest(const std::string &input);
 	~HttpRequest();
 
@@ -22,6 +24,11 @@ class HttpRequest {
 	std::string	get_method() const;
 	std::string get_request_target() const;
 	std::string	get_http_version() const;
+
+    Result<int, std::string> parse_request_line(int fd);
+    Result<int, std::string> parse_request_header(int fd);
+    Result<int, std::string> parse_request_body(int fd, const ServerConfig &server_config);
+    Result<HostPortPair, int> get_server_info();
 
 	bool is_field_name_supported_parsing(const std::string &field_name);
 	bool is_valid_field_name_registered(const std::string &field_name);
@@ -34,13 +41,12 @@ class HttpRequest {
 	int status_code_;
 	RequestLine request_line_;
 	std::map<std::string, FieldValueBase*> request_header_fields_;
-	std::string message_body_;
+	std::string message_body_;  // todo: std::vector<unsigned char>
 
 	typedef Result<int, int> (HttpRequest::*func_ptr)(const std::string&, const std::string&);
 	std::map<std::string, func_ptr> field_value_parser_;
 	std::map<std::string, int> field_name_counter_;
 
-	HttpRequest();
 	HttpRequest(const HttpRequest &other);
 	HttpRequest &operator=(const HttpRequest &rhs);
 

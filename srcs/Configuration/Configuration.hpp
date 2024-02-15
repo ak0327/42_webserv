@@ -3,6 +3,7 @@
 # include <deque>
 # include <map>
 # include <string>
+# include <utility>
 # include <vector>
 # include "Parser.hpp"
 # include "Result.hpp"
@@ -21,7 +22,8 @@ class Configuration {
 	Result<int, std::string> get_result() const;
     std::map<ServerInfo, const ServerConfig *> get_server_configs() const;
     Result<ServerConfig, int> get_server_config(const ServerInfo &server_info) const;
-
+    Result<ServerConfig, std::string> get_server_config(const AddressPortPair &address_port_pair,
+                                                        const HostPortPair &host_port_pair) const;
 
     static Result<std::string, int> get_root(const ServerConfig &server_config,
                                              const std::string &location_path);

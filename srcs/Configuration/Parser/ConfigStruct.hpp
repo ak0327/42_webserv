@@ -28,6 +28,7 @@ const bool kDefaultRedirectOn = false;
 typedef int StatusCode;
 typedef std::string LocationPath;
 typedef std::pair<std::string, std::string> AddressPortPair;
+typedef std::pair<std::string, std::string> HostPortPair;
 
 enum Method {
     kGET, kPOST, kDELETE

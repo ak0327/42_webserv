@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 #include "Color.hpp"
 #include "Constant.hpp"
@@ -96,6 +97,11 @@ Result<std::string, int> get_field_line_by_remove_cr(const std::string &line_end
 ////////////////////////////////////////////////////////////////////////////////
 /* constructor, destructor */
 
+HttpRequest::HttpRequest() {
+    init_field_name_parser();
+    init_field_name_counter();
+}
+
 HttpRequest::HttpRequest(const std::string &input) {
 	init_field_name_parser();
 	init_field_name_counter();
@@ -119,6 +125,42 @@ void HttpRequest::clear_field_values_of(const std::string &field_name) {
 		this->request_header_fields_.erase(field_name);
 	}
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+Result<int, std::string> HttpRequest::parse_request_line(int fd) {
+    (void)fd;
+    return Result<int, std::string>::ok(OK);
+}
+
+
+Result<int, std::string> HttpRequest::parse_request_header(int fd) {
+    (void)fd;
+    return Result<int, std::string>::ok(OK);
+}
+
+
+Result<int, std::string> HttpRequest::parse_request_body(int fd, const ServerConfig &server_config) {
+    (void)fd;
+    (void)server_config;
+    return Result<int, std::string>::ok(OK);
+}
+
+
+Result<HostPortPair, int> HttpRequest::get_server_info() {
+    FieldValueBase *field_values = get_field_values(HOST);
+    if (!field_values) {
+        return Result<HostPortPair, int>::err(ERR);
+    }
+    MapFieldValues *map_field_values = dynamic_cast<MapFieldValues *>(field_values);
+
+    std::map<std::string, std::string> host = map_field_values->get_value_map();
+    HostPortPair pair = std::make_pair(host[URI_HOST], host[PORT]);
+    return Result<HostPortPair, int>::ok(pair);
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 /* parse and validate http_request */
