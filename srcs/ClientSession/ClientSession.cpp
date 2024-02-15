@@ -56,15 +56,19 @@ SessionResult ClientSession::process_client_event() {
     while (true) {
         switch (this->session_state_) {
             case kSessionInit:
-                this->session_state_ = kReadingRequest;
+                std::cout << RED << "   session: 0 SessionInit" << RESET << std::endl;
+                this->session_state_ = kReadingRequest;  // jump
                 continue;
+                // break;
 
             case kAccepted:
-                this->session_state_ = kReadingRequest;
+                std::cout << RED << "   session: 0 Accepted" << RESET << std::endl;
+                this->session_state_ = kReadingRequest;  // jump
                 continue;
+                // break;
 
             case kReadingRequest:
-                std::cout << CYAN << "   session: 1 request" << RESET << std::endl;
+                std::cout << RED << "   session: 1 ReadingRequest" << RESET << std::endl;
 
                 recv_result = recv_request();
                 if (recv_result.is_err()) {
@@ -81,8 +85,8 @@ SessionResult ClientSession::process_client_event() {
                 // create_response
                 try {
                     this->http_request_ = new HttpRequest(this->recv_message_);
-                    std::cout << CYAN << "     recv_message[" << this->recv_message_ << "]" << RESET << std::endl;
-                    std::cout << CYAN << "     status_code [" << this->http_request_->get_status_code() << "]" << RESET << std::endl;
+                    // std::cout << CYAN << "     recv_message[" << this->recv_message_ << "]" << RESET << std::endl;
+                    // std::cout << CYAN << "     status_code [" << this->http_request_->get_status_code() << "]" << RESET << std::endl;
                 }
                 catch (const std::exception &e) {
                     std::cout << CYAN << "     error 2" << RESET << std::endl;
@@ -90,14 +94,15 @@ SessionResult ClientSession::process_client_event() {
                     return SessionResult::err(err_info);
                 }
 
-                this->session_state_ = kCreatingResponse;
+                this->session_state_ = kCreatingResponse;  // jump
                 continue;
 
             case kCreatingResponse:
-                std::cout << CYAN << "   session: 2 response" << RESET << std::endl;
+                std::cout << RED << "   session: 2 CreatingResponse" << RESET << std::endl;
 
                 try {
                     this->http_response_ = new HttpResponse(*this->http_request_);
+                    // std::cout << CYAN << "     response_message[" << this->http_response_->get_response_message() << "]" << RESET << std::endl;
                 }
                 catch (const std::exception &e) {
                     std::cout << CYAN << "     error 3" << RESET << std::endl;
@@ -106,18 +111,18 @@ SessionResult ClientSession::process_client_event() {
                 }
 
                 this->session_state_ = kSendingResponse;
-
-                // break;
-                continue;
+                break;
 
             case kReadingFile:
+                // process_file_event()
                 break;
 
             case kExecutingCGI:
+                // process_file_event
                 break;
 
             case kSendingResponse:
-                std::cout << CYAN << "   session: 3 send" << RESET << std::endl;
+                std::cout << RED << "   session: 3 SendingResponse" << RESET << std::endl;
 
                 send_result = send_response();
                 if (send_result.is_err()) {
@@ -145,46 +150,47 @@ Result<std::string, std::string> ClientSession::recv_request() {
     ssize_t		recv_size;
     std::string	recv_msg;
 
-    std::cout << CYAN << "server recv start" << RESET << std::endl;
+    // std::cout << CYAN << "server recv start" << RESET << std::endl;
 
     while (true) {
         errno = 0;
         recv_size = recv(this->client_fd_, buf, BUFSIZ, FLAG_NONE);
         // todo: flg=FLAG_NONE, errno=EAGAIN -> continue?
-        std::cout << CYAN << " server recv_size:" << recv_size << RESET << std::endl;
-        // if (recv_size == 0) {
-        // 	break;
-        // }
+        // std::cout << CYAN << " server recv_size:" << recv_size << RESET << std::endl;
+        if (recv_size == 0) {
+        	break;
+        }
         if (recv_size == RECV_ERROR || recv_size > BUFSIZ) {
             const std::string error_info = CREATE_ERROR_INFO_ERRNO(errno);
             return Result<std::string, std::string>::err(error_info);
         }
         buf[recv_size] = '\0';
-        std::cout << CYAN << " server: recv[" << std::string(buf, recv_size) << "]" << RESET << std::endl;
+        // std::cout << CYAN << " server: recv[" << std::string(buf, recv_size) << "]" << RESET << std::endl;
 
         recv_msg.append(std::string(buf, recv_size));
         if (recv_size < BUFSIZ) {
             break;
         }
     }
-    std::cout << CYAN << " server: recv_message[" << recv_msg << "]" << RESET << std::endl;
-    std::cout << CYAN << "server recv end" << RESET << std::endl;
+    // std::cout << CYAN << " server: recv_message[" << recv_msg << "]" << RESET << std::endl;
+    // std::cout << CYAN << "server recv end" << RESET << std::endl;
     return Result<std::string, std::string>::ok(recv_msg);
 }
 
 
 SessionResult ClientSession::send_response() {
     std::string response_message = this->http_response_->get_response_message();
-    std::size_t	message_len = this->http_response_->get_response_size();
+    // std::size_t	message_len = this->http_response_->get_response_size();
+    // std::string response_message = this->recv_message_;
 
-    std::cout << CYAN << "server send start" << RESET << std::endl;
-    std::cout << CYAN << " server: send[" << response_message << "]" << RESET << std::endl;
+    // std::cout << CYAN << "server send start" << RESET << std::endl;
+    // std::cout << CYAN << " server: send[" << response_message << "]" << RESET << std::endl;
 
     errno = 0;
-    if (send(this->client_fd_, response_message.c_str(), message_len, FLAG_NONE) == SEND_ERROR) {
+    if (send(this->client_fd_, response_message.c_str(), response_message.size(), FLAG_NONE) == SEND_ERROR) {
         return SessionResult::err(CREATE_ERROR_INFO_ERRNO(errno));
     }
-    std::cout << CYAN << "server send end" << RESET << std::endl;
+    // std::cout << CYAN << "server send end" << RESET << std::endl;
     return SessionResult::ok(OK);
 }
 
@@ -204,7 +210,7 @@ SessionResult ClientSession::process_file_event() {
 
             break;
         default:
-            std::cerr << "Unknown session state." << std::endl;
+            // std::cerr << "Unknown session state." << std::endl;
             return SessionResult::err("error: unknown session state in file event");
     }
     if (result.is_err()) {

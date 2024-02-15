@@ -49,9 +49,10 @@ Client::~Client() {
 void Client::send_msg(const std::string &send_msg) const {
     ssize_t	send_size;
 
-    std::cout << YELLOW << "client send start" << RESET << std::endl;
-
-    std::cout << YELLOW << " client msg[" << send_msg << "], len: " << send_msg.size()  << RESET << std::endl;
+    // std::cout << YELLOW << "client send start" << RESET << std::endl;
+    // std::cout << YELLOW << " client msg[" << send_msg << "], len: " << send_msg.size()  << RESET << std::endl;
+    DEBUG_CLIENT_PRINT("client send start");
+    DEBUG_CLIENT_PRINT("client msg[%s], size:[%zu]", send_msg.c_str(), send_msg.size());
 
     errno = 0;
     send_size = send(this->connect_fd_, send_msg.c_str(), send_msg.size(), FLAG_NONE);
@@ -59,7 +60,7 @@ void Client::send_msg(const std::string &send_msg) const {
         std::string err_str = "[Client Error] send: " + std::string(strerror(errno));
         throw std::runtime_error(RED + err_str + RESET);
     }
-    std::cout << YELLOW << "client send end" << RESET << std::endl;
+    DEBUG_CLIENT_PRINT("client send end");
 }
 
 void Client::recv_msg() {
@@ -67,15 +68,15 @@ void Client::recv_msg() {
     char		buf[BUFSIZ + 1];
     std::string	recv_msg;
 
-    std::cout << YELLOW << "client recv start" << RESET << std::endl;
+    DEBUG_CLIENT_PRINT("client recv start");
     while (true) {
         errno = 0;
 
         recv_size = recv(this->connect_fd_, buf, BUFSIZ, FLAG_NONE);
-        std::cout << YELLOW << " client recv_size:" << recv_size << RESET << std::endl;
-        // if (recv_size == 0) {
-        // 	break;
-        // }
+        DEBUG_CLIENT_PRINT(" client recv_size:%zu", recv_size);
+        if (recv_size == 0) {
+        	break;
+        }
         if (recv_size == RECV_ERROR) {
             std::string err_str = "[Client Error] recv: " + std::string(strerror(errno));
             throw std::runtime_error(RED + err_str + RESET);
@@ -92,7 +93,7 @@ void Client::recv_msg() {
     std::cout << YELLOW << " client: recv_message[" << recv_msg << "]" << RESET << std::endl;
     this->recv_message_ = recv_msg;
 
-    std::cout << YELLOW << "client recv end" << RESET << std::endl;
+    DEBUG_CLIENT_PRINT("client recv end");
 }
 
 std::string Client::get_recv_message() const { return this->recv_message_; }

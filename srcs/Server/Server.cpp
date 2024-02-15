@@ -237,9 +237,10 @@ Result<IOMultiplexer *, std::string> Server::create_io_multiplexer_fds() {
 #elif defined(__APPLE__) && !defined(USE_SELECT_MULTIPLEXER)
             fds->register_fd(socket_fd);
 #else
-            fds->register_fd(socket_fd);
+            fds->register_read_fd(socket_fd);
 #endif
             this->socket_fds_.push_back(socket_fd);
+            std::cout << " socket_fd: " << socket_fd << std::endl;
         }
         return Result<IOMultiplexer *, std::string>::ok(fds);
     } catch (std::bad_alloc const &e) {
@@ -299,13 +300,13 @@ ServerResult Server::create_session(int socket_fd) {
         return Result<int, std::string>::err("fcntl:" + err_info);
     }
 
-    std::cout << CYAN << " accept fd: " << connect_fd << RESET << std::endl;
+    // std::cout << CYAN << " accept fd: " << connect_fd << RESET << std::endl;
 
     if (this->sessions_.find(connect_fd) != this->sessions_.end()) {
         return ServerResult::err("error: fd duplicated");  // ?
     }
     try {
-        std::cout << CYAN << " new_session created" << RESET << std::endl;
+        // std::cout << CYAN << " new_session created" << RESET << std::endl;
         ClientSession *new_session = new ClientSession(socket_fd, connect_fd, this->config_);
         this->sessions_[connect_fd] = new_session;
         // std::cout << CYAN << " session start" << connect_fd << RESET << std::endl;
@@ -314,6 +315,24 @@ ServerResult Server::create_session(int socket_fd) {
     catch (const std::exception &e) {
         std::string err_info = CREATE_ERROR_INFO_STR("Failed to allocate memory: " + std::string(e.what()));
         return ServerResult::err(err_info);
+    }
+}
+
+
+void Server::update_fd_type(int fd, ClientSession *session) {
+    if (!session) {
+        return;
+    }
+    if (is_socket_fd(fd)) {
+        return;
+    }
+    SessionState session_state = session->get_session_state();
+    FdType fd_type = this->fds_->get_fd_type(fd);
+
+    if (session_state == kSendingResponse && fd_type == kReadFd) {
+        this->fds_->clear_fd(fd);
+        this->fds_->register_write_fd(fd);
+        // std::cout << RED << "update write fd: " << fd << RESET << std::endl;
     }
 }
 
@@ -327,11 +346,10 @@ ServerResult Server::process_session(int ready_fd) {
     SessionResult result;
     ClientSession *client_session = session->second;
     if (ready_fd == client_session->get_client_fd()) {
-        // std::cout << CYAN << " process_client_event" << RESET << std::endl;
-
+        // std::cout << WHITE << " process_client_event" << RESET << std::endl;
         result = client_session->process_client_event();
     } else if (ready_fd == client_session->get_file_fd()) {
-        // std::cout << CYAN << " process_file_event" << RESET << std::endl;
+        // std::cout << WHITE << " process_file_event" << RESET << std::endl;
         result = client_session->process_file_event();
     } else {
         return ServerResult::err("error: fd unknown");
@@ -341,8 +359,11 @@ ServerResult Server::process_session(int ready_fd) {
         const std::string error_msg = result.get_err_value();
         return ServerResult::err(error_msg);
     }
+
+    update_fd_type(ready_fd, client_session);
+
     if (client_session->is_session_completed()) {
-        std::cout << CYAN << " session complete fd: " << ready_fd << RESET << std::endl;
+        // std::cout << WHITE << " session complete fd: " << ready_fd << RESET << std::endl;
         delete client_session;
         close_client_fd(ready_fd);
         this->sessions_.erase(session);
@@ -376,7 +397,7 @@ ServerResult Server::accept_connect_fd(int socket_fd) {
 	int connect_fd = accept_result.get_ok_value();
     std::cout << "  accepted connect_fd: " << connect_fd << std::endl;
 
-    ServerResult fd_register_result = this->fds_->register_fd(connect_fd);
+    ServerResult fd_register_result = this->fds_->register_read_fd(connect_fd);
 	if (fd_register_result.is_err()) {
 		std::string err_info = CREATE_ERROR_INFO_STR(fd_register_result.get_err_value());
 		std::cerr << "[Server Error]" << err_info << std::endl;

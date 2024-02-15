@@ -195,7 +195,7 @@ Result<int, std::string> KqueueMultiplexer::kevent_wait() {
     if (this->timeout_.tv_sec <= 0 || this->timeout_.tv_nsec <= 0) {
         events = kevent(this->kq_, NULL, 0, &this->new_event_, EVENT_COUNT, NULL);
     } else {
-        events = kevent(this->kq_, NULL, 0, &this->new_event_, EVENT_COUNT, &timeout);
+        events = kevent(this->kq_, NULL, 0, &this->new_event_, EVENT_COUNT, &timeout_);
     }
     if (events == KEVENT_ERROR) {
         return Result<int, std::string>::err(strerror(errno));
@@ -263,40 +263,77 @@ const int SELECT_TIMEOUT = 0;
 
 SelectMultiplexer::SelectMultiplexer() {
 	DEBUG_SERVER_PRINT("[I/O multiplexer : select]");
-    FD_ZERO(&fd_set_);
+    FD_ZERO(&this->read_fd_set_);
+    FD_ZERO(&this->write_fd_set_);
+
+    max_fd_ = 0;
+
     this->timeout_.tv_sec = 0;
 }
 
 
 SelectMultiplexer::~SelectMultiplexer() {
-	for (std::size_t i = 0; i < this->fds_.size(); ++i) {
-        FD_CLR(this->fds_[i], &this->fd_set_);
+	for (std::size_t i = 0; i < this->read_fds_.size(); ++i) {
+        FD_CLR(this->read_fds_[i], &this->read_fd_set_);
 	}
+    for (std::size_t i = 0; i < this->write_fds_.size(); ++i) {
+        FD_CLR(this->write_fds_[i], &this->write_fd_set_);
+    }
     this->fds_.clear();
 }
 
 
 void SelectMultiplexer::init_fds() {
-    FD_ZERO(&this->fd_set_);
-    for (size_t i = 0; i < this->fds_.size(); ++i) {
-        if (this->fds_[i] == INIT_FD) {
+    FD_ZERO(&this->read_fd_set_);
+    FD_ZERO(&this->write_fd_set_);
+
+    // std::cout << CYAN << "init_fds:" << RESET << std::endl;
+
+    // std::cout << CYAN << "set read_fds [";
+    for (std::size_t i = 0; i < this->read_fds_.size(); ++i) {
+        if (this->read_fds_[i] == INIT_FD) {
             continue;
         }
-        FD_SET(this->fds_[i], &this->fd_set_);
+        FD_SET(this->read_fds_[i], &this->read_fd_set_);
+        // std::cout << this->read_fds_[i];
+        // if (i + 1 < this->read_fds_.size()) { std::cout << ", "; }
     }
+    // std::cout << "]" << RESET << std::endl;
+
+    // std::cout << CYAN << "set write_fds [";
+    for (std::size_t i = 0; i < this->write_fds_.size(); ++i) {
+        if (this->write_fds_[i] == INIT_FD) {
+            continue;
+        }
+        FD_SET(this->write_fds_[i], &this->write_fd_set_);
+        // std::cout << this->read_fds_[i];
+        // if (i + 1 < this->read_fds_.size()) { std::cout << ", "; }
+    }
+    // std::cout << "]" << RESET << std::endl;
 }
 
 
 Result<int, std::string> SelectMultiplexer::select_fds() {
     // debug
-    std::cout << CYAN << "fds [";
-    for (std::size_t i = 0; i < this->fds_.size(); ++i) {
-        std::cout << this->fds_[i];
-        if (i + 1 < this->fds_.size()) {
-            std::cout << ", ";
-        }
-    }
-    std::cout << "]" << RESET << std::endl;
+    // std::cout << CYAN << "select_fds:" << RESET << std::endl;
+    //
+    // std::cout << CYAN << "read_fds [";
+    // for (std::size_t i = 0; i < this->read_fds_.size(); ++i) {
+    //     std::cout << this->read_fds_[i];
+    //     if (i + 1 < this->read_fds_.size()) {
+    //         std::cout << ", ";
+    //     }
+    // }
+    // std::cout << "]" << RESET << std::endl;
+    //
+    // std::cout << CYAN << "write_fds [";
+    // for (std::size_t i = 0; i < this->write_fds_.size(); ++i) {
+    //     std::cout << this->write_fds_[i];
+    //     if (i + 1 < this->write_fds_.size()) {
+    //         std::cout << ", ";
+    //     }
+    // }
+    // std::cout << "]" << RESET << std::endl;
 
     init_fds();
     this->max_fd_ = get_max_fd();
@@ -304,9 +341,9 @@ Result<int, std::string> SelectMultiplexer::select_fds() {
     errno = 0;
     int select_ret;
     if (this->timeout_.tv_sec <= 0 || this->timeout_.tv_usec <= 0) {
-        select_ret = select(this->max_fd_ + 1, &this->fd_set_, NULL, NULL, NULL);
+        select_ret = select(this->max_fd_ + 1, &this->read_fd_set_, &this->write_fd_set_, NULL, NULL);
     } else {
-        select_ret = select(this->max_fd_ + 1, &this->fd_set_, NULL, NULL, &this->timeout_);
+        select_ret = select(this->max_fd_ + 1, &this->read_fd_set_, &this->write_fd_set_, NULL, &this->timeout_);
     }
     // int select_ret = select(this->max_fd_ + 1, &this->fd_set_, NULL, NULL, NULL);
     if (select_ret == SELECT_ERROR) {
@@ -317,32 +354,65 @@ Result<int, std::string> SelectMultiplexer::select_fds() {
 
 
 int SelectMultiplexer::get_ready_fd() const {
-    for (std::size_t i = 0; i < this->fds_.size(); ++i) {
-        if (this->fds_[i] == INIT_FD) {
+    int ready_fd = INIT_FD;
+
+    std::cout << CYAN << "ready_fds: ";
+
+    for (std::size_t i = 0; i < this->read_fds_.size(); ++i) {
+        if (this->read_fds_[i] == INIT_FD) {
             continue;
         }
-        if (!FD_ISSET(this->fds_[i], &this->fd_set_)) {
+        if (!FD_ISSET(this->read_fds_[i], &this->read_fd_set_)) {
             continue;
         }
-        return this->fds_[i];
+        if (ready_fd == INIT_FD) {
+            ready_fd = this->read_fds_[i];
+        }
+        std::cout << this->read_fds_[i];
+        // return this->fds_[i];
     }
-    return INIT_FD;
+    std::cout << RESET << std::endl;
+
+    std::cout << CYAN << "write_fds: ";
+    for (std::size_t i = 0; i < this->write_fds_.size(); ++i) {
+        if (this->write_fds_[i] == INIT_FD) {
+            continue;
+        }
+        if (!FD_ISSET(this->write_fds_[i], &this->write_fd_set_)) {
+            continue;
+        }
+        if (ready_fd == INIT_FD) {
+            ready_fd = this->write_fds_[i];
+        }
+        std::cout << this->write_fds_[i];
+        // return this->fds_[i];
+    }
+    std::cout << RESET << std::endl;
+
+    return ready_fd;
 }
+
 
 
 int SelectMultiplexer::get_max_fd() const {
     int max_fd = INIT_FD;
 
-    if (!this->fds_.empty()) {
-        max_fd = *std::max_element(this->fds_.begin(), this->fds_.end());
+    if (!this->read_fds_.empty()) {
+        max_fd = *std::max_element(this->read_fds_.begin(), this->read_fds_.end());
+    }
+    if (!this->write_fds_.empty()) {
+        max_fd = *std::max_element(this->write_fds_.begin(), this->write_fds_.end());
     }
     return max_fd;
 }
 
 
 Result<int, std::string> SelectMultiplexer::get_io_ready_fd() {
-	init_fds();
 	this->max_fd_ = get_max_fd();
+    // std::cout << CYAN << "max_fd: " << max_fd_ << RESET << std::endl;
+
+	init_fds();
+
     Result<int, std::string> select_result = select_fds();
 	if (select_result.is_err()) {
 		std::string err_info = CREATE_ERROR_INFO_STR(select_result.get_err_value());
@@ -353,35 +423,71 @@ Result<int, std::string> SelectMultiplexer::get_io_ready_fd() {
 	}
 
 	int ready_fd = get_ready_fd();
-	return Result<int, std::string>::ok(ready_fd);
+    // std::cout << CYAN << " select: ready_fd: " << ready_fd << RESET << std::endl;
+    return Result<int, std::string>::ok(ready_fd);
 }
 
 
 Result<int, std::string> SelectMultiplexer::clear_fd(int clear_fd) {
-	std::deque<int>::iterator fd = std::find(this->fds_.begin(),
-											 this->fds_.end(),
-											 clear_fd);
-	if (fd == this->fds_.end()) {
-		std::string err_info = CREATE_ERROR_INFO_STR("clear fd not found");
-		return Result<int, std::string>::err("[Server Error] " + err_info);
+	std::deque<int>::iterator fd;
+
+    fd  = std::find(this->read_fds_.begin(), this->read_fds_.end(), clear_fd);
+	if (fd != this->read_fds_.end()) {
+        FD_CLR(*fd, &this->read_fd_set_);
+        this->read_fds_.erase(fd);
+        return Result<int, std::string>::ok(OK);
 	}
 
-	FD_CLR(*fd, &this->fd_set_);
-	this->fds_.erase(fd);
-	return Result<int, std::string>::ok(OK);
+    fd  = std::find(this->write_fds_.begin(), this->write_fds_.end(), clear_fd);
+    if (fd != this->write_fds_.end()) {
+        FD_CLR(*fd, &this->write_fd_set_);
+        this->write_fds_.erase(fd);
+        return Result<int, std::string>::ok(OK);
+    }
+
+    std::string err_info = CREATE_ERROR_INFO_STR("clear fd not found");
+    return Result<int, std::string>::err("[Server Error] " + err_info);
 }
 
 
-Result<int, std::string> SelectMultiplexer::register_fd(int fd) {
-    if (FD_ISSET(fd, &this->fd_set_)) {
-        std::string err_info = CREATE_ERROR_INFO_STR("fd already registered");
+Result<int, std::string> SelectMultiplexer::register_read_fd(int read_fd) {
+    if (FD_ISSET(read_fd, &this->read_fd_set_)) {
+        std::string err_info = CREATE_ERROR_INFO_STR("read_fd already registered");
         return Result<int, std::string>::err(err_info);
     }
 
-    this->fds_.push_back(fd);
-    FD_SET(fd, &this->fd_set_);
-    this->max_fd_ = std::max(this->max_fd_, fd);
+    this->read_fds_.push_back(read_fd);
+    FD_SET(read_fd, &this->read_fd_set_);
+    this->max_fd_ = std::max(this->max_fd_, read_fd);
     return Result<int, std::string>::ok(OK);
+}
+
+
+Result<int, std::string> SelectMultiplexer::register_write_fd(int write_fd) {
+    if (FD_ISSET(write_fd, &this->write_fd_set_)) {
+        std::string err_info = CREATE_ERROR_INFO_STR("write_fd already registered");
+        return Result<int, std::string>::err(err_info);
+    }
+
+    this->write_fds_.push_back(write_fd);
+    FD_SET(write_fd, &this->write_fd_set_);
+    this->max_fd_ = std::max(this->max_fd_, write_fd);
+    return Result<int, std::string>::ok(OK);
+}
+
+
+FdType SelectMultiplexer::get_fd_type(int fd) {
+    std::deque<int>::const_iterator itr;
+
+    itr = std::find(this->read_fds_.begin(), this->read_fds_.end(), fd);
+    if (itr != this->read_fds_.end()) {
+        return kReadFd;
+    }
+    itr = std::find(this->write_fds_.begin(), this->write_fds_.end(), fd);
+    if (itr != this->write_fds_.end()) {
+        return kWriteFd;
+    }
+    return kFdError;
 }
 
 
