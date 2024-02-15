@@ -1,10 +1,12 @@
+#include <arpa/inet.h>
 #include <errno.h>
+#include <netinet/in.h>
+#include <stdint.h>
 #include <sys/socket.h>
 #include <unistd.h>
 #include <cstdio>
 #include <iostream>
 #include <utility>
-#include "Client.hpp"
 #include "ClientSession.hpp"
 #include "Debug.hpp"
 #include "Error.hpp"
@@ -138,7 +140,7 @@ Result<AddressPortPair, std::string> ClientSession::get_address_port_pair() cons
 
     char ip[INET_ADDRSTRLEN];
     inet_ntop(AF_INET, &addr.sin_addr, ip, sizeof(ip));
-    uint16_t port = ntohs(addr.sin_port);
+    int port = ntohs(addr.sin_port);
     AddressPortPair pair = std::make_pair(std::string(ip), StringHandler::to_string(port));
     return Result<AddressPortPair, std::string>::ok(pair);
 }
