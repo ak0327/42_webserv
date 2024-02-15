@@ -2,6 +2,7 @@
 
 # include <iostream>
 # include <map>
+# include <deque>
 # include <string>
 # include <vector>
 # include "Result.hpp"
@@ -13,7 +14,6 @@
 #  include <sys/time.h>
 # else
 #  include <sys/select.h>
-#  include <deque>
 # endif
 
 enum FdType {
