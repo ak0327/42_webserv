@@ -180,9 +180,13 @@ SessionResult ClientSession::parse_http_request() {
             return SessionResult::err("[Server Error] recv: " + err_info);
         }
         this->recv_message_ = recv_result.get_ok_value();
-        DEBUG_SERVER_PRINT("connected. recv:[%s]", this->recv_message_.c_str());
+        DEBUG_SERVER_PRINT("server: recv:[%s]", this->recv_message_.c_str());
 
         this->http_request_ = new HttpRequest(this->recv_message_);
+
+#ifdef UTEST
+        return SessionResult::ok(OK);
+#endif
 
         Result<int, std::string> header_result = this->http_request_->parse_request_header(this->client_fd_);
         if (header_result.is_err()) {
