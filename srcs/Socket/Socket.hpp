@@ -14,8 +14,6 @@ class Socket {
 
 
 	int	get_socket_fd() const;
-	SocketResult get_socket_result() const;
-	bool is_socket_success() const;
 
 	SocketResult init();
 	SocketResult bind();
@@ -25,7 +23,6 @@ class Socket {
     static SocketResult accept(int socket_fd);
 
  private:
-	SocketResult result_;
 	int socket_fd_;
 	struct addrinfo *addr_info_;
 	std::string server_ip_;

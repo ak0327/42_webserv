@@ -16,8 +16,7 @@
 
 
 Socket::Socket(const std::string &ip_addr, const std::string &port)
-    : result_(),
-      socket_fd_(INIT_FD),
+    : socket_fd_(INIT_FD),
       addr_info_(NULL),
       server_ip_(ip_addr),
       server_port_(port) {}
@@ -140,5 +139,3 @@ Result<int, std::string> Socket::set_fd_to_nonblock() {
 
 
 int Socket::get_socket_fd() const { return this->socket_fd_; }
-Result<int, std::string> Socket::get_socket_result() const { return this->result_; }
-bool Socket::is_socket_success() const { return this->result_.is_ok(); }
