@@ -10,8 +10,9 @@
 // mock
 class HttpResponse {
  public:
-	std::string _response_message;
+	std::string response_message_;
 
+    HttpResponse() {}
 	explicit HttpResponse(const HttpRequest &request) {
 		int status = request.get_status_code();
 		std::string message;
@@ -23,10 +24,10 @@ class HttpResponse {
 		} else {
 			message = "200 OK";
 		}
-		_response_message = message;
+		response_message_ = message;
 	}
 
-	char *get_response_message() const { return const_cast<char *>(_response_message.c_str()); }
-	size_t get_response_size() const { return _response_message.size(); }
+	std::string get_response_message() const { return response_message_; }
+	std::size_t get_response_size() const { return response_message_.size(); }
 };
 ////////////////////////////////////////////////

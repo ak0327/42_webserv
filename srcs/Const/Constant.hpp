@@ -15,6 +15,7 @@ extern const int GETADDRINFO_SUCCESS;
 extern const int ACCEPT_ERROR;
 extern const int BIND_ERROR;
 extern const int CLOSE_ERROR;
+extern const int CONN_ERROR;
 extern const int FCNTL_ERROR;
 extern const int LISTEN_ERROR;
 extern const int SETSOCKOPT_ERROR;

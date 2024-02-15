@@ -5,6 +5,7 @@
 # include <string>
 # include <vector>
 # include "webserv.hpp"
+# include "ClientSession.hpp"
 # include "Constant.hpp"
 # include "ConfigStruct.hpp"
 # include "Configuration.hpp"
@@ -22,24 +23,33 @@ class Server {
 	~Server();
 
 	void process_client_connection();
-	std::string get_recv_message() const;  // todo: for test, debug
+    void set_timeout(int timeout_msec);
 
  private:
 	std::map<Fd, Socket *> sockets_;
-	std::string recv_message_;  // for test. this variable valid only connect with 1 client
 	IOMultiplexer *fds_;
 
-    std::deque<int> socket_fds_;
-    std::deque<int> client_fds_;
+    std::deque<Fd> socket_fds_;
+    std::deque<Fd> client_fds_;
+
+    std::map<Fd, ClientSession *> sessions_;
+
+    const Configuration &config_;
+
+
+	ServerResult accept_connect_fd(int socket_fd);
 
     ServerResult communicate_with_client(int ready_fd);
-	ServerResult accept_connect_fd(int socket_fd);
-	ServerResult communicate_with_ready_client(int connect_fd);
+    ServerResult create_session(int socket_fd);
+    ServerResult process_session(int ready_fd);
 
+    static Result<Socket *, std::string> create_socket(const std::string &address,
+                                                       const std::string &port);
     ServerResult create_sockets(const Configuration &config);
     Result<IOMultiplexer *, std::string> create_io_multiplexer_fds();
 
     bool is_socket_fd(int fd) const;
     void delete_sockets();
     void close_client_fds();
+    void close_client_fd(int fd);
 };

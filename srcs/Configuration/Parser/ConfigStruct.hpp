@@ -58,6 +58,10 @@ struct ServerInfo {
         }
         return this->port < other.port;
     }
+    ServerInfo()
+        : server_name(),
+          address(),
+          port() {}
 
     ServerInfo(const std::string &server_name,
                const std::string &address,

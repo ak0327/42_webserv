@@ -21,6 +21,7 @@ class IOMultiplexer {
 	virtual Result<int, std::string> get_io_ready_fd() = 0;
     virtual Result<int, std::string> register_fd(int fd) = 0;
     virtual Result<int, std::string> clear_fd(int fd) = 0;
+    virtual void set_timeout(int timeout_msec) = 0;
 };
 
 #if defined(__linux__) && !defined(USE_SELECT_MULTIPLEXER)
@@ -32,11 +33,13 @@ class EPollMultiplexer : public IOMultiplexer {
 	virtual Result<int, std::string> get_io_ready_fd();
     virtual Result<int, std::string> register_fd(int fd);
     virtual Result<int, std::string> clear_fd(int fd);
+    virtual void set_timeout(int timeout_msec);
 
  private:
 	int epoll_fd_;
 	struct epoll_event ev_;
 	struct epoll_event new_event_;
+    int timeout_;
 
     Result<int, std::string> init_epoll();
 };
@@ -50,11 +53,13 @@ class KqueueMultiplexer : public IOMultiplexer {
 	virtual Result<int, std::string> get_io_ready_fd();
     virtual Result<int, std::string> register_fd(int fd);
     virtual Result<int, std::string> clear_fd(int fd);
+    virtual void set_timeout(int timeout_msec);
 
  private:
 	int kq_;
 	struct kevent change_event_;
 	struct kevent new_event_;
+    struct timespec timeout_;
 
     Result<int, std::string> init_kqueue();
     Result<int, std::string> kevent_wait();
@@ -70,11 +75,13 @@ class SelectMultiplexer : public IOMultiplexer {
 	virtual Result<int, std::string> get_io_ready_fd();
     virtual Result<int, std::string> register_fd(int fd);
 	virtual Result<int, std::string> clear_fd(int fd);
+    virtual void set_timeout(int timeout_msec);
 
  private:
     std::deque<int> fds_;
 	fd_set fd_set_;
     int max_fd_;
+    struct timeval timeout_;
 
     void init_fds();
     int get_max_fd() const;

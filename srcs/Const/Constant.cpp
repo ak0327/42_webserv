@@ -12,6 +12,7 @@ const int GETADDRINFO_SUCCESS = 0;
 const int ACCEPT_ERROR = -1;
 const int BIND_ERROR = -1;
 const int CLOSE_ERROR = -1;
+const int CONN_ERROR = -1;
 const int FCNTL_ERROR = -1;
 const int LISTEN_ERROR = -1;
 const int SETSOCKOPT_ERROR = -1;

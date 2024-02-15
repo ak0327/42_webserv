@@ -23,8 +23,6 @@ const int EPOLL_ERROR = -1;
 
 const int INIT_SIZE = 1;
 
-const int TIMEOUT_MS = 2500;
-
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -32,7 +30,8 @@ const int TIMEOUT_MS = 2500;
 EPollMultiplexer::EPollMultiplexer()
 	: epoll_fd_(INIT_FD),
 	  ev_(),
-	  new_event_() {
+	  new_event_(),
+      timeout_(-1) {
     Result<int, std::string> init_result = init_epoll();
     if (init_result.is_err()) {
         throw std::runtime_error(init_result.get_err_value());
@@ -63,7 +62,7 @@ Result<int, std::string> EPollMultiplexer::init_epoll() {
 
 Result<int, std::string> EPollMultiplexer::get_io_ready_fd() {
 	errno = 0;
-	int ready_fd_count = epoll_wait(this->epoll_fd_, &this->new_event_, 1, TIMEOUT_MS);
+	int ready_fd_count = epoll_wait(this->epoll_fd_, &this->new_event_, 1, this->timeout_);
 	if (ready_fd_count == EPOLL_ERROR) {
 		std::string err_info = CREATE_ERROR_INFO_ERRNO(errno);
 		return Result<int, std::string>::err("[Server Error] epoll_wait:" + err_info);
@@ -91,6 +90,7 @@ Result<int, std::string> EPollMultiplexer::register_fd(int fd) {
 	return Result<int, std::string>::ok(OK);
 }
 
+
 Result<int, std::string> EPollMultiplexer::clear_fd(int fd) {
 	errno = 0;
 	if (epoll_ctl(this->epoll_fd_, EPOLL_CTL_DEL, fd, NULL) == EPOLL_ERROR) {
@@ -99,6 +99,16 @@ Result<int, std::string> EPollMultiplexer::clear_fd(int fd) {
 	}
 	return Result<int, std::string>::ok(OK);
 }
+
+
+void EPollMultiplexer::set_timeout(int timeout_msec) {
+    if (timeout_msec <= 0) {
+        this->timeout_ = -1;
+    } else {
+        this->timeout_ = timeout_msec;
+    }
+}
+
 
 #elif defined(__APPLE__) && !defined(USE_SELECT_MULTIPLEXER)
 
@@ -135,6 +145,7 @@ KqueueMultiplexer::KqueueMultiplexer()
 		throw std::runtime_error("[Server Error] kqueue:" + err_info);
 	}
 	this->kq_ = kq_result.get_ok_value();
+    this->timeout_.tv_sec = 0;
 }
 
 
@@ -180,13 +191,12 @@ Result<int, std::string> KqueueMultiplexer::init_kqueue() {
 
 Result<int, std::string> KqueueMultiplexer::kevent_wait() {
     int events;
-    struct timespec	timeout = {};
 
-    timeout.tv_sec = 2;
-    timeout.tv_nsec = 500 * 1000;
-
-    errno = 0;
-    events = kevent(this->kq_, NULL, 0, &this->new_event_, EVENT_COUNT, &timeout);
+    if (this->timeout_.tv_sec <= 0 || this->timeout_.tv_nsec <= 0) {
+        events = kevent(this->kq_, NULL, 0, &this->new_event_, EVENT_COUNT, NULL);
+    } else {
+        events = kevent(this->kq_, NULL, 0, &this->new_event_, EVENT_COUNT, &timeout);
+    }
     if (events == KEVENT_ERROR) {
         return Result<int, std::string>::err(strerror(errno));
     }
@@ -205,6 +215,8 @@ Result<int, std::string> KqueueMultiplexer::kevent_register() {
 
 Result<int, std::string> KqueueMultiplexer::register_fd(int fd) {
 	EV_SET(&this->change_event_, fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
+    // EV_SET(&this->change_event_, fd, EVFILT_WRITE, EV_ADD, 0, 0, NULL);
+
     Result<int, std::string> kevent_result = kevent_register();
     if (kevent_result.is_err()) {
         std::string err_info = CREATE_ERROR_INFO_STR(kevent_result.get_err_value());
@@ -218,12 +230,24 @@ Result<int, std::string> KqueueMultiplexer::clear_fd(int fd) {
 	Result<int, std::string> kevent_result;
 
 	EV_SET(&this->change_event_, fd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
-	kevent_result = kevent_register();
+    // EV_SET(&this->change_event_, fd, EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
+
+    kevent_result = kevent_register();
 	if (kevent_result.is_err()) {
 		const std::string err_info = CREATE_ERROR_INFO_STR(kevent_result.get_err_value());
 		return Result<int, std::string>::err("kevent: " + err_info);
 	}
 	return Result<int, std::string>::ok(OK);
+}
+
+
+void KqueueMultiplexer::set_timeout(int timeout_msec) {
+    if (timeout_msec <= 0) {
+        this->timeout_.tv_sec = -1;
+    } else {
+        this->timeout_.tv_sec = timeout_msec / 1000;
+        this->timeout_.tv_nsec = timeout_msec % 1000 * 1000 * 1000;
+    }
 }
 
 #else
@@ -240,6 +264,7 @@ const int SELECT_TIMEOUT = 0;
 SelectMultiplexer::SelectMultiplexer() {
 	DEBUG_SERVER_PRINT("[I/O multiplexer : select]");
     FD_ZERO(&fd_set_);
+    this->timeout_.tv_sec = 0;
 }
 
 
@@ -263,15 +288,27 @@ void SelectMultiplexer::init_fds() {
 
 
 Result<int, std::string> SelectMultiplexer::select_fds() {
-    struct timeval timeout = {};
-    int select_ret;
+    // debug
+    std::cout << CYAN << "fds [";
+    for (std::size_t i = 0; i < this->fds_.size(); ++i) {
+        std::cout << this->fds_[i];
+        if (i + 1 < this->fds_.size()) {
+            std::cout << ", ";
+        }
+    }
+    std::cout << "]" << RESET << std::endl;
 
-    // timeout < 1.5sec, communicate error ??
-    timeout.tv_sec = 2;
-    timeout.tv_usec = 500 * 1000;  // 500ms
+    init_fds();
+    this->max_fd_ = get_max_fd();
 
     errno = 0;
-    select_ret = select(this->max_fd_ + 1, &this->fd_set_, NULL, NULL, &timeout);
+    int select_ret;
+    if (this->timeout_.tv_sec <= 0 || this->timeout_.tv_usec <= 0) {
+        select_ret = select(this->max_fd_ + 1, &this->fd_set_, NULL, NULL, NULL);
+    } else {
+        select_ret = select(this->max_fd_ + 1, &this->fd_set_, NULL, NULL, &this->timeout_);
+    }
+    // int select_ret = select(this->max_fd_ + 1, &this->fd_set_, NULL, NULL, NULL);
     if (select_ret == SELECT_ERROR) {
         return Result<int, std::string>::err(strerror(errno));
     }
@@ -330,11 +367,6 @@ Result<int, std::string> SelectMultiplexer::clear_fd(int clear_fd) {
 	}
 
 	FD_CLR(*fd, &this->fd_set_);
-	// errno = 0;
-	// if (close(*fd) == CLOSE_ERROR) {
-	// 	std::string err_info = CREATE_ERROR_INFO_ERRNO(errno);
-	// 	return Result<int, std::string>::err("close:" + err_info);
-	// }
 	this->fds_.erase(fd);
 	return Result<int, std::string>::ok(OK);
 }
@@ -352,5 +384,14 @@ Result<int, std::string> SelectMultiplexer::register_fd(int fd) {
     return Result<int, std::string>::ok(OK);
 }
 
+
+void SelectMultiplexer::set_timeout(int timeout_msec) {
+    if (timeout_msec <= 0) {
+        this->timeout_.tv_sec = 0;
+    } else {
+        this->timeout_.tv_sec = timeout_msec / 1000;
+        this->timeout_.tv_usec = timeout_msec % 1000 * 1000;
+    }
+}
 
 #endif
