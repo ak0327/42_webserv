@@ -1,6 +1,7 @@
 #include <errno.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <cstdio>
 #include <iostream>
 #include "ClientSession.hpp"
 #include "Debug.hpp"
@@ -181,7 +182,7 @@ SessionResult ClientSession::send_response() {
 
     errno = 0;
     if (send(this->client_fd_, response_message.c_str(), message_len, FLAG_NONE) == SEND_ERROR) {
-        return SessionResult::err(strerror(errno));
+        return SessionResult::err(CREATE_ERROR_INFO_ERRNO(errno));
     }
     std::cout << CYAN << "server send end" << RESET << std::endl;
     return SessionResult::ok(OK);
