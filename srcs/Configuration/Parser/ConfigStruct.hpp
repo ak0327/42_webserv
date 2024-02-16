@@ -28,6 +28,7 @@ const bool kDefaultRedirectOn = false;
 typedef int StatusCode;
 typedef std::string LocationPath;
 typedef std::pair<std::string, std::string> AddressPortPair;
+typedef std::pair<std::string, std::string> HostPortPair;
 
 enum Method {
     kGET, kPOST, kDELETE
@@ -58,6 +59,10 @@ struct ServerInfo {
         }
         return this->port < other.port;
     }
+    ServerInfo()
+        : server_name(),
+          address(),
+          port() {}
 
     ServerInfo(const std::string &server_name,
                const std::string &address,

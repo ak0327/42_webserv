@@ -3,7 +3,7 @@ NAME		=	webserv
 CXX			=	c++
 CXXFLAGS	=	-std=c++98 -Wall -Wextra -Werror -MMD -MP
 CXXFLAGS	+=	-g -fsanitize=address,undefined -fno-omit-frame-pointer
-#CXXFLAGS	+=	-D USE_SELECT_MULTIPLEXER
+CXXFLAGS	+=	-D USE_SELECT
 
 # SRCS -------------------------------------------------------------------------
 SRCS_DIR	=	srcs
@@ -107,13 +107,15 @@ SRCS		+=  $(VALUE_AND_MAP_FIELD_VALUES_DIR)/ValueAndMapFieldValues.cpp \
 				$(VALUE_AND_MAP_FIELD_VALUES_DIR)/set_content_disposition.cpp
 
 
-# configuration
 CONFIG_DIR	=	Configuration
 SRCS		+=	$(CONFIG_DIR)/FileHandler/FileHandler.cpp \
 				$(CONFIG_DIR)/Parser/Parser.cpp \
 				$(CONFIG_DIR)/Token/Token.cpp \
 				$(CONFIG_DIR)/Tokenizer/Tokenizer.cpp \
 				$(CONFIG_DIR)/Configuration.cpp
+
+CLIENT_SESSION_DIR	=	ClientSession
+SRCS		+=	$(CLIENT_SESSION_DIR)/ClientSession.cpp
 
 
 # OBJS -------------------------------------------------------------------------
@@ -147,7 +149,8 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(CONFIG_DIR)/Parser \
 				$(SRCS_DIR)/$(CONFIG_DIR)/Token \
 				$(SRCS_DIR)/$(CONFIG_DIR)/Tokenizer \
-				$(SRCS_DIR)/$(CONFIG_DIR)
+				$(SRCS_DIR)/$(CONFIG_DIR) \
+				$(SRCS_DIR)/$(CLIENT_SESSION_DIR)
 
 REQUEST_INCLUDES =	$(SRCS_DIR)/$(REQUEST_DIR) \
 					$(SRCS_DIR)/$(DATE_DIR) \
@@ -197,21 +200,23 @@ request_test:
 
 .PHONY	: run_unit_test
 run_unit_test	:
-	cmake -S . -B build
-	#cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT_MULTIPLEXER"
+	#cmake -S . -B build
+	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT"
+	#cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D UTEST"
 	cmake --build build
 	./build/unit_test 2>/dev/null
-	#./build/unit_test
+	#./build/unit_test  # leaks report
 
 .PHONY	: run_server_test
 run_server_test	:
-	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
-	#cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG -D USE_SELECT_MULTIPLEXER"
+	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG -D UTEST"
+	#cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG -D USE_SELECT"
 	cmake --build build
 	#./build/unit_test --gtest_filter=Server* 2>/dev/null
 	#./build/unit_test --gtest_filter=*.ConnectClientCase1
-	#./build/unit_test --gtest_filter=Server*
-	./build/unit_test --gtest_filter=ServerUnitTest.TestMultiServer
+	./build/unit_test --gtest_filter=Server*
+#	./build/unit_test --gtest_filter=ServerUnitTest.ConnectClientCase1
+#	./build/unit_test --gtest_filter=ServerUnitTest.TestMultiServer
 
 .PHONY	: run_socket_test
 run_socket_test	:
@@ -236,6 +241,13 @@ run_request_test    :
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=HttpRequest*
+
+.PHONY    : run_req_test
+run_req_test    :
+	cmake -S . -B build -DCUSTOM_FLAGS="-D UTEST"
+	cmake --build build
+	./build/unit_test --gtest_filter=HttpRequestParser*
+
 
 .PHONY    : run_string_test
 run_string_test    :

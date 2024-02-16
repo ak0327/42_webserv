@@ -8,7 +8,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fsanitize=address,undefined -fno-omi
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D UTEST")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D DEBUG")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D USE_SELECT_MULTIPLEXER")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D USE_SELECT")
 
 if(DEFINED CUSTOM_FLAGS)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CUSTOM_FLAGS}")
@@ -38,6 +38,7 @@ include_directories(
         includes
         srcs/Const
         srcs/Client
+        srcs/ClientSession
         srcs/Configuration/FileHandler
         srcs/Configuration/Parser
         srcs/Configuration/Token
@@ -69,6 +70,7 @@ include_directories(
 set(webserv_srcs
         srcs/Const/Constant.cpp
         srcs/Client/Client.cpp
+        srcs/ClientSession/ClientSession.cpp
         srcs/Configuration/FileHandler/FileHandler.cpp
         srcs/Configuration/Parser/Parser.cpp
         srcs/Configuration/Token/Token.cpp
@@ -202,6 +204,7 @@ set (unit_test_srcs
         test/unit_test/HttpMessageParser/TestParse.cpp
         test/unit_test/HttpMessageParser/TestSkip.cpp
         test/unit_test/HttpMessageParser/TestStrToNum.cpp
+        test/unit_test/TestHttpRequestParser.cpp
 
         # Date
         test/unit_test/Date/TestDate.cpp

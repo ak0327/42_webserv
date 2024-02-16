@@ -1,9 +1,14 @@
+#include <sys/socket.h>
 #include <algorithm>
+#include <cerrno>
+#include <cstdio>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 #include "Color.hpp"
 #include "Constant.hpp"
+#include "Error.hpp"
 #include "HttpRequest.hpp"
 #include "HttpMessageParser.hpp"
 #include "StringHandler.hpp"
@@ -96,7 +101,12 @@ Result<std::string, int> get_field_line_by_remove_cr(const std::string &line_end
 ////////////////////////////////////////////////////////////////////////////////
 /* constructor, destructor */
 
-HttpRequest::HttpRequest(const std::string &input) {
+HttpRequest::HttpRequest() : status_code_(STATUS_OK) {
+    init_field_name_parser();
+    init_field_name_counter();
+}
+
+HttpRequest::HttpRequest(const std::string &input) : status_code_(STATUS_OK) {
 	init_field_name_parser();
 	init_field_name_counter();
 	this->status_code_ = parse_and_validate_http_request(input);
@@ -120,6 +130,269 @@ void HttpRequest::clear_field_values_of(const std::string &field_name) {
 	}
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+Result<std::size_t, std::string> HttpRequest::recv_all_data(int fd, std::size_t max_size) {
+    unsigned char buf[BUFSIZ];
+    ssize_t recv_size;
+    std::size_t total_size = this->buf_.size();
+
+    while (true) {
+        errno = 0;
+        recv_size = recv(fd, buf, BUFSIZ, FLAG_NONE);
+        if (recv_size == 0) {
+            break;
+        }
+        if (recv_size == RECV_ERROR) {
+            const std::string error_info = CREATE_ERROR_INFO_ERRNO(errno);
+            return Result<std::size_t, std::string>::err(error_info);
+        }
+        total_size += recv_size;
+        if (max_size < total_size) {
+            return Result<std::size_t, std::string>::ok(total_size);
+        }
+        this->buf_.insert(this->buf_.end(), buf, buf + recv_size);
+    }
+    return Result<std::size_t, std::string>::ok(total_size);
+}
+
+
+bool HttpRequest::is_crlf_in_buf(const unsigned char buf[], std::size_t size) {
+    if (size < 2) {
+        return false;
+    }
+    for (std::size_t i = 0; i < size - 1; ++i) {
+        if (buf[i] == CR && buf[i + 1] == LF) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+// while CRLF CRLF
+Result<int, std::string> HttpRequest::recv_until_empty_line(int fd) {
+    unsigned char recv_buf[BUFSIZ];
+    std::vector<unsigned char>::const_iterator empty_pos, find_begin;
+    ssize_t recv_size;
+
+    while (true) {
+        errno = 0;
+        recv_size = recv(fd, recv_buf, BUFSIZ, FLAG_NONE);
+        if (recv_size == 0) {
+            break;
+        }
+        if (recv_size == RECV_ERROR) {
+            const std::string error_info = CREATE_ERROR_INFO_ERRNO(errno);
+            return Result<int, std::string>::err(error_info);
+        }
+
+        std::size_t old_size = this->buf_.size();
+        this->buf_.insert(this->buf_.end(), recv_buf, recv_buf + recv_size);
+        std::size_t shift = (old_size < 4) ? recv_size + old_size : recv_size + 3;
+        find_begin = this->buf_.end() - shift;
+        HttpRequest::find_empty(this->buf_, find_begin, &empty_pos);
+        if (empty_pos != this->buf_.end()) {
+            break;
+        }
+    }
+    return Result<int, std::string>::ok(OK);
+}
+
+
+// while CRLF
+Result<int, std::string> HttpRequest::recv_start_line(int fd) {
+    unsigned char recv_buf[BUFSIZ];
+    ssize_t recv_size;
+    bool is_prev_end_with_cr = false;
+
+    while (true) {
+        errno = 0;
+        recv_size = recv(fd, recv_buf, BUFSIZ, FLAG_NONE);
+        if (recv_size == 0) {
+            break;
+        }
+        if (recv_size == RECV_ERROR) {
+            const std::string error_info = CREATE_ERROR_INFO_ERRNO(errno);
+            return Result<int, std::string>::err(error_info);
+        }
+        this->buf_.insert(this->buf_.end(), recv_buf, recv_buf + recv_size);
+
+        if (is_crlf_in_buf(recv_buf, recv_size)) {
+            break;
+        }
+        if (is_prev_end_with_cr && recv_buf[0] == LF) {
+            break;
+        }
+        is_prev_end_with_cr = (recv_buf[recv_size - 1] == CR);
+    }
+    return Result<int, std::string>::ok(OK);
+}
+
+
+// string CR LF
+//         ^return
+void HttpRequest::find_crlf(const std::vector<unsigned char> &data,
+                            std::vector<unsigned char>::const_iterator start,
+                            std::vector<unsigned char>::const_iterator *cr) {
+    if (!cr) {
+        return;
+    }
+    std::vector<unsigned char>::const_iterator itr = start;
+    while (itr != data.end() && itr + 1 != data.end()) {
+        if (*itr == CR && *(itr + 1) == LF) {
+            *cr = itr;
+            return;
+        }
+        ++itr;
+    }
+    *cr = data.end();
+}
+
+
+// line CRLF CRLF line
+//      ^return
+void HttpRequest::find_empty(const std::vector<unsigned char> &data,
+                            std::vector<unsigned char>::const_iterator start,
+                            std::vector<unsigned char>::const_iterator *ret) {
+    const std::size_t CRLF_LEN = 2;
+    if (!ret) {
+        return;
+    }
+    std::vector<unsigned char>::const_iterator pos, crlf1, crlf2;
+    pos = start;
+    while (pos != data.end()) {
+        find_crlf(data, pos, &crlf1);
+        if (crlf1 == data.end()) {
+            break;
+        }
+        find_crlf(data, crlf1 + CRLF_LEN, &crlf2);
+        if (crlf2 == data.end()) {
+            break;
+        }
+        if (crlf1 + CRLF_LEN == crlf2) {
+            *ret = crlf1;
+            return;
+        }
+        pos = crlf1 + CRLF_LEN;
+    }
+    *ret = data.end();
+}
+
+
+// line CRLF next_line
+// ^^^^      ^ret
+Result<std::string, std::string> HttpRequest::get_line(const std::vector<unsigned char> &data,
+                                                       std::vector<unsigned char>::const_iterator start,
+                                                       std::vector<unsigned char>::const_iterator *ret) {
+    if (!ret) {
+        return Result<std::string, std::string>::err("fatal error");
+    }
+
+    std::vector<unsigned char>::const_iterator cr;
+    HttpRequest::find_crlf(data, start, &cr);
+    if (cr == data.end()) {
+        *ret = data.end();
+        return Result<std::string, std::string>::err("line invalid");
+    }
+
+    std::string line(start, cr);
+    *ret = cr + 2;
+    return Result<std::string, std::string>::ok(line);
+}
+
+
+void HttpRequest::trim(std::vector<unsigned char> *buf,
+                       std::vector<unsigned char>::const_iterator start) {
+    if (!buf || buf->empty() || start == buf->begin()) {
+        return;
+    }
+    typedef std::vector<unsigned char>::iterator itr;
+    typedef std::vector<unsigned char>::const_iterator const_itr;
+
+    std::ptrdiff_t offset = std::distance((const_itr)buf->begin(), start);
+    itr non_const_start = buf->begin() + offset;
+
+    buf->erase(buf->begin(), non_const_start);
+}
+
+
+// start-line CRLF
+Result<int, int> HttpRequest::parse_request_line(int fd) {
+    Result<int, std::string> recv_result = recv_start_line(fd);
+
+    std::vector<unsigned char>::const_iterator next_start;
+    Result<std::string, std::string> get_line_result = get_line(this->buf_, this->buf_.begin(), &next_start);
+    if (get_line_result.is_err()) {
+        this->status_code_ = STATUS_SERVER_ERROR;
+        return Result<int, int>::err(this->status_code_);
+    }
+    std::string start_line = get_line_result.get_ok_value();
+    std::cout << CYAN << "start_line [" << start_line << "]" << RESET << std::endl;
+
+    HttpRequest::trim(&this->buf_, next_start);
+
+    Result<int, int> request_line_result = this->request_line_.parse_and_validate(start_line);
+    if (request_line_result.is_err()) {
+        this->status_code_ = STATUS_BAD_REQUEST;
+        return Result<int, int>::err(this->status_code_);
+    }
+    return Result<int, int>::ok(OK);
+}
+
+
+Result<int, int> HttpRequest::parse_request_header(int fd) {
+    Result<int, std::string> recv_result = recv_until_empty_line(fd);
+    if (recv_result.is_err()) {
+        this->status_code_ = STATUS_SERVER_ERROR;
+        return Result<int, int>::err(this->status_code_);
+    }
+    std::vector<unsigned char>::const_iterator header_end;
+    HttpRequest::find_empty(this->buf_, this->buf_.begin(), &header_end);
+    std::string request_headers(reinterpret_cast<const char*>(&buf_[0]), header_end - buf_.begin());
+
+    const std::size_t EMPTY_LINE_LEN = 4;
+    std::vector<unsigned char>::const_iterator body_start = header_end + EMPTY_LINE_LEN;
+    HttpRequest::trim(&this->buf_, body_start);
+
+    Result<int, int> parse_result = parse_and_validate_field_lines(request_headers);
+    if (parse_result.is_err()) {
+        this->status_code_ = parse_result.get_err_value();
+        return Result<int, int>::ok(this->status_code_);
+    }
+    return Result<int, int>::ok(OK);
+}
+
+
+Result<int, int> HttpRequest::parse_request_body(int fd, std::size_t max_body_size) {
+    Result<std::size_t, std::string> recv_result = recv_all_data(fd, max_body_size);
+    if (recv_result.is_err()) {
+        const std::string error_msg = recv_result.get_err_value();
+        this->status_code_ = STATUS_SERVER_ERROR;
+        return Result<int, int>::err(this->status_code_);
+    }
+    std::size_t body_size = recv_result.get_ok_value();
+    if (max_body_size < body_size) {
+        this->status_code_ = REQUEST_ENTITY_TOO_LARGE;
+        return Result<int, int>::err(this->status_code_);
+    }
+    return Result<int, int>::ok(OK);
+}
+
+
+Result<HostPortPair, int> HttpRequest::get_server_info() {
+    Result<std::map<std::string, std::string>, int> result = get_host();
+    if (result.is_err()) {
+        return Result<HostPortPair, int>::err(ERR);
+    }
+    std::map<std::string, std::string> host = result.get_ok_value();
+    HostPortPair pair = std::make_pair(host[URI_HOST], host[PORT]);
+    return Result<HostPortPair, int>::ok(pair);
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 /* parse and validate http_request */
 
@@ -134,8 +407,13 @@ int HttpRequest::parse_and_validate_http_request(const std::string &input) {
 	std::stringstream	ss(input);
 	std::string 		line;
 
-	// start-line CRLF
+
+    // start-line CRLF
 	std::getline(ss, line, LF);
+    if (line.empty() || line[line.size() - 1] != CR) {
+        return STATUS_BAD_REQUEST;
+    }
+    line.erase(line.size() - 1);
     Result<int, int> request_line_result = this->request_line_.parse_and_validate(line);
 	if (request_line_result.is_err()) {
 		return STATUS_BAD_REQUEST;
@@ -225,6 +503,25 @@ Result<int, int> HttpRequest::parse_and_validate_field_lines(std::stringstream *
 	return Result<int, int>::ok(OK);
 }
 
+
+Result<int, int> HttpRequest::parse_and_validate_field_lines(const std::string &request_headers) {
+    std::stringstream ss(request_headers);
+    try {
+        Result<int, int> field_line_result = parse_and_validate_field_lines(&ss);
+        if (field_line_result.is_err()) {
+            if (field_line_result.get_err_value() == STATUS_SERVER_ERROR) {
+                return Result<int, int>::err(STATUS_SERVER_ERROR);
+            }
+            return Result<int, int>::err(STATUS_BAD_REQUEST);
+        }
+        return Result<int, int>::ok(OK);
+    } catch (const std::bad_alloc &e) {
+        return Result<int, int>::err(STATUS_SERVER_ERROR);
+    }
+}
+
+
+
 // field-line = field-name ":" OWS field-value OWS
 Result<int, int> HttpRequest::parse_field_line(const std::string &field_line,
 								  std::string *ret_field_name,
@@ -270,23 +567,28 @@ Result<int, int> HttpRequest::parse_field_line(const std::string &field_line,
 	return Result<int, int>::ok(OK);
 }
 
+
 // [ message-body ]
 std::string HttpRequest::parse_message_body(std::stringstream *ss) {
 	return ss->str();
 }
 
+
 bool HttpRequest::is_valid_field_name_registered(const std::string &field_name) {
 	return this->request_header_fields_.count(field_name) != 0;
 }
+
 
 // call this function after increment
 bool HttpRequest::is_field_name_repeated_in_request(const std::string &field_name) {
 	return SINGLE_OCCURRENCE_LIMIT < this->field_name_counter_[field_name];
 }
 
+
 void HttpRequest::increment_field_name_counter(const std::string &field_name) {
 	this->field_name_counter_[field_name]++;
 }
+
 
 bool HttpRequest::is_field_name_supported_parsing(const std::string &field_name) {
 	if (HttpMessageParser::is_ignore_field_name(field_name)) {
@@ -294,6 +596,7 @@ bool HttpRequest::is_field_name_supported_parsing(const std::string &field_name)
 	}
 	return this->field_value_parser_.count(field_name) != 0;
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -303,6 +606,7 @@ void HttpRequest::init_field_name_counter() {
 		this->field_name_counter_[*itr] = COUNTER_INIT;
 	}
 }
+
 
 void HttpRequest::init_field_name_parser() {
 	std::map<std::string, func_ptr> map;
@@ -358,26 +662,53 @@ void HttpRequest::init_field_name_parser() {
 	this->field_value_parser_ = map;
 }
 
+
 std::string HttpRequest::get_method() const {
 	return this->request_line_.get_method();
 }
+
 
 std::string HttpRequest::get_request_target() const {
 	return this->request_line_.get_request_target();
 }
 
+
 std::string HttpRequest::get_http_version() const {
 	return this->request_line_.get_http_version();
 }
 
-FieldValueBase* HttpRequest::get_field_values(const std::string &key) {
-	return this->request_header_fields_[key];
+
+FieldValueBase * HttpRequest::get_field_values(const std::string &key) const {
+    std::map<std::string, FieldValueBase *>::const_iterator itr;
+
+    itr = this->request_header_fields_.find(key);
+    if (itr == this->request_header_fields_.end()) {
+        return NULL;
+    }
+	return itr->second;
 }
+
 
 std::map<std::string, FieldValueBase*> HttpRequest::get_request_header_fields(void) {
 	return this->request_header_fields_;
 }
 
+
 int	HttpRequest::get_status_code() const {
 	return this->status_code_;
+}
+
+
+Result<std::map<std::string, std::string>, int> HttpRequest::get_host() const {
+    FieldValueBase *field_values = get_field_values(HOST);
+    if (!field_values) {
+        return Result<std::map<std::string, std::string>, int>::err(ERR);
+    }
+    MapFieldValues *map_field_values = dynamic_cast<MapFieldValues *>(field_values);
+    if (!map_field_values) {
+        return Result<std::map<std::string, std::string>, int>::err(ERR);
+    }
+
+    std::map<std::string, std::string> host = map_field_values->get_value_map();
+    return Result<std::map<std::string, std::string>, int>::ok(host);
 }

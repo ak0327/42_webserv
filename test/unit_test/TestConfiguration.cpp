@@ -1099,3 +1099,239 @@ TEST(TestConfig, ConfigurationGetterOK2) {
     server_config_result = config.get_server_config(server_info);
     ASSERT_TRUE(server_config_result.is_err());  // nothing
 }
+
+
+TEST(TestConfig, GetServerConfig) {
+    Configuration config("test/test_conf/ok/conf_ok1.conf");
+    Result<ServerConfig, int> server_a_result, server_b_result, server_c_result;
+    Result<ServerConfig, std::string> actual_result;
+    ServerConfig expected_a, expected_b, expected_c;
+    ServerConfig actual;
+
+    ServerInfo server_info;
+    AddressPortPair config_address_port_pair;
+    HostPortPair request_host_port_pair;
+
+    server_info.server_name = "a";
+    server_info.address = "*";
+    server_info.port = "81";
+    server_a_result = config.get_server_config(server_info);
+    ASSERT_TRUE(server_a_result.is_ok());
+    expected_a = server_a_result.get_ok_value();
+
+    server_info.server_name = "b";
+    server_info.address = "*";
+    server_info.port = "80";
+    server_b_result = config.get_server_config(server_info);
+    ASSERT_TRUE(server_b_result.is_ok());
+    expected_b = server_b_result.get_ok_value();
+
+    server_info.server_name = "c";
+    server_info.address = "*";
+    server_info.port = "81";
+    server_c_result = config.get_server_config(server_info);
+    ASSERT_TRUE(server_c_result.is_ok());
+    expected_c = server_c_result.get_ok_value();
+
+
+    // server_a
+    config_address_port_pair.first = "*";
+    config_address_port_pair.second = "81";
+
+    request_host_port_pair.first = "a";
+    request_host_port_pair.second = "81";
+    actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
+    ASSERT_TRUE(actual_result.is_ok());
+    actual = actual_result.get_ok_value();
+    expect_eq_server_config(expected_a, actual, __LINE__);
+
+
+    config_address_port_pair.first = "*";
+    config_address_port_pair.second = "81";
+    request_host_port_pair.first = "127.0.0.2";  // default
+    request_host_port_pair.second = "81";
+    actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
+    ASSERT_TRUE(actual_result.is_ok());
+    actual = actual_result.get_ok_value();
+    expect_eq_server_config(expected_c, actual, __LINE__);
+
+    config_address_port_pair.first = "*";
+    config_address_port_pair.second = "81";
+    request_host_port_pair.first = "a";
+    request_host_port_pair.second = "81";
+    actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
+    ASSERT_TRUE(actual_result.is_ok());
+    actual = actual_result.get_ok_value();
+    expect_eq_server_config(expected_a, actual, __LINE__);
+
+    config_address_port_pair.first = "*";
+    config_address_port_pair.second = "81";
+    request_host_port_pair.first = "192.0.0.2";  // default
+    request_host_port_pair.second = "81";
+    actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
+    ASSERT_TRUE(actual_result.is_ok());
+    actual = actual_result.get_ok_value();
+    expect_eq_server_config(expected_c,  actual, __LINE__);
+
+    config_address_port_pair.first = "*";
+    config_address_port_pair.second = "80";
+    request_host_port_pair.first = "b";
+    request_host_port_pair.second = "80";
+    actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
+    ASSERT_TRUE(actual_result.is_ok());
+    actual = actual_result.get_ok_value();
+    expect_eq_server_config(expected_b, actual, __LINE__);
+
+
+    config_address_port_pair.first = "*";
+    config_address_port_pair.second = "81";
+    request_host_port_pair.first = "b";         // ng -> default
+    request_host_port_pair.second = "81";
+    actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
+    ASSERT_TRUE(actual_result.is_ok());
+    actual = actual_result.get_ok_value();
+    expect_eq_server_config(expected_c, actual, __LINE__);
+
+    config_address_port_pair.first = "*";
+    config_address_port_pair.second = "81";
+    request_host_port_pair.first = "c";
+    request_host_port_pair.second = "81";
+    actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
+    ASSERT_TRUE(actual_result.is_ok());
+    actual = actual_result.get_ok_value();
+    expect_eq_server_config(expected_c, actual, __LINE__);
+
+    config_address_port_pair.first = "*";
+    config_address_port_pair.second = "80";
+    request_host_port_pair.first = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+    request_host_port_pair.second = "80";
+    actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
+    ASSERT_TRUE(actual_result.is_ok());
+    actual = actual_result.get_ok_value();
+    expect_eq_server_config(expected_b, actual, __LINE__);
+
+
+    config_address_port_pair.first = "*";
+    config_address_port_pair.second = "80";
+    request_host_port_pair.first = "";
+    request_host_port_pair.second = "80";
+    actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
+    ASSERT_TRUE(actual_result.is_ok());
+    actual = actual_result.get_ok_value();
+    expect_eq_server_config(expected_b, actual, __LINE__);
+
+    config_address_port_pair.first = "*";
+    config_address_port_pair.second = "80";
+    request_host_port_pair.first = "b";
+    request_host_port_pair.second = "80";
+    actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
+    ASSERT_TRUE(actual_result.is_ok());
+    actual = actual_result.get_ok_value();
+    expect_eq_server_config(expected_b, actual, __LINE__);
+
+    config_address_port_pair.first = "*";
+    config_address_port_pair.second = "80";
+    request_host_port_pair.first = "*";
+    request_host_port_pair.second = "80";
+    actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
+    ASSERT_TRUE(actual_result.is_ok());
+    actual = actual_result.get_ok_value();
+    expect_eq_server_config(expected_b, actual, __LINE__);
+
+    config_address_port_pair.first = "*";
+    config_address_port_pair.second = "80";
+    request_host_port_pair.first = "127.0.0.0.0";
+    request_host_port_pair.second = "80";
+    actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
+    ASSERT_TRUE(actual_result.is_ok());
+    actual = actual_result.get_ok_value();
+    expect_eq_server_config(expected_b, actual, __LINE__);
+
+    config_address_port_pair.first = "*";
+    config_address_port_pair.second = "81";
+    request_host_port_pair.first = "aa";
+    request_host_port_pair.second = "80";    // ng
+    actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
+    ASSERT_TRUE(actual_result.is_err());
+
+    config_address_port_pair.first = "*";
+    config_address_port_pair.second = "81";
+    request_host_port_pair.first = "";      // ng
+    request_host_port_pair.second = "*";    // ng
+    actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
+    ASSERT_TRUE(actual_result.is_err());
+
+
+    config_address_port_pair.first = "127.0.0.1";  // ng
+    config_address_port_pair.second = "82";        // ng
+    request_host_port_pair.first = "127.0.0.2";     // ng
+    request_host_port_pair.second = "81";           // ng
+    actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
+    ASSERT_TRUE(actual_result.is_err());
+
+
+    // -------------------------------------------------------------------------
+
+    config_address_port_pair.first = "";
+    config_address_port_pair.second = "";
+    request_host_port_pair.first = "";
+    request_host_port_pair.second = "";
+    actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
+    ASSERT_TRUE(actual_result.is_err());
+
+
+    config_address_port_pair.first = "a";
+    config_address_port_pair.second = "1212";
+    request_host_port_pair.first = "-2";
+    request_host_port_pair.second = "0";
+    actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
+    ASSERT_TRUE(actual_result.is_err());
+
+
+    config_address_port_pair.first = "1270.0.0.0";
+    config_address_port_pair.second = "80";
+    request_host_port_pair.first = "*";
+    request_host_port_pair.second = "80";
+    actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
+    ASSERT_TRUE(actual_result.is_err());
+
+
+    config_address_port_pair.first = "127.0.0.1";
+    config_address_port_pair.second = "80";
+    request_host_port_pair.first = "**";
+    request_host_port_pair.second = "*";
+    actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
+    ASSERT_TRUE(actual_result.is_err());
+
+    config_address_port_pair.first = "1270.0.0.0";
+    config_address_port_pair.second = "80";
+    request_host_port_pair.first = "*";
+    request_host_port_pair.second = "121212121212121212";
+    actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
+    ASSERT_TRUE(actual_result.is_err());
+
+
+    config_address_port_pair.first = "1270.0.0.0";
+    config_address_port_pair.second = "80";
+    request_host_port_pair.first = "*";
+    request_host_port_pair.second = "a";
+    actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
+    ASSERT_TRUE(actual_result.is_err());
+
+
+    config_address_port_pair.first = "1270.0.0.0";
+    config_address_port_pair.second = "80";
+    request_host_port_pair.first = "a";
+    request_host_port_pair.second = "a";
+    actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
+    ASSERT_TRUE(actual_result.is_err());
+
+    config_address_port_pair.first = "127.0.0.0";
+    config_address_port_pair.second = "80";
+    request_host_port_pair.first = "127.0.1.0";
+    request_host_port_pair.second = "80";
+    actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
+    ASSERT_TRUE(actual_result.is_err());
+
+
+}

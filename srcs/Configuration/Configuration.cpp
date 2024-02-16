@@ -1,11 +1,13 @@
 #include <fstream>
 #include <map>
 #include <set>
+#include <string>
 #include <utility>
 #include "webserv.hpp"
 #include "Configuration.hpp"
 #include "Constant.hpp"
 #include "FileHandler.hpp"
+#include "HttpMessageParser.hpp"
 #include "Token.hpp"
 #include "Parser.hpp"
 
@@ -159,6 +161,55 @@ Result<ServerConfig, int> Configuration::get_server_config(const ServerInfo &ser
     } else {
         AddressPortPair pair(server_info.address, server_info.port);
         return get_default_server(pair);
+    }
+}
+
+
+// todo: address == "*"
+Result<ServerConfig, std::string> Configuration::get_server_config(const AddressPortPair &actual,
+                                                                     const HostPortPair &request) const {
+    std::string socket_address = actual.first;
+    std::string socket_port = actual.second;
+    std::string request_port = request.second;
+    Result<ServerConfig, int> result;
+
+    // std::cout << CYAN << "actual  addr: " << socket_address << ", port: " << socket_port << RESET << std::endl;
+    // std::cout << CYAN << "request addr: " << request.first << ", port: " << request.second << RESET << std::endl;
+
+    if (!request_port.empty() && request_port != socket_port) {
+        return Result<ServerConfig, std::string>::err("error: request ip not found");
+    }
+
+    if (HttpMessageParser::is_ipv4address(request.first)) {
+        std::string request_address = request.first;
+        // ipv4
+        if (socket_address == request_address) {
+            result = get_default_server(actual);
+            if (result.is_err()) {
+                return Result<ServerConfig, std::string>::err("error");
+            }
+            return Result<ServerConfig, std::string>::ok(result.get_ok_value());
+        } else if (socket_address == "*") {
+            AddressPortPair pair(request_address, socket_port);
+            result = get_default_server(actual);
+            if (result.is_err()) {
+                return Result<ServerConfig, std::string>::err("error");
+            }
+            return Result<ServerConfig, std::string>::ok(result.get_ok_value());
+        } else {
+            return Result<ServerConfig, std::string>::err("error: address is not mach with conf and request");
+        }
+    } else if (HttpMessageParser::is_ipv6address(request.first)) {
+        // ivp6
+        return Result<ServerConfig, std::string>::err("error");  // todo: ipv6
+    } else {
+        std::string request_server_name = request.first;
+        ServerInfo server_info(request_server_name, socket_address, socket_port);
+        result = get_server_config(server_info);
+        if (result.is_err()) {
+            return Result<ServerConfig, std::string>::err("error");
+        }
+        return Result<ServerConfig, std::string>::ok(result.get_ok_value());
     }
 }
 

@@ -1,4 +1,5 @@
 #include <fstream>
+#include <string>
 #include <iostream>
 #include "Client.hpp"
 #include "Color.hpp"

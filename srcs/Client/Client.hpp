@@ -5,6 +5,7 @@
 #include <netinet/in.h>
 #include <string>
 #include "webserv.hpp"
+#include "Socket.hpp"
 
 class Client {
  public:
@@ -12,10 +13,13 @@ class Client {
 	~Client();
 
 	std::string get_recv_message() const;
-	void process_server_connect(const std::string &send_msg);
+    void send_msg(const std::string &send_msg) const;
+    void recv_msg();
 
  private:
+	// struct sockaddr_in addr_;
+
+    Socket *socket_;
 	int connect_fd_;
 	std::string recv_message_;
-	struct sockaddr_in addr_;
 };

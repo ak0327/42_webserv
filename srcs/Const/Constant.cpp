@@ -12,6 +12,7 @@ const int GETADDRINFO_SUCCESS = 0;
 const int ACCEPT_ERROR = -1;
 const int BIND_ERROR = -1;
 const int CLOSE_ERROR = -1;
+const int CONN_ERROR = -1;
 const int FCNTL_ERROR = -1;
 const int LISTEN_ERROR = -1;
 const int SETSOCKOPT_ERROR = -1;
@@ -48,6 +49,7 @@ const std::size_t FILE_SIZE_LIMIT = 65535;
 
 const int STATUS_OK = 200;
 const int STATUS_BAD_REQUEST = 400;
+const int REQUEST_ENTITY_TOO_LARGE = 413;
 const int STATUS_SERVER_ERROR = 500;
 
 ////////////////////////////////////////////////////////////////////////////////

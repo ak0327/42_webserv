@@ -40,6 +40,20 @@ int create_nonblock_client_fd() {
 	return client_fd;
 }
 
+
+void expect_socket(const std::string &ip, const std::string &port, bool expect_success, int line) {
+    Socket socket(ip, port);
+
+    SocketResult result1 = socket.init();
+    SocketResult result2 = socket.bind();
+    SocketResult result3 = socket.listen();
+    SocketResult result4 = socket.set_fd_to_nonblock();
+
+    bool total_result = result1.is_ok() && result2.is_ok() && result3.is_ok() && result4.is_ok();
+    EXPECT_EQ(expect_success, total_result) << "  at L" << line;;
+}
+
+
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -48,94 +62,70 @@ int create_nonblock_client_fd() {
 /*               Socket Unit Test              */
 /* ******************************************* */
 TEST(SocketUnitTest, ConstructorWithArgument) {
-	Socket socket(SERVER_IP, SERVER_PORT);
-
-	EXPECT_TRUE(socket.is_socket_success());
-
+    expect_socket(SERVER_IP, SERVER_PORT, true, __LINE__);
 }
 
 TEST(SocketUnitTest, ConstructorWithValidServerIP) {
 	int port = 49152;
-
-	Socket socket1("127.0.0.1", std::to_string(port++));
-	Socket socket2("0.0.0.0", std::to_string(port++));
-	Socket socket3("000.0000.00000.000000", std::to_string(port++));
-
-	EXPECT_TRUE(socket1.is_socket_success());
-	EXPECT_TRUE(socket2.is_socket_success());
-	EXPECT_TRUE(socket3.is_socket_success());
+	expect_socket("127.0.0.1", std::to_string(port++), true, __LINE__);
+	expect_socket("0.0.0.0", std::to_string(port++), true, __LINE__);
+	expect_socket("000.0000.00000.000000", std::to_string(port++), true, __LINE__);
 }
 
 TEST(SocketUnitTest, ConstructorWithInvalidServerIP) {
 	int port = 49152;
 
-	Socket socket1("127.0.0.0.1", std::to_string(port++));
-	Socket socket2("256.0.0.0", std::to_string(port++));
-	Socket socket3("-1", std::to_string(port++));
-	Socket socket4("a.0.0.0", std::to_string(port++));
-	Socket socket5("127:0.0.1", std::to_string(port++));
-	Socket socket6("127,0.0.1", std::to_string(port++));
-	Socket socket7("127.0.0.-1", std::to_string(port++));
-	Socket socket8("2147483647.2147483647.2147483647.2147483647", std::to_string(port++));
-	// Socket socket9("", std::to_string(port++));  todo: ok?
-	Socket socket10("hoge", std::to_string(port++));
-	Socket socket11("0001.0001.0001.0001", std::to_string(port++));
-	Socket socket12("255.255.255.254", std::to_string(port++));
-
+	expect_socket("127.0.0.0.1", std::to_string(port++), false, __LINE__);
+	expect_socket("256.0.0.0", std::to_string(port++), false, __LINE__);
+	expect_socket("-1", std::to_string(port++), false, __LINE__);
+	expect_socket("a.0.0.0", std::to_string(port++), false, __LINE__);
+	expect_socket("127:0.0.1", std::to_string(port++), false, __LINE__);
+	expect_socket("127,0.0.1", std::to_string(port++), false, __LINE__);
+	expect_socket("127.0.0.-1", std::to_string(port++), false, __LINE__);
+	expect_socket("2147483647.2147483647.2147483647.2147483647", std::to_string(port++), false, __LINE__);
+	// expect_socket("", std::to_string(port++), false, __LINE__);  todo: ok?
+	expect_socket("hoge", std::to_string(port++), false, __LINE__);
+	expect_socket("0001.0001.0001.0001", std::to_string(port++), false, __LINE__);
+	expect_socket("255.255.255.254", std::to_string(port++), false, __LINE__);
 
 	// config.set_ip("255.255.255.255"); config.set_port(std::to_string(port++));
 	// Socket socket13("255.255.255.255", std::to_string(port++).c_str());  // Linux OK, todo:error?
-
-	EXPECT_FALSE(socket1.is_socket_success());
-	EXPECT_FALSE(socket2.is_socket_success());
-	EXPECT_FALSE(socket3.is_socket_success());
-	EXPECT_FALSE(socket4.is_socket_success());
-	EXPECT_FALSE(socket5.is_socket_success());
-	EXPECT_FALSE(socket6.is_socket_success());
-	EXPECT_FALSE(socket7.is_socket_success());
-	EXPECT_FALSE(socket8.is_socket_success());
-	// EXPECT_FALSE(socket9.is_socket_success());
-	EXPECT_FALSE(socket10.is_socket_success());
-	EXPECT_FALSE(socket11.is_socket_success());
-	EXPECT_FALSE(socket12.is_socket_success());
-	// EXPECT_FALSE(socket13.is_socket_success());
 }
 
 TEST(SocketUnitTest, ConstructorWithValidServerPort) {
-	Socket socket1(SERVER_IP, "0");  // ephemeral port
-	Socket socket2(SERVER_IP, "0000");
-	Socket socket3(SERVER_IP, "8080");
-	Socket socket4(SERVER_IP, "65535");
-
-	EXPECT_TRUE(socket1.is_socket_success());
-	EXPECT_TRUE(socket2.is_socket_success());
-	EXPECT_TRUE(socket3.is_socket_success());
-	EXPECT_TRUE(socket4.is_socket_success());
+	expect_socket(SERVER_IP, "0", true, __LINE__);  // ephemeral port
+	expect_socket(SERVER_IP, "0000", true, __LINE__);
+	expect_socket(SERVER_IP, "8080", true, __LINE__);
+	expect_socket(SERVER_IP, "65535", true, __LINE__);
 }
 
 TEST(SocketUnitTest, ConstructorWithInvalidServerPort) {
-	Socket socket1(SERVER_IP, "-1");
-	// config.set_ip(SERVER_IP); config.set_port("65536");
-//	Socket socket2(SERVER_IP, SERVER_PORT);  // uisingned short 65536->0(ephemeral port)
+	expect_socket(SERVER_IP, "-1", false, __LINE__);
+	// config.set_ip(SERVER_IP, false, __LINE__); config.set_port("65536", false, __LINE__);
+//	expect_socket(SERVER_IP, SERVER_PORT, false, __LINE__);  // uisingned short 65536->0(ephemeral port)
 
-	// config.set_ip(SERVER_IP); config.set_port("");
-	// Socket socket3(SERVER_IP, SERVER_PORT);	// strtol->0 (tmp)
-	Socket socket4(SERVER_IP, "hoge");
-	Socket socket5(SERVER_IP, "--123123");
-	Socket socket6(SERVER_IP, "127.1");
-
-	EXPECT_FALSE(socket1.is_socket_success());
-//	EXPECT_FALSE(socket2.is_socket_success());
-	// EXPECT_FALSE(socket3.is_socket_success());
-	EXPECT_FALSE(socket4.is_socket_success());
-	EXPECT_FALSE(socket5.is_socket_success());
-	EXPECT_FALSE(socket6.is_socket_success());
+	// config.set_ip(SERVER_IP, false, __LINE__); config.set_port("", false, __LINE__);
+	// expect_socket(SERVER_IP, SERVER_PORT, false, __LINE__);	// strtol->0 (tmp)
+	expect_socket(SERVER_IP, "hoge", false, __LINE__);
+	expect_socket(SERVER_IP, "--123123", false, __LINE__);
+	expect_socket(SERVER_IP, "127.1", false, __LINE__);
 }
 
 TEST(SocketUnitTest, Getter) {
 	Socket socket("", "");
+    SocketResult result;
+    result = socket.init();
+    EXPECT_FALSE(result.is_ok());
 
-	EXPECT_FALSE(socket.is_socket_success());
+    result = socket.bind();
+    EXPECT_FALSE(result.is_ok());
+
+    result = socket.listen();
+    EXPECT_FALSE(result.is_ok());
+
+    result = socket.set_fd_to_nonblock();
+    EXPECT_FALSE(result.is_ok());
+
 	EXPECT_EQ(INIT_FD, socket.get_socket_fd());
 }
 
@@ -145,14 +135,26 @@ TEST(SocketUnitTest, Getter) {
 /* ******************************************* */
 TEST(SocketIntegrationTest, ConnectToClient) {
 	try {
-		Socket server(SERVER_IP, SERVER_PORT);
+		Socket socket(SERVER_IP, SERVER_PORT);
+        SocketResult result;
+        result = socket.init();
+        EXPECT_TRUE(result.is_ok());
+
+        result = socket.bind();
+        EXPECT_TRUE(result.is_ok());
+
+        result = socket.listen();
+        EXPECT_TRUE(result.is_ok());
+
+        result = socket.set_fd_to_nonblock();
+        EXPECT_TRUE(result.is_ok());
+
 		struct sockaddr_in addr = {};
 		int client_fd;
 
-		EXPECT_TRUE(server.is_socket_success());
-		EXPECT_NE(INIT_FD, server.get_socket_fd());
+		EXPECT_NE(INIT_FD, socket.get_socket_fd());
 
-		client_fd = socket(AF_INET, SOCK_STREAM, 0);
+		client_fd = ::socket(AF_INET, SOCK_STREAM, 0);
 		addr = create_addr();
 		EXPECT_EQ(OK, connect(client_fd, (struct sockaddr *)&addr, sizeof(addr)));
 
@@ -164,17 +166,28 @@ TEST(SocketIntegrationTest, ConnectToClient) {
 
 TEST(SocketIntegrationTest, ConnectOverSomaxconClient) {
 	try {
-		Socket server(SERVER_IP, SERVER_PORT);
+		Socket socket(SERVER_IP, SERVER_PORT);
+        SocketResult result;
+        result = socket.init();
+        EXPECT_TRUE(result.is_ok());
+
+        result = socket.bind();
+        EXPECT_TRUE(result.is_ok());
+
+        result = socket.listen();
+        EXPECT_TRUE(result.is_ok());
+
+        result = socket.set_fd_to_nonblock();
+        EXPECT_TRUE(result.is_ok());
 		int client_fd;
 		struct sockaddr_in addr = {};
 
-		EXPECT_TRUE(server.is_socket_success());
-		EXPECT_NE(INIT_FD, server.get_socket_fd());
+		EXPECT_NE(INIT_FD, socket.get_socket_fd());
 
 		/* connect under SOMAXCONN */
 		std::vector<int> client_fds;
 		for (int i = 0; i < SOMAXCONN; ++i) {
-			client_fd = socket(AF_INET, SOCK_STREAM, 0);
+			client_fd = ::socket(AF_INET, SOCK_STREAM, 0);
 			// printf("cnt:%d, client_fd:%d\n", i+1, client_fd);
 
 			EXPECT_NE(INIT_FD, client_fd);
