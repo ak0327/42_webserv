@@ -155,6 +155,9 @@ Result<HostPortPair, int> HttpRequest::get_server_info() {
         return Result<HostPortPair, int>::err(ERR);
     }
     MapFieldValues *map_field_values = dynamic_cast<MapFieldValues *>(field_values);
+    if (!map_field_values) {
+        return Result<HostPortPair, int>::err(ERR);
+    }
 
     std::map<std::string, std::string> host = map_field_values->get_value_map();
     HostPortPair pair = std::make_pair(host[URI_HOST], host[PORT]);
