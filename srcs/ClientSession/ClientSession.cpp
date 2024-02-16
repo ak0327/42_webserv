@@ -62,69 +62,57 @@ SessionResult ClientSession::process_client_event() {
     Result<std::string, std::string> recv_result;
     SessionResult request_result, response_result, send_result;
 
-    while (true) {
-        switch (this->session_state_) {
-            case kSessionInit:
-                std::cout << RED << "   session: 0 SessionInit" << RESET << std::endl;
-                this->session_state_ = kReadingRequest;  // jump
-                continue;
-                // break;
+    switch (this->session_state_) {
+        case kSessionInit:
+            std::cout << RED << "   session: 0 SessionInit" << RESET << std::endl;
+            this->session_state_ = kReadingRequest;
+            // fallthrough
 
-            case kAccepted:
-                std::cout << RED << "   session: 0 Accepted" << RESET << std::endl;
-                this->session_state_ = kReadingRequest;  // jump
-                continue;
-                // break;
+        case kAccepted:
+            std::cout << RED << "   session: 0 Accepted" << RESET << std::endl;
+            this->session_state_ = kReadingRequest;
+            // fallthrough
 
-            case kReadingRequest:
-                std::cout << RED << "   session: 1 ReadingRequest" << RESET << std::endl;
-                request_result = parse_http_request();
-                if (request_result.is_err()) {
-                    const std::string error_msg = request_result.get_err_value();
-                    return SessionResult::err(error_msg);
-                }
-                this->session_state_ = kCreatingResponse;  // jump
-                continue;
+        case kReadingRequest:
+            std::cout << RED << "   session: 1 ReadingRequest" << RESET << std::endl;
+            request_result = parse_http_request();
+            if (request_result.is_err()) {
+                const std::string error_msg = request_result.get_err_value();
+                return SessionResult::err(error_msg);
+            }
+            this->session_state_ = kCreatingResponse;
+            // fallthrough
 
-            case kCreatingResponse:
-                std::cout << RED << "   session: 2 CreatingResponse" << RESET << std::endl;
-                response_result = create_http_response();
-                if (response_result.is_err()) {
-                    const std::string error_msg = response_result.get_err_value();
-                    return SessionResult::err(error_msg);
-                }
-                this->session_state_ = kSendingResponse;
-                break;
+        case kCreatingResponse:
+            std::cout << RED << "   session: 2 CreatingResponse" << RESET << std::endl;
+            response_result = create_http_response();
+            if (response_result.is_err()) {
+                const std::string error_msg = response_result.get_err_value();
+                return SessionResult::err(error_msg);
+            }
+            this->session_state_ = kSendingResponse;
+            break;
 
-            case kReadingFile:
-                // process_file_event()
-                break;
+        case kSendingResponse:
+            std::cout << RED << "   session: 3 SendingResponse" << RESET << std::endl;
 
-            case kExecutingCGI:
-                // process_file_event
-                break;
+            send_result = send_response();
+            if (send_result.is_err()) {
+                std::cout << CYAN << "     error 4" << RESET << std::endl;
+                const std::string err_info = CREATE_ERROR_INFO_STR(send_result.get_err_value());
+                return SessionResult::err("[Server Error] recv: " + err_info);
+            }
+            this->session_state_ = kCompleted;
+            break;
 
-            case kSendingResponse:
-                std::cout << RED << "   session: 3 SendingResponse" << RESET << std::endl;
+        case kCompleted:
+            break;
 
-                send_result = send_response();
-                if (send_result.is_err()) {
-                    std::cout << CYAN << "     error 4" << RESET << std::endl;
-                    const std::string err_info = CREATE_ERROR_INFO_STR(send_result.get_err_value());
-                    return SessionResult::err("[Server Error] recv: " + err_info);
-                }
-                this->session_state_ = kCompleted;
-                break;
-
-            case kCompleted:
-                break;
-
-            default:
-                std::cerr << "Unknown session state: " << this->session_state_ << std::endl;
-                return SessionResult::err("error: unknown session state in client event");
-        }
-        return SessionResult::ok(OK);
+        default:
+            // kReadingFile, kExecutingCGI -> process_file_event()
+            break;
     }
+    return SessionResult::ok(OK);
 }
 
 
@@ -309,15 +297,16 @@ SessionResult ClientSession::process_file_event() {
 
     switch (this->session_state_) {
         case kReadingFile:
-
-            // continue -> return
-
+            // todo
             break;
+
         case kExecutingCGI:
-
-            // continue -> return
-
+            // todo
             break;
+
+        case kCompleted:
+            break;
+
         default:
             // std::cerr << "Unknown session state." << std::endl;
             return SessionResult::err("error: unknown session state in file event");
