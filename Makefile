@@ -241,6 +241,13 @@ run_request_test    :
 	cmake --build build
 	./build/unit_test --gtest_filter=HttpRequest*
 
+.PHONY    : run_req_test
+run_req_test    :
+	cmake -S . -B build -DCUSTOM_FLAGS="-D UTEST"
+	cmake --build build
+	./build/unit_test --gtest_filter=HttpRequestParser*
+
+
 .PHONY    : run_string_test
 run_string_test    :
 	cmake -S . -B build

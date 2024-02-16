@@ -204,6 +204,7 @@ set (unit_test_srcs
         test/unit_test/HttpMessageParser/TestParse.cpp
         test/unit_test/HttpMessageParser/TestSkip.cpp
         test/unit_test/HttpMessageParser/TestStrToNum.cpp
+        test/unit_test/TestHttpRequestParser.cpp
 
         # Date
         test/unit_test/Date/TestDate.cpp

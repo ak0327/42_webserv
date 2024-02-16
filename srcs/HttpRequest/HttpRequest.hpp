@@ -25,9 +25,10 @@ class HttpRequest {
 	std::string get_request_target() const;
 	std::string	get_http_version() const;
 
-    Result<int, std::string> parse_request_line(int fd);
-    Result<int, std::string> parse_request_header(int fd);
-    Result<int, std::string> parse_request_body(int fd, const ServerConfig &server_config);
+    Result<int, std::string> recv_all_data(int fd);
+    Result<int, std::string> parse_request_line();
+    Result<int, std::string> parse_request_header();
+    Result<int, std::string> parse_request_body(std::size_t max_body_size);
     Result<HostPortPair, int> get_server_info();
 
 	bool is_field_name_supported_parsing(const std::string &field_name);
@@ -35,13 +36,22 @@ class HttpRequest {
 	bool is_field_name_repeated_in_request(const std::string &field_name);
 
 	std::map<std::string, FieldValueBase*> get_request_header_fields(void);
-	FieldValueBase *get_field_values(const std::string &field_name);
+	FieldValueBase * get_field_values(const std::string &field_name) const;
+
+    Result<std::map<std::string, std::string>, int> get_host() const;
+
+#ifdef UTEST
+    friend class HttpRequestFriend;
+#endif
 
  private:
 	int status_code_;
 	RequestLine request_line_;
-	std::map<std::string, FieldValueBase*> request_header_fields_;
-	std::string message_body_;  // todo: std::vector<unsigned char>
+	std::map<std::string, FieldValueBase *> request_header_fields_;
+	std::string message_body_;
+    std::vector<unsigned char> request_body_;
+    std::vector<unsigned char> data_;
+    std::vector<unsigned char>::const_iterator data_begin_;
 
 	typedef Result<int, int> (HttpRequest::*func_ptr)(const std::string&, const std::string&);
 	std::map<std::string, func_ptr> field_value_parser_;
@@ -51,6 +61,13 @@ class HttpRequest {
 	HttpRequest &operator=(const HttpRequest &rhs);
 
 	/* parse, validate */
+    static Result<std::string, std::string> get_line(const std::vector<unsigned char> &data,
+                                                     std::vector<unsigned char>::const_iterator start,
+                                                     std::vector<unsigned char>::const_iterator *ret);
+    static void find_crlf(const std::vector<unsigned char> &data,
+                          std::vector<unsigned char>::const_iterator start,
+                          std::vector<unsigned char>::const_iterator *cr);
+
 	int parse_and_validate_http_request(const std::string &input);
 	Result<int, int> parse_and_validate_field_lines(std::stringstream *ss);
 	Result<int, int> parse_field_line(const std::string &field_line,
