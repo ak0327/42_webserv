@@ -201,7 +201,8 @@ request_test:
 .PHONY	: run_unit_test
 run_unit_test	:
 	#cmake -S . -B build
-	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D UTEST"
+	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT"
+	#cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D UTEST"
 	cmake --build build
 	./build/unit_test 2>/dev/null
 	#./build/unit_test

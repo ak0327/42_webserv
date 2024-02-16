@@ -407,8 +407,13 @@ int HttpRequest::parse_and_validate_http_request(const std::string &input) {
 	std::stringstream	ss(input);
 	std::string 		line;
 
-	// start-line CRLF
+
+    // start-line CRLF
 	std::getline(ss, line, LF);
+    if (line.empty() || line[line.size() - 1] != CR) {
+        return STATUS_BAD_REQUEST;
+    }
+    line.erase(line.size() - 1);
     Result<int, int> request_line_result = this->request_line_.parse_and_validate(line);
 	if (request_line_result.is_err()) {
 		return STATUS_BAD_REQUEST;

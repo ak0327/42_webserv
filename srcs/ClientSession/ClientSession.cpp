@@ -202,17 +202,13 @@ Result<int, int> ClientSession::parse_http_request() {
 
 #ifdef UTEST
     Result<std::string, std::string> recv_result = recv_request();
-        if (recv_result.is_err()) {
-            const std::string err_info = CREATE_ERROR_INFO_STR(recv_result.get_err_value());
-            return SessionResult::err("[Server Error] recv: " + err_info);
-        }
-        this->recv_message_ = recv_result.get_ok_value();
-        DEBUG_SERVER_PRINT("server: recv:[%s]", this->recv_message_.c_str());
-
-        this->request_ = new HttpRequest(this->recv_message_);
-
-        return SessionResult::ok(OK);
-
+    if (recv_result.is_err()) {
+        return Result<int, int>::err(STATUS_SERVER_ERROR);
+    }
+    this->recv_message_ = recv_result.get_ok_value();
+    DEBUG_SERVER_PRINT("server: recv:[%s]", this->recv_message_.c_str());
+    this->request_ = new HttpRequest(this->recv_message_);
+    return Result<int, int>::ok(OK);
 #else
     // request line
     Result<int, int> request_line_result = this->request_->parse_request_line(this->client_fd_);
