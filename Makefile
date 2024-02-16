@@ -205,7 +205,7 @@ run_unit_test	:
 	#cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D UTEST"
 	cmake --build build
 	./build/unit_test 2>/dev/null
-	#./build/unit_test
+	#./build/unit_test  # leaks report
 
 .PHONY	: run_server_test
 run_server_test	:

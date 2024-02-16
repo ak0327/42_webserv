@@ -191,49 +191,49 @@ SessionResult ClientSession::update_config_params() {
 
 Result<int, int> ClientSession::parse_http_request() {
     try {
+    #ifdef UTEST
+        Result<std::string, std::string> recv_result = recv_request();
+        if (recv_result.is_err()) {
+            return Result<int, int>::err(STATUS_SERVER_ERROR);
+        }
+        this->recv_message_ = recv_result.get_ok_value();
+        DEBUG_SERVER_PRINT("server: recv:[%s]", this->recv_message_.c_str());
+        this->request_ = new HttpRequest(this->recv_message_);
+        return Result<int, int>::ok(OK);
+    #else
         this->request_ = new HttpRequest();
+        // request line
+        Result<int, int> request_line_result = this->request_->parse_request_line(this->client_fd_);
+        if (request_line_result.is_err()) {
+            return Result<int, int>::err(request_line_result.get_err_value());
+        }
+
+        // request header
+        Result<int, int> header_result = this->request_->parse_request_header(this->client_fd_);
+        if (header_result.is_err()) {
+            return Result<int, int>::err(header_result.get_err_value());
+        }
+
+        // config
+        Result<int, std::string> update_result = update_config_params();
+        if (update_result.is_err()) {
+            return Result<int, int>::err(STATUS_BAD_REQUEST);  // todo
+        }
+
+        // body
+        Result<int, int> body_result = this->request_->parse_request_body(this->client_fd_,
+                                                                          this->request_max_body_size_);
+        if (body_result.is_err()) {
+            return Result<int, int>::err(body_result.get_err_value());
+        }
+        return Result<int, int>::ok(OK);
+    #endif
     }
     catch (const std::exception &e) {
         std::cout << CYAN << "     error 2" << RESET << std::endl;
         return Result<int, int>::err(STATUS_SERVER_ERROR);
     }
 
-#ifdef UTEST
-    Result<std::string, std::string> recv_result = recv_request();
-    if (recv_result.is_err()) {
-        return Result<int, int>::err(STATUS_SERVER_ERROR);
-    }
-    this->recv_message_ = recv_result.get_ok_value();
-    DEBUG_SERVER_PRINT("server: recv:[%s]", this->recv_message_.c_str());
-    this->request_ = new HttpRequest(this->recv_message_);
-    return Result<int, int>::ok(OK);
-#else
-    // request line
-    Result<int, int> request_line_result = this->request_->parse_request_line(this->client_fd_);
-    if (request_line_result.is_err()) {
-        return Result<int, int>::err(request_line_result.get_err_value());
-    }
-
-    // request header
-    Result<int, int> header_result = this->request_->parse_request_header(this->client_fd_);
-    if (header_result.is_err()) {
-        return Result<int, int>::err(header_result.get_err_value());
-    }
-
-    // config
-    Result<int, std::string> update_result = update_config_params();
-    if (update_result.is_err()) {
-        return Result<int, int>::err(STATUS_BAD_REQUEST);  // todo
-    }
-
-    // body
-    Result<int, int> body_result = this->request_->parse_request_body(this->client_fd_,
-                                                                      this->request_max_body_size_);
-    if (body_result.is_err()) {
-        return Result<int, int>::err(body_result.get_err_value());
-    }
-    return Result<int, int>::ok(OK);
-#endif
 }
 
 
