@@ -1,5 +1,7 @@
 #include <sys/socket.h>
 #include <algorithm>
+#include <cerrno>
+#include <cstdio>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -307,7 +309,13 @@ void HttpRequest::trim(std::vector<unsigned char> *buf,
     if (!buf || buf->empty() || start == buf->begin()) {
         return;
     }
-    buf->erase(buf->begin(), start);
+    typedef std::vector<unsigned char>::iterator itr;
+    typedef std::vector<unsigned char>::const_iterator const_itr;
+
+    std::ptrdiff_t offset = std::distance((const_itr)buf->begin(), start);
+    itr non_const_start = buf->begin() + offset;
+
+    buf->erase(buf->begin(), non_const_start);
 }
 
 
