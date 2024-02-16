@@ -52,5 +52,5 @@ class Server {
     void delete_sockets();
     void close_client_fds();
     void close_client_fd(int fd);
-    void update_fd_type(int fd, ClientSession *session);
+    void update_fd_type_read_to_write(const SessionState &session_state, int fd);
 };

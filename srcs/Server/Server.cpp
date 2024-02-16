@@ -319,16 +319,8 @@ ServerResult Server::create_session(int socket_fd) {
 }
 
 
-void Server::update_fd_type(int fd, ClientSession *session) {
-    if (!session) {
-        return;
-    }
-    if (is_socket_fd(fd)) {
-        return;
-    }
-    SessionState session_state = session->get_session_state();
+void Server::update_fd_type_read_to_write(const SessionState &session_state, int fd) {
     FdType fd_type = this->fds_->get_fd_type(fd);
-
     if (session_state == kSendingResponse && fd_type == kReadFd) {
         this->fds_->clear_fd(fd);
         this->fds_->register_write_fd(fd);
@@ -360,7 +352,7 @@ ServerResult Server::process_session(int ready_fd) {
         return ServerResult::err(error_msg);
     }
 
-    update_fd_type(ready_fd, client_session);
+    update_fd_type_read_to_write(client_session->get_session_state(), ready_fd);
 
     if (client_session->is_session_completed()) {
         // std::cout << WHITE << " session complete fd: " << ready_fd << RESET << std::endl;
