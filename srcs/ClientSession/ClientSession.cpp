@@ -52,8 +52,6 @@ ClientSession::~ClientSession() {
         delete this->response_;
         this->response_ = NULL;
     }
-
-    close_file_fd();
 }
 
 
@@ -85,7 +83,7 @@ SessionResult ClientSession::process_client_event() {
             std::cout << RED << "   session: 1 ReadingRequest" << RESET << std::endl;
             request_result = parse_http_request();
             if (request_result.is_err()) {
-                std::cout << RED << "    request errro, status: " << request_result.get_err_value() << RESET << std::endl;
+                std::cout << RED << "    request error, status: " << request_result.get_err_value() << RESET << std::endl;
             }
             this->session_state_ = kCreatingResponse;
             // fallthrough
@@ -267,7 +265,7 @@ Result<std::string, std::string> ClientSession::recv_request() {
         if (recv_size == 0) {
         	break;
         }
-        if (recv_size == RECV_ERROR || recv_size > BUFSIZ) {
+        if (recv_size == RECV_ERROR) {
             const std::string error_info = CREATE_ERROR_INFO_ERRNO(errno);
             return Result<std::string, std::string>::err(error_info);
         }

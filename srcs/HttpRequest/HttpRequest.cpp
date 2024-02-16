@@ -385,7 +385,7 @@ Result<int, int> HttpRequest::parse_request_body(int fd, std::size_t max_body_si
 Result<HostPortPair, int> HttpRequest::get_server_info() {
     Result<std::map<std::string, std::string>, int> result = get_host();
     if (result.is_err()) {
-        Result<HostPortPair, int>::err(ERR);
+        return Result<HostPortPair, int>::err(ERR);
     }
     std::map<std::string, std::string> host = result.get_ok_value();
     HostPortPair pair = std::make_pair(host[URI_HOST], host[PORT]);
