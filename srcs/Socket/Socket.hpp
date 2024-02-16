@@ -20,7 +20,7 @@ class Socket {
 	SocketResult listen();
     SocketResult connect();
 	SocketResult set_fd_to_nonblock();
-    static SocketResult accept(int socket_fd);
+    static SocketResult accept(int socket_fd, struct sockaddr_storage *client_addr);
 
  private:
 	int socket_fd_;

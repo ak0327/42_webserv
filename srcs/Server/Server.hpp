@@ -37,7 +37,7 @@ class Server {
     const Configuration &config_;
 
 
-	ServerResult accept_connect_fd(int socket_fd);
+	ServerResult accept_connect_fd(int socket_fd, struct sockaddr_storage *client_addr);
 
     ServerResult communicate_with_client(int ready_fd);
     ServerResult create_session(int socket_fd);

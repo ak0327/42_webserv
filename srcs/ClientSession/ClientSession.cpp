@@ -23,7 +23,10 @@
 
 // send response
 
-ClientSession::ClientSession(int socket_fd, int client_fd, const Configuration &config)
+ClientSession::ClientSession(int socket_fd,
+                             int client_fd,
+                             const AddressPortPair &client_listen,
+                             const Configuration &config)
     : socket_fd_(socket_fd),
       client_fd_(client_fd),
       file_fd_(INIT_FD),
@@ -31,23 +34,26 @@ ClientSession::ClientSession(int socket_fd, int client_fd, const Configuration &
       server_info_(),
       server_config_(),
       session_state_(kSessionInit),
-      http_request_(NULL),
-      http_response_(NULL),
-      request_max_body_size_(0) {}
+      request_(NULL),
+      response_(NULL),
+      request_max_body_size_(0),
+      client_listen_(client_listen) {}
 
 
 ClientSession::~ClientSession() {
     close_file_fd();
 
-    if (this->http_request_) {
-        delete this->http_request_;
-        this->http_request_ = NULL;
+    if (this->request_) {
+        delete this->request_;
+        this->request_ = NULL;
     }
 
-    if (this->http_response_) {
-        delete this->http_response_;
-        this->http_response_ = NULL;
+    if (this->response_) {
+        delete this->response_;
+        this->response_ = NULL;
     }
+
+    close_file_fd();
 }
 
 
@@ -345,3 +351,44 @@ int ClientSession::get_file_fd() const { return this->file_fd_; }
 int ClientSession::get_client_fd() const { return this->client_fd_; }
 SessionState ClientSession::get_session_state() const { return this->session_state_; }
 bool ClientSession::is_session_completed() const { return this->session_state_ == kCompleted; }
+
+
+AddressPortPair ClientSession::get_client_listen(const struct sockaddr_storage &client_addr) {
+    char ip[INET6_ADDRSTRLEN];
+    std::string address, port;
+    std::ostringstream port_stream;
+    struct sockaddr_in *addr_in;
+    struct sockaddr_in6 *addr_in6;
+
+    switch (client_addr.ss_family) {
+        case AF_INET:
+            addr_in = (struct sockaddr_in *)&client_addr;
+            inet_ntop(AF_INET, &addr_in->sin_addr, ip, sizeof(ip));
+            address = ip;
+            port_stream << ntohs(addr_in->sin_port);
+            break;
+
+        case AF_INET6:
+            addr_in6 = (struct sockaddr_in6 *)&client_addr;
+            if (IN6_IS_ADDR_V4MAPPED(&addr_in6->sin6_addr)) {
+                inet_ntop(AF_INET, &addr_in6->sin6_addr.s6_addr[12], ip, INET_ADDRSTRLEN);
+                address = ip;
+            } else {
+                inet_ntop(AF_INET6, &addr_in6->sin6_addr, ip, sizeof(ip));
+                address = ip;
+            }
+            port_stream << ntohs(addr_in6->sin6_port);
+            break;
+
+        default:
+            address = "unknown address";
+            port = "unknown port";
+    }
+
+    if (port.empty()) {
+        port = port_stream.str();
+    }
+    AddressPortPair pair(address, port);
+    std::cout << CYAN << "address: " << address << ", port:" << port << RESET << std::endl;
+    return pair;
+}

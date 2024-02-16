@@ -287,7 +287,8 @@ bool Server::is_socket_fd(int fd) const {
 
 
 ServerResult Server::create_session(int socket_fd) {
-    ServerResult accept_result = accept_connect_fd(socket_fd);
+    struct sockaddr_storage client_addr;
+    ServerResult accept_result = accept_connect_fd(socket_fd, &client_addr);
     if (accept_result.is_err()) {
         const std::string error_msg = accept_result.get_err_value();
         return ServerResult::err(error_msg);
@@ -375,13 +376,13 @@ ServerResult Server::communicate_with_client(int ready_fd) {
 }
 
 
-ServerResult Server::accept_connect_fd(int socket_fd) {
+ServerResult Server::accept_connect_fd(int socket_fd, struct sockaddr_storage *client_addr) {
     if (MAX_SESSION <= this->client_fds_.size()) {
         std::cerr << "[Server Error] exceed max connection" << std::endl;
         return ServerResult::ok(OK);  // todo: continue, ok?
     }
 
-    SocketResult accept_result = Socket::accept(socket_fd);
+    SocketResult accept_result = Socket::accept(socket_fd, client_addr);
     if (accept_result.is_err()) {
         const std::string error_msg = accept_result.get_err_value();
         return ServerResult::err(error_msg);

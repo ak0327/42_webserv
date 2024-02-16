@@ -27,6 +27,7 @@ class ClientSession {
  public:
     ClientSession(int socket_fd,
                   int client_fd,
+                  const AddressPortPair &client_listen,
                   const Configuration &config);
 
     ~ClientSession();
@@ -40,6 +41,8 @@ class ClientSession {
     SessionResult process_file_event();
 
     void close_file_fd();
+
+    static AddressPortPair get_client_listen(const struct sockaddr_storage &client_addr);
 
  private:
     int socket_fd_;
@@ -60,6 +63,7 @@ class ClientSession {
     // std::vector<unsigned char> data_; -> request, response
     std::size_t request_max_body_size_;
 
+    AddressPortPair client_listen_;
 
     Result<std::string, std::string> recv_request();
     SessionResult send_response();
