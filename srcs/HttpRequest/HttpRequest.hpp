@@ -67,6 +67,9 @@ class HttpRequest {
     static void find_crlf(const std::vector<unsigned char> &data,
                           std::vector<unsigned char>::const_iterator start,
                           std::vector<unsigned char>::const_iterator *cr);
+    static void find_empty(const std::vector<unsigned char> &data,
+                           std::vector<unsigned char>::const_iterator start,
+                           std::vector<unsigned char>::const_iterator *ret);
 
 	int parse_and_validate_http_request(const std::string &input);
 	Result<int, int> parse_and_validate_field_lines(std::stringstream *ss);

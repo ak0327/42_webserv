@@ -5,6 +5,7 @@
 #include <vector>
 #include "Color.hpp"
 #include "Constant.hpp"
+#include "Error.hpp"
 #include "HttpRequest.hpp"
 #include "HttpMessageParser.hpp"
 #include "StringHandler.hpp"
@@ -171,6 +172,36 @@ void HttpRequest::find_crlf(const std::vector<unsigned char> &data,
         ++itr;
     }
     *cr = data.end();
+}
+
+
+// line CRLF CRLF line
+//      ^return
+void HttpRequest::find_empty(const std::vector<unsigned char> &data,
+                            std::vector<unsigned char>::const_iterator start,
+                            std::vector<unsigned char>::const_iterator *ret) {
+    const std::size_t CRLF_LEN = 2;
+    if (!ret) {
+        return;
+    }
+    std::vector<unsigned char>::const_iterator pos, crlf1, crlf2;
+    pos = start;
+    while (pos != data.end()) {
+        find_crlf(data, pos, &crlf1);
+        if (crlf1 == data.end()) {
+            break;
+        }
+        find_crlf(data, crlf1 + CRLF_LEN, &crlf2);
+        if (crlf2 == data.end()) {
+            break;
+        }
+        if (crlf1 + CRLF_LEN == crlf2) {
+            *ret = crlf1;
+            return;
+        }
+        pos = crlf1 + CRLF_LEN;
+    }
+    *ret = data.end();
 }
 
 
