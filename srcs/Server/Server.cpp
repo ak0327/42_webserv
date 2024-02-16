@@ -221,20 +221,20 @@ void Server::close_client_fds() {
 
 Result<IOMultiplexer *, std::string> Server::create_io_multiplexer_fds() {
     try {
-#if defined(__linux__) && !defined(USE_SELECT_MULTIPLEXER)
-        IOMultiplexer *fds = new EPollMultiplexer();
-#elif defined(__APPLE__) && !defined(USE_SELECT_MULTIPLEXER)
-        IOMultiplexer *fds = new KqueueMultiplexer();
+#if defined(__linux__) && !defined(USE_SELECT)
+        IOMultiplexer *fds = new EPoll();
+#elif defined(__APPLE__) && !defined(USE_SELECT)
+        IOMultiplexer *fds = new Kqueue();
 #else
-        IOMultiplexer *fds = new SelectMultiplexer();
+        IOMultiplexer *fds = new Select();
 #endif
         std::map<Fd, Socket *>::const_iterator socket;
         for (socket = this->sockets_.begin(); socket != this->sockets_.end(); ++socket) {
             int socket_fd = socket->first;
 
-#if defined(__linux__) && !defined(USE_SELECT_MULTIPLEXER)
+#if defined(__linux__) && !defined(USE_SELECT)
             fds->register_fd(socket_fd);
-#elif defined(__APPLE__) && !defined(USE_SELECT_MULTIPLEXER)
+#elif defined(__APPLE__) && !defined(USE_SELECT)
             fds->register_fd(socket_fd);
 #else
             fds->register_read_fd(socket_fd);

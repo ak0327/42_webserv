@@ -14,7 +14,7 @@
 #include "Result.hpp"
 #include "Server.hpp"
 
-#if defined(__linux__) && !defined(USE_SELECT_MULTIPLEXER)
+#if defined(__linux__) && !defined(USE_SELECT)
 
 namespace {
 
@@ -110,7 +110,7 @@ void EPollMultiplexer::set_timeout(int timeout_msec) {
 }
 
 
-#elif defined(__APPLE__) && !defined(USE_SELECT_MULTIPLEXER)
+#elif defined(__APPLE__) && !defined(USE_SELECT)
 
 namespace {
 
@@ -133,7 +133,7 @@ Result<int, std::string> cast_fd_uintptr_to_int(uintptr_t ident) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-KqueueMultiplexer::KqueueMultiplexer()
+Kqueue::Kqueue()
 	: kq_(INIT_KQ),
       change_event_(),
       new_event_() {
@@ -149,12 +149,12 @@ KqueueMultiplexer::KqueueMultiplexer()
 }
 
 
-KqueueMultiplexer::~KqueueMultiplexer() {
+Kqueue::~Kqueue() {
 	// todo: clear all event?
 }
 
 
-Result<int, std::string> KqueueMultiplexer::get_io_ready_fd() {
+Result<int, std::string> Kqueue::get_io_ready_fd() {
 	Result<int, std::string> kevent_result, cast_result;
 	int new_events;
 
@@ -177,7 +177,7 @@ Result<int, std::string> KqueueMultiplexer::get_io_ready_fd() {
 }
 
 
-Result<int, std::string> KqueueMultiplexer::init_kqueue() {
+Result<int, std::string> Kqueue::init_kqueue() {
     int kq;
 
     errno = 0;
@@ -189,7 +189,7 @@ Result<int, std::string> KqueueMultiplexer::init_kqueue() {
 }
 
 
-Result<int, std::string> KqueueMultiplexer::kevent_wait() {
+Result<int, std::string> Kqueue::kevent_wait() {
     int events;
 
     if (this->timeout_.tv_sec <= 0 || this->timeout_.tv_nsec <= 0) {
@@ -204,7 +204,7 @@ Result<int, std::string> KqueueMultiplexer::kevent_wait() {
 }
 
 
-Result<int, std::string> KqueueMultiplexer::kevent_register() {
+Result<int, std::string> Kqueue::kevent_register() {
     errno = 0;
     if (kevent(this->kq_, &this->change_event_, EVENT_COUNT, NULL, 0, NULL) == KEVENT_ERROR) {
         return Result<int, std::string>::err(strerror(errno));
@@ -213,7 +213,7 @@ Result<int, std::string> KqueueMultiplexer::kevent_register() {
 }
 
 
-Result<int, std::string> KqueueMultiplexer::register_fd(int fd) {
+Result<int, std::string> Kqueue::register_fd(int fd) {
 	EV_SET(&this->change_event_, fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
     // EV_SET(&this->change_event_, fd, EVFILT_WRITE, EV_ADD, 0, 0, NULL);
 
@@ -226,7 +226,7 @@ Result<int, std::string> KqueueMultiplexer::register_fd(int fd) {
 }
 
 
-Result<int, std::string> KqueueMultiplexer::clear_fd(int fd) {
+Result<int, std::string> Kqueue::clear_fd(int fd) {
 	Result<int, std::string> kevent_result;
 
 	EV_SET(&this->change_event_, fd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
@@ -241,7 +241,7 @@ Result<int, std::string> KqueueMultiplexer::clear_fd(int fd) {
 }
 
 
-void KqueueMultiplexer::set_timeout(int timeout_msec) {
+void Kqueue::set_timeout(int timeout_msec) {
     if (timeout_msec <= 0) {
         this->timeout_.tv_sec = -1;
     } else {
@@ -261,7 +261,7 @@ const int SELECT_TIMEOUT = 0;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SelectMultiplexer::SelectMultiplexer() {
+Select::Select() {
 	DEBUG_SERVER_PRINT("[I/O multiplexer : select]");
     FD_ZERO(&this->read_fd_set_);
     FD_ZERO(&this->write_fd_set_);
@@ -272,7 +272,7 @@ SelectMultiplexer::SelectMultiplexer() {
 }
 
 
-SelectMultiplexer::~SelectMultiplexer() {
+Select::~Select() {
 	for (std::size_t i = 0; i < this->read_fds_.size(); ++i) {
         FD_CLR(this->read_fds_[i], &this->read_fd_set_);
 	}
@@ -283,7 +283,7 @@ SelectMultiplexer::~SelectMultiplexer() {
 }
 
 
-void SelectMultiplexer::init_fds() {
+void Select::init_fds() {
     FD_ZERO(&this->read_fd_set_);
     FD_ZERO(&this->write_fd_set_);
 
@@ -313,7 +313,7 @@ void SelectMultiplexer::init_fds() {
 }
 
 
-Result<int, std::string> SelectMultiplexer::select_fds() {
+Result<int, std::string> Select::select_fds() {
     // debug
     // std::cout << CYAN << "select_fds:" << RESET << std::endl;
     //
@@ -353,7 +353,7 @@ Result<int, std::string> SelectMultiplexer::select_fds() {
 }
 
 
-int SelectMultiplexer::get_ready_fd() const {
+int Select::get_ready_fd() const {
     int ready_fd = INIT_FD;
 
     std::cout << CYAN << "ready_fds: ";
@@ -394,7 +394,7 @@ int SelectMultiplexer::get_ready_fd() const {
 
 
 
-int SelectMultiplexer::get_max_fd() const {
+int Select::get_max_fd() const {
     int max_fd = INIT_FD;
 
     if (!this->read_fds_.empty()) {
@@ -407,7 +407,7 @@ int SelectMultiplexer::get_max_fd() const {
 }
 
 
-Result<int, std::string> SelectMultiplexer::get_io_ready_fd() {
+Result<int, std::string> Select::get_io_ready_fd() {
 	this->max_fd_ = get_max_fd();
     // std::cout << CYAN << "max_fd: " << max_fd_ << RESET << std::endl;
 
@@ -428,7 +428,7 @@ Result<int, std::string> SelectMultiplexer::get_io_ready_fd() {
 }
 
 
-Result<int, std::string> SelectMultiplexer::clear_fd(int clear_fd) {
+Result<int, std::string> Select::clear_fd(int clear_fd) {
 	std::deque<int>::iterator fd;
 
     fd  = std::find(this->read_fds_.begin(), this->read_fds_.end(), clear_fd);
@@ -450,7 +450,7 @@ Result<int, std::string> SelectMultiplexer::clear_fd(int clear_fd) {
 }
 
 
-Result<int, std::string> SelectMultiplexer::register_read_fd(int read_fd) {
+Result<int, std::string> Select::register_read_fd(int read_fd) {
     if (FD_ISSET(read_fd, &this->read_fd_set_)) {
         std::string err_info = CREATE_ERROR_INFO_STR("read_fd already registered");
         return Result<int, std::string>::err(err_info);
@@ -463,7 +463,7 @@ Result<int, std::string> SelectMultiplexer::register_read_fd(int read_fd) {
 }
 
 
-Result<int, std::string> SelectMultiplexer::register_write_fd(int write_fd) {
+Result<int, std::string> Select::register_write_fd(int write_fd) {
     if (FD_ISSET(write_fd, &this->write_fd_set_)) {
         std::string err_info = CREATE_ERROR_INFO_STR("write_fd already registered");
         return Result<int, std::string>::err(err_info);
@@ -476,7 +476,7 @@ Result<int, std::string> SelectMultiplexer::register_write_fd(int write_fd) {
 }
 
 
-FdType SelectMultiplexer::get_fd_type(int fd) {
+FdType Select::get_fd_type(int fd) {
     std::deque<int>::const_iterator itr;
 
     itr = std::find(this->read_fds_.begin(), this->read_fds_.end(), fd);
@@ -491,7 +491,7 @@ FdType SelectMultiplexer::get_fd_type(int fd) {
 }
 
 
-void SelectMultiplexer::set_timeout(int timeout_msec) {
+void Select::set_timeout(int timeout_msec) {
     if (timeout_msec <= 0) {
         this->timeout_.tv_sec = 0;
     } else {

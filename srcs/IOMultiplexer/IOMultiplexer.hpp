@@ -7,9 +7,9 @@
 # include <vector>
 # include "Result.hpp"
 
-# if defined(__linux__) && !defined(USE_SELECT_MULTIPLEXER)
+# if defined(__linux__) && !defined(USE_SELECT)
 #  include <sys/epoll.h>
-# elif defined(__APPLE__) && !defined(USE_SELECT_MULTIPLEXER)
+# elif defined(__APPLE__) && !defined(USE_SELECT)
 #  include <sys/event.h>
 #  include <sys/time.h>
 # else
@@ -33,12 +33,12 @@ class IOMultiplexer {
     virtual FdType get_fd_type(int fd) = 0;
 };
 
-#if defined(__linux__) && !defined(USE_SELECT_MULTIPLEXER)
+#if defined(__linux__) && !defined(USE_SELECT)
 
-class EPollMultiplexer : public IOMultiplexer {
+class EPoll : public IOMultiplexer {
  public:
-	EPollMultiplexer();
-	virtual ~EPollMultiplexer();
+	EPoll();
+	virtual ~EPoll();
 	virtual Result<int, std::string> get_io_ready_fd();
     virtual Result<int, std::string> register_fd(int fd);
     virtual Result<int, std::string> clear_fd(int fd);
@@ -53,12 +53,12 @@ class EPollMultiplexer : public IOMultiplexer {
     Result<int, std::string> init_epoll();
 };
 
-#elif defined(__APPLE__) && !defined(USE_SELECT_MULTIPLEXER)
+#elif defined(__APPLE__) && !defined(USE_SELECT)
 
-class KqueueMultiplexer : public IOMultiplexer {
+class Kqueue : public IOMultiplexer {
  public:
-	KqueueMultiplexer();
-	virtual ~KqueueMultiplexer();
+	Kqueue();
+	virtual ~Kqueue();
 	virtual Result<int, std::string> get_io_ready_fd();
     virtual Result<int, std::string> register_fd(int fd);
     virtual Result<int, std::string> clear_fd(int fd);
@@ -77,10 +77,10 @@ class KqueueMultiplexer : public IOMultiplexer {
 
 #else
 
-class SelectMultiplexer : public IOMultiplexer {
+class Select : public IOMultiplexer {
  public:
-	SelectMultiplexer();
-	virtual ~SelectMultiplexer();
+	Select();
+	virtual ~Select();
 	virtual Result<int, std::string> get_io_ready_fd();
     virtual Result<int, std::string> register_read_fd(int read_fd);
     virtual Result<int, std::string> register_write_fd(int write_fd);
