@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <iostream>
 #include <vector>
 #include "Constant.hpp"
 #include "RequestLine.hpp"
@@ -68,7 +69,8 @@ Result<int, int> RequestLine::parse_and_validate(const std::string &line) {
 
 // request-line   = method SP request-target SP HTTP-version CRLF
 // line_wo_end_lf = method SP request-target SP HTTP-version CR
-Result<int, int> RequestLine::parse(const std::string &line_wo_end_lf) {
+// line           = method SP request-target SP HTTP-version
+Result<int, int> RequestLine::parse(const std::string &line) {
 	size_t pos, end_pos;
 	Result<std::string, int> method_result;
 	Result<std::string, int> request_target_result;
@@ -76,7 +78,7 @@ Result<int, int> RequestLine::parse(const std::string &line_wo_end_lf) {
 
 	// method
 	pos = 0;
-	method_result = StringHandler::parse_pos_to_delimiter(line_wo_end_lf,
+	method_result = StringHandler::parse_pos_to_delimiter(line,
 														  pos,
 														  &end_pos,
 														  SP);
@@ -87,13 +89,13 @@ Result<int, int> RequestLine::parse(const std::string &line_wo_end_lf) {
 	pos = end_pos;
 
 	// SP
-	if (line_wo_end_lf[pos] != SP) {
+	if (line[pos] != SP) {
 		return Result<int, int>::err(ERR);
 	}
 	pos++;
 
 	// request-target
-	request_target_result = StringHandler::parse_pos_to_delimiter(line_wo_end_lf,
+	request_target_result = StringHandler::parse_pos_to_delimiter(line,
 																  pos,
 																  &end_pos,
 																  SP);
@@ -104,26 +106,13 @@ Result<int, int> RequestLine::parse(const std::string &line_wo_end_lf) {
 	pos = end_pos;
 
 	// SP
-	if (line_wo_end_lf[pos] != SP) {
+	if (line[pos] != SP) {
 		return Result<int, int>::err(ERR);
 	}
 	pos++;
 
 	// HTTP-version
-	http_version_result = StringHandler::parse_pos_to_delimiter(line_wo_end_lf,
-																pos,
-																&end_pos,
-																CR);
-	if (http_version_result.is_err()) {
-		return Result<int, int>::err(ERR);
-	}
-	this->http_version_ = http_version_result.get_ok_value();
-	pos = end_pos;
-
-	// CR
-	if (!(line_wo_end_lf[pos] == CR && line_wo_end_lf[pos + 1] == '\0')) {
-		return Result<int, int>::err(ERR);
-	}
+	this->http_version_ = line.substr(pos);
 	return Result<int, int>::ok(OK);
 }
 
