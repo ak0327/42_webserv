@@ -32,7 +32,8 @@ ClientSession::ClientSession(int socket_fd, int client_fd, const Configuration &
       server_config_(),
       session_state_(kSessionInit),
       http_request_(NULL),
-      http_response_(NULL) {}
+      http_response_(NULL),
+      request_max_body_size_(0) {}
 
 
 ClientSession::~ClientSession() {
@@ -160,6 +161,28 @@ Result<ServerConfig, std::string> ClientSession::get_server_config() const {
 }
 
 
+SessionResult ClientSession::update_config_params() {
+    Result<ServerConfig, std::string> config_result = ClientSession::get_server_config();
+    if (config_result.is_err()) {
+        const std::string error_msg = config_result.get_err_value();
+        return SessionResult::err(error_msg);
+    }
+    this->server_config_ = config_result.get_ok_value();
+
+
+    const std::string request_target = this->http_request_->get_request_target();
+
+    Result<std::size_t, int> body_size_result;
+    body_size_result = Configuration::get_max_body_size(server_config_, request_target);
+    if (body_size_result.is_err()) {
+        const std::string error_msg = CREATE_ERROR_INFO_STR("error: fail to get client_max_body_size");
+        return SessionResult::err(error_msg);
+    }
+    this->request_max_body_size_ = body_size_result.get_ok_value();
+    return SessionResult::ok(OK);
+}
+
+
 SessionResult ClientSession::parse_http_request() {
     try {
         Result<std::string, std::string> recv_result = recv_request();
@@ -176,19 +199,18 @@ SessionResult ClientSession::parse_http_request() {
         return SessionResult::ok(OK);
 #endif
 
-        Result<int, std::string> header_result = this->http_request_->parse_request_header(this->client_fd_);
+        // tmp
+        SessionResult header_result = this->http_request_->parse_request_header(this->client_fd_);
         if (header_result.is_err()) {
             const std::string error_msg = header_result.get_err_value();
             return SessionResult::err(error_msg);
         }
 
-        // config
-        Result<ServerConfig, std::string> config_result = ClientSession::get_server_config();
-        if (config_result.is_err()) {
-            const std::string error_msg = header_result.get_err_value();
+        SessionResult update_result = update_config_params();
+        if (update_result.is_err()) {
+            const std::string error_msg = update_result.get_err_value();
             return SessionResult::err(error_msg);
         }
-        this->server_config_ = config_result.get_ok_value();
 
         return SessionResult::ok(OK);
 

@@ -80,8 +80,8 @@ class Configuration {
     Result<ReturnDirective, int> get_redirect(const AddressPortPair &address_port_pair,
                                               const std::string &location_path) const;
 
-    static Result<std::size_t , int> get_max_body_size(const ServerConfig &server_config,
-                                                       const std::string &location_path);
+    static Result<std::size_t, int> get_max_body_size(const ServerConfig &server_config,
+                                                      const std::string &location_path);
     Result<std::size_t, int> get_max_body_size(const ServerInfo &server_info,
                                                const std::string &location_path) const;
     Result<std::size_t, int> get_max_body_size(const AddressPortPair &address_port_pair,
