@@ -22,6 +22,7 @@ const int EPOLL_TIMEOUT = 0;
 const int EPOLL_ERROR = -1;
 
 const int INIT_SIZE = 1;
+const int TIMEOUT_DISABLED = -1;
 
 }  // namespace
 
@@ -31,7 +32,7 @@ EPollMultiplexer::EPollMultiplexer()
 	: epoll_fd_(INIT_FD),
 	  ev_(),
 	  new_event_(),
-      timeout_(-1) {
+      timeout_(TIMEOUT_DISABLED) {
     Result<int, std::string> init_result = init_epoll();
     if (init_result.is_err()) {
         throw std::runtime_error(init_result.get_err_value());
@@ -103,7 +104,7 @@ Result<int, std::string> EPollMultiplexer::clear_fd(int fd) {
 
 void EPollMultiplexer::set_timeout(int timeout_msec) {
     if (timeout_msec <= 0) {
-        this->timeout_ = -1;
+        this->timeout_ = TIMEOUT_DISABLED;
     } else {
         this->timeout_ = timeout_msec;
     }
@@ -192,7 +193,7 @@ Result<int, std::string> Kqueue::init_kqueue() {
 Result<int, std::string> Kqueue::kevent_wait() {
     int events;
 
-    if (this->timeout_.tv_sec <= 0 || this->timeout_.tv_nsec <= 0) {
+    if (this->timeout_.tv_sec < 0 || this->timeout_.tv_nsec < 0 || (this->timeout_.tv_sec <= 0 && this->timeout_.tv_nsec <= 0)) {
         events = kevent(this->kq_, NULL, 0, &this->new_event_, EVENT_COUNT, NULL);
     } else {
         events = kevent(this->kq_, NULL, 0, &this->new_event_, EVENT_COUNT, &timeout_);
@@ -340,7 +341,7 @@ Result<int, std::string> Select::select_fds() {
 
     errno = 0;
     int select_ret;
-    if (this->timeout_.tv_sec <= 0 || this->timeout_.tv_usec <= 0) {
+    if (this->timeout_.tv_sec < 0 || this->timeout_.tv_usec < 0 || (this->timeout_.tv_sec <= 0 && this->timeout_.tv_usec <= 0)) {
         select_ret = select(this->max_fd_ + 1, &this->read_fd_set_, &this->write_fd_set_, NULL, NULL);
     } else {
         select_ret = select(this->max_fd_ + 1, &this->read_fd_set_, &this->write_fd_set_, NULL, &this->timeout_);
@@ -494,6 +495,7 @@ FdType Select::get_fd_type(int fd) {
 void Select::set_timeout(int timeout_msec) {
     if (timeout_msec <= 0) {
         this->timeout_.tv_sec = 0;
+        this->timeout_.tv_usec = 0;
     } else {
         this->timeout_.tv_sec = timeout_msec / 1000;
         this->timeout_.tv_usec = timeout_msec % 1000 * 1000;
