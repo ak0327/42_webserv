@@ -49,6 +49,7 @@ const std::size_t FILE_SIZE_LIMIT = 65535;
 
 const int STATUS_OK = 200;
 const int STATUS_BAD_REQUEST = 400;
+const int REQUEST_ENTITY_TOO_LARGE = 413;
 const int STATUS_SERVER_ERROR = 500;
 
 ////////////////////////////////////////////////////////////////////////////////

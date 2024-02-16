@@ -18,7 +18,8 @@ enum SessionState {
     kReadingFile,
     kExecutingCGI,
     kSendingResponse,
-    kCompleted
+    kCompleted,
+    kSessionError
 };
 
 typedef Result<int, std::string> SessionResult;
@@ -55,8 +56,8 @@ class ClientSession {
 
     SessionState session_state_;
 
-    HttpRequest *http_request_;  // todo: ptr; tmp
-    HttpResponse *http_response_;  // todo: ptr; tmp
+    HttpRequest *request_;  // todo: ptr; tmp
+    HttpResponse *response_;  // todo: ptr; tmp
 
     std::string recv_message_;
     // std::vector<unsigned char> recv_message_;  // todo
@@ -68,7 +69,7 @@ class ClientSession {
     Result<std::string, std::string> recv_request();
     SessionResult send_response();
 
-    SessionResult parse_http_request();
+    Result<int, int> parse_http_request();
     SessionResult create_http_response();
     Result<AddressPortPair, std::string> get_address_port_pair() const;
     Result<ServerConfig, std::string> get_server_config() const;

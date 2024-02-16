@@ -52,6 +52,7 @@ extern const std::size_t FILE_SIZE_LIMIT;
 
 extern const int STATUS_OK;
 extern const int STATUS_BAD_REQUEST;
+extern const int REQUEST_ENTITY_TOO_LARGE;
 extern const int STATUS_SERVER_ERROR;
 
 ////////////////////////////////////////////////////////////////////////////////

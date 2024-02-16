@@ -95,9 +95,6 @@ Server::Server(const Configuration &config)
 Server::~Server() {
     std::map<Fd, ClientSession *>::iterator itr;
     for (itr = this->sessions_.begin(); itr != sessions_.end(); ++itr) {
-        if (itr->second->get_file_fd() != INIT_FD) {
-            itr->second->close_file_fd();
-        }
         delete itr->second;
     }
     this->sessions_.clear();
@@ -308,7 +305,9 @@ ServerResult Server::create_session(int socket_fd) {
     }
     try {
         // std::cout << CYAN << " new_session created" << RESET << std::endl;
-        ClientSession *new_session = new ClientSession(socket_fd, connect_fd, this->config_);
+        AddressPortPair client_listen = ClientSession::get_client_listen(client_addr);
+        std::cout << CYAN << "client_listen: " << client_listen << RESET << std::endl;
+        ClientSession *new_session = new ClientSession(socket_fd, connect_fd, client_listen, this->config_);
         this->sessions_[connect_fd] = new_session;
         // std::cout << CYAN << " session start" << connect_fd << RESET << std::endl;
         return ServerResult::ok(OK);

@@ -117,9 +117,12 @@ Result<int, std::string> Socket::connect() {
 }
 
 
-Result<int, std::string> Socket::accept(int socket_fd) {
+Result<int, std::string> Socket::accept(int socket_fd,
+                                        struct sockaddr_storage *client_addr) {
+    socklen_t client_addr_len = sizeof(struct sockaddr_storage);
+
     errno = 0;
-    int connect_fd = ::accept(socket_fd, NULL, NULL);  // NULL:peer addr not needed
+    int connect_fd = ::accept(socket_fd, (struct sockaddr *)client_addr, &client_addr_len);
     if (connect_fd == ACCEPT_ERROR) {
         std::string err_info = CREATE_ERROR_INFO_ERRNO(errno);
         return Result<int, std::string>::err("accept:" + err_info);
