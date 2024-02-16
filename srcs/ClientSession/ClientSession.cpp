@@ -191,7 +191,7 @@ SessionResult ClientSession::update_config_params() {
 
 Result<int, int> ClientSession::parse_http_request() {
     try {
-    #ifdef UTEST
+#ifdef UTEST
         Result<std::string, std::string> recv_result = recv_request();
         if (recv_result.is_err()) {
             return Result<int, int>::err(STATUS_SERVER_ERROR);
@@ -200,7 +200,7 @@ Result<int, int> ClientSession::parse_http_request() {
         DEBUG_SERVER_PRINT("server: recv:[%s]", this->recv_message_.c_str());
         this->request_ = new HttpRequest(this->recv_message_);
         return Result<int, int>::ok(OK);
-    #else
+#else
         this->request_ = new HttpRequest();
         // request line
         Result<int, int> request_line_result = this->request_->parse_request_line(this->client_fd_);
@@ -227,13 +227,12 @@ Result<int, int> ClientSession::parse_http_request() {
             return Result<int, int>::err(body_result.get_err_value());
         }
         return Result<int, int>::ok(OK);
-    #endif
+#endif
     }
     catch (const std::exception &e) {
         std::cout << CYAN << "     error 2" << RESET << std::endl;
         return Result<int, int>::err(STATUS_SERVER_ERROR);
     }
-
 }
 
 
