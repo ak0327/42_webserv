@@ -49,7 +49,7 @@ class Server {
 
     bool is_socket_fd(int fd) const throw();
     void delete_sockets() throw();
-    void close_client_fds() throw();
+    void delete_session(std::map<Fd, ClientSession *>::iterator session) throw();
     void close_client_fd(int fd) throw();
     void update_fd_type_read_to_write(const SessionState &session_state, int fd) throw();
 };

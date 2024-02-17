@@ -48,7 +48,7 @@ void *run_server(void *server_info) {
         if (init_result.is_err()) {
             throw std::runtime_error(init_result.get_err_value());
         }
-        server.set_timeout(2500);
+        server.set_timeout(1500);
 		DEBUG_SERVER_PRINT("connecting...");
 
         ServerResult running_result = server.run();
@@ -339,7 +339,6 @@ void test_multi_client(int client_count, const std::string &base_msg, std::size_
                                         client_count);
             // std::cerr << YELLOW " client_send_msg:[" << msg[i] << "]" RESET << std::endl;
         }
-
         // // EXPECT_EQ(msg, server_recv_msg);
         // std::cerr << YELLOW " server_recv_msg:[" << server_recv_msg << "]" RESET << std::endl;
         for (int i = 0; i < client_count; ++i) {
@@ -350,13 +349,16 @@ void test_multi_client(int client_count, const std::string &base_msg, std::size_
     catch (std::exception const &e) {
         FAIL() << e.what() << "  at L" << line;
     }
-
 }
 
 
 TEST(ServerUnitTest, ConnectMultiClient) {
     test_multi_client(1, "test message", __LINE__);
     test_multi_client(5, "xxxxxxxxxxxx", __LINE__);
+    test_multi_client(5, "", __LINE__);
+    test_multi_client(5, "a", __LINE__);
+    test_multi_client(5, "\n", __LINE__);
+    test_multi_client(5, "\r\n", __LINE__);
     test_multi_client(20, "a b c", __LINE__);
 }
 

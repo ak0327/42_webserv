@@ -42,6 +42,7 @@ ClientSession::ClientSession(int socket_fd,
 
 ClientSession::~ClientSession() {
     close_file_fd();
+    close_client_fd();
 
     if (this->request_) {
         delete this->request_;
@@ -59,6 +60,14 @@ void ClientSession::close_file_fd() {
     if (this->file_fd_ != INIT_FD) {
         close(this->file_fd_);
         this->file_fd_ = INIT_FD;
+    }
+}
+
+
+void ClientSession::close_client_fd() {
+    if (this->client_fd_ != INIT_FD) {
+        close(this->client_fd_);
+        this->client_fd_ = INIT_FD;
     }
 }
 

@@ -76,9 +76,7 @@ Server::~Server() throw() {
         delete itr->second;
     }
     this->sessions_.clear();
-
     delete_sockets();
-    close_client_fds();
     delete this->fds_;
 }
 
@@ -214,14 +212,6 @@ void Server::close_client_fd(int fd) throw() {
     }
 }
 
-void Server::close_client_fds() throw() {
-    std::deque<int>::iterator fd;
-    for (fd = this->client_fds_.begin(); fd != this->client_fds_.end(); ++fd) {
-        close_client_fd(*fd);
-    }
-    this->client_fds_.clear();
-}
-
 
 Result<IOMultiplexer *, std::string> Server::create_io_multiplexer_fds() throw() {
     try {
@@ -339,6 +329,16 @@ void Server::update_fd_type_read_to_write(const SessionState &session_state, int
 }
 
 
+void Server::delete_session(std::map<Fd, ClientSession *>::iterator session) throw() {
+    ClientSession *client_session = session->second;
+    int client_fd = client_session->get_client_fd();
+
+    this->fds_->clear_fd(client_fd);
+    delete client_session;
+    this->sessions_.erase(session);
+}
+
+
 ServerResult Server::process_session(int ready_fd) throw() {
     std::map<Fd, ClientSession *>::iterator session = this->sessions_.find(ready_fd);
     if (session == this->sessions_.end()) {
@@ -366,9 +366,7 @@ ServerResult Server::process_session(int ready_fd) throw() {
 
     if (client_session->is_session_completed()) {
         // std::cout << WHITE << " session complete fd: " << ready_fd << RESET << std::endl;
-        delete client_session;
-        close_client_fd(ready_fd);
-        this->sessions_.erase(session);
+        delete_session(session);
     }
     return ServerResult::ok(OK);
 }
