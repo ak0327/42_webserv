@@ -219,7 +219,9 @@ Result<int, int> ClientSession::parse_http_request() {
     catch (const std::exception &e) {
         return Result<int, int>::err(STATUS_SERVER_ERROR);
     }
-#ifndef ECHO
+#ifdef ECHO
+    this->request_max_body_size_ = ConfigInitValue::kDefaultBodySize;
+#else
     // request line
     Result<int, int> request_line_result = this->request_->parse_request_line(this->client_fd_);
     if (request_line_result.is_err()) {
@@ -236,8 +238,6 @@ Result<int, int> ClientSession::parse_http_request() {
     if (update_result.is_err()) {
         return Result<int, int>::err(STATUS_BAD_REQUEST);  // todo
     }
-#else
-    this->request_max_body_size_ = ConfigInitValue::kDefaultBodySize;
 #endif
 
     // body
@@ -251,7 +251,19 @@ Result<int, int> ClientSession::parse_http_request() {
 
 
 Result<Fd, int> ClientSession::create_http_response() {
-#ifndef ECHO
+#ifdef ECHO
+    try {
+        this->response_ = new HttpResponse(HttpRequest());
+    }
+    catch (const std::exception &e) {
+        const std::string err_info = CREATE_ERROR_INFO_STR("Failed to allocate memory");
+        std::cerr << err_info << std::endl;
+        return Result<Fd, int> ::err(STATUS_SERVER_ERROR);
+    }
+    std::cout << MAGENTA << "create_echo_msg" << RESET << std::endl;
+    this->response_->create_echo_msg(this->request_->get_buf());
+    return Result<Fd, int> ::ok(OK);
+#else
     try {
         this->response_ = new HttpResponse(*this->request_);
         // std::cout << CYAN << "     response_message[" << this->http_response_->get_response_message() << "]" << RESET << std::endl;
@@ -264,18 +276,6 @@ Result<Fd, int> ClientSession::create_http_response() {
 
     return this->response_->exec_method();
     // todo
-#else
-    try {
-        this->response_ = new HttpResponse(HttpRequest());
-    }
-    catch (const std::exception &e) {
-        const std::string err_info = CREATE_ERROR_INFO_STR("Failed to allocate memory");
-        std::cerr << err_info << std::endl;
-        return Result<Fd, int> ::err(STATUS_SERVER_ERROR);
-    }
-    std::cout << MAGENTA << "create_echo_msg" << RESET << std::endl;
-    this->response_->create_echo_msg(this->request_->get_buf());
-    return Result<Fd, int> ::ok(OK);
 #endif
 }
 
