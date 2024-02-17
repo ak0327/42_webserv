@@ -127,13 +127,6 @@ OBJS		=	$(SRCS:%.cpp=$(OBJS_DIR)/%.o)
 DEPS		=	$(OBJS:%.o=%.d)
 
 
-# CLIENT -----------------------------------------------------------------------
-CLIENT_DIR	=	Client
-CLIENT_SRC	=	$(CLIENT_DIR)/Client.cpp \
-				$(CLIENT_DIR)/client_main.cpp
-CLIENT_OBJ	=	$(CLIENT_SRC:%.cpp=%.o)
-CLIENT_OBJS	=	$(addprefix $(OBJS_DIR)/, $(CLIENT_OBJ))
-
 # INCLUDES ---------------------------------------------------------------------
 INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(REQUEST_DIR) \
@@ -167,6 +160,10 @@ REQUEST_INCLUDES =	$(SRCS_DIR)/$(REQUEST_DIR) \
 INCLUDES	 =	$(addprefix -I, $(INCLUDES_DIR))
 
 
+# include DEPS -----------------------------------------------------------------
+-include $(DEPS)
+
+
 # RULES ------------------------------------------------------------------------
 .PHONY	: all
 all		: $(NAME)
@@ -198,9 +195,6 @@ lint	:
 .PHONY	: echo
 echo	: CXXFLAGS += -D ECHO
 echo	: re
-
-.PHONY	: request_test
-request_test: 
 
 .PHONY	: run_unit_test
 run_unit_test	:
@@ -253,7 +247,6 @@ run_req_test    :
 	cmake -S . -B build -DCUSTOM_FLAGS="-D UTEST"
 	cmake --build build
 	./build/unit_test --gtest_filter=HttpRequestParser*
-
 
 .PHONY    : run_string_test
 run_string_test    :
@@ -343,11 +336,3 @@ run_config_test    :
 	#cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestConfig*
-
-
-.PHONY	: client
-client	: $(CLIENT_OBJS)
-	$(CXX) $(CXXFLAGS) -o $@ $^
-
-
--include $(DEPS)
