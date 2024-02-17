@@ -19,12 +19,12 @@ typedef int Fd;
 
 class Server {
  public:
-	explicit Server(const Configuration &config) throw();
-	~Server() throw();
+	explicit Server(const Configuration &config);
+	~Server();
 
-    ServerResult init() throw();
-	ServerResult run() throw();
-    void set_timeout(int timeout_msec) throw();
+    ServerResult init();
+	ServerResult run();
+    void set_timeout(int timeout_msec);
 
  private:
 	std::map<Fd, Socket *> sockets_;
@@ -37,19 +37,19 @@ class Server {
 
     const Configuration &config_;
 
-	ServerResult accept_connect_fd(int socket_fd, struct sockaddr_storage *client_addr) throw();
-    ServerResult communicate_with_client(int ready_fd) throw();
-    ServerResult create_session(int socket_fd) throw();
-    ServerResult process_session(int ready_fd) throw();
+	ServerResult accept_connect_fd(int socket_fd, struct sockaddr_storage *client_addr);
+    ServerResult communicate_with_client(int ready_fd);
+    ServerResult create_session(int socket_fd);
+    ServerResult process_session(int ready_fd);
 
     static Result<Socket *, std::string> create_socket(const std::string &address,
-                                                       const std::string &port) throw();
-    ServerResult create_sockets(const Configuration &config) throw();
-    Result<IOMultiplexer *, std::string> create_io_multiplexer_fds() throw();
+                                                       const std::string &port);
+    ServerResult create_sockets(const Configuration &config);
+    Result<IOMultiplexer *, std::string> create_io_multiplexer_fds();
 
-    bool is_socket_fd(int fd) const throw();
-    void delete_sockets() throw();
-    void delete_session(std::map<Fd, ClientSession *>::iterator session) throw();
-    void close_client_fd(int fd) throw();
-    void update_fd_type_read_to_write(const SessionState &session_state, int fd) throw();
+    bool is_socket_fd(int fd) const;
+    void delete_sockets();
+    void delete_session(std::map<Fd, ClientSession *>::iterator session);
+    void close_client_fd(int fd);
+    void update_fd_type_read_to_write(const SessionState &session_state, int fd);
 };
