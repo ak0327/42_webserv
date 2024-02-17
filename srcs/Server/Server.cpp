@@ -338,6 +338,11 @@ void Server::delete_session(std::map<Fd, ClientSession *>::iterator session) {
 }
 
 
+bool is_cgi_fd(int result_value) {
+    return result_value != OK;  // result_value is cgi_fd
+}
+
+
 ServerResult Server::process_session(int ready_fd) {
     std::map<Fd, ClientSession *>::iterator session = this->sessions_.find(ready_fd);
     if (session == this->sessions_.end()) {
@@ -360,8 +365,9 @@ ServerResult Server::process_session(int ready_fd) {
         const std::string error_msg = result.get_err_value();
         return ServerResult::err(error_msg);
     }
-    if (result.get_ok_value() != OK) {
-        int cgi_fd = result.get_ok_value();
+    int result_value = result.get_ok_value();
+    if (is_cgi_fd(result_value)) {
+        int cgi_fd = result_value;
         this->fds_->register_read_fd(cgi_fd);
         return ServerResult::ok(OK);
     }
