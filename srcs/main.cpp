@@ -11,44 +11,40 @@ namespace {
 int CONFIG_FILE_INDEX = 1;
 int CONFIG_FILE_GIVEN_ARGC = 2;
 
-void validate_argc(int argc) {
-	const std::string INVALID_ARGUMENT_ERROR_MSG = "[Error] invalid argument";
-
-	if (argc == CONFIG_FILE_GIVEN_ARGC) {
-		return;
-	}
-	throw std::invalid_argument(INVALID_ARGUMENT_ERROR_MSG);
-}
-
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char **argv) {
-	try {
-		validate_argc(argc);
+    if (argc != CONFIG_FILE_GIVEN_ARGC) {
+        std::cerr << "[Error] invalid argument" << std::endl;
+        return EXIT_FAILURE;
+    }
+    char *config_file_path = argv[CONFIG_FILE_INDEX];
+    DEBUG_PRINT("config_file_path=[%s]", config_file_path);
 
-        char *config_file_path = argv[CONFIG_FILE_INDEX];
-		DEBUG_PRINT("config_file_path=[%s]", config_file_path);
-		Configuration config(config_file_path);
+    Configuration config(config_file_path);
+    Result<int, std::string> config_result = config.get_result();
+    if (config_result.is_err()) {
+        const std::string error_msg = config_result.get_err_value();
+        std::cerr << error_msg << std::endl;
+        return EXIT_FAILURE;
+    }
 
-		Server server(config);
+    Server server(config);
 
-        ServerResult init_result = server.init();
-        if (init_result.is_err()) {
-            const std::string error_msg = init_result.get_err_value();
-            throw std::runtime_error(error_msg);
-        }
+    ServerResult init_result = server.init();
+    if (init_result.is_err()) {
+        const std::string error_msg = init_result.get_err_value();
+        std::cerr << "[Error] " << error_msg << std::endl;
+        return EXIT_FAILURE;
+    }
 
-        ServerResult server_result = server.run();
-        if (server_result.is_err()) {
-            const std::string error_msg = server_result.get_err_value();
-            throw std::runtime_error(error_msg);
-        }
-	}
-	catch (std::exception const &e) {
-		std::cerr << e.what() << std::endl;
-		return EXIT_FAILURE;
-	}
+    ServerResult server_result = server.run();
+    if (server_result.is_err()) {
+        const std::string error_msg = server_result.get_err_value();
+        std::cerr << "[Error] " << error_msg << std::endl;
+        return EXIT_FAILURE;
+    }
 	return EXIT_SUCCESS;
 }
