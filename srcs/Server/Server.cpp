@@ -323,7 +323,7 @@ void Server::update_fd_type(int fd,
                             FdType update_from,
                             FdType update_to) {
     // std::cout << RED << "update fd_type" << fd << RESET << std::endl;
-    if ((update_from && update_to) || this->fds_->get_fd_type(fd) != update_from) {
+    if ((update_from == update_to) || this->fds_->get_fd_type(fd) != update_from) {
         return;
     }
     this->fds_->clear_fd(fd);
