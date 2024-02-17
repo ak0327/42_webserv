@@ -33,7 +33,18 @@ int main(int argc, char **argv) {
 		Configuration config(config_file_path);
 
 		Server server(config);
-		server.process_client_connection();
+
+        ServerResult init_result = server.init();
+        if (init_result.is_err()) {
+            const std::string error_msg = init_result.get_err_value();
+            throw std::runtime_error(error_msg);
+        }
+
+        ServerResult server_result = server.run();
+        if (server_result.is_err()) {
+            const std::string error_msg = server_result.get_err_value();
+            throw std::runtime_error(error_msg);
+        }
 	}
 	catch (std::exception const &e) {
 		std::cerr << e.what() << std::endl;

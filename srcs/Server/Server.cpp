@@ -25,13 +25,14 @@ namespace {
 const int MAX_SESSION = 128;
 
 
-void stop_by_signal(int sig) {
+void stop_by_signal(int sig) throw() {
 	DEBUG_SERVER_PRINT("stop by signal %d", sig);
 	std::cerr << "[Server] Stop running by signal" << std::endl;
 	std::exit(0);
 }
 
-ServerResult set_signal() {
+
+ServerResult set_signal() throw() {
 	std::string err_info;
 
 	errno = 0;
@@ -63,51 +64,54 @@ ServerResult set_signal() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Server::Server(const Configuration &config)
+Server::Server(const Configuration &config) throw()
 	: sockets_(),
-      // recv_message_(),
       fds_(NULL),
-      config_(config) {
-    ServerResult socket_result = create_sockets(config);
-	if (socket_result.is_err()) {
-		const std::string socket_err_msg = socket_result.get_err_value();
-        std::ostringstream oss;
-        oss << RED << "[Server Error] Initialization error: " << socket_err_msg << RESET;
-		throw std::runtime_error(oss.str());
-	}
+      config_(config) {}
 
-    ServerResult signal_result = set_signal();
-	if (signal_result.is_err()) {
-        std::ostringstream oss;
-        oss << RED << "[Server Error] Initialization error: signal: " << signal_result.get_err_value() << RESET;
-        throw std::runtime_error(oss.str());
-	}
 
-    Result<IOMultiplexer *, std::string> fds_result = create_io_multiplexer_fds();
-	if (fds_result.is_err()) {
-        std::ostringstream oss;
-        oss << RED << "[Server Error] Initialization error: " << fds_result.get_err_value() << RESET;
-        throw std::runtime_error(oss.str());
-	}
-	this->fds_ = fds_result.get_ok_value();
-}
-
-Server::~Server() {
+Server::~Server() throw() {
     std::map<Fd, ClientSession *>::iterator itr;
     for (itr = this->sessions_.begin(); itr != sessions_.end(); ++itr) {
         delete itr->second;
     }
     this->sessions_.clear();
-
     delete_sockets();
-    close_client_fds();
     delete this->fds_;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 
-Result<Socket *, std::string> Server::create_socket(const std::string &address, const std::string &port) {
+
+ServerResult Server::init() throw() {
+    ServerResult socket_result = create_sockets(this->config_);
+    if (socket_result.is_err()) {
+        const std::string socket_err_msg = socket_result.get_err_value();
+        std::ostringstream oss;
+        oss << RED << "[Server Error] Initialization error: " << socket_err_msg << RESET;
+        return ServerResult::err(oss.str());
+    }
+
+    ServerResult signal_result = set_signal();
+    if (signal_result.is_err()) {
+        std::ostringstream oss;
+        oss << RED << "[Server Error] Initialization error: signal: " << signal_result.get_err_value() << RESET;
+        return ServerResult::err(oss.str());
+    }
+
+    Result<IOMultiplexer *, std::string> fds_result = create_io_multiplexer_fds();
+    if (fds_result.is_err()) {
+        std::ostringstream oss;
+        oss << RED << "[Server Error] Initialization error: " << fds_result.get_err_value() << RESET;
+        return ServerResult::err(oss.str());
+    }
+    this->fds_ = fds_result.get_ok_value();
+    return ServerResult::ok(OK);
+}
+
+
+Result<Socket *, std::string> Server::create_socket(const std::string &address,
+                                                    const std::string &port) throw() {
     Socket *socket = NULL;
 
     try {
@@ -139,14 +143,14 @@ Result<Socket *, std::string> Server::create_socket(const std::string &address, 
         std::string err_info = CREATE_ERROR_INFO_STR("Failed to allocate memory");
         return Result<Socket *, std::string>::err(err_info);
     }
-    catch (std::exception const &e) {
+    catch (std::runtime_error const &e) {
         delete socket;
         return Result<Socket *, std::string>::err(e.what());
     }
 }
 
 
-ServerResult Server::create_sockets(const Configuration &config) {
+ServerResult Server::create_sockets(const Configuration &config) throw() {
     const std::map<ServerInfo, const ServerConfig *> &server_configs = config.get_server_configs();
 
     std::map<ServerInfo, const ServerConfig *>::const_iterator servers;
@@ -178,7 +182,7 @@ ServerResult Server::create_sockets(const Configuration &config) {
 }
 
 
-void Server::delete_sockets() {
+void Server::delete_sockets() throw() {
     std::map<Fd, Socket *>::iterator itr;
     for (itr = this->sockets_.begin(); itr != this->sockets_.end(); ++itr) {
         delete itr->second;
@@ -187,14 +191,15 @@ void Server::delete_sockets() {
 }
 
 
-void Server::close_client_fd(int fd) {
+void Server::close_client_fd(int fd) throw() {
     if (fd == INIT_FD) {
         return;
     }
     if (this->fds_) {
         this->fds_->clear_fd(fd);
     }
-    for (std::deque<Fd>::iterator itr = this->client_fds_.begin(); itr != this->client_fds_.end(); ++itr) {
+    std::deque<Fd>::iterator itr;
+    for (itr = this->client_fds_.begin(); itr != this->client_fds_.end(); ++itr) {
         if (*itr != fd) {
             continue;
         }
@@ -207,16 +212,8 @@ void Server::close_client_fd(int fd) {
     }
 }
 
-void Server::close_client_fds() {
-    std::deque<int>::iterator fd;
-    for (fd = this->client_fds_.begin(); fd != this->client_fds_.end(); ++fd) {
-        close_client_fd(*fd);
-    }
-    this->client_fds_.clear();
-}
 
-
-Result<IOMultiplexer *, std::string> Server::create_io_multiplexer_fds() {
+Result<IOMultiplexer *, std::string> Server::create_io_multiplexer_fds() throw() {
     try {
 #if defined(__linux__) && !defined(USE_SELECT)
         IOMultiplexer *fds = new EPoll();
@@ -250,7 +247,7 @@ Result<IOMultiplexer *, std::string> Server::create_io_multiplexer_fds() {
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void Server::process_client_connection() {
+ServerResult Server::run() throw() {
 	while (true) {
         std::cout << GREEN << " loop 1 get_io_ready_fd" << RESET << std::endl;
 
@@ -258,7 +255,8 @@ void Server::process_client_connection() {
         std::cout << GREEN << " loop 2 ready result" << RESET << std::endl;
 		if (fd_ready_result.is_err()) {
             std::cout << GREEN << " loop : error 1" << RESET << std::endl;
-			throw std::runtime_error(RED + fd_ready_result.get_err_value() + RESET);
+            const std::string error_msg = fd_ready_result.get_err_value();
+            return ServerResult::err(error_msg);
 		}
 		int ready_fd = fd_ready_result.get_ok_value();
         std::cout << GREEN << " loop 3: ready_fd: " << ready_fd << RESET << std::endl;
@@ -268,23 +266,25 @@ void Server::process_client_connection() {
 		}
         std::cout << GREEN << " loop 4 communicate" << RESET << std::endl;
 
-        fd_ready_result = communicate_with_client(ready_fd);
-		if (fd_ready_result.is_err()) {
+        ServerResult communicate_result = communicate_with_client(ready_fd);
+		if (communicate_result.is_err()) {
+            const std::string error_msg = communicate_result.get_err_value();
             std::cout << GREEN << " loop : error 2" << RESET << std::endl;
-			throw std::runtime_error(RED + fd_ready_result.get_err_value() + RESET);
+            return ServerResult::err(error_msg);
 		}
         std::cout << GREEN << " loop 5 next loop" << RESET << std::endl;
     }
+    return ServerResult::ok(OK);
 }
 
 
-bool Server::is_socket_fd(int fd) const {
+bool Server::is_socket_fd(int fd) const throw() {
     return this->sockets_.find(fd) != this->sockets_.end();
 }
 
 
-ServerResult Server::create_session(int socket_fd) {
-    struct sockaddr_storage client_addr;
+ServerResult Server::create_session(int socket_fd) throw() {
+    struct sockaddr_storage client_addr = {};
     ServerResult accept_result = accept_connect_fd(socket_fd, &client_addr);
     if (accept_result.is_err()) {
         const std::string error_msg = accept_result.get_err_value();
@@ -319,7 +319,7 @@ ServerResult Server::create_session(int socket_fd) {
 }
 
 
-void Server::update_fd_type_read_to_write(const SessionState &session_state, int fd) {
+void Server::update_fd_type_read_to_write(const SessionState &session_state, int fd) throw() {
     FdType fd_type = this->fds_->get_fd_type(fd);
     if (session_state == kSendingResponse && fd_type == kReadFd) {
         this->fds_->clear_fd(fd);
@@ -329,7 +329,17 @@ void Server::update_fd_type_read_to_write(const SessionState &session_state, int
 }
 
 
-ServerResult Server::process_session(int ready_fd) {
+void Server::delete_session(std::map<Fd, ClientSession *>::iterator session) throw() {
+    ClientSession *client_session = session->second;
+    int client_fd = client_session->get_client_fd();
+
+    this->fds_->clear_fd(client_fd);
+    delete client_session;
+    this->sessions_.erase(session);
+}
+
+
+ServerResult Server::process_session(int ready_fd) throw() {
     std::map<Fd, ClientSession *>::iterator session = this->sessions_.find(ready_fd);
     if (session == this->sessions_.end()) {
         return ServerResult::err("error: fd unknown");
@@ -356,15 +366,13 @@ ServerResult Server::process_session(int ready_fd) {
 
     if (client_session->is_session_completed()) {
         // std::cout << WHITE << " session complete fd: " << ready_fd << RESET << std::endl;
-        delete client_session;
-        close_client_fd(ready_fd);
-        this->sessions_.erase(session);
+        delete_session(session);
     }
     return ServerResult::ok(OK);
 }
 
 
-ServerResult Server::communicate_with_client(int ready_fd) {
+ServerResult Server::communicate_with_client(int ready_fd) throw() {
 	if (is_socket_fd(ready_fd)) {
         std::cout << "  ready_fd: socket_fd: " << ready_fd << std::endl;
         return create_session(ready_fd);
@@ -375,7 +383,8 @@ ServerResult Server::communicate_with_client(int ready_fd) {
 }
 
 
-ServerResult Server::accept_connect_fd(int socket_fd, struct sockaddr_storage *client_addr) {
+ServerResult Server::accept_connect_fd(int socket_fd,
+                                       struct sockaddr_storage *client_addr) throw() {
     if (MAX_SESSION <= this->client_fds_.size()) {
         std::cerr << "[Server Error] exceed max connection" << std::endl;
         return ServerResult::ok(OK);  // todo: continue, ok?
@@ -404,6 +413,6 @@ ServerResult Server::accept_connect_fd(int socket_fd, struct sockaddr_storage *c
 }
 
 
-void Server::set_timeout(int timeout_msec) {
+void Server::set_timeout(int timeout_msec) throw() {
     this->fds_->set_timeout(timeout_msec);
 }

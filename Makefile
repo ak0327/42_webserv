@@ -195,28 +195,34 @@ lint	:
 	&& echo "\033[0;32mCPPLINT DONE\033[0m" \
 	|| echo "\033[0;31mCPPLINT ERROR\033[0m"
 
+.PHONY	: echo
+echo	: CXXFLAGS += -D ECHO
+echo	: re
+
 .PHONY	: request_test
 request_test: 
 
 .PHONY	: run_unit_test
 run_unit_test	:
 	#cmake -S . -B build
-	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT"
+	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D ECHO"
 	#cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D UTEST"
 	cmake --build build
-	./build/unit_test 2>/dev/null
-	#./build/unit_test  # leaks report
+#	./build/unit_test 2>/dev/null
+	./build/unit_test  # leaks report
 
 .PHONY	: run_server_test
 run_server_test	:
-	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG -D UTEST"
+	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D UTEST -D ECHO"
 	#cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG -D USE_SELECT"
 	cmake --build build
 	#./build/unit_test --gtest_filter=Server* 2>/dev/null
 	#./build/unit_test --gtest_filter=*.ConnectClientCase1
 	./build/unit_test --gtest_filter=Server*
-#	./build/unit_test --gtest_filter=ServerUnitTest.ConnectClientCase1
-#	./build/unit_test --gtest_filter=ServerUnitTest.TestMultiServer
+	#./build/unit_test --gtest_filter=ServerUnitTest.TestMultiServer
+	#./build/unit_test --gtest_filter=ServerUnitTest.ConnectClientCase*
+	#./build/unit_test --gtest_filter=ServerUnitTest.ConnectClientCase2
+	#./build/unit_test --gtest_filter=ServerUnitTest.ConnectMultiClient
 
 .PHONY	: run_socket_test
 run_socket_test	:

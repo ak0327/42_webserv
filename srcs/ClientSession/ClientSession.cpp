@@ -42,6 +42,7 @@ ClientSession::ClientSession(int socket_fd,
 
 ClientSession::~ClientSession() {
     close_file_fd();
+    close_client_fd();
 
     if (this->request_) {
         delete this->request_;
@@ -59,6 +60,14 @@ void ClientSession::close_file_fd() {
     if (this->file_fd_ != INIT_FD) {
         close(this->file_fd_);
         this->file_fd_ = INIT_FD;
+    }
+}
+
+
+void ClientSession::close_client_fd() {
+    if (this->client_fd_ != INIT_FD) {
+        close(this->client_fd_);
+        this->client_fd_ = INIT_FD;
     }
 }
 
@@ -191,54 +200,45 @@ SessionResult ClientSession::update_config_params() {
 
 Result<int, int> ClientSession::parse_http_request() {
     try {
-#ifdef UTEST
-        Result<std::string, std::string> recv_result = recv_request();
-        if (recv_result.is_err()) {
-            return Result<int, int>::err(STATUS_SERVER_ERROR);
-        }
-        this->recv_message_ = recv_result.get_ok_value();
-        DEBUG_SERVER_PRINT("server: recv:[%s]", this->recv_message_.c_str());
-        this->request_ = new HttpRequest(this->recv_message_);
-        return Result<int, int>::ok(OK);
-#else
         this->request_ = new HttpRequest();
-        // request line
-        Result<int, int> request_line_result = this->request_->parse_request_line(this->client_fd_);
-        if (request_line_result.is_err()) {
-            return Result<int, int>::err(request_line_result.get_err_value());
-        }
-
-        // request header
-        Result<int, int> header_result = this->request_->parse_request_header(this->client_fd_);
-        if (header_result.is_err()) {
-            return Result<int, int>::err(header_result.get_err_value());
-        }
-
-        // config
-        Result<int, std::string> update_result = update_config_params();
-        if (update_result.is_err()) {
-            return Result<int, int>::err(STATUS_BAD_REQUEST);  // todo
-        }
-
-        // body
-        Result<int, int> body_result = this->request_->parse_request_body(this->client_fd_,
-                                                                          this->request_max_body_size_);
-        if (body_result.is_err()) {
-            return Result<int, int>::err(body_result.get_err_value());
-        }
-        return Result<int, int>::ok(OK);
-#endif
     }
     catch (const std::exception &e) {
-        std::cout << CYAN << "     error 2" << RESET << std::endl;
         return Result<int, int>::err(STATUS_SERVER_ERROR);
     }
+#ifndef ECHO
+    // request line
+    Result<int, int> request_line_result = this->request_->parse_request_line(this->client_fd_);
+    if (request_line_result.is_err()) {
+        return Result<int, int>::err(request_line_result.get_err_value());
+    }
+
+    // request header
+    Result<int, int> header_result = this->request_->parse_request_header(this->client_fd_);
+    if (header_result.is_err()) {
+        return Result<int, int>::err(header_result.get_err_value());
+    }
+    // config
+    Result<int, std::string> update_result = update_config_params();
+    if (update_result.is_err()) {
+        return Result<int, int>::err(STATUS_BAD_REQUEST);  // todo
+    }
+#else
+    this->request_max_body_size_ = ConfigInitValue::kDefaultBodySize;
+#endif
+
+    // body
+    Result<int, int> body_result = this->request_->parse_request_body(this->client_fd_,
+                                                                      this->request_max_body_size_);
+    if (body_result.is_err()) {
+        return Result<int, int>::err(body_result.get_err_value());
+    }
+    return Result<int, int>::ok(OK);
 }
 
 
 Result<int, std::string> ClientSession::create_http_response() {
     try {
-        this->response_ = new HttpResponse(*this->request_);
+        this->response_ = new HttpResponse();
         // std::cout << CYAN << "     response_message[" << this->http_response_->get_response_message() << "]" << RESET << std::endl;
     }
     catch (const std::exception &e) {
@@ -246,6 +246,12 @@ Result<int, std::string> ClientSession::create_http_response() {
         const std::string err_info = CREATE_ERROR_INFO_STR("Failed to allocate memory");
         return SessionResult::err(err_info);
     }
+#ifndef ECHO
+    // todo
+#else
+    std::cout << MAGENTA << "create_echo_msg" << RESET << std::endl;
+    this->response_->create_echo_msg(this->request_->get_buf());
+#endif
     return SessionResult::ok(OK);
 }
 
@@ -286,14 +292,14 @@ SessionResult ClientSession::send_response() {
     // std::size_t	message_len = this->http_response_->get_response_size();
     // std::string response_message = this->recv_message_;
 
-    // std::cout << CYAN << "server send start" << RESET << std::endl;
-    // std::cout << CYAN << " server: send[" << response_message << "]" << RESET << std::endl;
+    std::cout << CYAN << "server send start" << RESET << std::endl;
+    std::cout << CYAN << " server: send[" << response_message << "]" << RESET << std::endl;
 
     errno = 0;
     if (send(this->client_fd_, response_message.c_str(), response_message.size(), FLAG_NONE) == SEND_ERROR) {
         return SessionResult::err(CREATE_ERROR_INFO_ERRNO(errno));
     }
-    // std::cout << CYAN << "server send end" << RESET << std::endl;
+    std::cout << CYAN << "server send end" << RESET << std::endl;
     return SessionResult::ok(OK);
 }
 

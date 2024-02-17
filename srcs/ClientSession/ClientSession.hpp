@@ -42,6 +42,7 @@ class ClientSession {
     SessionResult process_file_event();
 
     void close_file_fd();
+    void close_client_fd();
 
     static AddressPortPair get_client_listen(const struct sockaddr_storage &client_addr);
 
