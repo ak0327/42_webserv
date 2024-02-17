@@ -78,12 +78,13 @@ void *run_client(void *client_info) {
 	try {
 		DEBUG_CLIENT_PRINT("no:%d start", c->no);
 		usleep(10000);
-		Client client = Client(c->server_ip, c->server_port);
+		Client *client = new Client(c->server_ip, c->server_port);
 		DEBUG_CLIENT_PRINT("no:%d connecting...", c->no);
-		client.send_msg(msg);
-        client.recv_msg();
-		c->recv_msg = client.get_recv_message();
+		client->send_msg(msg);
+        client->recv_msg();
+		c->recv_msg = client->get_recv_message();
 		DEBUG_CLIENT_PRINT("no:%d connected. recv:[%s]", c->no, c->recv_msg.c_str());
+        delete client;
     }
 	catch (std::exception const &e) {
 		is_client_success = false;

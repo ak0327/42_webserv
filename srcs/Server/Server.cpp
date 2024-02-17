@@ -191,13 +191,7 @@ void Server::delete_sockets() {
 }
 
 
-void Server::close_client_fd(int fd) {
-    if (fd == INIT_FD) {
-        return;
-    }
-    if (this->fds_) {
-        this->fds_->clear_fd(fd);
-    }
+void Server::erase_client_fd(int fd) {
     std::deque<Fd>::iterator itr;
     for (itr = this->client_fds_.begin(); itr != this->client_fds_.end(); ++itr) {
         if (*itr != fd) {
@@ -206,6 +200,17 @@ void Server::close_client_fd(int fd) {
         this->client_fds_.erase(itr);
         break;
     }
+}
+
+
+void Server::clear_client_fd(int fd) {
+    if (fd == INIT_FD) {
+        return;
+    }
+    if (this->fds_) {
+        this->fds_->clear_fd(fd);
+    }
+    erase_client_fd(fd);
     int close_ret = close(fd);
     if (close_ret == CLOSE_ERROR) {
         std::cout << CYAN << "close error" << RESET << std::endl;  // todo: log
@@ -264,6 +269,12 @@ ServerResult Server::run() {
 			std::cerr << "[Server INFO] timeout" << std::endl;
 			break;
 		}
+        int error = 0;
+        socklen_t error_len = sizeof(error);
+        if (getsockopt(ready_fd, SOL_SOCKET, SO_ERROR, &error, &error_len) == -1) {
+            std::cout << RED << "client closed" << RESET << std::endl;
+            break;
+        }
         std::cout << GREEN << " loop 4 communicate" << RESET << std::endl;
 
         ServerResult communicate_result = communicate_with_client(ready_fd);
@@ -323,7 +334,7 @@ void Server::update_fd_type(int fd,
                             FdType update_from,
                             FdType update_to) {
     // std::cout << RED << "update fd_type" << fd << RESET << std::endl;
-    if ((update_from == update_to) || this->fds_->get_fd_type(fd) != update_from) {
+    if (this->fds_->get_fd_type(fd) == update_to || update_from == update_to) {
         return;
     }
     this->fds_->clear_fd(fd);
@@ -335,20 +346,20 @@ void Server::update_fd_type(int fd,
 }
 
 
-void Server::delete_session(std::map<Fd, ClientSession *>::iterator session) {
+void Server::delete_session_elem(std::map<Fd, ClientSession *>::iterator session) {
     ClientSession *client_session = session->second;
     int client_fd = client_session->get_client_fd();
-
     this->fds_->clear_fd(client_fd);
     delete client_session;
-    this->sessions_.erase(session);
 }
 
 
 void Server::delete_sessions() {
     std::map<Fd, ClientSession *>::iterator session;
     for (session = this->sessions_.begin(); session != sessions_.end(); ++session) {
-        delete_session(session);
+        delete_session_elem(session);
+        std::map<Fd, ClientSession *>::iterator current = session++;
+        this->sessions_.erase(current);
     }
     this->sessions_.clear();
 }
@@ -360,7 +371,7 @@ void Server::init_session(ClientSession *session) {
     }
     int client_fd = session->get_client_fd();
     update_fd_type(client_fd, kWriteFd, kReadFd);
-    session->set_session_state(kSendingRequest);
+    session->set_session_state(kReadingRequest);
 }
 
 ServerResult Server::process_session(int ready_fd) {
@@ -385,13 +396,16 @@ ServerResult Server::process_session(int ready_fd) {
         const std::string error_msg = result.get_err_value();
         return ServerResult::err(error_msg);
     }
-
-    if (client_session->get_session_state() == kSendingResponse) {
+    if (client_session->get_session_state() == kSessionClose) {
+        std::cout << RED << "session close" << RESET << std::endl;
+        delete_session_elem(session);
+        this->sessions_.erase(session);
+        erase_client_fd(ready_fd);
+    } else if (client_session->get_session_state() == kSendingResponse) {
+        std::cout << WHITE << " update fd_type: " << ready_fd << ", read -> write" << RESET << std::endl;
         update_fd_type(ready_fd, kReadFd, kWriteFd);
-    }
-
-    if (client_session->is_session_completed()) {
-        // std::cout << WHITE << " session complete fd: " << ready_fd << RESET << std::endl;
+    } else if (client_session->is_session_completed()) {
+        std::cout << WHITE << " session complete fd: " << ready_fd << " -> init" << RESET << std::endl;
         init_session(client_session);
     }
     return ServerResult::ok(OK);

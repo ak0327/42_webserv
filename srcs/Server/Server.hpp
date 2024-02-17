@@ -49,9 +49,10 @@ class Server {
 
     bool is_socket_fd(int fd) const;
     void delete_sockets();
-    void delete_session(std::map<Fd, ClientSession *>::iterator session);
+    void delete_session_elem(std::map<Fd, ClientSession *>::iterator session);
     void delete_sessions();
-    void close_client_fd(int fd);
+    void clear_client_fd(int fd);
+    void erase_client_fd(int fd);
     void update_fd_type(int fd,
                         FdType update_from,
                         FdType update_to);

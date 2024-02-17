@@ -33,7 +33,7 @@ ClientSession::ClientSession(int socket_fd,
       config_(config),
       server_info_(),
       server_config_(),
-      session_state_(kSessionInit),
+      session_state_(kWaitingConnection),
       request_(NULL),
       response_(NULL),
       request_max_body_size_(0),
@@ -78,13 +78,9 @@ SessionResult ClientSession::process_client_event() {
     SessionResult response_result, send_result;
 
     switch (this->session_state_) {
-        case kSessionInit:
+        case kWaitingConnection:
             std::cout << RED << "   session: 0 SessionInit" << RESET << std::endl;
-            this->session_state_ = kReadingRequest;
-            // fallthrough
-
-            std::cout << RED << "   session: 0 Accepted" << RESET << std::endl;
-            this->session_state_ = kReadingRequest;
+            this->set_session_state(kReadingRequest);
             // fallthrough
 
         case kReadingRequest:
@@ -93,7 +89,7 @@ SessionResult ClientSession::process_client_event() {
             if (request_result.is_err()) {
                 std::cout << RED << "    request error, status: " << request_result.get_err_value() << RESET << std::endl;
             }
-            this->session_state_ = kCreatingResponse;
+            this->set_session_state(kCreatingResponse);
             // fallthrough
 
         case kCreatingResponse:
@@ -104,7 +100,12 @@ SessionResult ClientSession::process_client_event() {
                 this->session_state_ = kSessionError;
                 return SessionResult::err(error_msg);
             }
-            this->session_state_ = kSendingResponse;
+            // if (this->request_->get_buf().empty()) {
+            //     this->set_session_state(kSessionClose);
+            //     return SessionResult::ok(-1);
+            // }
+
+            this->set_session_state(kSendingResponse);
             break;
 
         case kSendingResponse:
@@ -113,19 +114,20 @@ SessionResult ClientSession::process_client_event() {
             send_result = send_response();
             if (send_result.is_err()) {
                 std::cout << CYAN << "     error 4" << RESET << std::endl;
-                const std::string err_info = CREATE_ERROR_INFO_STR(send_result.get_err_value());
+                const std::string error_msg = CREATE_ERROR_INFO_STR(send_result.get_err_value());
                 this->session_state_ = kSessionError;
-                return SessionResult::err("[Server Error] recv: " + err_info);
+                return SessionResult::err("[Server Error] recv: " + error_msg);
             }
-            this->session_state_ = kCompleted;
+            this->set_session_state(kCompleted);
             break;
 
         case kCompleted:
             break;
 
         default:
-            // kReadingFile, kExecutingCGI -> process_file_event()
-            break;
+            this->set_session_state(kSessionError);
+            const std::string error_msg= CREATE_ERROR_INFO_STR("session_error");
+            return SessionResult::err(error_msg);
     }
     return SessionResult::ok(OK);
 }
@@ -325,7 +327,7 @@ SessionResult ClientSession::process_file_event() {
     if (result.is_err()) {
         return SessionResult::err("error: file event error");
     }
-    this->session_state_ = kCreatingResponse;
+    this->set_session_state(kCreatingResponse);
     return SessionResult::ok(OK);
 }
 
@@ -334,6 +336,7 @@ int ClientSession::get_file_fd() const { return this->file_fd_; }
 int ClientSession::get_client_fd() const { return this->client_fd_; }
 SessionState ClientSession::get_session_state() const { return this->session_state_; }
 bool ClientSession::is_session_completed() const { return this->session_state_ == kCompleted; }
+void ClientSession::set_session_state(const SessionState &set_state) { this->session_state_ = set_state; }
 
 
 AddressPortPair ClientSession::get_client_listen(const struct sockaddr_storage &client_addr) {
@@ -374,9 +377,4 @@ AddressPortPair ClientSession::get_client_listen(const struct sockaddr_storage &
     AddressPortPair pair(address, port);
     std::cout << CYAN << "address: " << address << ", port:" << port << RESET << std::endl;
     return pair;
-}
-
-
-void ClientSession::set_session_state(SessionState set_state) {
-    this->session_state_ = set_state;
 }

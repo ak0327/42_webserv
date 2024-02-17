@@ -714,9 +714,6 @@ Result<std::map<std::string, std::string>, int> HttpRequest::get_host() const {
     return Result<std::map<std::string, std::string>, int>::ok(host);
 }
 
-
-#ifdef ECHO
 const std::vector<unsigned char> &HttpRequest::get_buf() const {
     return this->buf_;
 }
-#endif

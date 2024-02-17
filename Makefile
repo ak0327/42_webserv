@@ -160,10 +160,6 @@ REQUEST_INCLUDES =	$(SRCS_DIR)/$(REQUEST_DIR) \
 INCLUDES	 =	$(addprefix -I, $(INCLUDES_DIR))
 
 
-# include DEPS -----------------------------------------------------------------
--include $(DEPS)
-
-
 # RULES ------------------------------------------------------------------------
 .PHONY	: all
 all		: $(NAME)
@@ -212,10 +208,10 @@ run_server_test	:
 	cmake --build build
 	#./build/unit_test --gtest_filter=Server* 2>/dev/null
 	#./build/unit_test --gtest_filter=*.ConnectClientCase1
-	./build/unit_test --gtest_filter=Server*
+	#./build/unit_test --gtest_filter=Server*
 	#./build/unit_test --gtest_filter=ServerUnitTest.TestMultiServer
 	#./build/unit_test --gtest_filter=ServerUnitTest.ConnectClientCase*
-	#./build/unit_test --gtest_filter=ServerUnitTest.ConnectClientCase2
+	./build/unit_test --gtest_filter=ServerUnitTest.ConnectClientCase1
 	#./build/unit_test --gtest_filter=ServerUnitTest.ConnectMultiClient
 
 .PHONY	: run_socket_test
@@ -336,3 +332,6 @@ run_config_test    :
 	#cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestConfig*
+
+
+-include $(DEPS)

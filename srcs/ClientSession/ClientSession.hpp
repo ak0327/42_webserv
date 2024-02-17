@@ -11,7 +11,7 @@
 # include "webserv.hpp"
 
 enum SessionState {
-    kSessionInit,
+    kWaitingConnection,
     kSendingRequest,
     kReadingRequest,
     kCreatingResponse,
@@ -19,6 +19,7 @@ enum SessionState {
     kExecutingCGI,
     kSendingResponse,
     kCompleted,
+    kSessionClose,
     kSessionError
 };
 
@@ -41,7 +42,7 @@ class ClientSession {
     SessionResult process_client_event();
     SessionResult process_file_event();
 
-    void set_session_state(SessionState set_state);
+    void set_session_state(const SessionState &set_state);
     void close_file_fd();
     void close_client_fd();
 
