@@ -351,7 +351,8 @@ Result<int, int> HttpRequest::parse_request_header(int fd) {
     }
     std::vector<unsigned char>::const_iterator header_end;
     HttpRequest::find_empty(this->buf_, this->buf_.begin(), &header_end);
-    std::string request_headers(reinterpret_cast<const char*>(&buf_[0]), header_end - buf_.begin());
+    std::size_t headers_len = header_end - this->buf_.begin();
+    std::string request_headers(reinterpret_cast<const char*>(&buf_[0]), headers_len);
 
     const std::size_t EMPTY_LINE_LEN = 4;
     std::vector<unsigned char>::const_iterator body_start = header_end + EMPTY_LINE_LEN;
@@ -712,3 +713,10 @@ Result<std::map<std::string, std::string>, int> HttpRequest::get_host() const {
     std::map<std::string, std::string> host = map_field_values->get_value_map();
     return Result<std::map<std::string, std::string>, int>::ok(host);
 }
+
+
+#ifdef ECHO
+const std::vector<unsigned char> &HttpRequest::get_buf() const {
+    return this->buf_;
+}
+#endif

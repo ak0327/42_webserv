@@ -1,6 +1,7 @@
 #pragma once
 
 # include <string>
+# include "Color.hpp"
 
 // Mock -> gmock ??
 ////////////////////////////////////////////////
@@ -26,6 +27,12 @@ class HttpResponse {
 		}
 		response_message_ = message;
 	}
+
+    void create_echo_msg(const std::vector<unsigned char> &recv_msg) {
+        this->response_message_ = std::string(recv_msg.begin(), recv_msg.end());
+        std::cout << MAGENTA << "echo msg:" << this->response_message_ << RESET << std::endl;
+
+    }
 
 	std::string get_response_message() const { return response_message_; }
 	std::size_t get_response_size() const { return response_message_.size(); }

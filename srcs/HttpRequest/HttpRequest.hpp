@@ -44,6 +44,9 @@ class HttpRequest {
 #ifdef UTEST
     friend class HttpRequestFriend;
 #endif
+#ifdef ECHO
+    const std::vector<unsigned char> &get_buf() const;
+#endif
 
  private:
 	int status_code_;

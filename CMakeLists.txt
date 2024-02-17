@@ -7,6 +7,7 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -pedantic")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fsanitize=address,undefined -fno-omit-frame-pointer")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D UTEST")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D ECHO")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D DEBUG")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D USE_SELECT")
 

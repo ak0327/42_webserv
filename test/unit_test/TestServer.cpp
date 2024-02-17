@@ -44,7 +44,7 @@ void *run_server(void *server_info) {
 		Server server = Server(config);
         server.set_timeout(2500);
 		DEBUG_SERVER_PRINT("connecting...");
-		server.process_client_connection();
+        server.run();
 		// s->recv_msg = server.get_recv_message();
 		// vvv this func can print only 1 message vv
 		// printf("server connected. recv:[%s]\n", s->recv_msg.c_str());
