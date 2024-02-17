@@ -106,7 +106,16 @@ VALUE_AND_MAP_FIELD_VALUES_DIR = $(REQUEST_DIR)/ValueAndMapFieldValues
 SRCS		+=  $(VALUE_AND_MAP_FIELD_VALUES_DIR)/ValueAndMapFieldValues.cpp \
 				$(VALUE_AND_MAP_FIELD_VALUES_DIR)/set_content_disposition.cpp
 
+#HTTP Response
+RESPONSE_DIR =	HttpResponse
+SRCS		+=	$(RESPONSE_DIR)/HttpResponse.cpp \
+				$(RESPONSE_DIR)/error_pages.cpp \
+				$(RESPONSE_DIR)/GET/get_cgi_result.cpp \
+				$(RESPONSE_DIR)/GET/get_directory_listing.cpp \
+				$(RESPONSE_DIR)/GET/get_file_content.cpp \
+				$(RESPONSE_DIR)/GET/get_request_body.cpp
 
+#config
 CONFIG_DIR	=	Configuration
 SRCS		+=	$(CONFIG_DIR)/FileHandler/FileHandler.cpp \
 				$(CONFIG_DIR)/Parser/Parser.cpp \
@@ -137,13 +146,14 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(SERVER_DIR) \
 				$(SRCS_DIR)/$(SOCKET_DIR) \
 				$(SRCS_DIR)/$(STR_HANDLER) \
-				$(SRCS_DIR)/$(REQUEST_INCLUDES) \
+				$(REQUEST_INCLUDES) \
+				$(RESPONSE_INCLUDES) \
 				$(SRCS_DIR)/$(CONFIG_DIR)/FileHandler \
 				$(SRCS_DIR)/$(CONFIG_DIR)/Parser \
 				$(SRCS_DIR)/$(CONFIG_DIR)/Token \
 				$(SRCS_DIR)/$(CONFIG_DIR)/Tokenizer \
 				$(SRCS_DIR)/$(CONFIG_DIR) \
-				$(SRCS_DIR)/$(CLIENT_SESSION_DIR)
+				$(SRCS_DIR)/$(CLIENT_SESSION_DIR) \
 
 REQUEST_INCLUDES =	$(SRCS_DIR)/$(REQUEST_DIR) \
 					$(SRCS_DIR)/$(DATE_DIR) \
@@ -156,6 +166,11 @@ REQUEST_INCLUDES =	$(SRCS_DIR)/$(REQUEST_DIR) \
 					$(SRCS_DIR)/$(VALUE_AND_MAP_FIELD_VALUES_DIR) \
 					$(SRCS_DIR)/$(REQUEST_DIR)/FieldValueBase \
 					$(SRCS_DIR)/$(REQUEST_DIR)/RequestLine
+
+RESPONSE_INCLUDES =	$(SRCS_DIR)/$(RESPONSE_DIR) \
+					$(SRCS_DIR)/$(RESPONSE_DIR)/GET \
+					$(SRCS_DIR)/$(RESPONSE_DIR)/POST \
+					$(SRCS_DIR)/$(RESPONSE_DIR)/DELETE
 
 INCLUDES	 =	$(addprefix -I, $(INCLUDES_DIR))
 

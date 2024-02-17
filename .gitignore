@@ -20,7 +20,9 @@
 !srcs/Socket
 !srcs/StringHandler
 !srcs/HttpRequest
-!srcs/HttpRequest/*/
+!srcs/HttpRequest/*
+!srcs/HttpResponse
+!srcs/HttpResponse/*
 
 !includes
 

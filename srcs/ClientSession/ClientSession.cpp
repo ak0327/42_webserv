@@ -10,6 +10,7 @@
 #include "ClientSession.hpp"
 #include "Debug.hpp"
 #include "Error.hpp"
+#include "HttpResponse.hpp"
 #include "StringHandler.hpp"
 
 // recv request
@@ -74,8 +75,8 @@ void ClientSession::close_client_fd() {
 
 SessionResult ClientSession::process_client_event() {
     Result<std::string, std::string> recv_result;
-    Result<int, int> request_result;
-    SessionResult response_result, send_result;
+    Result<int, int> request_result, send_result;
+    Result<Fd, int> response_result;
 
     switch (this->session_state_) {
         case kSessionInit:
@@ -101,9 +102,22 @@ SessionResult ClientSession::process_client_event() {
             std::cout << RED << "   session: 2 CreatingResponse" << RESET << std::endl;
             response_result = create_http_response();
             if (response_result.is_err()) {
-                const std::string error_msg = response_result.get_err_value();
+                std::cout << RED << "    request error, status: " << response_result.get_err_value() << RESET << std::endl;
                 this->session_state_ = kSessionError;
-                return SessionResult::err(error_msg);
+            }
+            if (request_result.get_ok_value() == OK) {
+                this->session_state_ = kSendingResponse;
+            } else {
+                this->session_state_ = kExecutingCGI;
+            }
+            return SessionResult::ok(request_result.get_ok_value());  // -> register cgi_fd to fds as read fd
+
+        case kCreatingResponseBody:
+            std::cout << RED << "   session: 2 CreatingResponse" << RESET << std::endl;
+            response_result = create_http_response();
+            if (response_result.is_err()) {
+                std::cout << RED << "    request error, status: " << response_result.get_err_value() << RESET << std::endl;
+                this->session_state_ = kSessionError;
             }
             this->session_state_ = kSendingResponse;
             break;
@@ -236,23 +250,33 @@ Result<int, int> ClientSession::parse_http_request() {
 }
 
 
-Result<int, std::string> ClientSession::create_http_response() {
+Result<Fd, int> ClientSession::create_http_response() {
+#ifndef ECHO
     try {
-        this->response_ = new HttpResponse();
+        this->response_ = new HttpResponse(*this->request_);
         // std::cout << CYAN << "     response_message[" << this->http_response_->get_response_message() << "]" << RESET << std::endl;
     }
     catch (const std::exception &e) {
-        std::cout << CYAN << "     error 3" << RESET << std::endl;
         const std::string err_info = CREATE_ERROR_INFO_STR("Failed to allocate memory");
-        return SessionResult::err(err_info);
+        std::cerr << err_info << std::endl;
+        return Result<Fd, int> ::err(STATUS_SERVER_ERROR);
     }
-#ifndef ECHO
+
+    return this->response_->exec_method();
     // todo
 #else
+    try {
+        this->response_ = new HttpResponse(HttpRequest());
+    }
+    catch (const std::exception &e) {
+        const std::string err_info = CREATE_ERROR_INFO_STR("Failed to allocate memory");
+        std::cerr << err_info << std::endl;
+        return Result<Fd, int> ::err(STATUS_SERVER_ERROR);
+    }
     std::cout << MAGENTA << "create_echo_msg" << RESET << std::endl;
     this->response_->create_echo_msg(this->request_->get_buf());
+    return Result<Fd, int> ::ok(OK);
 #endif
-    return SessionResult::ok(OK);
 }
 
 
@@ -287,7 +311,7 @@ Result<std::string, std::string> ClientSession::recv_request() {
 }
 
 
-SessionResult ClientSession::send_response() {
+Result<int, int> ClientSession::send_response() {
     std::string response_message = this->response_->get_response_message();
     // std::size_t	message_len = this->http_response_->get_response_size();
     // std::string response_message = this->recv_message_;
@@ -297,10 +321,10 @@ SessionResult ClientSession::send_response() {
 
     errno = 0;
     if (send(this->client_fd_, response_message.c_str(), response_message.size(), FLAG_NONE) == SEND_ERROR) {
-        return SessionResult::err(CREATE_ERROR_INFO_ERRNO(errno));
+        return Result<int, int>::err(STATUS_SERVER_ERROR);
     }
     std::cout << CYAN << "server send end" << RESET << std::endl;
-    return SessionResult::ok(OK);
+    return Result<int, int>::ok(OK);
 }
 
 
@@ -308,15 +332,16 @@ SessionResult ClientSession::process_file_event() {
     SessionResult result;
 
     switch (this->session_state_) {
-        case kReadingFile:
-            // todo
-            break;
+        // case kReadingFile:
+        //     todo
+            // break;
 
         case kExecutingCGI:
             // todo
             break;
 
         case kCompleted:
+            this->session_state_ = kCreatingResponseBody;
             break;
 
         default:
