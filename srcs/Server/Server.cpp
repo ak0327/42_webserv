@@ -75,7 +75,7 @@ Server::~Server() {
     for (itr = this->sessions_.begin(); itr != sessions_.end(); ++itr) {
         delete itr->second;
     }
-    this->sessions_.clear();
+    delete_sessions();
     delete_sockets();
     delete this->fds_;
 }
@@ -319,12 +319,18 @@ ServerResult Server::create_session(int socket_fd) {
 }
 
 
-void Server::update_fd_type_read_to_write(const SessionState &session_state, int fd) {
-    FdType fd_type = this->fds_->get_fd_type(fd);
-    if (session_state == kSendingResponse && fd_type == kReadFd) {
-        this->fds_->clear_fd(fd);
+void Server::update_fd_type(int fd,
+                            FdType update_from,
+                            FdType update_to) {
+    // std::cout << RED << "update fd_type" << fd << RESET << std::endl;
+    if ((update_from && update_to) || this->fds_->get_fd_type(fd) != update_from) {
+        return;
+    }
+    this->fds_->clear_fd(fd);
+    if (update_to == kReadFd) {
+        this->fds_->register_read_fd(fd);
+    } else if (update_to == kWriteFd) {
         this->fds_->register_write_fd(fd);
-        // std::cout << RED << "update write fd: " << fd << RESET << std::endl;
     }
 }
 
@@ -338,6 +344,24 @@ void Server::delete_session(std::map<Fd, ClientSession *>::iterator session) {
     this->sessions_.erase(session);
 }
 
+
+void Server::delete_sessions() {
+    std::map<Fd, ClientSession *>::iterator session;
+    for (session = this->sessions_.begin(); session != sessions_.end(); ++session) {
+        delete_session(session);
+    }
+    this->sessions_.clear();
+}
+
+
+void Server::init_session(ClientSession *session) {
+    if (!session) {
+        return;
+    }
+    int client_fd = session->get_client_fd();
+    update_fd_type(client_fd, kWriteFd, kReadFd);
+    session->set_session_state(kSendingRequest);
+}
 
 ServerResult Server::process_session(int ready_fd) {
     std::map<Fd, ClientSession *>::iterator session = this->sessions_.find(ready_fd);
@@ -362,11 +386,13 @@ ServerResult Server::process_session(int ready_fd) {
         return ServerResult::err(error_msg);
     }
 
-    update_fd_type_read_to_write(client_session->get_session_state(), ready_fd);
+    if (client_session->get_session_state() == kSendingResponse) {
+        update_fd_type(ready_fd, kReadFd, kWriteFd);
+    }
 
     if (client_session->is_session_completed()) {
         // std::cout << WHITE << " session complete fd: " << ready_fd << RESET << std::endl;
-        delete_session(session);
+        init_session(client_session);
     }
     return ServerResult::ok(OK);
 }

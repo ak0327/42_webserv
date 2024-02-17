@@ -12,7 +12,7 @@
 
 enum SessionState {
     kSessionInit,
-    kAccepted,
+    kSendingRequest,
     kReadingRequest,
     kCreatingResponse,
     kReadingFile,
@@ -41,6 +41,7 @@ class ClientSession {
     SessionResult process_client_event();
     SessionResult process_file_event();
 
+    void set_session_state(SessionState set_state);
     void close_file_fd();
     void close_client_fd();
 

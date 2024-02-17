@@ -83,7 +83,7 @@ SessionResult ClientSession::process_client_event() {
             this->session_state_ = kReadingRequest;
             // fallthrough
 
-        case kAccepted:
+        case kSendingRequest:
             std::cout << RED << "   session: 0 Accepted" << RESET << std::endl;
             this->session_state_ = kReadingRequest;
             // fallthrough
@@ -375,4 +375,9 @@ AddressPortPair ClientSession::get_client_listen(const struct sockaddr_storage &
     AddressPortPair pair(address, port);
     std::cout << CYAN << "address: " << address << ", port:" << port << RESET << std::endl;
     return pair;
+}
+
+
+void ClientSession::set_session_state(SessionState set_state) {
+    this->session_state_ = set_state;
 }
