@@ -8,41 +8,6 @@
 
 namespace {
 
-// std::string decode(const std::string &target) {
-// 	std::string decoded;
-// 	(void)target;
-//
-// 	return decoded;
-// }
-//
-// // "../" -> "/"
-// std::string canonicalize(const std::string &path) {
-// 	std::string canonicalized;
-// 	(void)path;
-//
-// 	return canonicalized;
-// }
-//
-// std::string find_resource_path(const std::string &canonicalized_path,
-// 							   const std::string &location) {
-// 	const std::string PATH_DELIMITER = "/";
-//
-// 	// todo
-// 	return location + PATH_DELIMITER + canonicalized_path;
-// }
-
-// location:tmp
-// '/' -> 'index.html'
-std::string get_resource_path(const std::string &request_target) {
-    std::string resource_path;
-
-    (void)request_target;
-
-    // decode
-    // canonicalize
-	return resource_path;
-}
-
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -54,25 +19,21 @@ HttpResponse::~HttpResponse() {}
 
 
 Result<int, int> HttpResponse::exec_method() {
-    std::string path;
+    std::string target = HttpResponse::get_resource_path(this->request_.get_request_target());
     Method method = HttpMessageParser::get_method(this->request_.get_method());
     std::ostringstream status_line_oss;
 
-    path = get_resource_path(this->request_.get_request_target());
-    (void)path;
-
-    //  request -> method -> status, header, body
     switch (method) {
         case kGET:
-            status_code_ = get_request_body();  // cgi -> return Fd
+            status_code_ = get_request_body(target);  // cgi -> return Fd
             break;
 
         case kPOST:
-            status_code_ = post_request_body();  // cgi -> return Fd
+            status_code_ = post_request_body(target);  // cgi -> return Fd
             break;
 
         case kDELETE:
-            status_code_ = delete_request_body();
+            status_code_ = delete_request_body(target);
             break;
 
         default:
@@ -80,6 +41,13 @@ Result<int, int> HttpResponse::exec_method() {
             return Result<int, int>::err(this->status_code_);
     }
     return Result<int, int>::ok(OK);
+}
+
+
+std::string HttpResponse::get_resource_path(const std::string &request_target) {
+    std::string decoded = HttpMessageParser::decode(request_target);
+    std::string normalized = HttpMessageParser::normalize(decoded);
+    return normalized;
 }
 
 
