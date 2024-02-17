@@ -3,6 +3,7 @@
 #include <exception>
 #include <string>
 #include <vector>
+#include <map>
 #include "gtest/gtest.h"
 #include "webserv.hpp"
 #include "Client.hpp"
@@ -42,9 +43,18 @@ void *run_server(void *server_info) {
 	try {
 		DEBUG_SERVER_PRINT("start");
 		Server server = Server(config);
+
+        ServerResult init_result = server.init();
+        if (init_result.is_err()) {
+            throw std::runtime_error(init_result.get_err_value());
+        }
         server.set_timeout(2500);
 		DEBUG_SERVER_PRINT("connecting...");
-        server.run();
+
+        ServerResult running_result = server.run();
+        if (running_result.is_err()) {
+            throw std::runtime_error(running_result.get_err_value());
+        }
 		// s->recv_msg = server.get_recv_message();
 		// vvv this func can print only 1 message vv
 		// printf("server connected. recv:[%s]\n", s->recv_msg.c_str());
@@ -61,9 +71,9 @@ void *run_client(void *client_info) {
 	bool is_client_success = true;
 	std::string msg = c->send_msg;
 
-	if (c->no != 0) {
-		msg += std::to_string(c->no);
-	}
+	// if (c->no != 0) {
+	// 	msg += std::to_string(c->no);
+	// }
 
 	try {
 		DEBUG_CLIENT_PRINT("no:%d start", c->no);
@@ -74,11 +84,12 @@ void *run_client(void *client_info) {
         client.recv_msg();
 		c->recv_msg = client.get_recv_message();
 		DEBUG_CLIENT_PRINT("no:%d connected. recv:[%s]", c->no, c->recv_msg.c_str());
-	}
+    }
 	catch (std::exception const &e) {
 		is_client_success = false;
 		std::cerr << e.what() << std::endl;
 	}
+    DEBUG_CLIENT_PRINT("no:%d finish", c->no);
 	return (void *)(is_client_success);
 }
 
@@ -117,17 +128,18 @@ void run_server_and_client(const char *server_ip,
 std::vector<s_client> init_client_infos(int client_count,
 										const char *server_ip,
 										const char *server_port,
-										const std::string &client_send_msg) {
-	std::vector<s_client> client_infos(client_count, {0, server_ip, server_port, client_send_msg, ""});
+										const std::vector<std::string> &client_send_msg) {
+	std::vector<s_client> client_infos(client_count, {0, server_ip, server_port, "", ""});
 	for (int i = 0; i < client_count; ++i) {
 		client_infos[i].no = i;
+        client_infos[i].send_msg = client_send_msg[i];
 	}
 	return client_infos;
 }
 
 void run_server_and_multi_client(const char *server_ip,
 								 const char *server_port,
-								 const std::string &client_send_msg,
+								 const std::vector<std::string> &client_send_msg,
 								 std::string &server_recv_msg,
 								 std::vector<std::string> &client_recv_msgs,
 								 int client_count) {
@@ -162,7 +174,8 @@ void run_server_and_multi_client(const char *server_ip,
 	server_recv_msg = server_info.recv_msg;
 	for (int i = 0; i < client_count; ++i) {
 		client_recv_msgs[i] = client_infos[i].recv_msg;
-	}
+        // std::cout << "client[" << i << "] received:" << client_recv_msgs[i] << std::endl;
+    }
 }
 
 }  // namespace
@@ -190,7 +203,7 @@ TEST(ServerUnitTest, ConnectClientCase1) {
 							  server_recv_msg,
 							  client_recv_msg);
 		// // EXPECT_EQ(msg, server_recv_msg);
-		EXPECT_EQ("400 BAD REQUEST", client_recv_msg);
+		EXPECT_EQ(msg, client_recv_msg);
 		std::cerr << YELLOW " client_send_msg:[" << msg << "]" RESET << std::endl;
 		// std::cerr << YELLOW " server_recv_msg:[" << server_recv_msg << "]" RESET << std::endl;
 		std::cerr << YELLOW " client_recv_msg:[" << client_recv_msg << "]" RESET << std::endl;
@@ -201,7 +214,7 @@ TEST(ServerUnitTest, ConnectClientCase1) {
 }
 
 TEST(ServerUnitTest, ConnectClientCase2) {
-	std::string msg = " ";  // todo: empty ng
+	std::string msg = "";
 	std::string server_recv_msg;
 	std::string client_recv_msg;
 
@@ -212,7 +225,7 @@ TEST(ServerUnitTest, ConnectClientCase2) {
 							  server_recv_msg,
 							  client_recv_msg);
 		// EXPECT_EQ(msg, server_recv_msg);
-		EXPECT_EQ("400 BAD REQUEST", client_recv_msg);
+		EXPECT_EQ(msg, client_recv_msg);
 		std::cerr << YELLOW " client_send_msg:[" << msg << "]" RESET << std::endl;
 		// std::cerr << YELLOW " server_recv_msg:[" << server_recv_msg << "]" RESET << std::endl;
 		std::cerr << YELLOW " client_recv_msg:[" << client_recv_msg << "]" RESET << std::endl;
@@ -234,7 +247,7 @@ TEST(ServerUnitTest, ConnectClientCase3) {
 							  server_recv_msg,
 							  client_recv_msg);
 		// EXPECT_EQ(msg, server_recv_msg);
-		EXPECT_EQ("400 BAD REQUEST", client_recv_msg);
+		EXPECT_EQ(msg, client_recv_msg);
 		std::cerr << YELLOW " client_send_msg:[" << msg << "]" RESET << std::endl;
 		// std::cerr << YELLOW " server_recv_msg:[" << server_recv_msg << "]" RESET << std::endl;
 		std::cerr << YELLOW " client_recv_msg:[" << client_recv_msg << "]" RESET << std::endl;
@@ -269,7 +282,7 @@ TEST(ServerUnitTest, ConnectClientCase4) {
 							  server_recv_msg,
 							  client_recv_msg);
 		// EXPECT_EQ(msg, server_recv_msg);
-		EXPECT_EQ("200 OK", client_recv_msg);
+		EXPECT_EQ(msg, client_recv_msg);
 		std::cerr << YELLOW " client_send_msg:[" << msg << "]" RESET << std::endl;
 		// std::cerr << YELLOW " server_recv_msg:[" << server_recv_msg << "]" RESET << std::endl;
 		std::cerr << YELLOW " client_recv_msg:[" << client_recv_msg << "]" RESET << std::endl;
@@ -303,82 +316,48 @@ TEST(ServerUnitTest, ConnectClientErrorInvalidPort) {
 										   client_recv_msg));
 }
 
-TEST(ServerUnitTest, ConnectMultiClient2) {
-	int client_count = 2;
-	std::string msg = "400 BAD REQUEST";
-	std::string server_recv_msg;
-	std::vector<std::string> client_recv_msgs(client_count);
 
-	try {
-		run_server_and_multi_client(SERVER_IP,
-									SERVER_PORT,
-									msg,
-									server_recv_msg,
-									client_recv_msgs,
-									client_count);
-		// // EXPECT_EQ(msg, server_recv_msg);
-		std::cerr << YELLOW " client_send_msg:[" << msg << "]" RESET << std::endl;
-		// std::cerr << YELLOW " server_recv_msg:[" << server_recv_msg << "]" RESET << std::endl;
-		for (int i = 0; i < client_count; ++i) {
-			EXPECT_EQ("400 BAD REQUEST", client_recv_msgs[i]);
-			std::cerr << YELLOW " client_recv_msg(" << i << "):[" << client_recv_msgs[i] << "]" RESET << std::endl;
-		}
-	}
-	catch (std::exception const &e) {
-		FAIL() << e.what();
-	}
+void test_multi_client(int client_count, const std::string &base_msg, std::size_t line) {
+    std::string server_recv_msg;
+    std::vector<std::string> client_recv_msgs(client_count);
+
+    std::vector<std::string> msg;
+    for (int i = 0; i < client_count; ++i) {
+        std::ostringstream oss;
+        oss << base_msg << ": from client No." << i;
+        msg.push_back(oss.str());
+        // std::cerr << MAGENTA " msg[" << i << "]:[" << msg[i] << "]" RESET << std::endl;
+    }
+
+    try {
+        for (int i = 0; i < client_count; ++i) {
+            run_server_and_multi_client(SERVER_IP,
+                                        SERVER_PORT,
+                                        msg,
+                                        server_recv_msg,
+                                        client_recv_msgs,
+                                        client_count);
+            // std::cerr << YELLOW " client_send_msg:[" << msg[i] << "]" RESET << std::endl;
+        }
+
+        // // EXPECT_EQ(msg, server_recv_msg);
+        // std::cerr << YELLOW " server_recv_msg:[" << server_recv_msg << "]" RESET << std::endl;
+        for (int i = 0; i < client_count; ++i) {
+            EXPECT_EQ(msg[i], client_recv_msgs[i]) << "  at L" << line;
+            std::cerr << YELLOW " client_recv_msg(" << i << "):[" << client_recv_msgs[i] << "]" RESET << std::endl;
+        }
+    }
+    catch (std::exception const &e) {
+        FAIL() << e.what() << "  at L" << line;
+    }
+
 }
 
-TEST(ServerUnitTest, ConnectMultiClient5) {
-	int client_count = 5;
-	std::string msg = "400 BAD REQUEST";
-	std::string server_recv_msg;
-	std::vector<std::string> client_recv_msgs(client_count);
 
-	try {
-		run_server_and_multi_client(SERVER_IP,
-									SERVER_PORT,
-									msg,
-									server_recv_msg,
-									client_recv_msgs,
-									client_count);
-		// // EXPECT_EQ(msg, server_recv_msg);
-		std::cerr << YELLOW " client_send_msg:[" << msg << "]" RESET << std::endl;
-		// std::cerr << YELLOW " server_recv_msg:[" << server_recv_msg << "]" RESET << std::endl;
-		for (int i = 0; i < client_count; ++i) {
-			EXPECT_EQ("400 BAD REQUEST", client_recv_msgs[i]);
-			std::cerr << YELLOW " client_recv_msg(" << i << "):[" << client_recv_msgs[i] << "]" RESET << std::endl;
-		}
-	}
-	catch (std::exception const &e) {
-		FAIL() << e.what();
-	}
-}
-
-TEST(ServerUnitTest, ConnectMultiClient20) {
-	int client_count = 20;
-	std::string msg = "400 BAD REQUEST";
-	std::string server_recv_msg;
-	std::vector<std::string> client_recv_msgs(client_count);
-
-	try {
-		run_server_and_multi_client(SERVER_IP,
-									SERVER_PORT,
-									msg,
-									server_recv_msg,
-									client_recv_msgs,
-									client_count);
-		// // EXPECT_EQ(msg, server_recv_msg);
-		std::cerr << YELLOW " client_send_msg:[" << msg << "]" RESET << std::endl;
-		// std::cerr << YELLOW " server_recv_msg:[" << server_recv_msg << "]" RESET << std::endl;
-		for (int i = 0; i < client_count; ++i) {
-			EXPECT_EQ("400 BAD REQUEST", client_recv_msgs[i]);
-			std::cerr << YELLOW " client_recv_msg(" << i << "):[" << client_recv_msgs[i] << "]" RESET << std::endl;
-		}
-	}
-	catch (std::exception const &e) {
-		FAIL() << e.what();
-	}
+TEST(ServerUnitTest, ConnectMultiClient) {
+    test_multi_client(1, "test message", __LINE__);
+    test_multi_client(5, "xxxxxxxxxxxx", __LINE__);
+    test_multi_client(20, "a b c", __LINE__);
 }
 
 
