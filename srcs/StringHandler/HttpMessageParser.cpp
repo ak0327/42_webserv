@@ -5,6 +5,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <sstream>
 #include <vector>
 #include "Color.hpp"
 #include "Constant.hpp"
@@ -635,6 +636,16 @@ parse_value_and_map_values(const std::string &field_value,
 	pos = end;
 	*end_pos = pos;
 	return Result<int, int>::ok(OK);
+}
+
+
+Method get_method(const std::string & method) {
+    const std::string lower = StringHandler::to_lower(method);  // todo: toupper?
+
+    if (lower == "get") { return kGET; }
+    if (lower == "post") { return kPOST; }
+    if (lower == "delete") { return kDELETE; }
+    return kErrorMethod;
 }
 
 

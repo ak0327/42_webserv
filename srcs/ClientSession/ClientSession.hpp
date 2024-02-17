@@ -6,7 +6,7 @@
 # include "ConfigStruct.hpp"
 # include "Configuration.hpp"
 # include "HttpRequest.hpp"
-
+# include "HttpResponse.hpp"
 # include "Result.hpp"
 # include "webserv.hpp"
 
@@ -15,6 +15,7 @@ enum SessionState {
     kAccepted,
     kReadingRequest,
     kCreatingResponse,
+    kCreatingResponseBody,
     kReadingFile,
     kExecutingCGI,
     kSendingResponse,
@@ -68,10 +69,10 @@ class ClientSession {
     AddressPortPair client_listen_;
 
     Result<std::string, std::string> recv_request();
-    SessionResult send_response();
+    Result<int, int> send_response();
 
     Result<int, int> parse_http_request();
-    SessionResult create_http_response();
+    Result<Fd, int> create_http_response();
     Result<AddressPortPair, std::string> get_address_port_pair() const;
     Result<ServerConfig, std::string> get_server_config() const;
     SessionResult update_config_params();

@@ -7,7 +7,7 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -pedantic")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fsanitize=address,undefined -fno-omit-frame-pointer")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D UTEST")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D ECHO")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D ECHO")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D DEBUG")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D USE_SELECT")
 
@@ -51,6 +51,10 @@ include_directories(
         srcs/Server
         srcs/Socket
         srcs/StringHandler
+        srcs/HttpResponse
+        srcs/HttpResponse/GET
+        srcs/HttpResponse/POST
+        srcs/HttpResponse/DELETE
         srcs/HttpRequest
         srcs/HttpRequest/Date
         srcs/HttpRequest/FieldValueBase
@@ -89,22 +93,21 @@ set(webserv_srcs
 )
 
 # request_srcs -----------------------------------------------------------------
-
 set(http_request_srcs
         srcs/HttpRequest/HttpRequest.cpp
         srcs/HttpRequest/RequestLine/RequestLine.cpp
-        )
+)
 
 # Date
 set(date_srcs
         srcs/HttpRequest/Date/Date.cpp
         srcs/HttpRequest/Date/set_date.cpp
-        )
+)
 
 # FieldValueBase
 set(field_value_base_srcs
         srcs/HttpRequest/FieldValueBase/FieldValueBase.cpp
-        )
+)
 
 # FieldValueWithWeight
 set(field_value_with_weight_srcs
@@ -113,7 +116,7 @@ set(field_value_with_weight_srcs
         srcs/HttpRequest/FieldValueWithWeight/set_accept_encoding.cpp
         srcs/HttpRequest/FieldValueWithWeight/set_accept_language.cpp
         srcs/HttpRequest/FieldValueWithWeight/set_te.cpp
-        )
+)
 
 # MapFieldValues
 set(map_field_values_srcs
@@ -125,7 +128,7 @@ set(map_field_values_srcs
         srcs/HttpRequest/MapFieldValues/set_keep_alive.cpp
         srcs/HttpRequest/MapFieldValues/set_range.cpp
         srcs/HttpRequest/MapFieldValues/set_upgrade.cpp
-        )
+)
 
 # MapSetFieldValues
 set(map_set_field_values_srcs
@@ -133,31 +136,31 @@ set(map_set_field_values_srcs
         srcs/HttpRequest/MapSetFieldValues/set_forwarded.cpp
         srcs/HttpRequest/MapSetFieldValues/set_link.cpp
         srcs/HttpRequest/MapSetFieldValues/set_via.cpp
-        )
+)
 
 # MediaType
 set(media_type_srcs
         srcs/HttpRequest/MediaType/MediaType.cpp
         srcs/HttpRequest/MediaType/set_media_type.cpp
-        )
+)
 
 # MultiFieldValues
 set(multi_field_values
         srcs/HttpRequest/MultiFieldValues/MultiFieldValues.cpp
         srcs/HttpRequest/MultiFieldValues/set_multi_field_values.cpp
-        )
+)
 
 # SingleFieldValue
 set(single_field_value_srcs
         srcs/HttpRequest/SingleFieldValue/SingleFieldValue.cpp
         srcs/HttpRequest/SingleFieldValue/set_single_field_value.cpp
-        )
+)
 
 # ValueAndMapFieldValues
 set(value_and_map_field_values_srcs
         srcs/HttpRequest/ValueAndMapFieldValues/ValueAndMapFieldValues.cpp
         srcs/HttpRequest/ValueAndMapFieldValues/set_content_disposition.cpp
-        )
+)
 
 list(APPEND http_request_srcs
         ${date_srcs}
@@ -169,18 +172,50 @@ list(APPEND http_request_srcs
         ${multi_field_values}
         ${single_field_value_srcs}
         ${value_and_map_field_values_srcs}
-        )
+)
 
 list(APPEND webserv_srcs
         ${http_request_srcs}
-        )
+)
 
-# request_srcs -----------------------------------------------------------------
 
+# response_srcs ----------------------------------------------------------------
+set(http_response_srcs
+        srcs/HttpResponse/error_pages.cpp
+        srcs/HttpResponse/HttpResponse.cpp
+)
+# GET
+set(get_srcs
+        srcs/HttpResponse/GET/get_cgi_result.cpp
+        srcs/HttpResponse/GET/get_directory_listing.cpp
+        srcs/HttpResponse/GET/get_file_content.cpp
+        srcs/HttpResponse/GET/get_request_body.cpp
+)
+
+# POST
+set(post_srcs
+)
+
+# DELETE
+set(delete_srcs
+)
+
+list(APPEND http_response_srcs
+        ${get_srcs}
+        ${post_srcs}
+        ${delete_srcs}
+)
+
+list(APPEND webserv_srcs
+        ${http_response_srcs}
+)
+
+
+# webserv_srcs -----------------------------------------------------------------
 add_executable(webserv
         srcs/main.cpp
         ${webserv_srcs}
-        )
+)
 
 ################################################################################
 # unit_test_srcs ---------------------------------------------------------------

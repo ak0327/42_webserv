@@ -82,7 +82,6 @@ Server::~Server() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-
 ServerResult Server::init() {
     ServerResult socket_result = create_sockets(this->config_);
     if (socket_result.is_err()) {
@@ -361,7 +360,11 @@ ServerResult Server::process_session(int ready_fd) {
         const std::string error_msg = result.get_err_value();
         return ServerResult::err(error_msg);
     }
-
+    if (result.get_ok_value() != OK) {
+        int cgi_fd = result.get_ok_value();
+        this->fds_->register_read_fd(cgi_fd);
+        return ServerResult::ok(OK);
+    }
     update_fd_type_read_to_write(client_session->get_session_state(), ready_fd);
 
     if (client_session->is_session_completed()) {
