@@ -83,7 +83,6 @@ SessionResult ClientSession::process_client_event() {
             this->session_state_ = kReadingRequest;
             // fallthrough
 
-        case kSendingRequest:
             std::cout << RED << "   session: 0 Accepted" << RESET << std::endl;
             this->session_state_ = kReadingRequest;
             // fallthrough
