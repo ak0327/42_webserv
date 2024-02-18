@@ -160,7 +160,6 @@ ServerResult Server::create_sockets(const Configuration &config) {
         // std::cout << CYAN
         // << "create_sockets -> ip: " << address
         // << ", port: " << port << RESET << std::endl;
-
         try {
             Result<Socket *, std::string> socket_result = create_socket(address, port);
             if (socket_result.is_err()) {
@@ -233,7 +232,7 @@ Result<IOMultiplexer *, std::string> Server::create_io_multiplexer_fds() {
             fds->register_read_fd(socket_fd);
 #endif
             this->socket_fds_.push_back(socket_fd);
-            std::cout << " socket_fd: " << socket_fd << std::endl;
+            DEBUG_SERVER_PRINT(" socket_fd: %d", socket_fd);
         }
         return Result<IOMultiplexer *, std::string>::ok(fds);
     } catch (std::bad_alloc const &e) {
@@ -248,30 +247,29 @@ Result<IOMultiplexer *, std::string> Server::create_io_multiplexer_fds() {
 
 ServerResult Server::run() {
 	while (true) {
-        std::cout << GREEN << " loop 1 get_io_ready_fd" << RESET << std::endl;
-
+        DEBUG_SERVER_PRINT(" loop 1 get_io_ready_fd");
         ServerResult fd_ready_result = this->fds_->get_io_ready_fd();
-        std::cout << GREEN << " loop 2 ready result" << RESET << std::endl;
+        DEBUG_SERVER_PRINT(" loop 2 ready result");
 		if (fd_ready_result.is_err()) {
-            std::cout << GREEN << " loop : error 1" << RESET << std::endl;
+            DEBUG_SERVER_PRINT(" loop : error 1");
             const std::string error_msg = fd_ready_result.get_err_value();
             return ServerResult::err(error_msg);
 		}
 		int ready_fd = fd_ready_result.get_ok_value();
-        std::cout << GREEN << " loop 3: ready_fd: " << ready_fd << RESET << std::endl;
+        DEBUG_SERVER_PRINT("loop 3: ready_fd: %d", ready_fd);
 		if (ready_fd == IO_TIMEOUT) {
 			std::cerr << "[Server INFO] timeout" << std::endl;
 			break;
 		}
-        std::cout << GREEN << " loop 4 communicate" << RESET << std::endl;
-
+        DEBUG_SERVER_PRINT(" loop 4 communicate");
         ServerResult communicate_result = communicate_with_client(ready_fd);
 		if (communicate_result.is_err()) {
             const std::string error_msg = communicate_result.get_err_value();
+            DEBUG_SERVER_PRINT("");
             std::cout << GREEN << " loop : error 2" << RESET << std::endl;
             return ServerResult::err(error_msg);
 		}
-        std::cout << GREEN << " loop 5 next loop" << RESET << std::endl;
+        DEBUG_SERVER_PRINT(" loop 5 next loop");
     }
     return ServerResult::ok(OK);
 }
@@ -305,7 +303,10 @@ ServerResult Server::create_session(int socket_fd) {
     try {
         // std::cout << CYAN << " new_session created" << RESET << std::endl;
         AddressPortPair client_listen = ClientSession::get_client_listen(client_addr);
-        std::cout << CYAN << "client_listen: " << client_listen << RESET << std::endl;
+
+        std::ostringstream oss; oss << client_listen;
+        DEBUG_SERVER_PRINT("%s", oss.str().c_str());
+
         ClientSession *new_session = new ClientSession(socket_fd, connect_fd, client_listen, this->config_);
         this->sessions_[connect_fd] = new_session;
         // std::cout << CYAN << " session start" << connect_fd << RESET << std::endl;
@@ -383,10 +384,10 @@ ServerResult Server::process_session(int ready_fd) {
 
 ServerResult Server::communicate_with_client(int ready_fd) {
 	if (is_socket_fd(ready_fd)) {
-        std::cout << "  ready_fd: socket_fd: " << ready_fd << std::endl;
+        DEBUG_SERVER_PRINT("  ready_fd=socket fd: %d", ready_fd);
         return create_session(ready_fd);
 	} else {
-        std::cout << "  ready_fd: client_fd: " << ready_fd << std::endl;
+        DEBUG_SERVER_PRINT("  ready_fd=client fd: %d", ready_fd);
         return process_session(ready_fd);
     }
 }
@@ -405,7 +406,7 @@ ServerResult Server::accept_connect_fd(int socket_fd,
         return ServerResult::err(error_msg);
     }
 	int connect_fd = accept_result.get_ok_value();
-    std::cout << "  accepted connect_fd: " << connect_fd << std::endl;
+    DEBUG_SERVER_PRINT("  accepted connect fd: %d", connect_fd);
 
     ServerResult fd_register_result = this->fds_->register_read_fd(connect_fd);
 	if (fd_register_result.is_err()) {

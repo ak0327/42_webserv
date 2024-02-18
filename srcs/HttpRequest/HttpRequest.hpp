@@ -26,10 +26,11 @@ class HttpRequest {
 	std::string get_request_target() const;
 	std::string	get_http_version() const;
 
-    Result<std::size_t, std::string> recv_all_data(int fd, std::size_t max_size);
+    static ssize_t recv(int fd, void *buf, std::size_t bufsize);
+    size_t recv_all_data(int fd, std::size_t max_size);
     Result<int, int> parse_request_line(int fd);
-    Result<int, int> parse_request_header(int fd);
-    Result<int, int> parse_request_body(int fd, std::size_t max_body_size);
+    Result<int, int> parse_header(int fd);
+    Result<int, int> parse_body(int fd, std::size_t max_body_size);
     Result<HostPortPair, int> get_server_info();
 
 	bool is_field_name_supported_parsing(const std::string &field_name);

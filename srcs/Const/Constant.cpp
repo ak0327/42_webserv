@@ -9,6 +9,9 @@ const int ERR = -1;
 
 const int GETADDRINFO_SUCCESS = 0;
 
+const ssize_t RECV_COMPLETED = 0;
+const ssize_t SEND_COMPLETED = 0;
+
 const int ACCEPT_ERROR = -1;
 const int BIND_ERROR = -1;
 const int CLOSE_ERROR = -1;

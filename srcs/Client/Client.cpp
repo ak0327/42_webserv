@@ -82,7 +82,7 @@ void Client::recv_msg() {
             throw std::runtime_error(RED + err_str + RESET);
         }
         buf[recv_size] = '\0';
-        std::cout << YELLOW << " client: recv[" << std::string(buf, recv_size) << "]" << RESET << std::endl;
+        DEBUG_CLIENT_PRINT(" client: recv[%s]", std::string(buf, recv_size).c_str());
 
         recv_msg += buf;
 
@@ -90,7 +90,7 @@ void Client::recv_msg() {
             break;
         }
     }
-    std::cout << YELLOW << " client: recv_message[" << recv_msg << "]" << RESET << std::endl;
+    DEBUG_CLIENT_PRINT(" client: recv_message[%s]", recv_msg.c_str());
     this->recv_message_ = recv_msg;
 
     DEBUG_CLIENT_PRINT("client recv end");

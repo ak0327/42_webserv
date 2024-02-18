@@ -357,7 +357,8 @@ Result<int, std::string> Select::select_fds() {
 int Select::get_ready_fd() const {
     int ready_fd = INIT_FD;
 
-    std::cout << CYAN << "ready_fds: ";
+    std::ostringstream oss_read_fds;
+    oss_read_fds << "ready read_fds: ";
 
     for (std::size_t i = 0; i < this->read_fds_.size(); ++i) {
         if (this->read_fds_[i] == INIT_FD) {
@@ -369,12 +370,13 @@ int Select::get_ready_fd() const {
         if (ready_fd == INIT_FD) {
             ready_fd = this->read_fds_[i];
         }
-        std::cout << this->read_fds_[i];
+        oss_read_fds << this->read_fds_[i] << " ";
         // return this->fds_[i];
     }
-    std::cout << RESET << std::endl;
+    oss_read_fds << std::endl;
 
-    std::cout << CYAN << "write_fds: ";
+    std::ostringstream oss_write_fds;
+    oss_write_fds << "ready write_fds: ";
     for (std::size_t i = 0; i < this->write_fds_.size(); ++i) {
         if (this->write_fds_[i] == INIT_FD) {
             continue;
@@ -385,11 +387,12 @@ int Select::get_ready_fd() const {
         if (ready_fd == INIT_FD) {
             ready_fd = this->write_fds_[i];
         }
-        std::cout << this->write_fds_[i];
+        oss_write_fds << this->write_fds_[i] << " ";
         // return this->fds_[i];
     }
-    std::cout << RESET << std::endl;
-
+    oss_write_fds << std::endl;
+    DEBUG_SERVER_PRINT("%s", oss_read_fds.str().c_str());
+    DEBUG_SERVER_PRINT("%s", oss_write_fds.str().c_str());
     return ready_fd;
 }
 

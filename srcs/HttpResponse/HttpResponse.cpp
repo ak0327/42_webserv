@@ -2,6 +2,7 @@
 #include <sstream>
 #include <vector>
 #include "Color.hpp"
+#include "Debug.hpp"
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
 #include "HttpMessageParser.hpp"
@@ -40,6 +41,11 @@ Result<int, int> HttpResponse::exec_method() {
             status_code_ = STATUS_BAD_REQUEST;
             return Result<int, int>::err(this->status_code_);
     }
+    return Result<int, int>::ok(OK);
+}
+
+
+Result<int, int> HttpResponse::create_response_body() {
     return Result<int, int>::ok(OK);
 }
 
@@ -87,8 +93,8 @@ std::string HttpResponse::get_response_message() const {
 #ifdef ECHO
 
 void HttpResponse::create_echo_msg(const std::vector<unsigned char> &recv_msg) {
+    DEBUG_SERVER_PRINT("   create_echo_msg:[%s]", this->echo_message_.c_str());
     this->echo_message_ = std::string(recv_msg.begin(), recv_msg.end());
-    std::cout << MAGENTA << "echo msg:" << this->echo_message_ << RESET << std::endl;
 }
 
 std::string HttpResponse::get_echo_msg() const {
