@@ -12,6 +12,9 @@ extern const int ERR;
 
 extern const int GETADDRINFO_SUCCESS;
 
+extern const ssize_t RECV_COMPLETED;
+extern const ssize_t SEND_COMPLETED;
+
 extern const int ACCEPT_ERROR;
 extern const int BIND_ERROR;
 extern const int CLOSE_ERROR;

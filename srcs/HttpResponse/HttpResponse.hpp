@@ -57,6 +57,7 @@ class HttpResponse {
 	std::string get_response_message() const;
 
     Result<int, int> exec_method();
+    Result<int, int> create_response_body();
 
 #ifdef ECHO
     HttpResponse();

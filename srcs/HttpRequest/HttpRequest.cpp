@@ -8,6 +8,7 @@
 #include <vector>
 #include "Color.hpp"
 #include "Constant.hpp"
+#include "Debug.hpp"
 #include "Error.hpp"
 #include "HttpRequest.hpp"
 #include "HttpMessageParser.hpp"
@@ -133,29 +134,51 @@ void HttpRequest::clear_field_values_of(const std::string &field_name) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+ssize_t HttpRequest::recv(int fd, void *buf, std::size_t bufsize) {
+    ssize_t recv_size;
 
-Result<std::size_t, std::string> HttpRequest::recv_all_data(int fd, std::size_t max_size) {
+    errno = 0;
+    recv_size = ::recv(fd, buf, bufsize, FLAG_NONE);
+    int tmp_errno = errno;
+    DEBUG_SERVER_PRINT("    recv_size: %zd", recv_size);
+    if (recv_size == RECV_COMPLETED) {
+        return RECV_COMPLETED;
+    }
+    if (recv_size == RECV_ERROR) {
+        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(tmp_errno);
+        DEBUG_SERVER_PRINT("%s", error_msg.c_str());
+        // return Result<std::size_t, std::string>::err(error_info);
+        return RECV_COMPLETED;  // non-blocking -> recv completed
+    }
+    return recv_size;
+}
+
+
+size_t HttpRequest::recv_all_data(int fd, std::size_t max_size) {
     unsigned char buf[BUFSIZ];
     ssize_t recv_size;
     std::size_t total_size = this->buf_.size();
 
+    DEBUG_SERVER_PRINT("    recv start");
+
     while (true) {
-        errno = 0;
-        recv_size = recv(fd, buf, BUFSIZ, FLAG_NONE);
-        if (recv_size == 0) {
+        recv_size = HttpRequest::recv(fd, buf, BUFSIZ);
+        DEBUG_SERVER_PRINT("    recv_size: %zd", recv_size);
+        if (recv_size == RECV_COMPLETED) {
             break;
         }
-        if (recv_size == RECV_ERROR) {
-            const std::string error_info = CREATE_ERROR_INFO_ERRNO(errno);
-            return Result<std::size_t, std::string>::err(error_info);
-        }
+
         total_size += recv_size;
         if (max_size < total_size) {
-            return Result<std::size_t, std::string>::ok(total_size);
+            DEBUG_SERVER_PRINT("     recv_size exceeded max_body_size");
+            break;
         }
         this->buf_.insert(this->buf_.end(), buf, buf + recv_size);
     }
-    return Result<std::size_t, std::string>::ok(total_size);
+    std::string recv_body(this->buf_.begin(), this->buf_.end());
+    DEBUG_SERVER_PRINT("    recv_msg[%s]", recv_body.c_str());
+    DEBUG_SERVER_PRINT("    recv end");
+    return total_size;
 }
 
 
@@ -179,14 +202,9 @@ Result<int, std::string> HttpRequest::recv_until_empty_line(int fd) {
     ssize_t recv_size;
 
     while (true) {
-        errno = 0;
-        recv_size = recv(fd, recv_buf, BUFSIZ, FLAG_NONE);
-        if (recv_size == 0) {
+        recv_size = HttpRequest::recv(fd, recv_buf, BUFSIZ);
+        if (recv_size == RECV_COMPLETED) {
             break;
-        }
-        if (recv_size == RECV_ERROR) {
-            const std::string error_info = CREATE_ERROR_INFO_ERRNO(errno);
-            return Result<int, std::string>::err(error_info);
         }
 
         std::size_t old_size = this->buf_.size();
@@ -209,15 +227,11 @@ Result<int, std::string> HttpRequest::recv_start_line(int fd) {
     bool is_prev_end_with_cr = false;
 
     while (true) {
-        errno = 0;
-        recv_size = recv(fd, recv_buf, BUFSIZ, FLAG_NONE);
-        if (recv_size == 0) {
+        recv_size = HttpRequest::recv(fd, recv_buf, BUFSIZ);
+        if (recv_size == RECV_COMPLETED) {
             break;
         }
-        if (recv_size == RECV_ERROR) {
-            const std::string error_info = CREATE_ERROR_INFO_ERRNO(errno);
-            return Result<int, std::string>::err(error_info);
-        }
+
         this->buf_.insert(this->buf_.end(), recv_buf, recv_buf + recv_size);
 
         if (is_crlf_in_buf(recv_buf, recv_size)) {
@@ -322,9 +336,16 @@ void HttpRequest::trim(std::vector<unsigned char> *buf,
 // start-line CRLF
 Result<int, int> HttpRequest::parse_request_line(int fd) {
     Result<int, std::string> recv_result = recv_start_line(fd);
+    if (recv_result.is_err()) {
+        const std::string error_msg = recv_result.get_err_value();
+        DEBUG_SERVER_PRINT("error: %s", error_msg.c_str());
+        this->status_code_ = STATUS_SERVER_ERROR;
+        return Result<int, int>::err(this->status_code_);
+    }
 
     std::vector<unsigned char>::const_iterator next_start;
-    Result<std::string, std::string> get_line_result = get_line(this->buf_, this->buf_.begin(), &next_start);
+    Result<std::string, std::string> get_line_result;
+    get_line_result = get_line(this->buf_, this->buf_.begin(), &next_start);
     if (get_line_result.is_err()) {
         this->status_code_ = STATUS_SERVER_ERROR;
         return Result<int, int>::err(this->status_code_);
@@ -343,9 +364,11 @@ Result<int, int> HttpRequest::parse_request_line(int fd) {
 }
 
 
-Result<int, int> HttpRequest::parse_request_header(int fd) {
+Result<int, int> HttpRequest::parse_header(int fd) {
     Result<int, std::string> recv_result = recv_until_empty_line(fd);
     if (recv_result.is_err()) {
+        const std::string error_msg = recv_result.get_err_value();
+        DEBUG_SERVER_PRINT("error: %s", error_msg.c_str());
         this->status_code_ = STATUS_SERVER_ERROR;
         return Result<int, int>::err(this->status_code_);
     }
@@ -367,14 +390,8 @@ Result<int, int> HttpRequest::parse_request_header(int fd) {
 }
 
 
-Result<int, int> HttpRequest::parse_request_body(int fd, std::size_t max_body_size) {
-    Result<std::size_t, std::string> recv_result = recv_all_data(fd, max_body_size);
-    if (recv_result.is_err()) {
-        const std::string error_msg = recv_result.get_err_value();
-        this->status_code_ = STATUS_SERVER_ERROR;
-        return Result<int, int>::err(this->status_code_);
-    }
-    std::size_t body_size = recv_result.get_ok_value();
+Result<int, int> HttpRequest::parse_body(int fd, std::size_t max_body_size) {
+    size_t body_size = recv_all_data(fd, max_body_size);
     if (max_body_size < body_size) {
         this->status_code_ = REQUEST_ENTITY_TOO_LARGE;
         return Result<int, int>::err(this->status_code_);

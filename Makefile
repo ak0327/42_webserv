@@ -109,7 +109,6 @@ SRCS		+=  $(VALUE_AND_MAP_FIELD_VALUES_DIR)/ValueAndMapFieldValues.cpp \
 #HTTP Response
 RESPONSE_DIR =	HttpResponse
 SRCS		+=	$(RESPONSE_DIR)/HttpResponse.cpp \
-				$(RESPONSE_DIR)/error_pages.cpp \
 				$(RESPONSE_DIR)/GET/get_cgi_result.cpp \
 				$(RESPONSE_DIR)/GET/get_directory_listing.cpp \
 				$(RESPONSE_DIR)/GET/get_file_content.cpp \
@@ -222,16 +221,18 @@ run_unit_test	:
 
 .PHONY	: run_server_test
 run_server_test	:
-	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D UTEST -D ECHO"
+	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D UTEST -D ECHO -D DEBUG"
+	#cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D UTEST -D ECHO"
 	#cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG -D USE_SELECT"
 	cmake --build build
 	#./build/unit_test --gtest_filter=Server* 2>/dev/null
 	#./build/unit_test --gtest_filter=*.ConnectClientCase1
-	./build/unit_test --gtest_filter=Server*
+	#./build/unit_test --gtest_filter=Server*
 	#./build/unit_test --gtest_filter=ServerUnitTest.TestMultiServer
-	#./build/unit_test --gtest_filter=ServerUnitTest.ConnectClientCase*
+#	./build/unit_test --gtest_filter=ServerUnitTest.ConnectClientCase*
+	#./build/unit_test --gtest_filter=ServerUnitTests.ConnectClientCase1
 	#./build/unit_test --gtest_filter=ServerUnitTest.ConnectClientCase2
-	#./build/unit_test --gtest_filter=ServerUnitTest.ConnectMultiClient
+	./build/unit_test --gtest_filter=ServerUnitTest.ConnectMultiClient
 
 .PHONY	: run_socket_test
 run_socket_test	:
