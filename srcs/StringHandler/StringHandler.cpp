@@ -400,4 +400,19 @@ bool is_char_in_str(char c, const std::string &str) {
 }
 
 
+std::string get_extension(const std::string &path) {
+    std::size_t ext_pos, slash_pos;
+
+    ext_pos = path.find_last_of(EXTENSION_DELIM);
+    if (ext_pos == std::string::npos) {
+        return std::string(EMPTY);
+    }
+    slash_pos = path.find_last_of(PATH_DELIM);
+    if (slash_pos != std::string::npos && ext_pos < slash_pos) {
+        return std::string(EMPTY);
+    }
+    return path.substr(ext_pos + 1);
+}
+
+
 }  // namespace StringHandler
