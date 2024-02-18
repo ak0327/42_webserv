@@ -239,7 +239,6 @@ Result<int, int> ClientSession::parse_http_request() {
         return Result<int, int>::err(STATUS_BAD_REQUEST);  // todo
     }
 #endif
-
     // body
     Result<int, int> body_result;
     body_result = this->request_->parse_body(this->client_fd_,
@@ -274,37 +273,9 @@ Result<Fd, int> ClientSession::create_http_response() {
         std::cerr << err_info << std::endl;
         return Result<Fd, int> ::err(STATUS_SERVER_ERROR);
     }
-
     return this->response_->exec_method();
     // todo
 #endif
-}
-
-
-Result<std::string, std::string> ClientSession::recv_request() {
-    char		buf[BUFSIZ];
-    ssize_t		recv_size;
-    std::string	recv_msg;
-
-    DEBUG_SERVER_PRINT("   recv start");
-    while (true) {
-        errno = 0;
-        recv_size = recv(this->client_fd_, buf, BUFSIZ, FLAG_NONE);
-        if (recv_size == RECV_COMPLETED) {
-        	break;
-        }
-        if (recv_size == RECV_ERROR) {
-            const std::string error_info = CREATE_ERROR_INFO_ERRNO(errno);
-            return Result<std::string, std::string>::err(error_info);
-        }
-        recv_msg.append(std::string(buf, recv_size));
-        if (recv_size < BUFSIZ) {
-            break;
-        }
-    }
-    DEBUG_SERVER_PRINT("    recv_msg:[%s]", recv_msg.c_str());
-    DEBUG_SERVER_PRINT("   recv end");
-    return Result<std::string, std::string>::ok(recv_msg);
 }
 
 

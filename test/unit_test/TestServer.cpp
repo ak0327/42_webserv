@@ -18,13 +18,15 @@ namespace {
 const char *SERVER_IP = "127.0.0.1";
 const char *SERVER_PORT = "8080";
 
-struct s_server {
+
+struct ServerTest {
 	const char	*server_ip;
 	const char	*server_port;
 	std::string	recv_msg;
 };
 
-struct s_client {
+
+struct ClientTest {
 	int			no;
 	const char	*server_ip;
 	const char	*server_port;
@@ -32,10 +34,11 @@ struct s_client {
 	std::string	recv_msg;
 };
 
+
 /* helper */
 void *run_server(void *server_info) {
     (void)server_info;
-	// s_server *s = (s_server *)server_info;
+	// ServerTest *s = (ServerTest *)server_info;
 	bool is_server_success = true;
     const char *file_path = "test/test_conf/test_server.conf";
     Configuration config(file_path);
@@ -66,8 +69,9 @@ void *run_server(void *server_info) {
 	return (void *)(is_server_success);
 }
 
+
 void *run_client(void *client_info) {
-	s_client *c = (s_client *)client_info;
+	ClientTest *c = (ClientTest *)client_info;
 	bool is_client_success = true;
 	std::string msg = c->send_msg;
 
@@ -93,13 +97,14 @@ void *run_client(void *client_info) {
 	return (void *)(is_client_success);
 }
 
+
 void run_server_and_client(const char *server_ip,
 						   const char *server_port,
 						   const std::string &client_send_msg,
 						   std::string &server_recv_msg,
 						   std::string &client_recv_msg) {
-	s_server server_info = {server_ip, server_port, ""};
-	s_client client_info = {0, server_ip, server_port, client_send_msg, ""};
+	ServerTest server_info = {server_ip, server_port, ""};
+	ClientTest client_info = {0, server_ip, server_port, client_send_msg, ""};
 	pthread_t server_tid, client_tid;
 	int ret_server, ret_client;
 	bool is_server_success, is_client_success;
@@ -125,11 +130,12 @@ void run_server_and_client(const char *server_ip,
 	client_recv_msg = client_info.recv_msg;
 }
 
-std::vector<s_client> init_client_infos(int client_count,
+
+std::vector<ClientTest> init_client_infos(int client_count,
 										const char *server_ip,
 										const char *server_port,
 										const std::vector<std::string> &client_send_msg) {
-	std::vector<s_client> client_infos(client_count, {0, server_ip, server_port, "", ""});
+	std::vector<ClientTest> client_infos(client_count, {0, server_ip, server_port, "", ""});
 	for (int i = 0; i < client_count; ++i) {
 		client_infos[i].no = i;
         client_infos[i].send_msg = client_send_msg[i];
@@ -137,14 +143,15 @@ std::vector<s_client> init_client_infos(int client_count,
 	return client_infos;
 }
 
+
 void run_server_and_multi_client(const char *server_ip,
 								 const char *server_port,
 								 const std::vector<std::string> &client_send_msg,
 								 std::string &server_recv_msg,
 								 std::vector<std::string> &client_recv_msgs,
 								 int client_count) {
-	s_server server_info = {server_ip, server_port, ""};
-	std::vector<s_client> client_infos = init_client_infos(client_count, server_ip, server_port, client_send_msg);
+	ServerTest server_info = {server_ip, server_port, ""};
+	std::vector<ClientTest> client_infos = init_client_infos(client_count, server_ip, server_port, client_send_msg);
 	pthread_t server_tid;
 	std::vector<pthread_t> client_tids(client_count);
 	int ret_server, ret_client;
@@ -191,6 +198,7 @@ TEST(ServerUnitTest, Constructor) {
 	EXPECT_NO_THROW((Server(config)));
 }
 
+
 TEST(ServerUnitTest, ConnectClientCase1) {
 	std::string msg = "test request";
 	std::string server_recv_msg;
@@ -212,6 +220,7 @@ TEST(ServerUnitTest, ConnectClientCase1) {
 		FAIL() << e.what() << std::endl;
 	}
 }
+
 
 TEST(ServerUnitTest, ConnectClientCase2) {
 	std::string msg = "";
@@ -235,6 +244,7 @@ TEST(ServerUnitTest, ConnectClientCase2) {
 	}
 }
 
+
 TEST(ServerUnitTest, ConnectClientCase3) {
 	std::string msg = "a\n\n\nb\n\n\n\n\r\nc\td";
 	std::string server_recv_msg;
@@ -256,6 +266,7 @@ TEST(ServerUnitTest, ConnectClientCase3) {
 		FAIL() << e.what() << std::endl;
 	}
 }
+
 
 TEST(ServerUnitTest, ConnectClientCase4) {
 	std::string msg =
@@ -292,6 +303,7 @@ TEST(ServerUnitTest, ConnectClientCase4) {
 	}
 }
 
+
 TEST(ServerUnitTest, ConnectClientErrorInvalidIP) {
 	std::string msg = "400 BAD REQUEST";
 	std::string server_recv_msg;
@@ -303,6 +315,7 @@ TEST(ServerUnitTest, ConnectClientErrorInvalidIP) {
 										   server_recv_msg,
 										   client_recv_msg));
 }
+
 
 TEST(ServerUnitTest, ConnectClientErrorInvalidPort) {
 	std::string msg = "400 BAD REQUEST";
@@ -353,14 +366,14 @@ void test_multi_client(int client_count, const std::string &base_msg, std::size_
 
 
 TEST(ServerUnitTest, ConnectMultiClient) {
-    // test_multi_client(1, "test message", __LINE__);
+    test_multi_client(1, "test message", __LINE__);
     test_multi_client(2, "xxxxxxxxxxxx", __LINE__);
-    // test_multi_client(5, "xxxxxxxxxxxx", __LINE__);
-    // test_multi_client(5, "", __LINE__);
-    // test_multi_client(5, "a", __LINE__);
-    // test_multi_client(5, "\n", __LINE__);
-    // test_multi_client(5, "\r\n", __LINE__);
-    // test_multi_client(20, "a b c", __LINE__);
+    test_multi_client(5, "xxxxxxxxxxxx", __LINE__);
+    test_multi_client(5, "", __LINE__);
+    test_multi_client(5, "a", __LINE__);
+    test_multi_client(5, "\n", __LINE__);
+    test_multi_client(5, "\r\n", __LINE__);
+    test_multi_client(20, "a b c", __LINE__);
 }
 
 
