@@ -551,6 +551,16 @@ TEST(TestHttpMessageParser, Normalize) {
     actual = HttpMessageParser::normalize(path);
     EXPECT_EQ(expected, actual);
 
+    path = "///";
+    expected = "/";
+    actual = HttpMessageParser::normalize(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "///./..//";
+    expected = "/";
+    actual = HttpMessageParser::normalize(path);
+    EXPECT_EQ(expected, actual);
+
     path = "//a";
     expected = "/a";
     actual = HttpMessageParser::normalize(path);
