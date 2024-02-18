@@ -640,11 +640,11 @@ parse_value_and_map_values(const std::string &field_value,
 
 
 Method get_method(const std::string & method) {
-    const std::string lower = StringHandler::to_lower(method);  // todo: toupper?
+    const std::string upper = StringHandler::to_upper(method);
 
-    if (lower == "get") { return kGET; }
-    if (lower == "post") { return kPOST; }
-    if (lower == "delete") { return kDELETE; }
+    if (upper == std::string(GET_METHOD)) { return kGET; }
+    if (upper == std::string(POST_METHOD)) { return kPOST; }
+    if (upper == std::string(DELETE_METHOD)) { return kDELETE; }
     return kErrorMethod;
 }
 
