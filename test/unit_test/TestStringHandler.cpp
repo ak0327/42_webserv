@@ -313,3 +313,78 @@ TEST(TestStringHandler, StolConvertNG) {
 	EXPECT_EQ(4, idx);
 	EXPECT_EQ(false, overflow);
 }
+
+
+TEST(TestStringHandler, GetExtension) {
+    std::string path, expected, actual;
+
+    path = "/root/a.html";
+    expected = "html";
+    actual = StringHandler::get_extension(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "a.html";
+    expected = "html";
+    actual = StringHandler::get_extension(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "a..html";
+    expected = "html";
+    actual = StringHandler::get_extension(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "root/a.html.b.c.html";
+    expected = "html";
+    actual = StringHandler::get_extension(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "a.a";
+    expected = "a";
+    actual = StringHandler::get_extension(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "a.html.";
+    expected = "";
+    actual = StringHandler::get_extension(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "extension_nothing";
+    expected = "";
+    actual = StringHandler::get_extension(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/extension_nothing";
+    expected = "";
+    actual = StringHandler::get_extension(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "extension_nothing/";
+    expected = "";
+    actual = StringHandler::get_extension(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/root/a.html/directory/";
+    expected = "";
+    actual = StringHandler::get_extension(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "";
+    expected = "";
+    actual = StringHandler::get_extension(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "";
+    expected = "";
+    actual = StringHandler::get_extension(path);
+    EXPECT_EQ(expected, actual);
+
+    path = ".";
+    expected = "";
+    actual = StringHandler::get_extension(path);
+    EXPECT_EQ(expected, actual);
+
+    path = ".   \n\r";
+    expected = "   \n\r";
+    actual = StringHandler::get_extension(path);
+    EXPECT_EQ(expected, actual);
+}
