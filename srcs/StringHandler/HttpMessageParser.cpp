@@ -5,6 +5,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <sstream>
 #include <vector>
 #include "Color.hpp"
 #include "Constant.hpp"
@@ -637,5 +638,66 @@ parse_value_and_map_values(const std::string &field_value,
 	return Result<int, int>::ok(OK);
 }
 
+
+Method get_method(const std::string & method) {
+    const std::string upper = StringHandler::to_upper(method);
+
+    if (upper == std::string(GET_METHOD)) { return kGET; }
+    if (upper == std::string(POST_METHOD)) { return kPOST; }
+    if (upper == std::string(DELETE_METHOD)) { return kDELETE; }
+    return kErrorMethod;
+}
+
+
+std::string decode(const std::string& encoded) {
+    std::string decoded;
+    std::istringstream iss(encoded);
+    char ch;
+
+    while (iss.get(ch)) {
+        if (ch == '%' && !iss.eof()) {
+            char hex_str[3] = {0};
+            iss.read(hex_str, 2);
+
+            if (isxdigit(hex_str[0]) && isxdigit(hex_str[1])) {
+                char decoded_char = static_cast<char>(std::strtol(hex_str, NULL, 16));
+                decoded.push_back(decoded_char);
+            } else {
+                decoded.push_back(ch);
+                if (hex_str[0] != '\0') decoded.push_back(hex_str[0]);
+                if (hex_str[1] != '\0') decoded.push_back(hex_str[1]);
+            }
+        } else {
+            decoded.push_back(ch);
+        }
+    }
+    return decoded;
+}
+
+
+// "../" -> "/"
+std::string normalize(const std::string& path) {
+    std::vector<std::string> segments;
+    std::istringstream path_stream(path);
+    std::string segment;
+    std::string normalized_path;
+
+    while (getline(path_stream, segment, '/')) {
+        if (segment == "..") {
+            if (!segments.empty()) {
+                segments.pop_back();
+            }
+        } else if (!segment.empty() && segment != ".") {
+            segments.push_back(segment);
+        }
+    }
+
+    for (size_t i = 0; i < segments.size(); ++i) {
+        normalized_path += "/";
+        normalized_path += segments[i];
+    }
+
+    return normalized_path.empty() ? "/" : normalized_path;
+}
 
 }  // namespace HttpMessageParser

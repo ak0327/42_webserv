@@ -10,6 +10,7 @@
 #include "ClientSession.hpp"
 #include "Debug.hpp"
 #include "Error.hpp"
+#include "HttpResponse.hpp"
 #include "StringHandler.hpp"
 
 // recv request
@@ -74,46 +75,59 @@ void ClientSession::close_client_fd() {
 
 SessionResult ClientSession::process_client_event() {
     Result<std::string, std::string> recv_result;
-    Result<int, int> request_result;
-    SessionResult response_result, send_result;
+    Result<int, int> request_result, send_result;
+    Result<Fd, int> create_response_result, response_body_result;
 
     switch (this->session_state_) {
         case kSessionInit:
-            std::cout << RED << "   session: 0 SessionInit" << RESET << std::endl;
+            DEBUG_SERVER_PRINT("   session: 0 SessionInit");
             this->session_state_ = kReadingRequest;
             // fallthrough
 
         case kAccepted:
-            std::cout << RED << "   session: 0 Accepted" << RESET << std::endl;
+            DEBUG_SERVER_PRINT("   session: 0 Accepted");
             this->session_state_ = kReadingRequest;
             // fallthrough
 
         case kReadingRequest:
-            std::cout << RED << "   session: 1 ReadingRequest" << RESET << std::endl;
+            DEBUG_SERVER_PRINT("   session: 1 ReadingRequest");
             request_result = parse_http_request();
             if (request_result.is_err()) {
-                std::cout << RED << "    request error, status: " << request_result.get_err_value() << RESET << std::endl;
+                DEBUG_SERVER_PRINT("    request error1, status: %d", request_result.get_err_value());
             }
             this->session_state_ = kCreatingResponse;
             // fallthrough
 
         case kCreatingResponse:
-            std::cout << RED << "   session: 2 CreatingResponse" << RESET << std::endl;
-            response_result = create_http_response();
-            if (response_result.is_err()) {
-                const std::string error_msg = response_result.get_err_value();
+            DEBUG_SERVER_PRINT("   session: 2 CreatingResponse");
+            create_response_result = create_http_response();
+            if (create_response_result.is_err()) {
+                DEBUG_SERVER_PRINT("    request error2, status: %d", create_response_result.get_err_value());
                 this->session_state_ = kSessionError;
-                return SessionResult::err(error_msg);
+            }
+            if (create_response_result.get_ok_value() == OK) {
+                this->session_state_ = kSendingResponse;
+            } else {
+                this->session_state_ = kExecutingCGI;
+            }
+            return SessionResult::ok(create_response_result.get_ok_value());  // -> register cgi_fd to fds as read fd
+
+        case kCreatingResponseBody:
+            DEBUG_SERVER_PRINT("   session: 3 CreatingResponseBody");
+            response_body_result = this->response_->create_response_body();
+            if (response_body_result.is_err()) {
+                DEBUG_SERVER_PRINT("    request error3, status: %d", response_body_result.get_err_value());
+                this->session_state_ = kSessionError;
             }
             this->session_state_ = kSendingResponse;
             break;
 
         case kSendingResponse:
-            std::cout << RED << "   session: 3 SendingResponse" << RESET << std::endl;
+            DEBUG_SERVER_PRINT("   session: 4 SendingResponse");
 
             send_result = send_response();
             if (send_result.is_err()) {
-                std::cout << CYAN << "     error 4" << RESET << std::endl;
+                DEBUG_SERVER_PRINT("    request error4, status: %d", send_result.get_err_value());
                 const std::string err_info = CREATE_ERROR_INFO_STR(send_result.get_err_value());
                 this->session_state_ = kSessionError;
                 return SessionResult::err("[Server Error] recv: " + err_info);
@@ -205,7 +219,9 @@ Result<int, int> ClientSession::parse_http_request() {
     catch (const std::exception &e) {
         return Result<int, int>::err(STATUS_SERVER_ERROR);
     }
-#ifndef ECHO
+#ifdef ECHO
+    this->request_max_body_size_ = ConfigInitValue::kDefaultBodySize;
+#else
     // request line
     Result<int, int> request_line_result = this->request_->parse_request_line(this->client_fd_);
     if (request_line_result.is_err()) {
@@ -213,7 +229,7 @@ Result<int, int> ClientSession::parse_http_request() {
     }
 
     // request header
-    Result<int, int> header_result = this->request_->parse_request_header(this->client_fd_);
+    Result<int, int> header_result = this->request_->parse_header(this->client_fd_);
     if (header_result.is_err()) {
         return Result<int, int>::err(header_result.get_err_value());
     }
@@ -222,13 +238,11 @@ Result<int, int> ClientSession::parse_http_request() {
     if (update_result.is_err()) {
         return Result<int, int>::err(STATUS_BAD_REQUEST);  // todo
     }
-#else
-    this->request_max_body_size_ = ConfigInitValue::kDefaultBodySize;
 #endif
-
     // body
-    Result<int, int> body_result = this->request_->parse_request_body(this->client_fd_,
-                                                                      this->request_max_body_size_);
+    Result<int, int> body_result;
+    body_result = this->request_->parse_body(this->client_fd_,
+                                             this->request_max_body_size_);
     if (body_result.is_err()) {
         return Result<int, int>::err(body_result.get_err_value());
     }
@@ -236,71 +250,53 @@ Result<int, int> ClientSession::parse_http_request() {
 }
 
 
-Result<int, std::string> ClientSession::create_http_response() {
+Result<Fd, int> ClientSession::create_http_response() {
+#ifdef ECHO
     try {
-        this->response_ = new HttpResponse();
+        HttpRequest request;
+        this->response_ = new HttpResponse(request);
+    }
+    catch (const std::exception &e) {
+        const std::string err_info = CREATE_ERROR_INFO_STR("Failed to allocate memory");
+        std::cerr << err_info << std::endl;
+        return Result<Fd, int> ::err(STATUS_SERVER_ERROR);
+    }
+    this->response_->create_echo_msg(this->request_->get_buf());
+    return Result<Fd, int> ::ok(OK);
+#else
+    try {
+        this->response_ = new HttpResponse(*this->request_);
         // std::cout << CYAN << "     response_message[" << this->http_response_->get_response_message() << "]" << RESET << std::endl;
     }
     catch (const std::exception &e) {
-        std::cout << CYAN << "     error 3" << RESET << std::endl;
         const std::string err_info = CREATE_ERROR_INFO_STR("Failed to allocate memory");
-        return SessionResult::err(err_info);
+        std::cerr << err_info << std::endl;
+        return Result<Fd, int> ::err(STATUS_SERVER_ERROR);
     }
-#ifndef ECHO
+    return this->response_->exec_method();
     // todo
-#else
-    std::cout << MAGENTA << "create_echo_msg" << RESET << std::endl;
-    this->response_->create_echo_msg(this->request_->get_buf());
 #endif
-    return SessionResult::ok(OK);
 }
 
 
-Result<std::string, std::string> ClientSession::recv_request() {
-    char		buf[BUFSIZ + 1];
-    ssize_t		recv_size;
-    std::string	recv_msg;
-
-    // std::cout << CYAN << "server recv start" << RESET << std::endl;
-
-    while (true) {
-        errno = 0;
-        recv_size = recv(this->client_fd_, buf, BUFSIZ, FLAG_NONE);
-        // std::cout << CYAN << " server recv_size:" << recv_size << RESET << std::endl;
-        if (recv_size == 0) {
-        	break;
-        }
-        if (recv_size == RECV_ERROR) {
-            const std::string error_info = CREATE_ERROR_INFO_ERRNO(errno);
-            return Result<std::string, std::string>::err(error_info);
-        }
-        buf[recv_size] = '\0';
-        // std::cout << CYAN << " server: recv[" << std::string(buf, recv_size) << "]" << RESET << std::endl;
-        recv_msg.append(std::string(buf, recv_size));
-        if (recv_size < BUFSIZ) {
-            break;
-        }
-    }
-    // std::cout << CYAN << " server: recv_message[" << recv_msg << "]" << RESET << std::endl;
-    // std::cout << CYAN << "server recv end" << RESET << std::endl;
-    return Result<std::string, std::string>::ok(recv_msg);
-}
-
-
-SessionResult ClientSession::send_response() {
-    std::string response_message = this->response_->get_response_message();
+Result<int, int> ClientSession::send_response() {
+#ifdef ECHO
+    std::string response_msg = this->response_->get_echo_msg();
+#else
+    std::string response_msg = this->response_->get_response_message();
+#endif
     // std::size_t	message_len = this->http_response_->get_response_size();
-    // std::string response_message = this->recv_message_;
+    // std::string response_msg = this->recv_message_;
 
-    std::cout << CYAN << "server send start" << RESET << std::endl;
-    std::cout << CYAN << " server: send[" << response_message << "]" << RESET << std::endl;
+    DEBUG_SERVER_PRINT("   send start");
+    DEBUG_SERVER_PRINT("    send_msg[%s]", response_msg.c_str());
 
     errno = 0;
-    if (send(this->client_fd_, response_message.c_str(), response_message.size(), FLAG_NONE) == SEND_ERROR) {
-        return SessionResult::err(CREATE_ERROR_INFO_ERRNO(errno));
+    if (send(this->client_fd_, response_msg.c_str(), response_msg.size(), FLAG_NONE) == SEND_ERROR) {
+        return Result<int, int>::err(STATUS_SERVER_ERROR);
     }
-    std::cout << CYAN << "server send end" << RESET << std::endl;
-    return SessionResult::ok(OK);
+    DEBUG_SERVER_PRINT("   send end");
+    return Result<int, int>::ok(OK);
 }
 
 
@@ -308,15 +304,16 @@ SessionResult ClientSession::process_file_event() {
     SessionResult result;
 
     switch (this->session_state_) {
-        case kReadingFile:
-            // todo
-            break;
+        // case kReadingFile:
+        //     todo
+            // break;
 
         case kExecutingCGI:
             // todo
             break;
 
         case kCompleted:
+            this->session_state_ = kCreatingResponseBody;
             break;
 
         default:
@@ -373,6 +370,6 @@ AddressPortPair ClientSession::get_client_listen(const struct sockaddr_storage &
         port = port_stream.str();
     }
     AddressPortPair pair(address, port);
-    std::cout << CYAN << "address: " << address << ", port:" << port << RESET << std::endl;
+    DEBUG_SERVER_PRINT("address: %s, port: %s", address.c_str(), port.c_str());
     return pair;
 }

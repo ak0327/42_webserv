@@ -424,3 +424,165 @@ TEST(TestHttpMessageParser, ParseParameters) {
 	EXPECT_EQ(expected, actual);
 	EXPECT_EQ(12, end);
 }
+
+
+TEST(TestHttpMessageParser, Decode) {
+    std::string encoded;
+    std::string expected, actual;
+
+    encoded = "HelloWorld";
+    expected = "HelloWorld";
+    actual = HttpMessageParser::decode(encoded);
+    EXPECT_EQ(expected, actual);
+
+    encoded = "Hello%20World";
+    expected = "Hello World";
+    actual = HttpMessageParser::decode(encoded);
+    EXPECT_EQ(expected, actual);
+
+    encoded = "Hello%20World%21";
+    expected = "Hello World!";
+    actual = HttpMessageParser::decode(encoded);
+    EXPECT_EQ(expected, actual);
+
+    encoded = "%7E";
+    expected = "~";
+    actual = HttpMessageParser::decode(encoded);
+    EXPECT_EQ(expected, actual);
+
+    encoded = "Hello%2";
+    expected = "Hello%2";
+    actual = HttpMessageParser::decode(encoded);
+    EXPECT_EQ(expected, actual);
+
+    encoded = "Hello%2World";
+    expected = "Hello%2World";
+    actual = HttpMessageParser::decode(encoded);
+    EXPECT_EQ(expected, actual);
+
+    encoded = "";
+    expected = "";
+    actual = HttpMessageParser::decode(encoded);
+    EXPECT_EQ(expected, actual);
+
+    encoded = "%%";
+    expected = "%%";
+    actual = HttpMessageParser::decode(encoded);
+    EXPECT_EQ(expected, actual);
+
+    encoded = "Hello%20%21%22World";
+    expected = "Hello !\"World";
+    actual = HttpMessageParser::decode(encoded);
+    EXPECT_EQ(expected, actual);
+}
+
+
+TEST(TestHttpMessageParser, Normalize) {
+    std::string path;
+    std::string expected, actual;
+
+    path = "/a/b/c";
+    expected = "/a/b/c";
+    actual = HttpMessageParser::normalize(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/a/./b/./c";
+    expected = "/a/b/c";
+    actual = HttpMessageParser::normalize(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/a/b/../c";
+    expected = "/a/c";
+    actual = HttpMessageParser::normalize(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/a//b/c";
+    expected = "/a/b/c";
+    actual = HttpMessageParser::normalize(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/../a/b";
+    expected = "/a/b";
+    actual = HttpMessageParser::normalize(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/";
+    expected = "/";
+    actual = HttpMessageParser::normalize(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "";
+    expected = "/";
+    actual = HttpMessageParser::normalize(path);
+    EXPECT_EQ(expected, actual);
+
+    path = ".";
+    expected = "/";
+    actual = HttpMessageParser::normalize(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "..";
+    expected = "/";
+    actual = HttpMessageParser::normalize(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "...";
+    expected = "/...";
+    actual = HttpMessageParser::normalize(path);
+    EXPECT_EQ(expected, actual);
+
+    path = ".././..";
+    expected = "/";
+    actual = HttpMessageParser::normalize(path);
+    EXPECT_EQ(expected, actual);
+
+    path = ".././../";
+    expected = "/";
+    actual = HttpMessageParser::normalize(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "../a/b";
+    expected = "/a/b";
+    actual = HttpMessageParser::normalize(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "//";
+    expected = "/";
+    actual = HttpMessageParser::normalize(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "///";
+    expected = "/";
+    actual = HttpMessageParser::normalize(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "///./..//";
+    expected = "/";
+    actual = HttpMessageParser::normalize(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "//a";
+    expected = "/a";
+    actual = HttpMessageParser::normalize(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/a/b/c/../../d";
+    expected = "/a/d";
+    actual = HttpMessageParser::normalize(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/a/./b/../../c/../d";
+    expected = "/d";
+    actual = HttpMessageParser::normalize(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/../../a";
+    expected = "/a";
+    actual = HttpMessageParser::normalize(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "../../a";
+    expected = "/a";
+    actual = HttpMessageParser::normalize(path);
+    EXPECT_EQ(expected, actual);
+}

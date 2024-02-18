@@ -892,11 +892,11 @@ Result<int, std::string> Parser::parse_root_directive(TokenItr *current,
 
 
 Result<Method, std::string> Parser::get_method(const std::string & method) {
-    const std::string lower = StringHandler::to_lower(method);  // todo: toupper?
+    const std::string upper = StringHandler::to_upper(method);
 
-    if (lower == "get") { return Result<Method, std::string>::ok(kGET); }
-    if (lower == "post") { return Result<Method, std::string>::ok(kPOST); }
-    if (lower == "delete") { return Result<Method, std::string>::ok(kDELETE); }
+    if (upper == std::string(GET_METHOD)) { return Result<Method, std::string>::ok(kGET); }
+    if (upper == std::string(POST_METHOD)) { return Result<Method, std::string>::ok(kPOST); }
+    if (upper == std::string(DELETE_METHOD)) { return Result<Method, std::string>::ok(kDELETE); }
 
     std::ostringstream oss;
     oss << "invalid method \"" << method << "\"";

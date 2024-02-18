@@ -4,6 +4,7 @@
 # include <set>
 # include <string>
 # include "Constant.hpp"
+# include "ConfigStruct.hpp"
 # include "Result.hpp"
 
 namespace HttpMessageParser {
@@ -479,5 +480,12 @@ Result<int, int> validate_http_date(date_format format,
 									const std::string &minute,
 									const std::string &second,
 									const std::string &gmt);
+
+
+Method get_method(const std::string &method);
+
+std::string decode(const std::string &encoded);
+std::string normalize(const std::string &path);
+
 
 }  // namespace HttpMessageParser

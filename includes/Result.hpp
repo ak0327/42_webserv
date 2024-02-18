@@ -48,14 +48,14 @@ class Result {
 		if (_is_ok) {
 			return _ok_value;
 		}
-		throw std::runtime_error("Result is not OK");
+		throw std::runtime_error("[Result Error] Result is not OK");
 	}
 
 	ErrType get_err_value() const {
 		if (!_is_ok) {
 			return _err_value;
 		}
-		throw std::runtime_error("Result is not ERROR");
+		throw std::runtime_error("[Result Error] Result is not ERROR");
 	}
 
  private:

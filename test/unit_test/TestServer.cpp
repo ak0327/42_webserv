@@ -18,13 +18,15 @@ namespace {
 const char *SERVER_IP = "127.0.0.1";
 const char *SERVER_PORT = "8080";
 
-struct s_server {
+
+struct ServerTest {
 	const char	*server_ip;
 	const char	*server_port;
 	std::string	recv_msg;
 };
 
-struct s_client {
+
+struct ClientTest {
 	int			no;
 	const char	*server_ip;
 	const char	*server_port;
@@ -32,10 +34,11 @@ struct s_client {
 	std::string	recv_msg;
 };
 
+
 /* helper */
 void *run_server(void *server_info) {
     (void)server_info;
-	// s_server *s = (s_server *)server_info;
+	// ServerTest *s = (ServerTest *)server_info;
 	bool is_server_success = true;
     const char *file_path = "test/test_conf/test_server.conf";
     Configuration config(file_path);
@@ -48,7 +51,7 @@ void *run_server(void *server_info) {
         if (init_result.is_err()) {
             throw std::runtime_error(init_result.get_err_value());
         }
-        server.set_timeout(1500);
+        server.set_timeout(500);
 		DEBUG_SERVER_PRINT("connecting...");
 
         ServerResult running_result = server.run();
@@ -66,8 +69,9 @@ void *run_server(void *server_info) {
 	return (void *)(is_server_success);
 }
 
+
 void *run_client(void *client_info) {
-	s_client *c = (s_client *)client_info;
+	ClientTest *c = (ClientTest *)client_info;
 	bool is_client_success = true;
 	std::string msg = c->send_msg;
 
@@ -76,30 +80,31 @@ void *run_client(void *client_info) {
 	// }
 
 	try {
-		DEBUG_CLIENT_PRINT("no:%d start", c->no);
+		DEBUG_PRINT(YELLOW, "client no:%d start", c->no);
 		usleep(10000);
 		Client client = Client(c->server_ip, c->server_port);
-		DEBUG_CLIENT_PRINT("no:%d connecting...", c->no);
+		DEBUG_PRINT(YELLOW, "client no:%d connecting...", c->no);
 		client.send_msg(msg);
         client.recv_msg();
 		c->recv_msg = client.get_recv_message();
-		DEBUG_CLIENT_PRINT("no:%d connected. recv:[%s]", c->no, c->recv_msg.c_str());
+		DEBUG_PRINT(YELLOW, "client no:%d connected. recv:[%s]", c->no, c->recv_msg.c_str());
     }
 	catch (std::exception const &e) {
 		is_client_success = false;
 		std::cerr << e.what() << std::endl;
 	}
-    DEBUG_CLIENT_PRINT("no:%d finish", c->no);
+    DEBUG_PRINT(YELLOW, "client no:%d finish", c->no);
 	return (void *)(is_client_success);
 }
+
 
 void run_server_and_client(const char *server_ip,
 						   const char *server_port,
 						   const std::string &client_send_msg,
 						   std::string &server_recv_msg,
 						   std::string &client_recv_msg) {
-	s_server server_info = {server_ip, server_port, ""};
-	s_client client_info = {0, server_ip, server_port, client_send_msg, ""};
+	ServerTest server_info = {server_ip, server_port, ""};
+	ClientTest client_info = {0, server_ip, server_port, client_send_msg, ""};
 	pthread_t server_tid, client_tid;
 	int ret_server, ret_client;
 	bool is_server_success, is_client_success;
@@ -125,11 +130,12 @@ void run_server_and_client(const char *server_ip,
 	client_recv_msg = client_info.recv_msg;
 }
 
-std::vector<s_client> init_client_infos(int client_count,
+
+std::vector<ClientTest> init_client_infos(int client_count,
 										const char *server_ip,
 										const char *server_port,
 										const std::vector<std::string> &client_send_msg) {
-	std::vector<s_client> client_infos(client_count, {0, server_ip, server_port, "", ""});
+	std::vector<ClientTest> client_infos(client_count, {0, server_ip, server_port, "", ""});
 	for (int i = 0; i < client_count; ++i) {
 		client_infos[i].no = i;
         client_infos[i].send_msg = client_send_msg[i];
@@ -137,14 +143,15 @@ std::vector<s_client> init_client_infos(int client_count,
 	return client_infos;
 }
 
+
 void run_server_and_multi_client(const char *server_ip,
 								 const char *server_port,
 								 const std::vector<std::string> &client_send_msg,
 								 std::string &server_recv_msg,
 								 std::vector<std::string> &client_recv_msgs,
 								 int client_count) {
-	s_server server_info = {server_ip, server_port, ""};
-	std::vector<s_client> client_infos = init_client_infos(client_count, server_ip, server_port, client_send_msg);
+	ServerTest server_info = {server_ip, server_port, ""};
+	std::vector<ClientTest> client_infos = init_client_infos(client_count, server_ip, server_port, client_send_msg);
 	pthread_t server_tid;
 	std::vector<pthread_t> client_tids(client_count);
 	int ret_server, ret_client;
@@ -191,6 +198,7 @@ TEST(ServerUnitTest, Constructor) {
 	EXPECT_NO_THROW((Server(config)));
 }
 
+
 TEST(ServerUnitTest, ConnectClientCase1) {
 	std::string msg = "test request";
 	std::string server_recv_msg;
@@ -204,14 +212,15 @@ TEST(ServerUnitTest, ConnectClientCase1) {
 							  client_recv_msg);
 		// // EXPECT_EQ(msg, server_recv_msg);
 		EXPECT_EQ(msg, client_recv_msg);
-		std::cerr << YELLOW " client_send_msg:[" << msg << "]" RESET << std::endl;
+		DEBUG_PRINT(YELLOW, " client_send_msg:[%s]", msg.c_str());
 		// std::cerr << YELLOW " server_recv_msg:[" << server_recv_msg << "]" RESET << std::endl;
-		std::cerr << YELLOW " client_recv_msg:[" << client_recv_msg << "]" RESET << std::endl;
+		DEBUG_PRINT(YELLOW, " client_recv_msg:[%s]", client_recv_msg.c_str());
 	}
 	catch (std::exception const &e) {
 		FAIL() << e.what() << std::endl;
 	}
 }
+
 
 TEST(ServerUnitTest, ConnectClientCase2) {
 	std::string msg = "";
@@ -226,14 +235,15 @@ TEST(ServerUnitTest, ConnectClientCase2) {
 							  client_recv_msg);
 		// EXPECT_EQ(msg, server_recv_msg);
 		EXPECT_EQ(msg, client_recv_msg);
-		std::cerr << YELLOW " client_send_msg:[" << msg << "]" RESET << std::endl;
+		DEBUG_PRINT(YELLOW, " client_send_msg:[%s]", msg.c_str());
 		// std::cerr << YELLOW " server_recv_msg:[" << server_recv_msg << "]" RESET << std::endl;
-		std::cerr << YELLOW " client_recv_msg:[" << client_recv_msg << "]" RESET << std::endl;
+		DEBUG_PRINT(YELLOW, " client_recv_msg:[%s]", client_recv_msg.c_str());
 	}
 	catch (std::exception const &e) {
 		FAIL() << e.what() << std::endl;
 	}
 }
+
 
 TEST(ServerUnitTest, ConnectClientCase3) {
 	std::string msg = "a\n\n\nb\n\n\n\n\r\nc\td";
@@ -248,14 +258,15 @@ TEST(ServerUnitTest, ConnectClientCase3) {
 							  client_recv_msg);
 		// EXPECT_EQ(msg, server_recv_msg);
 		EXPECT_EQ(msg, client_recv_msg);
-		std::cerr << YELLOW " client_send_msg:[" << msg << "]" RESET << std::endl;
+		DEBUG_PRINT(YELLOW, " client_send_msg:[%s]", msg.c_str());
 		// std::cerr << YELLOW " server_recv_msg:[" << server_recv_msg << "]" RESET << std::endl;
-		std::cerr << YELLOW " client_recv_msg:[" << client_recv_msg << "]" RESET << std::endl;
+		DEBUG_PRINT(YELLOW, " client_recv_msg:[%s]", client_recv_msg.c_str());
 	}
 	catch (std::exception const &e) {
 		FAIL() << e.what() << std::endl;
 	}
 }
+
 
 TEST(ServerUnitTest, ConnectClientCase4) {
 	std::string msg =
@@ -283,14 +294,15 @@ TEST(ServerUnitTest, ConnectClientCase4) {
 							  client_recv_msg);
 		// EXPECT_EQ(msg, server_recv_msg);
 		EXPECT_EQ(msg, client_recv_msg);
-		std::cerr << YELLOW " client_send_msg:[" << msg << "]" RESET << std::endl;
+		DEBUG_PRINT(YELLOW, " client_send_msg:[%s]", msg.c_str());
 		// std::cerr << YELLOW " server_recv_msg:[" << server_recv_msg << "]" RESET << std::endl;
-		std::cerr << YELLOW " client_recv_msg:[" << client_recv_msg << "]" RESET << std::endl;
+		DEBUG_PRINT(YELLOW, " client_recv_msg:[%s]", client_recv_msg.c_str());
 	}
 	catch (std::exception const &e) {
 		FAIL() << e.what() << std::endl;
 	}
 }
+
 
 TEST(ServerUnitTest, ConnectClientErrorInvalidIP) {
 	std::string msg = "400 BAD REQUEST";
@@ -303,6 +315,7 @@ TEST(ServerUnitTest, ConnectClientErrorInvalidIP) {
 										   server_recv_msg,
 										   client_recv_msg));
 }
+
 
 TEST(ServerUnitTest, ConnectClientErrorInvalidPort) {
 	std::string msg = "400 BAD REQUEST";
@@ -326,7 +339,7 @@ void test_multi_client(int client_count, const std::string &base_msg, std::size_
         std::ostringstream oss;
         oss << base_msg << ": from client No." << i;
         msg.push_back(oss.str());
-        // std::cerr << MAGENTA " msg[" << i << "]:[" << msg[i] << "]" RESET << std::endl;
+        DEBUG_PRINT(MAGENTA, "create send_msg[%d]: %s", i, msg[i].c_str());
     }
 
     try {
@@ -337,13 +350,13 @@ void test_multi_client(int client_count, const std::string &base_msg, std::size_
                                         server_recv_msg,
                                         client_recv_msgs,
                                         client_count);
-            // std::cerr << YELLOW " client_send_msg:[" << msg[i] << "]" RESET << std::endl;
+            DEBUG_PRINT(YELLOW, "send_msg[%d]: %s", i, msg[i].c_str());
         }
         // // EXPECT_EQ(msg, server_recv_msg);
         // std::cerr << YELLOW " server_recv_msg:[" << server_recv_msg << "]" RESET << std::endl;
         for (int i = 0; i < client_count; ++i) {
             EXPECT_EQ(msg[i], client_recv_msgs[i]) << "  at L" << line;
-            std::cerr << YELLOW " client_recv_msg(" << i << "):[" << client_recv_msgs[i] << "]" RESET << std::endl;
+            DEBUG_PRINT(YELLOW, "client_recv_msg[%d]: %s", i, client_recv_msgs[i].c_str());
         }
     }
     catch (std::exception const &e) {
@@ -354,6 +367,7 @@ void test_multi_client(int client_count, const std::string &base_msg, std::size_
 
 TEST(ServerUnitTest, ConnectMultiClient) {
     test_multi_client(1, "test message", __LINE__);
+    test_multi_client(2, "xxxxxxxxxxxx", __LINE__);
     test_multi_client(5, "xxxxxxxxxxxx", __LINE__);
     test_multi_client(5, "", __LINE__);
     test_multi_client(5, "a", __LINE__);
@@ -365,6 +379,5 @@ TEST(ServerUnitTest, ConnectMultiClient) {
 
 TEST(ServerUnitTest, TestMultiServer) {
     Configuration config("test/test_conf/test_multi_server.conf");
-
     EXPECT_NO_THROW(Server server(config));
 }
