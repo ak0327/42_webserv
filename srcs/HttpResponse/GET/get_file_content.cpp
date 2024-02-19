@@ -49,7 +49,7 @@ Result<int, int> HttpResponse::get_file_content(const std::string &file_path,
 	}
 
     DEBUG_PRINT(CYAN, "    get_file_content 2");
-    std::ifstream file(file_path, std::ios::binary);
+    std::ifstream file(file_path.c_str(), std::ios::binary);
     if (!file) {
         *status_code = STATUS_NOT_FOUND;  // todo
         return Result<int, int>::err(ERR);
