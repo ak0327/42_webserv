@@ -65,7 +65,16 @@ void HttpResponse::close_cgi_fd() {
 
 
 Result<Fd, int> HttpResponse::exec_method() {
-    DEBUG_PRINT(YELLOW, " exec_method 1");
+    DEBUG_PRINT(YELLOW, " exec_method 1 status_requ(%d), status_resp(%d)",
+                this->request_.get_status_code(), this->status_code_);
+    this->status_code_ = this->request_.get_status_code();
+
+    if (this->request_.get_status_code() != STATUS_OK) {
+        DEBUG_PRINT(YELLOW, "  status error -> error page");
+        get_error_page();
+        return Result<Fd, int>::err(ERR);  // todo: err ? ok?
+    }
+
     std::string target_path = HttpResponse::get_resource_path(this->request_.get_request_target());
     DEBUG_PRINT(YELLOW, " exec_method 2 path: ", target_path.c_str());
     Method method = HttpMessageParser::get_method(this->request_.get_method());
@@ -97,8 +106,11 @@ Result<Fd, int> HttpResponse::exec_method() {
 
     DEBUG_PRINT(YELLOW, " exec_method 5");
     if (method_result.is_err()) {
+        DEBUG_PRINT(YELLOW, "  result->error");
         this->body_buf_.clear();
+        DEBUG_PRINT(YELLOW, "  buc clear");
         get_error_page();
+        DEBUG_PRINT(YELLOW, "  get_error_page ok");
         return Result<Fd, int>::err(ERR);  // todo: err ? ok?
     }
 
@@ -201,14 +213,12 @@ std::string HttpResponse::get_resource_path(const std::string &request_target) {
     if (root_result.is_ok()) {
         root = root_result.get_ok_value();
     }
-    DEBUG_PRINT(CYAN, " root: %s", root.c_str());
-
 
     if (request_target == "/") {
         Result<std::string, int> index_result = Configuration::get_index(this->server_config_, request_target);
         std::string index_page;
         if (index_result.is_ok()) {
-            index_page = index_result.get_ok_value();
+            index_page = "/" + index_result.get_ok_value();
         }
         return root + index_page;
     }
