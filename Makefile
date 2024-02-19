@@ -4,6 +4,8 @@ CXX			=	c++
 CXXFLAGS	=	-std=c++98 -Wall -Wextra -Werror -MMD -MP
 CXXFLAGS	+=	-g -fsanitize=address,undefined -fno-omit-frame-pointer
 CXXFLAGS	+=	-D USE_SELECT
+CXXFLAGS	+=	-D DEBUG
+#CXXFLAGS	+=	-D ECHO
 
 # SRCS -------------------------------------------------------------------------
 SRCS_DIR	=	srcs

@@ -7,6 +7,7 @@
 const int OK = 0;
 const int ERR = -1;
 const int CGI = 1;
+const int CONTINUE = 2;
 
 const int GETADDRINFO_SUCCESS = 0;
 
