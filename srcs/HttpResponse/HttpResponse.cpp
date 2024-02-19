@@ -65,52 +65,52 @@ void HttpResponse::close_cgi_fd() {
 
 
 Result<Fd, int> HttpResponse::exec_method() {
-    DEBUG_PRINT(YELLOW, "      1");
+    DEBUG_PRINT(YELLOW, " exec_method 1");
     std::string target_path = HttpResponse::get_resource_path(this->request_.get_request_target());
-    DEBUG_PRINT(YELLOW, "      2 path: ", target_path.c_str());
+    DEBUG_PRINT(YELLOW, " exec_method 2 path: ", target_path.c_str());
     Method method = HttpMessageParser::get_method(this->request_.get_method());
-    DEBUG_PRINT(YELLOW, "      3 method: ", method);
+    DEBUG_PRINT(YELLOW, " exec_method 3 method: ", method);
     std::ostringstream status_line_oss;
     Result<Fd, int> method_result;
 
     switch (method) {
         case kGET:
-            DEBUG_PRINT(YELLOW, "      4-get");
+            DEBUG_PRINT(YELLOW, " exec_method 4 - GET");
             method_result = get_request_body(target_path);  // cgi -> return Fd
             break;
 
         case kPOST:
-            DEBUG_PRINT(YELLOW, "      4-post");
+            DEBUG_PRINT(YELLOW, " exec_method 4 - POST");
             method_result = post_request_body(target_path);  // cgi -> return Fd
             break;
 
         case kDELETE:
-            DEBUG_PRINT(YELLOW, "      4-delete");
+            DEBUG_PRINT(YELLOW, " exec_method 4 - DELETE");
             method_result = delete_request_body(target_path);
             break;
 
         default:
-            DEBUG_PRINT(YELLOW, "      4-err");
+            DEBUG_PRINT(YELLOW, " exec_method 4 - err");
             this->status_code_ = STATUS_BAD_REQUEST;
             method_result = Result<Fd, int>::err(ERR);
     }
 
-    DEBUG_PRINT(YELLOW, "      5");
+    DEBUG_PRINT(YELLOW, " exec_method 5");
     if (method_result.is_err()) {
         this->body_buf_.clear();
         get_error_page();
         return Result<Fd, int>::err(ERR);  // todo: err ? ok?
     }
 
-    DEBUG_PRINT(YELLOW, "      6");
+    DEBUG_PRINT(YELLOW, " exec_method 6");
     if (method_result.get_ok_value() == OK) {
         return Result<Fd, int>::ok(OK);
     }
-    DEBUG_PRINT(YELLOW, "      7");
+    DEBUG_PRINT(YELLOW, " exec_method 7");
     int cgi_fd = method_result.get_ok_value();
 
     std::string body(this->body_buf_.begin(), this->body_buf_.end());
-    DEBUG_PRINT(YELLOW, "      body:[%s]", body.c_str());
+    DEBUG_PRINT(YELLOW, " exec_method body:[%s]", body.c_str());
     return Result<Fd, int>::ok(cgi_fd);
 }
 
@@ -196,15 +196,23 @@ std::string HttpResponse::get_resource_path(const std::string &request_target) {
     std::string decoded = HttpMessageParser::decode(request_target);
     std::string normalized = HttpMessageParser::normalize(decoded);
 
-    if (request_target == "/") {
-        Result<std::string, int> index = Configuration::get_index(this->server_config_, request_target);
-        if (index.is_err()) {
-            // todo
-            return "";
-        }
-        return index.get_ok_value();
+    std::string root;
+    Result<std::string, int> root_result = Configuration::get_root(this->server_config_, request_target);
+    if (root_result.is_ok()) {
+        root = root_result.get_ok_value();
     }
-    return normalized;
+    DEBUG_PRINT(CYAN, " root: %s", root.c_str());
+
+
+    if (request_target == "/") {
+        Result<std::string, int> index_result = Configuration::get_index(this->server_config_, request_target);
+        std::string index_page;
+        if (index_result.is_ok()) {
+            index_page = index_result.get_ok_value();
+        }
+        return root + index_page;
+    }
+    return root + request_target;
 }
 
 
