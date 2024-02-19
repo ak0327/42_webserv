@@ -47,6 +47,122 @@ TEST(TestConfig, ConfigurationNG) {
 }
 
 
+TEST(TestConfig, IsExactMatch) {
+    bool actual;
+    std::string pattern, target;
+
+    pattern = "=/";
+    target = "/";
+    actual = Configuration::is_exact_match(pattern, target);
+    EXPECT_TRUE(actual);
+
+    pattern = "=/root";
+    target = "/root";
+    actual = Configuration::is_exact_match(pattern, target);
+    EXPECT_TRUE(actual);
+
+    pattern = "=html";
+    target = "html";
+    actual = Configuration::is_exact_match(pattern, target);
+    EXPECT_TRUE(actual);
+
+    pattern = "=/50x.html";
+    target = "/50x.html";
+    actual = Configuration::is_exact_match(pattern, target);
+    EXPECT_TRUE(actual);
+
+    // -------------------------------------------------------------------------
+
+    pattern = "=/";
+    target = "/root";
+    actual = Configuration::is_exact_match(pattern, target);
+    EXPECT_FALSE(actual);
+
+    pattern = "=/";
+    target = "/root";
+    actual = Configuration::is_exact_match(pattern, target);
+    EXPECT_FALSE(actual);
+
+    pattern = "";
+    target = "";
+    actual = Configuration::is_exact_match(pattern, target);
+    EXPECT_FALSE(actual);
+
+    pattern = "=";
+    target = "=";
+    actual = Configuration::is_exact_match(pattern, target);
+    EXPECT_FALSE(actual);
+
+    pattern = "=/";
+    target = "";
+    actual = Configuration::is_exact_match(pattern, target);
+    EXPECT_FALSE(actual);
+}
+
+
+TEST(TestConfig, IsPrefixMatch) {
+    bool actual;
+    std::string pattern, target;
+
+    pattern = "^~/";
+    target = "/";
+    actual = Configuration::is_prefix_match(pattern, target);
+    EXPECT_TRUE(actual);
+
+    pattern = "^~/root";
+    target = "/root";
+    actual = Configuration::is_prefix_match(pattern, target);
+    EXPECT_TRUE(actual);
+
+    pattern = "^~html";
+    target = "html";
+    actual = Configuration::is_prefix_match(pattern, target);
+    EXPECT_TRUE(actual);
+
+    pattern = "^~/";
+    target = "/root/hoge/huga";
+    actual = Configuration::is_prefix_match(pattern, target);
+    EXPECT_TRUE(actual);
+
+    pattern = "^~/images/";
+    target = "/images/";
+    actual = Configuration::is_prefix_match(pattern, target);
+    EXPECT_TRUE(actual);
+
+    pattern = "^~/images/";
+    target = "/images/aaa/bbb/ccc.html";
+    actual = Configuration::is_prefix_match(pattern, target);
+    EXPECT_TRUE(actual);
+
+    // -------------------------------------------------------------------------
+
+    pattern = "^~/";
+    target = "root";
+    actual = Configuration::is_prefix_match(pattern, target);
+    EXPECT_FALSE(actual);
+
+    pattern = "^~/";
+    target = "html/images";
+    actual = Configuration::is_prefix_match(pattern, target);
+    EXPECT_FALSE(actual);
+
+    pattern = "";
+    target = "";
+    actual = Configuration::is_prefix_match(pattern, target);
+    EXPECT_FALSE(actual);
+
+    pattern = "^~aaa";
+    target = "aa";
+    actual = Configuration::is_prefix_match(pattern, target);
+    EXPECT_FALSE(actual);
+
+    pattern = "^~";
+    target = "";
+    actual = Configuration::is_prefix_match(pattern, target);
+    EXPECT_FALSE(actual);
+}
+
+
 template <typename Result, typename Value>
 void expect_eq_getter(const ServerConfig &server_config,
                       const std::string &location_path,
@@ -345,14 +461,43 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     error_page_result = Configuration::get_error_page(server_config, location_path, 400);
     EXPECT_TRUE(error_page_result.is_err());
     error_page_result = Configuration::get_error_page(server_config, location_path, 404);
-    EXPECT_TRUE(error_page_result.is_ok());
+    EXPECT_TRUE(error_page_result.is_err());
+    error_page_result = Configuration::get_error_page(server_config, location_path, 500);
+    EXPECT_TRUE(error_page_result.is_err());
+
+
+
+    location_path = "/nothing";  // same as /
+    expected_error = false;
+
+    expected_root = "html";
+    expected_index = "index.html";
+    expected_autoindex = ConfigInitValue::kDefaultAutoindex;
+    expected_is_redirect = false;
+    expected_max_body_size = ConfigInitValue::kDefaultBodySize;
+
+
+
+    expect_eq_getter(server_config, location_path, expected_error, expected_root, Configuration::get_root, __LINE__);
+    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Configuration::get_index, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Configuration::is_autoindex_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Configuration::is_redirect, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Configuration::get_max_body_size, __LINE__);
+
+    expected_method = {{kGET, true}, {kPOST, true}, {kDELETE, true}};
+    expect_eq_method(server_config, location_path, expected_error, expected_method, __LINE__);
+
+    expected_redirect = {};
+    expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
+
+    error_page_result = Configuration::get_error_page(server_config, location_path, 400);
+    ASSERT_TRUE(error_page_result.is_err());
+    error_page_result = Configuration::get_error_page(server_config, location_path, 404);
+    ASSERT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
     error_page_result = Configuration::get_error_page(server_config, location_path, 500);
-    EXPECT_TRUE(error_page_result.is_ok());
+    ASSERT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
-
-
-
 
 
     // -------------------------------------------------------------------------
@@ -565,12 +710,9 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     error_page_result = Configuration::get_error_page(server_config, location_path, 400);
     EXPECT_TRUE(error_page_result.is_err());
     error_page_result = Configuration::get_error_page(server_config, location_path, 404);
-    EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/404.html", error_page_result.get_ok_value());
+    EXPECT_TRUE(error_page_result.is_err());
     error_page_result = Configuration::get_error_page(server_config, location_path, 500);
-    EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
-
+    EXPECT_TRUE(error_page_result.is_err());
 
 
 
@@ -785,11 +927,9 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     error_page_result = Configuration::get_error_page(server_config, location_path, 400);
     EXPECT_TRUE(error_page_result.is_err());
     error_page_result = Configuration::get_error_page(server_config, location_path, 404);
-    EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/404.html", error_page_result.get_ok_value());
+    EXPECT_TRUE(error_page_result.is_err());
     error_page_result = Configuration::get_error_page(server_config, location_path, 500);
-    EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
+    EXPECT_TRUE(error_page_result.is_err());
 
 
 
@@ -1037,7 +1177,6 @@ TEST(TestConfig, ConfigurationGetterOK2) {
 
     expected_redirect = {};
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
-
 
 
 
@@ -1332,6 +1471,4 @@ TEST(TestConfig, GetServerConfig) {
     request_host_port_pair.second = "80";
     actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
     ASSERT_TRUE(actual_result.is_err());
-
-
 }

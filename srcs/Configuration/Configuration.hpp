@@ -19,75 +19,80 @@ class Configuration {
 	Configuration &operator=(const Configuration &rhs);
 
     // getter
-	Result<int, std::string> get_result() const;
+    Result<int, std::string> get_result() const;
     std::map<ServerInfo, const ServerConfig *> get_server_configs() const;
     Result<ServerConfig, int> get_server_config(const ServerInfo &server_info) const;
     Result<ServerConfig, std::string> get_server_config(const AddressPortPair &address_port_pair,
                                                         const HostPortPair &host_port_pair) const;
+    static Result<std::string, int> get_matching_location(const ServerConfig &server_config,
+                                                          const std::string &target_path);
 
     static Result<std::string, int> get_root(const ServerConfig &server_config,
-                                             const std::string &location_path);
+                                             const std::string &target_path);
     Result<std::string, int> get_root(const ServerInfo &server_info,
-                                      const std::string &location_path) const;
+                                      const std::string &target_path) const;
     Result<std::string, int> get_root(const AddressPortPair &address_port_pair,
-                                      const std::string &location_path) const;
+                                      const std::string &target_path) const;
 
     static Result<std::string, int> get_index(const ServerConfig &server_config,
-                                              const std::string &location_path);
+                                              const std::string &target_path);
     Result<std::string, int> get_index(const ServerInfo &server_info,
-                                       const std::string &location_path) const;
+                                       const std::string &target_path) const;
     Result<std::string, int> get_index(const AddressPortPair &address_port_pair,
-                                       const std::string &location_path) const;
+                                       const std::string &target_path) const;
 
     static Result<std::string, int> get_error_page(const ServerConfig &server_config,
-                                                   const std::string &location_path,
+                                                   const std::string &target_path,
                                                    const StatusCode &code);
     Result<std::string, int> get_error_page(const ServerInfo &server_info,
-                                            const std::string &location_path,
+                                            const std::string &target_path,
                                             const StatusCode &code) const;
     Result<std::string, int> get_error_page(const AddressPortPair &address_port_pair,
-                                            const std::string &location_path,
+                                            const std::string &target_path,
                                             const StatusCode &code) const;
 
     static Result<bool, int> is_autoindex_on(const ServerConfig &server_config,
-                                             const std::string &location_path);
+                                             const std::string &target_path);
     Result<bool, int> is_autoindex_on(const ServerInfo &server_info,
-                                      const std::string &location_path) const;
+                                      const std::string &target_path) const;
     Result<bool, int> is_autoindex_on(const AddressPortPair &address_port_pair,
-                                      const std::string &location_path) const;
+                                      const std::string &target_path) const;
 
     static Result<bool, int> is_method_allowed(const ServerConfig &server_config,
-                                               const std::string &location_path,
+                                               const std::string &target_path,
                                                const Method &method);
     Result<bool, int> is_method_allowed(const ServerInfo &server_info,
-                                        const std::string &location_path,
+                                        const std::string &target_path,
                                         const Method &method) const;
     Result<bool, int> is_method_allowed(const AddressPortPair &address_port_pair,
-                                        const std::string &location_path,
+                                        const std::string &target_path,
                                         const Method &method) const;
 
     static Result<bool, int> is_redirect(const ServerConfig &server_config,
-                                         const std::string &location_path);
+                                         const std::string &target_path);
     Result<bool, int> is_redirect(const ServerInfo &server_info,
-                                  const std::string &location_path) const;
+                                  const std::string &target_path) const;
     Result<bool, int> is_redirect(const AddressPortPair &address_port_pair,
-                                  const std::string &location_path) const;
+                                  const std::string &target_path) const;
 
     static Result<ReturnDirective, int> get_redirect(const ServerConfig &server_config,
-                                                     const std::string &location_path);
+                                                     const std::string &target_path);
     Result<ReturnDirective, int> get_redirect(const ServerInfo &server_info,
-                                              const std::string &location_path) const;
+                                              const std::string &target_path) const;
     Result<ReturnDirective, int> get_redirect(const AddressPortPair &address_port_pair,
-                                              const std::string &location_path) const;
+                                              const std::string &target_path) const;
 
     static Result<std::size_t, int> get_max_body_size(const ServerConfig &server_config,
-                                                      const std::string &location_path);
+                                                      const std::string &target_path);
     Result<std::size_t, int> get_max_body_size(const ServerInfo &server_info,
-                                               const std::string &location_path) const;
+                                               const std::string &target_path) const;
     Result<std::size_t, int> get_max_body_size(const AddressPortPair &address_port_pair,
-                                               const std::string &location_path) const;
+                                               const std::string &target_path) const;
 
- private:
+    static bool is_exact_match(const std::string &pattern, const std::string &target);
+    static bool is_prefix_match(const std::string &pattern, const std::string &target);
+
+private:
 	HttpConfig http_config_;
     std::map<ServerInfo, const ServerConfig *> server_configs_;
     std::map<AddressPortPair, const ServerConfig *> default_servers_;
