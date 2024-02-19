@@ -194,20 +194,20 @@ Result<int, int> get_directory_listing_html(const std::string &directory_path_en
     }
 
 
-    buf->assign(TITLE.begin(), TITLE.end());
-    buf->assign(HEADER.begin(), HEADER.end());
+    buf->insert(buf->end(), TITLE.begin(), TITLE.end());
+    buf->insert(buf->end(), HEADER.begin(), HEADER.end());
 
-    buf->assign(TOP_HR.begin(), TOP_HR.end());
+    buf->insert(buf->end(), TOP_HR.begin(), TOP_HR.end());
 
-    buf->assign(TABLE_START.begin(), TABLE_START.end());
-    buf->assign(PARENT_DIRECTORY_CONTENT.begin(), PARENT_DIRECTORY_CONTENT.end());
-    buf->assign(CURRENT_DIRECTORY_CONTENT.begin(), CURRENT_DIRECTORY_CONTENT.end());
-    buf->assign(FILE_CONTENT.begin(), FILE_CONTENT.end());
-    buf->assign(TABLE_END.begin(), TABLE_END.end());
+    buf->insert(buf->end(), TABLE_START.begin(), TABLE_START.end());
+    buf->insert(buf->end(), PARENT_DIRECTORY_CONTENT.begin(), PARENT_DIRECTORY_CONTENT.end());
+    buf->insert(buf->end(), CURRENT_DIRECTORY_CONTENT.begin(), CURRENT_DIRECTORY_CONTENT.end());
+    buf->insert(buf->end(), FILE_CONTENT.begin(), FILE_CONTENT.end());
+    buf->insert(buf->end(), TABLE_END.begin(), TABLE_END.end());
 
-    buf->assign(TAIL_HR.begin(), TAIL_HR.end());
+    buf->insert(buf->end(), TAIL_HR.begin(), TAIL_HR.end());
 
-    buf->assign(TAIL.begin(), TAIL.end());
+    buf->insert(buf->end(), TAIL.begin(), TAIL.end());
 
     return Result<int, int>::ok(OK);
 }
