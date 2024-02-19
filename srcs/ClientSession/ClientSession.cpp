@@ -80,8 +80,8 @@ void ClientSession::close_client_fd() {
 
 SessionResult ClientSession::process_client_event() {
     Result<std::string, std::string> recv_result;
-    Result<int, int> request_result, send_result;
-    Result<int, int> create_response_result, response_body_result;
+    Result<int, StatusCode> request_result, send_result;
+    Result<int, StatusCode> create_response_result, response_body_result;
 
     switch (this->session_state_) {
         case kSessionInit:
@@ -103,6 +103,7 @@ SessionResult ClientSession::process_client_event() {
                 return SessionResult::ok(OK);
             }
             if (request_result.is_err()) {
+                this->request_->set_status_code(request_result.get_err_value());  // update status
                 DEBUG_SERVER_PRINT("    request error1, status: %d", request_result.get_err_value());
             }
             this->session_state_ = kCreatingResponse;
@@ -111,8 +112,9 @@ SessionResult ClientSession::process_client_event() {
 
         case kCreatingResponse:
             DEBUG_SERVER_PRINT("   session: 2 CreatingResponse");
+            DEBUG_SERVER_PRINT("    status(requ): %d", this->request_->get_status_code());
             create_response_result = create_http_response();  // todo: rename
-            if (create_response_result.get_ok_value() == CGI) {
+            if (create_response_result.is_ok() && create_response_result.get_ok_value() == CGI) {
                 this->session_state_ = kExecutingCGI;
                 return SessionResult::ok(CGI);
             }
@@ -126,6 +128,7 @@ SessionResult ClientSession::process_client_event() {
 
         case kCreatingResponseBody:
             DEBUG_SERVER_PRINT("   session: 3 CreatingResponseBody");
+            DEBUG_SERVER_PRINT("    status(requ): %d", this->request_->get_status_code());
 #ifdef ECHO
             this->response_->create_echo_msg(this->request_->get_buf());
 #else
@@ -243,7 +246,7 @@ SessionResult ClientSession::update_config_params() {
 }
 
 
-Result<int, int> ClientSession::parse_http_request() {
+Result<int, StatusCode> ClientSession::parse_http_request() {
     try {
         this->request_ = new HttpRequest();
     }
@@ -254,45 +257,53 @@ Result<int, int> ClientSession::parse_http_request() {
     this->request_max_body_size_ = ConfigInitValue::kDefaultBodySize;
 #else
     // recv_until_empty??
-    DEBUG_SERVER_PRINT("    1");
-    Result<int, int> recv_result = this->request_->recv_request_line_and_header(this->client_fd_);
+    DEBUG_SERVER_PRINT("    parse_http_request 1");
+    Result<int, StatusCode> recv_result = this->request_->recv_request_line_and_header(this->client_fd_);
     if (recv_result.is_err()) {
-        return Result<int, int>::err(recv_result.get_err_value());
+        DEBUG_SERVER_PRINT("     error 1");
+        return Result<int, StatusCode>::err(recv_result.get_err_value());
     }
     if (this->request_->is_buf_empty()) {
-        return Result<int, int>::ok(CONTINUE);
+        DEBUG_SERVER_PRINT("     buf empty -> continue");
+        return Result<int, StatusCode>::ok(CONTINUE);
     }
 
-    DEBUG_SERVER_PRINT("    2");
+    DEBUG_SERVER_PRINT("    parse_http_request 2");
     // request line
-    Result<int, int> request_line_result = this->request_->parse_request_line();
+    Result<int, StatusCode> request_line_result = this->request_->parse_request_line();
     if (request_line_result.is_err()) {
-        return Result<int, int>::err(request_line_result.get_err_value());
+        DEBUG_SERVER_PRINT("     error 2");
+        return Result<int, StatusCode>::err(request_line_result.get_err_value());
     }
-    DEBUG_SERVER_PRINT("    3");
+    DEBUG_SERVER_PRINT("    parse_http_request 3");
 
     // request header
-    Result<int, int> header_result = this->request_->parse_header();
+    Result<int, StatusCode> header_result = this->request_->parse_header();
     if (header_result.is_err()) {
-        return Result<int, int>::err(header_result.get_err_value());
+        DEBUG_SERVER_PRINT("     error 3");
+        return Result<int, StatusCode>::err(header_result.get_err_value());
     }
-    DEBUG_SERVER_PRINT("    4");
+    DEBUG_SERVER_PRINT("    parse_http_request 4");
     // config
     Result<int, std::string> update_result = update_config_params();
     if (update_result.is_err()) {
-        return Result<int, int>::err(STATUS_BAD_REQUEST);  // todo
+        // todo: status update if not error
+        DEBUG_SERVER_PRINT("     error 4");
+        // todo: status
+        return Result<int, StatusCode>::err(STATUS_NOT_FOUND);  // todo
     }
-    DEBUG_SERVER_PRINT("    5");
+    DEBUG_SERVER_PRINT("    parse_http_request 5");
 #endif
     // body
-    Result<int, int> body_result;
+    Result<int, StatusCode> body_result;
     body_result = this->request_->recv_body(this->client_fd_,
                                             this->request_max_body_size_);
     if (body_result.is_err()) {
-        return Result<int, int>::err(body_result.get_err_value());
+        DEBUG_SERVER_PRINT("     error 5");
+        return Result<int, StatusCode>::err(body_result.get_err_value());
     }
-    DEBUG_SERVER_PRINT("    6");
-    return Result<int, int>::ok(OK);
+    DEBUG_SERVER_PRINT("    parse_http_request 6");
+    return Result<int, StatusCode>::ok(OK);
 }
 
 

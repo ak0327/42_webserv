@@ -64,6 +64,10 @@ class HttpResponse {
 
     int get_cgi_fd() const;
     bool is_cgi_processing(int *status);
+
+    // todo: util
+    static Result<std::vector<std::string>, int> get_interpreter(const std::string &file_path);
+
 #ifdef ECHO
     HttpResponse();
     void create_echo_msg(const std::vector<unsigned char> &recv_msg);
@@ -117,7 +121,6 @@ class HttpResponse {
                              int *status_code);
     void close_cgi_fd();
     void kill_cgi_process();
-    static Result<std::vector<std::string>, int> get_interpreter(const std::string &file_path);
     int execute_cgi_script_in_child(int socket_fds[2],
                                     const std::string &file_path,
                                     const std::string &query);

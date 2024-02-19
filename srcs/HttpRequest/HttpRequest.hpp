@@ -22,6 +22,8 @@ class HttpRequest {
 	~HttpRequest();
 
 	int get_status_code() const;
+    void set_status_code(int new_code);
+
 	std::string	get_method() const;
 	std::string get_request_target() const;
 	std::string	get_http_version() const;
