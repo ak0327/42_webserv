@@ -8,53 +8,34 @@ CXXFLAGS	+=	-D USE_SELECT
 # SRCS -------------------------------------------------------------------------
 SRCS_DIR	=	srcs
 
-#main
+# main
 SRCS		=	main.cpp
 
-#debug
-DEBUG_DIR	=	Debug
-SRCS		+=	$(DEBUG_DIR)/Debug.cpp
+# Config
+CONFIG_DIR	=	Configuration
+SRCS		+=	$(CONFIG_DIR)/FileHandler/FileHandler.cpp \
+				$(CONFIG_DIR)/Parser/Parser.cpp \
+				$(CONFIG_DIR)/Token/Token.cpp \
+				$(CONFIG_DIR)/Tokenizer/Tokenizer.cpp \
+				$(CONFIG_DIR)/Configuration.cpp
 
-#error
-ERROR_DIR	=	Error
-SRCS		+=	$(ERROR_DIR)/Error.cpp
-
-#io
-IO_DIR		=	IOMultiplexer
-SRCS		+=	$(IO_DIR)/IOMultiplexer.cpp
-
-#server
-SERVER_DIR	=	Server
-SRCS		+=	$(SERVER_DIR)/Server.cpp
-
-#socket
-SOCKET_DIR	=	Socket
-SRCS		+=	$(SOCKET_DIR)/Socket.cpp
-
-#const
+# Const
 CONST_DIR	=	Const
 SRCS		+=	$(CONST_DIR)/Constant.cpp
 
-#error
+# ClientSession
+CLIENT_SESSION_DIR = ClientSession
+SRCS		+=	$(CLIENT_SESSION_DIR)/ClientSession.cpp
+
+# Error
 ERROR_DIR	=	Error
 SRCS		+=	$(ERROR_DIR)/Error.cpp
 
-#debug
+# Debug
 DEBUG_DIR	=	Debug
 SRCS		+=	$(DEBUG_DIR)/Debug.cpp
 
-#socket
-SOCKET_DIR	=	Socket
-SRCS		+=	$(SOCKET_DIR)/Socket.cpp
-
-#StringHandler
-STR_HANDLER	=	StringHandler
-SRCS		+=	$(STR_HANDLER)/HttpMessageParser.cpp \
-				$(STR_HANDLER)/HttpMessageParserIs.cpp \
-				$(STR_HANDLER)/HttpMessageParserSkip.cpp \
-				$(STR_HANDLER)/StringHandler.cpp
-
-#httprequest
+# HTTP Request
 REQUEST_DIR	=	HttpRequest
 SRCS		+=	$(REQUEST_DIR)/HttpRequest.cpp \
 				$(REQUEST_DIR)/RequestLine/RequestLine.cpp
@@ -106,6 +87,25 @@ VALUE_AND_MAP_FIELD_VALUES_DIR = $(REQUEST_DIR)/ValueAndMapFieldValues
 SRCS		+=  $(VALUE_AND_MAP_FIELD_VALUES_DIR)/ValueAndMapFieldValues.cpp \
 				$(VALUE_AND_MAP_FIELD_VALUES_DIR)/set_content_disposition.cpp
 
+# IO
+IO_DIR		=	IOMultiplexer
+SRCS		+=	$(IO_DIR)/IOMultiplexer.cpp
+
+# Server
+SERVER_DIR	=	Server
+SRCS		+=	$(SERVER_DIR)/Server.cpp
+
+# Socket
+SOCKET_DIR	=	Socket
+SRCS		+=	$(SOCKET_DIR)/Socket.cpp
+
+# StringHandler
+STR_HANDLER	=	StringHandler
+SRCS		+=	$(STR_HANDLER)/HttpMessageParser.cpp \
+				$(STR_HANDLER)/HttpMessageParserIs.cpp \
+				$(STR_HANDLER)/HttpMessageParserSkip.cpp \
+				$(STR_HANDLER)/StringHandler.cpp
+
 #HTTP Response
 RESPONSE_DIR =	HttpResponse
 SRCS		+=	$(RESPONSE_DIR)/HttpResponse.cpp \
@@ -113,18 +113,6 @@ SRCS		+=	$(RESPONSE_DIR)/HttpResponse.cpp \
 				$(RESPONSE_DIR)/GET/get_directory_listing.cpp \
 				$(RESPONSE_DIR)/GET/get_file_content.cpp \
 				$(RESPONSE_DIR)/GET/get_request_body.cpp
-
-#config
-CONFIG_DIR	=	Configuration
-SRCS		+=	$(CONFIG_DIR)/FileHandler/FileHandler.cpp \
-				$(CONFIG_DIR)/Parser/Parser.cpp \
-				$(CONFIG_DIR)/Token/Token.cpp \
-				$(CONFIG_DIR)/Tokenizer/Tokenizer.cpp \
-				$(CONFIG_DIR)/Configuration.cpp
-
-CLIENT_SESSION_DIR	=	ClientSession
-SRCS		+=	$(CLIENT_SESSION_DIR)/ClientSession.cpp
-
 
 # OBJS -------------------------------------------------------------------------
 OBJS_DIR	=	objs
@@ -172,10 +160,6 @@ RESPONSE_INCLUDES =	$(SRCS_DIR)/$(RESPONSE_DIR) \
 					$(SRCS_DIR)/$(RESPONSE_DIR)/DELETE
 
 INCLUDES	 =	$(addprefix -I, $(INCLUDES_DIR))
-
-
-# include DEPS -----------------------------------------------------------------
--include $(DEPS)
 
 
 # RULES ------------------------------------------------------------------------
@@ -352,3 +336,7 @@ run_config_test    :
 	#cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestConfig*
+
+
+# include DEPS -----------------------------------------------------------------
+-include $(DEPS)
