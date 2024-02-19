@@ -6,6 +6,7 @@
 
 const int OK = 0;
 const int ERR = -1;
+const int CGI = 1;
 
 const int GETADDRINFO_SUCCESS = 0;
 
@@ -16,20 +17,32 @@ const int ACCEPT_ERROR = -1;
 const int BIND_ERROR = -1;
 const int CLOSE_ERROR = -1;
 const int CONN_ERROR = -1;
+const int DUP_ERROR = -1;
 const int FCNTL_ERROR = -1;
+const int FORK_ERROR = -1;
+const int KILL_ERROR = -1;
 const int LISTEN_ERROR = -1;
 const int SETSOCKOPT_ERROR = -1;
 const int SOCKET_ERROR = -1;
+const int SOCKETPAIR_ERROR = -1;
 const int STAT_ERROR = -1;
 
 const ssize_t RECV_ERROR = -1;
 const ssize_t SEND_ERROR = -1;
+
+const pid_t PROCESSING = 0;
+const pid_t WAIT_ERROR = -1;
+
+const int CHILD_PROC = 0;
+const std::size_t READ = 0;
+const std::size_t WRITE = 1;
 
 ////////////////////////////////////////////////////////////////////////////////
 /* initial value */
 
 const int COUNTER_INIT = 0;
 const int INIT_FD = -1;
+const int INIT_PID = -1;
 const int FLAG_NONE = 0;
 
 const double WEIGHT_INIT = 1.0;
