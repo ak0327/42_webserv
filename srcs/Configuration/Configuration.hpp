@@ -41,6 +41,9 @@ class Configuration {
     Result<std::string, int> get_index(const AddressPortPair &address_port_pair,
                                        const std::string &target_path) const;
 
+    static Result<std::string, int> get_error_page_path(const ServerConfig &server_config,
+                                                        const std::string &target_path,
+                                                        const StatusCode &code);
     static Result<std::string, int> get_error_page(const ServerConfig &server_config,
                                                    const std::string &target_path,
                                                    const StatusCode &code);
@@ -92,7 +95,7 @@ class Configuration {
     static bool is_exact_match(const std::string &pattern, const std::string &target);
     static bool is_prefix_match(const std::string &pattern, const std::string &target);
 
-private:
+ private:
 	HttpConfig http_config_;
     std::map<ServerInfo, const ServerConfig *> server_configs_;
     std::map<AddressPortPair, const ServerConfig *> default_servers_;

@@ -350,8 +350,6 @@ Result<LocationConfig, int> Configuration::get_location_config(const ServerConfi
         return Result<LocationConfig, int>::err(ERR);
     }
     const std::string matching_location = matching_result.get_ok_value();
-    // std::cout << CYAN << "matching_location: " << matching_location << ", target: " << target_path << RESET << std::endl;
-
     std::map<LocationPath, LocationConfig>::const_iterator location;
     location = server_config.locations.find(matching_location);
     if (location == server_config.locations.end()) {
@@ -399,7 +397,7 @@ Result<std::string, int> Configuration::get_index(const ServerConfig &server_con
                                                   const std::string &target_path) {
     std::set<std::string> index_pages;
 
-    DEBUG_PRINT(GREEN, "get_index");
+    // DEBUG_PRINT(GREEN, "get_index");
     Result<LocationConfig, int> location_result = get_location_config(server_config, target_path);
     if (location_result.is_err()) {
         return Result<std::string, int>::err(ERR);
@@ -412,16 +410,16 @@ Result<std::string, int> Configuration::get_index(const ServerConfig &server_con
         return Result<std::string, int>::err(ERR);
     }
     const std::string root = root_result.get_ok_value();
-    DEBUG_PRINT(GREEN, " root: %s", root.c_str());
+    // DEBUG_PRINT(GREEN, " root: %s", root.c_str());
 
     for (std::set<std::string>::const_iterator page = index_pages.begin(); page != index_pages.end(); ++page) {
         const std::string path = root + "/" + *page;
-        DEBUG_PRINT(GREEN, " path: %s", path.c_str());
+        // DEBUG_PRINT(GREEN, " path: %s", path.c_str());
         std::ifstream ifs(path.c_str());
 
         if (ifs.is_open()) {
             ifs.close();
-            DEBUG_PRINT(GREEN, " -> index: ", path.c_str());
+            // DEBUG_PRINT(GREEN, " -> index: ", path.c_str());
             return Result<std::string, int>::ok(*page);
         }
     }
@@ -452,6 +450,24 @@ Result<std::string, int> Configuration::get_index(const AddressPortPair &address
 }
 
 
+Result<std::string, int> Configuration::get_error_page_path(const ServerConfig &server_config,
+                                                            const std::string &target_path,
+                                                            const StatusCode &code) {
+    Result<std::string, int> root_result = Configuration::get_root(server_config, target_path);
+    if (root_result.is_err()) {
+        return Result<std::string, int>::err(ERR);
+    }
+    std::string root = root_result.get_ok_value();
+
+    Result<std::string, int> error_page_result = Configuration::get_error_page(server_config, target_path, code);
+    if (error_page_result.is_err()) {
+        return Result<std::string, int>::err(ERR);
+    }
+    std::string error_page = error_page_result.get_ok_value();
+    return Result<std::string, int>::ok(root + error_page);
+}
+
+
 Result<std::string, int> Configuration::get_error_page(const ServerConfig &server_config,
                                                        const std::string &target_path,
                                                        const StatusCode &code) {
@@ -467,13 +483,11 @@ Result<std::string, int> Configuration::get_error_page(const ServerConfig &serve
 
     LocationConfig location_config = location_result.get_ok_value();
     error_pages = location_config.error_pages;
-    // root = location_config.root_path;
 
     if (error_pages.find(code) == error_pages.end()) {
         return Result<std::string, int>::err(ERR);
     }
 
-    // std::string error_page = root + error_pages[code];
     return Result<std::string, int>::ok(error_pages[code]);
 }
 
