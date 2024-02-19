@@ -1,3 +1,6 @@
+#include <sys/wait.h>
+#include <cerrno>
+#include <cstdlib>
 #include <signal.h>
 #include <unistd.h>
 #include <iostream>
