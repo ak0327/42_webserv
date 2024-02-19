@@ -22,13 +22,11 @@ extern char **environ;
 
 
 Result<int, std::string> HttpResponse::create_socketpair(int socket_fds[2]) {
-    std::string err_info;
-
     errno = 0;
     if (socketpair(AF_UNIX, SOCK_STREAM, FLAG_NONE, socket_fds) == SOCKETPAIR_ERROR) {
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
         std::cerr << error_msg << std::endl;  // todo: tmp
-        return Result<int, std::string>::err(err_info);
+        return Result<int, std::string>::err(error_msg);
     }
     return Result<int, std::string>::ok(OK);
 }
@@ -36,10 +34,9 @@ Result<int, std::string> HttpResponse::create_socketpair(int socket_fds[2]) {
 
 std::vector<char *> HttpResponse::get_argv_for_execve(const std::vector<std::string> &interpreter,
                                                       const std::string &file_path) {
-    Result<std::vector<std::string>, int> result;
-    std::vector<std::string>::const_iterator itr;
     std::vector<char *> argv;
 
+    std::vector<std::string>::const_iterator itr;
     for (itr = interpreter.begin(); itr != interpreter.end(); ++itr) {
         argv.push_back(const_cast<char *>((*itr).c_str()));
     }
@@ -54,9 +51,8 @@ int HttpResponse::execute_cgi_script_in_child(int socket_fds[2],
                                 const std::string &query) {
     Result<std::vector<std::string>, int> interpreter_result;
     std::vector<std::string> interpreter;
-    std::vector<char *> argv;
-    std::string err_info;
-    (void)query;
+    std::vector<char *> argv;  // todo: char *const argv[]
+    (void)query;  // todo
 
     interpreter_result = HttpResponse::get_interpreter(file_path);
     if (interpreter_result.is_err()) {
@@ -95,6 +91,7 @@ int HttpResponse::execute_cgi_script_in_child(int socket_fds[2],
 }
 
 
+// todo: use?
 bool HttpResponse::is_exec_timeout(time_t start_time, int timeout_sec) {
     time_t current_time = time(NULL);
     double elapsed_time = difftime(current_time, start_time);
@@ -104,21 +101,18 @@ bool HttpResponse::is_exec_timeout(time_t start_time, int timeout_sec) {
 
 
 Result<std::vector<std::string>, int> HttpResponse::get_interpreter(const std::string &file_path) {
-    std::vector<std::string> interpreter;
-    std::ifstream		file;
-    std::string			shebang_line;
-    std::string			word;
-    const std::size_t	kSHEBANG_LEN = 2;
+    std::ifstream file(file_path.c_str());
 
-    file.open(file_path.c_str());
     if (file.fail()) {
         return Result<std::vector<std::string>, int>::err(ERR);
     }
-
+    std::string shebang_line;
+    std::string	word;
     std::getline(file, shebang_line);
 
     std::istringstream	iss(shebang_line);
 
+    std::vector<std::string> interpreter;
     while (getline(iss, word, ' ')) {
         interpreter.push_back(word);
     }
@@ -130,6 +124,7 @@ Result<std::vector<std::string>, int> HttpResponse::get_interpreter(const std::s
         return Result<std::vector<std::string>, int>::err(ERR);
     }
 
+    const std::size_t kSHEBANG_LEN = 2;
     if (kSHEBANG_LEN <= (*itr).length() && (*itr)[0] == '#' && (*itr)[1] == '!') {
         *itr = (*itr).substr(kSHEBANG_LEN);
         return Result<std::vector<std::string>, int>::ok(interpreter);
@@ -169,9 +164,8 @@ Result<Fd, int> HttpResponse::exec_cgi(const std::string &file_path,
                                        int *status_code) {
     Result<std::string, int> execute_cgi_result, translate_result;
     Result<int, std::string> socketpair_result;
-    std::string err_info;
-    int			socket_fds[2];
-    pid_t		pid;
+    int socket_fds[2];
+    pid_t pid;
 
     if (!cgi_read_fd || !cgi_pid || !status_code) {
         return Result<Fd, int>::err(ERR);  // todo: tmp
@@ -179,8 +173,8 @@ Result<Fd, int> HttpResponse::exec_cgi(const std::string &file_path,
 
     socketpair_result = create_socketpair(socket_fds);
     if (socketpair_result.is_err()) {
-        err_info = socketpair_result.get_err_value();
-        std::cerr << "[Error] socketpair: " << err_info << std::endl;  // todo: tmp
+        const std::string error_msg = socketpair_result.get_err_value();
+        std::cerr << "[Error] socketpair: " << error_msg << std::endl;  // todo: tmp
         *status_code = STATUS_SERVER_ERROR;
         return Result<Fd, int>::err(ERR);  // todo: tmp
     }
