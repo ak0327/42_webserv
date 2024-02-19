@@ -10,21 +10,21 @@ TEST(HttpResponseGet, CGIGetInterPreter) {
 	std::vector<std::string> expected, actual;
 	Result<std::vector<std::string>, int> result;
 
-	file_path = "www/cgi-bin/hello.py";
+	file_path = "html/cgi-bin/hello.py";
 	expected = {"/usr/bin/env", "python3"};
 	result = HttpResponse::get_interpreter(file_path);
 	actual = result.get_ok_value();
 	EXPECT_TRUE(result.is_ok());
 	EXPECT_EQ(expected, actual);
 
-	file_path = "www/cgi-bin/page.php";
+	file_path = "html/cgi-bin/page.php";
 	expected = {"/usr/bin/env", "php"};
 	result = HttpResponse::get_interpreter(file_path);
 	actual = result.get_ok_value();
 	EXPECT_TRUE(result.is_ok());
 	EXPECT_EQ(expected, actual);
 
-	file_path = "www/index.html";
+	file_path = "html/index.html";
 	result = HttpResponse::get_interpreter(file_path);
 	EXPECT_FALSE(result.is_ok());
 
@@ -32,7 +32,7 @@ TEST(HttpResponseGet, CGIGetInterPreter) {
 	result = HttpResponse::get_interpreter(file_path);
 	EXPECT_FALSE(result.is_ok());
 
-	file_path = "test/unit_test/HttpResponse/empty_file_for_get_interpreter";
+	file_path = "test/unit_test/HttpResponse/GET/empty_file_for_get_interpreter";
 	result = HttpResponse::get_interpreter(file_path);
 	EXPECT_FALSE(result.is_ok());
 }
