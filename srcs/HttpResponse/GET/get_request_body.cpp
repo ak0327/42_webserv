@@ -42,6 +42,7 @@ Result<int, int> HttpResponse::get_path_content(const std::string &path, bool au
     std::map<std::string, std::string> mime_types;
     mime_types["html"] = "text/html";
     mime_types["htm"] = "text/htm";
+    mime_types["jpg"] = "text/htm";
 
     DEBUG_PRINT(CYAN, "  is_dir: %s", is_directory(path) ? "true" : "false");
     if (autoindex && is_directory(path)) {
@@ -66,19 +67,26 @@ Result<int, int> HttpResponse::get_path_content(const std::string &path, bool au
 
 void HttpResponse::get_error_page() {
     // get_error_page_path
-    Result<std::string, int> result = Configuration::get_error_page(this->server_config_,
-                                                                    this->request_.get_request_target(),
-                                                                    this->status_code_);
+    DEBUG_PRINT(CYAN, "  get_error_page 1");
+    Result<std::string, int> result = Configuration::get_error_page_path(this->server_config_,
+                                                                         this->request_.get_request_target(),
+                                                                         this->status_code_);
+    DEBUG_PRINT(CYAN, "  get_error_page 2");
     if (result.is_err()) {
+        DEBUG_PRINT(CYAN, "  get_error_page 3 err");
         return;
     }
+    DEBUG_PRINT(CYAN, "  get_error_page 4");
     std::string error_page_path = result.get_ok_value();
+    DEBUG_PRINT(CYAN, "  get_error_page 5 error_page_path: %s", error_page_path.c_str());
+
     std::map<std::string, std::string> mime_types;  // todo
+    mime_types["html"] = "text/html";
+    mime_types["htm"] = "text/htm";
+    mime_types["jpg"] = "text/htm";
     int unused;
     get_file_content(error_page_path, mime_types, &this->body_buf_, &unused);
 }
-
-
 
 
 Result<Fd, int> HttpResponse::get_request_body(const std::string &target_path) {
