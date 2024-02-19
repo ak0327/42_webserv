@@ -40,7 +40,8 @@ class Server {
     ServerResult communicate_with_client(int ready_fd);
     ServerResult create_session(int socket_fd);
     ServerResult process_session(int ready_fd);
-
+    void init_session(ClientSession *session);
+    void update_fd_type(int fd, FdType update_from, FdType update_to);
     static Result<Socket *, std::string> create_socket(const std::string &address,
                                                        const std::string &port);
     ServerResult create_sockets(const Configuration &config);

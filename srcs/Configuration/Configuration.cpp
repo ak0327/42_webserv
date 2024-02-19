@@ -6,6 +6,7 @@
 #include "webserv.hpp"
 #include "Configuration.hpp"
 #include "Constant.hpp"
+#include "Debug.hpp"
 #include "FileHandler.hpp"
 #include "HttpMessageParser.hpp"
 #include "Token.hpp"
@@ -173,42 +174,57 @@ Result<ServerConfig, std::string> Configuration::get_server_config(const Address
     std::string request_port = request.second;
     Result<ServerConfig, int> result;
 
+    if (socket_address == "0.0.0.0") { socket_address = "*"; }  // todo
     // std::cout << CYAN << "actual  addr: " << socket_address << ", port: " << socket_port << RESET << std::endl;
     // std::cout << CYAN << "request addr: " << request.first << ", port: " << request.second << RESET << std::endl;
+    // DEBUG_PRINT(CYAN, "get_server_config");
 
     if (!request_port.empty() && request_port != socket_port) {
+        // DEBUG_PRINT(CYAN, "get_server_config");
         return Result<ServerConfig, std::string>::err("error: request ip not found");
     }
+    // DEBUG_PRINT(CYAN, " 1");
 
     if (HttpMessageParser::is_ipv4address(request.first)) {
+        // DEBUG_PRINT(CYAN, " 2");
         std::string request_address = request.first;
         // ipv4
         if (socket_address == request_address) {
             result = get_default_server(actual);
             if (result.is_err()) {
+                // DEBUG_PRINT(CYAN, " 3 err");
                 return Result<ServerConfig, std::string>::err("error");
             }
+            // DEBUG_PRINT(CYAN, " 4 ok");
             return Result<ServerConfig, std::string>::ok(result.get_ok_value());
-        } else if (socket_address == "*") {
+        } else if (socket_address == "*") {  // todo
+            // DEBUG_PRINT(CYAN, " 5");
             AddressPortPair pair(request_address, socket_port);
             result = get_default_server(actual);
             if (result.is_err()) {
+                // DEBUG_PRINT(CYAN, " 6 err");
                 return Result<ServerConfig, std::string>::err("error");
             }
+            // DEBUG_PRINT(CYAN, " 7 ok");
             return Result<ServerConfig, std::string>::ok(result.get_ok_value());
         } else {
+            // DEBUG_PRINT(CYAN, " 8 err");
             return Result<ServerConfig, std::string>::err("error: address is not mach with conf and request");
         }
     } else if (HttpMessageParser::is_ipv6address(request.first)) {
         // ivp6
+        // DEBUG_PRINT(CYAN, " 9 err");
         return Result<ServerConfig, std::string>::err("error");  // todo: ipv6
     } else {
         std::string request_server_name = request.first;
+        // DEBUG_PRINT(CYAN, " server_name: %s", request_server_name.c_str());
         ServerInfo server_info(request_server_name, socket_address, socket_port);
         result = get_server_config(server_info);
         if (result.is_err()) {
+            // DEBUG_PRINT(CYAN, " 10 err");
             return Result<ServerConfig, std::string>::err("error");
         }
+        // DEBUG_PRINT(CYAN, " 11 ok");
         return Result<ServerConfig, std::string>::ok(result.get_ok_value());
     }
 }
@@ -275,8 +291,9 @@ Result<std::string, int> Configuration::get_index(const ServerConfig &server_con
                                                   const std::string &location_path) {
     std::set<std::string> index_pages;
 
+    DEBUG_PRINT(GREEN, "get_index");
     Result<LocationConfig, int> location_result = get_location_config(server_config, location_path);
-    if (location_result.is_ok()) {
+    if (location_result.is_err()) {
         return Result<std::string, int>::err(ERR);
     }
     LocationConfig location_config = location_result.get_ok_value();
@@ -287,14 +304,17 @@ Result<std::string, int> Configuration::get_index(const ServerConfig &server_con
         return Result<std::string, int>::err(ERR);
     }
     const std::string root = root_result.get_ok_value();
+    DEBUG_PRINT(GREEN, " root: %s", root.c_str());
 
     for (std::set<std::string>::const_iterator page = index_pages.begin(); page != index_pages.end(); ++page) {
         const std::string path = root + "/" + *page;
+        DEBUG_PRINT(GREEN, " path: %s", path.c_str());
         std::ifstream ifs(path.c_str());
 
         if (ifs.is_open()) {
             ifs.close();
-            return Result<std::string, int>::ok(*page);
+            DEBUG_PRINT(GREEN, " -> index: ", path.c_str());
+            return Result<std::string, int>::ok(path);
         }
     }
     return Result<std::string, int>::err(ERR);

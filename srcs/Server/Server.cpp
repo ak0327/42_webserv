@@ -265,8 +265,7 @@ ServerResult Server::run() {
         ServerResult communicate_result = communicate_with_client(ready_fd);
 		if (communicate_result.is_err()) {
             const std::string error_msg = communicate_result.get_err_value();
-            DEBUG_SERVER_PRINT("");
-            std::cout << GREEN << " loop : error 2" << RESET << std::endl;
+            DEBUG_SERVER_PRINT(" loop : error 2");
             return ServerResult::err(error_msg);
 		}
         DEBUG_SERVER_PRINT(" loop 5 next loop");
@@ -344,6 +343,33 @@ bool is_cgi_fd(int result_value) {
 }
 
 
+void Server::update_fd_type(int fd,
+                            FdType update_from,
+                            FdType update_to) {
+    if (this->fds_->get_fd_type(fd) == update_to || update_from == update_to) {
+        return;
+    }
+    this->fds_->clear_fd(fd);
+    if (update_to == kReadFd) {
+        this->fds_->register_read_fd(fd);
+    } else if (update_to == kWriteFd) {
+        this->fds_->register_write_fd(fd);
+    }
+}
+
+
+void Server::init_session(ClientSession *session) {
+    if (!session) {
+        return;
+    }
+    int client_fd = session->get_client_fd();
+    update_fd_type(client_fd, kWriteFd, kReadFd);
+    session->set_session_state(kReadingRequest);
+    session->clear_request();
+    session->clear_response();
+}
+
+
 ServerResult Server::process_session(int ready_fd) {
     std::map<Fd, ClientSession *>::iterator session = this->sessions_.find(ready_fd);
     if (session == this->sessions_.end()) {
@@ -353,10 +379,10 @@ ServerResult Server::process_session(int ready_fd) {
     SessionResult result;
     ClientSession *client_session = session->second;
     if (ready_fd == client_session->get_client_fd()) {
-        // std::cout << WHITE << " process_client_event" << RESET << std::endl;
+        DEBUG_SERVER_PRINT("process_client_event");
         result = client_session->process_client_event();
-    } else if (ready_fd == client_session->get_file_fd()) {
-        // std::cout << WHITE << " process_file_event" << RESET << std::endl;
+    } else if (ready_fd == client_session->get_cgi_fd()) {
+        DEBUG_SERVER_PRINT("process_file_event");
         result = client_session->process_file_event();
     } else {
         return ServerResult::err("error: fd unknown");
@@ -372,11 +398,17 @@ ServerResult Server::process_session(int ready_fd) {
         this->fds_->register_read_fd(cgi_fd);
         return ServerResult::ok(OK);
     }
+
     update_fd_type_read_to_write(client_session->get_session_state(), ready_fd);
 
-    if (client_session->is_session_completed()) {
-        // std::cout << WHITE << " session complete fd: " << ready_fd << RESET << std::endl;
-        delete_session(session);
+    if (client_session->is_session_state_expect_to(kSessionCompleted)) {
+        DEBUG_SERVER_PRINT("client process completed: fd %d -> close", ready_fd);
+        delete_session(session);  // todo
+        // init_session(client_session);
+    } else if (client_session->is_session_state_expect_to(kSessionError)) {
+        DEBUG_SERVER_PRINT("client process error occurred: fd %d -> close", ready_fd);
+        delete_session(session);  // todo
+        // init_session(client_session);
     }
     return ServerResult::ok(OK);
 }

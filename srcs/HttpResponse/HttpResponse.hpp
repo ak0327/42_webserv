@@ -5,6 +5,7 @@
 # include <set>
 # include <string>
 # include <vector>
+# include "webserv.hpp"
 # include "ConfigStruct.hpp"
 # include "HttpRequest.hpp"
 # include "Result.hpp"
@@ -51,14 +52,18 @@ struct file_info {
 
 class HttpResponse {
  public:
-	explicit HttpResponse(const HttpRequest &request);
+	explicit HttpResponse(const HttpRequest &request, const ServerConfig &server_config);
 	~HttpResponse();
 
-	std::string get_response_message() const;
+	const std::vector<unsigned char> &get_response_message() const;
 
     Result<int, int> exec_method();
-    Result<int, int> create_response_body();
+    Result<int, int> recv_cgi_result();
+    Result<int, int> create_cgi_body();
+    Result<int, int> create_response_message();
 
+    int get_cgi_fd() const;
+    bool is_cgi_processing(int *status);
 #ifdef ECHO
     HttpResponse();
     void create_echo_msg(const std::vector<unsigned char> &recv_msg);
@@ -67,44 +72,71 @@ class HttpResponse {
 
  private:
     const HttpRequest &request_;
+    const ServerConfig &server_config_;
+
 	StatusCode status_code_;
 
-	/* response message */
-	// status-line = HTTP-version SP status-code SP [ reason-phrase ]
-	std::string status_line_;
+    int cgi_read_fd_;
+    pid_t cgi_pid_;
 
-	// field-line = field-name ":" OWS field-values OWS
-	std::map<std::string, std::string> response_headers_;
+	/* response message */
+	std::string status_line_;
+	std::map<std::string, std::string> headers_;
 
 	// message-body = *OCTET
-	std::vector<unsigned char> response_body_;
+	std::vector<unsigned char> body_buf_;
 
     // send to client
     std::vector<unsigned char> response_message_;
 
-    // echo test
-    std::string echo_message_;  // for test;
 
 	HttpResponse(const HttpResponse &other);
 	HttpResponse &operator=(const HttpResponse &rhs);
 
-	int get_request_body(const std::string &target) { (void)target; return STATUS_OK; }
-	int post_request_body(const std::string &target) { (void)target; return STATUS_OK; }
-	int delete_request_body(const std::string &target) { (void)target; return STATUS_OK; }
 
-    static std::string get_resource_path(const std::string &request_target);
+    std::string get_resource_path(const std::string &request_target);
+    std::string create_field_lines() const;
+    std::string create_status_line() const;
 
-    std::string get_field_lines() const;
+    // GET
+    Result<Fd, int> get_request_body(const std::string &target_path);
+    Result<int, int> get_path_content(const std::string &path, bool autoindex);
+    void get_error_page();
+    static bool is_directory(const std::string &path);
+    static bool is_cgi_file(const std::string &path);
+    Result<int, int> get_file_content(const std::string &file_path,
+                                      const std::map<std::string, std::string> &mime_types,
+                                      std::vector<unsigned char> *buf,
+                                      int *status_code);
+    Result<int, int> get_directory_listing(const std::string &directory_path,
+                                           std::vector<unsigned char> *buf,
+                                           int *status_code);
+    Result<Fd, int> exec_cgi(const std::string &file_path,
+                             int *cgi_read_fd,
+                             pid_t *cgi_pid,
+                             int *status_code);
+    void close_cgi_fd();
+    void kill_cgi_process();
+    static Result<std::vector<std::string>, int> get_interpreter(const std::string &file_path);
+    int execute_cgi_script_in_child(int socket_fds[2],
+                                    const std::string &file_path,
+                                    const std::string &query);
+    Result<int, std::string> create_socketpair(int socket_fds[2]);
+    std::vector<char *> get_argv_for_execve(const std::vector<std::string> &interpreter,
+                                            const std::string &file_path);
+    bool is_exec_timeout(time_t start_time, int timeout_sec);
 
-	// Result<std::string, int> get_path_content(const std::string &path,
-	// 										  bool autoindex,
-	// 										  std::size_t *ret_content_length,
-	// 										  const std::map<std::string, std::string> &mime_types) const;
-    //
-	// Result<std::string, int> get_file_content(const std::string &file_path,
-	// 										  const std::map<std::string, std::string> &mime_types) const;
-    //
-	// Result<std::string, int> get_directory_listing(const std::string &directory_path) const;
-    //
-	// Result<std::string, int> get_cgi_result(const std::string &file_path) const;
+    // POST
+	Result<int, int> post_request_body(const std::string &target) {
+        (void)target;
+        this->status_code_ = STATUS_OK;
+        return Result<int, int>::ok(OK);
+    }
+
+    // DELETE
+	Result<int, int> delete_request_body(const std::string &target) {
+        (void)target;
+        this->status_code_ = STATUS_OK;
+        return Result<int, int>::ok(OK);
+    }
 };

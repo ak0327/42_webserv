@@ -10,6 +10,7 @@
 extern const int OK;
 extern const int ERR;
 extern const int CGI;
+extern const int CONTINUE;
 
 extern const int GETADDRINFO_SUCCESS;
 
