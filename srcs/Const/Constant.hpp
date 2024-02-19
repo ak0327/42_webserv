@@ -9,6 +9,7 @@
 
 extern const int OK;
 extern const int ERR;
+extern const int CGI;
 
 extern const int GETADDRINFO_SUCCESS;
 
@@ -19,20 +20,32 @@ extern const int ACCEPT_ERROR;
 extern const int BIND_ERROR;
 extern const int CLOSE_ERROR;
 extern const int CONN_ERROR;
+extern const int DUP_ERROR;
 extern const int FCNTL_ERROR;
+extern const int FORK_ERROR;
+extern const int KILL_ERROR;
 extern const int LISTEN_ERROR;
 extern const int SETSOCKOPT_ERROR;
 extern const int SOCKET_ERROR;
+extern const int SOCKETPAIR_ERROR;
 extern const int STAT_ERROR;
 
 extern const ssize_t RECV_ERROR;
 extern const ssize_t SEND_ERROR;
+
+extern const pid_t PROCESSING;
+extern const pid_t WAIT_ERROR;
+
+extern const int CHILD_PROC;
+extern const std::size_t READ;
+extern const std::size_t WRITE;
 
 ////////////////////////////////////////////////////////////////////////////////
 /* initial value */
 
 extern const int COUNTER_INIT;
 extern const int INIT_FD;
+extern const int INIT_PID;
 
 extern const double WEIGHT_INIT;
 
