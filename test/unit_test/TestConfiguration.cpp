@@ -286,12 +286,12 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect = {};
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, 400);
+    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
     ASSERT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 404);
+    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
     ASSERT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 500);
+    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
     ASSERT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -317,16 +317,16 @@ TEST(TestConfig, ConfigurationGetterOK1) {
 
     expected_redirect = {};
     expected_redirect.return_on = true;
-    expected_redirect.code = 301;
+    expected_redirect.code = MovedPermanently;
     expected_redirect.text = "/new.html";
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, 400);
+    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 404);
+    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 500);
+    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -354,12 +354,12 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect = {};
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, 400);
+    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 404);
+    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 500);
+    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -387,12 +387,12 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect = {};
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, 400);
+    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 404);
+    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 500);
+    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -420,12 +420,12 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect = {};
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, 400);
+    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 404);
+    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 500);
+    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -454,15 +454,15 @@ TEST(TestConfig, ConfigurationGetterOK1) {
 
     expected_redirect = {};
     expected_redirect.return_on = true;
-    expected_redirect.code = 301;
+    expected_redirect.code = MovedPermanently;
     expected_redirect.text = "/new.html";
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, 400);
+    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 404);
+    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 500);
+    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_err());
 
 
@@ -490,12 +490,12 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect = {};
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, 400);
+    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
     ASSERT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 404);
+    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
     ASSERT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 500);
+    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
     ASSERT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -534,12 +534,12 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect = {};
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, 400);
+    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 404);
+    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 500);
+    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -566,16 +566,16 @@ TEST(TestConfig, ConfigurationGetterOK1) {
 
     expected_redirect = {};
     expected_redirect.return_on = true;
-    expected_redirect.code = 301;
+    expected_redirect.code = MovedPermanently;
     expected_redirect.text = "/new.html";
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, 400);
+    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 404);
+    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 500);
+    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -603,12 +603,12 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect = {};
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, 400);
+    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 404);
+    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 500);
+    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -636,12 +636,12 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect = {};
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, 400);
+    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 404);
+    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 500);
+    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -669,12 +669,12 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect = {};
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, 400);
+    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 404);
+    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 500);
+    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -703,15 +703,15 @@ TEST(TestConfig, ConfigurationGetterOK1) {
 
     expected_redirect = {};
     expected_redirect.return_on = true;
-    expected_redirect.code = 301;
+    expected_redirect.code = MovedPermanently;
     expected_redirect.text = "/new.html";
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, 400);
+    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 404);
+    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 500);
+    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_err());
 
 
@@ -751,12 +751,12 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect = {};
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, 400);
+    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 404);
+    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 500);
+    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -783,16 +783,16 @@ TEST(TestConfig, ConfigurationGetterOK1) {
 
     expected_redirect = {};
     expected_redirect.return_on = true;
-    expected_redirect.code = 301;
+    expected_redirect.code = MovedPermanently;
     expected_redirect.text = "/new.html";
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, 400);
+    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 404);
+    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 500);
+    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -820,12 +820,12 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect = {};
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, 400);
+    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 404);
+    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 500);
+    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -853,12 +853,12 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect = {};
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, 400);
+    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 404);
+    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 500);
+    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -886,12 +886,12 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect = {};
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, 400);
+    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 404);
+    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 500);
+    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -920,15 +920,15 @@ TEST(TestConfig, ConfigurationGetterOK1) {
 
     expected_redirect = {};
     expected_redirect.return_on = true;
-    expected_redirect.code = 301;
+    expected_redirect.code = MovedPermanently;
     expected_redirect.text = "/new.html";
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, 400);
+    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 404);
+    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, 500);
+    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_err());
 
 

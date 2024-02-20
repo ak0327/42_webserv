@@ -6,14 +6,14 @@ template <typename OkType, typename ErrType>
 class Result {
  public:
 	Result()
-		: _is_ok(false),
-		 _ok_value(OkType()),
-		 _err_value(ErrType()) {}
+		: is_ok_(false),
+          ok_value_(OkType()),
+          err_value_(ErrType()) {}
 
 	Result(const Result& other)
-		: _is_ok(other._is_ok),
-		  _ok_value(other._ok_value),
-		  _err_value(other._err_value) {}
+		: is_ok_(other.is_ok_),
+          ok_value_(other.ok_value_),
+          err_value_(other.err_value_) {}
 
 	~Result() {}
 
@@ -21,45 +21,45 @@ class Result {
 		if (this == &rhs) {
 			return *this;
 		}
-		_is_ok = rhs._is_ok;
-		_ok_value = rhs._ok_value;
-		_err_value = rhs._err_value;
+        is_ok_ = rhs.is_ok_;
+        ok_value_ = rhs.ok_value_;
+        err_value_ = rhs.err_value_;
 		return *this;
 	}
 
 	static Result ok(const OkType &value) {
 		Result res;
-		res._is_ok = true;
-		res._ok_value = value;
+		res.is_ok_ = true;
+		res.ok_value_ = value;
 		return res;
 	}
 
 	static Result err(const ErrType &value) {
 		Result res;
-		res._is_ok = false;
-		res._err_value = value;
+		res.is_ok_ = false;
+		res.err_value_ = value;
 		return res;
 	}
 
-	bool is_ok() const { return _is_ok; }
-	bool is_err() const { return !_is_ok; }
+	bool is_ok() const { return is_ok_; }
+	bool is_err() const { return !is_ok_; }
 
 	OkType get_ok_value() const {
-		if (_is_ok) {
-			return _ok_value;
+		if (is_ok_) {
+			return ok_value_;
 		}
 		throw std::runtime_error("[Result Error] Result is not OK");
 	}
 
 	ErrType get_err_value() const {
-		if (!_is_ok) {
-			return _err_value;
+		if (!is_ok_) {
+			return err_value_;
 		}
 		throw std::runtime_error("[Result Error] Result is not ERROR");
 	}
 
  private:
-	bool _is_ok;
-	OkType _ok_value;
-	ErrType _err_value;
+	bool is_ok_;
+	OkType ok_value_;
+	ErrType err_value_;
 };

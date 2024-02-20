@@ -57,16 +57,17 @@ class HttpResponse {
 
 	const std::vector<unsigned char> &get_response_message() const;
 
-    Result<int, int> exec_method();
-    Result<int, int> recv_cgi_result();
-    Result<int, int> create_cgi_body();
-    Result<int, int> create_response_message();
+    Result<ProcResult, StatusCode> exec_method();
+    Result<ProcResult, StatusCode> recv_cgi_result();
+    Result<ProcResult, StatusCode> create_cgi_body();
+    Result<ProcResult, StatusCode> create_response_message();
 
     int get_cgi_fd() const;
     bool is_cgi_processing(int *status);
+    void set_status_code(StatusCode set_status);
 
     // todo: util
-    static Result<std::vector<std::string>, int> get_interpreter(const std::string &file_path);
+    static Result<std::vector<std::string>, ProcResult> get_interpreter(const std::string &file_path);
 
 #ifdef ECHO
     HttpResponse();
@@ -91,7 +92,7 @@ class HttpResponse {
 	std::vector<unsigned char> body_buf_;
 
     // send to client
-    std::vector<unsigned char> response_message_;
+    std::vector<unsigned char> response_msg_;
 
 
 	HttpResponse(const HttpResponse &other);
@@ -103,22 +104,17 @@ class HttpResponse {
     std::string create_status_line() const;
 
     // GET
-    Result<Fd, int> get_request_body(const std::string &target_path);
-    Result<int, int> get_path_content(const std::string &path, bool autoindex);
+    Result<ProcResult, StatusCode> get_request_body(const std::string &target_path);
+    Result<ProcResult, StatusCode> get_path_content(const std::string &path, bool autoindex);
     void get_error_page();
     static bool is_directory(const std::string &path);
     static bool is_cgi_file(const std::string &path);
-    Result<int, int> get_file_content(const std::string &file_path,
-                                      const std::map<std::string, std::string> &mime_types,
-                                      std::vector<unsigned char> *buf,
-                                      int *status_code);
-    Result<int, int> get_directory_listing(const std::string &directory_path,
-                                           std::vector<unsigned char> *buf,
-                                           int *status_code);
-    Result<Fd, int> exec_cgi(const std::string &file_path,
-                             int *cgi_read_fd,
-                             pid_t *cgi_pid,
-                             int *status_code);
+    Result<ProcResult, StatusCode> get_file_content(const std::string &file_path,
+                                                    const std::map<std::string, std::string> &mime_types,
+                                                    std::vector<unsigned char> *buf);
+    Result<ProcResult, StatusCode> get_directory_listing(const std::string &directory_path,
+                                                         std::vector<unsigned char> *buf);
+    Result<ProcResult, StatusCode> exec_cgi(const std::string &file_path, int *cgi_read_fd, pid_t *cgi_pid);
     void close_cgi_fd();
     void kill_cgi_process();
     int execute_cgi_script_in_child(int socket_fds[2],
@@ -130,16 +126,16 @@ class HttpResponse {
     bool is_exec_timeout(time_t start_time, int timeout_sec);
 
     // POST
-	Result<int, int> post_request_body(const std::string &target) {
+	Result<ProcResult, StatusCode> post_request_body(const std::string &target) {
         (void)target;
-        this->status_code_ = STATUS_OK;
-        return Result<int, int>::ok(OK);
+        this->status_code_ = StatusOk;
+        return Result<ProcResult, StatusCode>::ok(Success);
     }
 
     // DELETE
-	Result<int, int> delete_request_body(const std::string &target) {
+	Result<ProcResult, StatusCode> delete_request_body(const std::string &target) {
         (void)target;
-        this->status_code_ = STATUS_OK;
-        return Result<int, int>::ok(OK);
+        this->status_code_ = StatusOk;
+        return Result<ProcResult, StatusCode>::ok(Success);
     }
 };

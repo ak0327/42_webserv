@@ -12,7 +12,9 @@
 
 enum SessionState {
     kSessionInit,
-    kAccepted,
+    kReceivingRequest,
+    kParsingRequest,
+
     kReadingRequest,
     kCreatingResponse,
     kCreatingResponseBody,
@@ -24,7 +26,7 @@ enum SessionState {
     kSessionError
 };
 
-typedef Result<int, std::string> SessionResult;
+typedef Result<ProcResult, std::string> SessionResult;
 
 class ClientSession {
  public:
@@ -46,7 +48,6 @@ class ClientSession {
     SessionResult process_client_event();
     SessionResult process_file_event();
 
-    void close_file_fd();
     void close_client_fd();
     void clear_request();
     void clear_response();
@@ -73,11 +74,11 @@ class ClientSession {
 
     AddressPortPair client_listen_;
 
-    Result<std::string, std::string> recv_request();
-    Result<int, int> send_response();
+    Result<ProcResult, StatusCode> recv_request();
+    Result<ProcResult, StatusCode> send_response();
 
-    Result<int, int> parse_http_request();
-    Result<int, int> create_http_response();
+    Result<ProcResult, StatusCode> parse_http_request();
+    Result<ProcResult, StatusCode> create_http_response();
     Result<AddressPortPair, std::string> get_address_port_pair() const;
     Result<ServerConfig, std::string> get_server_config() const;
     SessionResult update_config_params();

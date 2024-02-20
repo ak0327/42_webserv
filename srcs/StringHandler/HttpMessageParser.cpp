@@ -700,4 +700,16 @@ std::string normalize(const std::string& path) {
     return normalized_path.empty() ? "/" : normalized_path;
 }
 
+
+Result<StatusCode, ProcResult> convert_to_enum(int code) {
+    std::map<StatusCode, std::string>::const_iterator itr;
+    for (itr = STATUS_REASON_PHRASES.begin(); itr != STATUS_REASON_PHRASES.end(); ++itr) {
+        if (static_cast<int>(itr->first) == code) {
+            return Result<StatusCode, ProcResult>::ok(static_cast<StatusCode>(code));
+        }
+    }
+    return Result<StatusCode, ProcResult>::err(Failure);
+}
+
+
 }  // namespace HttpMessageParser

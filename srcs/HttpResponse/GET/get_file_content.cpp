@@ -34,25 +34,22 @@ bool is_support_content_type(const std::string &path,
 }
 
 
-Result<int, int> HttpResponse::get_file_content(const std::string &file_path,
-                                                const std::map<std::string, std::string> &mime_types,
-                                                std::vector<unsigned char> *buf,
-                                                int *status_code) {
-    if (!buf || !status_code) {
-        return Result<int, int>::err(ERR);
+Result<ProcResult, StatusCode> HttpResponse::get_file_content(const std::string &file_path,
+                                                              const std::map<std::string, std::string> &mime_types,
+                                                              std::vector<unsigned char> *buf) {
+    if (!buf) {
+        return Result<ProcResult, StatusCode>::err(InternalServerError);
     }
     DEBUG_PRINT(CYAN, "    get_file_content 1 path:[%s]", file_path.c_str());
     if (!is_support_content_type(file_path, mime_types)) {
-        *status_code = STATUS_NOT_ACCEPTABLE;
         DEBUG_PRINT(RED, "   not support content: %s", file_path.c_str());
-		return Result<int, int>::err(ERR);
+		return Result<ProcResult, StatusCode>::err(NotAcceptable);
 	}
 
     DEBUG_PRINT(CYAN, "    get_file_content 2");
     std::ifstream file(file_path.c_str(), std::ios::binary);
     if (!file) {
-        *status_code = STATUS_NOT_FOUND;  // todo
-        return Result<int, int>::err(ERR);
+        return Result<ProcResult, StatusCode>::err(NotFound);
     }
     DEBUG_PRINT(CYAN, "    get_file_content 3");
 
@@ -67,13 +64,11 @@ Result<int, int> HttpResponse::get_file_content(const std::string &file_path,
         std::cerr << error_msg << std::endl;  // todo log
 
         buf->clear();
-        *status_code = STATUS_BAD_REQUEST;  // todo
-        return Result<int, int>::err(ERR);
+        return Result<ProcResult, StatusCode>::err(BadRequest);
     }
     DEBUG_PRINT(CYAN, "    get_file_content 5");
     std::string body(this->body_buf_.begin(), this->body_buf_.end());
     DEBUG_PRINT(CYAN, "    get_file_content recv_body:[%s]", body.c_str());
 
-    *status_code = STATUS_OK;
-    return Result<int, int>::ok(OK);
+    return Result<ProcResult, StatusCode>::ok(Success);
 }

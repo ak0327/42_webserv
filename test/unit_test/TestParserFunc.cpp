@@ -843,7 +843,7 @@ TEST(TestParser, ParseReturnDirective) {
 
     cnt = 0;
     expected = {};
-    expected.code = 301;
+    expected.code = MovedPermanently;
     expected.text = "old_page";
     expected.return_on = true;
 
@@ -863,51 +863,11 @@ TEST(TestParser, ParseReturnDirective) {
 
     cnt = 0;
     expected = {};
-    expected.code = 301;
+    expected.code = MovedPermanently;
     expected.return_on = true;
 
     tokens = {};
     tokens.push_back(Token("301", kTokenKindDirectiveParam, ++cnt));
-    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
-
-    actual = {};
-    current = tokens.begin();
-    result = ParserTestFriend::parse_return_directive(&current, tokens.end(), &actual);
-
-    ASSERT_TRUE(result.is_ok());
-    expect_eq_return(expected, actual, __LINE__);
-
-    // -------------------------------------------------------------------------
-
-    cnt = 0;
-    expected = {};
-    expected.code = 0;
-    expected.text = "old_page";
-    expected.return_on = true;
-
-    tokens = {};
-    tokens.push_back(Token("0", kTokenKindDirectiveParam, ++cnt));
-    tokens.push_back(Token("old_page", kTokenKindDirectiveParam, ++cnt));
-    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
-
-    actual = {};
-    current = tokens.begin();
-    result = ParserTestFriend::parse_return_directive(&current, tokens.end(), &actual);
-
-    ASSERT_TRUE(result.is_ok());
-    expect_eq_return(expected, actual, __LINE__);
-
-    // -------------------------------------------------------------------------
-
-    cnt = 0;
-    expected = {};
-    expected.code = 999;
-    expected.text = "old_page";
-    expected.return_on = true;
-
-    tokens = {};
-    tokens.push_back(Token("999", kTokenKindDirectiveParam, ++cnt));
-    tokens.push_back(Token("old_page", kTokenKindDirectiveParam, ++cnt));
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     actual = {};
@@ -919,6 +879,32 @@ TEST(TestParser, ParseReturnDirective) {
 
 
     ////////////////////////////////////////////////////////////////////////////
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("0", kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+
+    actual = {};
+    current = tokens.begin();
+    result = ParserTestFriend::parse_return_directive(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+
+    cnt = 999;
+    tokens = {};
+    tokens.push_back(Token("1000", kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    actual = {};
+    current = tokens.begin();
+    result = ParserTestFriend::parse_return_directive(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
 
 
     cnt = 0;
@@ -1353,7 +1339,7 @@ TEST(TestParser, ParseErrorPageDirective) {
     int cnt;
 
     expected = {
-        {404, "/404.html"}
+        {NotFound, "/404.html"}
     };
 
     cnt = 0;
@@ -1372,7 +1358,7 @@ TEST(TestParser, ParseErrorPageDirective) {
     // -------------------------------------------------------------------------
 
     expected = {
-        {404, "404"}
+        {NotFound, "404"}
     };
 
     cnt = 0;
@@ -1391,7 +1377,7 @@ TEST(TestParser, ParseErrorPageDirective) {
     // -------------------------------------------------------------------------
 
     expected = {
-        {404, "/"}
+        {NotFound, "/"}
     };
 
     cnt = 0;
@@ -1410,12 +1396,12 @@ TEST(TestParser, ParseErrorPageDirective) {
     // -------------------------------------------------------------------------
 
     expected = {
-        {300, "/50x.html"},
-        {404, "/404.html"},
-        {500, "/50x.html"},
-        {502, "/50x.html"},
-        {503, "/50x.html"},
-        {504, "overwrite"},
+        {MultipleChoices        , "/50x.html"},
+        {NotFound               , "/404.html"},
+        {InternalServerError    , "/50x.html"},
+        {BadGateway             , "/50x.html"},
+        {ServiceUnavailable     , "/50x.html"},
+        {GatewayTimeout         , "overwrite"},
     };
 
     // error_page_directive 1
@@ -1455,13 +1441,14 @@ TEST(TestParser, ParseErrorPageDirective) {
     current = tokens.begin();
     result = ParserTestFriend::parse_error_page_directive(&current, tokens.end(), &actual);
 
+    // print_error_msg(result, __LINE__);
     ASSERT_TRUE(result.is_ok());
     EXPECT_EQ(expected, actual);
 
     // -------------------------------------------------------------------------
 
     expected = {
-        {404, "/404.html"},
+        {NotFound, "/404.html"},
     };
 
     // error_page_directive 1
@@ -2171,11 +2158,11 @@ TEST(TestParser, ParseDefaultConfig) {
     expected.autoindex = true;
     expected.max_body_size_bytes = 2 * ConfigInitValue::MB;
     expected.error_pages = {
-        {404, "/404.html"},
-        {500, "/50x.html"},
-        {502, "/50x.html"},
-        {503, "/50x.html"},
-        {504, "/50x.html"},
+            {NotFound               , "/404.html"},
+            {InternalServerError    , "/50x.html"},
+            {BadGateway             , "/50x.html"},
+            {ServiceUnavailable     , "/50x.html"},
+            {GatewayTimeout         , "/50x.html"},
     };
 
     actual = {};
@@ -2685,19 +2672,13 @@ TEST(TestParser, ParseLocationBlock) {
     tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
     tokens.push_back(Token("}",             kTokenKindBraces, ++cnt));
 
-    tokens.push_back(Token("return",        kTokenKindDirectiveName, ++cnt));
-    tokens.push_back(Token("333",           kTokenKindDirectiveParam, ++cnt));
-    tokens.push_back(Token("/ignored",      kTokenKindDirectiveParam, ++cnt));
-    tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
-
-
     tokens.push_back(Token("}",             kTokenKindBraces, ++cnt));
 
     current = tokens.begin();
 
     expected = {};
     expected.redirection.return_on = true;
-    expected.redirection.code = 301;
+    expected.redirection.code = MovedPermanently;
     expected.redirection.text = "/new_page";
     expected.limit_except.excluded_methods = {kGET, kDELETE};
     expected.limit_except.rules.push_back(AccessRule(kDENY, "all"));
@@ -2705,9 +2686,9 @@ TEST(TestParser, ParseLocationBlock) {
     actual = {};
     result = ParserTestFriend::parse_location_block(&current, tokens.end(), &actual);
 
+    print_error_msg(result, __LINE__);
     ASSERT_TRUE(result.is_ok());
     expect_eq_location_config(expected, actual, __LINE__);
-
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -2801,6 +2782,42 @@ TEST(TestParser, ParseLocationBlock) {
 
     current = tokens.begin();
 
+
+    actual = {};
+    result = ParserTestFriend::parse_location_block(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("return",        kTokenKindDirectiveName, ++cnt));
+    tokens.push_back(Token("301",           kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token("/new_page",     kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
+
+    tokens.push_back(Token("limit_except",  kTokenKindDirectiveName, ++cnt));
+    tokens.push_back(Token("GET",           kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token("GET",           kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token("GET",           kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token("DELETE",        kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token("{",             kTokenKindBraces, ++cnt));
+    tokens.push_back(Token("deny",          kTokenKindDirectiveName, ++cnt));
+    tokens.push_back(Token("all",           kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
+    tokens.push_back(Token("}",             kTokenKindBraces, ++cnt));
+
+    tokens.push_back(Token("return",        kTokenKindDirectiveName, ++cnt));
+    tokens.push_back(Token("333",           kTokenKindDirectiveParam, ++cnt));   // error
+    tokens.push_back(Token("/ignored",      kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
+
+
+    tokens.push_back(Token("}",             kTokenKindBraces, ++cnt));
+
+    current = tokens.begin();
 
     actual = {};
     result = ParserTestFriend::parse_location_block(&current, tokens.end(), &actual);
@@ -2947,8 +2964,8 @@ TEST(TestParser, ParseServer) {
     tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));       // server
 
     tokens.push_back(Token("error_page",    kTokenKindDirectiveName, ++cnt));   // server
-    tokens.push_back(Token("599",           kTokenKindDirectiveParam, ++cnt));  // server
-    tokens.push_back(Token("server599",     kTokenKindDirectiveParam, ++cnt));  // server
+    tokens.push_back(Token("505",           kTokenKindDirectiveParam, ++cnt));  // server
+    tokens.push_back(Token("server505",     kTokenKindDirectiveParam, ++cnt));  // server
     tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));       // server
 
 
@@ -2963,9 +2980,9 @@ TEST(TestParser, ParseServer) {
     expected.server_names.insert("a");
     expected.server_names.insert("b");
     expected.error_pages = {
-        {400, "server40x"},
-        {404, "server40x"},
-        {599, "server599"},
+        {BadRequest             , "server40x"},
+        {NotFound               , "server40x"},
+        {HTTPVersionNotSupported, "server505"},
     };
 
 
@@ -2976,24 +2993,24 @@ TEST(TestParser, ParseServer) {
     location_config.autoindex = true;
     location_config.max_body_size_bytes = 2 * ConfigInitValue::MB;
     location_config.error_pages = {
-        {400, "server40x"},
-        {404, "path404"},
-        {599, "server599"},
-        {500, "path50x"},
-        {502, "path50x"},
-        {503, "path50x"},
-        {504, "path50x"},
+        {BadRequest         , "server40x"},
+        {NotFound           , "path404"},
+        {HTTPVersionNotSupported, "server505"},
+        {InternalServerError, "path50x"},
+        {BadGateway         , "path50x"},
+        {ServiceUnavailable , "path50x"},
+        {GatewayTimeout     , "path50x"},
     };
     expected.locations["/path"] = location_config;
 
     location_config = LocationConfig(expected);
     location_config.redirection.return_on = true;
-    location_config.redirection.code = 301;
+    location_config.redirection.code = MovedPermanently;
     location_config.redirection.text = "/new_page";
     location_config.error_pages = {
-        {400, "old400"},
-        {404, "server40x"},
-        {599, "server599"},
+        {BadRequest, "old400"},
+        {NotFound, "server40x"},
+        {HTTPVersionNotSupported, "server505"},
     };
 
     expected.locations["/old_page"] = location_config;
@@ -3001,7 +3018,7 @@ TEST(TestParser, ParseServer) {
     actual = {};
     result = ParserTestFriend::parse_server_block(&current, tokens.end(), &actual);
 
-    // print_error_msg(result, __LINE__);
+    print_error_msg(result, __LINE__);
     ASSERT_TRUE(result.is_ok());
     expect_eq_server_config(expected, actual, __LINE__);
 

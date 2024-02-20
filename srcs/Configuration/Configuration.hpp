@@ -5,6 +5,7 @@
 # include <string>
 # include <utility>
 # include <vector>
+# include "Constant.hpp"
 # include "Parser.hpp"
 # include "Result.hpp"
 # include "Token.hpp"

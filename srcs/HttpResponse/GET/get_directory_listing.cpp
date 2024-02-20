@@ -35,9 +35,9 @@ std::string get_timestamp(time_t time) {
     return std::string(formatted_time);
 }
 
-Result<int, int> get_file_info(const std::string &directory_path_end_with_slash,
-                               std::set<file_info> *ret_directories,
-                               std::set<file_info> *ret_files) {
+Result<ProcResult, ProcResult> get_file_info(const std::string &directory_path_end_with_slash,
+                                             std::set<file_info> *ret_directories,
+                                             std::set<file_info> *ret_files) {
     DIR *dirp;
     struct dirent *dirent_ptr;
     struct stat stat_buf;
@@ -52,7 +52,7 @@ Result<int, int> get_file_info(const std::string &directory_path_end_with_slash,
     bool is_err = false;
 
     if (!ret_directories || !ret_files) {
-        return Result<int, int>::err(ERR);
+        return Result<ProcResult, ProcResult>::err(Failure);
     }
 
     // opendir
@@ -61,7 +61,7 @@ Result<int, int> get_file_info(const std::string &directory_path_end_with_slash,
     if (dirp == OPENDIR_ERROR) {
         err_info = create_error_info(errno, __FILE__, __LINE__);
         std::cerr << err_info << std::endl;  // todo
-        return Result<int, int>::err(ERR);
+        return Result<ProcResult, ProcResult>::err(Failure);
     }
 
     // readdir
@@ -117,17 +117,17 @@ Result<int, int> get_file_info(const std::string &directory_path_end_with_slash,
 
     if (is_err) {
         std::cerr << err_info << std::endl;  // todo, return err_info...?
-        return Result<int, int>::err(ERR);
+        return Result<ProcResult, ProcResult>::err(Failure);
     }
     *ret_directories = directories;
     *ret_files = files;
-    return Result<int, int>::ok(OK);
+    return Result<ProcResult, ProcResult>::ok(Success);
 }
 
-Result<int, int> get_directory_listing_html(const std::string &directory_path_end_with_slash,
-                                            const std::set<file_info> &directories,
-                                            const std::set<file_info> &files,
-                                            std::vector<unsigned char> *buf) {
+Result<ProcResult, ProcResult> get_directory_listing_html(const std::string &directory_path_end_with_slash,
+                                                          const std::set<file_info> &directories,
+                                                          const std::set<file_info> &files,
+                                                          std::vector<unsigned char> *buf) {
     std::string PARENT_DIRECTORY_CONTENT, CURRENT_DIRECTORY_CONTENT, FILE_CONTENT;
     std::set<file_info>::const_iterator itr;
     std::string name_width = "150";
@@ -209,7 +209,7 @@ Result<int, int> get_directory_listing_html(const std::string &directory_path_en
 
     buf->insert(buf->end(), TAIL.begin(), TAIL.end());
 
-    return Result<int, int>::ok(OK);
+    return Result<ProcResult, ProcResult>::ok(Success);
 }
 
 std::string get_directory_path_end_with_slash(const std::string &directory_path) {
@@ -228,35 +228,31 @@ std::string get_directory_path_end_with_slash(const std::string &directory_path)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Result<int, int> HttpResponse::get_directory_listing(const std::string &directory_path,
-                                                     std::vector<unsigned char> *buf,
-                                                     int *status_code) {
-    if (!buf || !status_code) {
-        return Result<int, int>::err(ERR);
+Result<ProcResult, StatusCode> HttpResponse::get_directory_listing(const std::string &directory_path,
+                                                                   std::vector<unsigned char> *buf) {
+    if (!buf) {
+        return Result<ProcResult, StatusCode>::err(InternalServerError);
     }
 
     std::string directory_path_end_with_slash = get_directory_path_end_with_slash(directory_path);
     std::set<file_info>	directories;
     std::set<file_info>	files;
 
-    Result<int, int> get_info_result = get_file_info(directory_path_end_with_slash,
-                                                     &directories,
-                                                     &files);
+    Result<ProcResult, ProcResult> get_info_result = get_file_info(directory_path_end_with_slash,
+                                                                   &directories,
+                                                                   &files);
     if (get_info_result.is_err()) {
-        *status_code = STATUS_SERVER_ERROR;
-        return Result<int, int>::err(ERR);
+        return Result<ProcResult, StatusCode>::err(InternalServerError);
     }
 
-    Result<int, int> get_content_result = get_directory_listing_html(directory_path_end_with_slash,
-                                                                     directories,
-                                                                     files,
-                                                                     buf);
+    Result<ProcResult, ProcResult> get_content_result = get_directory_listing_html(directory_path_end_with_slash,
+                                                                                   directories,
+                                                                                   files,
+                                                                                   buf);
     if (get_content_result.is_err()) {
-        *status_code = STATUS_BAD_REQUEST;
-        return Result<int, int>::err(ERR);
+        return Result<ProcResult, StatusCode>::err(BadRequest);
     }
-    *status_code = STATUS_OK;
-    return Result<int, int>::ok(OK);
+    return Result<ProcResult, StatusCode>::ok(Success);
 }
 
 bool operator<(const file_info &lhs, const file_info &rhs) {

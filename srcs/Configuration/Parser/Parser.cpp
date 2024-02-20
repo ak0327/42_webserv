@@ -822,8 +822,8 @@ Result<int, std::string> Parser::parse_directive_param(TokenItr *current,
 }
 
 
-bool Parser::is_valid_return_code(StatusCode code) {
-    return 0 <= code && code <= 999;
+bool Parser::is_valid_return_code(int return_code) {
+    return 0 <= return_code && return_code <= 999;
 }
 
 
@@ -852,17 +852,22 @@ Result<int, std::string> Parser::parse_return_directive(TokenItr *current,
 
     std::vector<std::string>::const_iterator param = return_params.begin();
     bool succeed;
-    StatusCode code = HttpMessageParser::to_integer_num(*param, &succeed);
-    if (!succeed || !is_valid_return_code(code)) {
+    int return_code = HttpMessageParser::to_integer_num(*param, &succeed);
+    if (!succeed) {
         const std::string error_msg = create_invalid_value_err_msg(*param, RETURN_DIRECTIVE);
         return Result<int, std::string>::err(error_msg);
     }
-
+    // todo: is_valid_return_code
+    Result<StatusCode, ProcResult> convert_result = HttpMessageParser::convert_to_enum(return_code);
+    if (convert_result.is_err()) {
+        const std::string error_msg = create_invalid_value_err_msg(*param, RETURN_DIRECTIVE);
+        return Result<int, std::string>::err(error_msg);
+    }
     if (redirection->return_on) {
         return Result<int, std::string>::ok(OK);
     }
+    redirection->code = convert_result.get_ok_value();
 
-    redirection->code = code;
     ++param;
     if (param != return_params.end()) {
         redirection->text = *param;
@@ -995,8 +1000,8 @@ Result<int, std::string> Parser::parse_limit_except_directive(TokenItr *current,
 }
 
 
-bool Parser::is_valid_error_code(StatusCode code) {
-    return (300 <= code && code <=599 && code != 499);
+bool Parser::is_valid_error_code(int error_code) {
+    return (300 <= error_code && error_code <=599 && error_code != 499);
 }
 
 
@@ -1029,11 +1034,18 @@ Result<int, std::string> Parser::parse_error_page_directive(TokenItr *current,
     std::vector<std::string>::const_iterator param;
     for (param = error_page_params.begin(); param != error_page_params.end(); ++param) {
         bool succeed;
-        StatusCode code = HttpMessageParser::to_integer_num(*param, &succeed);
-        if (!succeed || !is_valid_error_code(code)) {
-            const std::string error_msg = create_invalid_value_err_msg(*param, ERROR_PAGE_DIRECTIVE);
+        int error_code = HttpMessageParser::to_integer_num(*param, &succeed);
+        if (!succeed) {
+            const std::string error_msg = create_invalid_value_err_msg(*param, RETURN_DIRECTIVE);
             return Result<int, std::string>::err(error_msg);
         }
+        // todo: iis_valid_error_code
+        Result<StatusCode, ProcResult> convert_result = HttpMessageParser::convert_to_enum(error_code);
+        if (convert_result.is_err()) {
+            const std::string error_msg = create_invalid_value_err_msg(*param, RETURN_DIRECTIVE);
+            return Result<int, std::string>::err(error_msg);
+        }
+        StatusCode code = convert_result.get_ok_value();
         (*error_pages)[code] = error_page;  // overwrite
     }
     return Result<int, std::string>::ok(OK);

@@ -5,6 +5,7 @@
 # include <string>
 # include <utility>
 # include <vector>
+# include "Constant.hpp"
 
 namespace ConfigInitValue {
 
@@ -25,7 +26,7 @@ const bool kDefaultRedirectOn = false;
 }  // namespace ConfigInitValue
 
 
-typedef int StatusCode;
+// typedef int StatusCode;
 typedef std::string LocationPath;
 typedef std::pair<std::string, std::string> AddressPortPair;
 typedef std::pair<std::string, std::string> HostPortPair;

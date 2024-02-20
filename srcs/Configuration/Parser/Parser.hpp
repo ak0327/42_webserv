@@ -5,6 +5,7 @@
 # include <set>
 # include <string>
 # include <vector>
+# include "Constant.hpp"
 # include "ConfigStruct.hpp"
 # include "Token.hpp"
 # include "Result.hpp"
@@ -133,8 +134,8 @@ class Parser {
                                                               std::size_t *max_body_size_bytes);
 
 	// mv to utility ?
-	static bool is_valid_error_code(StatusCode code);
-	static bool is_valid_return_code(StatusCode code);
+	static bool is_valid_error_code(int error_code);
+	static bool is_valid_return_code(int return_code);
 	static bool is_access_rule_directive(TokenItr *current, const TokenItr end);
 	static Result<Method, std::string> get_method(const std::string &method);
 	static Result<AddressPortPair, int> parse_listen_param(const std::string &param);

@@ -19,6 +19,7 @@ const int BIND_ERROR = -1;
 const int CLOSE_ERROR = -1;
 const int CONN_ERROR = -1;
 const int DUP_ERROR = -1;
+const int EXECVE_ERROR = -1;
 const int FCNTL_ERROR = -1;
 const int FORK_ERROR = -1;
 const int KILL_ERROR = -1;
@@ -68,6 +69,35 @@ const int STATUS_OK = 200;
 const int STATUS_BAD_REQUEST = 400;
 const int REQUEST_ENTITY_TOO_LARGE = 413;
 const int STATUS_SERVER_ERROR = 500;
+
+const std::map<StatusCode, std::string> STATUS_REASON_PHRASES = init_reason_phrases();
+
+std::map<StatusCode, std::string> init_reason_phrases() {
+    std::map<StatusCode, std::string> reason_phrases;
+    // reason_phrases[] = "";
+
+    reason_phrases[StatusOk]                = "OK";
+
+    reason_phrases[MultipleChoices]         = "Multiple Choices";
+    reason_phrases[MovedPermanently]        = "Moved Permanently";
+
+    reason_phrases[BadRequest]              = "Bad Request";
+    reason_phrases[Unauthorized]            = "Unauthorized";
+    reason_phrases[NotFound]                = "Not Found";
+    reason_phrases[MethodNotAllowed]        = "Method Not Allowed";
+    reason_phrases[NotAcceptable]           = "Not Acceptable";
+    reason_phrases[RequestTimeout]          = "Request Timeout";
+    reason_phrases[RequestEntityTooLarge]   = "Request";
+
+    reason_phrases[InternalServerError]     = "Internal Server Error";
+    reason_phrases[NotImplemented]          = "Not Implemented";
+    reason_phrases[BadGateway]              = "Bad Gateway";
+    reason_phrases[ServiceUnavailable]      = "Service Unavailable";
+    reason_phrases[GatewayTimeout]          = "Gateway Timeout";
+    reason_phrases[HTTPVersionNotSupported] = "HTTP Version Not Supported";
+
+    return reason_phrases;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /* char */

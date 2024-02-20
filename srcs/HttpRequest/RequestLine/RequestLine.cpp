@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <iostream>
 #include <vector>
+#include "webserv.hpp"
 #include "Constant.hpp"
 #include "RequestLine.hpp"
 #include "Result.hpp"
@@ -42,20 +43,20 @@ std::string	RequestLine::get_http_version(void) const {
 
 
 /* parse and validate */
-Result<int, int> RequestLine::parse_and_validate(const std::string &line) {
-	Result<int, int> parse_result, validate_result;
+Result<ProcResult, StatusCode> RequestLine::parse_and_validate(const std::string &line) {
+	Result<ProcResult, StatusCode> parse_result, validate_result;
 
 	parse_result = this->parse(line);
 	if (parse_result.is_err()) {
-		return Result<int, int>::err(ERR);
+		return Result<ProcResult, StatusCode>::err(BadRequest);
 	}
 
 	validate_result = this->validate();
 	if (validate_result.is_err()) {
-		return Result<int, int>::err(ERR);
+		return Result<ProcResult, StatusCode>::err(BadRequest);
 	}
 
-	return Result<int, int>::ok(OK);
+	return Result<ProcResult, StatusCode>::ok(Success);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -70,7 +71,7 @@ Result<int, int> RequestLine::parse_and_validate(const std::string &line) {
 // request-line   = method SP request-target SP HTTP-version CRLF
 // line_wo_end_lf = method SP request-target SP HTTP-version CR
 // line           = method SP request-target SP HTTP-version
-Result<int, int> RequestLine::parse(const std::string &line) {
+Result<ProcResult, StatusCode> RequestLine::parse(const std::string &line) {
 	size_t pos, end_pos;
 	Result<std::string, int> method_result;
 	Result<std::string, int> request_target_result;
@@ -83,14 +84,14 @@ Result<int, int> RequestLine::parse(const std::string &line) {
 														  &end_pos,
 														  SP);
 	if (method_result.is_err()) {
-		return Result<int, int>::err(ERR);
+		return Result<ProcResult, StatusCode>::err(BadRequest);
 	}
 	this->method_ = method_result.get_ok_value();
 	pos = end_pos;
 
 	// SP
 	if (line[pos] != SP) {
-		return Result<int, int>::err(ERR);
+		return Result<ProcResult, StatusCode>::err(BadRequest);
 	}
 	pos++;
 
@@ -100,20 +101,20 @@ Result<int, int> RequestLine::parse(const std::string &line) {
 																  &end_pos,
 																  SP);
 	if (request_target_result.is_err()) {
-		return Result<int, int>::err(ERR);
+		return Result<ProcResult, StatusCode>::err(BadRequest);
 	}
 	this->request_target_ = request_target_result.get_ok_value();
 	pos = end_pos;
 
 	// SP
 	if (line[pos] != SP) {
-		return Result<int, int>::err(ERR);
+		return Result<ProcResult, StatusCode>::err(BadRequest);
 	}
 	pos++;
 
 	// HTTP-version
 	this->http_version_ = line.substr(pos);
-	return Result<int, int>::ok(OK);
+	return Result<ProcResult, StatusCode>::ok(Success);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -122,15 +123,15 @@ Result<int, int> RequestLine::parse(const std::string &line) {
  request-line = method SP request-target SP HTTP-version
  https://triple-underscore.github.io/http1-ja.html#p.request-line
  */
-Result<int, int> RequestLine::validate() const {
+Result<ProcResult, StatusCode> RequestLine::validate() const {
 	if (!HttpMessageParser::is_valid_method(this->method_)) {
-		return Result<int, int>::err(ERR);
+		return Result<ProcResult, StatusCode>::err(BadRequest);
 	}
 	if (!HttpMessageParser::is_valid_request_target(this->request_target_)) {
-		return Result<int, int>::err(ERR);
+		return Result<ProcResult, StatusCode>::err(BadRequest);
 	}
 	if (!HttpMessageParser::is_valid_http_version(this->http_version_)) {
-		return Result<int, int>::err(ERR);
+		return Result<ProcResult, StatusCode>::err(BadRequest);
 	}
-	return Result<int, int>::ok(OK);
+	return Result<ProcResult, StatusCode>::ok(Success);
 }
