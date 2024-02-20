@@ -8,7 +8,7 @@ jobs:
 
       - name: build
         run: |
-          cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT"
+          cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D ECHO"
           cmake --build build
 
       - name: run all tests on Linux
@@ -48,7 +48,7 @@ jobs:
 
       - name: build
         run: |
-          cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT"
+          cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D ECHO"
           cmake --build build
 
       - name: run all tests on macOS

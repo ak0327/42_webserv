@@ -25,7 +25,7 @@ class Parser {
 	Result<int, std::string> get_result() const;
 	HttpConfig get_config() const;
 
-#ifdef UTEST
+#ifdef UTEST_FRIEND
 	friend class ParserTestFriend;
 #endif
 

@@ -50,7 +50,7 @@ class HttpRequest {
 
     Result<std::map<std::string, std::string>, int> get_host() const;
 
-#ifdef UTEST
+#ifdef UTEST_FRIEND
     friend class HttpRequestFriend;
 #endif
 #ifdef ECHO
