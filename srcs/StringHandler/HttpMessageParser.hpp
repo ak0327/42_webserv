@@ -3,6 +3,7 @@
 # include <map>
 # include <set>
 # include <string>
+# include "webserv.hpp"
 # include "Constant.hpp"
 # include "ConfigStruct.hpp"
 # include "Result.hpp"
@@ -486,6 +487,8 @@ Method get_method(const std::string &method);
 
 std::string decode(const std::string &encoded);
 std::string normalize(const std::string &path);
+
+Result<StatusCode, ProcResult> convert_to_enum(int code);
 
 
 }  // namespace HttpMessageParser

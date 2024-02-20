@@ -61,11 +61,11 @@ TEST(TestParser, ParseOK) {
     server_config.root_path = "www";
 
     server_config.error_pages = {
-        {404, "/404.html"},
-        {500, "/50x.html"},
-        {502, "/50x.html"},
-        {503, "/50x.html"},
-        {504, "/50x.html"},
+            {NotFound               , "/404.html"},
+            {InternalServerError    , "/50x.html"},
+            {BadGateway             , "/50x.html"},
+            {ServiceUnavailable     , "/50x.html"},
+            {GatewayTimeout         , "/50x.html"},
     };
 
     // location "/"
@@ -77,7 +77,7 @@ TEST(TestParser, ParseOK) {
     // location "/old.html"
     location_config = LocationConfig(server_config);
     location_config.redirection.return_on = true;
-    location_config.redirection.code = 301;
+    location_config.redirection.code = MovedPermanently;
     location_config.redirection.text = "/new.html";
     server_config.locations["/old.html"] = location_config;
 
@@ -150,11 +150,11 @@ TEST(TestParser, ParseOK) {
     server_config.root_path = "www";
 
     server_config.error_pages = {
-        {404, "/404.html"},
-        {500, "/50x.html"},
-        {502, "/50x.html"},
-        {503, "/50x.html"},
-        {504, "/50x.html"},
+            {NotFound               , "/404.html"},
+            {InternalServerError    , "/50x.html"},
+            {BadGateway             , "/50x.html"},
+            {ServiceUnavailable     , "/50x.html"},
+            {GatewayTimeout         , "/50x.html"},
     };
 
     location_config = LocationConfig(server_config);
@@ -164,7 +164,7 @@ TEST(TestParser, ParseOK) {
 
     location_config = LocationConfig(server_config);
     location_config.redirection.return_on = true;
-    location_config.redirection.code = 301;
+    location_config.redirection.code = MovedPermanently;
     location_config.redirection.text = "/new.html";
     server_config.locations["/old.html"] = location_config;
 
@@ -246,7 +246,7 @@ TEST(TestParser, ParseServerBlockOK) {
 
         Parser parser(itr->c_str());
         Result<int, std::string> result = parser.get_result();
-        // print_error_msg(result, __LINE__);
+        print_error_msg(result, __LINE__);
         EXPECT_TRUE(result.is_ok());
     }
 }

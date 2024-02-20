@@ -2,6 +2,7 @@
 
 # include <sys/types.h>
 # include <string>
+# include <map>
 # include <vector>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -22,6 +23,7 @@ extern const int BIND_ERROR;
 extern const int CLOSE_ERROR;
 extern const int CONN_ERROR;
 extern const int DUP_ERROR;
+extern const int EXECVE_ERROR;
 extern const int FCNTL_ERROR;
 extern const int FORK_ERROR;
 extern const int KILL_ERROR;
@@ -71,6 +73,33 @@ extern const int STATUS_OK;
 extern const int STATUS_BAD_REQUEST;
 extern const int REQUEST_ENTITY_TOO_LARGE;
 extern const int STATUS_SERVER_ERROR;
+
+enum StatusCode {
+    StatusOk                = 200,
+
+    MultipleChoices         = 300,
+    MovedPermanently        = 301,
+
+    BadRequest              = 400,
+    Unauthorized            = 401,
+    NotFound                = 404,
+    MethodNotAllowed        = 405,
+    NotAcceptable           = 406,
+    RequestTimeout          = 408,
+    RequestEntityTooLarge   = 413,
+
+    InternalServerError     = 500,
+    NotImplemented          = 501,
+    BadGateway              = 502,
+    ServiceUnavailable      = 503,
+    GatewayTimeout          = 504,
+    HTTPVersionNotSupported = 505
+};
+
+extern const std::map<StatusCode, std::string> STATUS_REASON_PHRASES;
+
+std::map<StatusCode, std::string> init_reason_phrases();
+
 
 ////////////////////////////////////////////////////////////////////////////////
 /* char */

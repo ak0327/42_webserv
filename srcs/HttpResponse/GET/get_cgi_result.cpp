@@ -49,14 +49,14 @@ std::vector<char *> HttpResponse::get_argv_for_execve(const std::vector<std::str
 int HttpResponse::execute_cgi_script_in_child(int socket_fds[2],
                                 const std::string &file_path,
                                 const std::string &query) {
-    Result<std::vector<std::string>, int> interpreter_result;
+    Result<std::vector<std::string>, ProcResult> interpreter_result;
     std::vector<std::string> interpreter;
     std::vector<char *> argv;  // todo: char *const argv[]
     (void)query;  // todo
 
     interpreter_result = HttpResponse::get_interpreter(file_path);
     if (interpreter_result.is_err()) {
-        return EXIT_FAILURE;
+        std::exit(EXIT_FAILURE);
     }
     interpreter = interpreter_result.get_ok_value();
 
@@ -66,28 +66,30 @@ int HttpResponse::execute_cgi_script_in_child(int socket_fds[2],
     if (close(socket_fds[READ]) == CLOSE_ERROR) {
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
         std::cerr << error_msg << std::endl;  // todo: tmp -> log?
-        return EXIT_FAILURE;
+        std::exit(EXIT_FAILURE);
     }
 
     errno = 0;
     if (dup2(socket_fds[WRITE], STDOUT_FILENO) == DUP_ERROR) {
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
         std::cerr << error_msg << std::endl;  // todo: tmp -> log?
-        return EXIT_FAILURE;
+        std::exit(EXIT_FAILURE);
     }
 
     errno = 0;
     if (close(socket_fds[WRITE]) == CLOSE_ERROR) {
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
         std::cerr << error_msg << std::endl;  // todo: tmp -> log?
-        return EXIT_FAILURE;
+        std::exit(EXIT_FAILURE);
     }
 
-    execve(argv[0], argv.data(), environ);
-
-    const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
-    std::cerr << error_msg << std::endl;  // todo: tmp -> log?
-    return EXIT_FAILURE;
+    errno = 0;
+    if (execve(argv[0], argv.data(), environ) == EXECVE_ERROR) {
+        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+        std::cerr << error_msg << std::endl;  // todo: tmp -> log?
+        std::exit(EXIT_FAILURE);
+    }
+    std::exit(EXIT_FAILURE);
 }
 
 
@@ -100,11 +102,11 @@ bool HttpResponse::is_exec_timeout(time_t start_time, int timeout_sec) {
 }
 
 
-Result<std::vector<std::string>, int> HttpResponse::get_interpreter(const std::string &file_path) {
+Result<std::vector<std::string>, ProcResult> HttpResponse::get_interpreter(const std::string &file_path) {
     std::ifstream file(file_path.c_str());
 
     if (file.fail()) {
-        return Result<std::vector<std::string>, int>::err(ERR);
+        return Result<std::vector<std::string>, ProcResult>::err(Failure);
     }
     std::string shebang_line;
     std::string	word;
@@ -121,15 +123,15 @@ Result<std::vector<std::string>, int> HttpResponse::get_interpreter(const std::s
     std::vector<std::string>::iterator itr;
     itr = interpreter.begin();
     if (itr == interpreter.end()) {
-        return Result<std::vector<std::string>, int>::err(ERR);
+        return Result<std::vector<std::string>, ProcResult>::err(Failure);
     }
 
     const std::size_t kSHEBANG_LEN = 2;
     if (kSHEBANG_LEN <= (*itr).length() && (*itr)[0] == '#' && (*itr)[1] == '!') {
         *itr = (*itr).substr(kSHEBANG_LEN);
-        return Result<std::vector<std::string>, int>::ok(interpreter);
+        return Result<std::vector<std::string>, ProcResult>::ok(interpreter);
     }
-    return Result<std::vector<std::string>, int>::err(ERR);
+    return Result<std::vector<std::string>, ProcResult>::err(Failure);
 }
 
 
@@ -158,25 +160,23 @@ Result<std::string, int> translate_to_http_protocol(const std::string &cgi_resul
 }
 
 
-Result<Fd, int> HttpResponse::exec_cgi(const std::string &file_path,
-                                       int *cgi_read_fd,
-                                       pid_t *cgi_pid,
-                                       int *status_code) {
+Result<ProcResult, StatusCode> HttpResponse::exec_cgi(const std::string &file_path,
+                                                      int *cgi_read_fd,
+                                                      pid_t *cgi_pid) {
     Result<std::string, int> execute_cgi_result, translate_result;
     Result<int, std::string> socketpair_result;
     int socket_fds[2];
     pid_t pid;
 
-    if (!cgi_read_fd || !cgi_pid || !status_code) {
-        return Result<Fd, int>::err(ERR);  // todo: tmp
+    if (!cgi_read_fd || !cgi_pid) {
+        return Result<ProcResult, StatusCode>::err(InternalServerError);  // todo: tmp
     }
 
     socketpair_result = create_socketpair(socket_fds);
     if (socketpair_result.is_err()) {
         const std::string error_msg = socketpair_result.get_err_value();
         std::cerr << "[Error] socketpair: " << error_msg << std::endl;  // todo: tmp
-        *status_code = STATUS_SERVER_ERROR;
-        return Result<Fd, int>::err(ERR);  // todo: tmp
+        return Result<ProcResult, StatusCode>::err(InternalServerError);  // todo: tmp
     }
 
     errno = 0;
@@ -184,8 +184,7 @@ Result<Fd, int> HttpResponse::exec_cgi(const std::string &file_path,
     if (pid == FORK_ERROR) {
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
         std::cerr << error_msg << std::endl;  // todo: tmp
-        *status_code = STATUS_SERVER_ERROR;
-        return Result<Fd, int>::err(ERR);  // todo: tmp
+        return Result<ProcResult, StatusCode>::err(InternalServerError);  // todo: tmp
     }
 
     if (pid == CHILD_PROC) {
@@ -198,10 +197,9 @@ Result<Fd, int> HttpResponse::exec_cgi(const std::string &file_path,
         close(socket_fds[READ]);
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
         std::cerr << error_msg << std::endl;  // todo: tmp
-        *status_code = STATUS_SERVER_ERROR;
-        return Result<Fd, int>::err(ERR);
+        return Result<ProcResult, StatusCode>::err(InternalServerError);
     }
     *cgi_read_fd = socket_fds[READ];
     *cgi_pid = pid;
-    return Result<Fd, int>::ok(socket_fds[READ]);
+    return Result<ProcResult, StatusCode>::ok(Success);
 }

@@ -26,12 +26,12 @@ HttpResponse::HttpResponse(const HttpRequest &request,
                            const ServerConfig &server_config)
     : request_(request),
       server_config_(server_config),
-      status_code_(STATUS_OK),
+      status_code_(StatusOk),
       cgi_read_fd_(INIT_FD),
       cgi_pid_(INIT_PID),
       headers_(),
       body_buf_(),
-      response_message_() {}
+      response_msg_() {}
 
 
 HttpResponse::~HttpResponse() {
@@ -41,8 +41,8 @@ HttpResponse::~HttpResponse() {
 
 
 void HttpResponse::kill_cgi_process() {
-    int status;
-    if (!is_cgi_processing(&status)) {
+    int process_status;
+    if (!is_cgi_processing(&process_status)) {
         return;
     }
     errno = 0;
@@ -67,7 +67,7 @@ void HttpResponse::close_cgi_fd() {
 }
 
 
-Result<Fd, int> HttpResponse::exec_method() {
+Result<ProcResult, StatusCode> HttpResponse::exec_method() {
     DEBUG_PRINT(YELLOW, " exec_method 1 status_requ(%d), status_resp(%d)",
                 this->request_.get_status_code(), this->status_code_);
     this->status_code_ = this->request_.get_status_code();
@@ -75,7 +75,7 @@ Result<Fd, int> HttpResponse::exec_method() {
     if (this->request_.get_status_code() != STATUS_OK) {
         DEBUG_PRINT(YELLOW, "  status error -> error page");
         get_error_page();
-        return Result<Fd, int>::err(ERR);  // todo: err ? ok?
+        return Result<ProcResult, StatusCode>::err(this->status_code_);  // todo: err ? ok?
     }
 
     std::string target_path = HttpResponse::get_resource_path(this->request_.get_request_target());
@@ -83,7 +83,7 @@ Result<Fd, int> HttpResponse::exec_method() {
     Method method = HttpMessageParser::get_method(this->request_.get_method());
     DEBUG_PRINT(YELLOW, " exec_method 3 method: ", method);
     std::ostringstream status_line_oss;
-    Result<Fd, int> method_result;
+    Result<ProcResult, StatusCode> method_result;
 
     switch (method) {
         case kGET:
@@ -103,8 +103,8 @@ Result<Fd, int> HttpResponse::exec_method() {
 
         default:
             DEBUG_PRINT(YELLOW, " exec_method 4 - err");
-            this->status_code_ = STATUS_BAD_REQUEST;
-            method_result = Result<Fd, int>::err(ERR);
+            this->status_code_ = BadRequest;
+            method_result = Result<ProcResult, StatusCode>::err(BadRequest);
     }
 
     DEBUG_PRINT(YELLOW, " exec_method 5");
@@ -114,28 +114,27 @@ Result<Fd, int> HttpResponse::exec_method() {
         DEBUG_PRINT(YELLOW, "  buc clear");
         get_error_page();
         DEBUG_PRINT(YELLOW, "  get_error_page ok");
-        return Result<Fd, int>::err(ERR);  // todo: err ? ok?
+        return Result<ProcResult, StatusCode>::err(method_result.get_err_value());  // todo: err ? ok?
     }
 
     DEBUG_PRINT(YELLOW, " exec_method 6");
-    if (method_result.get_ok_value() == OK) {
-        return Result<Fd, int>::ok(OK);
+    if (method_result.get_ok_value() == ExecutingCgi) {
+        std::string debug_body(this->body_buf_.begin(), this->body_buf_.end());
+        DEBUG_PRINT(YELLOW, " exec_method body:[%s]", debug_body.c_str());
+        return Result<ProcResult, StatusCode>::ok(ExecutingCgi);
     }
-    DEBUG_PRINT(YELLOW, " exec_method 7");
-    int cgi_fd = method_result.get_ok_value();
 
-    std::string body(this->body_buf_.begin(), this->body_buf_.end());
-    DEBUG_PRINT(YELLOW, " exec_method body:[%s]", body.c_str());
-    return Result<Fd, int>::ok(cgi_fd);
+    DEBUG_PRINT(YELLOW, " exec_method 7");
+    return Result<ProcResult, StatusCode>::ok(Success);
 }
 
 
-Result<int, int> HttpResponse::create_cgi_body() {
+Result<ProcResult, StatusCode> HttpResponse::create_cgi_body() {
     // buf -> cgi body
 
     // translate_to_http_protocol(execute_cgi_result.get_ok_value());
 
-    return Result<int, int>::ok(OK);
+    return Result<ProcResult, StatusCode>::ok(Success);
 }
 
 
@@ -146,34 +145,29 @@ Result<int, int> HttpResponse::create_cgi_body() {
 				[ message-body ]
  https://triple-underscore.github.io/http1-ja.html#http.message
  */
-Result<int, int> HttpResponse::create_response_message() {
+Result<ProcResult, StatusCode> HttpResponse::create_response_message() {
     std::string status_line = create_status_line() + CRLF;
     std::string field_lines = create_field_lines();
     std::string empty = CRLF;
 
-    this->response_message_.insert(this->response_message_.end(), status_line.begin(), status_line.end());
-    this->response_message_.insert(this->response_message_.end(), field_lines.begin(), field_lines.end());
-    this->response_message_.insert(this->response_message_.end(), empty.begin(), empty.end());
-    this->response_message_.insert(this->response_message_.end(), this->body_buf_.begin(), this->body_buf_.end());
+    this->response_msg_.insert(this->response_msg_.end(), status_line.begin(), status_line.end());
+    this->response_msg_.insert(this->response_msg_.end(), field_lines.begin(), field_lines.end());
+    this->response_msg_.insert(this->response_msg_.end(), empty.begin(), empty.end());
+    this->response_msg_.insert(this->response_msg_.end(), this->body_buf_.begin(), this->body_buf_.end());
 
-    std::string msg(this->response_message_.begin(), this->response_message_.end());
+    std::string msg(this->response_msg_.begin(), this->response_msg_.end());
     DEBUG_SERVER_PRINT("response_message:[%s]", msg.c_str());
-    return Result<int, int>::ok(OK);
+    return Result<ProcResult, StatusCode>::ok(Success);
 }
 
 
 std::string get_status_reason_phrase(StatusCode code) {
-    std::map<StatusCode, std::string> reason_phrases;
-    reason_phrases[200] = "OK";
-    reason_phrases[404] = "Not Found";
-    // todo
-
     std::map<StatusCode, std::string>::const_iterator itr;
-    itr = reason_phrases.find(code);
-    if (itr == reason_phrases.end()) {
+    itr = STATUS_REASON_PHRASES.find(code);
+    if (itr == STATUS_REASON_PHRASES.end()) {
         return EMPTY;
     }
-    return reason_phrases[code];
+    return itr->second;
 }
 
 
@@ -229,20 +223,20 @@ std::string HttpResponse::get_resource_path(const std::string &request_target) {
 }
 
 
-Result<int, int> HttpResponse::recv_cgi_result() {
+Result<ProcResult, StatusCode> HttpResponse::recv_cgi_result() {
     int cgi_fd = get_cgi_fd();
     // std::size_t recv_size;  // todo: unused??
     HttpRequest::recv_all_data(cgi_fd, &this->body_buf_);  // todo: continues print script...
-    int exit_status;
-    if (this->is_cgi_processing(&exit_status)) {
-        return Result<int, int>::ok(CGI);
+    int process_exit_status;
+    if (this->is_cgi_processing(&process_exit_status)) {
+        return Result<ProcResult, StatusCode>::ok(ExecutingCgi);
     }
-    if (exit_status != EXIT_SUCCESS) {
-        this->status_code_ = STATUS_SERVER_ERROR;
-        return Result<int, int>::err(ERR);
+    if (process_exit_status != EXIT_SUCCESS) {
+        this->status_code_ = InternalServerError;
+        return Result<ProcResult, StatusCode>::err(this->status_code_);
     }
     close_cgi_fd();
-    return Result<int, int>::ok(OK);
+    return Result<ProcResult, StatusCode>::ok(Success);
 }
 
 
@@ -270,16 +264,22 @@ bool HttpResponse::is_cgi_processing(int *status) {
 
 
 const std::vector<unsigned char> &HttpResponse::get_response_message() const {
-    return this->response_message_;
+    return this->response_msg_;
 }
 
+
 int HttpResponse::get_cgi_fd() const { return this->cgi_read_fd_; }
+
+
+void HttpResponse::set_status_code(StatusCode set_status) {
+    this->status_code_ = set_status;
+}
 
 
 #ifdef ECHO
 
 void HttpResponse::create_echo_msg(const std::vector<unsigned char> &recv_msg) {
-    this->response_message_ = recv_msg;
+    this->response_msg_ = recv_msg;
     std::string echo_message = std::string(recv_msg.begin(), recv_msg.end());
     DEBUG_SERVER_PRINT("    create_echo_msg:[%s]", echo_message.c_str());
 }

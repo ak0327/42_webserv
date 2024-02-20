@@ -25,12 +25,12 @@ Result<std::string, int> parse_field_name(const std::string &field_line,
 	std::size_t head_pos, colon_pos, len;
 	std::string field_name;
 
-	if (!pos) { return Result<std::string, int>::err(ERR); }
+	if (!pos) { return Result<std::string, int>::err(BadRequest); }
 
 	head_pos = 0;
 	colon_pos = field_line.find(':', head_pos);
 	if (colon_pos == std::string::npos || colon_pos <= head_pos) {
-		return Result<std::string, int>::err(ERR);
+		return Result<std::string, int>::err(BadRequest);
 	}
 	len = colon_pos - head_pos;
 
@@ -58,12 +58,12 @@ void skip_non_whitespace(const std::string &str, std::size_t *pos) {
 // field-line CRLF
 // field-line = field-name ":" OWS field-value OWS
 //                                 ^head
-Result<std::string, int> parse_field_value(const std::string &field_line,
+Result<std::string, StatusCode> parse_field_value(const std::string &field_line,
 										   std::size_t *head_pos) {
 	std::size_t len, ws_len;
 	std::string field_value;
 
-	if (!head_pos) { return Result<std::string, int>::err(ERR); }
+	if (!head_pos) { return Result<std::string, StatusCode>::err(BadRequest); }
 
 	len = 0;
 	while (field_line[*head_pos + len]) {
@@ -80,7 +80,7 @@ Result<std::string, int> parse_field_value(const std::string &field_line,
 
 	field_value = field_line.substr(*head_pos, len);
 	*head_pos += len;
-	return Result<std::string, int>::ok(field_value);
+	return Result<std::string, StatusCode>::ok(field_value);
 }
 
 void restore_crlf_to_ss(std::stringstream *ss) {
@@ -88,14 +88,14 @@ void restore_crlf_to_ss(std::stringstream *ss) {
 	ss->seekg(current_pos - std::streamoff(std::string(CRLF).length()));
 }
 
-Result<std::string, int> get_field_line_by_remove_cr(const std::string &line_end_with_cr) {
+Result<std::string, StatusCode> get_field_line_by_remove_cr(const std::string &line_end_with_cr) {
 	std::string field_line;
 
 	if (!HttpMessageParser::is_end_with_cr(line_end_with_cr)) {
-		return Result<std::string, int>::err(ERR);
+		return Result<std::string, StatusCode>::err(BadRequest);
 	}
 	field_line = line_end_with_cr.substr(0, line_end_with_cr.length() - 1);
-	return Result<std::string, int>::ok(field_line);
+	return Result<std::string, StatusCode>::ok(field_line);
 }
 
 }  // namespace
@@ -103,12 +103,12 @@ Result<std::string, int> get_field_line_by_remove_cr(const std::string &line_end
 ////////////////////////////////////////////////////////////////////////////////
 /* constructor, destructor */
 
-HttpRequest::HttpRequest() : status_code_(STATUS_OK) {
+HttpRequest::HttpRequest() : status_code_(StatusOk) {
     init_field_name_parser();
     init_field_name_counter();
 }
 
-HttpRequest::HttpRequest(const std::string &input) : status_code_(STATUS_OK) {
+HttpRequest::HttpRequest(const std::string &input) : status_code_(StatusOk) {
 	init_field_name_parser();
 	init_field_name_counter();
 	this->status_code_ = parse_and_validate_http_request(input);
@@ -210,7 +210,7 @@ bool HttpRequest::is_crlf_in_buf(const unsigned char buf[], std::size_t size) {
 
 
 // while CRLF CRLF
-Result<int, std::string> HttpRequest::recv_until_empty_line(int fd) {
+Result<ProcResult, std::string> HttpRequest::recv_until_empty_line(int fd) {
     unsigned char recv_buf[BUFSIZ];
     std::vector<unsigned char>::const_iterator empty_pos, find_begin;
     ssize_t recv_size;
@@ -234,12 +234,12 @@ Result<int, std::string> HttpRequest::recv_until_empty_line(int fd) {
 
     std::string recv_msg(this->buf_.begin(), this->buf_.end());
     DEBUG_PRINT(YELLOW, " recv_msg[%s]", recv_msg.c_str());
-    return Result<int, std::string>::ok(OK);
+    return Result<ProcResult, std::string>::ok(Success);
 }
 
 
 // while CRLF
-Result<int, std::string> HttpRequest::recv_start_line(int fd) {
+Result<ProcResult, std::string> HttpRequest::recv_start_line(int fd) {
     unsigned char recv_buf[BUFSIZ];
     ssize_t recv_size;
     bool is_prev_end_with_cr = false;
@@ -259,7 +259,7 @@ Result<int, std::string> HttpRequest::recv_start_line(int fd) {
         }
         is_prev_end_with_cr = (recv_buf[recv_size - 1] == CR);
     }
-    return Result<int, std::string>::ok(OK);
+    return Result<ProcResult, std::string>::ok(Success);
 }
 
 
@@ -350,39 +350,39 @@ void HttpRequest::trim(std::vector<unsigned char> *buf,
 }
 
 
-Result<int, StatusCode> HttpRequest::recv_request_line_and_header(int fd) {
-    Result<int, std::string> recv_result = recv_until_empty_line(fd);
+Result<ProcResult, StatusCode> HttpRequest::recv_request_line_and_header(int fd) {
+    Result<ProcResult, std::string> recv_result = recv_until_empty_line(fd);
     if (recv_result.is_err()) {
         const std::string error_msg = recv_result.get_err_value();
         DEBUG_SERVER_PRINT("error: %s", error_msg.c_str());
-        return Result<int, StatusCode>::err(STATUS_SERVER_ERROR);
+        return Result<ProcResult, StatusCode>::err(InternalServerError);
     }
-    return Result<int, StatusCode>::ok(OK);
+    return Result<ProcResult, StatusCode>::ok(Success);
 }
 
 
 // start-line CRLF
-Result<int, StatusCode> HttpRequest::parse_request_line() {
+Result<ProcResult, StatusCode> HttpRequest::parse_request_line() {
     std::vector<unsigned char>::const_iterator next_start;
     Result<std::string, std::string> get_line_result;
     get_line_result = get_line(this->buf_, this->buf_.begin(), &next_start);
     if (get_line_result.is_err()) {
-        return Result<int, int>::err(STATUS_SERVER_ERROR);
+        return Result<ProcResult, StatusCode>::err(InternalServerError);
     }
     std::string start_line = get_line_result.get_ok_value();
     DEBUG_SERVER_PRINT("     start_line[%s]", start_line.c_str());
 
     HttpRequest::trim(&this->buf_, next_start);
 
-    Result<int, int> request_line_result = this->request_line_.parse_and_validate(start_line);
+    Result<ProcResult, StatusCode> request_line_result = this->request_line_.parse_and_validate(start_line);
     if (request_line_result.is_err()) {
-        return Result<int, int>::err(STATUS_BAD_REQUEST);
+        return Result<ProcResult, StatusCode>::err(BadRequest);
     }
-    return Result<int, int>::ok(OK);
+    return Result<ProcResult, StatusCode>::ok(Success);
 }
 
 
-Result<int, StatusCode> HttpRequest::parse_header() {
+Result<ProcResult, StatusCode> HttpRequest::parse_header() {
     std::vector<unsigned char>::const_iterator header_end;
     HttpRequest::find_empty(this->buf_, this->buf_.begin(), &header_end);
     std::size_t headers_len = header_end - this->buf_.begin();
@@ -392,33 +392,33 @@ Result<int, StatusCode> HttpRequest::parse_header() {
     std::vector<unsigned char>::const_iterator body_start = header_end + EMPTY_LINE_LEN;
     HttpRequest::trim(&this->buf_, body_start);
 
-    Result<int, StatusCode> parse_result = parse_and_validate_field_lines(request_headers);
+    Result<ProcResult, StatusCode> parse_result = parse_and_validate_field_lines(request_headers);
     if (parse_result.is_err()) {
-        return Result<int, StatusCode>::ok(parse_result.is_err());
+        return Result<ProcResult, StatusCode>::err(parse_result.get_err_value());
     }
-    return Result<int, StatusCode>::ok(OK);
+    return Result<ProcResult, StatusCode>::ok(Success);
 }
 
 
-Result<int, int> HttpRequest::recv_body(int fd, std::size_t max_body_size) {
+Result<ProcResult, StatusCode> HttpRequest::recv_body(int fd, std::size_t max_body_size) {
     size_t body_size = recv_all_data(fd, &this->buf_, max_body_size);
     if (max_body_size < body_size) {
-        return Result<int, StatusCode>::err(REQUEST_ENTITY_TOO_LARGE);
+        return Result<ProcResult, StatusCode>::err(RequestEntityTooLarge);
     }
     std::string body(this->buf_.begin(), this->buf_.end());
     DEBUG_SERVER_PRINT("     recv_body:[%s]", body.c_str());
-    return Result<int, StatusCode>::ok(OK);
+    return Result<ProcResult, StatusCode>::ok(Success);
 }
 
 
 Result<HostPortPair, StatusCode> HttpRequest::get_server_info() {
-    Result<std::map<std::string, std::string>, int> result = get_host();
+    Result<std::map<std::string, std::string>, StatusCode> result = get_host();
     if (result.is_err()) {
-        return Result<HostPortPair, int>::err(STATUS_BAD_REQUEST);  // 400 Bad Request
+        return Result<HostPortPair, StatusCode>::err(BadRequest);  // 400 Bad Request
     }
     std::map<std::string, std::string> host = result.get_ok_value();
     HostPortPair pair = std::make_pair(host[URI_HOST], host[PORT]);
-    return Result<HostPortPair, int>::ok(pair);
+    return Result<HostPortPair, StatusCode>::ok(pair);
 }
 
 
@@ -432,7 +432,7 @@ Result<HostPortPair, StatusCode> HttpRequest::get_server_info() {
 	  CRLF
 	  [ message-body ]
  */
-int HttpRequest::parse_and_validate_http_request(const std::string &input) {
+StatusCode HttpRequest::parse_and_validate_http_request(const std::string &input) {
 	std::stringstream	ss(input);
 	std::string 		line;
 
@@ -440,37 +440,37 @@ int HttpRequest::parse_and_validate_http_request(const std::string &input) {
     // start-line CRLF
 	std::getline(ss, line, LF);
     if (line.empty() || line[line.size() - 1] != CR) {
-        return STATUS_BAD_REQUEST;
+        return BadRequest;
     }
     line.erase(line.size() - 1);
-    Result<int, int> request_line_result = this->request_line_.parse_and_validate(line);
+    Result<ProcResult, StatusCode> request_line_result = this->request_line_.parse_and_validate(line);
 	if (request_line_result.is_err()) {
-		return STATUS_BAD_REQUEST;
+		return BadRequest;
 	}
 
 	// *( field-line CRLF )
 	try {
-        Result<int, int> field_line_result = parse_and_validate_field_lines(&ss);
+        Result<ProcResult, StatusCode> field_line_result = parse_and_validate_field_lines(&ss);
 
         if (field_line_result.is_err()) {
-            if (field_line_result.get_err_value() == STATUS_SERVER_ERROR) {
-                return STATUS_SERVER_ERROR;
+            if (field_line_result.get_err_value() == InternalServerError) {
+                return InternalServerError;
             }
-            return STATUS_BAD_REQUEST;
+            return BadRequest;
         }
 	} catch (const std::bad_alloc &e) {
-		return STATUS_SERVER_ERROR;
+		return InternalServerError;
 	}
 
 	// CRLF
 	std::getline(ss, line, LF);
 	if (line != std::string(1, CR)) {
-		return STATUS_BAD_REQUEST;
+		return BadRequest;
 	}
 
 	// [ message-body ]
 	message_body_ = parse_message_body(&ss);
-	return STATUS_OK;
+	return StatusOk;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -483,42 +483,42 @@ int HttpRequest::parse_and_validate_http_request(const std::string &input) {
 
  field-line = field-name ":" OWS field-value OWS
  */
-Result<int, StatusCode> HttpRequest::parse_and_validate_field_lines(std::stringstream *ss) {
+Result<ProcResult, StatusCode> HttpRequest::parse_and_validate_field_lines(std::stringstream *ss) {
 	while (true) {
         std::string	line_end_with_cr;
 		std::getline(*ss, line_end_with_cr, LF);
 		if (ss->eof()) {
-			return Result<int, int>::err(STATUS_BAD_REQUEST);
+			return Result<ProcResult, StatusCode>::err(BadRequest);
 		}
 		if (HttpMessageParser::is_header_body_separator(line_end_with_cr)) {
 			restore_crlf_to_ss(ss);
 			break;
 		}
 
-        Result<std::string, int> field_line_result = get_field_line_by_remove_cr(line_end_with_cr);
-		if (field_line_result.is_err()) {
-			return Result<int, int>::err(STATUS_BAD_REQUEST);
+        Result<std::string, StatusCode> get_line_result = get_field_line_by_remove_cr(line_end_with_cr);
+		if (get_line_result.is_err()) {
+			return Result<ProcResult, StatusCode>::err(BadRequest);
 		}
-		std::string field_line = field_line_result.get_ok_value();
+		std::string field_line = get_line_result.get_ok_value();
 
         std::string	field_name, field_value;
-        Result<int, int> parse_result = parse_field_line(field_line, &field_name, &field_value);
-		if (parse_result.is_err()) {
-			return Result<int, int>::err(STATUS_BAD_REQUEST);
+        Result<ProcResult, StatusCode> field_line_result = parse_field_line(field_line, &field_name, &field_value);
+		if (field_line_result.is_err()) {
+			return Result<ProcResult, StatusCode>::err(BadRequest);
 		}
 
 		if (!HttpMessageParser::is_valid_field_name_syntax(field_name)
 			|| !HttpMessageParser::is_valid_field_value_syntax(field_value)) {
-			return Result<int, int>::err(STATUS_BAD_REQUEST);
+			return Result<ProcResult, StatusCode>::err(BadRequest);
 		}
 
 		field_name = StringHandler::to_lower(field_name);
 		if (is_field_name_supported_parsing(field_name)) {
 			increment_field_name_counter(field_name);
 
-			parse_result = (this->*field_value_parser_[field_name])(field_name, field_value);
+			Result<int, int>parse_result = (this->*field_value_parser_[field_name])(field_name, field_value);
 			if (parse_result.is_err()) {
-				return Result<int, int>::err(parse_result.get_err_value());  // todo: parse error -> status
+				return Result<ProcResult, StatusCode>::err(BadRequest);  // todo: parse error -> status
 			}
 			continue;
 		}
@@ -527,43 +527,43 @@ Result<int, StatusCode> HttpRequest::parse_and_validate_field_lines(std::strings
 	// todo: validate field_names, such as 'must' header,...
 	if (!is_valid_field_name_registered(std::string(HOST))) {
 		// std::cout << MAGENTA << "!is valid field name registered" << RESET << std::endl;
-		return Result<int, int>::err(STATUS_BAD_REQUEST);
+		return Result<ProcResult, StatusCode>::err(BadRequest);
 	}
-	return Result<int, int>::ok(OK);
+	return Result<ProcResult, StatusCode>::ok(Success);
 }
 
 
-Result<int, StatusCode> HttpRequest::parse_and_validate_field_lines(const std::string &request_headers) {
+Result<ProcResult, StatusCode> HttpRequest::parse_and_validate_field_lines(const std::string &request_headers) {
     std::stringstream ss(request_headers);
     try {
-        Result<int, StatusCode> field_line_result = parse_and_validate_field_lines(&ss);
+        Result<ProcResult, StatusCode> field_line_result = parse_and_validate_field_lines(&ss);
         if (field_line_result.is_err()) {
-            return Result<int, StatusCode>::err(field_line_result.get_err_value());
+            return Result<ProcResult, StatusCode>::err(field_line_result.get_err_value());
         }
-        return Result<int, StatusCode>::ok(OK);
+        return Result<ProcResult, StatusCode>::ok(Success);
     } catch (const std::bad_alloc &e) {
-        return Result<int, StatusCode>::err(STATUS_SERVER_ERROR);
+        return Result<ProcResult, StatusCode>::err(InternalServerError);
     }
 }
 
 
 // field-line = field-name ":" OWS field-value OWS
-Result<int, int> HttpRequest::parse_field_line(const std::string &field_line,
-								  std::string *ret_field_name,
-								  std::string *ret_field_value) {
-	if (!ret_field_name || !ret_field_value) { return Result<int, int>::err(ERR); }
+Result<ProcResult, StatusCode> HttpRequest::parse_field_line(const std::string &field_line,
+                                                             std::string *ret_field_name,
+                                                             std::string *ret_field_value) {
+	if (!ret_field_name || !ret_field_value) { return Result<ProcResult, StatusCode>::err(BadRequest); }
 
 	// field-name
 	std::size_t pos = 0;
     Result<std::string, int> field_name_result = parse_field_name(field_line, &pos);
 	if (field_name_result.is_err()) {
-		return Result<int, int>::err(ERR);
+		return Result<ProcResult, StatusCode>::err(BadRequest);
 	}
 	std::string field_name = field_name_result.get_ok_value();
 
 	// ":"
 	if (field_line[pos] != ':') {
-		return Result<int, int>::err(ERR);
+		return Result<ProcResult, StatusCode>::err(BadRequest);
 	}
 	++pos;
 
@@ -573,9 +573,9 @@ Result<int, int> HttpRequest::parse_field_line(const std::string &field_line,
 	}
 
 	// field-value
-    Result<std::string, int> field_value_result = parse_field_value(field_line, &pos);
+    Result<std::string, StatusCode> field_value_result = parse_field_value(field_line, &pos);
 	if (field_value_result.is_err()) {
-		return Result<int, int>::err(ERR);
+		return Result<ProcResult, StatusCode>::err(BadRequest);
 	}
     std::string field_value = field_value_result.get_ok_value();
 
@@ -584,12 +584,12 @@ Result<int, int> HttpRequest::parse_field_line(const std::string &field_line,
 		++pos;
 	}
 	if (field_line[pos] != '\0') {
-		return Result<int, int>::err(ERR);
+		return Result<ProcResult, StatusCode>::err(BadRequest);
 	}
 
 	*ret_field_name = field_name;
 	*ret_field_value = field_value;
-	return Result<int, int>::ok(OK);
+	return Result<ProcResult, StatusCode>::ok(Success);
 }
 
 
@@ -724,28 +724,28 @@ std::map<std::string, FieldValueBase*> HttpRequest::get_request_header_fields(vo
 }
 
 
-int	HttpRequest::get_status_code() const {
+StatusCode HttpRequest::get_status_code() const {
 	return this->status_code_;
 }
 
 
-void HttpRequest::set_status_code(int new_code) {
+void HttpRequest::set_status_code(StatusCode new_code) {
     this->status_code_ = new_code;
 }
 
 
-Result<std::map<std::string, std::string>, int> HttpRequest::get_host() const {
+Result<std::map<std::string, std::string>, StatusCode> HttpRequest::get_host() const {
     FieldValueBase *field_values = get_field_values(HOST);
     if (!field_values) {
-        return Result<std::map<std::string, std::string>, int>::err(ERR);
+        return Result<std::map<std::string, std::string>, StatusCode>::err(BadRequest);
     }
     MapFieldValues *map_field_values = dynamic_cast<MapFieldValues *>(field_values);
     if (!map_field_values) {
-        return Result<std::map<std::string, std::string>, int>::err(ERR);
+        return Result<std::map<std::string, std::string>, StatusCode>::err(BadRequest);
     }
 
     std::map<std::string, std::string> host = map_field_values->get_value_map();
-    return Result<std::map<std::string, std::string>, int>::ok(host);
+    return Result<std::map<std::string, std::string>, StatusCode>::ok(host);
 }
 
 

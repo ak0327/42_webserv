@@ -37,8 +37,8 @@ bool HttpResponse::is_cgi_file(const std::string &path) {  // todo: config metho
 }
 
 
-Result<int, int> HttpResponse::get_path_content(const std::string &path, bool autoindex) {
-    Result<int, int> result;
+Result<ProcResult, StatusCode> HttpResponse::get_path_content(const std::string &path, bool autoindex) {
+    Result<ProcResult, StatusCode> result;
     std::map<std::string, std::string> mime_types;
     mime_types["html"] = "text/html";
     mime_types["htm"] = "text/htm";
@@ -47,7 +47,7 @@ Result<int, int> HttpResponse::get_path_content(const std::string &path, bool au
     DEBUG_PRINT(CYAN, "  is_dir: %s", is_directory(path) ? "true" : "false");
     if (autoindex && is_directory(path)) {
         DEBUG_PRINT(CYAN, "  get_content -> directory_listing");
-        result = get_directory_listing(path, &this->body_buf_, &this->status_code_);
+        result = get_directory_listing(path, &this->body_buf_);
     } else if (is_cgi_file(path)) {
         DEBUG_PRINT(CYAN, "  get_content -> cgi");
         // todo ------------------
@@ -56,11 +56,12 @@ Result<int, int> HttpResponse::get_path_content(const std::string &path, bool au
         // get_cgi_field_lines();
         // get_cgi_request_body();
         // -----------------------
-        result = exec_cgi(path, &this->cgi_read_fd_, &this->cgi_pid_, &this->status_code_);
+        result = exec_cgi(path, &this->cgi_read_fd_, &this->cgi_pid_);
     } else {
         DEBUG_PRINT(CYAN, "  get_content -> file_content");
-        result = get_file_content(path, mime_types, &this->body_buf_, &this->status_code_);
+        result = get_file_content(path, mime_types, &this->body_buf_);
     }
+
     return result;
 }
 
@@ -84,18 +85,17 @@ void HttpResponse::get_error_page() {
     mime_types["html"] = "text/html";
     mime_types["htm"] = "text/htm";
     mime_types["jpg"] = "text/htm";
-    int unused;
-    get_file_content(error_page_path, mime_types, &this->body_buf_, &unused);
+
+    get_file_content(error_page_path, mime_types, &this->body_buf_);
 }
 
 
-Result<Fd, int> HttpResponse::get_request_body(const std::string &target_path) {
+Result<ProcResult, StatusCode> HttpResponse::get_request_body(const std::string &target_path) {
     Result<bool, int> autoindex_result = Configuration::is_autoindex_on(this->server_config_,
                                                                         this->request_.get_request_target());
 
     if (autoindex_result.is_err()) {
-        this->status_code_ = STATUS_BAD_REQUEST;  // bad target
-        return Result<Fd, int>::err(ERR);
+        return Result<ProcResult, StatusCode>::err(BadRequest);
     }
     DEBUG_PRINT(CYAN, "  target_path: %s", target_path.c_str());
     bool autoindex = autoindex_result.get_ok_value();

@@ -41,7 +41,7 @@ Socket::~Socket() {
 Result<int, std::string> Socket::init_addr_info() {
 	struct addrinfo	hints = {};
     hints.ai_socktype = SOCK_STREAM;
-    hints.ai_family = AF_UNSPEC;  // allows IPv4 and IPv6
+    hints.ai_family = AF_INET;  // IPv4  AF_UNSPEC; allows IPv4 and IPv6
     hints.ai_flags = AI_PASSIVE | AI_NUMERICHOST | AI_NUMERICSERV;  // socket, IP, PORT
     hints.ai_protocol = IPPROTO_TCP;
     const char *ip = (this->server_ip_ != "*") ? this->server_ip_.c_str() : NULL;

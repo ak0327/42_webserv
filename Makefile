@@ -340,7 +340,7 @@ run_config_test    :
 	./build/unit_test --gtest_filter=TestConfig*
 
 .PHONY    : run_get_test
-run_config_test    :
+run_get_test    :
 	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
 	#cmake -S . -B build
 	cmake --build build

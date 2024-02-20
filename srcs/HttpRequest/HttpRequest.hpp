@@ -5,6 +5,7 @@
 # include <string>
 # include <sstream>
 # include <vector>
+# include "webserv.hpp"
 # include "ConfigStruct.hpp"
 # include "Date.hpp"
 # include "FieldValueBase.hpp"
@@ -21,8 +22,8 @@ class HttpRequest {
     explicit HttpRequest(const std::vector<unsigned char> &input);
 	~HttpRequest();
 
-	int get_status_code() const;
-    void set_status_code(int new_code);
+	StatusCode get_status_code() const;
+    void set_status_code(StatusCode new_code);
 
 	std::string	get_method() const;
 	std::string get_request_target() const;
@@ -34,12 +35,12 @@ class HttpRequest {
                                      std::vector<unsigned char> *buf,
                                      std::size_t max_size);
     static std::size_t recv_all_data(int fd, std::vector<unsigned char> *buf);
-    Result<int, int> recv_request_line_and_header(int fd);
+    Result<ProcResult, StatusCode> recv_request_line_and_header(int fd);
 
-    Result<int, int> parse_request_line();
-    Result<int, int> parse_header();
-    Result<int, int> recv_body(int fd, std::size_t max_body_size);
-    Result<HostPortPair, int> get_server_info();
+    Result<ProcResult, StatusCode> parse_request_line();
+    Result<ProcResult, StatusCode> parse_header();
+    Result<ProcResult, StatusCode> recv_body(int fd, std::size_t max_body_size);
+    Result<HostPortPair, StatusCode> get_server_info();
 
 	bool is_field_name_supported_parsing(const std::string &field_name);
 	bool is_valid_field_name_registered(const std::string &field_name);
@@ -48,7 +49,7 @@ class HttpRequest {
 	std::map<std::string, FieldValueBase*> get_request_header_fields(void);
 	FieldValueBase * get_field_values(const std::string &field_name) const;
 
-    Result<std::map<std::string, std::string>, int> get_host() const;
+    Result<std::map<std::string, std::string>, StatusCode> get_host() const;
 
 #ifdef UTEST_FRIEND
     friend class HttpRequestFriend;
@@ -58,7 +59,7 @@ class HttpRequest {
 #endif
 
  private:
-	int status_code_;
+	StatusCode status_code_;
 	RequestLine request_line_;
 	std::map<std::string, FieldValueBase *> request_header_fields_;
     std::vector<unsigned char> buf_;
@@ -73,8 +74,8 @@ class HttpRequest {
 	HttpRequest &operator=(const HttpRequest &rhs);
 
 	/* parse, validate */
-    Result<int, std::string> recv_start_line(int fd);
-    Result<int, std::string> recv_until_empty_line(int fd);
+    Result<ProcResult, std::string> recv_start_line(int fd);
+    Result<ProcResult, std::string> recv_until_empty_line(int fd);
     static bool is_crlf_in_buf(const unsigned char buf[], std::size_t size);
     static bool is_empty_line_in_buf(const unsigned char prev[3],
                                      const unsigned char buf[],
@@ -91,12 +92,12 @@ class HttpRequest {
                            std::vector<unsigned char>::const_iterator start,
                            std::vector<unsigned char>::const_iterator *ret);
 
-	int parse_and_validate_http_request(const std::string &input);
-	Result<int, int> parse_and_validate_field_lines(std::stringstream *ss);
-    Result<int, int> parse_and_validate_field_lines(const std::string &request_headers);
-    Result<int, int> parse_field_line(const std::string &field_line,
-									  std::string *ret_field_name,
-									  std::string *ret_field_value);
+	StatusCode parse_and_validate_http_request(const std::string &input);
+	Result<ProcResult, StatusCode> parse_and_validate_field_lines(std::stringstream *ss);
+    Result<ProcResult, StatusCode> parse_and_validate_field_lines(const std::string &request_headers);
+    Result<ProcResult, StatusCode> parse_field_line(const std::string &field_line,
+                                                    std::string *ret_field_name,
+                                                    std::string *ret_field_value);
 	std::string parse_message_body(std::stringstream *ss);
 
 	/* operator */
@@ -108,8 +109,8 @@ class HttpRequest {
 
 	/* set data */
 	Result<int, int> set_multi_field_values(const std::string &field_name,
-											const std::string &field_value,
-											bool (*syntax_validate_func)(const std::string &));
+                                            const std::string &field_value,
+                                            bool (*syntax_validate_func)(const std::string &));
 	Result<int, int> set_valid_http_date(const std::string &field_name, const std::string &field_value);
 	Result<int, int> set_valid_media_type(const std::string &field_name, const std::string &field_value);
 
