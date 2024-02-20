@@ -130,9 +130,9 @@ Result<int, int> get_directory_listing_html(const std::string &directory_path_en
                                             std::vector<unsigned char> *buf) {
     std::string PARENT_DIRECTORY_CONTENT, CURRENT_DIRECTORY_CONTENT, FILE_CONTENT;
     std::set<file_info>::const_iterator itr;
-    const std::string NAME_WITDH = "150";
-    const std::string TIME_WITDH = "200";
-    const std::string SIZE_WIDTH = "100";
+    std::string name_width = "150";
+    std::string time_width = "200";
+    std::string size_width = "100";
 
     const std::string TITLE = "<html>" CRLF
                               " <head><title>Index of "
@@ -154,9 +154,9 @@ Result<int, int> get_directory_listing_html(const std::string &directory_path_en
     const std::string ROW_START = "      <tr>" CRLF;
     const std::string ROW_END =   "      </tr>" CRLF;
 
-    const std::string COL_NAME_START = "       <td align=\"left\" width=\"" + NAME_WITDH + "\"> ";
-    const std::string COL_TIME_START = "       <td align=\"center\" width=\"" + TIME_WITDH + "\"> ";
-    const std::string COL_SIZE_START = "       <td align=\"center\" width=\"" + SIZE_WIDTH + "\"> ";
+    const std::string COL_NAME_START = "       <td align=\"left\" width=\"" + name_width + "\"> ";
+    const std::string COL_TIME_START = "       <td align=\"center\" width=\"" + time_width + "\"> ";
+    const std::string COL_SIZE_START = "       <td align=\"center\" width=\"" + size_width + "\"> ";
     const std::string COL_END = " </td>" CRLF;
 
     /* parent directory */

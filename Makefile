@@ -1,7 +1,7 @@
 NAME		=	webserv
 
 CXX			=	c++
-CXXFLAGS	=	-std=c++98 -Wall -Wextra -Werror -MMD -MP
+CXXFLAGS	=	-std=c++98 -Wall -Wextra -Werror -MMD -MP -pedantic
 CXXFLAGS	+=	-g -fsanitize=address,undefined -fno-omit-frame-pointer
 CXXFLAGS	+=	-D USE_SELECT
 CXXFLAGS	+=	-D DEBUG
@@ -199,26 +199,26 @@ echo	: re
 .PHONY	: run_unit_test
 run_unit_test	:
 	#cmake -S . -B build
-	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D ECHO"
-	#cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D UTEST"
+#	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D ECHO"
+	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D ECHO -D DEBUG"
 	cmake --build build
 #	./build/unit_test 2>/dev/null
 	./build/unit_test  # leaks report
 
 .PHONY	: run_server_test
 run_server_test	:
-	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D UTEST -D ECHO -D DEBUG"
-	#cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D UTEST -D ECHO"
+	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D ECHO -D DEBUG"
+	#cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT  -D ECHO"
 	#cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG -D USE_SELECT"
 	cmake --build build
 	#./build/unit_test --gtest_filter=Server* 2>/dev/null
 	#./build/unit_test --gtest_filter=*.ConnectClientCase1
-	#./build/unit_test --gtest_filter=Server*
+#	./build/unit_test --gtest_filter=Server*
 	#./build/unit_test --gtest_filter=ServerUnitTest.TestMultiServer
 #	./build/unit_test --gtest_filter=ServerUnitTest.ConnectClientCase*
-	#./build/unit_test --gtest_filter=ServerUnitTests.ConnectClientCase1
+	./build/unit_test --gtest_filter=ServerUnitTests.ConnectClientCase1
 	#./build/unit_test --gtest_filter=ServerUnitTest.ConnectClientCase2
-	./build/unit_test --gtest_filter=ServerUnitTest.ConnectMultiClient
+#	./build/unit_test --gtest_filter=ServerUnitTest.ConnectMultiClient
 
 .PHONY	: run_socket_test
 run_socket_test	:
@@ -246,7 +246,7 @@ run_request_test    :
 
 .PHONY    : run_req_test
 run_req_test    :
-	cmake -S . -B build -DCUSTOM_FLAGS="-D UTEST"
+	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
 	cmake --build build
 	./build/unit_test --gtest_filter=HttpRequestParser*
 
