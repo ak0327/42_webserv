@@ -62,7 +62,7 @@ TEST(TestFieldValueWithWeight, AcceptOK1) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestFieldValueWithWeight, AcceptOK2) {
@@ -113,7 +113,7 @@ TEST(TestFieldValueWithWeight, AcceptOK2) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestFieldValueWithWeight, AcceptOK3) {
@@ -164,7 +164,7 @@ TEST(TestFieldValueWithWeight, AcceptOK3) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestFieldValueWithWeight, AcceptOK4) {
@@ -215,7 +215,7 @@ TEST(TestFieldValueWithWeight, AcceptOK4) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestFieldValueWithWeight, AcceptOK5) {
@@ -265,7 +265,7 @@ TEST(TestFieldValueWithWeight, AcceptOK5) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestFieldValueWithWeight, AcceptOK6) {
@@ -318,7 +318,7 @@ TEST(TestFieldValueWithWeight, AcceptOK6) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestFieldValueWithWeight, AcceptOK7) {
@@ -370,7 +370,7 @@ TEST(TestFieldValueWithWeight, AcceptOK7) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 
@@ -387,7 +387,7 @@ TEST(TestFieldValueWithWeight, AcceptNG1) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestFieldValueWithWeight, AcceptNG2) {
@@ -401,7 +401,7 @@ TEST(TestFieldValueWithWeight, AcceptNG2) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestFieldValueWithWeight, AcceptNG3) {
@@ -415,7 +415,7 @@ TEST(TestFieldValueWithWeight, AcceptNG3) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestFieldValueWithWeight, AcceptNG4) {
@@ -429,7 +429,7 @@ TEST(TestFieldValueWithWeight, AcceptNG4) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestFieldValueWithWeight, AcceptNG5) {
@@ -443,7 +443,7 @@ TEST(TestFieldValueWithWeight, AcceptNG5) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestFieldValueWithWeight, AcceptNG6) {
@@ -457,7 +457,7 @@ TEST(TestFieldValueWithWeight, AcceptNG6) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestFieldValueWithWeight, AcceptNG7) {
@@ -472,5 +472,5 @@ TEST(TestFieldValueWithWeight, AcceptNG7) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }

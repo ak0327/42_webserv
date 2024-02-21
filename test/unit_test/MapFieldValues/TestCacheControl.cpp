@@ -29,7 +29,7 @@ TEST(TestMapFieldValues, CacheControlOK1) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestMapFieldValues, CacheControlOK2) {
@@ -58,7 +58,7 @@ TEST(TestMapFieldValues, CacheControlOK2) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestMapFieldValues, CacheControlOK3) {
@@ -86,7 +86,7 @@ TEST(TestMapFieldValues, CacheControlOK3) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestMapFieldValues, CacheControlOK4) {
@@ -114,7 +114,7 @@ TEST(TestMapFieldValues, CacheControlOK4) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestMapFieldValues, CacheControlOK5) {
@@ -147,7 +147,7 @@ TEST(TestMapFieldValues, CacheControlOK5) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestMapFieldValues, CacheControlOK6) {
@@ -174,7 +174,7 @@ TEST(TestMapFieldValues, CacheControlOK6) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -191,7 +191,7 @@ TEST(TestMapFieldValues, CacheControlNG1) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestMapFieldValues, CacheControlNG2) {
@@ -206,7 +206,7 @@ TEST(TestMapFieldValues, CacheControlNG2) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestMapFieldValues, CacheControlNG3) {
@@ -222,7 +222,7 @@ TEST(TestMapFieldValues, CacheControlNG3) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestMapFieldValues, CacheControlNG4) {
@@ -237,7 +237,7 @@ TEST(TestMapFieldValues, CacheControlNG4) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestMapFieldValues, CacheControlNG5) {
@@ -252,5 +252,5 @@ TEST(TestMapFieldValues, CacheControlNG5) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }

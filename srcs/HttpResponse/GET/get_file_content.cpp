@@ -25,10 +25,12 @@ bool is_support_content_type(const std::string &path,
                              const std::map<std::string, std::string> &mime_types) {
     std::string extension;
     std::map<std::string, std::string>::const_iterator itr;
+    DEBUG_PRINT(CYAN, "    is_support_content_type");
 
-    DEBUG_PRINT(CYAN, "    path: ", path.c_str());
     extension = StringHandler::get_extension(path);
-    DEBUG_PRINT(CYAN, "    extensnion: ", extension.c_str());
+
+    DEBUG_PRINT(CYAN, "     path      : %s", path.c_str());
+    DEBUG_PRINT(CYAN, "     extensnion: %s", extension.c_str());
     itr = mime_types.find(extension);
     return itr != mime_types.end();
 }
@@ -49,14 +51,15 @@ Result<ProcResult, StatusCode> HttpResponse::get_file_content(const std::string 
     DEBUG_PRINT(CYAN, "    get_file_content 2");
     std::ifstream file(file_path.c_str(), std::ios::binary);
     if (!file) {
+        DEBUG_PRINT(CYAN, "    get_file_content 3 -> file not found 404");
         return Result<ProcResult, StatusCode>::err(NotFound);
     }
-    DEBUG_PRINT(CYAN, "    get_file_content 3");
+    DEBUG_PRINT(CYAN, "    get_file_content 5");
 
     file.seekg(0, std::ios::end);
     std::streamsize file_size = file.tellg();
     file.seekg(0, std::ios::beg);
-    DEBUG_PRINT(CYAN, "    get_file_content 4 file_size: %zu", file_size);
+    DEBUG_PRINT(CYAN, "    get_file_content 5 file_size: %zu", file_size);
 
     buf->resize(file_size);
     if (!file.read(reinterpret_cast<char*>(&(*buf)[0]), file_size)) {
@@ -66,7 +69,7 @@ Result<ProcResult, StatusCode> HttpResponse::get_file_content(const std::string 
         buf->clear();
         return Result<ProcResult, StatusCode>::err(BadRequest);
     }
-    DEBUG_PRINT(CYAN, "    get_file_content 5");
+    DEBUG_PRINT(CYAN, "    get_file_content 6");
     std::string body(this->body_buf_.begin(), this->body_buf_.end());
     DEBUG_PRINT(CYAN, "    get_file_content recv_body:[%s]", body.c_str());
 

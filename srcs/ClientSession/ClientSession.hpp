@@ -41,11 +41,13 @@ class ClientSession {
 
     ~ClientSession();
 
-    int get_client_fd() const;
-    int get_cgi_fd() const;
-    SessionState get_session_state() const;
+    int client_fd() const;
+    int cgi_fd() const;
+    SessionState session_state() const;
+    StatusCode status_code() const;
 
     void set_session_state(const SessionState &set_state);
+    void set_status(const StatusCode &code);
 
     bool is_session_state_expect_to(const SessionState &expect) const;
 

@@ -29,15 +29,15 @@ RequestLine &RequestLine::operator=(const RequestLine &rhs) {
 }
 
 /* getter */
-std::string	RequestLine::get_method(void) const {
+std::string	RequestLine::method(void) const {
 	return this->method_;
 }
 
-std::string RequestLine::get_request_target(void) const {
+std::string RequestLine::request_target(void) const {
 	return this->request_target_;
 }
 
-std::string	RequestLine::get_http_version(void) const {
+std::string	RequestLine::http_version(void) const {
 	return this->http_version_;
 }
 
