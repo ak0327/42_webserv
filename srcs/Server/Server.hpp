@@ -23,6 +23,7 @@ class Server {
 
     ServerResult init();
 	ServerResult run();
+    ServerResult echo();  // todo
     void set_timeout(int timeout_msec);
 
  private:

@@ -4,8 +4,8 @@ CXX			=	c++
 CXXFLAGS	=	-std=c++98 -Wall -Wextra -Werror -MMD -MP -pedantic
 CXXFLAGS	+=	-g -fsanitize=address,undefined -fno-omit-frame-pointer
 CXXFLAGS	+=	-D USE_SELECT
-#CXXFLAGS	+=	-D DEBUG
-#CXXFLAGS	+=	-D ECHO
+CXXFLAGS	+=	-D DEBUG
+CXXFLAGS	+=	-D ECHO
 
 # SRCS -------------------------------------------------------------------------
 SRCS_DIR	=	srcs
@@ -213,10 +213,10 @@ run_server_test	:
 	cmake --build build
 	#./build/unit_test --gtest_filter=Server* 2>/dev/null
 	#./build/unit_test --gtest_filter=*.ConnectClientCase1
-#	./build/unit_test --gtest_filter=Server*
+	./build/unit_test --gtest_filter=Server*
 	#./build/unit_test --gtest_filter=ServerUnitTest.TestMultiServer
-#	./build/unit_test --gtest_filter=ServerUnitTest.ConnectClientCase*
-	./build/unit_test --gtest_filter=ServerUnitTests.ConnectClientCase1
+	#./build/unit_test --gtest_filter=ServerUnitTest.ConnectClientCase*
+	#./build/unit_test --gtest_filter=ServerUnitTest.ConnectClientCase1
 	#./build/unit_test --gtest_filter=ServerUnitTest.ConnectClientCase2
 #	./build/unit_test --gtest_filter=ServerUnitTest.ConnectMultiClient
 

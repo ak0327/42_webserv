@@ -246,6 +246,9 @@ const char PROXY_AUTHORIZATION[] = "proxy-authorization";
 const char RANGE[] = "range";
 const char REFERER[] = "referer";
 const char RETRY_AFTER[] = "retry-after";
+const char SEC_CH_UA[] = "sec-ch-ua";
+const char SEC_CH_UA_MOBILE[] = "sec-ch-ua-mobile";
+const char SEC_CH_UA_PLATFORM[] = "sec-ch-ua-platform";
 const char SEC_FETCH_DEST[] = "sec-fetch-dest";
 const char SEC_FETCH_MODE[] = "sec-fetch-mode";
 const char SEC_FETCH_SITE[] = "sec-fetch-site";
@@ -404,6 +407,9 @@ std::vector<std::string> init_ignore_headers() {
 	std::vector<std::string> ignore_headers;
 
 	ignore_headers.push_back(ACCEPT_CHARSET);
+    ignore_headers.push_back(SEC_CH_UA);
+    ignore_headers.push_back(SEC_CH_UA_MOBILE);
+    ignore_headers.push_back(SEC_CH_UA_PLATFORM);
 	return ignore_headers;
 }
 

@@ -8,7 +8,7 @@
 
 
 TEST(HttpRequestParser, GetLine) {
-    Result<std::string, std::string> result;
+    Result<std::string, ProcResult> result;
     std::vector<unsigned char> data;
     std::vector<unsigned char>::const_iterator ret;
     std::string expected, actual;

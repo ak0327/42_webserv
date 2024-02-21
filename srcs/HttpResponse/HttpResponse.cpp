@@ -294,7 +294,7 @@ void HttpResponse::set_status_code(StatusCode set_status) {
 void HttpResponse::create_echo_msg(const std::vector<unsigned char> &recv_msg) {
     this->response_msg_ = recv_msg;
     std::string echo_message = std::string(recv_msg.begin(), recv_msg.end());
-    DEBUG_SERVER_PRINT("    create_echo_msg:[%s]", echo_message.c_str());
+    DEBUG_PRINT(GREEN, "    create_echo_msg:[%s]", echo_message.c_str());
 }
 
 #endif

@@ -512,6 +512,14 @@ Result<ProcResult, StatusCode> HttpRequest::parse_and_validate_field_lines(std::
 }
 
 
+bool is_ignore_field_name(const std::string &field_name) {
+    std::vector<std::string>::const_iterator itr;
+
+    itr = std::find(IGNORE_HEADERS.begin(), IGNORE_HEADERS.end(), field_name);
+    return itr != IGNORE_HEADERS.end();
+}
+
+
 Result<ProcResult, StatusCode> HttpRequest::parse_and_validate_field_line(const std::string &field_line) {
     std::string	field_name, field_value;
     Result<ProcResult, StatusCode> split_result = split_field_line(field_line,
@@ -524,6 +532,10 @@ Result<ProcResult, StatusCode> HttpRequest::parse_and_validate_field_line(const 
     if (!HttpMessageParser::is_valid_field_name_syntax(field_name)
         || !HttpMessageParser::is_valid_field_value_syntax(field_value)) {
         return Result<ProcResult, StatusCode>::err(BadRequest);
+    }
+
+    if (is_ignore_field_name(field_name)) {
+        return Result<ProcResult, StatusCode>::ok(Success);
     }
 
     std::map<std::string, func_ptr>::const_iterator func = this->field_value_parser_.find(field_name);

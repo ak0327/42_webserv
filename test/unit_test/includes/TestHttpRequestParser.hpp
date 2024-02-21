@@ -8,9 +8,9 @@
 
 class HttpRequestFriend : public ::testing::Test {
  public:
-    static Result<std::string, std::string> get_line(const std::vector<unsigned char> &data,
-                                                     std::vector<unsigned char>::const_iterator start,
-                                                     std::vector<unsigned char>::const_iterator *ret) {
+    static Result<std::string, ProcResult> get_line(const std::vector<unsigned char> &data,
+                                                    std::vector<unsigned char>::const_iterator start,
+                                                    std::vector<unsigned char>::const_iterator *ret) {
         return HttpRequest::get_line(data, start, ret);
     }
 
@@ -22,11 +22,5 @@ class HttpRequestFriend : public ::testing::Test {
                           std::vector<unsigned char>::const_iterator start,
                           std::vector<unsigned char>::const_iterator *cr) {
         return HttpRequest::find_crlf(data, start, cr);
-    }
-
-    static void find_empty(const std::vector<unsigned char> &data,
-                           std::vector<unsigned char>::const_iterator start,
-                           std::vector<unsigned char>::const_iterator *ret) {
-        return HttpRequest::find_empty(data, start, ret);
     }
 };

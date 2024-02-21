@@ -274,6 +274,12 @@ ServerResult Server::run() {
 }
 
 
+ServerResult Server::echo() {
+    // todo
+    return ServerResult::ok(OK);
+}
+
+
 bool Server::is_socket_fd(int fd) const {
     return this->sockets_.find(fd) != this->sockets_.end();
 }
