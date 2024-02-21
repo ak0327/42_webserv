@@ -60,13 +60,16 @@ class HttpResponse {
     Result<ProcResult, StatusCode> exec_method();
     Result<ProcResult, StatusCode> recv_cgi_result();
     Result<ProcResult, StatusCode> create_cgi_body();
-    Result<ProcResult, StatusCode> create_response_message();
+    Result<ProcResult, StatusCode> create_response_message(StatusCode code);
 
     int get_cgi_fd() const;
     bool is_cgi_processing(int *status);
+    StatusCode get_status_code() const;
     void set_status_code(StatusCode set_status);
 
-    // todo: util
+    std::size_t recv_to_buf(int fd);
+
+        // todo: util
     static Result<std::vector<std::string>, ProcResult> get_interpreter(const std::string &file_path);
 
 #ifdef ECHO
@@ -100,8 +103,8 @@ class HttpResponse {
 
 
     std::string get_resource_path(const std::string &request_target);
+    std::string create_status_line(StatusCode code) const;
     std::string create_field_lines() const;
-    std::string create_status_line() const;
 
     // GET
     Result<ProcResult, StatusCode> get_request_body(const std::string &target_path);

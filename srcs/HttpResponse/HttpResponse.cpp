@@ -145,15 +145,18 @@ Result<ProcResult, StatusCode> HttpResponse::create_cgi_body() {
 				[ message-body ]
  https://triple-underscore.github.io/http1-ja.html#http.message
  */
-Result<ProcResult, StatusCode> HttpResponse::create_response_message() {
-    std::string status_line = create_status_line() + CRLF;
+Result<ProcResult, StatusCode> HttpResponse::create_response_message(StatusCode code) {
+    std::string status_line = create_status_line(code) + CRLF;
     std::string field_lines = create_field_lines();
     std::string empty = CRLF;
 
     this->response_msg_.insert(this->response_msg_.end(), status_line.begin(), status_line.end());
     this->response_msg_.insert(this->response_msg_.end(), field_lines.begin(), field_lines.end());
     this->response_msg_.insert(this->response_msg_.end(), empty.begin(), empty.end());
-    this->response_msg_.insert(this->response_msg_.end(), this->body_buf_.begin(), this->body_buf_.end());
+
+    if (code == StatusOk) {
+        this->response_msg_.insert(this->response_msg_.end(), this->body_buf_.begin(), this->body_buf_.end());
+    }
 
     std::string msg(this->response_msg_.begin(), this->response_msg_.end());
     DEBUG_SERVER_PRINT("response_message:[%s]", msg.c_str());
@@ -172,14 +175,14 @@ std::string get_status_reason_phrase(StatusCode code) {
 
 
 // status-line = HTTP-version SP status-code SP [ reason-phrase ]
-std::string HttpResponse::create_status_line() const {
+std::string HttpResponse::create_status_line(StatusCode code) const {
     std::string status_line;
 
     status_line.append(this->request_.get_http_version());
     status_line.append(SP);
-    status_line.append(StringHandler::to_string(this->status_code_));
+    status_line.append(StringHandler::to_string(code));
     status_line.append(SP);
-    status_line.append(get_status_reason_phrase(this->status_code_));
+    status_line.append(get_status_reason_phrase(code));
     return status_line;
 }
 
@@ -223,13 +226,19 @@ std::string HttpResponse::get_resource_path(const std::string &request_target) {
 }
 
 
+std::size_t HttpResponse::recv_to_buf(int fd) {
+    return HttpRequest::recv_to_buf(fd, &this->body_buf_);
+}
+
+
 Result<ProcResult, StatusCode> HttpResponse::recv_cgi_result() {
     int cgi_fd = get_cgi_fd();
-    // std::size_t recv_size;  // todo: unused??
-    HttpRequest::recv_all_data(cgi_fd, &this->body_buf_);  // todo: continues print script...
+    std::size_t recv_size = this->recv_to_buf(cgi_fd);
+    (void)recv_size;
+
     int process_exit_status;
     if (this->is_cgi_processing(&process_exit_status)) {
-        return Result<ProcResult, StatusCode>::ok(ExecutingCgi);
+        return Result<ProcResult, StatusCode>::ok(Continue);
     }
     if (process_exit_status != EXIT_SUCCESS) {
         this->status_code_ = InternalServerError;
@@ -270,6 +279,10 @@ const std::vector<unsigned char> &HttpResponse::get_response_message() const {
 
 int HttpResponse::get_cgi_fd() const { return this->cgi_read_fd_; }
 
+
+StatusCode HttpResponse::get_status_code() const {
+    return this->status_code_;
+}
 
 void HttpResponse::set_status_code(StatusCode set_status) {
     this->status_code_ = set_status;

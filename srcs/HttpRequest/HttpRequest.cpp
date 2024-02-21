@@ -103,21 +103,33 @@ Result<std::string, StatusCode> get_field_line_by_remove_cr(const std::string &l
 ////////////////////////////////////////////////////////////////////////////////
 /* constructor, destructor */
 
-HttpRequest::HttpRequest() : status_code_(StatusOk) {
+HttpRequest::HttpRequest()
+    : status_code_(StatusOk),
+      phase_(ParsingRequestLine),
+      buf_(),
+      request_body_(),
+      field_value_parser_(),
+      field_name_counter_(),
+      request_max_body_size_(0) {
     init_field_name_parser();
     init_field_name_counter();
 }
 
-HttpRequest::HttpRequest(const std::string &input) : status_code_(StatusOk) {
+HttpRequest::HttpRequest(const std::string &input)
+    : status_code_(StatusOk),
+      phase_(ParsingRequestLine),
+      buf_(),
+      request_body_(),
+      field_value_parser_(),
+      field_name_counter_(),
+      request_max_body_size_(0)  {
 	init_field_name_parser();
 	init_field_name_counter();
 	this->status_code_ = parse_and_validate_http_request(input);
 }
 
-HttpRequest::~HttpRequest()
-{
+HttpRequest::~HttpRequest() {
 	std::map<std::string, FieldValueBase*>::iterator itr;
-
 	itr = this->request_header_fields_.begin();
 	while (itr != this->request_header_fields_.end()) {
 		delete itr->second;
@@ -156,44 +168,33 @@ ssize_t HttpRequest::recv(int fd, void *buf, std::size_t bufsize) {
 }
 
 
-std::size_t HttpRequest::recv_all_data(int fd,
-                                       std::vector<unsigned char> *buf,
-                                       std::size_t max_size) {
-    unsigned char recv_buf[BUFSIZ];
-    ssize_t recv_size;
+std::size_t HttpRequest::recv_to_buf(int fd) {
+    return HttpRequest::recv_to_buf(fd, &this->buf_);
+}
 
+
+std::size_t HttpRequest::recv_to_buf(int fd, std::vector<unsigned char> *buf) {
     if (!buf) {
         return 0;
     }
-    std::size_t total_size = buf->size();
+
+    std::vector<unsigned char> recv_buf(BUFSIZ);
+    ssize_t recv_size;
 
     DEBUG_SERVER_PRINT("    recv start");
+    recv_size = HttpRequest::recv(fd, &recv_buf[0], BUFSIZ);
 
-    while (true) {
-        recv_size = HttpRequest::recv(fd, recv_buf, BUFSIZ);
-        DEBUG_SERVER_PRINT("    recv_size: %zd", recv_size);
-        if (recv_size == RECV_COMPLETED) {
-            break;
-        }
+    DEBUG_SERVER_PRINT("     recv_size: %zd", recv_size);
+    std::string debug_recv_mes(recv_buf.begin(), recv_buf.begin() + recv_size);
+    DEBUG_SERVER_PRINT("     recv_msg[%s]", debug_recv_mes.c_str());
 
-        total_size += recv_size;
-        buf->insert(buf->end(), recv_buf, recv_buf + recv_size);
-        if (max_size < total_size) {
-            DEBUG_SERVER_PRINT("     recv_size exceeded max_body_size");
-            break;
-        }
+    if (0 < recv_size) {
+        buf->insert(buf->end(), recv_buf.begin(), recv_buf.begin() + recv_size);
     }
-    std::string recv_body(buf->begin(), buf->end());
-    DEBUG_SERVER_PRINT("    recv_msg[%s]", recv_body.c_str());
     DEBUG_SERVER_PRINT("    recv end");
-    return total_size;
+    return recv_size <= 0 ? 0 : recv_size;
 }
 
-
-std::size_t HttpRequest::recv_all_data(int fd,
-                                       std::vector<unsigned char> *save_buf) {
-    return recv_all_data(fd, save_buf, std::numeric_limits<std::size_t>::max());
-}
 
 
 bool HttpRequest::is_crlf_in_buf(const unsigned char buf[], std::size_t size) {
@@ -206,60 +207,6 @@ bool HttpRequest::is_crlf_in_buf(const unsigned char buf[], std::size_t size) {
         }
     }
     return false;
-}
-
-
-// while CRLF CRLF
-Result<ProcResult, std::string> HttpRequest::recv_until_empty_line(int fd) {
-    unsigned char recv_buf[BUFSIZ];
-    std::vector<unsigned char>::const_iterator empty_pos, find_begin;
-    ssize_t recv_size;
-    DEBUG_PRINT(YELLOW, "recv_until_empty_line");
-    while (true) {
-        recv_size = HttpRequest::recv(fd, recv_buf, BUFSIZ);
-        DEBUG_PRINT(YELLOW, " recv_size: %zd", recv_size);
-        if (recv_size == RECV_COMPLETED) {
-            break;
-        }
-
-        std::size_t old_size = this->buf_.size();
-        this->buf_.insert(this->buf_.end(), recv_buf, recv_buf + recv_size);
-        std::size_t shift = (old_size < 4) ? recv_size + old_size : recv_size + 3;
-        find_begin = this->buf_.end() - shift;
-        HttpRequest::find_empty(this->buf_, find_begin, &empty_pos);
-        if (empty_pos != this->buf_.end()) {
-            break;
-        }
-    }
-
-    std::string recv_msg(this->buf_.begin(), this->buf_.end());
-    DEBUG_PRINT(YELLOW, " recv_msg[%s]", recv_msg.c_str());
-    return Result<ProcResult, std::string>::ok(Success);
-}
-
-
-// while CRLF
-Result<ProcResult, std::string> HttpRequest::recv_start_line(int fd) {
-    unsigned char recv_buf[BUFSIZ];
-    ssize_t recv_size;
-    bool is_prev_end_with_cr = false;
-
-    while (true) {
-        recv_size = HttpRequest::recv(fd, recv_buf, BUFSIZ);
-        if (recv_size == RECV_COMPLETED) {
-            break;
-        }
-
-        this->buf_.insert(this->buf_.end(), recv_buf, recv_buf + recv_size);
-        if (is_crlf_in_buf(recv_buf, recv_size)) {
-            break;
-        }
-        if (is_prev_end_with_cr && recv_buf[0] == LF) {
-            break;
-        }
-        is_prev_end_with_cr = (recv_buf[recv_size - 1] == CR);
-    }
-    return Result<ProcResult, std::string>::ok(Success);
 }
 
 
@@ -283,55 +230,43 @@ void HttpRequest::find_crlf(const std::vector<unsigned char> &data,
 }
 
 
-// line CRLF CRLF line
-//      ^return
-void HttpRequest::find_empty(const std::vector<unsigned char> &data,
-                            std::vector<unsigned char>::const_iterator start,
-                            std::vector<unsigned char>::const_iterator *ret) {
-    const std::size_t CRLF_LEN = 2;
-    if (!ret) {
-        return;
-    }
-    std::vector<unsigned char>::const_iterator pos, crlf1, crlf2;
-    pos = start;
-    while (pos != data.end()) {
-        find_crlf(data, pos, &crlf1);
-        if (crlf1 == data.end()) {
-            break;
-        }
-        find_crlf(data, crlf1 + CRLF_LEN, &crlf2);
-        if (crlf2 == data.end()) {
-            break;
-        }
-        if (crlf1 + CRLF_LEN == crlf2) {
-            *ret = crlf1;
-            return;
-        }
-        pos = crlf1 + CRLF_LEN;
-    }
-    *ret = data.end();
-}
-
-
 // line CRLF next_line
 // ^^^^      ^ret
-Result<std::string, std::string> HttpRequest::get_line(const std::vector<unsigned char> &data,
-                                                       std::vector<unsigned char>::const_iterator start,
-                                                       std::vector<unsigned char>::const_iterator *ret) {
+Result<std::string, ProcResult> HttpRequest::get_line(const std::vector<unsigned char> &data,
+                                                      std::vector<unsigned char>::const_iterator start,
+                                                      std::vector<unsigned char>::const_iterator *ret) {
     if (!ret) {
-        return Result<std::string, std::string>::err("fatal error");
+        return Result<std::string, ProcResult>::err(FatalError);
     }
 
     std::vector<unsigned char>::const_iterator cr;
     HttpRequest::find_crlf(data, start, &cr);
     if (cr == data.end()) {
         *ret = data.end();
-        return Result<std::string, std::string>::err("line invalid");
+        return Result<std::string, ProcResult>::err(Failure);
     }
 
     std::string line(start, cr);
     *ret = cr + 2;
-    return Result<std::string, std::string>::ok(line);
+    return Result<std::string, ProcResult>::ok(line);
+}
+
+
+Result<std::string, ProcResult> HttpRequest::pop_line_from_buf() {
+    std::vector<unsigned char>::const_iterator next_line;
+
+    Result<std::string, ProcResult> result = get_line(this->buf_,
+                                                      this->buf_.begin(),
+                                                      &next_line);
+    if (result.is_err()) {
+        return Result<std::string, ProcResult>::err(Failure);
+    }
+    std::string line = result.get_ok_value();
+    trim(&this->buf_, next_line);
+
+    std::string debug_buf(this->buf_.begin(), this->buf_.end());
+    DEBUG_SERVER_PRINT("buf[%s]", debug_buf.c_str());
+    return Result<std::string, ProcResult>::ok(line);
 }
 
 
@@ -350,69 +285,112 @@ void HttpRequest::trim(std::vector<unsigned char> *buf,
 }
 
 
-Result<ProcResult, StatusCode> HttpRequest::recv_request_line_and_header(int fd) {
-    Result<ProcResult, std::string> recv_result = recv_until_empty_line(fd);
-    if (recv_result.is_err()) {
-        const std::string error_msg = recv_result.get_err_value();
-        DEBUG_SERVER_PRINT("error: %s", error_msg.c_str());
-        return Result<ProcResult, StatusCode>::err(InternalServerError);
+////////////////////////////////////////////////////////////////////////////////
+
+// recv -> start_line -> header
+// -> conf
+// -> body
+// recv -> body
+
+Result<ProcResult, StatusCode> HttpRequest::parse_start_line_and_headers() {
+    Result<ProcResult, StatusCode> result;
+    StatusCode error_status_code;
+
+    DEBUG_SERVER_PRINT("    parse start_line_and_headers 1");
+    while (true) {
+        DEBUG_SERVER_PRINT("    parse start_line_and_headers 2");
+        Result<std::string, ProcResult> line_result = pop_line_from_buf();
+        if (line_result.is_err()) {
+            DEBUG_SERVER_PRINT("    parse start_line_and_headers -> continue");
+            return Result<ProcResult, StatusCode>::ok(Continue);  // no line in buf -> recv
+        }
+        std::string line = line_result.get_ok_value();
+        DEBUG_SERVER_PRINT("    parse start_line_and_headers 3 line[%s]", line.c_str());
+
+        switch (this->phase_) {
+            case ParsingRequestLine:
+                DEBUG_SERVER_PRINT("    parse RequestLine");
+                result = this->request_line_.parse_and_validate(line);
+                if (result.is_err()) {
+                    DEBUG_SERVER_PRINT("     parse RequestLine err");
+                    error_status_code = result.get_err_value();
+                    return Result<ProcResult, StatusCode>::err(error_status_code);  // todo: code
+                }
+                DEBUG_SERVER_PRINT("     parse RequestLine -> Header");
+                this->phase_ = ParsingRequestHeaders;
+                continue;
+
+            case ParsingRequestHeaders:
+                DEBUG_SERVER_PRINT("    parse Headers");
+                if (line.empty()) {
+                    std::cout << CYAN << "empty -> body" << RESET << std::endl;
+                    this->phase_ = ParsingRequestBody;
+                    DEBUG_SERVER_PRINT("     parse Headers -> body");
+                    return Result<ProcResult, StatusCode>::ok(PrepareNextProc);  // conf -> parse body
+                }
+                result = parse_and_validate_field_line(line);
+                if (result.is_err()) {
+                    DEBUG_SERVER_PRINT("     parse Headers -> err");
+                    error_status_code = result.get_err_value();
+                    return Result<ProcResult, StatusCode>::err(error_status_code);  // todo: code
+                }
+                DEBUG_SERVER_PRINT("     parse Headers -> continue");
+                continue;
+
+            default:
+                break;
+        }
+        break;
     }
     return Result<ProcResult, StatusCode>::ok(Success);
 }
 
 
-// start-line CRLF
-Result<ProcResult, StatusCode> HttpRequest::parse_request_line() {
-    std::vector<unsigned char>::const_iterator next_start;
-    Result<std::string, std::string> get_line_result;
-    get_line_result = get_line(this->buf_, this->buf_.begin(), &next_start);
-    if (get_line_result.is_err()) {
-        return Result<ProcResult, StatusCode>::err(InternalServerError);
+Result<ProcResult, StatusCode> HttpRequest::parse_body() {
+    DEBUG_SERVER_PRINT("    ParseBody");
+
+    Result<std::size_t, ProcResult> result = get_content_length();
+    if (result.is_err()) {
+        DEBUG_SERVER_PRINT("      ParseBody content-length not defined");
+        if (this->buf_.empty()) {
+            DEBUG_SERVER_PRINT("      ParseBody  recv body = 0 -> ok");
+            return Result<ProcResult, StatusCode>::ok(Success);
+        } else {
+            DEBUG_SERVER_PRINT("      ParseBody  recv body != 0 -> err");
+            this->buf_.clear();
+            return Result<ProcResult, StatusCode>::err(BadRequest);
+        }
     }
-    std::string start_line = get_line_result.get_ok_value();
-    DEBUG_SERVER_PRINT("     start_line[%s]", start_line.c_str());
 
-    HttpRequest::trim(&this->buf_, next_start);
+    std::size_t content_length = result.get_ok_value();
+    DEBUG_SERVER_PRINT("      ParseBody content-length: %zu", content_length);
 
-    Result<ProcResult, StatusCode> request_line_result = this->request_line_.parse_and_validate(start_line);
-    if (request_line_result.is_err()) {
-        return Result<ProcResult, StatusCode>::err(BadRequest);
+    if (this->request_max_body_size_ < content_length) {
+        DEBUG_SERVER_PRINT("      ParseBody max_body_size: %zu < content-length: %zu", this->request_max_body_size_, content_length);
+        this->buf_.clear();
+        return Result<ProcResult, StatusCode>::err(ContentTooLarge);
     }
-    return Result<ProcResult, StatusCode>::ok(Success);
-}
 
+    this->request_body_.insert(this->request_body_.end(), this->buf_.begin(), this->buf_.end());
+    this->buf_.clear();
+    DEBUG_SERVER_PRINT("      ParseBody move buf -> request_body: size: %zu", this->request_body_.size());
 
-Result<ProcResult, StatusCode> HttpRequest::parse_header() {
-    std::vector<unsigned char>::const_iterator header_end;
-    HttpRequest::find_empty(this->buf_, this->buf_.begin(), &header_end);
-    std::size_t headers_len = header_end - this->buf_.begin();
-    std::string request_headers(reinterpret_cast<const char*>(&buf_[0]), headers_len);
-
-    const std::size_t EMPTY_LINE_LEN = 4;
-    std::vector<unsigned char>::const_iterator body_start = header_end + EMPTY_LINE_LEN;
-    HttpRequest::trim(&this->buf_, body_start);
-
-    Result<ProcResult, StatusCode> parse_result = parse_and_validate_field_lines(request_headers);
-    if (parse_result.is_err()) {
-        return Result<ProcResult, StatusCode>::err(parse_result.get_err_value());
+    if (content_length < this->request_body_.size()) {
+        DEBUG_SERVER_PRINT("      ParseBody  content_length < body.size() -> LengthRequired");
+        this->request_body_.clear();
+        return Result<ProcResult, StatusCode>::err(LengthRequired);
     }
-    return Result<ProcResult, StatusCode>::ok(Success);
-}
-
-
-Result<ProcResult, StatusCode> HttpRequest::recv_body(int fd, std::size_t max_body_size) {
-    size_t body_size = recv_all_data(fd, &this->buf_, max_body_size);
-    if (max_body_size < body_size) {
-        return Result<ProcResult, StatusCode>::err(RequestEntityTooLarge);
+    if (this->request_body_.size() < content_length) {
+        DEBUG_SERVER_PRINT("      ParseBody  body.size() < content-length -> recv continue");
+        return Result<ProcResult, StatusCode>::ok(Continue);
     }
-    std::string body(this->buf_.begin(), this->buf_.end());
-    DEBUG_SERVER_PRINT("     recv_body:[%s]", body.c_str());
+    DEBUG_SERVER_PRINT("      ParseBody  body ok");
     return Result<ProcResult, StatusCode>::ok(Success);
 }
 
 
 Result<HostPortPair, StatusCode> HttpRequest::get_server_info() {
-    Result<std::map<std::string, std::string>, StatusCode> result = get_host();
+    Result<std::map<std::string, std::string>, ProcResult> result = get_host();
     if (result.is_err()) {
         return Result<HostPortPair, StatusCode>::err(BadRequest);  // 400 Bad Request
     }
@@ -502,7 +480,8 @@ Result<ProcResult, StatusCode> HttpRequest::parse_and_validate_field_lines(std::
 		std::string field_line = get_line_result.get_ok_value();
 
         std::string	field_name, field_value;
-        Result<ProcResult, StatusCode> field_line_result = parse_field_line(field_line, &field_name, &field_value);
+        Result<ProcResult, StatusCode> field_line_result = split_field_line(
+                field_line, &field_name, &field_value);
 		if (field_line_result.is_err()) {
 			return Result<ProcResult, StatusCode>::err(BadRequest);
 		}
@@ -533,6 +512,35 @@ Result<ProcResult, StatusCode> HttpRequest::parse_and_validate_field_lines(std::
 }
 
 
+Result<ProcResult, StatusCode> HttpRequest::parse_and_validate_field_line(const std::string &field_line) {
+    std::string	field_name, field_value;
+    Result<ProcResult, StatusCode> split_result = split_field_line(field_line,
+                                                                   &field_name,
+                                                                   &field_value);
+    if (split_result.is_err()) {
+        return Result<ProcResult, StatusCode>::err(BadRequest);
+    }
+    field_name = StringHandler::to_lower(field_name);
+    if (!HttpMessageParser::is_valid_field_name_syntax(field_name)
+        || !HttpMessageParser::is_valid_field_value_syntax(field_value)) {
+        return Result<ProcResult, StatusCode>::err(BadRequest);
+    }
+
+    std::map<std::string, func_ptr>::const_iterator func = this->field_value_parser_.find(field_name);
+    if (func == this->field_value_parser_.end()) {
+        return Result<ProcResult, StatusCode>::err(BadRequest);
+    }
+    func_ptr parse_func = func->second;
+
+    increment_field_name_counter(field_name);  // used for duplicate checking in parse_func
+    Result<int, int> parse_result = (this->*parse_func)(field_name, field_value);
+    if (parse_result.is_err()) {
+        return Result<ProcResult, StatusCode>::err(BadRequest);  // todo: parse error -> status
+    }
+    return Result<ProcResult, StatusCode>::ok(Success);
+}
+
+
 Result<ProcResult, StatusCode> HttpRequest::parse_and_validate_field_lines(const std::string &request_headers) {
     std::stringstream ss(request_headers);
     try {
@@ -548,7 +556,7 @@ Result<ProcResult, StatusCode> HttpRequest::parse_and_validate_field_lines(const
 
 
 // field-line = field-name ":" OWS field-value OWS
-Result<ProcResult, StatusCode> HttpRequest::parse_field_line(const std::string &field_line,
+Result<ProcResult, StatusCode> HttpRequest::split_field_line(const std::string &field_line,
                                                              std::string *ret_field_name,
                                                              std::string *ret_field_value) {
 	if (!ret_field_name || !ret_field_value) { return Result<ProcResult, StatusCode>::err(BadRequest); }
@@ -734,19 +742,54 @@ void HttpRequest::set_status_code(StatusCode new_code) {
 }
 
 
-Result<std::map<std::string, std::string>, StatusCode> HttpRequest::get_host() const {
+RequestParsePhase HttpRequest::get_parse_phase() const {
+    return this->phase_;
+}
+
+
+void HttpRequest::set_parse_phase(RequestParsePhase new_phase) {
+    this->phase_ = new_phase;
+}
+
+void HttpRequest::set_max_body_size(std::size_t max_body_size) {
+    this->request_max_body_size_ = max_body_size;
+}
+
+
+Result<std::map<std::string, std::string>, ProcResult> HttpRequest::get_host() const {
     FieldValueBase *field_values = get_field_values(HOST);
     if (!field_values) {
-        return Result<std::map<std::string, std::string>, StatusCode>::err(BadRequest);
+        return Result<std::map<std::string, std::string>, ProcResult>::err(Failure);
     }
     MapFieldValues *map_field_values = dynamic_cast<MapFieldValues *>(field_values);
     if (!map_field_values) {
-        return Result<std::map<std::string, std::string>, StatusCode>::err(BadRequest);
+        return Result<std::map<std::string, std::string>, ProcResult>::err(Failure);
     }
 
     std::map<std::string, std::string> host = map_field_values->get_value_map();
-    return Result<std::map<std::string, std::string>, StatusCode>::ok(host);
+    return Result<std::map<std::string, std::string>, ProcResult>::ok(host);
 }
+
+
+Result<std::size_t, ProcResult> HttpRequest::get_content_length() const {
+    FieldValueBase *field_values = get_field_values(CONTENT_LENGTH);
+    if (!field_values) {
+        return Result<std::size_t, ProcResult>::err(Failure);
+    }
+    SingleFieldValue *single_field_value = dynamic_cast<SingleFieldValue *>(field_values);
+    if (!single_field_value) {
+        return Result<std::size_t, ProcResult>::err(Failure);
+    }
+
+    std::string num_str = single_field_value->get_value();
+    std::size_t length;
+    std::istringstream iss(num_str);
+    iss >> length;
+
+    return Result<std::size_t, ProcResult>::ok(length);
+}
+
+
 
 
 #ifdef ECHO

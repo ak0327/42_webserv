@@ -321,6 +321,7 @@ ServerResult Server::create_session(int socket_fd) {
 void Server::update_fd_type_read_to_write(const SessionState &session_state, int fd) {
     FdType fd_type = this->fds_->get_fd_type(fd);
     if (session_state == kSendingResponse && fd_type == kReadFd) {
+        DEBUG_SERVER_PRINT("fd read -> write");
         this->fds_->clear_fd(fd);
         this->fds_->register_write_fd(fd);
         // std::cout << RED << "update write fd: " << fd << RESET << std::endl;
@@ -392,9 +393,12 @@ ServerResult Server::process_session(int ready_fd) {
         const std::string error_msg = result.get_err_value();
         return ServerResult::err(error_msg);
     }
-    int result_value = result.get_ok_value();
-    if (is_cgi_fd(result_value)) {
-        int cgi_fd = result_value;
+    if (result.get_ok_value() == Continue) {
+        DEBUG_SERVER_PRINT("      process_session -> recv continue");
+        return ServerResult::ok(OK);
+    }
+    if (result.get_ok_value() == ExecutingCgi) {
+        int cgi_fd = client_session->get_cgi_fd();
         this->fds_->register_read_fd(cgi_fd);
         return ServerResult::ok(OK);
     }

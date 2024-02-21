@@ -15,32 +15,40 @@
 # include "Result.hpp"
 # include "SingleFieldValue.hpp"
 
+enum RequestParsePhase {
+    ParsingRequestLine,
+    ParsingRequestHeaders,
+    ParsingRequestBody,
+    ParseCompleted
+};
+
+
 class HttpRequest {
  public:
 	HttpRequest();
 	explicit HttpRequest(const std::string &input);
-    explicit HttpRequest(const std::vector<unsigned char> &input);
 	~HttpRequest();
 
 	StatusCode get_status_code() const;
     void set_status_code(StatusCode new_code);
+    RequestParsePhase get_parse_phase() const;
+    void set_parse_phase(RequestParsePhase new_phase);
+
+    void set_max_body_size(std::size_t max_body_size);
 
 	std::string	get_method() const;
 	std::string get_request_target() const;
 	std::string	get_http_version() const;
+    Result<HostPortPair, StatusCode> get_server_info();
     bool is_buf_empty() const;
 
     static ssize_t recv(int fd, void *buf, std::size_t bufsize);
-    static std::size_t recv_all_data(int fd,
-                                     std::vector<unsigned char> *buf,
-                                     std::size_t max_size);
-    static std::size_t recv_all_data(int fd, std::vector<unsigned char> *buf);
-    Result<ProcResult, StatusCode> recv_request_line_and_header(int fd);
+    std::size_t recv_to_buf(int fd);
+    static std::size_t recv_to_buf(int fd, std::vector<unsigned char> *buf);
 
-    Result<ProcResult, StatusCode> parse_request_line();
-    Result<ProcResult, StatusCode> parse_header();
-    Result<ProcResult, StatusCode> recv_body(int fd, std::size_t max_body_size);
-    Result<HostPortPair, StatusCode> get_server_info();
+    Result<ProcResult, StatusCode> parse_http_request();
+    Result<ProcResult, StatusCode> parse_start_line_and_headers();
+    Result<ProcResult, StatusCode> parse_body();
 
 	bool is_field_name_supported_parsing(const std::string &field_name);
 	bool is_valid_field_name_registered(const std::string &field_name);
@@ -49,7 +57,8 @@ class HttpRequest {
 	std::map<std::string, FieldValueBase*> get_request_header_fields(void);
 	FieldValueBase * get_field_values(const std::string &field_name) const;
 
-    Result<std::map<std::string, std::string>, StatusCode> get_host() const;
+    Result<std::map<std::string, std::string>, ProcResult> get_host() const;
+    Result<std::size_t, ProcResult> get_content_length() const;
 
 #ifdef UTEST_FRIEND
     friend class HttpRequestFriend;
@@ -60,42 +69,44 @@ class HttpRequest {
 
  private:
 	StatusCode status_code_;
+    RequestParsePhase phase_;
+
 	RequestLine request_line_;
 	std::map<std::string, FieldValueBase *> request_header_fields_;
     std::vector<unsigned char> buf_;
+    std::vector<unsigned char> request_body_;
 
 	typedef Result<int, int> (HttpRequest::*func_ptr)(const std::string&, const std::string&);
 	std::map<std::string, func_ptr> field_value_parser_;
 	std::map<std::string, int> field_name_counter_;
 
+    std::size_t request_max_body_size_;
+
     std::string message_body_;  // todo: delete
+
 
 	HttpRequest(const HttpRequest &other);
 	HttpRequest &operator=(const HttpRequest &rhs);
 
 	/* parse, validate */
-    Result<ProcResult, std::string> recv_start_line(int fd);
-    Result<ProcResult, std::string> recv_until_empty_line(int fd);
     static bool is_crlf_in_buf(const unsigned char buf[], std::size_t size);
-    static bool is_empty_line_in_buf(const unsigned char prev[3],
-                                     const unsigned char buf[],
-                                     std::size_t size);
     static void trim(std::vector<unsigned char> *buf, std::vector<unsigned char>::const_iterator start);
 
-    static Result<std::string, std::string> get_line(const std::vector<unsigned char> &data,
-                                                     std::vector<unsigned char>::const_iterator start,
-                                                     std::vector<unsigned char>::const_iterator *ret);
+    static Result<std::string, ProcResult> get_line(const std::vector<unsigned char> &data,
+                                                    std::vector<unsigned char>::const_iterator start,
+                                                    std::vector<unsigned char>::const_iterator *ret);
+    Result<std::string, ProcResult> pop_line_from_buf();
+
     static void find_crlf(const std::vector<unsigned char> &data,
                           std::vector<unsigned char>::const_iterator start,
                           std::vector<unsigned char>::const_iterator *cr);
-    static void find_empty(const std::vector<unsigned char> &data,
-                           std::vector<unsigned char>::const_iterator start,
-                           std::vector<unsigned char>::const_iterator *ret);
+
 
 	StatusCode parse_and_validate_http_request(const std::string &input);
 	Result<ProcResult, StatusCode> parse_and_validate_field_lines(std::stringstream *ss);
     Result<ProcResult, StatusCode> parse_and_validate_field_lines(const std::string &request_headers);
-    Result<ProcResult, StatusCode> parse_field_line(const std::string &field_line,
+    Result<ProcResult, StatusCode> parse_and_validate_field_line(const std::string &field_line);
+    Result<ProcResult, StatusCode> split_field_line(const std::string &field_line,
                                                     std::string *ret_field_name,
                                                     std::string *ret_field_value);
 	std::string parse_message_body(std::stringstream *ss);
