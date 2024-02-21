@@ -82,8 +82,7 @@ Result<ProcResult, StatusCode> HttpResponse::exec_method(const StatusCode &statu
         return Result<ProcResult, StatusCode>::err(status_code);  // todo: err ? ok?
     }
 
-    std::string target_path = HttpResponse::get_resource_path(
-            this->request_.request_target());
+    std::string target_path = HttpResponse::get_resource_path(this->request_.request_target());
     DEBUG_PRINT(YELLOW, " exec_method 2 path: ", target_path.c_str());
     Method method = HttpMessageParser::get_method(this->request_.method());
     DEBUG_PRINT(YELLOW, " exec_method 3 method: ", method);
@@ -210,13 +209,15 @@ std::string HttpResponse::get_resource_path(const std::string &request_target) {
     std::string normalized = HttpMessageParser::normalize(decoded);
 
     std::string root;
-    Result<std::string, int> root_result = Configuration::get_root(this->server_config_, request_target);
+    Result<std::string, int> root_result = Configuration::get_root(this->server_config_,
+                                                                   request_target);
     if (root_result.is_ok()) {
         root = root_result.get_ok_value();
     }
 
     if (request_target == "/") {
-        Result<std::string, int> index_result = Configuration::get_index(this->server_config_, request_target);
+        Result<std::string, int> index_result = Configuration::get_index(this->server_config_,
+                                                                         request_target);
         std::string index_page;
         if (index_result.is_ok()) {
             index_page = "/" + index_result.get_ok_value();
@@ -224,10 +225,11 @@ std::string HttpResponse::get_resource_path(const std::string &request_target) {
         return root + index_page;
     }
     std::string path = root + request_target;
-    std::string extension = StringHandler::get_extension(path);
-    if (extension.empty()) {
-        path.append("/");
-    }
+    // todo: unused?
+    // std::string extension = StringHandler::get_extension(path);
+    // if (extension.empty()) {
+    //     path.append("/");
+    // }
     return path;
 }
 
