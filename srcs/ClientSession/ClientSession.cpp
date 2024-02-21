@@ -130,6 +130,7 @@ SessionResult ClientSession::process_client_event() {
                 this->status_code_ = response_result.get_err_value();
                 DEBUG_SERVER_PRINT("    request error2, status: %d", this->response_->get_status_code());
             }
+            break;
         }
 
         case kSendingResponse: {
