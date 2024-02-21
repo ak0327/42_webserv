@@ -77,30 +77,6 @@ TEST(TestRequestLine, ResuestLineOK6) {
 	EXPECT_TRUE(result.is_ok());
 }
 
-TEST(TestRequestLine, ResuestLineOK7) {
-	const std::string request_line = "GET . HTTP/1.1";
-	RequestLine request;
-	Result<ProcResult, StatusCode> result;
-
-	result = request.parse_and_validate(request_line);
-	EXPECT_EQ("GET", request.method());
-	EXPECT_EQ(".", request.request_target());
-	EXPECT_EQ("HTTP/1.1", request.http_version());
-	EXPECT_TRUE(result.is_ok());
-}
-
-TEST(TestRequestLine, ResuestLineOK8) {
-	const std::string request_line = "GET - HTTP/1.1";
-	RequestLine request;
-	Result<ProcResult, StatusCode> result;
-
-	result = request.parse_and_validate(request_line);
-	EXPECT_EQ("GET", request.method());
-	EXPECT_EQ("-", request.request_target());
-	EXPECT_EQ("HTTP/1.1", request.http_version());
-	EXPECT_TRUE(result.is_ok());
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 TEST(TestRequestLine, ResuestLineNG1) {
@@ -340,5 +316,29 @@ TEST(TestRequestLine, ResuestLineNG20) {
     EXPECT_EQ("GET", request.method());
     EXPECT_EQ("/", request.request_target());
     EXPECT_EQ("HTTP/1.1\r", request.http_version());
+    EXPECT_TRUE(result.is_err());
+}
+
+TEST(TestRequestLine, ResuestLineNG21) {
+    const std::string request_line = "GET . HTTP/1.1";
+    RequestLine request;
+    Result<ProcResult, StatusCode> result;
+
+    result = request.parse_and_validate(request_line);
+    EXPECT_EQ("GET", request.method());
+    EXPECT_EQ(".", request.request_target());
+    EXPECT_EQ("HTTP/1.1", request.http_version());
+    EXPECT_TRUE(result.is_err());
+}
+
+TEST(TestRequestLine, ResuestLineNG22) {
+    const std::string request_line = "GET - HTTP/1.1";
+    RequestLine request;
+    Result<ProcResult, StatusCode> result;
+
+    result = request.parse_and_validate(request_line);
+    EXPECT_EQ("GET", request.method());
+    EXPECT_EQ("-", request.request_target());
+    EXPECT_EQ("HTTP/1.1", request.http_version());
     EXPECT_TRUE(result.is_err());
 }

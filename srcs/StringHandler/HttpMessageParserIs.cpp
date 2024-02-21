@@ -615,14 +615,13 @@ bool is_asterisk_form(const std::string &str) {
 }
 
 // request-target = origin-form / absolute-form / authority-form / asterisk-form
+//                                                ^^^^^^^^^^^^^^   ^^^^^^^^^^^^^
+//                                                CONNECT method   OPTION method
 bool is_valid_request_target(const std::string &request_target) {
-	if (request_target.empty()) {
+	if (request_target.empty() || request_target[0] != '/') {
 		return false;
 	}
-	return (is_origin_form(request_target)
-			|| is_absolure_form(request_target)
-			|| is_authority_form(request_target)
-			|| is_asterisk_form(request_target));
+	return is_origin_form(request_target) || is_absolure_form(request_target);
 }
 
 /*
