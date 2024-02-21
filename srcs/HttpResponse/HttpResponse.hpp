@@ -105,12 +105,10 @@ class HttpResponse {
 
     // GET
     Result<ProcResult, StatusCode> get_request_body(const std::string &target_path);
-    Result<ProcResult, StatusCode> get_path_content(const std::string &path, bool autoindex);
     void get_error_page(const StatusCode &code);
     static bool is_directory(const std::string &path);
     static bool is_cgi_file(const std::string &path);
     Result<ProcResult, StatusCode> get_file_content(const std::string &file_path,
-                                                    const std::map<std::string, std::string> &mime_types,
                                                     std::vector<unsigned char> *buf);
     Result<ProcResult, StatusCode> get_directory_listing(const std::string &directory_path,
                                                          std::vector<unsigned char> *buf);

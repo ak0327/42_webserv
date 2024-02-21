@@ -36,17 +36,23 @@ bool is_support_content_type(const std::string &path,
 }
 
 
+// todo: get from conf
+std::map<std::string, std::string> mime_types() {
+    std::map<std::string, std::string> mime_types;
+
+    mime_types["html"] = "text/html";
+    mime_types["htm"] = "text/htm";
+    mime_types["jpg"] = "text/htm";
+    return mime_types;
+}
+
+
 Result<ProcResult, StatusCode> HttpResponse::get_file_content(const std::string &file_path,
-                                                              const std::map<std::string, std::string> &mime_types,
                                                               std::vector<unsigned char> *buf) {
     if (!buf) {
         return Result<ProcResult, StatusCode>::err(InternalServerError);
     }
     DEBUG_PRINT(CYAN, "    get_file_content 1 path:[%s]", file_path.c_str());
-    if (!is_support_content_type(file_path, mime_types)) {
-        DEBUG_PRINT(RED, "   not support content: %s", file_path.c_str());
-		return Result<ProcResult, StatusCode>::err(NotAcceptable);
-	}
 
     DEBUG_PRINT(CYAN, "    get_file_content 2");
     std::ifstream file(file_path.c_str(), std::ios::binary);
@@ -55,6 +61,11 @@ Result<ProcResult, StatusCode> HttpResponse::get_file_content(const std::string 
         return Result<ProcResult, StatusCode>::err(NotFound);
     }
     DEBUG_PRINT(CYAN, "    get_file_content 5");
+
+    if (!is_support_content_type(file_path, mime_types())) {
+        DEBUG_PRINT(RED, "   not support content: %s", file_path.c_str());
+		return Result<ProcResult, StatusCode>::err(NotAcceptable);
+	}
 
     file.seekg(0, std::ios::end);
     std::streamsize file_size = file.tellg();
