@@ -25,7 +25,7 @@ TEST(TestSingleFieldValue, SecFetchSiteOK1) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestSingleFieldValue, SecFetchSiteOK2) {
@@ -48,7 +48,7 @@ TEST(TestSingleFieldValue, SecFetchSiteOK2) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestSingleFieldValue, SecFetchSiteOK3) {
@@ -71,7 +71,7 @@ TEST(TestSingleFieldValue, SecFetchSiteOK3) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestSingleFieldValue, SecFetchSiteOK4) {
@@ -94,7 +94,7 @@ TEST(TestSingleFieldValue, SecFetchSiteOK4) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestSingleFieldValue, SecFetchSiteOK5) {
@@ -117,7 +117,7 @@ TEST(TestSingleFieldValue, SecFetchSiteOK5) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestSingleFieldValue, SecFetchSiteOK6) {
@@ -142,7 +142,7 @@ TEST(TestSingleFieldValue, SecFetchSiteOK6) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 /* field_name erase */
@@ -159,7 +159,7 @@ TEST(TestSingleFieldValue, SecFetchSiteNG1) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestSingleFieldValue, SecFetchSiteNG2) {
@@ -174,7 +174,7 @@ TEST(TestSingleFieldValue, SecFetchSiteNG2) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 
@@ -190,5 +190,5 @@ TEST(TestSingleFieldValue, SecFetchSiteNG3) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }

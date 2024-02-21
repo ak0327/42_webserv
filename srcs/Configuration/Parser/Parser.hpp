@@ -23,8 +23,8 @@ class Parser {
 
 	Parser &operator=(const Parser &rhs);
 
-	Result<int, std::string> get_result() const;
-	HttpConfig get_config() const;
+	Result<int, std::string> result() const;
+	HttpConfig config() const;
 
 #ifdef UTEST_FRIEND
 	friend class ParserTestFriend;

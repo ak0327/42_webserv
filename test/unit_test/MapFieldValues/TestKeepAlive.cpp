@@ -30,7 +30,7 @@ TEST(TestMapFieldValues, KeepAlilveOK1) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestMapFieldValues, KeepAlilveOK2) {
@@ -58,7 +58,7 @@ TEST(TestMapFieldValues, KeepAlilveOK2) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestMapFieldValues, KeepAlilveOK3) {
@@ -86,7 +86,7 @@ TEST(TestMapFieldValues, KeepAlilveOK3) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestMapFieldValues, KeepAlilveOK4) {
@@ -113,7 +113,7 @@ TEST(TestMapFieldValues, KeepAlilveOK4) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestMapFieldValues, KeepAlilveOK5) {
@@ -144,7 +144,7 @@ TEST(TestMapFieldValues, KeepAlilveOK5) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 
@@ -176,7 +176,7 @@ TEST(TestMapFieldValues, KeepAlilveOK6) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -192,7 +192,7 @@ TEST(TestMapFieldValues, KeepAlilveNG1) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestMapFieldValues, KeepAlilveNG2) {
@@ -206,7 +206,7 @@ TEST(TestMapFieldValues, KeepAlilveNG2) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestMapFieldValues, KeepAlilveNG3) {
@@ -220,7 +220,7 @@ TEST(TestMapFieldValues, KeepAlilveNG3) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestMapFieldValues, KeepAlilveNG4) {
@@ -234,7 +234,7 @@ TEST(TestMapFieldValues, KeepAlilveNG4) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestMapFieldValues, KeepAlilveNG5) {
@@ -248,7 +248,7 @@ TEST(TestMapFieldValues, KeepAlilveNG5) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestMapFieldValues, KeepAlilveNG6) {
@@ -262,5 +262,5 @@ TEST(TestMapFieldValues, KeepAlilveNG6) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }

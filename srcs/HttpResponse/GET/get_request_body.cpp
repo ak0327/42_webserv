@@ -61,25 +61,24 @@ Result<ProcResult, StatusCode> HttpResponse::get_path_content(const std::string 
         DEBUG_PRINT(CYAN, "  get_content -> file_content");
         result = get_file_content(path, mime_types, &this->body_buf_);
     }
-
     return result;
 }
 
 
-void HttpResponse::get_error_page() {
+void HttpResponse::get_error_page(const StatusCode &code) {
     // get_error_page_path
-    DEBUG_PRINT(CYAN, "  get_error_page 1");
-    Result<std::string, int> result = Configuration::get_error_page_path(this->server_config_,
-                                                                         this->request_.get_request_target(),
-                                                                         this->status_code_);
-    DEBUG_PRINT(CYAN, "  get_error_page 2");
+    DEBUG_PRINT(CYAN, "  get_error_page 1 target: %s, code: %d", this->request_.request_target().c_str(), code);
+    Result<std::string, int> result;
+    result = Configuration::get_error_page_path(this->server_config_,
+                                                this->request_.request_target(),
+                                                code);
     if (result.is_err()) {
-        DEBUG_PRINT(CYAN, "  get_error_page 3 err");
+        DEBUG_PRINT(CYAN, "  get_error_page 2 -> err");
         return;
     }
-    DEBUG_PRINT(CYAN, "  get_error_page 4");
+    DEBUG_PRINT(CYAN, "  get_error_page 3");
     std::string error_page_path = result.get_ok_value();
-    DEBUG_PRINT(CYAN, "  get_error_page 5 error_page_path: %s", error_page_path.c_str());
+    DEBUG_PRINT(CYAN, "  get_error_page 4 error_page_path: %s", error_page_path.c_str());
 
     std::map<std::string, std::string> mime_types;  // todo
     mime_types["html"] = "text/html";
@@ -91,14 +90,14 @@ void HttpResponse::get_error_page() {
 
 
 Result<ProcResult, StatusCode> HttpResponse::get_request_body(const std::string &target_path) {
-    Result<bool, int> autoindex_result = Configuration::is_autoindex_on(this->server_config_,
-                                                                        this->request_.get_request_target());
+    Result<bool, int> result = Configuration::is_autoindex_on(this->server_config_,
+                                                              this->request_.request_target());
 
-    if (autoindex_result.is_err()) {
+    if (result.is_err()) {
         return Result<ProcResult, StatusCode>::err(BadRequest);
     }
     DEBUG_PRINT(CYAN, "  target_path: %s", target_path.c_str());
-    bool autoindex = autoindex_result.get_ok_value();
+    bool autoindex = result.get_ok_value();
     DEBUG_PRINT(CYAN, "  autoindex: %s", autoindex ? "on" : "off");
     return get_path_content(target_path, autoindex);  // todo: mime_type
 }

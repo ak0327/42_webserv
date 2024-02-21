@@ -104,8 +104,7 @@ Result<std::string, StatusCode> get_field_line_by_remove_cr(const std::string &l
 /* constructor, destructor */
 
 HttpRequest::HttpRequest()
-    : status_code_(StatusOk),
-      phase_(ParsingRequestLine),
+    : phase_(ParsingRequestLine),
       buf_(),
       request_body_(),
       field_value_parser_(),
@@ -115,14 +114,13 @@ HttpRequest::HttpRequest()
     init_field_name_counter();
 }
 
-HttpRequest::HttpRequest(const std::string &input)
-    : status_code_(StatusOk),
-      phase_(ParsingRequestLine),
+HttpRequest::HttpRequest(const std::string &input)  // for test
+    : phase_(ParsingRequestLine),
       buf_(),
       request_body_(),
       field_value_parser_(),
       field_name_counter_(),
-      request_max_body_size_(0)  {
+      request_max_body_size_(0) {
 	init_field_name_parser();
 	init_field_name_counter();
 	this->status_code_ = parse_and_validate_http_request(input);
@@ -389,7 +387,7 @@ Result<ProcResult, StatusCode> HttpRequest::parse_body() {
 }
 
 
-Result<HostPortPair, StatusCode> HttpRequest::get_server_info() {
+Result<HostPortPair, StatusCode> HttpRequest::server_info() {
     Result<std::map<std::string, std::string>, ProcResult> result = get_host();
     if (result.is_err()) {
         return Result<HostPortPair, StatusCode>::err(BadRequest);  // 400 Bad Request
@@ -708,23 +706,28 @@ void HttpRequest::init_field_name_parser() {
 }
 
 
-std::string HttpRequest::get_method() const {
-	return this->request_line_.get_method();
+std::string HttpRequest::method() const {
+	return this->request_line_.method();
 }
 
 
-std::string HttpRequest::get_request_target() const {
-	return this->request_line_.get_request_target();
+std::string HttpRequest::request_target() const {
+	return this->request_line_.request_target();
 }
 
 
-std::string HttpRequest::get_http_version() const {
-	return this->request_line_.get_http_version();
+std::string HttpRequest::http_version() const {
+	return this->request_line_.http_version();
 }
 
 
 bool HttpRequest::is_buf_empty() const {
     return this->buf_.empty();
+}
+
+
+StatusCode HttpRequest::status_code() const {
+    return this->status_code_;
 }
 
 
@@ -744,17 +747,7 @@ std::map<std::string, FieldValueBase*> HttpRequest::get_request_header_fields(vo
 }
 
 
-StatusCode HttpRequest::get_status_code() const {
-	return this->status_code_;
-}
-
-
-void HttpRequest::set_status_code(StatusCode new_code) {
-    this->status_code_ = new_code;
-}
-
-
-RequestParsePhase HttpRequest::get_parse_phase() const {
+RequestParsePhase HttpRequest::parse_phase() const {
     return this->phase_;
 }
 

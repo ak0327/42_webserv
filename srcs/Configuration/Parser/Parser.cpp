@@ -199,10 +199,10 @@ void Parser::fill_unspecified_server_name(HttpConfig *http_config) {
 }
 
 
-Result<int, std::string> Parser::get_result() const { return result_; }
+Result<int, std::string> Parser::result() const { return result_; }
 
 
-HttpConfig Parser::get_config() const { return http_config_; }
+HttpConfig Parser::config() const { return http_config_; }
 
 
 bool Parser::is_at_end(TokenItr *current, const TokenItr end) {

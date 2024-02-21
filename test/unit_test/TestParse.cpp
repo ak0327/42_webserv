@@ -100,8 +100,8 @@ TEST(TestParser, ParseOK) {
 
     expected.servers.push_back(server_config);
 
-    actual = parser1.get_config();
-    result = parser1.get_result();
+    actual = parser1.config();
+    result = parser1.result();
 
     // print_error_msg(result, __LINE__);
     EXPECT_TRUE(result.is_ok());
@@ -127,8 +127,8 @@ TEST(TestParser, ParseOK) {
 
     expected.servers.push_back(server_config);
 
-    actual = parser2.get_config();
-    result = parser2.get_result();
+    actual = parser2.config();
+    result = parser2.result();
 
     // print_error_msg(result, __LINE__);
     EXPECT_TRUE(result.is_ok());
@@ -201,8 +201,8 @@ TEST(TestParser, ParseOK) {
 
     expected.servers.push_back(server_config);
 
-    actual = parser3.get_config();
-    result = parser3.get_result();
+    actual = parser3.config();
+    result = parser3.result();
 
     // print_error_msg(result, __LINE__);
     EXPECT_TRUE(result.is_ok());
@@ -217,7 +217,7 @@ TEST(TestParser, ParseHttpBlockOK) {
         debug_print("path: " + *itr, __LINE__);
 
         Parser parser(itr->c_str());
-        Result<int, std::string> result = parser.get_result();
+        Result<int, std::string> result = parser.result();
         EXPECT_TRUE(result.is_ok());
     }
 }
@@ -231,7 +231,7 @@ TEST(TestParser, ParseHttpBlockNG) {
 
         Parser parser(itr->c_str());
 
-        Result<int, std::string> result = parser.get_result();
+        Result<int, std::string> result = parser.result();
         print_error_msg(result, __LINE__);
         EXPECT_TRUE(result.is_err());
     }
@@ -245,7 +245,7 @@ TEST(TestParser, ParseServerBlockOK) {
         debug_print("path: " + *itr, __LINE__);
 
         Parser parser(itr->c_str());
-        Result<int, std::string> result = parser.get_result();
+        Result<int, std::string> result = parser.result();
         print_error_msg(result, __LINE__);
         EXPECT_TRUE(result.is_ok());
     }
@@ -260,7 +260,7 @@ TEST(TestParser, ParseServerBlockNG) {
 
         Parser parser(itr->c_str());
 
-        Result<int, std::string> result = parser.get_result();
+        Result<int, std::string> result = parser.result();
         print_error_msg(result, __LINE__);
         EXPECT_TRUE(result.is_err());
     }
@@ -274,7 +274,7 @@ TEST(TestParser, ParseLocationBlockOK) {
         debug_print("path: " + *itr, __LINE__);
 
         Parser parser(itr->c_str());
-        Result<int, std::string> result = parser.get_result();
+        Result<int, std::string> result = parser.result();
         // print_error_msg(result, __LINE__);
         EXPECT_TRUE(result.is_ok());
     }
@@ -289,7 +289,7 @@ TEST(TestParser, ParseLocationBlockNG) {
 
         Parser parser(itr->c_str());
 
-        Result<int, std::string> result = parser.get_result();
+        Result<int, std::string> result = parser.result();
         print_error_msg(result, __LINE__);
         EXPECT_TRUE(result.is_err());
     }

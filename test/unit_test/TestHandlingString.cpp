@@ -40,14 +40,14 @@ TEST(HandlingString, ALLEMPTY_2)
 {
 	const std::string TEST_REQUEST = "a a a\n:\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
-	EXPECT_EQ(httprequest_test1.get_status_code(), 400);
+	EXPECT_EQ(httprequest_test1.status_code(), 400);
 }
 
 TEST(HandlingString, ALLEMPTY_3)
 {
 	const std::string TEST_REQUEST = "a a a\n:::\r\n";
 	HttpRequest httprequest_test1(TEST_REQUEST);
-	EXPECT_EQ(httprequest_test1.get_status_code(), 400);
+	EXPECT_EQ(httprequest_test1.status_code(), 400);
 }
 
 TEST(HandlingString, IS_QUOTED)

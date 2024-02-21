@@ -11,9 +11,9 @@ class RequestLine {
 	RequestLine& operator=(const RequestLine &rhs);
 	~RequestLine();
 
-	std::string	get_method() const;
-	std::string get_request_target() const;
-	std::string	get_http_version() const;
+	std::string	method() const;
+	std::string request_target() const;
+	std::string	http_version() const;
 
 	Result<ProcResult, StatusCode> parse_and_validate(const std::string &line);
 

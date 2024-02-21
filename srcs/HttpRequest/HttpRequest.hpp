@@ -29,17 +29,16 @@ class HttpRequest {
 	explicit HttpRequest(const std::string &input);
 	~HttpRequest();
 
-	StatusCode get_status_code() const;
-    void set_status_code(StatusCode new_code);
-    RequestParsePhase get_parse_phase() const;
+    RequestParsePhase parse_phase() const;
     void set_parse_phase(RequestParsePhase new_phase);
 
     void set_max_body_size(std::size_t max_body_size);
 
-	std::string	get_method() const;
-	std::string get_request_target() const;
-	std::string	get_http_version() const;
-    Result<HostPortPair, StatusCode> get_server_info();
+	std::string	method() const;
+	std::string request_target() const;
+	std::string	http_version() const;
+    StatusCode status_code() const;
+    Result<HostPortPair, StatusCode> server_info();
     bool is_buf_empty() const;
 
     static ssize_t recv(int fd, void *buf, std::size_t bufsize);
@@ -68,7 +67,6 @@ class HttpRequest {
 #endif
 
  private:
-	StatusCode status_code_;
     RequestParsePhase phase_;
 
 	RequestLine request_line_;
@@ -83,6 +81,7 @@ class HttpRequest {
     std::size_t request_max_body_size_;
 
     std::string message_body_;  // todo: delete
+    StatusCode status_code_;  // for test
 
 
 	HttpRequest(const HttpRequest &other);

@@ -25,7 +25,7 @@ TEST(TestSingleFieldValue, ContentLengthOK1) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestSingleFieldValue, ContentLengthOK2) {
@@ -48,7 +48,7 @@ TEST(TestSingleFieldValue, ContentLengthOK2) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestSingleFieldValue, ContentLengthOK3) {
@@ -71,7 +71,7 @@ TEST(TestSingleFieldValue, ContentLengthOK3) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestSingleFieldValue, ContentLengthOK4) {
@@ -94,7 +94,7 @@ TEST(TestSingleFieldValue, ContentLengthOK4) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestSingleFieldValue, ContentLengthOK5) {
@@ -117,7 +117,7 @@ TEST(TestSingleFieldValue, ContentLengthOK5) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 // todo: setting -> NG?
@@ -141,7 +141,7 @@ TEST(TestSingleFieldValue, ContentLengthOK6) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 // todo: setting -> NG?
@@ -165,7 +165,7 @@ TEST(TestSingleFieldValue, ContentLengthOK7) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 // todo: setting -> NG?
@@ -189,7 +189,7 @@ TEST(TestSingleFieldValue, ContentLengthOK8) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestSingleFieldValue, ContentLengthOK9) {
@@ -212,7 +212,7 @@ TEST(TestSingleFieldValue, ContentLengthOK9) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestSingleFieldValue, ContentLengthOK10) {
@@ -235,7 +235,7 @@ TEST(TestSingleFieldValue, ContentLengthOK10) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 
@@ -253,7 +253,7 @@ TEST(TestSingleFieldValue, ContentLength1NG1) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
+	EXPECT_EQ(STATUS_BAD_REQUEST, request.status_code());
 }
 
 TEST(TestSingleFieldValue, ContentLength1NG2) {
@@ -268,7 +268,7 @@ TEST(TestSingleFieldValue, ContentLength1NG2) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
+	EXPECT_EQ(STATUS_BAD_REQUEST, request.status_code());
 }
 
 
@@ -284,6 +284,5 @@ TEST(TestSingleFieldValue, ContentLength1NG3) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
+	EXPECT_EQ(STATUS_BAD_REQUEST, request.status_code());
 }
-

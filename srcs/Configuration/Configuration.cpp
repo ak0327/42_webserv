@@ -14,14 +14,14 @@
 
 Configuration::Configuration(const char *file_path) {
 	Parser parser(file_path);
-    Result<int, std::string> parse_result = parser.get_result();
+    Result<int, std::string> parse_result = parser.result();
 	if (parse_result.is_err()) {
 		const std::string error_msg = parse_result.get_err_value();
 		this->result_ = Result<int, std::string>::err(error_msg);
 		return;
 	}
 
-    this->http_config_ = parser.get_config();
+    this->http_config_ = parser.config();
     set_server_configs();
     Result<int, std::string> result = set_default_servers();
     if (result.is_err()) {

@@ -29,7 +29,7 @@ TEST(TestMapFieldValues, AltUsedOK1) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestMapFieldValues, AltUsedOK2) {
@@ -58,7 +58,7 @@ TEST(TestMapFieldValues, AltUsedOK2) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestMapFieldValues, AltUsedOK3) {
@@ -86,7 +86,7 @@ TEST(TestMapFieldValues, AltUsedOK3) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestMapFieldValues, AltUsedOK4) {
@@ -114,7 +114,7 @@ TEST(TestMapFieldValues, AltUsedOK4) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestMapFieldValues, AltUsedOK5) {
@@ -142,7 +142,7 @@ TEST(TestMapFieldValues, AltUsedOK5) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -158,7 +158,7 @@ TEST(TestMapFieldValues, AltUsedNG1) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestMapFieldValues, AltUsedNG2) {
@@ -172,7 +172,7 @@ TEST(TestMapFieldValues, AltUsedNG2) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestMapFieldValues, AltUsedNG3) {
@@ -186,7 +186,7 @@ TEST(TestMapFieldValues, AltUsedNG3) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestMapFieldValues, AltUsedNG4) {
@@ -200,7 +200,7 @@ TEST(TestMapFieldValues, AltUsedNG4) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestMapFieldValues, AltUsedNG5) {
@@ -214,5 +214,5 @@ TEST(TestMapFieldValues, AltUsedNG5) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }

@@ -57,19 +57,18 @@ class HttpResponse {
 
 	const std::vector<unsigned char> &get_response_message() const;
 
-    Result<ProcResult, StatusCode> exec_method();
+    Result<ProcResult, StatusCode> exec_method(const StatusCode &status_code);
     Result<ProcResult, StatusCode> recv_cgi_result();
     Result<ProcResult, StatusCode> create_cgi_body();
-    Result<ProcResult, StatusCode> create_response_message(StatusCode code);
+    Result<ProcResult, StatusCode> create_response_message(const StatusCode &code);
 
-    int get_cgi_fd() const;
+    int cgi_fd() const;
+    pid_t cgi_pid() const;
     bool is_cgi_processing(int *status);
-    StatusCode get_status_code() const;
-    void set_status_code(StatusCode set_status);
 
     std::size_t recv_to_buf(int fd);
 
-        // todo: util
+    // todo: mv util?
     static Result<std::vector<std::string>, ProcResult> get_interpreter(const std::string &file_path);
 
 #ifdef ECHO
@@ -81,8 +80,6 @@ class HttpResponse {
  private:
     const HttpRequest &request_;
     const ServerConfig &server_config_;
-
-	StatusCode status_code_;
 
     int cgi_read_fd_;
     pid_t cgi_pid_;
@@ -103,13 +100,13 @@ class HttpResponse {
 
 
     std::string get_resource_path(const std::string &request_target);
-    std::string create_status_line(StatusCode code) const;
+    std::string create_status_line(const StatusCode &code) const;
     std::string create_field_lines() const;
 
     // GET
     Result<ProcResult, StatusCode> get_request_body(const std::string &target_path);
     Result<ProcResult, StatusCode> get_path_content(const std::string &path, bool autoindex);
-    void get_error_page();
+    void get_error_page(const StatusCode &code);
     static bool is_directory(const std::string &path);
     static bool is_cgi_file(const std::string &path);
     Result<ProcResult, StatusCode> get_file_content(const std::string &file_path,
@@ -131,14 +128,12 @@ class HttpResponse {
     // POST
 	Result<ProcResult, StatusCode> post_request_body(const std::string &target) {
         (void)target;
-        this->status_code_ = StatusOk;
         return Result<ProcResult, StatusCode>::ok(Success);
     }
 
     // DELETE
 	Result<ProcResult, StatusCode> delete_request_body(const std::string &target) {
         (void)target;
-        this->status_code_ = StatusOk;
         return Result<ProcResult, StatusCode>::ok(Success);
     }
 };

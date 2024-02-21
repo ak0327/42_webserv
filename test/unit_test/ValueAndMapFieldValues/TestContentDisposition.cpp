@@ -48,7 +48,7 @@ TEST(TestValueAndMapFieldValues, ContentDispositionOK1) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestValueAndMapFieldValues, ContentDispositionOK2) {
@@ -95,7 +95,7 @@ TEST(TestValueAndMapFieldValues, ContentDispositionOK2) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestValueAndMapFieldValues, ContentDispositionOK3) {
@@ -141,7 +141,7 @@ TEST(TestValueAndMapFieldValues, ContentDispositionOK3) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestValueAndMapFieldValues, ContentDispositionOK4) {
@@ -187,7 +187,7 @@ TEST(TestValueAndMapFieldValues, ContentDispositionOK4) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 
@@ -205,7 +205,7 @@ TEST(TestValueAndMapFieldValues, ContentDispositionNG1) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestValueAndMapFieldValues, ContentDispositionNG2) {
@@ -220,7 +220,7 @@ TEST(TestValueAndMapFieldValues, ContentDispositionNG2) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestValueAndMapFieldValues, ContentDispositionNG3) {
@@ -235,7 +235,7 @@ TEST(TestValueAndMapFieldValues, ContentDispositionNG3) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestValueAndMapFieldValues, ContentDispositionNG4) {
@@ -250,5 +250,5 @@ TEST(TestValueAndMapFieldValues, ContentDispositionNG4) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }

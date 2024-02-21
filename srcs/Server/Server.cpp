@@ -28,7 +28,7 @@ const int MAX_SESSION = 128;
 void stop_by_signal(int sig) {
 	DEBUG_SERVER_PRINT("stop by signal %d", sig);
 	std::cerr << "[Server] Stop running by signal" << std::endl;
-	std::exit(0);
+	std::exit(EXIT_SUCCESS);
 }
 
 
@@ -337,7 +337,7 @@ void Server::update_fd_type_read_to_write(const SessionState &session_state, int
 
 void Server::delete_session(std::map<Fd, ClientSession *>::iterator session) {
     ClientSession *client_session = session->second;
-    int client_fd = client_session->get_client_fd();
+    int client_fd = client_session->client_fd();
 
     this->fds_->clear_fd(client_fd);
     delete client_session;
@@ -369,7 +369,7 @@ void Server::init_session(ClientSession *session) {
     if (!session) {
         return;
     }
-    int client_fd = session->get_client_fd();
+    int client_fd = session->client_fd();
     update_fd_type(client_fd, kWriteFd, kReadFd);
     session->set_session_state(kReadingRequest);
     session->clear_request();
@@ -385,10 +385,10 @@ ServerResult Server::process_session(int ready_fd) {
 
     SessionResult result;
     ClientSession *client_session = session->second;
-    if (ready_fd == client_session->get_client_fd()) {
+    if (ready_fd == client_session->client_fd()) {
         DEBUG_SERVER_PRINT("process_client_event");
         result = client_session->process_client_event();
-    } else if (ready_fd == client_session->get_cgi_fd()) {
+    } else if (ready_fd == client_session->cgi_fd()) {
         DEBUG_SERVER_PRINT("process_file_event");
         result = client_session->process_file_event();
     } else {
@@ -404,12 +404,12 @@ ServerResult Server::process_session(int ready_fd) {
         return ServerResult::ok(OK);
     }
     if (result.get_ok_value() == ExecutingCgi) {
-        int cgi_fd = client_session->get_cgi_fd();
+        int cgi_fd = client_session->cgi_fd();
         this->fds_->register_read_fd(cgi_fd);
         return ServerResult::ok(OK);
     }
 
-    update_fd_type_read_to_write(client_session->get_session_state(), ready_fd);
+    update_fd_type_read_to_write(client_session->session_state(), ready_fd);
 
     if (client_session->is_session_state_expect_to(kSessionCompleted)) {
         DEBUG_SERVER_PRINT("client process completed: fd %d -> close", ready_fd);
