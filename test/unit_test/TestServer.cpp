@@ -51,7 +51,7 @@ void *run_server(void *server_info) {
         if (init_result.is_err()) {
             throw std::runtime_error(init_result.get_err_value());
         }
-        server.set_timeout(500);
+        server.set_timeout(1500);
 		DEBUG_SERVER_PRINT("connecting...");
 
         ServerResult running_result = server.run();

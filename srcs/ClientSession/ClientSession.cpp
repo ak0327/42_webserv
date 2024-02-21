@@ -162,6 +162,7 @@ ProcResult ClientSession::recv_http_request() {
             this->request_ = new HttpRequest();
         }
         catch (const std::exception &e) {
+            DEBUG_SERVER_PRINT("error: fail to memory allocate");  // todo: logging
             return FatalError;
         }
     }
@@ -204,7 +205,7 @@ Result<ProcResult, StatusCode> ClientSession::parse_http_request() {
         Result<ProcResult, std::string> update_result = update_config_params();
         if (update_result.is_err()) {
             DEBUG_SERVER_PRINT("               ParsingRequest 5");
-            DEBUG_SERVER_PRINT("    request error config update error");
+            DEBUG_SERVER_PRINT("    request error config update error: %s", update_result.get_err_value().c_str());  // todo: logging
             return Result<ProcResult, StatusCode>::err(NotFound);  // todo: code?
         }
         this->request_->set_parse_phase(ParsingRequestBody);
