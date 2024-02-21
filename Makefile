@@ -6,6 +6,7 @@ CXXFLAGS	+=	-g -fsanitize=address,undefined -fno-omit-frame-pointer
 CXXFLAGS	+=	-D USE_SELECT
 CXXFLAGS	+=	-D DEBUG
 #CXXFLAGS	+=	-D ECHO
+#CXXFLAGS	+=	-D LEAKS
 
 # SRCS -------------------------------------------------------------------------
 SRCS_DIR	=	srcs
