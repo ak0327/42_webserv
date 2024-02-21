@@ -14,10 +14,11 @@ enum SessionState {
     kSessionInit,
     kReceivingRequest,
     kParsingRequest,
+    kReceivingBody,
 
     kReadingRequest,
+    kExecutingMethod,
     kCreatingResponse,
-    kCreatingResponseBody,
     kCreatingCGIBody,
     kReadingFile,
     kExecutingCGI,
@@ -63,19 +64,17 @@ class ClientSession {
     ServerConfig server_config_;
 
     SessionState session_state_;
+    StatusCode status_code_;
 
     HttpRequest *request_;  // todo: ptr; tmp & delete for next session
     HttpResponse *response_;  // todo: ptr; tmp & delete for next session
 
-    std::string recv_message_;
-    // std::vector<unsigned char> recv_message_;  // todo
-    // std::vector<unsigned char> data_; -> request, response
     std::size_t request_max_body_size_;
 
     AddressPortPair client_listen_;
 
-    Result<ProcResult, StatusCode> recv_request();
-    Result<ProcResult, StatusCode> send_response();
+    ProcResult recv_http_request();
+    ProcResult send_http_response();
 
     Result<ProcResult, StatusCode> parse_http_request();
     Result<ProcResult, StatusCode> create_http_response();

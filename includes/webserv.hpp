@@ -9,7 +9,8 @@ enum ProcResult {
     Success,
     Continue,
     ExecutingCgi,
+    PrepareNextProc,
     
-    Failure  // todo
-    
+    Failure,
+    FatalError
 };

@@ -16,6 +16,7 @@ TEST(HttpRequestParser, GetLine) {
 
     expected = "abc";
     line = "abc\r\nd";
+    //             ^ret
     data.assign(line.begin(), line.end());
 
     result = HttpRequestFriend::get_line(data, data.begin(), &ret);
@@ -28,6 +29,7 @@ TEST(HttpRequestParser, GetLine) {
 
     expected = "abc";
     line = "abc\r\n";
+    //             ^ret
     data.assign(line.begin(), line.end());
 
     result = HttpRequestFriend::get_line(data, data.begin(), &ret);
@@ -39,6 +41,7 @@ TEST(HttpRequestParser, GetLine) {
 
     expected = "a\rb\nc\n\rd";
     line = "a\rb\nc\n\rd\r\ne";
+    //                      ^ret
     data.assign(line.begin(), line.end());
 
     result = HttpRequestFriend::get_line(data, data.begin(), &ret);
@@ -51,6 +54,7 @@ TEST(HttpRequestParser, GetLine) {
 
     expected = "a\rb\nc\n\rd";
     line = "a\rb\nc\n\rd\r\n\r\ne";
+    //                       ^ret
     data.assign(line.begin(), line.end());
 
     result = HttpRequestFriend::get_line(data, data.begin(), &ret);
@@ -63,6 +67,7 @@ TEST(HttpRequestParser, GetLine) {
 
     expected = "";
     line = "\r\nabc";
+    //          ^ret
     data.assign(line.begin(), line.end());
 
     result = HttpRequestFriend::get_line(data, data.begin(), &ret);
@@ -75,6 +80,7 @@ TEST(HttpRequestParser, GetLine) {
 
     expected = "";
     line = "\r\n";
+    //          ^ret
     data.assign(line.begin(), line.end());
 
     result = HttpRequestFriend::get_line(data, data.begin(), &ret);
@@ -86,6 +92,7 @@ TEST(HttpRequestParser, GetLine) {
 
     expected = "";
     line = "\r\n\r\n";
+    //           ^ret
     data.assign(line.begin(), line.end());
 
     result = HttpRequestFriend::get_line(data, data.begin(), &ret);
@@ -97,6 +104,7 @@ TEST(HttpRequestParser, GetLine) {
 
     expected = "";
     line = "\r\n\n";
+    //           ^ret
     data.assign(line.begin(), line.end());
 
     result = HttpRequestFriend::get_line(data, data.begin(), &ret);
@@ -107,6 +115,7 @@ TEST(HttpRequestParser, GetLine) {
 
 
     line = "abc\r";
+    //            ^ret
     data.assign(line.begin(), line.end());
 
     result = HttpRequestFriend::get_line(data, data.begin(), &ret);
@@ -115,6 +124,7 @@ TEST(HttpRequestParser, GetLine) {
 
 
     line = "abc";
+    //          ^ret
     data.assign(line.begin(), line.end());
 
     result = HttpRequestFriend::get_line(data, data.begin(), &ret);
@@ -123,6 +133,7 @@ TEST(HttpRequestParser, GetLine) {
 
 
     line = "";
+    //       ^ret
     data.assign(line.begin(), line.end());
 
     result = HttpRequestFriend::get_line(data, data.begin(), &ret);
@@ -254,61 +265,6 @@ TEST(HttpRequestParser, FindCRLF) {
     data.assign(str.begin(), str.end());
     expected = data.begin();
     HttpRequestFriend::find_crlf(data, data.begin(), &actual);
-    EXPECT_EQ(expected, actual);
-}
-
-
-TEST(HttpRequestParser, FindEmpty) {
-    std::vector<unsigned char> data;
-    std::vector<unsigned char>::const_iterator actual, expected;
-    std::string str;
-
-    str = "ab\r\n\r\ncde";
-    //       ^
-    data.assign(str.begin(), str.end());
-    expected = data.begin() + 2;
-    HttpRequestFriend::find_empty(data, data.begin(), &actual);
-
-    EXPECT_EQ(expected, actual);
-
-
-    str = "ab\r\ncd\r\n\ref\r\n\r\n";
-    //                      ^
-    data.assign(str.begin(), str.end());
-    expected = data.end() - 4;
-    HttpRequestFriend::find_empty(data, data.begin(), &actual);
-    EXPECT_EQ(expected, actual);
-
-
-    str = "ab\r\ncd\r\n\ref\r";
-    //                       ^
-    data.assign(str.begin(), str.end());
-    expected = data.end();
-    HttpRequestFriend::find_empty(data, data.begin(), &actual);
-    EXPECT_EQ(expected, actual);
-
-
-    str = "ab";
-    //       ^
-    data.assign(str.begin(), str.end());
-    expected = data.end();
-    HttpRequestFriend::find_empty(data, data.begin(), &actual);
-    EXPECT_EQ(expected, actual);
-
-
-    str = "";
-    //      ^
-    data.assign(str.begin(), str.end());
-    expected = data.end();
-    HttpRequestFriend::find_empty(data, data.begin(), &actual);
-    EXPECT_EQ(expected, actual);
-
-
-    str = "\r\n\r\n";
-    //     ^
-    data.assign(str.begin(), str.end());
-    expected = data.begin();
-    HttpRequestFriend::find_empty(data, data.begin(), &actual);
     EXPECT_EQ(expected, actual);
 }
 

@@ -86,7 +86,8 @@ enum StatusCode {
     MethodNotAllowed        = 405,
     NotAcceptable           = 406,
     RequestTimeout          = 408,
-    RequestEntityTooLarge   = 413,
+    LengthRequired          = 411,
+    ContentTooLarge         = 413,
 
     InternalServerError     = 500,
     NotImplemented          = 501,
