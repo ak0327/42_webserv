@@ -6,7 +6,7 @@ permissions:
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [labeled, unlabeled]
     branches-ignore:
       - master
       - main
