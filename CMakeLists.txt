@@ -307,7 +307,7 @@ set (unit_test_srcs
         # ValueAndMapFieldValues
         test/unit_test/ValueAndMapFieldValues/TestContentDisposition.cpp
 
-        # GET
+        # GET -> uncomment after implement GET
 #        test/unit_test/HttpResponse/GET/TestAutoIndex.cpp
 #        test/unit_test/HttpResponse/GET/TestCGI.cpp
 #        test/unit_test/HttpResponse/GET/TestGetInterpreter.cpp
