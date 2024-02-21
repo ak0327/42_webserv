@@ -88,7 +88,7 @@ std::map<StatusCode, std::string> init_reason_phrases() {
     reason_phrases[NotAcceptable]           = "Not Acceptable";
     reason_phrases[RequestTimeout]          = "Request Timeout";
     reason_phrases[LengthRequired]          = "Length Required";
-    reason_phrases[ContentTooLarge]   = "Request";
+    reason_phrases[ContentTooLarge]         = "Content Too Large";
 
     reason_phrases[InternalServerError]     = "Internal Server Error";
     reason_phrases[NotImplemented]          = "Not Implemented";
@@ -407,9 +407,9 @@ std::vector<std::string> init_ignore_headers() {
 	std::vector<std::string> ignore_headers;
 
 	ignore_headers.push_back(ACCEPT_CHARSET);
-    ignore_headers.push_back(SEC_CH_UA);
-    ignore_headers.push_back(SEC_CH_UA_MOBILE);
-    ignore_headers.push_back(SEC_CH_UA_PLATFORM);
+    ignore_headers.push_back(SEC_CH_UA);            // for chrome
+    ignore_headers.push_back(SEC_CH_UA_MOBILE);     // for chrome
+    ignore_headers.push_back(SEC_CH_UA_PLATFORM);   // for chrome
 	return ignore_headers;
 }
 
