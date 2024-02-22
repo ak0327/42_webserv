@@ -51,6 +51,7 @@ class Server {
     Result<IOMultiplexer *, std::string> create_io_multiplexer_fds();
 
     bool is_socket_fd(int fd) const;
+    bool is_fd_type_expect(int fd, const FdType &type);
     void delete_sockets();
     void delete_session(std::map<Fd, ClientSession *>::iterator session);
     void close_client_fd(int fd);
