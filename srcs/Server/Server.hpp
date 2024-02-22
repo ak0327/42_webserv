@@ -15,6 +15,8 @@
 # include "Socket.hpp"
 
 typedef Result<int, std::string> ServerResult;
+typedef Fd CgiFd;
+typedef Fd ClientFd;
 
 class Server {
  public:

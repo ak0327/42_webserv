@@ -25,6 +25,7 @@ enum SessionState {
 
     kReadingFile,
     kExecutingCGI,
+    kExecutedCGI,
     kSendingResponse,
     kSessionCompleted,
     kSessionError
@@ -57,6 +58,7 @@ class ClientSession {
     void close_client_fd();
     void clear_request();
     void clear_response();
+    void clear_cgi();
 
     static AddressPortPair get_client_listen(const struct sockaddr_storage &client_addr);
 

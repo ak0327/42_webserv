@@ -13,6 +13,7 @@
 #include <vector>
 #include "Color.hpp"
 #include "Constant.hpp"
+#include "Debug.hpp"
 #include "Error.hpp"
 #include "HttpResponse.hpp"
 #include "IOMultiplexer.hpp"
@@ -54,6 +55,8 @@ int HttpResponse::execute_cgi_script_in_child(int socket_fds[2],
     std::vector<char *> argv;  // todo: char *const argv[]
     (void)query;  // todo
 
+    DEBUG_PRINT(CYAN, "    cgi(child) 1");
+
     interpreter_result = HttpResponse::get_interpreter(file_path);
     if (interpreter_result.is_err()) {
         std::exit(EXIT_FAILURE);
@@ -62,6 +65,7 @@ int HttpResponse::execute_cgi_script_in_child(int socket_fds[2],
 
     argv = get_argv_for_execve(interpreter, file_path);
 
+    DEBUG_PRINT(CYAN, "    cgi(child) 2");
     errno = 0;
     if (close(socket_fds[READ]) == CLOSE_ERROR) {
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
@@ -69,12 +73,14 @@ int HttpResponse::execute_cgi_script_in_child(int socket_fds[2],
         std::exit(EXIT_FAILURE);
     }
 
+    DEBUG_PRINT(CYAN, "    cgi(child) 3");
     errno = 0;
     if (dup2(socket_fds[WRITE], STDOUT_FILENO) == DUP_ERROR) {
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
         std::cerr << error_msg << std::endl;  // todo: tmp -> log?
         std::exit(EXIT_FAILURE);
     }
+    DEBUG_PRINT(CYAN, "    cgi(child) 4");
 
     errno = 0;
     if (close(socket_fds[WRITE]) == CLOSE_ERROR) {
@@ -82,6 +88,7 @@ int HttpResponse::execute_cgi_script_in_child(int socket_fds[2],
         std::cerr << error_msg << std::endl;  // todo: tmp -> log?
         std::exit(EXIT_FAILURE);
     }
+    DEBUG_PRINT(CYAN, "    cgi(child) 5");
 
     errno = 0;
     if (execve(argv[0], argv.data(), environ) == EXECVE_ERROR) {
@@ -89,6 +96,7 @@ int HttpResponse::execute_cgi_script_in_child(int socket_fds[2],
         std::cerr << error_msg << std::endl;  // todo: tmp -> log?
         std::exit(EXIT_FAILURE);
     }
+    DEBUG_PRINT(CYAN, "    cgi(child) 6");
     std::exit(EXIT_FAILURE);
 }
 
@@ -109,23 +117,21 @@ Result<std::vector<std::string>, ProcResult> HttpResponse::get_interpreter(const
         return Result<std::vector<std::string>, ProcResult>::err(Failure);
     }
     std::string shebang_line;
-    std::string	word;
     std::getline(file, shebang_line);
 
-    std::istringstream	iss(shebang_line);
-
+    std::istringstream iss(shebang_line);
     std::vector<std::string> interpreter;
+    std::string	word;
     while (getline(iss, word, ' ')) {
         interpreter.push_back(word);
     }
     file.close();
 
-    std::vector<std::string>::iterator itr;
-    itr = interpreter.begin();
-    if (itr == interpreter.end()) {
+    if (interpreter.empty()) {
         return Result<std::vector<std::string>, ProcResult>::err(Failure);
     }
 
+    std::vector<std::string>::iterator itr = interpreter.begin();
     const std::size_t kSHEBANG_LEN = 2;
     if (kSHEBANG_LEN <= (*itr).length() && (*itr)[0] == '#' && (*itr)[1] == '!') {
         *itr = (*itr).substr(kSHEBANG_LEN);
@@ -168,6 +174,8 @@ StatusCode HttpResponse::exec_cgi(const std::string &file_path,
     int socket_fds[2];
     pid_t pid;
 
+    DEBUG_PRINT(CYAN, "   cgi 1");
+
     if (!cgi_read_fd || !cgi_pid) {
         return InternalServerError;  // todo: tmp
     }
@@ -179,6 +187,8 @@ StatusCode HttpResponse::exec_cgi(const std::string &file_path,
         return InternalServerError;  // todo: tmp
     }
 
+    DEBUG_PRINT(CYAN, "   cgi 2");
+
     errno = 0;
     pid = fork();
     if (pid == FORK_ERROR) {
@@ -187,10 +197,12 @@ StatusCode HttpResponse::exec_cgi(const std::string &file_path,
         return InternalServerError;  // todo: tmp
     }
 
+    DEBUG_PRINT(CYAN, "   cgi 3");
     if (pid == CHILD_PROC) {
         std::string query;  // todo: get query
         std::exit(execute_cgi_script_in_child(socket_fds, file_path, query));
     }
+    DEBUG_PRINT(CYAN, "   cgi 4");
 
     errno = 0;
     if (close(socket_fds[WRITE]) == CLOSE_ERROR) {
@@ -201,5 +213,6 @@ StatusCode HttpResponse::exec_cgi(const std::string &file_path,
     }
     *cgi_read_fd = socket_fds[READ];
     *cgi_pid = pid;
+    DEBUG_PRINT(CYAN, "   cgi 5");
     return StatusOk;
 }

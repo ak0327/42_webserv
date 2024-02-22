@@ -34,6 +34,11 @@ HttpResponse::HttpResponse(const HttpRequest &request,
 
 
 HttpResponse::~HttpResponse() {
+    clear_cgi();
+}
+
+
+void HttpResponse::clear_cgi() {
     kill_cgi_process();
     close_cgi_fd();
 }
@@ -221,11 +226,14 @@ std::size_t HttpResponse::recv_to_buf(int fd) {
 Result<ProcResult, StatusCode> HttpResponse::recv_cgi_result() {
     std::size_t recv_size = this->recv_to_buf(cgi_fd());
     (void)recv_size;
+    std::string debug_buf(this->body_buf_.begin(), this->body_buf_.end());
+    // DEBUG_PRINT(YELLOW, "     buf:[%s]", debug_buf.c_str());
 
     int process_exit_status;
     if (this->is_cgi_processing(&process_exit_status)) {
         return Result<ProcResult, StatusCode>::ok(Continue);
     }
+    // DEBUG_PRINT(YELLOW, "     process_exit_status: %d", process_exit_status);
     if (process_exit_status != EXIT_SUCCESS) {
         return Result<ProcResult, StatusCode>::err(InternalServerError);
     }
@@ -235,23 +243,32 @@ Result<ProcResult, StatusCode> HttpResponse::recv_cgi_result() {
 
 
 bool HttpResponse::is_cgi_processing(int *status) {
+    // DEBUG_PRINT(YELLOW, "    is_cgi_processing 1");
     if (this->cgi_pid_ == INIT_PID) {
+        // DEBUG_PRINT(YELLOW, "    is_cgi_processing 2");
         return false;
     }
     int child_status;
     errno = 0;
     pid_t wait_result = waitpid(this->cgi_pid_, &child_status, WNOHANG);
-    if (errno != 0) {
-        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+    int tmp_err = errno;
+    // DEBUG_PRINT(YELLOW, "    wait_result: %d, errno: %d, ECHILD: %d", wait_result, tmp_err, ECHILD);
+    if (tmp_err != 0) {
+        // DEBUG_PRINT(YELLOW, "    is_cgi_processing 3");
+        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(tmp_err);
         std::cerr << error_msg << std::endl;  // todo: log
     }
-    if (wait_result == PROCESSING || (wait_result == WAIT_ERROR && errno != ECHILD)) {
+    if (wait_result == PROCESSING || (wait_result == WAIT_ERROR && tmp_err != ECHILD)) {
+        // DEBUG_PRINT(YELLOW, "    is_cgi_processing 4");
         return true;
     }
 
+    // DEBUG_PRINT(YELLOW, "    is_cgi_processing 5");
     if (0 < wait_result && status) {
+        // DEBUG_PRINT(YELLOW, "    is_cgi_processing 6");
         *status = WEXITSTATUS(child_status);
     }
+    // DEBUG_PRINT(YELLOW, "    is_cgi_processing 7");
     this->cgi_pid_ = INIT_PID;
     return false;
 }

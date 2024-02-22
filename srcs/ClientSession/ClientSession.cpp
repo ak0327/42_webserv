@@ -45,6 +45,7 @@ void ClientSession::clear_request() {
     }
 }
 
+
 void ClientSession::clear_response() {
     if (this->response_) {
         delete this->response_;
@@ -58,6 +59,11 @@ void ClientSession::close_client_fd() {
         close(this->client_fd_);
         this->client_fd_ = INIT_FD;
     }
+}
+
+
+void ClientSession::clear_cgi() {
+    this->response_->clear_cgi();
 }
 
 
@@ -85,6 +91,7 @@ SessionResult ClientSession::process_client_event() {
     Result<ProcResult, StatusCode> request_result;
     Result<ProcResult, StatusCode> response_result, response_body_result;
     StatusCode error_code;
+    DEBUG_SERVER_PRINT("  client_event start");
 
     switch (this->session_state_) {
         case kSessionInit: {
@@ -122,7 +129,11 @@ SessionResult ClientSession::process_client_event() {
         }
         // fallthrough
 
-        case kCreatingResponse: {
+        case kCreatingResponse:
+        case kExecutingMethod:
+        case kCreatingResponseBody:
+        case kCreatingCGIBody: {
+            DEBUG_SERVER_PRINT("   Session: 3 CreatingResponse");
             response_result = create_http_response();
             if (is_executing_cgi(response_result)) {
                 this->set_session_state(kExecutingCGI);
@@ -137,7 +148,7 @@ SessionResult ClientSession::process_client_event() {
         }
 
         case kSendingResponse: {
-            DEBUG_SERVER_PRINT("   Session: 6 SendingResponse");
+            DEBUG_SERVER_PRINT("   Session: 4 SendingResponse");
             send_result = send_http_response();
             if (send_result == Failure) {
                 DEBUG_SERVER_PRINT("    request error4");
@@ -152,6 +163,7 @@ SessionResult ClientSession::process_client_event() {
             // kReadingFile, kExecutingCGI -> process_file_event()
             break;
     }
+    DEBUG_SERVER_PRINT("  client_event end");
     return SessionResult::ok(Success);
 }
 
@@ -237,9 +249,10 @@ Result<ProcResult, StatusCode> ClientSession::create_http_response() {
     Result<ProcResult, StatusCode> method_result, body_result;
     StatusCode error_code;
 
+    DEBUG_SERVER_PRINT("    CreatingResponse status: %d", this->status_code());
     switch (this->session_state_) {
         case kExecutingMethod: {
-            DEBUG_SERVER_PRINT("   Session: 3 CreatingResponse status: %d", this->status_code());
+            DEBUG_SERVER_PRINT("     ExecutingMethod");
             method_result = execute_each_method();  // todo: rename
             if (method_result.is_ok() && method_result.get_ok_value() == ExecutingCgi) {
                 this->set_session_state(kExecutingCGI);
@@ -269,7 +282,7 @@ Result<ProcResult, StatusCode> ClientSession::create_http_response() {
         }
 
         case kCreatingCGIBody: {
-            DEBUG_SERVER_PRINT("   Session: 5 CreatingCGIBody");
+            DEBUG_SERVER_PRINT("     CreatingCGIBody");
             body_result = this->response_->create_cgi_body();
             if (body_result.is_err()) {
                 DEBUG_SERVER_PRINT("    request error3, status: %d", body_result.get_err_value());
@@ -277,7 +290,7 @@ Result<ProcResult, StatusCode> ClientSession::create_http_response() {
                 this->set_status(error_code);
             }
             this->set_session_state(kCreatingResponseBody);
-            break;
+            return create_http_response();  // todo: complex??
         }
 
         default:
@@ -422,22 +435,27 @@ SessionResult ClientSession::process_file_event() {
             break;
 
         case kExecutingCGI:
+            DEBUG_PRINT(YELLOW, "   FileEvent Recv");
             cgi_result = this->response_->recv_cgi_result();
             if (cgi_result.is_err()) {
                 error_code = cgi_result.get_err_value();
                 this->set_status(error_code);  // todo: code?
                 this->set_session_state(kSessionError);
-                return SessionResult::err("error: file event error");
+                DEBUG_PRINT(YELLOW, "    recv error, status: %d", error_code);
+                const std::string error_msg = CREATE_ERROR_INFO_STR("error: file event error");
+                return SessionResult::err(error_msg);
             }
             if (is_continue_recv(cgi_result)) {
+                DEBUG_PRINT(YELLOW, "    recv continue");
                 return SessionResult::ok(Continue);
             }
-            this->set_session_state(kCreatingResponse);
+            DEBUG_PRINT(YELLOW, "    recv finish");
+            this->set_session_state(kCreatingCGIBody);
             break;
 
         default:
-            std::cerr << "Unknown session state." << std::endl;
-            return SessionResult::err("error: unknown session state in file event");
+            const std::string error_msg = CREATE_ERROR_INFO_STR("error: unknown session state in file event");
+            return SessionResult::err(error_msg);
     }
     return SessionResult::ok(Success);
 }
