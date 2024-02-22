@@ -143,6 +143,7 @@ const char SIGN_MINUS = '-';
 const char CR = '\r';
 const char HT = '\t';
 const char LF = '\n';
+const char NL = '\n';
 const char SP = ' ';
 
 const char CRLF[] = "\r\n";

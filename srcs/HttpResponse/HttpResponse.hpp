@@ -7,6 +7,7 @@
 # include <vector>
 # include "webserv.hpp"
 # include "ConfigStruct.hpp"
+# include "MediaType.hpp"
 # include "HttpRequest.hpp"
 # include "Result.hpp"
 
@@ -60,7 +61,7 @@ class HttpResponse {
 
     Result<ProcResult, StatusCode> exec_method(const StatusCode &status_code);
     Result<ProcResult, StatusCode> recv_cgi_result();
-    Result<ProcResult, StatusCode> create_cgi_document_response();
+    StatusCode parse_cgi_document_response();
     Result<ProcResult, StatusCode> create_response_message(const StatusCode &code);
 
     int cgi_fd() const;
@@ -90,6 +91,7 @@ class HttpResponse {
 
     int cgi_read_fd_;
     pid_t cgi_pid_;
+    MediaType *media_type_;
 
 	/* response message */
 	std::string status_line_;
@@ -126,6 +128,16 @@ class HttpResponse {
     std::vector<char *> get_argv_for_execve(const std::vector<std::string> &interpreter,
                                             const std::string &file_path);
     bool is_exec_timeout(time_t start_time, int timeout_sec);
+    StatusCode parse_cgi_output();
+    void find_nl(const std::vector<unsigned char> &data,
+                 std::vector<unsigned char>::const_iterator start,
+                 std::vector<unsigned char>::const_iterator *nl);
+    Result<std::string, ProcResult> get_line(const std::vector<unsigned char> &data,
+                                             std::vector<unsigned char>::const_iterator start,
+                                             std::vector<unsigned char>::const_iterator *ret);
+    Result<std::string, ProcResult> pop_line_from_buf();
+    void clear_media_type();
+    bool is_cgi_response();
 
     // POST
 	StatusCode post_request_body(const std::string &target) {
