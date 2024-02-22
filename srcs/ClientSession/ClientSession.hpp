@@ -12,24 +12,26 @@
 
 enum SessionState {
     kSessionInit,
+
     kReceivingRequest,
     kParsingRequest,
     kReceivingBody,
 
     kReadingRequest,
-    kCreatingResponse,
 
     kExecutingMethod,
     kCreatingResponseBody,
     kCreatingCGIBody,
 
-    kReadingFile,
+    kReadingFile,  // unused
     kExecutingCGI,
-    kExecutedCGI,
+
     kSendingResponse,
+
     kSessionCompleted,
     kSessionError
 };
+
 
 typedef Result<ProcResult, std::string> SessionResult;
 
@@ -57,6 +59,7 @@ class ClientSession {
     static bool is_read_conf_for_parse_body(const Result<ProcResult, StatusCode> &result);
     static bool is_executing_cgi(const Result<ProcResult, StatusCode> &result);
     static bool is_executing_cgi(const Result<ProcResult, std::string> &result);
+    static bool is_connection_closed(const Result<ProcResult, std::string> &result);
 
     SessionResult process_client_event();
     SessionResult process_file_event();

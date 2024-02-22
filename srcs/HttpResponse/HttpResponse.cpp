@@ -163,7 +163,7 @@ Result<ProcResult, StatusCode> HttpResponse::create_response_message(const Statu
     this->response_msg_.insert(this->response_msg_.end(), this->body_buf_.begin(), this->body_buf_.end());
 
     std::string msg(this->response_msg_.begin(), this->response_msg_.end());
-    DEBUG_SERVER_PRINT("response_message:[%s]", msg.c_str());
+    DEBUG_SERVER_PRINT("response_message2:[%s]", msg.c_str());
     return Result<ProcResult, StatusCode>::ok(Success);
 }
 
@@ -220,14 +220,16 @@ std::string HttpResponse::get_resource_path() {
 }
 
 
-std::size_t HttpResponse::recv_to_buf(int fd) {
+ssize_t HttpResponse::recv_to_buf(int fd) {
     return HttpRequest::recv_to_buf(fd, &this->body_buf_);
 }
 
 
 Result<ProcResult, StatusCode> HttpResponse::recv_cgi_result() {
-    std::size_t recv_size = this->recv_to_buf(cgi_fd());
-    (void)recv_size;
+    ssize_t recv_size = this->recv_to_buf(cgi_fd());
+    if (recv_size == RECV_CLOSED) {
+        return Result<ProcResult, StatusCode>::ok(ConnectionClosed);
+    }
     std::string debug_buf(this->body_buf_.begin(), this->body_buf_.end());
     // DEBUG_PRINT(YELLOW, "     buf:[%s]", debug_buf.c_str());
 

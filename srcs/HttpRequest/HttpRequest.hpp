@@ -42,8 +42,8 @@ class HttpRequest {
     bool is_buf_empty() const;
 
     static ssize_t recv(int fd, void *buf, std::size_t bufsize);
-    std::size_t recv_to_buf(int fd);
-    static std::size_t recv_to_buf(int fd, std::vector<unsigned char> *buf);
+    ssize_t recv_to_buf(int fd);
+    static ssize_t recv_to_buf(int fd, std::vector<unsigned char> *buf);
 
     Result<ProcResult, StatusCode> parse_http_request();
     Result<ProcResult, StatusCode> parse_start_line_and_headers();

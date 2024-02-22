@@ -15,8 +15,12 @@ extern const int CONTINUE;
 
 extern const int GETADDRINFO_SUCCESS;
 
-extern const ssize_t RECV_COMPLETED;
+extern const ssize_t RECV_CLOSED;
+extern const ssize_t RECV_CONTINUE;
+extern const ssize_t RECV_ERROR;
+
 extern const ssize_t SEND_COMPLETED;
+extern const ssize_t SEND_ERROR;
 
 extern const int ACCEPT_ERROR;
 extern const int BIND_ERROR;
@@ -33,8 +37,6 @@ extern const int SOCKET_ERROR;
 extern const int SOCKETPAIR_ERROR;
 extern const int STAT_ERROR;
 
-extern const ssize_t RECV_ERROR;
-extern const ssize_t SEND_ERROR;
 
 extern const pid_t PROCESSING;
 extern const pid_t WAIT_ERROR;

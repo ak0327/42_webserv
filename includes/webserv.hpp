@@ -10,6 +10,7 @@ enum ProcResult {
     Continue,
     ExecutingCgi,
     PrepareNextProc,
+    ConnectionClosed,
     
     Failure,
     FatalError
