@@ -231,6 +231,46 @@ TEST(HttpResponseGET, GetFilePath) {
 
 }
 
+
+
+// #define EXPECT_EQ_FILE_CONTENTS(conf, request_msg, expected) expect_eq_indexed_path(conf, request_msg, expected, __LINE__);
+//
+// void expect_eq_indexed_path(const ServerConfig &server_config,
+//                             const std::string &request_msg,
+//                             const std::string &expected_path,
+//                             std::size_t line) {
+//     HttpRequest request(request_msg);
+//     HttpResponse response(request, server_config);
+//
+//     std::string resource_path = HttpResponseFriend::get_resource_path(response);
+//     std::string actual_path = HttpResponseFriend::get_indexed_path(response, resource_path);
+//     EXPECT_EQ(expected_path, actual_path) << "  at L" << line;
+// }
+//
+// TEST(HttpResponseGET, GetFileContents) {
+//     Config config("test/test_conf/ok/test_request_body.conf");
+//     std::string server_name = "localhost";
+//     std::string address = "*";
+//     std::string port = "4242";
+//
+//     ServerInfo server_info = ServerInfo(server_name, address, port);
+//     Result<ServerConfig, int> server_config_result = config.get_server_config(
+//             server_info);
+//     ASSERT_TRUE(server_config_result.is_ok());
+//     ServerConfig server_config = server_config_result.get_ok_value();
+//
+//     std::string request_msg, expected_path;
+//
+//     request_msg = "GET / HTTP/1.1\r\n"
+//                   "Host: localhost\r\n"
+//                   "\r\n";
+//     expected_path = "html/index.html";
+//     EXPECT_EQ_FILE_CONTENTS(server_config, request_msg, expected_path);
+// }
+
+
+
+
 //
 // #define EXPECT_EQ_BODY(file_path, actual_body) expect_eq_body(file_path, actual_body, __LINE__);
 //

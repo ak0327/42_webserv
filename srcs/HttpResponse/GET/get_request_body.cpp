@@ -38,6 +38,8 @@ bool HttpResponse::is_cgi_file(const std::string &path) {  // todo: config metho
 
 
 void HttpResponse::get_error_page(const StatusCode &code) {
+    this->body_buf_.clear();
+
     // get_error_page_path
     DEBUG_PRINT(CYAN, "  get_error_page 1 target: %s, code: %d", this->request_.request_target().c_str(), code);
     Result<std::string, int> result;
@@ -78,12 +80,12 @@ std::string HttpResponse::get_indexed_path(const std::string &resource_path) {
 }
 
 
-Result<ProcResult, StatusCode> HttpResponse::get_request_body(const std::string &resource_path) {
+StatusCode HttpResponse::get_request_body(const std::string &resource_path) {
     Result<bool, int> autoindex_result;
     autoindex_result = Config::is_autoindex_on(this->server_config_,
                                                this->request_.request_target());
     if (autoindex_result.is_err()) {
-        return Result<ProcResult, StatusCode>::err(BadRequest);
+        return BadRequest;
     }
     bool autoindex = autoindex_result.get_ok_value();
 
@@ -96,7 +98,7 @@ Result<ProcResult, StatusCode> HttpResponse::get_request_body(const std::string 
             return get_directory_listing(resource_path, &this->body_buf_);
         } else {
             DEBUG_PRINT(CYAN, "  get_content -> directory -> 404");
-            return Result<ProcResult, StatusCode>::err(NotFound);
+            return NotFound;
         }
     }
 
