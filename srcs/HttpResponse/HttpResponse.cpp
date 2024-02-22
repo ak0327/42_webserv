@@ -28,6 +28,7 @@ HttpResponse::HttpResponse(const HttpRequest &request,
       server_config_(server_config),
       cgi_read_fd_(INIT_FD),
       cgi_pid_(INIT_PID),
+      media_type_(NULL),
       headers_(),
       body_buf_(),
       response_msg_() {}
@@ -35,12 +36,21 @@ HttpResponse::HttpResponse(const HttpRequest &request,
 
 HttpResponse::~HttpResponse() {
     clear_cgi();
+    clear_media_type();
 }
 
 
 void HttpResponse::clear_cgi() {
     kill_cgi_process();
     close_cgi_fd();
+}
+
+
+void HttpResponse::clear_media_type() {
+    if (this->media_type_) {
+        delete media_type_;
+        this->media_type_ = NULL;
+    }
 }
 
 
@@ -133,15 +143,41 @@ Result<ProcResult, StatusCode> HttpResponse::exec_method(const StatusCode &statu
     return Result<ProcResult, StatusCode>::ok(Success);
 }
 
+/*
+ 6.2.1. Document Response
+ document-response = Content-Type [ Status ] *other-field NL response-body
 
-// document-response = Content-Type [ Status ] *other-field NL response-body
-// https://tex2e.github.io/rfc-translater/html/rfc3875.html#6-2-1--Document-Response
-Result<ProcResult, StatusCode> HttpResponse::create_cgi_document_response() {
-    // buf -> cgi body
+ The script MUST return a Content-Type header field.
+ https://tex2e.github.io/rfc-translater/html/rfc3875.html#6-2-1--Document-Response
 
-    // translate_to_http_protocol(execute_cgi_result.get_ok_value());
+ Content-Type = "Content-Type:" media-type NL
+ https://tex2e.github.io/rfc-translater/html/rfc3875.html#6-3-1--Content-Type
 
-    return Result<ProcResult, StatusCode>::ok(Success);
+ Status         = "Status:" status-code SP reason-phrase NL
+ status-code    = "200" | "302" | "400" | "501" | extension-code
+ extension-code = 3digit
+ reason-phrase  = *TEXT
+ https://tex2e.github.io/rfc-translater/html/rfc3875.html#6-3-3--Status
+
+ other-field     = protocol-field | extension-field
+ protocol-field  = generic-field
+ extension-field = generic-field
+ generic-field   = field-name ":" [ field-value ] NL
+ field-name      = token
+ field-value     = *( field-content | LWSP )
+ field-content   = *( token | separator | quoted-string )
+ https://tex2e.github.io/rfc-translater/html/rfc3875.html#6-3--Response-Header-Fields
+
+ response-body = *OCTET
+ https://tex2e.github.io/rfc-translater/html/rfc3875.html#6-4--Response-Message-Body
+
+ UNIX
+ The newline (NL) sequence is LF; servers should also accept CR LF as a newline.
+                                          ^^^^^^
+ */
+StatusCode HttpResponse::parse_cgi_document_response() {
+    StatusCode parse_result = parse_cgi_output();
+    return parse_result;
 }
 
 
@@ -295,6 +331,10 @@ int HttpResponse::cgi_fd() const {
 
 pid_t HttpResponse::cgi_pid() const {
     return this->cgi_pid_;
+}
+
+bool HttpResponse::is_cgi_response() {
+    return this->media_type_;
 }
 
 

@@ -45,9 +45,19 @@ class HttpRequest {
     ssize_t recv_to_buf(int fd);
     static ssize_t recv_to_buf(int fd, std::vector<unsigned char> *buf);
 
+    static bool is_crlf_in_buf(const unsigned char buf[], std::size_t size);
+    static void trim(std::vector<unsigned char> *buf, std::vector<unsigned char>::const_iterator start);
+
+    static Result<std::string, ProcResult> get_line(const std::vector<unsigned char> &data,
+                                                    std::vector<unsigned char>::const_iterator start,
+                                                    std::vector<unsigned char>::const_iterator *ret);
+
     Result<ProcResult, StatusCode> parse_http_request();
     Result<ProcResult, StatusCode> parse_start_line_and_headers();
     Result<ProcResult, StatusCode> parse_body();
+    static Result<ProcResult, StatusCode> split_field_line(const std::string &field_line,
+                                                           std::string *ret_field_name,
+                                                           std::string *ret_field_value);
 
 	bool is_field_name_supported_parsing(const std::string &field_name);
 	bool is_valid_field_name_registered(const std::string &field_name);
@@ -88,12 +98,6 @@ class HttpRequest {
 	HttpRequest &operator=(const HttpRequest &rhs);
 
 	/* parse, validate */
-    static bool is_crlf_in_buf(const unsigned char buf[], std::size_t size);
-    static void trim(std::vector<unsigned char> *buf, std::vector<unsigned char>::const_iterator start);
-
-    static Result<std::string, ProcResult> get_line(const std::vector<unsigned char> &data,
-                                                    std::vector<unsigned char>::const_iterator start,
-                                                    std::vector<unsigned char>::const_iterator *ret);
     Result<std::string, ProcResult> pop_line_from_buf();
 
     static void find_crlf(const std::vector<unsigned char> &data,
@@ -105,9 +109,6 @@ class HttpRequest {
 	Result<ProcResult, StatusCode> parse_and_validate_field_lines(std::stringstream *ss);
     Result<ProcResult, StatusCode> parse_and_validate_field_lines(const std::string &request_headers);
     Result<ProcResult, StatusCode> parse_and_validate_field_line(const std::string &field_line);
-    Result<ProcResult, StatusCode> split_field_line(const std::string &field_line,
-                                                    std::string *ret_field_name,
-                                                    std::string *ret_field_value);
 	std::string parse_message_body(std::stringstream *ss);
 
 	/* operator */

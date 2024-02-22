@@ -262,15 +262,13 @@ Result<ProcResult, StatusCode> ClientSession::create_http_response() {
 
             case kCreatingCGIBody: {
                 DEBUG_SERVER_PRINT("     CreatingCGIBody");
-                Result<ProcResult, StatusCode> body_result = this->response_->create_cgi_document_response();
-                if (body_result.is_err()) {
-                    DEBUG_SERVER_PRINT("    request error3, status: %d", body_result.get_err_value());
-                    StatusCode error_code = body_result.get_err_value();
+                Result<ProcResult, StatusCode> cgi_result = this->response_->interpret_cgi_output();
+                if (cgi_result.is_err()) {
+                    StatusCode error_code = cgi_result.get_err_value();
                     this->set_status(error_code);
                 }
                 this->set_session_state(kCreatingResponseBody);
                 continue;
-                // return create_http_response();  // todo: complex??
             }
 
             default:

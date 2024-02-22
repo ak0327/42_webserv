@@ -145,6 +145,7 @@ extern const char SIGN_MINUS;
 extern const char CR;
 extern const char HT;
 extern const char LF;
+extern const char NL;
 extern const char SP;
 
 extern const char CRLF[];

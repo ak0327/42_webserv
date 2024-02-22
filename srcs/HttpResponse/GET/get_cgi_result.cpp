@@ -16,8 +16,10 @@
 #include "Debug.hpp"
 #include "Error.hpp"
 #include "HttpResponse.hpp"
+#include "HttpMessageParser.hpp"
 #include "IOMultiplexer.hpp"
 #include "Result.hpp"
+#include "StringHandler.hpp"
 
 extern char **environ;
 
@@ -145,6 +147,123 @@ void skip_field_lines(std::istringstream *iss) {
     std::string line;
 
     while (getline(*iss, line) && !line.empty()) {}
+}
+
+
+StatusCode HttpResponse::parse_cgi_document_response() {
+    StatusCode cgi_status = StatusOk;
+    int status_count = 0;
+    while (true) {
+        Result<std::string, ProcResult> line_result = pop_line_from_buf();
+        if (line_result.is_err()) {
+            return InternalServerError;  // no line in buf
+        }
+        std::string field_line = line_result.get_ok_value();
+        if (field_line.empty()) {
+            break;
+        }
+        std::string	field_name, field_value;
+        Result<ProcResult, StatusCode> split = HttpRequest::split_field_line(field_line,
+                                                                             &field_name,
+                                                                             &field_value);
+        if (split.is_err()) {
+            return InternalServerError;
+        }
+        field_name = StringHandler::to_lower(field_name);
+        if (field_name == std::string(CONTENT_TYPE)) {
+            if (this->media_type_) {
+                return InternalServerError;
+            }
+            try {
+                this->media_type_ = new MediaType(field_value);
+            }
+            catch (const std::bad_alloc &e) {
+                return InternalServerError;
+            }
+            if (this->media_type_->is_err()) {
+                return InternalServerError;
+            }
+        } else if (field_name == "Status") {
+            ++status_count;
+            if (1 < status_count) {
+                return InternalServerError;
+            }
+            bool succeed;
+            int code = HttpMessageParser::to_integer_num(field_value, &succeed);
+            if (!succeed) {
+                return InternalServerError;
+            }
+            Result<StatusCode, ProcResult> convert_result = HttpMessageParser::convert_to_enum(code);
+            if (convert_result.is_err()) {
+                return InternalServerError;
+            }
+            cgi_status = convert_result.get_ok_value();
+        }
+    }
+    if (!this->media_type_) {
+        return InternalServerError;
+    }
+    return cgi_status;
+}
+
+
+// string NL
+//        ^return
+void HttpResponse::find_nl(const std::vector<unsigned char> &data,
+                           std::vector<unsigned char>::const_iterator start,
+                           std::vector<unsigned char>::const_iterator *nl) {
+    if (!nl) {
+        return;
+    }
+    std::vector<unsigned char>::const_iterator itr = start;
+    while (itr != data.end() && itr + 1 != data.end()) {
+        if (*itr == NL) {
+            *nl = itr;
+            return;
+        }
+        ++itr;
+    }
+    *nl = data.end();
+}
+
+
+// line NL next_line
+// ^^^^    ^ret
+Result<std::string, ProcResult> HttpResponse::get_line(const std::vector<unsigned char> &data,
+                                                      std::vector<unsigned char>::const_iterator start,
+                                                      std::vector<unsigned char>::const_iterator *ret) {
+    if (!ret) {
+        return Result<std::string, ProcResult>::err(FatalError);
+    }
+
+    std::vector<unsigned char>::const_iterator nl;
+    HttpResponse::find_nl(data, start, &nl);
+    if (nl == data.end()) {
+        *ret = data.end();
+        return Result<std::string, ProcResult>::err(Failure);
+    }
+
+    std::string line(start, nl);
+    *ret = nl + 1;
+    return Result<std::string, ProcResult>::ok(line);
+}
+
+
+Result<std::string, ProcResult> HttpResponse::pop_line_from_buf() {
+    std::vector<unsigned char>::const_iterator next_line;
+
+    Result<std::string, ProcResult> result = get_line(this->body_buf_,
+                                                      this->body_buf_.begin(),
+                                                      &next_line);
+    if (result.is_err()) {
+        return Result<std::string, ProcResult>::err(Failure);
+    }
+    std::string line = result.get_ok_value();
+    HttpRequest::trim(&this->body_buf_, next_line);
+
+    std::string debug_buf(this->body_buf_.begin(), this->body_buf_.end());
+    DEBUG_SERVER_PRINT("buf[%s]", debug_buf.c_str());
+    return Result<std::string, ProcResult>::ok(line);
 }
 
 
