@@ -86,9 +86,10 @@ SessionResult ClientSession::process_client_event() {
             if (recv_result == FatalError) {
                 const std::string error_msg = CREATE_ERROR_INFO_STR("fatal error");
                 return SessionResult::err(error_msg);
-            }
-            if (recv_result == Continue) {
+            } else if (recv_result == Continue) {
                 return SessionResult::ok(Continue);
+            } else if (recv_result == ConnectionClosed) {
+                return SessionResult::ok(ConnectionClosed);
             }
             this->set_session_state(kParsingRequest);
         }
@@ -163,7 +164,10 @@ ProcResult ClientSession::recv_http_request() {
         }
     }
 
-    std::size_t recv_size = this->request_->recv_to_buf(this->client_fd_);
+    ssize_t recv_size = this->request_->recv_to_buf(this->client_fd_);
+    if (recv_size == 0) {
+        return ConnectionClosed;
+    }
     return 0 < recv_size ? Success : Continue;
 }
 
@@ -497,6 +501,11 @@ bool ClientSession::is_executing_cgi(const Result<ProcResult, StatusCode> &resul
 
 bool ClientSession::is_executing_cgi(const Result<ProcResult, std::string> &result) {
     return result.is_ok() && result.get_ok_value() == ExecutingCgi;
+}
+
+
+bool ClientSession::is_connection_closed(const Result<ProcResult, std::string> &result) {
+    return result.is_ok() && result.get_ok_value() == ConnectionClosed;
 }
 
 

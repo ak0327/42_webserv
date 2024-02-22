@@ -69,7 +69,7 @@ class HttpResponse {
     void close_cgi_fd();
     void clear_cgi();
 
-    std::size_t recv_to_buf(int fd);
+    ssize_t recv_to_buf(int fd);
 
     // todo: mv util?
     static Result<std::vector<std::string>, ProcResult> get_interpreter(const std::string &file_path);

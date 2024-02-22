@@ -10,7 +10,7 @@
 #include "StringHandler.hpp"
 
 /* constructor, destructor */
-RequestLine::RequestLine() {}
+RequestLine::RequestLine(){}
 
 RequestLine::RequestLine(const RequestLine &other) {
 	*this = other;
@@ -48,12 +48,14 @@ Result<ProcResult, StatusCode> RequestLine::parse_and_validate(const std::string
 
 	parse_result = this->parse(line);
 	if (parse_result.is_err()) {
+        this->http_version_ = std::string(HTTP_1_1);  // needed for response
 		return Result<ProcResult, StatusCode>::err(BadRequest);
 	}
 
 	validate_result = this->validate();
 	if (validate_result.is_err()) {
-		return Result<ProcResult, StatusCode>::err(BadRequest);
+        this->http_version_ = std::string(HTTP_1_1);  // needed for response
+        return Result<ProcResult, StatusCode>::err(BadRequest);
 	}
 
     update_target_path();

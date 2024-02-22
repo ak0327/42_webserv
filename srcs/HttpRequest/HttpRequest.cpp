@@ -153,25 +153,25 @@ ssize_t HttpRequest::recv(int fd, void *buf, std::size_t bufsize) {
     recv_size = ::recv(fd, buf, bufsize, FLAG_NONE);
     int tmp_errno = errno;
     DEBUG_SERVER_PRINT("    recv_size: %zd", recv_size);
-    if (recv_size == RECV_COMPLETED) {
-        return RECV_COMPLETED;
+    if (recv_size == RECV_CLOSED) {
+        return RECV_CLOSED;
     }
-    if (recv_size == RECV_ERROR) {
+    if (recv_size == RECV_CONTINUE) {
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(tmp_errno);
         DEBUG_SERVER_PRINT("%s", error_msg.c_str());
         // return Result<std::size_t, std::string>::err(error_info);
-        return RECV_COMPLETED;  // non-blocking -> recv completed
+        return RECV_CONTINUE;  // non-blocking -> recv completed
     }
     return recv_size;
 }
 
 
-std::size_t HttpRequest::recv_to_buf(int fd) {
+ssize_t HttpRequest::recv_to_buf(int fd) {
     return HttpRequest::recv_to_buf(fd, &this->buf_);
 }
 
 
-std::size_t HttpRequest::recv_to_buf(int fd, std::vector<unsigned char> *buf) {
+ssize_t HttpRequest::recv_to_buf(int fd, std::vector<unsigned char> *buf) {
     if (!buf) {
         return 0;
     }
@@ -190,7 +190,7 @@ std::size_t HttpRequest::recv_to_buf(int fd, std::vector<unsigned char> *buf) {
         buf->insert(buf->end(), recv_buf.begin(), recv_buf.begin() + recv_size);
     }
     DEBUG_SERVER_PRINT("    recv end");
-    return recv_size <= 0 ? 0 : recv_size;
+    return recv_size;
 }
 
 

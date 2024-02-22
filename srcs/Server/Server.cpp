@@ -274,6 +274,17 @@ ServerResult Server::run() {
 }
 
 
+ServerResult Server::communicate_with_client(int ready_fd) {
+    if (is_socket_fd(ready_fd)) {
+        DEBUG_SERVER_PRINT("  ready_fd=socket fd: %d", ready_fd);
+        return create_session(ready_fd);
+    } else {
+        DEBUG_SERVER_PRINT("  ready_fd=client fd: %d", ready_fd);
+        return process_session(ready_fd);
+    }
+}
+
+
 ServerResult Server::echo() {
     // todo
     return ServerResult::ok(OK);
@@ -371,7 +382,7 @@ void Server::init_session(ClientSession *session) {
     }
     int client_fd = session->client_fd();
     update_fd_type(client_fd, kWriteFd, kReadFd);
-    session->set_session_state(kReadingRequest);
+    session->set_session_state(kReceivingRequest);
     session->clear_request();
     session->clear_response();
 }
@@ -414,6 +425,10 @@ ServerResult Server::process_session(int ready_fd) {
         this->fds_->register_read_fd(cgi_fd);
         this->sessions_[cgi_fd] = client;
         return ServerResult::ok(OK);
+    } else if (ClientSession::is_connection_closed(result)) {
+        delete_session(session);
+        DEBUG_PRINT(RED, "connection closed");
+        return ServerResult::ok(OK);
     }
 
     if (client->is_session_state_expect(kSendingResponse) && is_fd_type_expect(ready_fd, kReadFd)) {
@@ -434,17 +449,6 @@ ServerResult Server::process_session(int ready_fd) {
         delete_session(session);
     }
     return ServerResult::ok(OK);
-}
-
-
-ServerResult Server::communicate_with_client(int ready_fd) {
-	if (is_socket_fd(ready_fd)) {
-        DEBUG_SERVER_PRINT("  ready_fd=socket fd: %d", ready_fd);
-        return create_session(ready_fd);
-	} else {
-        DEBUG_SERVER_PRINT("  ready_fd=client fd: %d", ready_fd);
-        return process_session(ready_fd);
-    }
 }
 
 

@@ -11,8 +11,12 @@ const int CONTINUE = 2;
 
 const int GETADDRINFO_SUCCESS = 0;
 
-const ssize_t RECV_COMPLETED = 0;
+const ssize_t RECV_CLOSED = 0;
+const ssize_t RECV_CONTINUE = -1;
+const ssize_t RECV_ERROR = -1;
+
 const ssize_t SEND_COMPLETED = 0;
+const ssize_t SEND_ERROR = -1;
 
 const int ACCEPT_ERROR = -1;
 const int BIND_ERROR = -1;
@@ -29,8 +33,6 @@ const int SOCKET_ERROR = -1;
 const int SOCKETPAIR_ERROR = -1;
 const int STAT_ERROR = -1;
 
-const ssize_t RECV_ERROR = -1;
-const ssize_t SEND_ERROR = -1;
 
 const pid_t PROCESSING = 0;
 const pid_t WAIT_ERROR = -1;
