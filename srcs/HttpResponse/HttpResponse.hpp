@@ -66,6 +66,8 @@ class HttpResponse {
     int cgi_fd() const;
     pid_t cgi_pid() const;
     bool is_cgi_processing(int *status);
+    void close_cgi_fd();
+    void clear_cgi();
 
     std::size_t recv_to_buf(int fd);
 
@@ -116,7 +118,6 @@ class HttpResponse {
     StatusCode get_directory_listing(const std::string &directory_path,
                                      std::vector<unsigned char> *buf);
     StatusCode exec_cgi(const std::string &file_path, int *cgi_read_fd, pid_t *cgi_pid);
-    void close_cgi_fd();
     void kill_cgi_process();
     int execute_cgi_script_in_child(int socket_fds[2],
                                     const std::string &file_path,

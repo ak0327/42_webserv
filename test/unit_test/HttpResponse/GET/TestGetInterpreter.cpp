@@ -8,7 +8,7 @@
 TEST(HttpResponseGet, CGIGetInterPreter) {
 	std::string file_path;
 	std::vector<std::string> expected, actual;
-	Result<std::vector<std::string>, int> result;
+	Result<std::vector<std::string>, ProcResult> result;
 
 	file_path = "html/cgi-bin/hello.py";
 	expected = {"/usr/bin/env", "python3"};

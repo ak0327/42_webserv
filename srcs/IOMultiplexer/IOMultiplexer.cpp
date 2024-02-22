@@ -280,7 +280,8 @@ Select::~Select() {
     for (std::size_t i = 0; i < this->write_fds_.size(); ++i) {
         FD_CLR(this->write_fds_[i], &this->write_fd_set_);
     }
-    this->fds_.clear();
+    this->read_fds_.clear();
+    this->write_fds_.clear();
 }
 
 
@@ -316,25 +317,25 @@ void Select::init_fds() {
 
 Result<int, std::string> Select::select_fds() {
     // debug
-    // std::cout << CYAN << "select_fds:" << RESET << std::endl;
-    //
-    // std::cout << CYAN << "read_fds [";
-    // for (std::size_t i = 0; i < this->read_fds_.size(); ++i) {
-    //     std::cout << this->read_fds_[i];
-    //     if (i + 1 < this->read_fds_.size()) {
-    //         std::cout << ", ";
-    //     }
-    // }
-    // std::cout << "]" << RESET << std::endl;
-    //
-    // std::cout << CYAN << "write_fds [";
-    // for (std::size_t i = 0; i < this->write_fds_.size(); ++i) {
-    //     std::cout << this->write_fds_[i];
-    //     if (i + 1 < this->write_fds_.size()) {
-    //         std::cout << ", ";
-    //     }
-    // }
-    // std::cout << "]" << RESET << std::endl;
+    std::cout << CYAN << "select_fds:" << RESET << std::endl;
+
+    std::cout << CYAN << "read_fds [";
+    for (std::size_t i = 0; i < this->read_fds_.size(); ++i) {
+        std::cout << this->read_fds_[i];
+        if (i + 1 < this->read_fds_.size()) {
+            std::cout << ", ";
+        }
+    }
+    std::cout << "]" << RESET << std::endl;
+
+    std::cout << CYAN << "write_fds [";
+    for (std::size_t i = 0; i < this->write_fds_.size(); ++i) {
+        std::cout << this->write_fds_[i];
+        if (i + 1 < this->write_fds_.size()) {
+            std::cout << ", ";
+        }
+    }
+    std::cout << "]" << RESET << std::endl;
 
     init_fds();
     this->max_fd_ = get_max_fd();
@@ -434,11 +435,13 @@ Result<int, std::string> Select::get_io_ready_fd() {
 
 Result<int, std::string> Select::clear_fd(int clear_fd) {
 	std::deque<int>::iterator fd;
+    // std::cout << CYAN << "clear_fd: " << clear_fd << RESET << std::endl;
 
     fd  = std::find(this->read_fds_.begin(), this->read_fds_.end(), clear_fd);
 	if (fd != this->read_fds_.end()) {
         FD_CLR(*fd, &this->read_fd_set_);
         this->read_fds_.erase(fd);
+        // std::cout << CYAN << "read_fd erase: " << *fd << RESET << std::endl;
         return Result<int, std::string>::ok(OK);
 	}
 
@@ -446,6 +449,7 @@ Result<int, std::string> Select::clear_fd(int clear_fd) {
     if (fd != this->write_fds_.end()) {
         FD_CLR(*fd, &this->write_fd_set_);
         this->write_fds_.erase(fd);
+        // std::cout << CYAN << "write_fd erase: " << *fd << RESET << std::endl;
         return Result<int, std::string>::ok(OK);
     }
 

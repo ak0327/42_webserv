@@ -380,7 +380,8 @@ void Server::init_session(ClientSession *session) {
 ServerResult Server::process_session(int ready_fd) {
     std::map<Fd, ClientSession *>::iterator session = this->sessions_.find(ready_fd);
     if (session == this->sessions_.end()) {
-        return ServerResult::err("error: fd unknown");
+        const std::string error_msg = CREATE_ERROR_INFO_CSTR("error: fd unknown");
+        return ServerResult::err(error_msg);
     }
 
     SessionResult result;
@@ -392,7 +393,8 @@ ServerResult Server::process_session(int ready_fd) {
         DEBUG_SERVER_PRINT("process_file_event");
         result = client_session->process_file_event();
     } else {
-        return ServerResult::err("error: fd unknown");
+        const std::string error_msg = CREATE_ERROR_INFO_CSTR("error: fd unknown");
+        return ServerResult::err(error_msg);
     }
 
     if (result.is_err()) {
@@ -406,13 +408,26 @@ ServerResult Server::process_session(int ready_fd) {
     if (result.get_ok_value() == ExecutingCgi) {
         int cgi_fd = client_session->cgi_fd();
         this->fds_->register_read_fd(cgi_fd);
+        this->sessions_[cgi_fd] = client_session;
         return ServerResult::ok(OK);
     }
 
-    update_fd_type_read_to_write(client_session->session_state(), ready_fd);
-
-    if (client_session->is_session_state_expect_to(kSessionCompleted)) {
-        DEBUG_SERVER_PRINT("client process completed: fd %d -> close", ready_fd);
+    if (client_session->is_session_state_expect_to(kSendingResponse)) {
+        FdType fd_type = this->fds_->get_fd_type(ready_fd);
+        if (fd_type == kReadFd) {
+            DEBUG_SERVER_PRINT("fd read -> write");
+            this->fds_->clear_fd(ready_fd);
+            this->fds_->register_write_fd(ready_fd);
+            // std::cout << RED << "update write fd: " << fd << RESET << std::endl;
+        }
+    } else if (client_session->is_session_state_expect_to(kCreatingCGIBody)) {
+        DEBUG_SERVER_PRINT("client process completed(CGI): fd %d -> close", ready_fd);
+        this->sessions_.erase(ready_fd);
+        this->fds_->clear_fd(ready_fd);
+        std::cout << CYAN << " -> CreatingCGIBody" << RESET << std::endl;
+        return process_session(client_session->client_fd());
+    } else if (client_session->is_session_state_expect_to(kSessionCompleted)) {
+        DEBUG_SERVER_PRINT("client process completed(Client): fd %d -> close", ready_fd);
         delete_session(session);  // todo
         // init_session(client_session);
     } else if (client_session->is_session_state_expect_to(kSessionError)) {

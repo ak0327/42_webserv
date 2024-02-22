@@ -90,9 +90,6 @@ class Select : public IOMultiplexer {
     FdType get_fd_type(int fd);
 
  private:
-    std::map<FdType, std::deque<int> > fds_;
-	std::map<FdType, fd_set> fd_set_;
-
     std::deque<int> read_fds_;
     std::deque<int> write_fds_;
     fd_set read_fd_set_;
