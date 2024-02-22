@@ -370,3 +370,13 @@ extern const std::vector<std::string> DIRECTIVE_NAMES;
 
 std::vector<std::string> init_block_names();
 std::vector<std::string> init_directive_names();
+
+////////////////////////////////////////////////////////////////////////////////
+/* mime types */
+
+typedef std::string Extension;
+typedef std::string MimeType;
+typedef std::map<Extension, MimeType> MimeTypeMap;
+
+extern const MimeTypeMap MIME_TYPES;
+MimeTypeMap init_mime_types();

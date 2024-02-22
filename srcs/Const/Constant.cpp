@@ -584,3 +584,27 @@ std::vector<std::string> init_directive_names() {
 	directive_names.push_back("webserv_cgi_param");
 	return directive_names;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+/* mime types */
+
+const MimeTypeMap MIME_TYPES = init_mime_types();
+MimeTypeMap init_mime_types() {
+    MimeTypeMap mime_types;
+    // mime_types[""] = "";
+
+    mime_types["html"]  = "text/html";
+    mime_types["htm"]   = "text/htm";
+    mime_types["css"]   = "text/css";
+    mime_types["txt"]   = "text/plain";
+
+    mime_types["gif"]   = "image/gif";
+    mime_types["jpeg"]  = "image/jpeg";
+    mime_types["jpg"]   = "image/jpg";
+    mime_types["png"]   = "image/png";
+    mime_types["ico"]   = "image/x-ico";
+
+    mime_types["json"]  = "application/json";  // todo
+
+    return mime_types;
+}

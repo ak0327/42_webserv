@@ -21,8 +21,7 @@ namespace {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool is_support_content_type(const std::string &path,
-                             const std::map<std::string, std::string> &mime_types) {
+bool is_support_content_type(const std::string &path) {
     std::string extension;
     std::map<std::string, std::string>::const_iterator itr;
     DEBUG_PRINT(CYAN, "    is_support_content_type");
@@ -31,19 +30,8 @@ bool is_support_content_type(const std::string &path,
 
     DEBUG_PRINT(CYAN, "     path      : %s", path.c_str());
     DEBUG_PRINT(CYAN, "     extensnion: %s", extension.c_str());
-    itr = mime_types.find(extension);
-    return itr != mime_types.end();
-}
-
-
-// todo: get from conf
-std::map<std::string, std::string> mime_types() {
-    std::map<std::string, std::string> mime_types;
-
-    mime_types["html"] = "text/html";
-    mime_types["htm"] = "text/htm";
-    mime_types["jpg"] = "text/htm";
-    return mime_types;
+    itr = MIME_TYPES.find(extension);
+    return itr != MIME_TYPES.end();
 }
 
 
@@ -53,7 +41,6 @@ Result<ProcResult, StatusCode> HttpResponse::get_file_content(const std::string 
         return Result<ProcResult, StatusCode>::err(InternalServerError);
     }
     DEBUG_PRINT(CYAN, "    get_file_content 1 path:[%s]", file_path.c_str());
-
     DEBUG_PRINT(CYAN, "    get_file_content 2");
     std::ifstream file(file_path.c_str(), std::ios::binary);
     if (!file) {
@@ -62,7 +49,7 @@ Result<ProcResult, StatusCode> HttpResponse::get_file_content(const std::string 
     }
     DEBUG_PRINT(CYAN, "    get_file_content 5");
 
-    if (!is_support_content_type(file_path, mime_types())) {
+    if (!is_support_content_type(file_path)) {
         DEBUG_PRINT(RED, "   not support content: %s", file_path.c_str());
 		return Result<ProcResult, StatusCode>::err(NotAcceptable);
 	}
