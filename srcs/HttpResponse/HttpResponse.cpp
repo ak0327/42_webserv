@@ -67,60 +67,58 @@ void HttpResponse::close_cgi_fd() {
 
 
 // todo: 分岐する？get_contentで取得する？
-bool is_response_error_page(const StatusCode &status_code) {
+bool HttpResponse::is_response_error_page(const StatusCode &status_code) const {
     // todo
     return status_code == NotFound;
 }
 
+bool HttpResponse::is_executing_cgi() const {
+    return this->cgi_fd() != INIT_FD;
+}
+
 
 Result<ProcResult, StatusCode> HttpResponse::exec_method(const StatusCode &status_code) {
-    DEBUG_PRINT(YELLOW, " exec_method 1 status(%d)", status_code);
+    StatusCode status = status_code;
+    DEBUG_PRINT(YELLOW, " exec_method 1 status(%d)", status);
 
-    if (is_response_error_page(status_code)) {
-        DEBUG_PRINT(YELLOW, "  status error -> error page");
-        get_error_page(status_code);
-        return Result<ProcResult, StatusCode>::err(status_code);  // todo: err ? ok?
-    }
+    if (!is_response_error_page(status)) {
+        std::string target_path = HttpResponse::get_resource_path();
+        DEBUG_PRINT(YELLOW, " exec_method 2 path: ", target_path.c_str());
+        Method method = HttpMessageParser::get_method(this->request_.method());
+        DEBUG_PRINT(YELLOW, " exec_method 3 method: ", method);
 
-    std::string target_path = HttpResponse::get_resource_path();
-    DEBUG_PRINT(YELLOW, " exec_method 2 path: ", target_path.c_str());
-    Method method = HttpMessageParser::get_method(this->request_.method());
-    DEBUG_PRINT(YELLOW, " exec_method 3 method: ", method);
-    Result<ProcResult, StatusCode> method_result;
+        switch (method) {
+            case kGET:
+                DEBUG_PRINT(YELLOW, " exec_method 4 - GET");
+                status = get_request_body(target_path);
+                break;
 
-    switch (method) {
-        case kGET:
-            DEBUG_PRINT(YELLOW, " exec_method 4 - GET");
-            method_result = get_request_body(target_path);
-            break;
+            case kPOST:
+                DEBUG_PRINT(YELLOW, " exec_method 4 - POST");
+                status = post_request_body(target_path);
+                break;
 
-        case kPOST:
-            DEBUG_PRINT(YELLOW, " exec_method 4 - POST");
-            method_result = post_request_body(target_path);
-            break;
+            case kDELETE:
+                DEBUG_PRINT(YELLOW, " exec_method 4 - DELETE");
+                status = delete_request_body(target_path);
+                break;
 
-        case kDELETE:
-            DEBUG_PRINT(YELLOW, " exec_method 4 - DELETE");
-            method_result = delete_request_body(target_path);
-            break;
-
-        default:
-            DEBUG_PRINT(YELLOW, " exec_method 4 - err");
-            method_result = Result<ProcResult, StatusCode>::err(BadRequest);
+            default:
+                DEBUG_PRINT(YELLOW, " exec_method 4 - err");
+                status = BadRequest;
+        }
     }
 
     DEBUG_PRINT(YELLOW, " exec_method 5");
-    if (method_result.is_err()) {
+    if (is_response_error_page(status)) {  // todo: error page case
         DEBUG_PRINT(YELLOW, "  result->error");
-        this->body_buf_.clear();
-        StatusCode error_code = method_result.get_err_value();
-        get_error_page(error_code);
+        get_error_page(status);
         DEBUG_PRINT(YELLOW, "  get_error_page ok");
-        return Result<ProcResult, StatusCode>::err(error_code);  // todo: err ? ok?
+        return Result<ProcResult, StatusCode>::err(status);  // todo: err ? ok?
     }
 
     DEBUG_PRINT(YELLOW, " exec_method 6");
-    if (method_result.get_ok_value() == ExecutingCgi) {
+    if (is_executing_cgi()) {
         std::string debug_body(this->body_buf_.begin(), this->body_buf_.end());
         DEBUG_PRINT(YELLOW, " exec_method body:[%s]", debug_body.c_str());
         return Result<ProcResult, StatusCode>::ok(ExecutingCgi);

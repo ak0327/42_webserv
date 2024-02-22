@@ -160,7 +160,7 @@ Result<std::string, int> translate_to_http_protocol(const std::string &cgi_resul
 }
 
 
-Result<ProcResult, StatusCode> HttpResponse::exec_cgi(const std::string &file_path,
+StatusCode HttpResponse::exec_cgi(const std::string &file_path,
                                                       int *cgi_read_fd,
                                                       pid_t *cgi_pid) {
     Result<std::string, int> execute_cgi_result, translate_result;
@@ -169,14 +169,14 @@ Result<ProcResult, StatusCode> HttpResponse::exec_cgi(const std::string &file_pa
     pid_t pid;
 
     if (!cgi_read_fd || !cgi_pid) {
-        return Result<ProcResult, StatusCode>::err(InternalServerError);  // todo: tmp
+        return InternalServerError;  // todo: tmp
     }
 
     socketpair_result = create_socketpair(socket_fds);
     if (socketpair_result.is_err()) {
         const std::string error_msg = socketpair_result.get_err_value();
         std::cerr << "[Error] socketpair: " << error_msg << std::endl;  // todo: tmp
-        return Result<ProcResult, StatusCode>::err(InternalServerError);  // todo: tmp
+        return InternalServerError;  // todo: tmp
     }
 
     errno = 0;
@@ -184,7 +184,7 @@ Result<ProcResult, StatusCode> HttpResponse::exec_cgi(const std::string &file_pa
     if (pid == FORK_ERROR) {
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
         std::cerr << error_msg << std::endl;  // todo: tmp
-        return Result<ProcResult, StatusCode>::err(InternalServerError);  // todo: tmp
+        return InternalServerError;  // todo: tmp
     }
 
     if (pid == CHILD_PROC) {
@@ -197,9 +197,9 @@ Result<ProcResult, StatusCode> HttpResponse::exec_cgi(const std::string &file_pa
         close(socket_fds[READ]);
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
         std::cerr << error_msg << std::endl;  // todo: tmp
-        return Result<ProcResult, StatusCode>::err(InternalServerError);
+        return InternalServerError;
     }
     *cgi_read_fd = socket_fds[READ];
     *cgi_pid = pid;
-    return Result<ProcResult, StatusCode>::ok(Success);
+    return StatusOk;
 }

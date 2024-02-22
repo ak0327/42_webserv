@@ -103,18 +103,19 @@ class HttpResponse {
     std::string get_resource_path();
     std::string create_status_line(const StatusCode &code) const;
     std::string create_field_lines() const;
+    bool is_executing_cgi() const;
+    bool is_response_error_page(const StatusCode &status_code) const;
 
     // GET
-    Result<ProcResult, StatusCode> get_request_body(const std::string &resource_path);
+    StatusCode get_request_body(const std::string &resource_path);
     std::string get_indexed_path(const std::string &resource_path);
     void get_error_page(const StatusCode &code);
     static bool is_directory(const std::string &path);
     static bool is_cgi_file(const std::string &path);
-    Result<ProcResult, StatusCode> get_file_content(const std::string &file_path,
-                                                    std::vector<unsigned char> *buf);
-    Result<ProcResult, StatusCode> get_directory_listing(const std::string &directory_path,
-                                                         std::vector<unsigned char> *buf);
-    Result<ProcResult, StatusCode> exec_cgi(const std::string &file_path, int *cgi_read_fd, pid_t *cgi_pid);
+    StatusCode get_file_content(const std::string &file_path, std::vector<unsigned char> *buf);
+    StatusCode get_directory_listing(const std::string &directory_path,
+                                     std::vector<unsigned char> *buf);
+    StatusCode exec_cgi(const std::string &file_path, int *cgi_read_fd, pid_t *cgi_pid);
     void close_cgi_fd();
     void kill_cgi_process();
     int execute_cgi_script_in_child(int socket_fds[2],
@@ -126,15 +127,15 @@ class HttpResponse {
     bool is_exec_timeout(time_t start_time, int timeout_sec);
 
     // POST
-	Result<ProcResult, StatusCode> post_request_body(const std::string &target) {
+	StatusCode post_request_body(const std::string &target) {
         (void)target;
-        return Result<ProcResult, StatusCode>::ok(Success);
+        return StatusOk;
     }
 
     // DELETE
-	Result<ProcResult, StatusCode> delete_request_body(const std::string &target) {
+	StatusCode delete_request_body(const std::string &target) {
         (void)target;
-        return Result<ProcResult, StatusCode>::ok(Success);
+        return StatusOk;
     }
 
 

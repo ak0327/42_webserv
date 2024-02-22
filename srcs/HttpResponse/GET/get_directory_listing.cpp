@@ -124,10 +124,12 @@ Result<ProcResult, ProcResult> get_file_info(const std::string &directory_path_e
     return Result<ProcResult, ProcResult>::ok(Success);
 }
 
-Result<ProcResult, ProcResult> get_directory_listing_html(const std::string &directory_path_end_with_slash,
-                                                          const std::set<file_info> &directories,
-                                                          const std::set<file_info> &files,
-                                                          std::vector<unsigned char> *buf) {
+StatusCode get_directory_listing_html(const std::string &directory_path_end_with_slash,
+                                      const std::set<file_info> &directories,
+                                      const std::set<file_info> &files,
+                                      std::vector<unsigned char> *buf) {
+    if (!buf) { return InternalServerError; }
+
     std::string PARENT_DIRECTORY_CONTENT, CURRENT_DIRECTORY_CONTENT, FILE_CONTENT;
     std::set<file_info>::const_iterator itr;
     std::string name_width = "150";
@@ -209,7 +211,7 @@ Result<ProcResult, ProcResult> get_directory_listing_html(const std::string &dir
 
     buf->insert(buf->end(), TAIL.begin(), TAIL.end());
 
-    return Result<ProcResult, ProcResult>::ok(Success);
+    return StatusOk;
 }
 
 std::string get_directory_path_end_with_slash(const std::string &directory_path) {
@@ -228,10 +230,10 @@ std::string get_directory_path_end_with_slash(const std::string &directory_path)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Result<ProcResult, StatusCode> HttpResponse::get_directory_listing(const std::string &directory_path,
+StatusCode HttpResponse::get_directory_listing(const std::string &directory_path,
                                                                    std::vector<unsigned char> *buf) {
     if (!buf) {
-        return Result<ProcResult, StatusCode>::err(InternalServerError);
+        return InternalServerError;
     }
 
     std::string directory_path_end_with_slash = get_directory_path_end_with_slash(directory_path);
@@ -242,17 +244,10 @@ Result<ProcResult, StatusCode> HttpResponse::get_directory_listing(const std::st
                                                                    &directories,
                                                                    &files);
     if (get_info_result.is_err()) {
-        return Result<ProcResult, StatusCode>::err(InternalServerError);
+        return InternalServerError;
     }
 
-    Result<ProcResult, ProcResult> get_content_result = get_directory_listing_html(directory_path_end_with_slash,
-                                                                                   directories,
-                                                                                   files,
-                                                                                   buf);
-    if (get_content_result.is_err()) {
-        return Result<ProcResult, StatusCode>::err(BadRequest);
-    }
-    return Result<ProcResult, StatusCode>::ok(Success);
+    return get_directory_listing_html(directory_path_end_with_slash, directories, files, buf);
 }
 
 bool operator<(const file_info &lhs, const file_info &rhs) {

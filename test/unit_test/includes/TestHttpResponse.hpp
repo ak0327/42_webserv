@@ -13,14 +13,17 @@ class HttpResponseFriend : public ::testing::Test {
         return response.get_resource_path();
     }
 
-    static Result<ProcResult, StatusCode> get_request_body(HttpResponse &response,
-                                                           const std::string &resource_path) {
-        return response.get_request_body(resource_path);
-    }
-
     static std::string get_indexed_path(HttpResponse &response,
                                         const std::string &resource_path) {
         return response.get_indexed_path(resource_path);
     }
 
+
+
+
+
+    static StatusCode get_request_body(HttpResponse &response,
+                                       const std::string &resource_path) {
+        return response.get_request_body(resource_path);
+    }
 };
