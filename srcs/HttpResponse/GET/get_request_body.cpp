@@ -9,7 +9,7 @@
 #include <sstream>
 #include "webserv.hpp"
 #include "ConfigStruct.hpp"
-#include "Configuration.hpp"
+#include "Config.hpp"
 #include "Constant.hpp"
 #include "Color.hpp"
 #include "Debug.hpp"
@@ -41,9 +41,9 @@ void HttpResponse::get_error_page(const StatusCode &code) {
     // get_error_page_path
     DEBUG_PRINT(CYAN, "  get_error_page 1 target: %s, code: %d", this->request_.request_target().c_str(), code);
     Result<std::string, int> result;
-    result = Configuration::get_error_page_path(this->server_config_,
-                                                this->request_.request_target(),
-                                                code);
+    result = Config::get_error_page_path(this->server_config_,
+                                         this->request_.request_target(),
+                                         code);
     if (result.is_err()) {
         DEBUG_PRINT(CYAN, "  get_error_page 2 -> err");
         return;
@@ -63,8 +63,8 @@ void HttpResponse::get_error_page(const StatusCode &code) {
 
 Result<ProcResult, StatusCode> HttpResponse::get_request_body(const std::string &target_path) {
     Result<bool, int> autoindex_result;
-    autoindex_result = Configuration::is_autoindex_on(this->server_config_,
-                                                      this->request_.request_target());
+    autoindex_result = Config::is_autoindex_on(this->server_config_,
+                                               this->request_.request_target());
     if (autoindex_result.is_err()) {
         return Result<ProcResult, StatusCode>::err(BadRequest);
     }

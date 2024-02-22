@@ -8,7 +8,7 @@
 #include <vector>
 #include "webserv.hpp"
 #include "Color.hpp"
-#include "Configuration.hpp"
+#include "Config.hpp"
 #include "Debug.hpp"
 #include "Error.hpp"
 #include "HttpRequest.hpp"
@@ -209,15 +209,15 @@ std::string HttpResponse::get_resource_path(const std::string &request_target) {
     std::string normalized = HttpMessageParser::normalize(decoded);
 
     std::string root;
-    Result<std::string, int> root_result = Configuration::get_root(this->server_config_,
-                                                                   request_target);
+    Result<std::string, int> root_result = Config::get_root(this->server_config_,
+                                                            request_target);
     if (root_result.is_ok()) {
         root = root_result.get_ok_value();
     }
 
     if (request_target == "/") {
-        Result<std::string, int> index_result = Configuration::get_index(this->server_config_,
-                                                                         request_target);
+        Result<std::string, int> index_result = Config::get_index(this->server_config_,
+                                                                  request_target);
         std::string index_page;
         if (index_result.is_ok()) {
             index_page = "/" + index_result.get_ok_value();

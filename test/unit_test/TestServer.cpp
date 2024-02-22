@@ -8,7 +8,7 @@
 #include "webserv.hpp"
 #include "Client.hpp"
 #include "Color.hpp"
-#include "Configuration.hpp"
+#include "Config.hpp"
 #include "Constant.hpp"
 #include "Debug.hpp"
 #include "Server.hpp"
@@ -41,7 +41,7 @@ void *run_server(void *server_info) {
 	// ServerTest *s = (ServerTest *)server_info;
 	bool is_server_success = true;
     const char *file_path = "test/test_conf/test_server.conf";
-    Configuration config(file_path);
+    Config config(file_path);
 
 	try {
 		DEBUG_SERVER_PRINT("start");
@@ -193,7 +193,7 @@ void run_server_and_multi_client(const char *server_ip,
 
 TEST(ServerUnitTest, Constructor) {
     const char *file_path = "test/test_conf/test_server.conf";
-    Configuration config(file_path);
+    Config config(file_path);
 
 	EXPECT_NO_THROW((Server(config)));
 }
@@ -378,6 +378,6 @@ TEST(ServerUnitTest, ConnectMultiClient) {
 
 
 TEST(ServerUnitTest, TestMultiServer) {
-    Configuration config("test/test_conf/test_multi_server.conf");
+    Config config("test/test_conf/test_multi_server.conf");
     EXPECT_NO_THROW(Server server(config));
 }

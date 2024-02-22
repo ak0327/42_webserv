@@ -3,7 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include "webserv.hpp"
-#include "Configuration.hpp"
+#include "Config.hpp"
 #include "Constant.hpp"
 #include "Color.hpp"
 #include "FileHandler.hpp"

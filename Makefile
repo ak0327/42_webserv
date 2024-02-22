@@ -15,12 +15,12 @@ SRCS_DIR	=	srcs
 SRCS		=	main.cpp
 
 # Config
-CONFIG_DIR	=	Configuration
+CONFIG_DIR	=	Config
 SRCS		+=	$(CONFIG_DIR)/FileHandler/FileHandler.cpp \
 				$(CONFIG_DIR)/Parser/Parser.cpp \
 				$(CONFIG_DIR)/Token/Token.cpp \
 				$(CONFIG_DIR)/Tokenizer/Tokenizer.cpp \
-				$(CONFIG_DIR)/Configuration.cpp
+				$(CONFIG_DIR)/Config.cpp
 
 # Const
 CONST_DIR	=	Const

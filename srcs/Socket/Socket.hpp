@@ -2,7 +2,7 @@
 
 # include <string>
 # include "webserv.hpp"
-# include "Configuration.hpp"
+# include "Config.hpp"
 # include "Result.hpp"
 
 typedef Result<int, std::string> SocketResult;

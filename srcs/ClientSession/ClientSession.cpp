@@ -17,7 +17,7 @@
 ClientSession::ClientSession(int socket_fd,
                              int client_fd,
                              const AddressPortPair &client_listen,
-                             const Configuration &config)
+                             const Config &config)
     : socket_fd_(socket_fd),
       client_fd_(client_fd),
       config_(config),
@@ -353,7 +353,7 @@ SessionResult ClientSession::update_config_params() {
     const std::string request_target = this->request_->request_target();
 
     Result<std::size_t, int> body_size_result;
-    body_size_result = Configuration::get_max_body_size(server_config_, request_target);
+    body_size_result = Config::get_max_body_size(server_config_, request_target);
     if (body_size_result.is_err()) {
         const std::string error_msg = CREATE_ERROR_INFO_STR("error: fail to get client_max_body_size");
         return SessionResult::err(error_msg);

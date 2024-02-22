@@ -43,11 +43,11 @@ include_directories(
         srcs/Const
         srcs/Client
         srcs/ClientSession
-        srcs/Configuration/FileHandler
-        srcs/Configuration/Parser
-        srcs/Configuration/Token
-        srcs/Configuration/Tokenizer
-        srcs/Configuration
+        srcs/Config/FileHandler
+        srcs/Config/Parser
+        srcs/Config/Token
+        srcs/Config/Tokenizer
+        srcs/Config
         srcs/Debug
         srcs/Error
         srcs/IOMultiplexer
@@ -79,11 +79,11 @@ set(webserv_srcs
         srcs/Const/Constant.cpp
         srcs/Client/Client.cpp
         srcs/ClientSession/ClientSession.cpp
-        srcs/Configuration/FileHandler/FileHandler.cpp
-        srcs/Configuration/Parser/Parser.cpp
-        srcs/Configuration/Token/Token.cpp
-        srcs/Configuration/Tokenizer/Tokenizer.cpp
-        srcs/Configuration/Configuration.cpp
+        srcs/Config/FileHandler/FileHandler.cpp
+        srcs/Config/Parser/Parser.cpp
+        srcs/Config/Token/Token.cpp
+        srcs/Config/Tokenizer/Tokenizer.cpp
+        srcs/Config/Config.cpp
         srcs/Debug/Debug.cpp
         srcs/Error/Error.cpp
         srcs/IOMultiplexer/IOMultiplexer.cpp
@@ -232,7 +232,7 @@ set (unit_test_srcs
         test/unit_test/TestTokenizer.cpp
         test/unit_test/TestParserFunc.cpp
         test/unit_test/TestParse.cpp
-        test/unit_test/TestConfiguration.cpp
+        test/unit_test/TestConfig.cpp
 
         test/unit_test/TestRequestLine.cpp
 

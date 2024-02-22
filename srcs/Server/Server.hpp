@@ -8,7 +8,7 @@
 # include "ClientSession.hpp"
 # include "Constant.hpp"
 # include "ConfigStruct.hpp"
-# include "Configuration.hpp"
+# include "Config.hpp"
 # include "HttpRequest.hpp"
 # include "IOMultiplexer.hpp"
 # include "Result.hpp"
@@ -18,7 +18,7 @@ typedef Result<int, std::string> ServerResult;
 
 class Server {
  public:
-	explicit Server(const Configuration &config);
+	explicit Server(const Config &config);
 	~Server();
 
     ServerResult init();
@@ -35,7 +35,7 @@ class Server {
 
     std::map<Fd, ClientSession *> sessions_;
 
-    const Configuration &config_;
+    const Config &config_;
 
 	ServerResult accept_connect_fd(int socket_fd, struct sockaddr_storage *client_addr);
     ServerResult communicate_with_client(int ready_fd);
@@ -45,7 +45,7 @@ class Server {
     void update_fd_type(int fd, FdType update_from, FdType update_to);
     static Result<Socket *, std::string> create_socket(const std::string &address,
                                                        const std::string &port);
-    ServerResult create_sockets(const Configuration &config);
+    ServerResult create_sockets(const Config &config);
     Result<IOMultiplexer *, std::string> create_io_multiplexer_fds();
 
     bool is_socket_fd(int fd) const;
