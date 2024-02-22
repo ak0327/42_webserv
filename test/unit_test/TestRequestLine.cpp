@@ -42,30 +42,6 @@ TEST(TestRequestLine, ResuestLineOK3) {
 }
 
 TEST(TestRequestLine, ResuestLineOK4) {
-	const std::string request_line = "GET /index.html HTTP/2.0";
-	RequestLine request;
-	Result<ProcResult, StatusCode> result;
-
-	result = request.parse_and_validate(request_line);
-	EXPECT_EQ("GET", request.method());
-	EXPECT_EQ("/index.html", request.request_target());
-	EXPECT_EQ("HTTP/2.0", request.http_version());
-	EXPECT_TRUE(result.is_ok());
-}
-
-TEST(TestRequestLine, ResuestLineOK5) {
-	const std::string request_line = "GET /index.html HTTP/3.0";
-	RequestLine request;
-	Result<ProcResult, StatusCode> result;
-
-	result = request.parse_and_validate(request_line);
-	EXPECT_EQ("GET", request.method());
-	EXPECT_EQ("/index.html", request.request_target());
-	EXPECT_EQ("HTTP/3.0", request.http_version());
-	EXPECT_TRUE(result.is_ok());
-}
-
-TEST(TestRequestLine, ResuestLineOK6) {
 	const std::string request_line = "GET /index.html?hoge? HTTP/1.1";
 	RequestLine request;
 	Result<ProcResult, StatusCode> result;
@@ -87,7 +63,7 @@ TEST(TestRequestLine, ResuestLineNG1) {
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("GET", request.method());
 	EXPECT_EQ("/index.html", request.request_target());
-	EXPECT_EQ("HTTP/1.1 ", request.http_version());
+	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_err());
 }
 
@@ -99,7 +75,7 @@ TEST(TestRequestLine, ResuestLineNG2) {
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("GET", request.method());
 	EXPECT_EQ("/index.html", request.request_target());
-	EXPECT_EQ("HTTP/1.1\n", request.http_version());
+	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_err());
 }
 
@@ -111,7 +87,7 @@ TEST(TestRequestLine, ResuestLineNG3) {
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("GET", request.method());
 	EXPECT_EQ("/index.html", request.request_target());
-	EXPECT_EQ("HTTP/1.1\r ", request.http_version());
+	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_err());
 }
 
@@ -123,7 +99,7 @@ TEST(TestRequestLine, ResuestLineNG4) {
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("", request.method());
 	EXPECT_EQ("", request.request_target());
-	EXPECT_EQ("", request.http_version());
+	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_err());
 }
 
@@ -135,7 +111,7 @@ TEST(TestRequestLine, ResuestLineNG5) {
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("", request.method());
 	EXPECT_EQ("", request.request_target());
-	EXPECT_EQ("", request.http_version());
+	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_err());
 }
 
@@ -147,7 +123,7 @@ TEST(TestRequestLine, ResuestLineNG6) {
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("", request.method());
 	EXPECT_EQ("", request.request_target());
-	EXPECT_EQ("", request.http_version());
+	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_err());
 }
 
@@ -183,7 +159,7 @@ TEST(TestRequestLine, ResuestLineNG9) {
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("GET", request.method());
 	EXPECT_EQ("/index.html", request.request_target());
-	EXPECT_EQ("HTTP/1.0", request.http_version());
+	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_err());
 }
 
@@ -195,7 +171,7 @@ TEST(TestRequestLine, ResuestLineNG10) {
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("GET", request.method());
 	EXPECT_EQ("/index.html", request.request_target());
-	EXPECT_EQ("HTTP/1.12", request.http_version());
+	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_err());
 }
 
@@ -207,7 +183,7 @@ TEST(TestRequestLine, ResuestLineNG11) {
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("GET", request.method());
 	EXPECT_EQ("/index.html", request.request_target());
-	EXPECT_EQ("http/1.1", request.http_version());
+	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_err());
 }
 
@@ -231,7 +207,7 @@ TEST(TestRequestLine, ResuestLineNG13) {
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("GET", request.method());
 	EXPECT_EQ("", request.request_target());
-	EXPECT_EQ("", request.http_version());
+	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_err());
 }
 
@@ -315,7 +291,7 @@ TEST(TestRequestLine, ResuestLineNG20) {
     result = request.parse_and_validate(request_line);
     EXPECT_EQ("GET", request.method());
     EXPECT_EQ("/", request.request_target());
-    EXPECT_EQ("HTTP/1.1\r", request.http_version());
+    EXPECT_EQ("HTTP/1.1", request.http_version());
     EXPECT_TRUE(result.is_err());
 }
 
@@ -341,4 +317,28 @@ TEST(TestRequestLine, ResuestLineNG22) {
     EXPECT_EQ("-", request.request_target());
     EXPECT_EQ("HTTP/1.1", request.http_version());
     EXPECT_TRUE(result.is_err());
+}
+
+TEST(TestRequestLine, ResuestLineNG23) {
+    const std::string request_line = "GET /index.html HTTP/2.0";
+    RequestLine request;
+    Result<ProcResult, StatusCode> result;
+
+    result = request.parse_and_validate(request_line);
+    EXPECT_EQ("GET", request.method());
+    EXPECT_EQ("/index.html", request.request_target());
+    EXPECT_EQ("HTTP/1.1", request.http_version());
+    EXPECT_TRUE(result.is_err());  // update
+}
+
+TEST(TestRequestLine, ResuestLineNG24) {
+    const std::string request_line = "GET /index.html HTTP/3.0";
+    RequestLine request;
+    Result<ProcResult, StatusCode> result;
+
+    result = request.parse_and_validate(request_line);
+    EXPECT_EQ("GET", request.method());
+    EXPECT_EQ("/index.html", request.request_target());
+    EXPECT_EQ("HTTP/1.1", request.http_version());
+    EXPECT_TRUE(result.is_err());  // update
 }
