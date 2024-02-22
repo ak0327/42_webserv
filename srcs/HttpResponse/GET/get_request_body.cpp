@@ -61,7 +61,24 @@ void HttpResponse::get_error_page(const StatusCode &code) {
 }
 
 
-Result<ProcResult, StatusCode> HttpResponse::get_request_body(const std::string &target_path) {
+std::string HttpResponse::get_indexed_path(const std::string &resource_path) {
+    Result<std::string, int> index_exist = Config::get_index(this->server_config_,
+                                                             this->request_.request_target());
+    if (index_exist.is_err()) {
+        return resource_path;
+    }
+    std::string index_page = index_exist.get_ok_value();
+    std::string extension = StringHandler::get_extension(resource_path);
+
+    std::string indexed_path = resource_path;
+    if (extension.empty()) {
+        indexed_path.append(index_page);
+    }
+    return indexed_path;
+}
+
+
+Result<ProcResult, StatusCode> HttpResponse::get_request_body(const std::string &resource_path) {
     Result<bool, int> autoindex_result;
     autoindex_result = Config::is_autoindex_on(this->server_config_,
                                                this->request_.request_target());
@@ -69,25 +86,25 @@ Result<ProcResult, StatusCode> HttpResponse::get_request_body(const std::string 
         return Result<ProcResult, StatusCode>::err(BadRequest);
     }
     bool autoindex = autoindex_result.get_ok_value();
-    DEBUG_PRINT(CYAN, "  target_path: %s, autoindex: %s", target_path.c_str(), autoindex ? "on" : "off");
 
-    DEBUG_PRINT(CYAN, "  is_dir: %s", is_directory(target_path) ? "true" : "false");
-    Result<ProcResult, StatusCode> result;
-    if (autoindex && is_directory(target_path)) {
-        DEBUG_PRINT(CYAN, "  get_content -> directory_listing");
-        result = get_directory_listing(target_path, &this->body_buf_);
-    } else if (is_cgi_file(target_path)) {
+    std::string indexed_path = get_indexed_path(resource_path);
+    DEBUG_PRINT(CYAN, "  file_path: %s, autoindex: %s", indexed_path.c_str(), autoindex ? "on" : "off");
+
+    if (is_directory(indexed_path)) {
+        if (autoindex) {
+            DEBUG_PRINT(CYAN, "  get_content -> directory_listing");
+            return get_directory_listing(resource_path, &this->body_buf_);
+        } else {
+            DEBUG_PRINT(CYAN, "  get_content -> directory -> 404");
+            return Result<ProcResult, StatusCode>::err(NotFound);
+        }
+    }
+
+    if (is_cgi_file(indexed_path)) {
         DEBUG_PRINT(CYAN, "  get_content -> cgi");
-        // todo ------------------
-        // create_cgi_request();
-        // get_cgi_response();
-        // get_cgi_field_lines();
-        // get_cgi_request_body();
-        // -----------------------
-        result = exec_cgi(target_path, &this->cgi_read_fd_, &this->cgi_pid_);
+        return exec_cgi(indexed_path, &this->cgi_read_fd_, &this->cgi_pid_);
     } else {
         DEBUG_PRINT(CYAN, "  get_content -> file_content");
-        result = get_file_content(target_path, &this->body_buf_);
+        return get_file_content(indexed_path, &this->body_buf_);
     }
-    return result;
 }

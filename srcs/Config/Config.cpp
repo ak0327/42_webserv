@@ -397,7 +397,7 @@ Result<std::string, int> Config::get_index(const ServerConfig &server_config,
                                            const std::string &target_path) {
     std::set<std::string> index_pages;
 
-    // DEBUG_PRINT(GREEN, "get_index");
+    // DEBUG_PRINT(GREEN, "get_index target: %s", target_path.c_str());
     Result<LocationConfig, int> location_result = get_location_config(server_config, target_path);
     if (location_result.is_err()) {
         return Result<std::string, int>::err(ERR);
@@ -413,7 +413,7 @@ Result<std::string, int> Config::get_index(const ServerConfig &server_config,
     // DEBUG_PRINT(GREEN, " root: %s", root.c_str());
 
     for (std::set<std::string>::const_iterator page = index_pages.begin(); page != index_pages.end(); ++page) {
-        const std::string path = root + "/" + *page;
+        const std::string path = root + target_path + *page;
         // DEBUG_PRINT(GREEN, " path: %s", path.c_str());
         std::ifstream ifs(path.c_str());
 
@@ -423,6 +423,7 @@ Result<std::string, int> Config::get_index(const ServerConfig &server_config,
             return Result<std::string, int>::ok(*page);
         }
     }
+    // DEBUG_PRINT(GREEN, " index_page nothing ");
     return Result<std::string, int>::err(ERR);
 }
 
