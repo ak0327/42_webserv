@@ -60,7 +60,7 @@ class HttpResponse {
 
     Result<ProcResult, StatusCode> exec_method(const StatusCode &status_code);
     Result<ProcResult, StatusCode> recv_cgi_result();
-    Result<ProcResult, StatusCode> create_cgi_body();
+    Result<ProcResult, StatusCode> create_cgi_document_response();
     Result<ProcResult, StatusCode> create_response_message(const StatusCode &code);
 
     int cgi_fd() const;

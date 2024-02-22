@@ -134,7 +134,9 @@ Result<ProcResult, StatusCode> HttpResponse::exec_method(const StatusCode &statu
 }
 
 
-Result<ProcResult, StatusCode> HttpResponse::create_cgi_body() {
+// document-response = Content-Type [ Status ] *other-field NL response-body
+// https://tex2e.github.io/rfc-translater/html/rfc3875.html#6-2-1--Document-Response
+Result<ProcResult, StatusCode> HttpResponse::create_cgi_document_response() {
     // buf -> cgi body
 
     // translate_to_http_protocol(execute_cgi_result.get_ok_value());

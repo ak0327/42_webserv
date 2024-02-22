@@ -50,7 +50,13 @@ class ClientSession {
     void set_session_state(const SessionState &set_state);
     void set_status(const StatusCode &code);
 
-    bool is_session_state_expect_to(const SessionState &expect) const;
+    bool is_session_state_expect(const SessionState &expect) const;
+
+    static bool is_continue_recv(const Result<ProcResult, StatusCode> &result);
+    static bool is_continue_recv(const Result<ProcResult, std::string> &result);
+    static bool is_read_conf_for_parse_body(const Result<ProcResult, StatusCode> &result);
+    static bool is_executing_cgi(const Result<ProcResult, StatusCode> &result);
+    static bool is_executing_cgi(const Result<ProcResult, std::string> &result);
 
     SessionResult process_client_event();
     SessionResult process_file_event();

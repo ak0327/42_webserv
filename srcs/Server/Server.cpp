@@ -377,6 +377,11 @@ void Server::init_session(ClientSession *session) {
 }
 
 
+bool Server::is_fd_type_expect(int fd, const FdType &type) {
+    return this->fds_->get_fd_type(fd) == type;
+}
+
+
 ServerResult Server::process_session(int ready_fd) {
     std::map<Fd, ClientSession *>::iterator session = this->sessions_.find(ready_fd);
     if (session == this->sessions_.end()) {
@@ -385,13 +390,13 @@ ServerResult Server::process_session(int ready_fd) {
     }
 
     SessionResult result;
-    ClientSession *client_session = session->second;
-    if (ready_fd == client_session->client_fd()) {
+    ClientSession *client = session->second;
+    if (ready_fd == client->client_fd()) {
         DEBUG_SERVER_PRINT("process_client_event");
-        result = client_session->process_client_event();
-    } else if (ready_fd == client_session->cgi_fd()) {
+        result = client->process_client_event();
+    } else if (ready_fd == client->cgi_fd()) {
         DEBUG_SERVER_PRINT("process_file_event");
-        result = client_session->process_file_event();
+        result = client->process_file_event();
     } else {
         const std::string error_msg = CREATE_ERROR_INFO_CSTR("error: fd unknown");
         return ServerResult::err(error_msg);
@@ -400,40 +405,33 @@ ServerResult Server::process_session(int ready_fd) {
     if (result.is_err()) {
         const std::string error_msg = result.get_err_value();
         return ServerResult::err(error_msg);
-    }
-    if (result.get_ok_value() == Continue) {
+    } else if (ClientSession::is_continue_recv(result)) {
         DEBUG_SERVER_PRINT("      process_session -> recv continue");
         return ServerResult::ok(OK);
-    }
-    if (result.get_ok_value() == ExecutingCgi) {
-        int cgi_fd = client_session->cgi_fd();
+    } else if (ClientSession::is_executing_cgi(result)) {
+        DEBUG_SERVER_PRINT("      process_session -> cgi");
+        int cgi_fd = client->cgi_fd();
         this->fds_->register_read_fd(cgi_fd);
-        this->sessions_[cgi_fd] = client_session;
+        this->sessions_[cgi_fd] = client;
         return ServerResult::ok(OK);
     }
 
-    if (client_session->is_session_state_expect_to(kSendingResponse)) {
-        FdType fd_type = this->fds_->get_fd_type(ready_fd);
-        if (fd_type == kReadFd) {
-            DEBUG_SERVER_PRINT("fd read -> write");
-            this->fds_->clear_fd(ready_fd);
-            this->fds_->register_write_fd(ready_fd);
-            // std::cout << RED << "update write fd: " << fd << RESET << std::endl;
-        }
-    } else if (client_session->is_session_state_expect_to(kCreatingCGIBody)) {
+    if (client->is_session_state_expect(kSendingResponse) && is_fd_type_expect(ready_fd, kReadFd)) {
+        DEBUG_SERVER_PRINT("fd read -> write");
+        this->fds_->clear_fd(ready_fd);
+        this->fds_->register_write_fd(ready_fd);
+    } else if (client->is_session_state_expect(kCreatingCGIBody)) {
         DEBUG_SERVER_PRINT("client process completed(CGI): fd %d -> close", ready_fd);
         this->sessions_.erase(ready_fd);
         this->fds_->clear_fd(ready_fd);
-        std::cout << CYAN << " -> CreatingCGIBody" << RESET << std::endl;
-        return process_session(client_session->client_fd());
-    } else if (client_session->is_session_state_expect_to(kSessionCompleted)) {
+        return process_session(client->client_fd());
+    } else if (client->is_session_state_expect(kSessionCompleted)) {
         DEBUG_SERVER_PRINT("client process completed(Client): fd %d -> close", ready_fd);
-        delete_session(session);  // todo
-        // init_session(client_session);
-    } else if (client_session->is_session_state_expect_to(kSessionError)) {
+        delete_session(session);  // todo -> init_session
+        // init_session(client);
+    } else if (client->is_session_state_expect(kSessionError)) {
         DEBUG_SERVER_PRINT("client process error occurred: fd %d -> close", ready_fd);
-        delete_session(session);  // todo
-        // init_session(client_session);
+        delete_session(session);
     }
     return ServerResult::ok(OK);
 }
