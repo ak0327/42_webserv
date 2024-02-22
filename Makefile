@@ -342,10 +342,10 @@ run_config_test    :
 
 .PHONY    : run_get_test
 run_get_test    :
-	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
+	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG -D UTEST_FRIEND"
 	#cmake -S . -B build
 	cmake --build build
-	./build/unit_test --gtest_filter=HttpResponseGet*
+	./build/unit_test --gtest_filter=HttpResponseGET*
 
 
 # include DEPS -----------------------------------------------------------------

@@ -82,22 +82,21 @@ Result<ProcResult, StatusCode> HttpResponse::exec_method(const StatusCode &statu
         return Result<ProcResult, StatusCode>::err(status_code);  // todo: err ? ok?
     }
 
-    std::string target_path = HttpResponse::get_resource_path(this->request_.request_target());
+    std::string target_path = HttpResponse::get_resource_path();
     DEBUG_PRINT(YELLOW, " exec_method 2 path: ", target_path.c_str());
     Method method = HttpMessageParser::get_method(this->request_.method());
     DEBUG_PRINT(YELLOW, " exec_method 3 method: ", method);
-    std::ostringstream status_line_oss;
     Result<ProcResult, StatusCode> method_result;
 
     switch (method) {
         case kGET:
             DEBUG_PRINT(YELLOW, " exec_method 4 - GET");
-            method_result = get_request_body(target_path);  // cgi -> return Fd
+            method_result = get_request_body(target_path);
             break;
 
         case kPOST:
             DEBUG_PRINT(YELLOW, " exec_method 4 - POST");
-            method_result = post_request_body(target_path);  // cgi -> return Fd
+            method_result = post_request_body(target_path);
             break;
 
         case kDELETE:
@@ -203,33 +202,15 @@ std::string HttpResponse::create_field_lines() const {
 }
 
 
-
-std::string HttpResponse::get_resource_path(const std::string &request_target) {
-    std::string decoded = HttpMessageParser::decode(request_target);
-    std::string normalized = HttpMessageParser::normalize(decoded);
-
+std::string HttpResponse::get_resource_path() {
     std::string root;
     Result<std::string, int> root_result = Config::get_root(this->server_config_,
-                                                            request_target);
+                                                            this->request_.request_target());
     if (root_result.is_ok()) {
         root = root_result.get_ok_value();
     }
 
-    if (request_target == "/") {
-        Result<std::string, int> index_result = Config::get_index(this->server_config_,
-                                                                  request_target);
-        std::string index_page;
-        if (index_result.is_ok()) {
-            index_page = "/" + index_result.get_ok_value();
-        }
-        return root + index_page;
-    }
-    std::string path = root + request_target;
-    // todo: unused?
-    // std::string extension = StringHandler::get_extension(path);
-    // if (extension.empty()) {
-    //     path.append("/");
-    // }
+    std::string path = root + this->request_.request_target();
     return path;
 }
 
@@ -275,6 +256,11 @@ bool HttpResponse::is_cgi_processing(int *status) {
     }
     this->cgi_pid_ = INIT_PID;
     return false;
+}
+
+
+const std::vector<unsigned char> &HttpResponse::body_buf() const {
+    return this->body_buf_;
 }
 
 

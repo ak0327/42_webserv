@@ -55,6 +55,7 @@ class HttpResponse {
 	explicit HttpResponse(const HttpRequest &request, const ServerConfig &server_config);
 	~HttpResponse();
 
+    const std::vector<unsigned char> &body_buf() const;
 	const std::vector<unsigned char> &get_response_message() const;
 
     Result<ProcResult, StatusCode> exec_method(const StatusCode &status_code);
@@ -77,6 +78,10 @@ class HttpResponse {
     std::string get_echo_msg() const;
 #endif
 
+#ifdef UTEST_FRIEND
+    friend class HttpResponseFriend;
+#endif
+
  private:
     const HttpRequest &request_;
     const ServerConfig &server_config_;
@@ -95,16 +100,13 @@ class HttpResponse {
     std::vector<unsigned char> response_msg_;
 
 
-	HttpResponse(const HttpResponse &other);
-	HttpResponse &operator=(const HttpResponse &rhs);
-
-
-    std::string get_resource_path(const std::string &request_target);
+    std::string get_resource_path();
     std::string create_status_line(const StatusCode &code) const;
     std::string create_field_lines() const;
 
     // GET
-    Result<ProcResult, StatusCode> get_request_body(const std::string &target_path);
+    Result<ProcResult, StatusCode> get_request_body(const std::string &resource_path);
+    std::string get_indexed_path(const std::string &resource_path);
     void get_error_page(const StatusCode &code);
     static bool is_directory(const std::string &path);
     static bool is_cgi_file(const std::string &path);
@@ -134,4 +136,8 @@ class HttpResponse {
         (void)target;
         return Result<ProcResult, StatusCode>::ok(Success);
     }
+
+
+	HttpResponse(const HttpResponse &other);
+	HttpResponse &operator=(const HttpResponse &rhs);
 };

@@ -311,7 +311,7 @@ set (unit_test_srcs
 #        test/unit_test/HttpResponse/GET/TestAutoIndex.cpp
 #        test/unit_test/HttpResponse/GET/TestCGI.cpp
 #        test/unit_test/HttpResponse/GET/TestGetInterpreter.cpp
-#        test/unit_test/HttpResponse/GET/TestGetRequestBody.cpp
+        test/unit_test/HttpResponse/GET/TestGetRequestBody.cpp
 
 )
 

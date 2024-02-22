@@ -20,6 +20,7 @@ class RequestLine {
  private:
 	Result<ProcResult, StatusCode> parse(const std::string &line);
 	Result<ProcResult, StatusCode> validate() const;
+    void update_target_path();
 
 	std::string method_;
 	std::string request_target_;
