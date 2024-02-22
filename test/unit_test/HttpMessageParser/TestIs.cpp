@@ -347,9 +347,9 @@ TEST(TestHttpMessageParser, IsValidRequestTarget) {
 
 TEST(TestHttpMessageParser, IsValidHttpVersion) {
 	EXPECT_TRUE(HttpMessageParser::is_valid_http_version("HTTP/1.1"));
-	EXPECT_TRUE(HttpMessageParser::is_valid_http_version("HTTP/2.0"));
-	EXPECT_TRUE(HttpMessageParser::is_valid_http_version("HTTP/3.0"));
 
+	EXPECT_FALSE(HttpMessageParser::is_valid_http_version("HTTP/2.0"));  // update
+	EXPECT_FALSE(HttpMessageParser::is_valid_http_version("HTTP/3.0"));  // update
 	EXPECT_FALSE(HttpMessageParser::is_valid_http_version("http/1.1"));
 	EXPECT_FALSE(HttpMessageParser::is_valid_http_version("HTTP/1.1 "));
 	EXPECT_FALSE(HttpMessageParser::is_valid_http_version("HTTP1.1"));

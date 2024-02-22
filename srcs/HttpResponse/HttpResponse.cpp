@@ -175,9 +175,10 @@ Result<ProcResult, StatusCode> HttpResponse::exec_method(const StatusCode &statu
  The newline (NL) sequence is LF; servers should also accept CR LF as a newline.
                                           ^^^^^^
  */
-StatusCode HttpResponse::parse_cgi_document_response() {
-    StatusCode parse_result = parse_cgi_output();
-    return parse_result;
+Result<ProcResult, StatusCode> HttpResponse::interpret_cgi_output() {
+    StatusCode parse_result = parse_cgi_document_response();
+    // error_page
+    return Result<ProcResult, StatusCode>::err(parse_result);
 }
 
 
