@@ -13,7 +13,7 @@
 #include "webserv.hpp"
 #include "Color.hpp"
 #include "Constant.hpp"
-#include "Configuration.hpp"
+#include "Config.hpp"
 #include "Debug.hpp"
 #include "Error.hpp"
 #include "IOMultiplexer.hpp"
@@ -64,7 +64,7 @@ ServerResult set_signal() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Server::Server(const Configuration &config)
+Server::Server(const Config &config)
 	: sockets_(),
       fds_(NULL),
       config_(config) {}
@@ -149,7 +149,7 @@ Result<Socket *, std::string> Server::create_socket(const std::string &address,
 }
 
 
-ServerResult Server::create_sockets(const Configuration &config) {
+ServerResult Server::create_sockets(const Config &config) {
     const std::map<ServerInfo, const ServerConfig *> &server_configs = config.get_server_configs();
 
     std::map<ServerInfo, const ServerConfig *>::const_iterator servers;

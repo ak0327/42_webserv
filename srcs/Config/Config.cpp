@@ -4,7 +4,7 @@
 #include <string>
 #include <utility>
 #include "webserv.hpp"
-#include "Configuration.hpp"
+#include "Config.hpp"
 #include "Constant.hpp"
 #include "Debug.hpp"
 #include "FileHandler.hpp"
@@ -12,7 +12,7 @@
 #include "Token.hpp"
 #include "Parser.hpp"
 
-Configuration::Configuration(const char *file_path) {
+Config::Config(const char *file_path) {
 	Parser parser(file_path);
     Result<int, std::string> parse_result = parser.result();
 	if (parse_result.is_err()) {
@@ -33,15 +33,15 @@ Configuration::Configuration(const char *file_path) {
 }
 
 
-Configuration::Configuration(const Configuration &other) {
+Config::Config(const Config &other) {
 	*this = other;
 }
 
 
-Configuration::~Configuration() {}
+Config::~Config() {}
 
 
-Configuration &Configuration::operator=(const Configuration &rhs) {
+Config &Config::operator=(const Config &rhs) {
 	if (this == &rhs) {
 		return *this;
 	}
@@ -52,7 +52,7 @@ Configuration &Configuration::operator=(const Configuration &rhs) {
 }
 
 
-void Configuration::set_server_configs() {
+void Config::set_server_configs() {
     const std::vector<ServerConfig> &server_configs = this->http_config_.servers;
 
     std::vector<ServerConfig>::const_iterator server_config;
@@ -87,7 +87,7 @@ std::ostringstream &operator<<(std::ostringstream &out, const std::map<AddressPo
 }
 
 
-Result<int, std::string> Configuration::set_default_server_to_default_listen() {
+Result<int, std::string> Config::set_default_server_to_default_listen() {
     const std::vector<ServerConfig> &server_configs = this->http_config_.servers;
 
     std::vector<ServerConfig>::const_iterator server_config;
@@ -113,7 +113,7 @@ Result<int, std::string> Configuration::set_default_server_to_default_listen() {
 }
 
 
-void Configuration::set_default_server_to_first_listen() {
+void Config::set_default_server_to_first_listen() {
     const std::vector<ServerConfig> &server_configs = this->http_config_.servers;
 
     std::vector<ServerConfig>::const_iterator server_config;
@@ -132,7 +132,7 @@ void Configuration::set_default_server_to_first_listen() {
 }
 
 
-Result<int, std::string> Configuration::set_default_servers() {
+Result<int, std::string> Config::set_default_servers() {
     Result<int, std::string> result = set_default_server_to_default_listen();
     if (result.is_err()) {
         const std::string error_msg = result.get_err_value();
@@ -145,15 +145,15 @@ Result<int, std::string> Configuration::set_default_servers() {
 }
 
 
-Result<int, std::string> Configuration::get_result() const { return this->result_; }
+Result<int, std::string> Config::get_result() const { return this->result_; }
 
 
-std::map<ServerInfo, const ServerConfig *> Configuration::get_server_configs() const {
+std::map<ServerInfo, const ServerConfig *> Config::get_server_configs() const {
     return this->server_configs_;
 }
 
 
-Result<ServerConfig, int> Configuration::get_server_config(const ServerInfo &server_info) const {
+Result<ServerConfig, int> Config::get_server_config(const ServerInfo &server_info) const {
     std::map<ServerInfo, const ServerConfig *>::const_iterator server_config;
     server_config = this->server_configs_.find(server_info);
 
@@ -167,8 +167,8 @@ Result<ServerConfig, int> Configuration::get_server_config(const ServerInfo &ser
 
 
 // todo: address == "*"
-Result<ServerConfig, std::string> Configuration::get_server_config(const AddressPortPair &actual,
-                                                                     const HostPortPair &request) const {
+Result<ServerConfig, std::string> Config::get_server_config(const AddressPortPair &actual,
+                                                            const HostPortPair &request) const {
     std::string socket_address = actual.first;
     std::string socket_port = actual.second;
     std::string request_port = request.second;
@@ -230,7 +230,7 @@ Result<ServerConfig, std::string> Configuration::get_server_config(const Address
 }
 
 
-Result<ServerConfig, int> Configuration::get_default_server(const AddressPortPair &pair) const {
+Result<ServerConfig, int> Config::get_default_server(const AddressPortPair &pair) const {
     std::map<AddressPortPair, const ServerConfig *> ::const_iterator default_server;
     default_server = this->default_servers_.find(pair);
 
@@ -242,7 +242,7 @@ Result<ServerConfig, int> Configuration::get_default_server(const AddressPortPai
 }
 
 
-bool Configuration::is_exact_match(const std::string &pattern, const std::string &target) {
+bool Config::is_exact_match(const std::string &pattern, const std::string &target) {
     if (pattern.empty() || target.empty()) {
         return false;
     }
@@ -254,7 +254,7 @@ bool Configuration::is_exact_match(const std::string &pattern, const std::string
 }
 
 
-bool Configuration::is_prefix_match(const std::string &pattern, const std::string &target) {
+bool Config::is_prefix_match(const std::string &pattern, const std::string &target) {
     const std::size_t PREFIX_LEN = 2;
 
     if (pattern.length() <= PREFIX_LEN || target.length() + PREFIX_LEN < pattern.length()) {
@@ -276,11 +276,11 @@ std::string get_pattern_matching_path(const ServerConfig &server_config,
     std::map<LocationPath, LocationConfig>::const_iterator location;
     for (location = server_config.locations.begin(); location != server_config.locations.end(); ++location) {
         std::string config_location = location->first;
-        if (Configuration::is_exact_match(config_location, target_path)) {
+        if (Config::is_exact_match(config_location, target_path)) {
             matching_location = config_location;
             break;
         }
-        if (Configuration::is_prefix_match(config_location, target_path)) {
+        if (Config::is_prefix_match(config_location, target_path)) {
             if (matching_location.length() < config_location.length()) {
                 matching_location = config_location;
             }
@@ -321,8 +321,8 @@ std::string find_root_matching_path(const ServerConfig &server_config,
 }
 
 
-Result<std::string, int> Configuration::get_matching_location(const ServerConfig &server_config,
-                                                              const std::string &target_path) {
+Result<std::string, int> Config::get_matching_location(const ServerConfig &server_config,
+                                                       const std::string &target_path) {
     std::string matching_location;
 
     matching_location = get_pattern_matching_path(server_config, target_path);
@@ -343,9 +343,9 @@ Result<std::string, int> Configuration::get_matching_location(const ServerConfig
 }
 
 
-Result<LocationConfig, int> Configuration::get_location_config(const ServerConfig &server_config,
-                                                               const std::string &target_path) {
-    Result<std::string, int> matching_result = Configuration::get_matching_location(server_config, target_path);
+Result<LocationConfig, int> Config::get_location_config(const ServerConfig &server_config,
+                                                        const std::string &target_path) {
+    Result<std::string, int> matching_result = Config::get_matching_location(server_config, target_path);
     if (matching_result.is_err()) {
         return Result<LocationConfig, int>::err(ERR);
     }
@@ -359,8 +359,8 @@ Result<LocationConfig, int> Configuration::get_location_config(const ServerConfi
 }
 
 
-Result<std::string, int> Configuration::get_root(const ServerConfig &server_config,
-                                                 const std::string &target_path) {
+Result<std::string, int> Config::get_root(const ServerConfig &server_config,
+                                          const std::string &target_path) {
     Result<LocationConfig, int> location_result = get_location_config(server_config, target_path);
     if (location_result.is_err()) {
         return Result<std::string, int>::err(ERR);
@@ -371,8 +371,8 @@ Result<std::string, int> Configuration::get_root(const ServerConfig &server_conf
 }
 
 
-Result<std::string, int> Configuration::get_root(const ServerInfo &server_info,
-                                                 const std::string &target_path) const {
+Result<std::string, int> Config::get_root(const ServerInfo &server_info,
+                                          const std::string &target_path) const {
     Result<ServerConfig, int> server_config_result = get_server_config(server_info);
     if (server_config_result.is_err()) {
         return Result<std::string, int>::err(ERR);
@@ -382,8 +382,8 @@ Result<std::string, int> Configuration::get_root(const ServerInfo &server_info,
 }
 
 
-Result<std::string, int> Configuration::get_root(const AddressPortPair &address_port_pair,
-                                                 const std::string &target_path) const {
+Result<std::string, int> Config::get_root(const AddressPortPair &address_port_pair,
+                                          const std::string &target_path) const {
     Result<ServerConfig, int> server_config_result = get_default_server(address_port_pair);
     if (server_config_result.is_err()) {
         return Result<std::string, int>::err(ERR);
@@ -393,8 +393,8 @@ Result<std::string, int> Configuration::get_root(const AddressPortPair &address_
 }
 
 
-Result<std::string, int> Configuration::get_index(const ServerConfig &server_config,
-                                                  const std::string &target_path) {
+Result<std::string, int> Config::get_index(const ServerConfig &server_config,
+                                           const std::string &target_path) {
     std::set<std::string> index_pages;
 
     // DEBUG_PRINT(GREEN, "get_index");
@@ -427,8 +427,8 @@ Result<std::string, int> Configuration::get_index(const ServerConfig &server_con
 }
 
 
-Result<std::string, int> Configuration::get_index(const ServerInfo &server_info,
-                                                  const std::string &target_path) const {
+Result<std::string, int> Config::get_index(const ServerInfo &server_info,
+                                           const std::string &target_path) const {
     Result<ServerConfig, int> server_config_result = get_server_config(server_info);
 
     if (server_config_result.is_err()) {
@@ -439,8 +439,8 @@ Result<std::string, int> Configuration::get_index(const ServerInfo &server_info,
 }
 
 
-Result<std::string, int> Configuration::get_index(const AddressPortPair &address_port_pair,
-                                                  const std::string &target_path) const {
+Result<std::string, int> Config::get_index(const AddressPortPair &address_port_pair,
+                                           const std::string &target_path) const {
     Result<ServerConfig, int> server_config_result = get_default_server(address_port_pair);
     if (server_config_result.is_err()) {
         return Result<std::string, int>::err(ERR);
@@ -450,16 +450,16 @@ Result<std::string, int> Configuration::get_index(const AddressPortPair &address
 }
 
 
-Result<std::string, int> Configuration::get_error_page_path(const ServerConfig &server_config,
-                                                            const std::string &target_path,
-                                                            const StatusCode &code) {
-    Result<std::string, int> root_result = Configuration::get_root(server_config, target_path);
+Result<std::string, int> Config::get_error_page_path(const ServerConfig &server_config,
+                                                     const std::string &target_path,
+                                                     const StatusCode &code) {
+    Result<std::string, int> root_result = Config::get_root(server_config, target_path);
     if (root_result.is_err()) {
         return Result<std::string, int>::err(ERR);
     }
     std::string root = root_result.get_ok_value();
 
-    Result<std::string, int> error_page_result = Configuration::get_error_page(server_config, target_path, code);
+    Result<std::string, int> error_page_result = Config::get_error_page(server_config, target_path, code);
     if (error_page_result.is_err()) {
         return Result<std::string, int>::err(ERR);
     }
@@ -468,9 +468,9 @@ Result<std::string, int> Configuration::get_error_page_path(const ServerConfig &
 }
 
 
-Result<std::string, int> Configuration::get_error_page(const ServerConfig &server_config,
-                                                       const std::string &target_path,
-                                                       const StatusCode &code) {
+Result<std::string, int> Config::get_error_page(const ServerConfig &server_config,
+                                                const std::string &target_path,
+                                                const StatusCode &code) {
     std::map<StatusCode, std::string> error_pages;
     std::string root;
 
@@ -492,9 +492,9 @@ Result<std::string, int> Configuration::get_error_page(const ServerConfig &serve
 }
 
 
-Result<std::string, int> Configuration::get_error_page(const ServerInfo &server_info,
-                                                       const std::string &target_path,
-                                                       const StatusCode &code) const {
+Result<std::string, int> Config::get_error_page(const ServerInfo &server_info,
+                                                const std::string &target_path,
+                                                const StatusCode &code) const {
     Result<ServerConfig, int> server_config_result = get_server_config(server_info);
     if (server_config_result.is_err()) {
         return Result<std::string, int>::err(ERR);
@@ -504,9 +504,9 @@ Result<std::string, int> Configuration::get_error_page(const ServerInfo &server_
 }
 
 
-Result<std::string, int> Configuration::get_error_page(const AddressPortPair &address_port_pair,
-                                                       const std::string &target_path,
-                                                       const StatusCode &code) const {
+Result<std::string, int> Config::get_error_page(const AddressPortPair &address_port_pair,
+                                                const std::string &target_path,
+                                                const StatusCode &code) const {
     Result<ServerConfig, int> server_config_result = get_default_server(address_port_pair);
     if (server_config_result.is_err()) {
         return Result<std::string, int>::err(ERR);
@@ -516,8 +516,8 @@ Result<std::string, int> Configuration::get_error_page(const AddressPortPair &ad
 }
 
 
-Result<bool, int> Configuration::is_autoindex_on(const ServerConfig &server_config,
-                                                 const std::string &target_path) {
+Result<bool, int> Config::is_autoindex_on(const ServerConfig &server_config,
+                                          const std::string &target_path) {
     Result<LocationConfig, int> location_result = get_location_config(server_config, target_path);
     if (location_result.is_err()) {
         return Result<bool, int>::err(ERR);
@@ -527,8 +527,8 @@ Result<bool, int> Configuration::is_autoindex_on(const ServerConfig &server_conf
 }
 
 
-Result<bool, int> Configuration::is_autoindex_on(const ServerInfo &server_info,
-                                    const std::string &target_path) const {
+Result<bool, int> Config::is_autoindex_on(const ServerInfo &server_info,
+                                          const std::string &target_path) const {
     Result<ServerConfig, int> server_config_result = get_server_config(server_info);
     if (server_config_result.is_err()) {
         return Result<bool, int>::err(ERR);
@@ -538,8 +538,8 @@ Result<bool, int> Configuration::is_autoindex_on(const ServerInfo &server_info,
 }
 
 
-Result<bool, int> Configuration::is_autoindex_on(const AddressPortPair &address_port_pair,
-                                    const std::string &target_path) const {
+Result<bool, int> Config::is_autoindex_on(const AddressPortPair &address_port_pair,
+                                          const std::string &target_path) const {
     Result<ServerConfig, int> server_config_result = get_default_server(address_port_pair);
     if (server_config_result.is_err()) {
         return Result<bool, int>::err(ERR);
@@ -549,9 +549,9 @@ Result<bool, int> Configuration::is_autoindex_on(const AddressPortPair &address_
 }
 
 
-Result<bool, int> Configuration::is_method_allowed(const ServerConfig &server_config,
-                                                   const std::string &target_path,
-                                                   const Method &method) {
+Result<bool, int> Config::is_method_allowed(const ServerConfig &server_config,
+                                            const std::string &target_path,
+                                            const Method &method) {
     Result<LocationConfig, int> location_result = get_location_config(server_config, target_path);
     if (location_result.is_err()) {
         return Result<bool, int>::err(ERR);
@@ -573,9 +573,9 @@ Result<bool, int> Configuration::is_method_allowed(const ServerConfig &server_co
 }
 
 
-Result<bool, int> Configuration::is_method_allowed(const ServerInfo &server_info,
-                                      const std::string &target_path,
-                                      const Method &method) const {
+Result<bool, int> Config::is_method_allowed(const ServerInfo &server_info,
+                                            const std::string &target_path,
+                                            const Method &method) const {
     Result<ServerConfig, int> server_config_result = get_server_config(server_info);
     if (server_config_result.is_err()) {
         return Result<bool, int>::err(ERR);
@@ -585,9 +585,9 @@ Result<bool, int> Configuration::is_method_allowed(const ServerInfo &server_info
 }
 
 
-Result<bool, int> Configuration::is_method_allowed(const AddressPortPair &address_port_pair,
-                                      const std::string &target_path,
-                                      const Method &method) const {
+Result<bool, int> Config::is_method_allowed(const AddressPortPair &address_port_pair,
+                                            const std::string &target_path,
+                                            const Method &method) const {
     Result<ServerConfig, int> server_config_result = get_default_server(address_port_pair);
     if (server_config_result.is_err()) {
         return Result<bool, int>::err(ERR);
@@ -598,8 +598,8 @@ Result<bool, int> Configuration::is_method_allowed(const AddressPortPair &addres
 
 
 // todo: server block ?
-Result<bool, int> Configuration::is_redirect(const ServerConfig &server_config,
-                                             const std::string &target_path) {
+Result<bool, int> Config::is_redirect(const ServerConfig &server_config,
+                                      const std::string &target_path) {
     Result<LocationConfig, int> location_result = get_location_config(server_config, target_path);
     if (location_result.is_err()) {
         return Result<bool, int>::err(ERR);
@@ -611,8 +611,8 @@ Result<bool, int> Configuration::is_redirect(const ServerConfig &server_config,
 }
 
 
-Result<bool, int> Configuration::is_redirect(const ServerInfo &server_info,
-                                             const std::string &target_path) const {
+Result<bool, int> Config::is_redirect(const ServerInfo &server_info,
+                                      const std::string &target_path) const {
     Result<ServerConfig, int> server_config_result = get_server_config(server_info);
     if (server_config_result.is_err()) {
         return Result<bool, int>::err(ERR);
@@ -622,8 +622,8 @@ Result<bool, int> Configuration::is_redirect(const ServerInfo &server_info,
 }
 
 
-Result<bool, int> Configuration::is_redirect(const AddressPortPair &address_port_pair,
-                                             const std::string &target_path) const {
+Result<bool, int> Config::is_redirect(const AddressPortPair &address_port_pair,
+                                      const std::string &target_path) const {
     Result<ServerConfig, int> server_config_result = get_default_server(address_port_pair);
     if (server_config_result.is_err()) {
         return Result<bool, int>::err(ERR);
@@ -633,8 +633,8 @@ Result<bool, int> Configuration::is_redirect(const AddressPortPair &address_port
 }
 
 
-Result<ReturnDirective, int> Configuration::get_redirect(const ServerConfig &server_config,
-                                                         const std::string &target_path) {
+Result<ReturnDirective, int> Config::get_redirect(const ServerConfig &server_config,
+                                                  const std::string &target_path) {
     Result<LocationConfig, int> location_result = get_location_config(server_config, target_path);
     if (location_result.is_err()) {
         return Result<ReturnDirective, int>::err(ERR);
@@ -646,8 +646,8 @@ Result<ReturnDirective, int> Configuration::get_redirect(const ServerConfig &ser
 }
 
 
-Result<ReturnDirective, int> Configuration::get_redirect(const ServerInfo &server_info,
-                                                         const std::string &target_path) const {
+Result<ReturnDirective, int> Config::get_redirect(const ServerInfo &server_info,
+                                                  const std::string &target_path) const {
     Result<ServerConfig, int> server_config_result = get_server_config(server_info);
     if (server_config_result.is_err()) {
         return Result<ReturnDirective, int>::err(ERR);
@@ -657,8 +657,8 @@ Result<ReturnDirective, int> Configuration::get_redirect(const ServerInfo &serve
 }
 
 
-Result<ReturnDirective, int> Configuration::get_redirect(const AddressPortPair &address_port_pair,
-                                                         const std::string &target_path) const {
+Result<ReturnDirective, int> Config::get_redirect(const AddressPortPair &address_port_pair,
+                                                  const std::string &target_path) const {
     Result<ServerConfig, int> server_config_result = get_default_server(address_port_pair);
     if (server_config_result.is_err()) {
         return Result<ReturnDirective, int>::err(ERR);
@@ -668,8 +668,8 @@ Result<ReturnDirective, int> Configuration::get_redirect(const AddressPortPair &
 }
 
 
-Result<std::size_t, int> Configuration::get_max_body_size(const ServerConfig &server_config,
-                                                          const std::string &target_path) {
+Result<std::size_t, int> Config::get_max_body_size(const ServerConfig &server_config,
+                                                   const std::string &target_path) {
     Result<LocationConfig, int> location_result = get_location_config(server_config, target_path);
     if (location_result.is_err()) {
         return Result<std::size_t, int>::err(ERR);
@@ -679,8 +679,8 @@ Result<std::size_t, int> Configuration::get_max_body_size(const ServerConfig &se
 }
 
 
-Result<std::size_t, int> Configuration::get_max_body_size(const ServerInfo &server_info,
-                                             const std::string &target_path) const {
+Result<std::size_t, int> Config::get_max_body_size(const ServerInfo &server_info,
+                                                   const std::string &target_path) const {
     Result<ServerConfig, int> server_config_result = get_server_config(server_info);
     if (server_config_result.is_err()) {
         return Result<std::size_t, int>::err(ERR);
@@ -690,8 +690,8 @@ Result<std::size_t, int> Configuration::get_max_body_size(const ServerInfo &serv
 }
 
 
-Result<std::size_t, int> Configuration::get_max_body_size(const AddressPortPair &address_port_pair,
-                                             const std::string &target_path) const {
+Result<std::size_t, int> Config::get_max_body_size(const AddressPortPair &address_port_pair,
+                                                   const std::string &target_path) const {
     Result<ServerConfig, int> server_config_result = get_default_server(address_port_pair);
     if (server_config_result.is_err()) {
         return Result<std::size_t, int>::err(ERR);

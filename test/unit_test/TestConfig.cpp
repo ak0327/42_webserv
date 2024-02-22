@@ -17,13 +17,13 @@
 #include "gtest/gtest.h"
 
 
-TEST(TestConfig, ConfigurationOK) {
+TEST(TestConfig, ConfigOK) {
     std::set<std::string> conf_files = get_conf_files("test/test_conf/ok");
 
     for (std::set<std::string>::const_iterator itr = conf_files.begin(); itr != conf_files.end(); ++itr) {
         debug_print("path: " + *itr, __LINE__);
 
-        Configuration config(itr->c_str());
+        Config config(itr->c_str());
 
         Result<int, std::string> result = config.get_result();
         // print_error_msg(result, __LINE__);
@@ -32,13 +32,13 @@ TEST(TestConfig, ConfigurationOK) {
 }
 
 
-TEST(TestConfig, ConfigurationNG) {
+TEST(TestConfig, ConfigNG) {
     std::set<std::string> conf_files = get_conf_files("test/test_conf/ng/ng_configuration");
 
     for (std::set<std::string>::const_iterator itr = conf_files.begin(); itr != conf_files.end(); ++itr) {
         debug_print("path: " + *itr, __LINE__);
 
-        Configuration config(itr->c_str());
+        Config config(itr->c_str());
 
         Result<int, std::string> result = config.get_result();
         print_error_msg(result, __LINE__);
@@ -53,49 +53,49 @@ TEST(TestConfig, IsExactMatch) {
 
     pattern = "=/";
     target = "/";
-    actual = Configuration::is_exact_match(pattern, target);
+    actual = Config::is_exact_match(pattern, target);
     EXPECT_TRUE(actual);
 
     pattern = "=/root";
     target = "/root";
-    actual = Configuration::is_exact_match(pattern, target);
+    actual = Config::is_exact_match(pattern, target);
     EXPECT_TRUE(actual);
 
     pattern = "=html";
     target = "html";
-    actual = Configuration::is_exact_match(pattern, target);
+    actual = Config::is_exact_match(pattern, target);
     EXPECT_TRUE(actual);
 
     pattern = "=/50x.html";
     target = "/50x.html";
-    actual = Configuration::is_exact_match(pattern, target);
+    actual = Config::is_exact_match(pattern, target);
     EXPECT_TRUE(actual);
 
     // -------------------------------------------------------------------------
 
     pattern = "=/";
     target = "/root";
-    actual = Configuration::is_exact_match(pattern, target);
+    actual = Config::is_exact_match(pattern, target);
     EXPECT_FALSE(actual);
 
     pattern = "=/";
     target = "/root";
-    actual = Configuration::is_exact_match(pattern, target);
+    actual = Config::is_exact_match(pattern, target);
     EXPECT_FALSE(actual);
 
     pattern = "";
     target = "";
-    actual = Configuration::is_exact_match(pattern, target);
+    actual = Config::is_exact_match(pattern, target);
     EXPECT_FALSE(actual);
 
     pattern = "=";
     target = "=";
-    actual = Configuration::is_exact_match(pattern, target);
+    actual = Config::is_exact_match(pattern, target);
     EXPECT_FALSE(actual);
 
     pattern = "=/";
     target = "";
-    actual = Configuration::is_exact_match(pattern, target);
+    actual = Config::is_exact_match(pattern, target);
     EXPECT_FALSE(actual);
 }
 
@@ -106,59 +106,59 @@ TEST(TestConfig, IsPrefixMatch) {
 
     pattern = "^~/";
     target = "/";
-    actual = Configuration::is_prefix_match(pattern, target);
+    actual = Config::is_prefix_match(pattern, target);
     EXPECT_TRUE(actual);
 
     pattern = "^~/root";
     target = "/root";
-    actual = Configuration::is_prefix_match(pattern, target);
+    actual = Config::is_prefix_match(pattern, target);
     EXPECT_TRUE(actual);
 
     pattern = "^~html";
     target = "html";
-    actual = Configuration::is_prefix_match(pattern, target);
+    actual = Config::is_prefix_match(pattern, target);
     EXPECT_TRUE(actual);
 
     pattern = "^~/";
     target = "/root/hoge/huga";
-    actual = Configuration::is_prefix_match(pattern, target);
+    actual = Config::is_prefix_match(pattern, target);
     EXPECT_TRUE(actual);
 
     pattern = "^~/images/";
     target = "/images/";
-    actual = Configuration::is_prefix_match(pattern, target);
+    actual = Config::is_prefix_match(pattern, target);
     EXPECT_TRUE(actual);
 
     pattern = "^~/images/";
     target = "/images/aaa/bbb/ccc.html";
-    actual = Configuration::is_prefix_match(pattern, target);
+    actual = Config::is_prefix_match(pattern, target);
     EXPECT_TRUE(actual);
 
     // -------------------------------------------------------------------------
 
     pattern = "^~/";
     target = "root";
-    actual = Configuration::is_prefix_match(pattern, target);
+    actual = Config::is_prefix_match(pattern, target);
     EXPECT_FALSE(actual);
 
     pattern = "^~/";
     target = "html/images";
-    actual = Configuration::is_prefix_match(pattern, target);
+    actual = Config::is_prefix_match(pattern, target);
     EXPECT_FALSE(actual);
 
     pattern = "";
     target = "";
-    actual = Configuration::is_prefix_match(pattern, target);
+    actual = Config::is_prefix_match(pattern, target);
     EXPECT_FALSE(actual);
 
     pattern = "^~aaa";
     target = "aa";
-    actual = Configuration::is_prefix_match(pattern, target);
+    actual = Config::is_prefix_match(pattern, target);
     EXPECT_FALSE(actual);
 
     pattern = "^~";
     target = "";
-    actual = Configuration::is_prefix_match(pattern, target);
+    actual = Config::is_prefix_match(pattern, target);
     EXPECT_FALSE(actual);
 }
 
@@ -190,7 +190,7 @@ void expect_eq_method(const ServerConfig &server_config,
                       int line) {
     // std::cout << CYAN << "method" << RESET << std::endl;
     for (std::map<Method, bool>::const_iterator itr = expected.begin(); itr != expected.end(); ++itr) {
-        Result<bool, int> result = Configuration::is_method_allowed(
+        Result<bool, int> result = Config::is_method_allowed(
                 server_config, location_path, itr->first);
         if (expected_error) {
             ASSERT_TRUE(result.is_err()) << "  at L" << line;
@@ -210,7 +210,7 @@ void expect_eq_redirect(const ServerConfig &server_config,
                         bool expected_error,
                         const ReturnDirective &expected,
                         int line) {
-    Result<ReturnDirective, int> result = Configuration::get_redirect(server_config, location_path);
+    Result<ReturnDirective, int> result = Config::get_redirect(server_config, location_path);
 
     if (expected_error) {
         ASSERT_TRUE(result.is_err()) << "  at L" << line;
@@ -225,9 +225,9 @@ void expect_eq_redirect(const ServerConfig &server_config,
 }
 
 
-TEST(TestConfig, ConfigurationGetterOK1) {
+TEST(TestConfig, ConfigGetterOK1) {
     Result<int, std::string> result;
-    Configuration config("test/test_conf/ok/parse_ok1.conf");
+    Config config("test/test_conf/ok/parse_ok1.conf");
 
     std::string server_name, address, port, location_path;
 
@@ -274,11 +274,11 @@ TEST(TestConfig, ConfigurationGetterOK1) {
 
 
 
-    expect_eq_getter(server_config, location_path, expected_error, expected_root, Configuration::get_root, __LINE__);
-    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Configuration::get_index, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Configuration::is_autoindex_on, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Configuration::is_redirect, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Configuration::get_max_body_size, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_root, Config::get_root, __LINE__);
+    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Config::get_index, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Config::is_autoindex_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Config::is_redirect, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Config::get_max_body_size, __LINE__);
 
     expected_method = {{kGET, true}, {kPOST, true}, {kDELETE, true}};
     expect_eq_method(server_config, location_path, expected_error, expected_method, __LINE__);
@@ -286,12 +286,12 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect = {};
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
+    error_page_result = Config::get_error_page(server_config, location_path, BadRequest);
     ASSERT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
+    error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     ASSERT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
+    error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     ASSERT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -306,11 +306,11 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_max_body_size = ConfigInitValue::kDefaultBodySize;
 
 
-    expect_eq_getter(server_config, location_path, expected_error, expected_root, Configuration::get_root, __LINE__);
-    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Configuration::get_index, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Configuration::is_autoindex_on, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Configuration::is_redirect, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Configuration::get_max_body_size, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_root, Config::get_root, __LINE__);
+    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Config::get_index, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Config::is_autoindex_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Config::is_redirect, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Config::get_max_body_size, __LINE__);
 
     expected_method = {{kGET, true}, {kPOST, true}, {kDELETE, true}};
     expect_eq_method(server_config, location_path, expected_error, expected_method, __LINE__);
@@ -321,12 +321,12 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect.text = "/new.html";
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
+    error_page_result = Config::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
+    error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
+    error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -342,11 +342,11 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_max_body_size = ConfigInitValue::kDefaultBodySize;
 
 
-    expect_eq_getter(server_config, location_path, expected_error, expected_root, Configuration::get_root, __LINE__);
-    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Configuration::get_index, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Configuration::is_autoindex_on, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Configuration::is_redirect, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Configuration::get_max_body_size, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_root, Config::get_root, __LINE__);
+    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Config::get_index, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Config::is_autoindex_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Config::is_redirect, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Config::get_max_body_size, __LINE__);
 
     expected_method = {{kGET, true}, {kPOST, true}, {kDELETE, true}};
     expect_eq_method(server_config, location_path, expected_error, expected_method, __LINE__);
@@ -354,12 +354,12 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect = {};
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
+    error_page_result = Config::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
+    error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
+    error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -375,11 +375,11 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_max_body_size = 20 * ConfigInitValue::MB;
 
 
-    expect_eq_getter(server_config, location_path, expected_error, expected_root, Configuration::get_root, __LINE__);
-    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Configuration::get_index, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Configuration::is_autoindex_on, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Configuration::is_redirect, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Configuration::get_max_body_size, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_root, Config::get_root, __LINE__);
+    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Config::get_index, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Config::is_autoindex_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Config::is_redirect, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Config::get_max_body_size, __LINE__);
 
     expected_method = {{kGET, false}, {kPOST, true}, {kDELETE, true}};
     expect_eq_method(server_config, location_path, expected_error, expected_method, __LINE__);
@@ -387,12 +387,12 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect = {};
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
+    error_page_result = Config::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
+    error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
+    error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -408,11 +408,11 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_max_body_size = ConfigInitValue::kDefaultBodySize;
 
 
-    expect_eq_getter(server_config, location_path, expected_error, expected_root, Configuration::get_root, __LINE__);
-    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Configuration::get_index, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Configuration::is_autoindex_on, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Configuration::is_redirect, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Configuration::get_max_body_size, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_root, Config::get_root, __LINE__);
+    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Config::get_index, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Config::is_autoindex_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Config::is_redirect, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Config::get_max_body_size, __LINE__);
 
     expected_method = {{kGET, true}, {kPOST, true}, {kDELETE, true}};
     expect_eq_method(server_config, location_path, expected_error, expected_method, __LINE__);
@@ -420,12 +420,12 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect = {};
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
+    error_page_result = Config::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
+    error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
+    error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -443,11 +443,11 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_max_body_size = ConfigInitValue::kDefaultBodySize;
 
 
-    expect_eq_getter(server_config, location_path, expected_error, expected_root, Configuration::get_root, __LINE__);
-    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Configuration::get_index, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Configuration::is_autoindex_on, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Configuration::is_redirect, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Configuration::get_max_body_size, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_root, Config::get_root, __LINE__);
+    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Config::get_index, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Config::is_autoindex_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Config::is_redirect, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Config::get_max_body_size, __LINE__);
 
     expected_method = {{kGET, true}, {kPOST, true}, {kDELETE, true}};
     expect_eq_method(server_config, location_path, expected_error, expected_method, __LINE__);
@@ -458,11 +458,11 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect.text = "/new.html";
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
+    error_page_result = Config::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
+    error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
+    error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_err());
 
 
@@ -478,11 +478,11 @@ TEST(TestConfig, ConfigurationGetterOK1) {
 
 
 
-    expect_eq_getter(server_config, location_path, expected_error, expected_root, Configuration::get_root, __LINE__);
-    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Configuration::get_index, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Configuration::is_autoindex_on, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Configuration::is_redirect, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Configuration::get_max_body_size, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_root, Config::get_root, __LINE__);
+    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Config::get_index, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Config::is_autoindex_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Config::is_redirect, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Config::get_max_body_size, __LINE__);
 
     expected_method = {{kGET, true}, {kPOST, true}, {kDELETE, true}};
     expect_eq_method(server_config, location_path, expected_error, expected_method, __LINE__);
@@ -490,12 +490,12 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect = {};
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
+    error_page_result = Config::get_error_page(server_config, location_path, BadRequest);
     ASSERT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
+    error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     ASSERT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
+    error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     ASSERT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -522,11 +522,11 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_max_body_size = ConfigInitValue::kDefaultBodySize;
 
 
-    expect_eq_getter(server_config, location_path, expected_error, expected_root, Configuration::get_root, __LINE__);
-    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Configuration::get_index, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Configuration::is_autoindex_on, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Configuration::is_redirect, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Configuration::get_max_body_size, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_root, Config::get_root, __LINE__);
+    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Config::get_index, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Config::is_autoindex_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Config::is_redirect, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Config::get_max_body_size, __LINE__);
 
     expected_method = {{kGET, true}, {kPOST, true}, {kDELETE, true}};
     expect_eq_method(server_config, location_path, expected_error, expected_method, __LINE__);
@@ -534,12 +534,12 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect = {};
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
+    error_page_result = Config::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
+    error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
+    error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -555,11 +555,11 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_max_body_size = ConfigInitValue::kDefaultBodySize;
 
 
-    expect_eq_getter(server_config, location_path, expected_error, expected_root, Configuration::get_root, __LINE__);
-    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Configuration::get_index, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Configuration::is_autoindex_on, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Configuration::is_redirect, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Configuration::get_max_body_size, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_root, Config::get_root, __LINE__);
+    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Config::get_index, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Config::is_autoindex_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Config::is_redirect, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Config::get_max_body_size, __LINE__);
 
     expected_method = {{kGET, true}, {kPOST, true}, {kDELETE, true}};
     expect_eq_method(server_config, location_path, expected_error, expected_method, __LINE__);
@@ -570,12 +570,12 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect.text = "/new.html";
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
+    error_page_result = Config::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
+    error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
+    error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -591,11 +591,11 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_max_body_size = ConfigInitValue::kDefaultBodySize;
 
 
-    expect_eq_getter(server_config, location_path, expected_error, expected_root, Configuration::get_root, __LINE__);
-    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Configuration::get_index, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Configuration::is_autoindex_on, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Configuration::is_redirect, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Configuration::get_max_body_size, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_root, Config::get_root, __LINE__);
+    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Config::get_index, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Config::is_autoindex_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Config::is_redirect, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Config::get_max_body_size, __LINE__);
 
     expected_method = {{kGET, true}, {kPOST, true}, {kDELETE, true}};
     expect_eq_method(server_config, location_path, expected_error, expected_method, __LINE__);
@@ -603,12 +603,12 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect = {};
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
+    error_page_result = Config::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
+    error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
+    error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -624,11 +624,11 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_max_body_size = 20 * ConfigInitValue::MB;
 
 
-    expect_eq_getter(server_config, location_path, expected_error, expected_root, Configuration::get_root, __LINE__);
-    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Configuration::get_index, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Configuration::is_autoindex_on, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Configuration::is_redirect, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Configuration::get_max_body_size, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_root, Config::get_root, __LINE__);
+    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Config::get_index, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Config::is_autoindex_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Config::is_redirect, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Config::get_max_body_size, __LINE__);
 
     expected_method = {{kGET, false}, {kPOST, true}, {kDELETE, true}};
     expect_eq_method(server_config, location_path, expected_error, expected_method, __LINE__);
@@ -636,12 +636,12 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect = {};
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
+    error_page_result = Config::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
+    error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
+    error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -657,11 +657,11 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_max_body_size = ConfigInitValue::kDefaultBodySize;
 
 
-    expect_eq_getter(server_config, location_path, expected_error, expected_root, Configuration::get_root, __LINE__);
-    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Configuration::get_index, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Configuration::is_autoindex_on, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Configuration::is_redirect, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Configuration::get_max_body_size, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_root, Config::get_root, __LINE__);
+    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Config::get_index, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Config::is_autoindex_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Config::is_redirect, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Config::get_max_body_size, __LINE__);
 
     expected_method = {{kGET, true}, {kPOST, true}, {kDELETE, true}};
     expect_eq_method(server_config, location_path, expected_error, expected_method, __LINE__);
@@ -669,12 +669,12 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect = {};
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
+    error_page_result = Config::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
+    error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
+    error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -692,11 +692,11 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_max_body_size = ConfigInitValue::kDefaultBodySize;
 
 
-    expect_eq_getter(server_config, location_path, expected_error, expected_root, Configuration::get_root, __LINE__);
-    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Configuration::get_index, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Configuration::is_autoindex_on, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Configuration::is_redirect, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Configuration::get_max_body_size, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_root, Config::get_root, __LINE__);
+    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Config::get_index, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Config::is_autoindex_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Config::is_redirect, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Config::get_max_body_size, __LINE__);
 
     expected_method = {{kGET, true}, {kPOST, true}, {kDELETE, true}};
     expect_eq_method(server_config, location_path, expected_error, expected_method, __LINE__);
@@ -707,11 +707,11 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect.text = "/new.html";
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
+    error_page_result = Config::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
+    error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
+    error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_err());
 
 
@@ -739,11 +739,11 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_max_body_size = ConfigInitValue::kDefaultBodySize;
 
 
-    expect_eq_getter(server_config, location_path, expected_error, expected_root, Configuration::get_root, __LINE__);
-    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Configuration::get_index, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Configuration::is_autoindex_on, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Configuration::is_redirect, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Configuration::get_max_body_size, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_root, Config::get_root, __LINE__);
+    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Config::get_index, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Config::is_autoindex_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Config::is_redirect, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Config::get_max_body_size, __LINE__);
 
     expected_method = {{kGET, true}, {kPOST, true}, {kDELETE, true}};
     expect_eq_method(server_config, location_path, expected_error, expected_method, __LINE__);
@@ -751,12 +751,12 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect = {};
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
+    error_page_result = Config::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
+    error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
+    error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -772,11 +772,11 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_max_body_size = ConfigInitValue::kDefaultBodySize;
 
 
-    expect_eq_getter(server_config, location_path, expected_error, expected_root, Configuration::get_root, __LINE__);
-    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Configuration::get_index, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Configuration::is_autoindex_on, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Configuration::is_redirect, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Configuration::get_max_body_size, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_root, Config::get_root, __LINE__);
+    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Config::get_index, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Config::is_autoindex_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Config::is_redirect, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Config::get_max_body_size, __LINE__);
 
     expected_method = {{kGET, true}, {kPOST, true}, {kDELETE, true}};
     expect_eq_method(server_config, location_path, expected_error, expected_method, __LINE__);
@@ -787,12 +787,12 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect.text = "/new.html";
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
+    error_page_result = Config::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
+    error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
+    error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -808,11 +808,11 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_max_body_size = ConfigInitValue::kDefaultBodySize;
 
 
-    expect_eq_getter(server_config, location_path, expected_error, expected_root, Configuration::get_root, __LINE__);
-    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Configuration::get_index, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Configuration::is_autoindex_on, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Configuration::is_redirect, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Configuration::get_max_body_size, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_root, Config::get_root, __LINE__);
+    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Config::get_index, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Config::is_autoindex_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Config::is_redirect, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Config::get_max_body_size, __LINE__);
 
     expected_method = {{kGET, true}, {kPOST, true}, {kDELETE, true}};
     expect_eq_method(server_config, location_path, expected_error, expected_method, __LINE__);
@@ -820,12 +820,12 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect = {};
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
+    error_page_result = Config::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
+    error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
+    error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -841,11 +841,11 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_max_body_size = 20 * ConfigInitValue::MB;
 
 
-    expect_eq_getter(server_config, location_path, expected_error, expected_root, Configuration::get_root, __LINE__);
-    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Configuration::get_index, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Configuration::is_autoindex_on, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Configuration::is_redirect, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Configuration::get_max_body_size, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_root, Config::get_root, __LINE__);
+    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Config::get_index, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Config::is_autoindex_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Config::is_redirect, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Config::get_max_body_size, __LINE__);
 
     expected_method = {{kGET, false}, {kPOST, true}, {kDELETE, true}};
     expect_eq_method(server_config, location_path, expected_error, expected_method, __LINE__);
@@ -853,12 +853,12 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect = {};
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
+    error_page_result = Config::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
+    error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
+    error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -874,11 +874,11 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_max_body_size = ConfigInitValue::kDefaultBodySize;
 
 
-    expect_eq_getter(server_config, location_path, expected_error, expected_root, Configuration::get_root, __LINE__);
-    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Configuration::get_index, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Configuration::is_autoindex_on, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Configuration::is_redirect, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Configuration::get_max_body_size, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_root, Config::get_root, __LINE__);
+    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Config::get_index, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Config::is_autoindex_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Config::is_redirect, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Config::get_max_body_size, __LINE__);
 
     expected_method = {{kGET, true}, {kPOST, true}, {kDELETE, true}};
     expect_eq_method(server_config, location_path, expected_error, expected_method, __LINE__);
@@ -886,12 +886,12 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect = {};
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
+    error_page_result = Config::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
+    error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/404.html", error_page_result.get_ok_value());
-    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
+    error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
@@ -909,11 +909,11 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_max_body_size = ConfigInitValue::kDefaultBodySize;
 
 
-    expect_eq_getter(server_config, location_path, expected_error, expected_root, Configuration::get_root, __LINE__);
-    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Configuration::get_index, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Configuration::is_autoindex_on, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Configuration::is_redirect, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Configuration::get_max_body_size, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_root, Config::get_root, __LINE__);
+    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Config::get_index, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Config::is_autoindex_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Config::is_redirect, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Config::get_max_body_size, __LINE__);
 
     expected_method = {{kGET, true}, {kPOST, true}, {kDELETE, true}};
     expect_eq_method(server_config, location_path, expected_error, expected_method, __LINE__);
@@ -924,11 +924,11 @@ TEST(TestConfig, ConfigurationGetterOK1) {
     expected_redirect.text = "/new.html";
     expect_eq_redirect(server_config, location_path, expected_error, expected_redirect, __LINE__);
 
-    error_page_result = Configuration::get_error_page(server_config, location_path, BadRequest);
+    error_page_result = Config::get_error_page(server_config, location_path, BadRequest);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, NotFound);
+    error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_err());
-    error_page_result = Configuration::get_error_page(server_config, location_path, InternalServerError);
+    error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_err());
 
 
@@ -946,9 +946,9 @@ TEST(TestConfig, ConfigurationGetterOK1) {
 }
 
 
-TEST(TestConfig, ConfigurationGetterOK2) {
+TEST(TestConfig, ConfigGetterOK2) {
     Result<int, std::string> result;
-    Configuration config("test/test_conf/ok/conf_ok1.conf");
+    Config config("test/test_conf/ok/conf_ok1.conf");
 
     std::string server_name, address, port, location_path;
 
@@ -995,11 +995,11 @@ TEST(TestConfig, ConfigurationGetterOK2) {
 
 
 
-    expect_eq_getter(server_config, location_path, expected_error, expected_root, Configuration::get_root, __LINE__);
-    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Configuration::get_index, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Configuration::is_autoindex_on, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Configuration::is_redirect, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Configuration::get_max_body_size, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_root, Config::get_root, __LINE__);
+    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Config::get_index, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Config::is_autoindex_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Config::is_redirect, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Config::get_max_body_size, __LINE__);
 
     expected_method = {{kGET, true}, {kPOST, true}, {kDELETE, true}};
     expect_eq_method(server_config, location_path, expected_error, expected_method, __LINE__);
@@ -1021,11 +1021,11 @@ TEST(TestConfig, ConfigurationGetterOK2) {
 
 
 
-    expect_eq_getter(server_config, location_path, expected_error, expected_root, Configuration::get_root, __LINE__);
-    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Configuration::get_index, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Configuration::is_autoindex_on, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Configuration::is_redirect, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Configuration::get_max_body_size, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_root, Config::get_root, __LINE__);
+    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Config::get_index, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Config::is_autoindex_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Config::is_redirect, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Config::get_max_body_size, __LINE__);
 
     expected_method = {{kGET, true}, {kPOST, true}, {kDELETE, true}};
     expect_eq_method(server_config, location_path, expected_error, expected_method, __LINE__);
@@ -1046,11 +1046,11 @@ TEST(TestConfig, ConfigurationGetterOK2) {
 
 
 
-    expect_eq_getter(server_config, location_path, expected_error, expected_root, Configuration::get_root, __LINE__);
-    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Configuration::get_index, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Configuration::is_autoindex_on, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Configuration::is_redirect, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Configuration::get_max_body_size, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_root, Config::get_root, __LINE__);
+    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Config::get_index, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Config::is_autoindex_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Config::is_redirect, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Config::get_max_body_size, __LINE__);
 
     expected_method = {{kGET, true}, {kPOST, true}, {kDELETE, true}};
     expect_eq_method(server_config, location_path, expected_error, expected_method, __LINE__);
@@ -1081,11 +1081,11 @@ TEST(TestConfig, ConfigurationGetterOK2) {
 
 
 
-    expect_eq_getter(server_config, location_path, expected_error, expected_root, Configuration::get_root, __LINE__);
-    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Configuration::get_index, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Configuration::is_autoindex_on, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Configuration::is_redirect, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Configuration::get_max_body_size, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_root, Config::get_root, __LINE__);
+    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Config::get_index, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Config::is_autoindex_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Config::is_redirect, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Config::get_max_body_size, __LINE__);
 
     expected_method = {{kGET, true}, {kPOST, true}, {kDELETE, true}};
     expect_eq_method(server_config, location_path, expected_error, expected_method, __LINE__);
@@ -1107,11 +1107,11 @@ TEST(TestConfig, ConfigurationGetterOK2) {
 
 
 
-    expect_eq_getter(server_config, location_path, expected_error, expected_root, Configuration::get_root, __LINE__);
-    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Configuration::get_index, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Configuration::is_autoindex_on, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Configuration::is_redirect, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Configuration::get_max_body_size, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_root, Config::get_root, __LINE__);
+    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Config::get_index, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Config::is_autoindex_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Config::is_redirect, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Config::get_max_body_size, __LINE__);
 
     expected_method = {{kGET, true}, {kPOST, true}, {kDELETE, true}};
     expect_eq_method(server_config, location_path, expected_error, expected_method, __LINE__);
@@ -1132,11 +1132,11 @@ TEST(TestConfig, ConfigurationGetterOK2) {
 
 
 
-    expect_eq_getter(server_config, location_path, expected_error, expected_root, Configuration::get_root, __LINE__);
-    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Configuration::get_index, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Configuration::is_autoindex_on, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Configuration::is_redirect, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Configuration::get_max_body_size, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_root, Config::get_root, __LINE__);
+    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Config::get_index, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Config::is_autoindex_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Config::is_redirect, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Config::get_max_body_size, __LINE__);
 
     expected_method = {{kGET, true}, {kPOST, true}, {kDELETE, true}};
     expect_eq_method(server_config, location_path, expected_error, expected_method, __LINE__);
@@ -1166,11 +1166,11 @@ TEST(TestConfig, ConfigurationGetterOK2) {
 
 
 
-    expect_eq_getter(server_config, location_path, expected_error, expected_root, Configuration::get_root, __LINE__);
-    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Configuration::get_index, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Configuration::is_autoindex_on, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Configuration::is_redirect, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Configuration::get_max_body_size, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_root, Config::get_root, __LINE__);
+    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Config::get_index, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Config::is_autoindex_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Config::is_redirect, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Config::get_max_body_size, __LINE__);
 
     expected_method = {{kGET, true}, {kPOST, true}, {kDELETE, true}};
     expect_eq_method(server_config, location_path, expected_error, expected_method, __LINE__);
@@ -1191,11 +1191,11 @@ TEST(TestConfig, ConfigurationGetterOK2) {
 
 
 
-    expect_eq_getter(server_config, location_path, expected_error, expected_root, Configuration::get_root, __LINE__);
-    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Configuration::get_index, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Configuration::is_autoindex_on, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Configuration::is_redirect, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Configuration::get_max_body_size, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_root, Config::get_root, __LINE__);
+    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Config::get_index, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Config::is_autoindex_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Config::is_redirect, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Config::get_max_body_size, __LINE__);
 
     expected_method = {{kGET, true}, {kPOST, true}, {kDELETE, true}};
     expect_eq_method(server_config, location_path, expected_error, expected_method, __LINE__);
@@ -1216,11 +1216,11 @@ TEST(TestConfig, ConfigurationGetterOK2) {
 
 
 
-    expect_eq_getter(server_config, location_path, expected_error, expected_root, Configuration::get_root, __LINE__);
-    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Configuration::get_index, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Configuration::is_autoindex_on, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Configuration::is_redirect, __LINE__);
-    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Configuration::get_max_body_size, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_root, Config::get_root, __LINE__);
+    // expect_eq_getter(server_config, location_path, expected_error, expected_index, Config::get_index, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_autoindex, Config::is_autoindex_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_is_redirect, Config::is_redirect, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_max_body_size, Config::get_max_body_size, __LINE__);
 
     expected_method = {{kGET, true}, {kPOST, true}, {kDELETE, true}};
     expect_eq_method(server_config, location_path, expected_error, expected_method, __LINE__);
@@ -1241,7 +1241,7 @@ TEST(TestConfig, ConfigurationGetterOK2) {
 
 
 TEST(TestConfig, GetServerConfig) {
-    Configuration config("test/test_conf/ok/conf_ok1.conf");
+    Config config("test/test_conf/ok/conf_ok1.conf");
     Result<ServerConfig, int> server_a_result, server_b_result, server_c_result;
     Result<ServerConfig, std::string> actual_result;
     ServerConfig expected_a, expected_b, expected_c;

@@ -11,13 +11,13 @@
 # include "Token.hpp"
 # include "Tokenizer.hpp"
 
-class Configuration {
+class Config {
  public:
-	explicit Configuration(const char *file_path);
-	Configuration(const Configuration &other);
-	~Configuration();
+	explicit Config(const char *file_path);
+	Config(const Config &other);
+	~Config();
 
-	Configuration &operator=(const Configuration &rhs);
+	Config &operator=(const Config &rhs);
 
     // getter
     Result<int, std::string> get_result() const;

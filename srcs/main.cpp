@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 #include "webserv.hpp"
-#include "Configuration.hpp"
+#include "Config.hpp"
 #include "Debug.hpp"
 #include "Server.hpp"
 
@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
     }
     DEBUG_PRINT(WHITE, "config_file_path=[%s]", config_file_path);
 
-    Configuration config(config_file_path);
+    Config config(config_file_path);
     Result<int, std::string> config_result = config.get_result();
     if (config_result.is_err()) {
         const std::string error_msg = config_result.get_err_value();

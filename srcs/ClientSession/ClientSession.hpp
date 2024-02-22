@@ -4,7 +4,7 @@
 # include <vector>
 # include "Constant.hpp"
 # include "ConfigStruct.hpp"
-# include "Configuration.hpp"
+# include "Config.hpp"
 # include "HttpRequest.hpp"
 # include "HttpResponse.hpp"
 # include "Result.hpp"
@@ -37,7 +37,7 @@ class ClientSession {
     ClientSession(int socket_fd,
                   int client_fd,
                   const AddressPortPair &client_listen,
-                  const Configuration &config);
+                  const Config &config);
 
     ~ClientSession();
 
@@ -64,7 +64,7 @@ class ClientSession {
     int socket_fd_;
     int client_fd_;
 
-    const Configuration &config_;
+    const Config &config_;
     ServerInfo server_info_;
     ServerConfig server_config_;
 
