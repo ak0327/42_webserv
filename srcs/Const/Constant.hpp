@@ -41,7 +41,7 @@ extern const int STAT_ERROR;
 extern const pid_t PROCESSING;
 extern const pid_t WAIT_ERROR;
 
-extern const int CHILD_PROC;
+extern const pid_t CHILD_PROC;
 extern const std::size_t READ;
 extern const std::size_t WRITE;
 

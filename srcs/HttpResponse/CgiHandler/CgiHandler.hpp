@@ -19,13 +19,16 @@ class CgiHandler {
     int fd() const;
     pid_t pid() const;
     StatusCode status_code() const;
+    time_t timeout_limit() const;
     const std::vector<unsigned char> &cgi_body() const;
+    void clear_buf();
 
     bool is_processing(int *status);
-    bool is_process_timeout();
+    bool is_process_timeout() const;
 
 
     StatusCode exec_script(const std::string &file_path);
+    // Result<ProcResult, StatusCode> recv_cgi_output();
     StatusCode parse_document_response();
 
     ssize_t recv_to_buf(int fd);
@@ -38,8 +41,8 @@ class CgiHandler {
     int cgi_read_fd_;
     pid_t cgi_pid_;
 
-    time_t process_start_time_;
-    time_t timeout_sec_;
+    time_t timeout_duration_sec_;
+    time_t timeout_limit_;
 
     MediaType media_type_;
     StatusCode cgi_status_;
@@ -48,9 +51,8 @@ class CgiHandler {
 
     void set_cgi_read_fd(int read_fd);
     void set_cgi_pid(pid_t pid);
-    void set_start_time();
-    time_t process_start_time();
-    unsigned int timeout_sec();
+    void set_timeout_limit();
+    time_t timeout_duration_sec() const;
 
     int exec_script_in_child(int socket_fds[2],
                              const std::string &file_path,

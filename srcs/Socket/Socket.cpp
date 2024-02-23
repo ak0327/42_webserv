@@ -131,9 +131,14 @@ Result<int, std::string> Socket::accept(int socket_fd,
 }
 
 
-Result<int, std::string> Socket::set_fd_to_nonblock() {
+SocketResult Socket::set_fd_to_nonblock() {
+    return set_fd_to_nonblock(this->socket_fd_);
+}
+
+
+Result<int, std::string> Socket::set_fd_to_nonblock(int fd) {
 	errno = 0;
-	if (fcntl(this->socket_fd_, F_SETFL, O_NONBLOCK | FD_CLOEXEC) == FCNTL_ERROR) {
+	if (fcntl(fd, F_SETFL, O_NONBLOCK) == FCNTL_ERROR) {
 		std::string err_info = CREATE_ERROR_INFO_ERRNO(errno);
 		return Result<int, std::string>::err("fcntl:" + err_info);
 	}

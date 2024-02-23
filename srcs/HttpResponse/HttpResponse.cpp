@@ -88,12 +88,11 @@ Result<ProcResult, StatusCode> HttpResponse::exec_method(const StatusCode &statu
 
     DEBUG_PRINT(YELLOW, " exec_method 6");
     if (is_executing_cgi()) {
-        std::string debug_body(this->body_buf_.begin(), this->body_buf_.end());
-        DEBUG_PRINT(YELLOW, " exec_method body:[%s]", debug_body.c_str());
+        DEBUG_PRINT(YELLOW, " executing cgi -> continue");
         return Result<ProcResult, StatusCode>::ok(ExecutingCgi);
     }
 
-    DEBUG_PRINT(YELLOW, " exec_method 7");
+    DEBUG_PRINT(YELLOW, " exec_method 7 -> next");
     return Result<ProcResult, StatusCode>::ok(Success);
 }
 
@@ -218,21 +217,29 @@ ssize_t HttpResponse::recv_to_buf(int fd) {
 }
 
 
-Result<ProcResult, StatusCode> HttpResponse::recv_cgi_result() {
+Result<ProcResult, StatusCode> HttpResponse::recv_to_cgi_buf() {
+    DEBUG_PRINT(YELLOW, "     recv_to_cgi_buf at %zu", std::time(NULL));
     ssize_t recv_size = this->cgi_handler_.recv_to_buf(cgi_handler_.fd());
-    if (recv_size == RECV_CLOSED) {
-        return Result<ProcResult, StatusCode>::ok(ConnectionClosed);
-    }
+    DEBUG_PRINT(YELLOW, "      recv_size: %zd", recv_size);
+    // if (recv_size == RECV_CLOSED) {
+    //     DEBUG_PRINT(YELLOW, "     recv_size: %zd", recv_size);
+    //     if (this->is_executing_cgi()) {
+    //         DEBUG_PRINT(YELLOW, "      kill cgi proc");
+    //         this->cgi_handler_.kill_cgi_process();
+    //     }
+    //     return Result<ProcResult, StatusCode>::ok(ConnectionClosed);
+    // }
 
-    int process_exit_status;
+    int process_exit_status = EXIT_SUCCESS;
     if (this->cgi_handler_.is_processing(&process_exit_status)) {
         return Result<ProcResult, StatusCode>::ok(Continue);
     }
+    this->cgi_handler_.close_cgi_fd();
     DEBUG_PRINT(YELLOW, "     process_exit_status: %d", process_exit_status);
     if (process_exit_status != EXIT_SUCCESS) {
+        this->cgi_handler_.clear_buf();
         return Result<ProcResult, StatusCode>::err(InternalServerError);
     }
-    this->cgi_handler_.close_cgi_fd();
     return Result<ProcResult, StatusCode>::ok(Success);
 }
 
@@ -249,6 +256,16 @@ const std::vector<unsigned char> &HttpResponse::get_response_message() const {
 
 int HttpResponse::cgi_fd() const {
     return this->cgi_handler_.fd();
+}
+
+
+time_t HttpResponse::cgi_timeout_limit() const {
+    return this->cgi_handler_.timeout_limit();
+}
+
+
+void HttpResponse::kill_cgi_process() {
+    this->cgi_handler_.kill_cgi_process();
 }
 
 

@@ -21,6 +21,7 @@
 #include "HttpRequest.hpp"
 #include "IOMultiplexer.hpp"
 #include "Result.hpp"
+#include "Socket.hpp"
 #include "StringHandler.hpp"
 
 extern char **environ;
@@ -28,7 +29,7 @@ extern char **environ;
 CgiHandler::CgiHandler()
     : cgi_read_fd_(INIT_FD),
       cgi_pid_(INIT_PID),
-      timeout_sec_(ConfigInitValue::kDefaultCgiTimeoutSec),
+      timeout_duration_sec_(ConfigInitValue::kDefaultCgiTimeoutSec),
       media_type_(),
       cgi_status_(StatusOk),
       recv_buf_() {}
@@ -47,19 +48,22 @@ void CgiHandler::clear_cgi_process() {
 
 void CgiHandler::kill_cgi_process() {
     if (pid() == INIT_PID) {
+        DEBUG_PRINT(RED, "kill pid is init at %zu -> return", std::time(NULL));
         return;
     }
 
-    int process_status;
-    if (!is_processing(&process_status)) {
-        return;
-    }
+    // int process_status;
+    // if (!is_processing(&process_status)) {
+    //     return;
+    // }
     errno = 0;
+    DEBUG_PRINT(RED, "kill pid: %d at %zu", pid(), std::time(NULL));
+
     if (kill(pid(), SIGKILL) == KILL_ERROR) {
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
         std::cerr << error_msg << std::endl;  // todo: log
     }
-    set_cgi_pid(INIT_PID);
+    // set_cgi_pid(INIT_PID);
 }
 
 
@@ -75,38 +79,6 @@ void CgiHandler::close_cgi_fd() {
         std::cerr << error_msg << std::endl;  // todo: log
     }
     set_cgi_read_fd(INIT_FD);  // todo: success only?
-}
-
-
-bool CgiHandler::is_processing(int *status) {
-    // DEBUG_PRINT(YELLOW, "    is_cgi_processing 1");
-    if (pid() == INIT_PID) {
-        // DEBUG_PRINT(YELLOW, "    is_cgi_processing 2");
-        return false;
-    }
-    int child_status;
-    errno = 0;
-    pid_t wait_result = waitpid(pid(), &child_status, WNOHANG);
-    int tmp_err = errno;
-    // DEBUG_PRINT(YELLOW, "    wait_result: %d, errno: %d, ECHILD: %d", wait_result, tmp_err, ECHILD);
-    if (tmp_err != 0) {
-        // DEBUG_PRINT(YELLOW, "    is_cgi_processing 3");
-        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(tmp_err);
-        std::cerr << error_msg << std::endl;  // todo: log
-    }
-    if (wait_result == PROCESSING || (wait_result == WAIT_ERROR && tmp_err != ECHILD)) {
-        // DEBUG_PRINT(YELLOW, "    is_cgi_processing 4");
-        return true;
-    }
-
-    // DEBUG_PRINT(YELLOW, "    is_cgi_processing 5");
-    if (0 < wait_result && status) {
-        // DEBUG_PRINT(YELLOW, "    is_cgi_processing 6");
-        *status = WEXITSTATUS(child_status);
-    }
-    // DEBUG_PRINT(YELLOW, "    is_cgi_processing 7");
-    set_cgi_pid(INIT_PID);
-    return false;
 }
 
 
@@ -132,60 +104,6 @@ std::vector<char *> CgiHandler::get_argv_for_execve(const std::vector<std::strin
     argv.push_back(const_cast<char *>(file_path.c_str()));
     argv.push_back(NULL);
     return argv;
-}
-
-
-int CgiHandler::exec_script_in_child(int socket_fds[2],
-                                     const std::string &file_path,
-                                     const std::string &query) {
-    Result<std::vector<std::string>, ProcResult> interpreter_result;
-    std::vector<std::string> interpreter;
-    std::vector<char *> argv;  // todo: char *const argv[]
-    (void)query;  // todo
-
-    DEBUG_PRINT(CYAN, "    cgi(child) 1");
-
-    interpreter_result = CgiHandler::get_interpreter(file_path);
-    if (interpreter_result.is_err()) {
-        std::exit(EXIT_FAILURE);
-    }
-    interpreter = interpreter_result.get_ok_value();
-
-    argv = get_argv_for_execve(interpreter, file_path);
-
-    DEBUG_PRINT(CYAN, "    cgi(child) 2");
-    errno = 0;
-    if (close(socket_fds[READ]) == CLOSE_ERROR) {
-        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
-        std::cerr << error_msg << std::endl;  // todo: tmp -> log?
-        std::exit(EXIT_FAILURE);
-    }
-
-    DEBUG_PRINT(CYAN, "    cgi(child) 3");
-    errno = 0;
-    if (dup2(socket_fds[WRITE], STDOUT_FILENO) == DUP_ERROR) {
-        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
-        std::cerr << error_msg << std::endl;  // todo: tmp -> log?
-        std::exit(EXIT_FAILURE);
-    }
-    DEBUG_PRINT(CYAN, "    cgi(child) 4");
-
-    errno = 0;
-    if (close(socket_fds[WRITE]) == CLOSE_ERROR) {
-        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
-        std::cerr << error_msg << std::endl;  // todo: tmp -> log?
-        std::exit(EXIT_FAILURE);
-    }
-    DEBUG_PRINT(CYAN, "    cgi(child) 5");
-
-    errno = 0;
-    if (execve(argv[0], argv.data(), environ) == EXECVE_ERROR) {
-        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
-        std::cerr << error_msg << std::endl;  // todo: tmp -> log?
-        std::exit(EXIT_FAILURE);
-    }
-    DEBUG_PRINT(CYAN, "    cgi(child) 6");
-    std::exit(EXIT_FAILURE);
 }
 
 
@@ -225,6 +143,33 @@ void skip_field_lines(std::istringstream *iss) {
 
     while (getline(*iss, line) && !line.empty()) {}
 }
+
+
+// Result<ProcResult, StatusCode> CgiHandler::recv_cgi_output() {
+//     ssize_t recv_size = recv_to_buf(this->fd());
+//     // if (recv_size == RECV_CLOSED) {
+//     //     return Result<ProcResult, StatusCode>::ok(ConnectionClosed);
+//     // }
+//     DEBUG_PRINT(YELLOW, "      recv_size: %zd", recv_size);
+//     // if (recv_size == RECV_CLOSED) {
+//     //     DEBUG_PRINT(YELLOW, "     recv_size: %zd", recv_size);
+//     //     if (this->is_executing_cgi()) {
+//     //         DEBUG_PRINT(YELLOW, "      kill cgi proc");
+//     //         this->cgi_handler_.kill_cgi_process();
+//     //     }
+//     //     return Result<ProcResult, StatusCode>::ok(ConnectionClosed);
+//
+//     int process_exit_status;
+//     if (is_processing(&process_exit_status)) {
+//         return Result<ProcResult, StatusCode>::ok(Continue);
+//     }
+//     DEBUG_PRINT(YELLOW, "     process_exit_status: %d", process_exit_status);
+//     if (process_exit_status != EXIT_SUCCESS) {
+//         return Result<ProcResult, StatusCode>::err(InternalServerError);
+//     }
+//     close_cgi_fd();
+//     return Result<ProcResult, StatusCode>::ok(Success);
+// }
 
 
 StatusCode CgiHandler::parse_document_response() {
@@ -344,21 +289,57 @@ Result<std::string, ProcResult> CgiHandler::pop_line_from_buf() {
 }
 
 
-// todo: tmp
-// 一旦、ヘッダーを全て削除し、bodyのみとする
-// field-lineはparseしたり、上流のfield-lineとの結合が必要...
-Result<std::string, int> translate_to_http_protocol(const std::string &cgi_result) {
-    std::string	cgi_body, line;
-    std::istringstream iss(cgi_result);
+int CgiHandler::exec_script_in_child(int socket_fds[2],
+                                     const std::string &file_path,
+                                     const std::string &query) {
+    Result<std::vector<std::string>, ProcResult> interpreter_result;
+    std::vector<std::string> interpreter;
+    std::vector<char *> argv;  // todo: char *const argv[]
+    (void)query;  // todo
 
-    skip_field_lines(&iss);
+    DEBUG_PRINT(CYAN, "    cgi(child) 1");
 
-    while (getline(iss, line)) {
-        line.append(std::string(LF, 1));
-        cgi_body.append(line);
+    interpreter_result = CgiHandler::get_interpreter(file_path);
+    if (interpreter_result.is_err()) {
+        return EXIT_FAILURE;
     }
-    // std::cout << YELLOW << "cgi_body[" << cgi_body << "]" << RESET << std::endl;
-    return Result<std::string, int>::ok(cgi_body);
+    interpreter = interpreter_result.get_ok_value();
+
+    argv = get_argv_for_execve(interpreter, file_path);
+
+    DEBUG_PRINT(CYAN, "    cgi(child) 2");
+    errno = 0;
+    if (close(socket_fds[READ]) == CLOSE_ERROR) {
+        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+        std::cerr << error_msg << std::endl;  // todo: tmp -> log?
+        return EXIT_FAILURE;
+    }
+
+    DEBUG_PRINT(CYAN, "    cgi(child) 3");
+    errno = 0;
+    if (dup2(socket_fds[WRITE], STDOUT_FILENO) == DUP_ERROR) {
+        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+        std::cerr << error_msg << std::endl;  // todo: tmp -> log?
+        return EXIT_FAILURE;
+    }
+    DEBUG_PRINT(CYAN, "    cgi(child) 4");
+
+    errno = 0;
+    if (close(socket_fds[WRITE]) == CLOSE_ERROR) {
+        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+        std::cerr << error_msg << std::endl;  // todo: tmp -> log?
+        return EXIT_FAILURE;
+    }
+    DEBUG_PRINT(CYAN, "    cgi(child) 5");
+
+    errno = 0;
+    if (execve(argv[0], argv.data(), environ) == EXECVE_ERROR) {
+        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+        std::cerr << error_msg << std::endl;  // todo: tmp -> log?
+        return EXIT_FAILURE;
+    }
+    DEBUG_PRINT(CYAN, "    cgi(child) 6");
+    return EXIT_FAILURE;
 }
 
 
@@ -385,40 +366,106 @@ StatusCode CgiHandler::exec_script(const std::string &file_path) {
 
     DEBUG_PRINT(CYAN, "   cgi 3");
     if (pid == CHILD_PROC) {
+        DEBUG_PRINT(CYAN, "   cgi 4 child(pid: %d)", pid);
         std::string query;  // todo: get query
         std::exit(exec_script_in_child(socket_fds, file_path, query));
-    }
-    DEBUG_PRINT(CYAN, "   cgi 4");
+    } else {
+        DEBUG_PRINT(CYAN, "   cgi 4 parent(pid: %d)", pid);
+        errno = 0;
+        if (close(socket_fds[WRITE]) == CLOSE_ERROR) {
+            close(socket_fds[READ]);
+            const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+            std::cerr << error_msg << std::endl;  // todo: tmp
+            return InternalServerError;
+        }
 
+        Result<int, std::string> result = Socket::set_fd_to_nonblock(socket_fds[READ]);
+        if (result.is_err()) {
+            std::cerr << result.get_err_value() << std::endl;
+            return InternalServerError;
+        }
+        set_cgi_read_fd(socket_fds[READ]);
+        set_cgi_pid(pid);
+        set_timeout_limit();
+
+        DEBUG_PRINT(CYAN, "   cgi 5(fd: %d, pid: %d) start_time: %zu, limit: %zu", this->fd(), this->pid(), std::time(NULL), this->timeout_limit());
+        return StatusOk;
+    }
+}
+
+
+
+bool CgiHandler::is_processing(int *status) {
+    DEBUG_PRINT(YELLOW, "    is_cgi_processing 1 pid: %d at %zu", pid(), std::time(NULL));
+    // if (pid() == INIT_PID) {
+    //     DEBUG_PRINT(YELLOW, "    is_cgi_processing 2 pid == init -> killed");
+    //     // killed
+    //     *status = EXIT_FAILURE;
+    //     return false;
+    // }
+
+    int child_status;
     errno = 0;
-    if (close(socket_fds[WRITE]) == CLOSE_ERROR) {
-        close(socket_fds[READ]);
-        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
-        std::cerr << error_msg << std::endl;  // todo: tmp
-        return InternalServerError;
+    pid_t wait_result = waitpid(pid(), &child_status, WNOHANG);
+    int tmp_err = errno;
+    DEBUG_PRINT(YELLOW, "    is_cgi_processing 3");
+    DEBUG_PRINT(YELLOW, "     wait_result: %d, errno: %d(ECHILD: %d)", wait_result, tmp_err, ECHILD);
+    if (tmp_err != 0) {
+        DEBUG_PRINT(YELLOW, "    is_cgi_processing 4");
+        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(tmp_err);
+        std::cerr << error_msg << std::endl;  // todo: log
+    }
+    if (wait_result == PROCESSING || (wait_result == WAIT_ERROR && tmp_err != ECHILD)) {
+        DEBUG_PRINT(YELLOW, "    is_cgi_processing 5 -> continue");
+        return true;
     }
 
-    set_cgi_read_fd(socket_fds[READ]);
-    set_cgi_pid(pid);
-    set_start_time();
-
-    DEBUG_PRINT(CYAN, "   cgi 5 start_time: ", this->process_start_time_);
-    return StatusOk;
+    DEBUG_PRINT(YELLOW, "    is_cgi_processing 6");
+    if (0 < wait_result && status) {
+        if (WIFSIGNALED(child_status)) {
+            int term_sig = WTERMSIG(child_status);
+            *status = EXIT_FAILURE;
+            DEBUG_PRINT(YELLOW, "    Child terminated by signal: %d", term_sig);
+        }
+        *status = WEXITSTATUS(child_status);
+        DEBUG_PRINT(YELLOW, "    is_cgi_processing 7 status: %d", *status);
+    } else if (tmp_err == ECHILD && status) {
+        // term by sig?
+        *status = EXIT_FAILURE;
+        int term_sig = WTERMSIG(child_status);
+        DEBUG_PRINT(YELLOW, "    Child terminated by signal: %d", term_sig);
+    }
+    DEBUG_PRINT(YELLOW, "    is_cgi_processing 8 pid set to init -> next");
+    set_cgi_pid(INIT_PID);
+    return false;
 }
 
 
 void CgiHandler::set_cgi_read_fd(int read_fd) { this->cgi_read_fd_ = read_fd; }
-void CgiHandler::set_cgi_pid(pid_t pid) { this->cgi_pid_ = pid; }
-void CgiHandler::set_start_time() { this->process_start_time_ = std::time(NULL); }
+
+void CgiHandler::set_cgi_pid(pid_t pid) {
+    DEBUG_PRINT(RED, "set_pid  %d -> %d", this->pid(), pid);
+    this->cgi_pid_ = pid;
+}
+
+void CgiHandler::set_timeout_limit() {
+    this->timeout_limit_ = std::time(NULL) + this->timeout_duration_sec();
+    DEBUG_PRINT(YELLOW, "set_timeout_limit: %zu", this->timeout_limit());
+}
+
+
+void CgiHandler::clear_buf() {
+    this->recv_buf_.clear();
+}
 
 int CgiHandler::fd() const { return this->cgi_read_fd_; }
 pid_t CgiHandler::pid() const { return this->cgi_pid_; }
 StatusCode CgiHandler::status_code() const { return this->cgi_status_; }
-time_t CgiHandler::process_start_time() { return this->process_start_time_; }
-unsigned int CgiHandler::timeout_sec() { return this->timeout_sec_; }
+time_t CgiHandler::timeout_limit() const { return this->timeout_limit_; }
+time_t CgiHandler::timeout_duration_sec() const { return this->timeout_duration_sec_; }
 const std::vector<unsigned char> &CgiHandler::cgi_body() const { return this->recv_buf_; }
 
-bool CgiHandler::is_process_timeout() {
-    time_t elapsed_time = std::time(NULL) - this->process_start_time();
-    return (this->timeout_sec() <= elapsed_time);
+bool CgiHandler::is_process_timeout() const {
+    time_t current_time = std::time(NULL);
+    return (this->timeout_limit() < current_time);
 }

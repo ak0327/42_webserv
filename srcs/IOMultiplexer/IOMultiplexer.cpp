@@ -317,25 +317,23 @@ void Select::init_fds() {
 
 Result<int, std::string> Select::select_fds() {
     // debug
-    // std::cout << CYAN << "select_fds:" << RESET << std::endl;
-    //
-    // std::cout << CYAN << "read_fds [";
-    // for (std::size_t i = 0; i < this->read_fds_.size(); ++i) {
-    //     std::cout << this->read_fds_[i];
-    //     if (i + 1 < this->read_fds_.size()) {
-    //         std::cout << ", ";
-    //     }
-    // }
-    // std::cout << "]" << RESET << std::endl;
-    //
-    // std::cout << CYAN << "write_fds [";
-    // for (std::size_t i = 0; i < this->write_fds_.size(); ++i) {
-    //     std::cout << this->write_fds_[i];
-    //     if (i + 1 < this->write_fds_.size()) {
-    //         std::cout << ", ";
-    //     }
-    // }
-    // std::cout << "]" << RESET << std::endl;
+    std::cout << CYAN << "select_fds:" << RESET << std::endl;
+    std::cout << CYAN << "read_fds [";
+    for (std::size_t i = 0; i < this->read_fds_.size(); ++i) {
+        std::cout << this->read_fds_[i];
+        if (i + 1 < this->read_fds_.size()) {
+            std::cout << ", ";
+        }
+    }
+    std::cout << "]" << RESET << std::endl;
+    std::cout << CYAN << "write_fds [";
+    for (std::size_t i = 0; i < this->write_fds_.size(); ++i) {
+        std::cout << this->write_fds_[i];
+        if (i + 1 < this->write_fds_.size()) {
+            std::cout << ", ";
+        }
+    }
+    std::cout << "]" << RESET << std::endl;
 
     init_fds();
     this->max_fd_ = get_max_fd();
@@ -374,7 +372,6 @@ int Select::get_ready_fd() const {
         oss_read_fds << this->read_fds_[i] << " ";
         // return this->fds_[i];
     }
-    oss_read_fds << std::endl;
 
     std::ostringstream oss_write_fds;
     oss_write_fds << "ready write_fds: ";
@@ -391,7 +388,6 @@ int Select::get_ready_fd() const {
         oss_write_fds << this->write_fds_[i] << " ";
         // return this->fds_[i];
     }
-    oss_write_fds << std::endl;
     DEBUG_SERVER_PRINT("%s", oss_read_fds.str().c_str());
     DEBUG_SERVER_PRINT("%s", oss_write_fds.str().c_str());
     return ready_fd;
