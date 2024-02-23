@@ -9,8 +9,8 @@
 !srcs/ClientSession
 !srcs/Config
 !srcs/Config/FileHandler
-!srcs/Config/Parser
-!srcs/Config/Parser/RecursiveDescentParser
+!srcs/Config/ConfigParser
+!srcs/Config/ConfigParser/RecursiveDescentParser
 !srcs/Config/Token
 !srcs/Config/Tokenizer
 !srcs/Const

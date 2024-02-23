@@ -10,10 +10,10 @@
 #include "FileHandler.hpp"
 #include "HttpMessageParser.hpp"
 #include "Token.hpp"
-#include "Parser.hpp"
+#include "ConfigParser.hpp"
 
 Config::Config(const char *file_path) {
-	Parser parser(file_path);
+	ConfigParser parser(file_path);
     Result<int, std::string> parse_result = parser.result();
 	if (parse_result.is_err()) {
 		const std::string error_msg = parse_result.get_err_value();

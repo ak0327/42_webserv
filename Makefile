@@ -17,7 +17,7 @@ SRCS		=	main.cpp
 # Config
 CONFIG_DIR	=	Config
 SRCS		+=	$(CONFIG_DIR)/FileHandler/FileHandler.cpp \
-				$(CONFIG_DIR)/Parser/Parser.cpp \
+				$(CONFIG_DIR)/ConfigParser/ConfigParser.cpp \
 				$(CONFIG_DIR)/Token/Token.cpp \
 				$(CONFIG_DIR)/Tokenizer/Tokenizer.cpp \
 				$(CONFIG_DIR)/Config.cpp
@@ -143,7 +143,7 @@ INCLUDES_DIR =	includes \
 				$(REQUEST_INCLUDES) \
 				$(RESPONSE_INCLUDES) \
 				$(SRCS_DIR)/$(CONFIG_DIR)/FileHandler \
-				$(SRCS_DIR)/$(CONFIG_DIR)/Parser \
+				$(SRCS_DIR)/$(CONFIG_DIR)/ConfigParser \
 				$(SRCS_DIR)/$(CONFIG_DIR)/Token \
 				$(SRCS_DIR)/$(CONFIG_DIR)/Tokenizer \
 				$(SRCS_DIR)/$(CONFIG_DIR) \
