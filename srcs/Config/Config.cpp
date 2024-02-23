@@ -9,6 +9,7 @@
 #include "Debug.hpp"
 #include "FileHandler.hpp"
 #include "HttpMessageParser.hpp"
+#include "StringHandler.hpp"
 #include "Token.hpp"
 #include "ConfigParser.hpp"
 
@@ -290,31 +291,22 @@ std::string get_pattern_matching_path(const ServerConfig &server_config,
 }
 
 
-std::string find_eq_path(const ServerConfig &server_config,
-                         const std::string &target_path) {
-    std::string matching_location;
-
-    std::map<LocationPath, LocationConfig>::const_iterator location;
-    for (location = server_config.locations.begin(); location != server_config.locations.end(); ++location) {
-        std::string config_location = location->first;
-        if (config_location == target_path) {
-            matching_location = config_location;
-            break;
-        }
-    }
-    return matching_location;
-}
-
-
-std::string find_root_matching_path(const ServerConfig &server_config,
+std::string find_matching_path(const ServerConfig &server_config,
                                     const std::string &target_path) {
     std::string matching_location;
 
     std::map<LocationPath, LocationConfig>::const_iterator location;
     for (location = server_config.locations.begin(); location != server_config.locations.end(); ++location) {
         std::string config_location = location->first;
-        if (config_location == "/" && target_path[0] == '/') {
-            matching_location = config_location;
+
+        if (target_path.length() < config_location.length()) {
+            continue;
+        }
+        std::string target = target_path.substr(0, config_location.length());
+        if (target == config_location) {
+            if (matching_location.length() < config_location.length()) {
+                matching_location = config_location;
+            }
         }
     }
     return matching_location;
@@ -327,16 +319,13 @@ Result<std::string, int> Config::get_matching_location(const ServerConfig &serve
 
     matching_location = get_pattern_matching_path(server_config, target_path);
     if (!matching_location.empty()) {
+        // std::cout << RED << "pattern_matching: target[" << target_path << "], location[" << matching_location << "]" << RESET << std::endl;
         return Result<std::string, int>::ok(matching_location);
     }
 
-    matching_location = find_eq_path(server_config, target_path);
+    matching_location = find_matching_path(server_config, target_path);
     if (!matching_location.empty()) {
-        return Result<std::string, int>::ok(matching_location);
-    }
-
-    matching_location = find_root_matching_path(server_config, target_path);
-    if (!matching_location.empty()) {
+        // std::cout << RED << "find_matching_path: target[" << target_path << "], location[" << matching_location << "]" << RESET << std::endl;
         return Result<std::string, int>::ok(matching_location);
     }
     return Result<std::string, int>::err(ERR);
@@ -350,6 +339,7 @@ Result<LocationConfig, int> Config::get_location_config(const ServerConfig &serv
         return Result<LocationConfig, int>::err(ERR);
     }
     const std::string matching_location = matching_result.get_ok_value();
+    // std::cout << RED << "matching: target[" << target_path << "], location[" << matching_location << "]" << RESET << std::endl;
     std::map<LocationPath, LocationConfig>::const_iterator location;
     location = server_config.locations.find(matching_location);
     if (location == server_config.locations.end()) {
@@ -699,4 +689,143 @@ Result<std::size_t, int> Config::get_max_body_size(const AddressPortPair &addres
     }
     ServerConfig server_config = server_config_result.get_ok_value();
     return get_max_body_size(server_config, target_path);
+}
+
+
+Result<bool, int> Config::is_cgi_mode_on(const ServerConfig &server_config,
+                                         const std::string &target_path) {
+    // std::cout << CYAN << "path: " << target_path << RESET << std::endl;
+    Result<LocationConfig, int> location_result = get_location_config(server_config, target_path);
+    if (location_result.is_err()) {
+        // std::cout << CYAN << "location error" << RESET << std::endl;
+        return Result<bool, int>::err(ERR);
+    }
+    LocationConfig location = location_result.get_ok_value();
+    // std::cout << CYAN << "ok -> cgi_mode: "  << (location.cgi.is_cgi_mode ? "on": "off") << RESET << std::endl;
+    return Result<bool, int>::ok(location.cgi.is_cgi_mode);
+}
+
+
+Result<bool, int> Config::is_cgi_mode_on(const ServerInfo &server_info,
+                                         const std::string &target_path) const {
+    Result<ServerConfig, int> server_config_result = get_server_config(server_info);
+    if (server_config_result.is_err()) {
+        return Result<bool, int>::err(ERR);
+    }
+    ServerConfig server_config = server_config_result.get_ok_value();
+    return is_cgi_mode_on(server_config, target_path);
+}
+
+
+Result<bool, int> Config::is_cgi_mode_on(const AddressPortPair &address_port_pair,
+                                         const std::string &target_path) const {
+    Result<ServerConfig, int> server_config_result = get_default_server(address_port_pair);
+    if (server_config_result.is_err()) {
+        return Result<bool, int>::err(ERR);
+    }
+    ServerConfig server_config = server_config_result.get_ok_value();
+    return is_cgi_mode_on(server_config, target_path);
+}
+
+
+Result<std::set<std::string>, int> Config::get_cgi_extension(const ServerConfig &server_config,
+                                                             const std::string &target_path) {
+    Result<LocationConfig, int> location_result = get_location_config(server_config, target_path);
+    if (location_result.is_err()) {
+        return Result<std::set<std::string>, int>::err(ERR);
+    }
+    LocationConfig location = location_result.get_ok_value();
+    return Result<std::set<std::string>, int>::ok(location.cgi.extension);
+}
+
+
+Result<std::set<std::string>, int> Config::get_cgi_extension(const ServerInfo &server_info,
+                                                             const std::string &target_path) const {
+    Result<ServerConfig, int> server_config_result = get_server_config(server_info);
+    if (server_config_result.is_err()) {
+        return Result<std::set<std::string>, int>::err(ERR);
+    }
+    ServerConfig server_config = server_config_result.get_ok_value();
+    return get_cgi_extension(server_config, target_path);
+}
+
+
+Result<std::set<std::string>, int> Config::get_cgi_extension(const AddressPortPair &address_port_pair,
+                                                             const std::string &target_path) const {
+    Result<ServerConfig, int> server_config_result = get_default_server(address_port_pair);
+    if (server_config_result.is_err()) {
+        return Result<std::set<std::string>, int>::err(ERR);
+    }
+    ServerConfig server_config = server_config_result.get_ok_value();
+    return get_cgi_extension(server_config, target_path);
+}
+
+
+bool Config::is_cgi_extension(const ServerConfig &server_config,
+                              const std::string &target_path) {
+    Result<LocationConfig, int> location_result = get_location_config(server_config, target_path);
+    if (location_result.is_err()) {
+        return false;
+    }
+    LocationConfig location = location_result.get_ok_value();
+    std::string extension = StringHandler::get_extension(target_path);
+    if (extension.empty()) {
+        return false;
+    }
+    return location.cgi.extension.find(extension) != location.cgi.extension.end();
+}
+
+
+bool Config::is_cgi_extension(const ServerInfo &server_info,
+                              const std::string &target_path) const {
+    Result<ServerConfig, int> server_config_result = get_server_config(server_info);
+    if (server_config_result.is_err()) {
+        return false;
+    }
+    ServerConfig server_config = server_config_result.get_ok_value();
+    return is_cgi_extension(server_config, target_path);
+}
+
+
+bool Config::is_cgi_extension(const AddressPortPair &address_port_pair,
+                              const std::string &target_path) const {
+    Result<ServerConfig, int> server_config_result = get_default_server(address_port_pair);
+    if (server_config_result.is_err()) {
+        return false;
+    }
+    ServerConfig server_config = server_config_result.get_ok_value();
+    return is_cgi_extension(server_config, target_path);
+}
+
+
+time_t Config::get_cgi_timeout(const ServerConfig &server_config,
+                               const std::string &target_path) {
+    Result<LocationConfig, int> location_result = get_location_config(server_config, target_path);
+    if (location_result.is_err()) {
+        return ConfigInitValue::kDefaultCgiTimeoutSec;
+    }
+    LocationConfig location = location_result.get_ok_value();
+    return location.cgi.timeout_sec;
+}
+
+
+time_t Config::get_cgi_timeout(const ServerInfo &server_info,
+                               const std::string &target_path) const {
+    Result<ServerConfig, int> server_config_result = get_server_config(server_info);
+    if (server_config_result.is_err()) {
+        return ConfigInitValue::kDefaultCgiTimeoutSec;
+    }
+    ServerConfig server_config = server_config_result.get_ok_value();
+    return get_cgi_timeout(server_config, target_path);
+}
+
+
+time_t Config::get_cgi_timeout(const AddressPortPair &address_port_pair,
+                               const std::string &target_path) const {
+    Result<ServerConfig, int> server_config_result = get_default_server(address_port_pair);
+    if (server_config_result.is_err()) {
+        return ConfigInitValue::kDefaultCgiTimeoutSec;
+    }
+    ServerConfig server_config = server_config_result.get_ok_value();
+    return get_cgi_timeout(server_config, target_path);
 }

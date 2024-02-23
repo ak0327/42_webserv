@@ -172,7 +172,7 @@ class ConfigParserTestFriend : public ::testing::Test {
 
     static Result<int, std::string> parse_cgi_timeout_directive(TokenItr *current,
                                                                 const TokenItr &end,
-                                                                std::size_t *timeout_sec) {
+                                                                time_t *timeout_sec) {
         return ConfigParser::parse_cgi_timeout_directive(current, end, timeout_sec);
     }
 

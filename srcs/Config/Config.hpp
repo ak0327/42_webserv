@@ -3,6 +3,7 @@
 # include <deque>
 # include <map>
 # include <string>
+# include <set>
 # include <utility>
 # include <vector>
 # include "Constant.hpp"
@@ -92,6 +93,37 @@ class Config {
                                                const std::string &target_path) const;
     Result<std::size_t, int> get_max_body_size(const AddressPortPair &address_port_pair,
                                                const std::string &target_path) const;
+
+    static Result<bool, int> is_cgi_mode_on(const ServerConfig &server_config,
+                                             const std::string &target_path);
+    Result<bool, int> is_cgi_mode_on(const ServerInfo &server_info,
+                                      const std::string &target_path) const;
+    Result<bool, int> is_cgi_mode_on(const AddressPortPair &address_port_pair,
+                                      const std::string &target_path) const;
+
+    static Result<std::set<std::string>, int> get_cgi_extension(const ServerConfig &server_config,
+                                                                const std::string &target_path);
+
+    Result<std::set<std::string>, int> get_cgi_extension(const ServerInfo &server_info,
+                                                         const std::string &target_path) const;
+
+    Result<std::set<std::string>, int> get_cgi_extension(const AddressPortPair &address_port_pair,
+                                                         const std::string &target_path) const;
+
+    static bool is_cgi_extension(const ServerConfig &server_config,
+                                 const std::string &target_path);
+    bool is_cgi_extension(const ServerInfo &server_info,
+                          const std::string &target_path) const;
+    bool is_cgi_extension(const AddressPortPair &address_port_pair,
+                          const std::string &target_path) const;
+
+    static time_t get_cgi_timeout(const ServerConfig &server_config,
+                                  const std::string &target_path);
+    time_t get_cgi_timeout(const ServerInfo &server_info,
+                           const std::string &target_path) const;
+    time_t get_cgi_timeout(const AddressPortPair &address_port_pair,
+                           const std::string &target_path) const;
+
 
     static bool is_exact_match(const std::string &pattern, const std::string &target);
     static bool is_prefix_match(const std::string &pattern, const std::string &target);

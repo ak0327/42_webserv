@@ -234,6 +234,11 @@ TEST(TestConfig, ConfigGetterOK1) {
     std::string expected_root, expected_index, expected_error_page;
     bool expected_autoindex, expected_is_redirect;
     bool expected_error;
+
+    bool expected_cgi_mode, is_cgi_extension;
+    std::set<std::string> expected_cgi_extension;
+    time_t expected_cgi_timeout;
+
     std::size_t expected_max_body_size;
     ReturnDirective expected_redirect;
     std::map<Method, bool> expected_method;
@@ -295,6 +300,14 @@ TEST(TestConfig, ConfigGetterOK1) {
     ASSERT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
+    expected_cgi_mode = ConfigInitValue::kDefaultRedirectOn;
+    expected_cgi_extension = {};
+    expected_cgi_timeout = ConfigInitValue::kDefaultCgiTimeoutSec;
+    expect_eq_getter(server_config, location_path, expected_error, expected_cgi_mode, Config::is_cgi_mode_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_cgi_extension, Config::get_cgi_extension, __LINE__);
+    EXPECT_EQ(expected_cgi_timeout, Config::get_cgi_timeout(server_config, location_path));
+
+
 
     location_path = "/old.html";
     expected_error = false;
@@ -330,6 +343,13 @@ TEST(TestConfig, ConfigGetterOK1) {
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
+    expected_cgi_mode = ConfigInitValue::kDefaultRedirectOn;
+    expected_cgi_extension = {"hello"};
+    expected_cgi_timeout = ConfigInitValue::kDefaultCgiTimeoutSec;
+    expect_eq_getter(server_config, location_path, expected_error, expected_cgi_mode, Config::is_cgi_mode_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_cgi_extension, Config::get_cgi_extension, __LINE__);
+    EXPECT_EQ(expected_cgi_timeout, Config::get_cgi_timeout(server_config, location_path));
+
 
 
     location_path = "/upload";
@@ -362,6 +382,13 @@ TEST(TestConfig, ConfigGetterOK1) {
     error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
+
+    expected_cgi_mode = ConfigInitValue::kDefaultRedirectOn;
+    expected_cgi_extension = {};
+    expected_cgi_timeout = ConfigInitValue::kDefaultCgiTimeoutSec;
+    expect_eq_getter(server_config, location_path, expected_error, expected_cgi_mode, Config::is_cgi_mode_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_cgi_extension, Config::get_cgi_extension, __LINE__);
+    EXPECT_EQ(expected_cgi_timeout, Config::get_cgi_timeout(server_config, location_path));
 
 
 
@@ -396,6 +423,12 @@ TEST(TestConfig, ConfigGetterOK1) {
     EXPECT_TRUE(error_page_result.is_ok());
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
+    expected_cgi_mode = true;
+    expected_cgi_extension = {"py", "php"};
+    expected_cgi_timeout = 60;
+    expect_eq_getter(server_config, location_path, expected_error, expected_cgi_mode, Config::is_cgi_mode_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_cgi_extension, Config::get_cgi_extension, __LINE__);
+    EXPECT_EQ(expected_cgi_timeout, Config::get_cgi_timeout(server_config, location_path));
 
 
     location_path = "=/50x.html";
@@ -406,7 +439,6 @@ TEST(TestConfig, ConfigGetterOK1) {
     expected_autoindex = ConfigInitValue::kDefaultAutoindex;
     expected_is_redirect = ConfigInitValue::kDefaultRedirectOn;
     expected_max_body_size = ConfigInitValue::kDefaultBodySize;
-
 
     expect_eq_getter(server_config, location_path, expected_error, expected_root, Config::get_root, __LINE__);
     // expect_eq_getter(server_config, location_path, expected_error, expected_index, Config::get_index, __LINE__);
@@ -430,6 +462,57 @@ TEST(TestConfig, ConfigGetterOK1) {
     EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
 
 
+
+    location_path = "/cgi-bin/";
+    expected_error = false;
+    expected_cgi_mode = true;
+    is_cgi_extension = false;
+    expected_cgi_extension = {"py", "php"};
+    expected_cgi_timeout = 60;
+    expect_eq_getter(server_config, location_path, expected_error, expected_cgi_mode, Config::is_cgi_mode_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_cgi_extension, Config::get_cgi_extension, __LINE__);
+    EXPECT_EQ(is_cgi_extension, Config::is_cgi_extension(server_config, location_path));
+    EXPECT_EQ(expected_cgi_timeout, Config::get_cgi_timeout(server_config, location_path));
+
+    location_path = "/cgi-bin/hello.py";
+    expected_cgi_mode = true;
+    is_cgi_extension = true;
+    expected_cgi_extension = {"py", "php"};
+    expected_cgi_timeout = 60;
+    expect_eq_getter(server_config, location_path, expected_error, expected_cgi_mode, Config::is_cgi_mode_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_cgi_extension, Config::get_cgi_extension, __LINE__);
+    EXPECT_EQ(is_cgi_extension, Config::is_cgi_extension(server_config, location_path));
+    EXPECT_EQ(expected_cgi_timeout, Config::get_cgi_timeout(server_config, location_path));
+
+    location_path = "/cgi-bin/hello.php";
+    expected_cgi_mode = true;
+    is_cgi_extension = true;
+    expected_cgi_extension = {"py", "php"};
+    expected_cgi_timeout = 60;
+    expect_eq_getter(server_config, location_path, expected_error, expected_cgi_mode, Config::is_cgi_mode_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_cgi_extension, Config::get_cgi_extension, __LINE__);
+    EXPECT_EQ(is_cgi_extension, Config::is_cgi_extension(server_config, location_path));
+    EXPECT_EQ(expected_cgi_timeout, Config::get_cgi_timeout(server_config, location_path));
+
+    location_path = "/cgi-bin/hello.hoge";
+    expected_cgi_mode = true;
+    is_cgi_extension = false;
+    expected_cgi_extension = {"py", "php"};
+    expected_cgi_timeout = 60;
+    expect_eq_getter(server_config, location_path, expected_error, expected_cgi_mode, Config::is_cgi_mode_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_cgi_extension, Config::get_cgi_extension, __LINE__);
+    EXPECT_EQ(is_cgi_extension, Config::is_cgi_extension(server_config, location_path));
+    EXPECT_EQ(expected_cgi_timeout, Config::get_cgi_timeout(server_config, location_path));
+
+    location_path = "/cgi-bin/hello.";
+    expected_cgi_mode = true;
+    is_cgi_extension = false;
+    expected_cgi_extension = {"py", "php"};
+    expected_cgi_timeout = 60;
+    expect_eq_getter(server_config, location_path, expected_error, expected_cgi_mode, Config::is_cgi_mode_on, __LINE__);
+    expect_eq_getter(server_config, location_path, expected_error, expected_cgi_extension, Config::get_cgi_extension, __LINE__);
+    EXPECT_EQ(is_cgi_extension, Config::is_cgi_extension(server_config, location_path));
+    EXPECT_EQ(expected_cgi_timeout, Config::get_cgi_timeout(server_config, location_path));
 
 
 
@@ -464,7 +547,6 @@ TEST(TestConfig, ConfigGetterOK1) {
     EXPECT_TRUE(error_page_result.is_err());
     error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_err());
-
 
 
     location_path = "/nothing";  // same as /
