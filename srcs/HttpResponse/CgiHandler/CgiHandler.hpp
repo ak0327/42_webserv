@@ -20,12 +20,12 @@ class CgiHandler {
     pid_t pid() const;
     StatusCode status_code() const;
     time_t timeout_limit() const;
+    void set_timeout_duration_sec(time_t timeout_sec);
     const std::vector<unsigned char> &cgi_body() const;
     void clear_buf();
 
     bool is_processing(int *status);
     bool is_process_timeout() const;
-
 
     StatusCode exec_script(const std::string &file_path);
     // Result<ProcResult, StatusCode> recv_cgi_output();
@@ -70,4 +70,8 @@ class CgiHandler {
     Result<std::string, ProcResult> pop_line_from_buf();
 
     static Result<std::vector<std::string>, ProcResult> get_interpreter(const std::string &file_path);
+
+
+    CgiHandler(const CgiHandler &other);
+    CgiHandler &operator=(const CgiHandler &other);
 };

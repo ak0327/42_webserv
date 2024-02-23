@@ -26,6 +26,8 @@ class ConfigParser {
 	Result<int, std::string> result() const;
 	HttpConfig config() const;
 
+    static bool is_valid_cgi_timeout(time_t timeout_sec);
+
 #ifdef UNIT_TEST
 	friend class ConfigParserTestFriend;
 #endif
@@ -138,17 +140,17 @@ class ConfigParser {
 
     static Result<int, std::string> parse_cgi_timeout_directive(TokenItr *current,
                                                                 const TokenItr &end,
-                                                                std::size_t *timeout_sec);
+                                                                time_t *timeout_sec);
 
 
     // mv to utility ?
 	static bool is_valid_error_code(int error_code);
 	static bool is_valid_return_code(int return_code);
-	static bool is_access_rule_directive(TokenItr *current, const TokenItr &end);
+    static bool is_access_rule_directive(TokenItr *current, const TokenItr &end);
 	static Result<Method, std::string> get_method(const std::string &method);
 	static Result<AddressPortPair, int> parse_listen_param(const std::string &param);
 	static Result<std::size_t, int> parse_size_with_prefix(const std::string &size_str);
-    static Result<std::size_t, int> parse_timeout_with_prefix(const std::string &timeout_str);
+    static Result<time_t, int> parse_timeout_with_prefix(const std::string &timeout_str);
 
 	// error message
 	static std::string create_syntax_err_msg(const TokenItr &current,

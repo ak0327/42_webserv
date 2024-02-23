@@ -836,6 +836,12 @@ bool ConfigParser::is_valid_return_code(int return_code) {
 }
 
 
+bool ConfigParser::is_valid_cgi_timeout(time_t timeout_sec) {
+    return ConfigInitValue::kCgiTimeoutMinSec <= timeout_sec
+           && timeout_sec <= ConfigInitValue::kCgiTImeoutMaxSec;
+}
+
+
 // "return" code [text]  ";"
 //          ^current
 Result<int, std::string> ConfigParser::parse_return_directive(TokenItr *current,
@@ -1121,22 +1127,22 @@ Result<int, std::string> ConfigParser::parse_cgi_mode_directive(TokenItr *curren
 }
 
 
-Result<std::size_t, int> ConfigParser::parse_timeout_with_prefix(const std::string &timeout_str) {
+Result<time_t, int> ConfigParser::parse_timeout_with_prefix(const std::string &timeout_str) {
     if (timeout_str.empty()) {
-        return Result<std::size_t, int>::err(ERR);
+        return Result<time_t, int>::err(ERR);
     }
 
     if (!std::isdigit(timeout_str[0])) {
-        return Result<std::size_t, int>::err(ERR);
+        return Result<time_t, int>::err(ERR);
     }
 
     bool is_overflow;
     std::size_t pos;
-    long long_timeout = StringHandler::stol(timeout_str, &pos, &is_overflow);
-    if (is_overflow || long_timeout < 0) {
-        return Result<std::size_t, int>::err(ERR);
+    int int_timeout = StringHandler::stoi(timeout_str, &pos, &is_overflow);
+    if (is_overflow || int_timeout < 0) {
+        return Result<time_t, int>::err(ERR);
     }
-    std::size_t timeout_sec = static_cast<std::size_t>(long_timeout);
+    time_t timeout_sec = static_cast<time_t>(int_timeout);
     // std::cout << CYAN << "bytes: " << timeout_sec << RESET << std::endl;
     // std::cout << CYAN << "end  :[" << &timeout_str[pos] << "]" << RESET << std::endl;
 
@@ -1145,7 +1151,7 @@ Result<std::size_t, int> ConfigParser::parse_timeout_with_prefix(const std::stri
         // std::cout << CYAN << "prefix: " << prefix << RESET << std::endl;
         ++pos;
 
-        std::size_t multiplier;
+        time_t multiplier;
         switch (prefix) {
             case 's':
                 multiplier = 1;
@@ -1156,22 +1162,21 @@ Result<std::size_t, int> ConfigParser::parse_timeout_with_prefix(const std::stri
                 break;
 
             default:
-                return Result<std::size_t, int>::err(ERR);
+                return Result<time_t, int>::err(ERR);
         }
 
         if (std::numeric_limits<long>::max() / multiplier < timeout_sec) {
-            return Result<std::size_t, int>::err(ERR);
+            return Result<time_t, int>::err(ERR);
         }
         timeout_sec *= multiplier;
     }
     if (pos != timeout_str.length()) {
-        return Result<std::size_t, int>::err(ERR);
+        return Result<time_t, int>::err(ERR);
     }
-    if (timeout_sec < ConfigInitValue::kCgiTimeoutMinSec
-        || ConfigInitValue::kCgiTImeoutMaxSec < timeout_sec) {
-        return Result<std::size_t, int>::err(ERR);
+    if (!is_valid_cgi_timeout(timeout_sec)) {
+        return Result<time_t, int>::err(ERR);
     }
-    return Result<std::size_t, int>::ok(timeout_sec);
+    return Result<time_t, int>::ok(timeout_sec);
 }
 
 
@@ -1179,7 +1184,7 @@ Result<std::size_t, int> ConfigParser::parse_timeout_with_prefix(const std::stri
 //                ^current                       ^return
 Result<int, std::string> ConfigParser::parse_cgi_timeout_directive(TokenItr *current,
                                                                  const TokenItr &end,
-                                                                 std::size_t *timeout_sec) {
+                                                                   time_t *timeout_sec) {
     std::string timeout_str;
 
     if (!current || !timeout_sec) {
@@ -1193,7 +1198,7 @@ Result<int, std::string> ConfigParser::parse_cgi_timeout_directive(TokenItr *cur
         return Result<int, std::string>::err(error_msg);
     }
 
-    Result<std::size_t, int> size_result = parse_timeout_with_prefix(timeout_str);
+    Result<time_t, int> size_result = parse_timeout_with_prefix(timeout_str);
     if (size_result.is_err()) {
         const std::string error_msg = create_invalid_value_err_msg(timeout_str, CGI_TIMEOUT_DIRECTIVE);
         return Result<int, std::string>::err(error_msg);

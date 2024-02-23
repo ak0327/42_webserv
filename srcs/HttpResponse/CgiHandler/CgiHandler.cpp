@@ -13,6 +13,7 @@
 #include <vector>
 #include "CgiHandler.hpp"
 #include "Color.hpp"
+#include "ConfigParser.hpp"
 #include "ConfigStruct.hpp"
 #include "Constant.hpp"
 #include "Debug.hpp"
@@ -464,6 +465,12 @@ StatusCode CgiHandler::status_code() const { return this->cgi_status_; }
 time_t CgiHandler::timeout_limit() const { return this->timeout_limit_; }
 time_t CgiHandler::timeout_duration_sec() const { return this->timeout_duration_sec_; }
 const std::vector<unsigned char> &CgiHandler::cgi_body() const { return this->recv_buf_; }
+
+void CgiHandler::set_timeout_duration_sec(time_t timeout_sec) {
+    if (ConfigParser::is_valid_cgi_timeout(timeout_sec)) {
+        this->timeout_duration_sec_ = timeout_sec;
+    }
+}
 
 bool CgiHandler::is_process_timeout() const {
     time_t current_time = std::time(NULL);
