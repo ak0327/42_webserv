@@ -260,8 +260,11 @@ ServerResult Server::run() {
         DEBUG_SERVER_PRINT(" run 4 ready_fd: %d", ready_fd);
 		if (ready_fd == IO_TIMEOUT) {
 			std::cerr << "[Server INFO] timeout" << std::endl;
+#ifdef UNIT_TEST
+            break;
+#else
             continue;
-			break;
+#endif
 		}
         DEBUG_SERVER_PRINT(" run 5 communicate");
         ServerResult communicate_result = communicate_with_client(ready_fd);
