@@ -205,14 +205,14 @@ Result<int, std::string> ConfigParser::result() const { return result_; }
 HttpConfig ConfigParser::config() const { return http_config_; }
 
 
-bool ConfigParser::is_at_end(TokenItr *current, const TokenItr end) {
+bool ConfigParser::is_at_end(TokenItr *current, const TokenItr &end) {
     skip_comments(current, end);
 
     return *current == end;
 }
 
 
-bool ConfigParser::consume(TokenItr *current, const TokenItr end, const std::string &expected_str) {
+bool ConfigParser::consume(TokenItr *current, const TokenItr &end, const std::string &expected_str) {
     skip_comments(current, end);
 
     if (*current != end && (*current)->str_ == expected_str) {
@@ -223,7 +223,7 @@ bool ConfigParser::consume(TokenItr *current, const TokenItr end, const std::str
 }
 
 
-bool ConfigParser::consume(TokenItr *current, const TokenItr end, TokenKind expected_kind) {
+bool ConfigParser::consume(TokenItr *current, const TokenItr &end, TokenKind expected_kind) {
     skip_comments(current, end);
 
     if (*current != end && (*current)->kind_ == expected_kind) {
@@ -234,7 +234,7 @@ bool ConfigParser::consume(TokenItr *current, const TokenItr end, TokenKind expe
 }
 
 
-bool ConfigParser::expect(TokenItr *current, const TokenItr end, const std::string &expected_str) {
+bool ConfigParser::expect(TokenItr *current, const TokenItr &end, const std::string &expected_str) {
     skip_comments(current, end);
 
     if (*current == end) {
@@ -244,7 +244,7 @@ bool ConfigParser::expect(TokenItr *current, const TokenItr end, const std::stri
 }
 
 
-bool ConfigParser::expect(TokenItr *current, const TokenItr end, TokenKind expected_kind) {
+bool ConfigParser::expect(TokenItr *current, const TokenItr &end, TokenKind expected_kind) {
     skip_comments(current, end);
 
     if (*current == end) {
@@ -254,7 +254,7 @@ bool ConfigParser::expect(TokenItr *current, const TokenItr end, TokenKind expec
 }
 
 
-void ConfigParser::skip_comments(TokenItr *current, const TokenItr end) {
+void ConfigParser::skip_comments(TokenItr *current, const TokenItr &end) {
     while (*current != end && (*current)->kind_ == kTokenKindComment) {
         ++(*current);
     }
@@ -264,7 +264,7 @@ void ConfigParser::skip_comments(TokenItr *current, const TokenItr end) {
 // "event"  "{"  "}"
 // ^current           ^return
 Result<int, std::string> ConfigParser::skip_events_block(TokenItr *current,
-                                                         const TokenItr end) {
+                                                         const TokenItr &end) {
     if (!current) {
         return Result<int, std::string>::err("fatal error");
     }
@@ -289,7 +289,7 @@ Result<int, std::string> ConfigParser::skip_events_block(TokenItr *current,
 // "http"  "{"  "server"  "{" ... "}" ... "}"
 // ^current                                    ^return
 Result<int, std::string> ConfigParser::parse_http_block(TokenItr *current,
-                                                        const TokenItr end,
+                                                        const TokenItr &end,
                                                         HttpConfig *http_config) {
     if (!current || !http_config) {
         return Result<int, std::string>::err("fatal error");
@@ -339,7 +339,7 @@ Result<int, std::string> ConfigParser::parse_http_block(TokenItr *current,
 // "server"  "{"  directive_name ... "}"
 // ^current                               ^return
 Result<int, std::string> ConfigParser::parse_server_block(TokenItr *current,
-                                                          const TokenItr end,
+                                                          const TokenItr &end,
                                                           ServerConfig *server_config) {
     if (!current || !server_config) {
         return Result<int, std::string>::err("fatal error");
@@ -412,7 +412,7 @@ bool is_matching_operator(const std::string &str) {
 }
 
 Result<std::string, std::string> ConfigParser::parse_location_path(TokenItr *current,
-                                                                   const TokenItr end) {
+                                                                   const TokenItr &end) {
     if (!current) {
         return Result<std::string, std::string>::err("fatal error");
     }
@@ -461,7 +461,7 @@ Result<std::string, std::string> ConfigParser::parse_location_path(TokenItr *cur
 //  ^current                         ^                        ^return
 //                                   location_start
 Result<int, std::string> ConfigParser::skip_location(TokenItr *current,
-                                                     const TokenItr end,
+                                                     const TokenItr &end,
                                                      LocationItrMap *location_iterators) {
     if (!current || !location_iterators) {
         return Result<int, std::string>::err("fatal error");
@@ -514,7 +514,7 @@ Result<int, std::string> ConfigParser::skip_location(TokenItr *current,
 //                                   ^start                      ^end
 Result<int, std::string> ConfigParser::parse_location(const LocationItrMap &location_iterators,
                                                       const LocationConfig &init_config,
-                                                      const TokenItr end,
+                                                      const TokenItr &end,
                                                       std::map<std::string, LocationConfig> *locations) {
     if (!locations) {
         return Result<int, std::string>::err("fatal error");
@@ -562,7 +562,7 @@ void clear_initial_value(std::set<std::string> *params, int *cnt) {
 // "location"  path  "{"  directive_name ...  "}"
 //                        ^current             ^return
 Result<int, std::string> ConfigParser::parse_location_block(TokenItr *current,
-                                                            const TokenItr end,
+                                                            const TokenItr &end,
                                                             LocationConfig *location_config) {
     Result<int, std::string> result;
     int limit_except_cnt = 0;
@@ -610,7 +610,7 @@ Result<int, std::string> ConfigParser::parse_location_block(TokenItr *current,
 // directive_name  directive_param ... ;
 // ^current                               ^return
 Result<int, std::string> ConfigParser::parse_default_config(TokenItr *current,
-                                                            const TokenItr end,
+                                                            const TokenItr &end,
                                                             DefaultConfig *default_config) {
     int root_cnt = 0;
     int index_cnt = 0;
@@ -694,7 +694,7 @@ Result<AddressPortPair, int> ConfigParser::parse_listen_param(const std::string 
 // "listen" ( address[:port] / port ) [default_server]  ";"
 //          ^current                                         ^return
 Result<int, std::string> ConfigParser::parse_listen_directive(TokenItr *current,
-                                                              const TokenItr end,
+                                                              const TokenItr &end,
                                                               std::vector<ListenDirective> *listen_directives) {
     std::vector<std::string> listen_params;
     ListenDirective listen_directive;
@@ -747,7 +747,7 @@ Result<int, std::string> ConfigParser::parse_listen_directive(TokenItr *current,
 // directive_name  directive_param ... ";"
 //                 ^current                ^return
 Result<int, std::string> ConfigParser::parse_directive_params(TokenItr *current,
-                                                              const TokenItr end,
+                                                              const TokenItr &end,
                                                               std::vector<std::string> *params,
                                                               const std::string &directive_name) {
     std::vector<std::string> parsed_params;
@@ -775,7 +775,7 @@ Result<int, std::string> ConfigParser::parse_directive_params(TokenItr *current,
 
 
 Result<int, std::string> ConfigParser::parse_set_params(TokenItr *current,
-                                                        const TokenItr end,
+                                                        const TokenItr &end,
                                                         std::set<std::string> *params,
                                                         const std::string &name) {
     std::vector<std::string> parsed_params;
@@ -799,7 +799,7 @@ Result<int, std::string> ConfigParser::parse_set_params(TokenItr *current,
 // directive_name  directive_param ";"
 //                 ^current             ^return
 Result<int, std::string> ConfigParser::parse_directive_param(TokenItr *current,
-                                                             const TokenItr end,
+                                                             const TokenItr &end,
                                                              std::string *param,
                                                              const std::string &directive_name) {
     if (!current || !param) {
@@ -830,7 +830,7 @@ bool ConfigParser::is_valid_return_code(int return_code) {
 // "return" code [text]  ";"
 //          ^current
 Result<int, std::string> ConfigParser::parse_return_directive(TokenItr *current,
-                                                              const TokenItr end,
+                                                              const TokenItr &end,
                                                               ReturnDirective *redirection) {
     std::vector<std::string> return_params;
     Result<int, std::string> result;
@@ -880,7 +880,7 @@ Result<int, std::string> ConfigParser::parse_return_directive(TokenItr *current,
 // "root"  path  ";"
 //         ^current   ^return
 Result<int, std::string> ConfigParser::parse_root_directive(TokenItr *current,
-                                                            const TokenItr end,
+                                                            const TokenItr &end,
                                                             std::string *root_path) {
     if (!current || !root_path) {
         return Result<int, std::string>::err("fatal error");
@@ -909,13 +909,13 @@ Result<Method, std::string> ConfigParser::get_method(const std::string & method)
 }
 
 
-bool ConfigParser::is_access_rule_directive(TokenItr *current, const TokenItr end) {
+bool ConfigParser::is_access_rule_directive(TokenItr *current, const TokenItr &end) {
     return expect(current, end, ALLOW_DIRECTIVE)
            || expect(current, end, DENY_DIRECTIVE);
 }
 
 Result<int, std::string> ConfigParser::parse_access_rule(TokenItr *current,
-                                                         const TokenItr end,
+                                                         const TokenItr &end,
                                                          std::vector<AccessRule> *rules,
                                                          const std::string &name) {
     if (!current || !rules) {
@@ -955,7 +955,7 @@ Result<int, std::string> ConfigParser::parse_access_rule(TokenItr *current,
 //  "limit_except"  method ... "{" ...  ";"  "}"
 //                  ^current                      ^return
 Result<int, std::string> ConfigParser::parse_limit_except_directive(TokenItr *current,
-                                                                    const TokenItr end,
+                                                                    const TokenItr &end,
                                                                     LimitExceptDirective *limit_except) {
     if (!current || !limit_except) {
         return Result<int, std::string>::err("fatal error");
@@ -1008,7 +1008,7 @@ bool ConfigParser::is_valid_error_code(int error_code) {
 // "error_page"  code ... uri  ";"
 //               ^current           ^return
 Result<int, std::string> ConfigParser::parse_error_page_directive(TokenItr *current,
-                                                                  const TokenItr end,
+                                                                  const TokenItr &end,
                                                                   std::map<StatusCode, std::string> *error_pages) {
     std::vector<std::string> error_page_params;
     Result<int, std::string> result;
@@ -1055,7 +1055,7 @@ Result<int, std::string> ConfigParser::parse_error_page_directive(TokenItr *curr
 // "autoindex"  on | off  ";"
 //              ^current      ^return
 Result<int, std::string> ConfigParser::parse_autoindex_directive(TokenItr *current,
-                                                                 const TokenItr end,
+                                                                 const TokenItr &end,
                                                                  bool *autoindex) {
     std::string autoindex_param;
 
@@ -1077,7 +1077,7 @@ Result<int, std::string> ConfigParser::parse_autoindex_directive(TokenItr *curre
         oss << " in \""  << AUTOINDEX_DIRECTIVE  << "\" directive, it must be \"on\" or \"off\"";;
         return Result<int, std::string>::err(oss.str());
     }
-    *autoindex = (autoindex_param == "on") ? true : false;
+    *autoindex = (autoindex_param == "on");
     return Result<int, std::string>::ok(OK);
 }
 
@@ -1139,7 +1139,7 @@ Result<std::size_t, int> ConfigParser::parse_size_with_prefix(const std::string 
 // "client_max_body_size"  size | size_with_prefix(k,m,g)  ";"
 //                         ^current                             ^return
 Result<int, std::string> ConfigParser::parse_body_size_directive(TokenItr *current,
-                                                                 const TokenItr end,
+                                                                 const TokenItr &end,
                                                                  std::size_t *max_body_size_bytes) {
     std::string body_size_param;
 
@@ -1167,8 +1167,8 @@ Result<int, std::string> ConfigParser::parse_body_size_directive(TokenItr *curre
 ////////////////////////////////////////////////////////////////////////////////
 
 
-std::string ConfigParser::create_syntax_err_msg(const TokenItr current,
-                                                const TokenItr end) {
+std::string ConfigParser::create_syntax_err_msg(const TokenItr &current,
+                                                const TokenItr &end) {
     std::ostringstream oss;
 
     if (current == end) {
@@ -1181,8 +1181,8 @@ std::string ConfigParser::create_syntax_err_msg(const TokenItr current,
 }
 
 
-std::string ConfigParser::create_syntax_err_msg(const TokenItr current,
-                                                const TokenItr end,
+std::string ConfigParser::create_syntax_err_msg(const TokenItr &current,
+                                                const TokenItr &end,
                                                 const std::string &expecting) {
     std::ostringstream oss;
 
@@ -1198,8 +1198,8 @@ std::string ConfigParser::create_syntax_err_msg(const TokenItr current,
 }
 
 
-std::string ConfigParser::create_invalid_value_err_msg(const TokenItr current,
-                                                       const TokenItr end) {
+std::string ConfigParser::create_invalid_value_err_msg(const TokenItr &current,
+                                                       const TokenItr &end) {
     std::ostringstream oss;
 
     oss << "invalid value";
@@ -1211,8 +1211,8 @@ std::string ConfigParser::create_invalid_value_err_msg(const TokenItr current,
 }
 
 
-std::string ConfigParser::create_invalid_value_err_msg(const TokenItr current,
-                                                       const TokenItr end,
+std::string ConfigParser::create_invalid_value_err_msg(const TokenItr &current,
+                                                       const TokenItr &end,
                                                        const std::string &directive_name) {
     std::ostringstream oss;
 
@@ -1237,8 +1237,8 @@ std::string ConfigParser::create_invalid_value_err_msg(const std::string &invali
 }
 
 
-std::string ConfigParser::create_invalid_num_of_arg_err_msg(const TokenItr current,
-                                                            const TokenItr end,
+std::string ConfigParser::create_invalid_num_of_arg_err_msg(const TokenItr &current,
+                                                            const TokenItr &end,
                                                             const std::string &directive_name) {
     std::ostringstream oss;
 
@@ -1250,8 +1250,8 @@ std::string ConfigParser::create_invalid_num_of_arg_err_msg(const TokenItr curre
 }
 
 
-std::string ConfigParser::create_duplicated_directive_err_msg(const TokenItr current,
-                                                              const TokenItr end,
+std::string ConfigParser::create_duplicated_directive_err_msg(const TokenItr &current,
+                                                              const TokenItr &end,
                                                               const std::string &directive_name) {
     std::ostringstream oss;
 
@@ -1263,8 +1263,8 @@ std::string ConfigParser::create_duplicated_directive_err_msg(const TokenItr cur
 }
 
 
-std::string ConfigParser::create_duplicated_location_err_msg(const TokenItr current,
-                                                             const TokenItr end,
+std::string ConfigParser::create_duplicated_location_err_msg(const TokenItr &current,
+                                                             const TokenItr &end,
                                                              const std::string &path) {
     std::ostringstream oss;
 
@@ -1276,8 +1276,8 @@ std::string ConfigParser::create_duplicated_location_err_msg(const TokenItr curr
 }
 
 
-std::string ConfigParser::create_recursive_location_err_msg(const TokenItr current,
-                                                            const TokenItr end,
+std::string ConfigParser::create_recursive_location_err_msg(const TokenItr &current,
+                                                            const TokenItr &end,
                                                             const std::string &outside) {
     std::ostringstream oss;
     TokenItr next;
