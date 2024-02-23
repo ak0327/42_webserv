@@ -13,9 +13,9 @@ const std::size_t KB = 1024;
 const std::size_t MB = KB * KB;
 const std::size_t GB = KB * KB * KB;
 const std::size_t kDefaultBodySize = 1 * MB;
-const std::size_t kDefaultCgiTimeoutSec = 3;
-const std::size_t kCgiTimeoutMinSec = 1;
-const std::size_t kCgiTImeoutMaxSec = 3600;
+const time_t kDefaultCgiTimeoutSec = 5;
+const time_t kCgiTimeoutMinSec = 1;
+const time_t kCgiTImeoutMaxSec = 3600;
 
 const char kDefaultRoot[] = "html";
 const char kDefaultIndex[] = "index.html";
@@ -141,7 +141,7 @@ struct ReturnDirective {
 struct CgiDirectove {
     bool is_cgi_mode;
     std::set<std::string> extension;
-    std::size_t timeout_sec;
+    time_t timeout_sec;
 
     CgiDirectove()
         : is_cgi_mode(ConfigInitValue::kDefaultCgiMode),
