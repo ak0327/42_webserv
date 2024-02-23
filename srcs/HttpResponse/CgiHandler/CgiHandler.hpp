@@ -33,7 +33,7 @@ class CgiHandler {
 
     ssize_t recv_to_buf(int fd);
 
-#ifdef UTEST_FRIEND
+#ifdef UNIT_TEST
     friend class CgiHandlerFriend;
 #endif
 

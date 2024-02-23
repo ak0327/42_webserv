@@ -69,7 +69,7 @@ class HttpRequest {
     Result<std::map<std::string, std::string>, ProcResult> get_host() const;
     Result<std::size_t, ProcResult> get_content_length() const;
 
-#ifdef UTEST_FRIEND
+#ifdef UNIT_TEST
     friend class HttpRequestFriend;
 #endif
 #ifdef ECHO
