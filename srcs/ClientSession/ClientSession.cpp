@@ -62,6 +62,7 @@ void ClientSession::close_client_fd() {
 }
 
 
+// todo: unused??
 void ClientSession::clear_cgi() {
     this->response_->clear_cgi();
 }
@@ -231,7 +232,7 @@ Result<ProcResult, StatusCode> ClientSession::create_http_response() {
     while (true) {
         switch (this->session_state_) {
             case kExecutingMethod: {
-                DEBUG_SERVER_PRINT("     ExecutingMethod");
+                DEBUG_SERVER_PRINT("     1 ExecutingMethod");
                 Result<ProcResult, StatusCode> method_result = execute_each_method();  // todo: rename
                 if (method_result.is_ok() && method_result.get_ok_value() == ExecutingCgi) {
                     this->set_session_state(kExecutingCGI);
@@ -246,6 +247,7 @@ Result<ProcResult, StatusCode> ClientSession::create_http_response() {
             // fallthrough
 
             case kCreatingResponseBody: {
+                DEBUG_SERVER_PRINT("     2 CreatingResponseBody");
     #ifdef ECHO
                 this->response_->create_echo_msg(this->request_->get_buf());
     #else
@@ -261,10 +263,11 @@ Result<ProcResult, StatusCode> ClientSession::create_http_response() {
             }
 
             case kCreatingCGIBody: {
-                DEBUG_SERVER_PRINT("     CreatingCGIBody");
+                DEBUG_SERVER_PRINT("     3 CreatingCGIBody");
                 Result<ProcResult, StatusCode> cgi_result = this->response_->interpret_cgi_output();
                 if (cgi_result.is_err()) {
                     StatusCode error_code = cgi_result.get_err_value();
+                    DEBUG_SERVER_PRINT("      CGI status: %d", error_code);
                     this->set_status(error_code);
                 }
                 this->set_session_state(kCreatingResponseBody);

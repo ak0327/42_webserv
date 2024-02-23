@@ -64,8 +64,8 @@ void *run_server(void *server_info) {
 	}
 	catch (std::exception const &e) {
 		is_server_success = false;
-		std::cerr << e.what() << std::endl;
-	}
+        DEBUG_PRINT(YELLOW, "server exception: ", e.what());
+    }
 	return (void *)(is_server_success);
 }
 
@@ -91,8 +91,8 @@ void *run_client(void *client_info) {
     }
 	catch (std::exception const &e) {
 		is_client_success = false;
-		std::cerr << e.what() << std::endl;
-	}
+        DEBUG_PRINT(YELLOW, "client exception: ", e.what());
+    }
     DEBUG_PRINT(YELLOW, "client no:%d finish", c->no);
 	return (void *)(is_client_success);
 }

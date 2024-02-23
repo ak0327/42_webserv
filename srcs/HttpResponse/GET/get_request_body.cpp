@@ -104,7 +104,7 @@ StatusCode HttpResponse::get_request_body(const std::string &resource_path) {
 
     if (is_cgi_file(indexed_path)) {
         DEBUG_PRINT(CYAN, "  get_content -> cgi");
-        return exec_cgi(indexed_path, &this->cgi_read_fd_, &this->cgi_pid_);
+        return this->cgi_handler_.exec_script(indexed_path);
     } else {
         DEBUG_PRINT(CYAN, "  get_content -> file_content");
         return get_file_content(indexed_path, &this->body_buf_);

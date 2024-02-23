@@ -6,8 +6,8 @@
 # include <string>
 # include <vector>
 # include "webserv.hpp"
+# include "CgiHandler.hpp"
 # include "ConfigStruct.hpp"
-# include "MediaType.hpp"
 # include "HttpRequest.hpp"
 # include "Result.hpp"
 
@@ -64,16 +64,9 @@ class HttpResponse {
     Result<ProcResult, StatusCode> interpret_cgi_output();
     Result<ProcResult, StatusCode> create_response_message(const StatusCode &code);
 
-    int cgi_fd() const;
-    pid_t cgi_pid() const;
-    bool is_cgi_processing(int *status);
-    void close_cgi_fd();
-    void clear_cgi();
-
     ssize_t recv_to_buf(int fd);
-
-    // todo: mv util?
-    static Result<std::vector<std::string>, ProcResult> get_interpreter(const std::string &file_path);
+    void clear_cgi();
+    int cgi_fd() const;
 
 #ifdef ECHO
     HttpResponse();
@@ -88,19 +81,12 @@ class HttpResponse {
  private:
     const HttpRequest &request_;
     const ServerConfig &server_config_;
-
-    int cgi_read_fd_;
-    pid_t cgi_pid_;
-    MediaType *media_type_;
+    CgiHandler cgi_handler_;
 
 	/* response message */
 	std::string status_line_;
 	std::map<std::string, std::string> headers_;
-
-	// message-body = *OCTET
 	std::vector<unsigned char> body_buf_;
-
-    // send to client
     std::vector<unsigned char> response_msg_;
 
 
@@ -119,26 +105,6 @@ class HttpResponse {
     StatusCode get_file_content(const std::string &file_path, std::vector<unsigned char> *buf);
     StatusCode get_directory_listing(const std::string &directory_path,
                                      std::vector<unsigned char> *buf);
-    StatusCode exec_cgi(const std::string &file_path, int *cgi_read_fd, pid_t *cgi_pid);
-    void kill_cgi_process();
-    int execute_cgi_script_in_child(int socket_fds[2],
-                                    const std::string &file_path,
-                                    const std::string &query);
-    Result<int, std::string> create_socketpair(int socket_fds[2]);
-    std::vector<char *> get_argv_for_execve(const std::vector<std::string> &interpreter,
-                                            const std::string &file_path);
-    bool is_exec_timeout(time_t start_time, int timeout_sec);
-
-    StatusCode parse_cgi_document_response();
-    void find_nl(const std::vector<unsigned char> &data,
-                 std::vector<unsigned char>::const_iterator start,
-                 std::vector<unsigned char>::const_iterator *nl);
-    Result<std::string, ProcResult> get_line(const std::vector<unsigned char> &data,
-                                             std::vector<unsigned char>::const_iterator start,
-                                             std::vector<unsigned char>::const_iterator *ret);
-    Result<std::string, ProcResult> pop_line_from_buf();
-    void clear_media_type();
-    bool is_cgi_response();
 
     // POST
 	StatusCode post_request_body(const std::string &target) {
