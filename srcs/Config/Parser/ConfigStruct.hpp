@@ -13,6 +13,7 @@ const std::size_t KB = 1024;
 const std::size_t MB = KB * KB;
 const std::size_t GB = KB * KB * KB;
 const std::size_t kDefaultBodySize = 1 * MB;
+const unsigned int kDefaultCgiTimeoutSec = 60;
 
 const char kDefaultRoot[] = "html";
 const char kDefaultIndex[] = "index.html";

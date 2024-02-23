@@ -55,6 +55,7 @@ include_directories(
         srcs/Socket
         srcs/StringHandler
         srcs/HttpResponse
+        srcs/HttpResponse/CgiHandler
         srcs/HttpResponse/GET
         srcs/HttpResponse/POST
         srcs/HttpResponse/DELETE
@@ -188,7 +189,7 @@ set(http_response_srcs
 )
 # GET
 set(get_srcs
-        srcs/HttpResponse/GET/get_cgi_result.cpp
+        srcs/HttpResponse/CgiHandler/CgiHandler.cpp
         srcs/HttpResponse/GET/get_directory_listing.cpp
         srcs/HttpResponse/GET/get_file_content.cpp
         srcs/HttpResponse/GET/get_request_body.cpp

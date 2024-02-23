@@ -26,59 +26,13 @@ HttpResponse::HttpResponse(const HttpRequest &request,
                            const ServerConfig &server_config)
     : request_(request),
       server_config_(server_config),
-      cgi_read_fd_(INIT_FD),
-      cgi_pid_(INIT_PID),
-      media_type_(NULL),
+      cgi_handler_(),
       headers_(),
       body_buf_(),
       response_msg_() {}
 
 
-HttpResponse::~HttpResponse() {
-    clear_cgi();
-    clear_media_type();
-}
-
-
-void HttpResponse::clear_cgi() {
-    kill_cgi_process();
-    close_cgi_fd();
-}
-
-
-void HttpResponse::clear_media_type() {
-    if (this->media_type_) {
-        delete media_type_;
-        this->media_type_ = NULL;
-    }
-}
-
-
-void HttpResponse::kill_cgi_process() {
-    int process_status;
-    if (!is_cgi_processing(&process_status)) {
-        return;
-    }
-    errno = 0;
-    if (kill(this->cgi_pid_, SIGKILL) == KILL_ERROR) {
-        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
-        std::cerr << error_msg << std::endl;  // todo: log
-    }
-    this->cgi_pid_ = INIT_PID;  // todo: success only?
-}
-
-
-void HttpResponse::close_cgi_fd() {
-    if (this->cgi_read_fd_ == INIT_FD) {
-        return;
-    }
-    errno = 0;
-    if (close(this->cgi_read_fd_) == CLOSE_ERROR) {
-        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
-        std::cerr << error_msg << std::endl;  // todo: log
-    }
-    this->cgi_read_fd_ = INIT_FD;  // todo: success only?
-}
+HttpResponse::~HttpResponse() {}
 
 
 // todo: 分岐する？get_contentで取得する？
@@ -88,7 +42,7 @@ bool HttpResponse::is_response_error_page(const StatusCode &status_code) const {
 }
 
 bool HttpResponse::is_executing_cgi() const {
-    return this->cgi_fd() != INIT_FD;
+    return this->cgi_handler_.pid() != INIT_PID;  // todo: is_processing() ?
 }
 
 
@@ -176,7 +130,9 @@ Result<ProcResult, StatusCode> HttpResponse::exec_method(const StatusCode &statu
                                           ^^^^^^
  */
 Result<ProcResult, StatusCode> HttpResponse::interpret_cgi_output() {
-    StatusCode parse_result = parse_cgi_document_response();
+    StatusCode parse_result = this->cgi_handler_.parse_document_response();
+    this->body_buf_ = this->cgi_handler_.cgi_body();
+
     // error_page
     return Result<ProcResult, StatusCode>::err(parse_result);
 }
@@ -263,55 +219,21 @@ ssize_t HttpResponse::recv_to_buf(int fd) {
 
 
 Result<ProcResult, StatusCode> HttpResponse::recv_cgi_result() {
-    ssize_t recv_size = this->recv_to_buf(cgi_fd());
+    ssize_t recv_size = this->cgi_handler_.recv_to_buf(cgi_handler_.fd());
     if (recv_size == RECV_CLOSED) {
         return Result<ProcResult, StatusCode>::ok(ConnectionClosed);
     }
-    std::string debug_buf(this->body_buf_.begin(), this->body_buf_.end());
-    // DEBUG_PRINT(YELLOW, "     buf:[%s]", debug_buf.c_str());
 
     int process_exit_status;
-    if (this->is_cgi_processing(&process_exit_status)) {
+    if (this->cgi_handler_.is_processing(&process_exit_status)) {
         return Result<ProcResult, StatusCode>::ok(Continue);
     }
-    // DEBUG_PRINT(YELLOW, "     process_exit_status: %d", process_exit_status);
+    DEBUG_PRINT(YELLOW, "     process_exit_status: %d", process_exit_status);
     if (process_exit_status != EXIT_SUCCESS) {
         return Result<ProcResult, StatusCode>::err(InternalServerError);
     }
-    close_cgi_fd();
+    this->cgi_handler_.close_cgi_fd();
     return Result<ProcResult, StatusCode>::ok(Success);
-}
-
-
-bool HttpResponse::is_cgi_processing(int *status) {
-    // DEBUG_PRINT(YELLOW, "    is_cgi_processing 1");
-    if (this->cgi_pid_ == INIT_PID) {
-        // DEBUG_PRINT(YELLOW, "    is_cgi_processing 2");
-        return false;
-    }
-    int child_status;
-    errno = 0;
-    pid_t wait_result = waitpid(this->cgi_pid_, &child_status, WNOHANG);
-    int tmp_err = errno;
-    // DEBUG_PRINT(YELLOW, "    wait_result: %d, errno: %d, ECHILD: %d", wait_result, tmp_err, ECHILD);
-    if (tmp_err != 0) {
-        // DEBUG_PRINT(YELLOW, "    is_cgi_processing 3");
-        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(tmp_err);
-        std::cerr << error_msg << std::endl;  // todo: log
-    }
-    if (wait_result == PROCESSING || (wait_result == WAIT_ERROR && tmp_err != ECHILD)) {
-        // DEBUG_PRINT(YELLOW, "    is_cgi_processing 4");
-        return true;
-    }
-
-    // DEBUG_PRINT(YELLOW, "    is_cgi_processing 5");
-    if (0 < wait_result && status) {
-        // DEBUG_PRINT(YELLOW, "    is_cgi_processing 6");
-        *status = WEXITSTATUS(child_status);
-    }
-    // DEBUG_PRINT(YELLOW, "    is_cgi_processing 7");
-    this->cgi_pid_ = INIT_PID;
-    return false;
 }
 
 
@@ -326,16 +248,13 @@ const std::vector<unsigned char> &HttpResponse::get_response_message() const {
 
 
 int HttpResponse::cgi_fd() const {
-    return this->cgi_read_fd_;
+    return this->cgi_handler_.fd();
 }
 
 
-pid_t HttpResponse::cgi_pid() const {
-    return this->cgi_pid_;
-}
-
-bool HttpResponse::is_cgi_response() {
-    return this->media_type_;
+// todo: unused??
+void HttpResponse::clear_cgi() {
+    this->cgi_handler_.clear_cgi_process();
 }
 
 

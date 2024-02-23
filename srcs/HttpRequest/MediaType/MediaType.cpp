@@ -1,6 +1,7 @@
 #include <iostream>
 #include "Constant.hpp"
 #include "Color.hpp"
+#include "Debug.hpp"
 #include "HttpMessageParser.hpp"
 #include "MediaType.hpp"
 #include "StringHandler.hpp"
@@ -53,6 +54,7 @@ MediaType &MediaType::operator=(const MediaType &rhs) {
 	this->type_ = rhs.type_;
 	this->subtype_ = rhs.subtype_;
 	this->parameters_ = rhs.parameters_;
+    this->result_ = rhs.result_;
 	return *this;
 }
 

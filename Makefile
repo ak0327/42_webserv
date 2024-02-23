@@ -112,10 +112,14 @@ SRCS		+=	$(STR_HANDLER)/HttpMessageParser.cpp \
 #HTTP Response
 RESPONSE_DIR =	HttpResponse
 SRCS		+=	$(RESPONSE_DIR)/HttpResponse.cpp \
-				$(RESPONSE_DIR)/GET/get_cgi_result.cpp \
 				$(RESPONSE_DIR)/GET/get_directory_listing.cpp \
 				$(RESPONSE_DIR)/GET/get_file_content.cpp \
 				$(RESPONSE_DIR)/GET/get_request_body.cpp
+
+# CgiHandler
+CGI_DIR 	= $(RESPONSE_DIR)/CgiHandler
+SRCS		+=	$(CGI_DIR)/CgiHandler.cpp
+
 
 # OBJS -------------------------------------------------------------------------
 OBJS_DIR	=	objs
@@ -144,6 +148,7 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(CONFIG_DIR)/Tokenizer \
 				$(SRCS_DIR)/$(CONFIG_DIR) \
 				$(SRCS_DIR)/$(CLIENT_SESSION_DIR) \
+				$(SRCS_DIR)/$(CGI_DIR)
 
 REQUEST_INCLUDES =	$(SRCS_DIR)/$(REQUEST_DIR) \
 					$(SRCS_DIR)/$(DATE_DIR) \

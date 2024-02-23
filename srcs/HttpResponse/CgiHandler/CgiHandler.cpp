@@ -11,20 +11,106 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include "CgiHandler.hpp"
 #include "Color.hpp"
+#include "ConfigStruct.hpp"
 #include "Constant.hpp"
 #include "Debug.hpp"
 #include "Error.hpp"
-#include "HttpResponse.hpp"
 #include "HttpMessageParser.hpp"
+#include "HttpRequest.hpp"
 #include "IOMultiplexer.hpp"
 #include "Result.hpp"
 #include "StringHandler.hpp"
 
 extern char **environ;
 
+CgiHandler::CgiHandler()
+    : cgi_read_fd_(INIT_FD),
+      cgi_pid_(INIT_PID),
+      timeout_sec_(ConfigInitValue::kDefaultCgiTimeoutSec),
+      media_type_(),
+      cgi_status_(StatusOk),
+      recv_buf_() {}
 
-Result<int, std::string> HttpResponse::create_socketpair(int socket_fds[2]) {
+
+CgiHandler::~CgiHandler() {
+    clear_cgi_process();
+}
+
+
+void CgiHandler::clear_cgi_process() {
+    kill_cgi_process();
+    close_cgi_fd();
+}
+
+
+void CgiHandler::kill_cgi_process() {
+    if (pid() == INIT_PID) {
+        return;
+    }
+
+    int process_status;
+    if (!is_processing(&process_status)) {
+        return;
+    }
+    errno = 0;
+    if (kill(pid(), SIGKILL) == KILL_ERROR) {
+        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+        std::cerr << error_msg << std::endl;  // todo: log
+    }
+    set_cgi_pid(INIT_PID);
+}
+
+
+void CgiHandler::close_cgi_fd() {
+    DEBUG_PRINT(YELLOW, "cgi: close fd: %d", fd());
+    if (fd() == INIT_FD) {
+        return;
+    }
+
+    errno = 0;
+    if (close(fd()) == CLOSE_ERROR) {
+        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+        std::cerr << error_msg << std::endl;  // todo: log
+    }
+    set_cgi_read_fd(INIT_FD);  // todo: success only?
+}
+
+
+bool CgiHandler::is_processing(int *status) {
+    // DEBUG_PRINT(YELLOW, "    is_cgi_processing 1");
+    if (pid() == INIT_PID) {
+        // DEBUG_PRINT(YELLOW, "    is_cgi_processing 2");
+        return false;
+    }
+    int child_status;
+    errno = 0;
+    pid_t wait_result = waitpid(pid(), &child_status, WNOHANG);
+    int tmp_err = errno;
+    // DEBUG_PRINT(YELLOW, "    wait_result: %d, errno: %d, ECHILD: %d", wait_result, tmp_err, ECHILD);
+    if (tmp_err != 0) {
+        // DEBUG_PRINT(YELLOW, "    is_cgi_processing 3");
+        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(tmp_err);
+        std::cerr << error_msg << std::endl;  // todo: log
+    }
+    if (wait_result == PROCESSING || (wait_result == WAIT_ERROR && tmp_err != ECHILD)) {
+        // DEBUG_PRINT(YELLOW, "    is_cgi_processing 4");
+        return true;
+    }
+
+    // DEBUG_PRINT(YELLOW, "    is_cgi_processing 5");
+    if (0 < wait_result && status) {
+        // DEBUG_PRINT(YELLOW, "    is_cgi_processing 6");
+        *status = WEXITSTATUS(child_status);
+    }
+    // DEBUG_PRINT(YELLOW, "    is_cgi_processing 7");
+    set_cgi_pid(INIT_PID);
+    return false;
+}
+
+
+Result<int, std::string> CgiHandler::create_socketpair(int socket_fds[2]) {
     errno = 0;
     if (socketpair(AF_UNIX, SOCK_STREAM, FLAG_NONE, socket_fds) == SOCKETPAIR_ERROR) {
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
@@ -35,7 +121,7 @@ Result<int, std::string> HttpResponse::create_socketpair(int socket_fds[2]) {
 }
 
 
-std::vector<char *> HttpResponse::get_argv_for_execve(const std::vector<std::string> &interpreter,
+std::vector<char *> CgiHandler::get_argv_for_execve(const std::vector<std::string> &interpreter,
                                                       const std::string &file_path) {
     std::vector<char *> argv;
 
@@ -49,9 +135,9 @@ std::vector<char *> HttpResponse::get_argv_for_execve(const std::vector<std::str
 }
 
 
-int HttpResponse::execute_cgi_script_in_child(int socket_fds[2],
-                                const std::string &file_path,
-                                const std::string &query) {
+int CgiHandler::exec_script_in_child(int socket_fds[2],
+                                     const std::string &file_path,
+                                     const std::string &query) {
     Result<std::vector<std::string>, ProcResult> interpreter_result;
     std::vector<std::string> interpreter;
     std::vector<char *> argv;  // todo: char *const argv[]
@@ -59,7 +145,7 @@ int HttpResponse::execute_cgi_script_in_child(int socket_fds[2],
 
     DEBUG_PRINT(CYAN, "    cgi(child) 1");
 
-    interpreter_result = HttpResponse::get_interpreter(file_path);
+    interpreter_result = CgiHandler::get_interpreter(file_path);
     if (interpreter_result.is_err()) {
         std::exit(EXIT_FAILURE);
     }
@@ -103,16 +189,7 @@ int HttpResponse::execute_cgi_script_in_child(int socket_fds[2],
 }
 
 
-// todo: use?
-bool HttpResponse::is_exec_timeout(time_t start_time, int timeout_sec) {
-    time_t current_time = time(NULL);
-    double elapsed_time = difftime(current_time, start_time);
-
-    return (timeout_sec <= elapsed_time);
-}
-
-
-Result<std::vector<std::string>, ProcResult> HttpResponse::get_interpreter(const std::string &file_path) {
+Result<std::vector<std::string>, ProcResult> CgiHandler::get_interpreter(const std::string &file_path) {
     std::ifstream file(file_path.c_str());
 
     if (file.fail()) {
@@ -150,7 +227,7 @@ void skip_field_lines(std::istringstream *iss) {
 }
 
 
-StatusCode HttpResponse::parse_cgi_document_response() {
+StatusCode CgiHandler::parse_document_response() {
     StatusCode cgi_status = StatusOk;
     int status_count = 0;
     while (true) {
@@ -171,19 +248,14 @@ StatusCode HttpResponse::parse_cgi_document_response() {
         }
         field_name = StringHandler::to_lower(field_name);
         if (field_name == std::string(CONTENT_TYPE)) {
-            if (this->media_type_) {
+            if (this->media_type_.is_ok()) {
                 return InternalServerError;
             }
-            try {
-                this->media_type_ = new MediaType(field_value);
-            }
-            catch (const std::bad_alloc &e) {
+            this->media_type_ = MediaType(field_value);
+            if (this->media_type_.is_err()) {
                 return InternalServerError;
             }
-            if (this->media_type_->is_err()) {
-                return InternalServerError;
-            }
-        } else if (field_name == "Status") {
+        } else if (field_name == "status") {
             ++status_count;
             if (1 < status_count) {
                 return InternalServerError;
@@ -200,16 +272,21 @@ StatusCode HttpResponse::parse_cgi_document_response() {
             cgi_status = convert_result.get_ok_value();
         }
     }
-    if (!this->media_type_) {
+    if (this->media_type_.is_err()) {
         return InternalServerError;
     }
     return cgi_status;
 }
 
 
+ssize_t CgiHandler::recv_to_buf(int fd) {
+    return HttpRequest::recv_to_buf(fd, &this->recv_buf_);
+}
+
+
 // string NL
 //        ^return
-void HttpResponse::find_nl(const std::vector<unsigned char> &data,
+void CgiHandler::find_nl(const std::vector<unsigned char> &data,
                            std::vector<unsigned char>::const_iterator start,
                            std::vector<unsigned char>::const_iterator *nl) {
     if (!nl) {
@@ -229,15 +306,15 @@ void HttpResponse::find_nl(const std::vector<unsigned char> &data,
 
 // line NL next_line
 // ^^^^    ^ret
-Result<std::string, ProcResult> HttpResponse::get_line(const std::vector<unsigned char> &data,
-                                                      std::vector<unsigned char>::const_iterator start,
-                                                      std::vector<unsigned char>::const_iterator *ret) {
+Result<std::string, ProcResult> CgiHandler::get_line(const std::vector<unsigned char> &data,
+                                                       std::vector<unsigned char>::const_iterator start,
+                                                       std::vector<unsigned char>::const_iterator *ret) {
     if (!ret) {
         return Result<std::string, ProcResult>::err(FatalError);
     }
 
     std::vector<unsigned char>::const_iterator nl;
-    HttpResponse::find_nl(data, start, &nl);
+    CgiHandler::find_nl(data, start, &nl);
     if (nl == data.end()) {
         *ret = data.end();
         return Result<std::string, ProcResult>::err(Failure);
@@ -249,19 +326,19 @@ Result<std::string, ProcResult> HttpResponse::get_line(const std::vector<unsigne
 }
 
 
-Result<std::string, ProcResult> HttpResponse::pop_line_from_buf() {
+Result<std::string, ProcResult> CgiHandler::pop_line_from_buf() {
     std::vector<unsigned char>::const_iterator next_line;
 
-    Result<std::string, ProcResult> result = get_line(this->body_buf_,
-                                                      this->body_buf_.begin(),
+    Result<std::string, ProcResult> result = get_line(this->recv_buf_,
+                                                      this->recv_buf_.begin(),
                                                       &next_line);
     if (result.is_err()) {
         return Result<std::string, ProcResult>::err(Failure);
     }
     std::string line = result.get_ok_value();
-    HttpRequest::trim(&this->body_buf_, next_line);
+    HttpRequest::trim(&this->recv_buf_, next_line);
 
-    std::string debug_buf(this->body_buf_.begin(), this->body_buf_.end());
+    std::string debug_buf(this->recv_buf_.begin(), this->recv_buf_.end());
     DEBUG_SERVER_PRINT("buf[%s]", debug_buf.c_str());
     return Result<std::string, ProcResult>::ok(line);
 }
@@ -285,31 +362,21 @@ Result<std::string, int> translate_to_http_protocol(const std::string &cgi_resul
 }
 
 
-StatusCode HttpResponse::exec_cgi(const std::string &file_path,
-                                                      int *cgi_read_fd,
-                                                      pid_t *cgi_pid) {
-    Result<std::string, int> execute_cgi_result, translate_result;
+StatusCode CgiHandler::exec_script(const std::string &file_path) {
     Result<int, std::string> socketpair_result;
     int socket_fds[2];
-    pid_t pid;
 
     DEBUG_PRINT(CYAN, "   cgi 1");
-
-    if (!cgi_read_fd || !cgi_pid) {
-        return InternalServerError;  // todo: tmp
-    }
-
     socketpair_result = create_socketpair(socket_fds);
     if (socketpair_result.is_err()) {
         const std::string error_msg = socketpair_result.get_err_value();
         std::cerr << "[Error] socketpair: " << error_msg << std::endl;  // todo: tmp
         return InternalServerError;  // todo: tmp
     }
-
     DEBUG_PRINT(CYAN, "   cgi 2");
 
     errno = 0;
-    pid = fork();
+    pid_t pid = fork();
     if (pid == FORK_ERROR) {
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
         std::cerr << error_msg << std::endl;  // todo: tmp
@@ -319,7 +386,7 @@ StatusCode HttpResponse::exec_cgi(const std::string &file_path,
     DEBUG_PRINT(CYAN, "   cgi 3");
     if (pid == CHILD_PROC) {
         std::string query;  // todo: get query
-        std::exit(execute_cgi_script_in_child(socket_fds, file_path, query));
+        std::exit(exec_script_in_child(socket_fds, file_path, query));
     }
     DEBUG_PRINT(CYAN, "   cgi 4");
 
@@ -330,8 +397,28 @@ StatusCode HttpResponse::exec_cgi(const std::string &file_path,
         std::cerr << error_msg << std::endl;  // todo: tmp
         return InternalServerError;
     }
-    *cgi_read_fd = socket_fds[READ];
-    *cgi_pid = pid;
-    DEBUG_PRINT(CYAN, "   cgi 5");
+
+    set_cgi_read_fd(socket_fds[READ]);
+    set_cgi_pid(pid);
+    set_start_time();
+
+    DEBUG_PRINT(CYAN, "   cgi 5 start_time: ", this->process_start_time_);
     return StatusOk;
+}
+
+
+void CgiHandler::set_cgi_read_fd(int read_fd) { this->cgi_read_fd_ = read_fd; }
+void CgiHandler::set_cgi_pid(pid_t pid) { this->cgi_pid_ = pid; }
+void CgiHandler::set_start_time() { this->process_start_time_ = std::time(NULL); }
+
+int CgiHandler::fd() const { return this->cgi_read_fd_; }
+pid_t CgiHandler::pid() const { return this->cgi_pid_; }
+StatusCode CgiHandler::status_code() const { return this->cgi_status_; }
+time_t CgiHandler::process_start_time() { return this->process_start_time_; }
+unsigned int CgiHandler::timeout_sec() { return this->timeout_sec_; }
+const std::vector<unsigned char> &CgiHandler::cgi_body() const { return this->recv_buf_; }
+
+bool CgiHandler::is_process_timeout() {
+    time_t elapsed_time = std::time(NULL) - this->process_start_time();
+    return (this->timeout_sec() <= elapsed_time);
 }
