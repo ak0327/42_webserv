@@ -94,6 +94,13 @@ TEST(TestParser, ParseOK) {
     location_config.root_path = "/upload";
     server_config.locations["/post"] = location_config;
 
+    // location "/cgi-bin/"
+    location_config = LocationConfig(server_config);
+    location_config.cgi.is_cgi_mode = true;
+    location_config.cgi.extension = {"py", "php"};
+    location_config.cgi.timeout_sec = 60;
+    server_config.locations["/cgi-bin/"] = location_config;
+
     location_config = LocationConfig(server_config);
     location_config.root_path = "www";
     server_config.locations["=/50x.html"] = location_config;
