@@ -531,7 +531,7 @@ std::vector<std::string> init_sh_tokens() {
 const char EVENTS_BLOCK[] = "events";
 const char HTTP_BLOCK[] = "http";
 const char SERVER_BLOCK[] = "server";
-const char LOCATIONS_BLOCK[] = "location";
+const char LOCATION_BLOCK[] = "location";
 
 const char LISTEN_DIRECTIVE[] = "listen";
 const char SERVER_NAME_DIRECTIVE[] = "server_name";
@@ -547,9 +547,9 @@ const char BODY_SIZE_DIRECTIVE[] = "client_max_body_size";
 const char ALLOW_DIRECTIVE[] = "allow";
 const char DENY_DIRECTIVE[] = "deny";
 
-const char CGI_DIRECTIVE[] = "webserv_cgi";
-const char CGI_PASS_DIRECTIVE[] = "webserv_cgi_pass";
-const char CGI_PARAM_DIRECTIVE[] = "webserv_cgi_param";
+const char CGI_MODE_DIRECTIVE[] = "cgi_mode";
+const char CGI_EXTENSION_DIRECTIVE[] = "cgi_extension";
+const char CGI_TIMEOUT_DIRECTIVE[] = "cgi_timeout";
 
 const char LEFT_PAREN[] = "{";
 const char RIGHT_PAREN[] = "}";
@@ -560,31 +560,30 @@ const std::vector<std::string> DIRECTIVE_NAMES = init_directive_names();
 std::vector<std::string> init_block_names() {
 	std::vector<std::string> block_names;
 
-	block_names.push_back("events");
-	block_names.push_back("http");
-	block_names.push_back("server");
-	block_names.push_back("location");
+	block_names.push_back(EVENTS_BLOCK);
+	block_names.push_back(HTTP_BLOCK);
+	block_names.push_back(SERVER_BLOCK);
+	block_names.push_back(LOCATION_BLOCK);
 	return block_names;
 }
 
 std::vector<std::string> init_directive_names() {
 	std::vector<std::string> directive_names;
 
-	directive_names.push_back("listen");
-	directive_names.push_back("server_name");
-	directive_names.push_back("error_page");
-	directive_names.push_back("client_max_body_size");
-	directive_names.push_back("rewrite");
-	directive_names.push_back("return");
-	directive_names.push_back("root");
-	directive_names.push_back("autoindex");
-	directive_names.push_back("index");
-	directive_names.push_back("limit_except");
-	directive_names.push_back("allow");  // inside limit_except
-	directive_names.push_back("deny");  // inside limit_except
-	directive_names.push_back("webserv_cgi");
-	directive_names.push_back("webserv_cgi_pass");
-	directive_names.push_back("webserv_cgi_param");
+	directive_names.push_back(LISTEN_DIRECTIVE);
+	directive_names.push_back(SERVER_NAME_DIRECTIVE);
+	directive_names.push_back(ERROR_PAGE_DIRECTIVE);
+	directive_names.push_back(BODY_SIZE_DIRECTIVE);
+	directive_names.push_back(RETURN_DIRECTIVE);
+	directive_names.push_back(ROOT_DIRECTIVE);
+	directive_names.push_back(AUTOINDEX_DIRECTIVE);
+	directive_names.push_back(INDEX_DIRECTIVE);
+	directive_names.push_back(LIMIT_EXCEPT_DIRECTIVE);
+	directive_names.push_back(ALLOW_DIRECTIVE);     // inside limit_except
+	directive_names.push_back(DENY_DIRECTIVE);      // inside limit_except
+	directive_names.push_back(CGI_MODE_DIRECTIVE);
+	directive_names.push_back(CGI_EXTENSION_DIRECTIVE);
+	directive_names.push_back(CGI_TIMEOUT_DIRECTIVE);
 	return directive_names;
 }
 

@@ -163,4 +163,17 @@ class ConfigParserTestFriend : public ::testing::Test {
                                                        ServerConfig *server_config) {
         return ConfigParser::parse_server_block(current, end, server_config);
     }
+
+    static Result<int, std::string> parse_cgi_mode_directive(TokenItr *current,
+                                                             const TokenItr &end,
+                                                             bool *cgi_mode) {
+        return ConfigParser::parse_cgi_mode_directive(current, end, cgi_mode);
+    }
+
+    static Result<int, std::string> parse_cgi_timeout_directive(TokenItr *current,
+                                                                const TokenItr &end,
+                                                                std::size_t *timeout_sec) {
+        return ConfigParser::parse_cgi_timeout_directive(current, end, timeout_sec);
+    }
+
 };

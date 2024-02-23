@@ -1770,7 +1770,7 @@ TEST(TestParser, ParseAutoindexDirective) {
 
 
 TEST(TestParser, ParseBodySizeDirective) {
-    const std::string test_directive = "test_autoindex";
+    const std::string test_directive = "test_bodysize";
     std::size_t expected, actual;
     Result<int, std::string> result;
     TokenItr current;
@@ -1977,6 +1977,19 @@ TEST(TestParser, ParseBodySizeDirective) {
 
     cnt = 0;
     tokens = {};
+    tokens.push_back(Token("0", kTokenKindDirectiveParam, ++cnt));  // ng
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_body_size_directive(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
     tokens.push_back(Token("1.0", kTokenKindDirectiveParam, ++cnt));  // ng
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
@@ -2094,6 +2107,500 @@ TEST(TestParser, ParseBodySizeDirective) {
 }
 
 
+TEST(TestParser, ParseCgiModeDirective) {
+    const std::string test_directive = "test_cgimode";
+    bool actual;
+    Result<int, std::string> result;
+    TokenItr current;
+    std::deque<Token> tokens;
+    int cnt;
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("on", kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_mode_directive(&current, tokens.end(), &actual);
+
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_TRUE(actual);
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("On", kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    actual = {};
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_mode_directive(&current, tokens.end(), &actual);
+
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_TRUE(actual);
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("off", kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    actual = {};
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_mode_directive(&current, tokens.end(), &actual);
+
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_FALSE(actual);
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("ofF", kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    actual = {};
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_mode_directive(&current, tokens.end(), &actual);
+
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_FALSE(actual);
+
+
+    ////////////////////////////////////////////////////////////////////////////
+
+
+    cnt = 0;
+    tokens = {};  // error
+
+    actual = {};
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_mode_directive(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("on", kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token("off", kTokenKindDirectiveParam, ++cnt));  // error
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    actual = {};
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_mode_directive(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("true", kTokenKindDirectiveParam, ++cnt));  // error
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    actual = {};
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_mode_directive(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("false", kTokenKindDirectiveParam, ++cnt));  // error
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    actual = {};
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_mode_directive(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("1", kTokenKindDirectiveParam, ++cnt));  // error
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    actual = {};
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_mode_directive(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("cgi_mode", kTokenKindDirectiveParam, ++cnt));  // error
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    actual = {};
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_mode_directive(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("on", kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token("{", kTokenKindBraces, ++cnt));  // error
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    actual = {};
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_mode_directive(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("{", kTokenKindBraces, ++cnt));  // error
+    tokens.push_back(Token("on", kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    actual = {};
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_mode_directive(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+}
+
+
+TEST(TestParser, ParseCgiTimeoutDirective) {
+    const std::string test_directive = "test_cgi_timeout";
+    std::size_t expected, actual;
+    Result<int, std::string> result;
+    TokenItr current;
+    std::deque<Token> tokens;
+    int cnt;
+
+    expected = 1;
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("1", kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_timeout_directive(&current, tokens.end(), &actual);
+
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_EQ(expected, actual);
+
+    // -------------------------------------------------------------------------
+
+    expected = 1;
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("1s", kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_timeout_directive(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_EQ(expected, actual);
+
+    // -------------------------------------------------------------------------
+
+    expected = 60;
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("60s", kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_timeout_directive(&current, tokens.end(), &actual);
+
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_EQ(expected, actual);
+
+    // -------------------------------------------------------------------------
+
+    expected = 60;
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("60S", kTokenKindDirectiveParam, ++cnt));  // < long_max
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_timeout_directive(&current, tokens.end(), &actual);
+
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_EQ(expected, actual);
+
+    // -------------------------------------------------------------------------
+
+    expected = 60;
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("1m", kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_timeout_directive(&current, tokens.end(), &actual);
+
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_EQ(expected, actual);
+
+    // -------------------------------------------------------------------------
+
+    expected = 3600;
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("3600", kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_timeout_directive(&current, tokens.end(), &actual);
+
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_EQ(expected, actual);
+
+    // -------------------------------------------------------------------------
+
+    expected = 3600;
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("3600s", kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_timeout_directive(&current, tokens.end(), &actual);
+
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_EQ(expected, actual);
+
+    // -------------------------------------------------------------------------
+
+    expected = 3600;
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("3600S", kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_timeout_directive(&current, tokens.end(), &actual);
+
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_EQ(expected, actual);
+
+    // -------------------------------------------------------------------------
+
+    expected = 3600;
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("60m", kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_timeout_directive(&current, tokens.end(), &actual);
+
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_EQ(expected, actual);
+
+
+    ////////////////////////////////////////////////////////////////////////////
+
+
+    cnt = 0;
+    tokens = {};  // ng
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_timeout_directive(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));  // ng
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_timeout_directive(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("0", kTokenKindDirectiveParam, ++cnt));  // ng
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_timeout_directive(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("1.0", kTokenKindDirectiveParam, ++cnt));  // ng
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_timeout_directive(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("1.0m", kTokenKindDirectiveParam, ++cnt));  // ng
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_timeout_directive(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("1", kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token("2", kTokenKindDirectiveParam, ++cnt));  // ng
+    tokens.push_back(Token("3", kTokenKindDirectiveParam, ++cnt));  // ng
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_timeout_directive(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("60sec", kTokenKindDirectiveParam, ++cnt));  // ng
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_timeout_directive(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("3601", kTokenKindDirectiveParam, ++cnt));  // ng
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_timeout_directive(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("+1s", kTokenKindDirectiveParam, ++cnt));  // ng
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_timeout_directive(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("a", kTokenKindDirectiveParam, ++cnt));  // ng
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_timeout_directive(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("2147483647", kTokenKindDirectiveParam, ++cnt));  // > long_max
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_timeout_directive(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("8796093022208", kTokenKindDirectiveParam, ++cnt));  // > long_max
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_timeout_directive(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("8589934592", kTokenKindDirectiveParam, ++cnt));  // > long_max
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_cgi_timeout_directive(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+}
+
+
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -2192,7 +2699,7 @@ TEST(TestParser, ParseDefaultConfig) {
     tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
 
     tokens.push_back(Token("client_max_body_size", kTokenKindDirectiveName, ++cnt));
-    tokens.push_back(Token("0",             kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token("1",             kTokenKindDirectiveParam, ++cnt));
     tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
@@ -2201,7 +2708,7 @@ TEST(TestParser, ParseDefaultConfig) {
     expected.root_path = "www";
     expected.index_pages = {"index.html", "index.htm"};
     expected.autoindex = false;
-    expected.max_body_size_bytes = 0;
+    expected.max_body_size_bytes = 1;
 
     actual = {};
     result = ConfigParserTestFriend::parse_default_config(&current, tokens.end(), &actual);
