@@ -13,7 +13,9 @@ const std::size_t KB = 1024;
 const std::size_t MB = KB * KB;
 const std::size_t GB = KB * KB * KB;
 const std::size_t kDefaultBodySize = 1 * MB;
-const unsigned int kDefaultCgiTimeoutSec = 3;
+const std::size_t kDefaultCgiTimeoutSec = 3;
+const std::size_t kCgiTimeoutMinSec = 1;
+const std::size_t kCgiTImeoutMaxSec = 3600;
 
 const char kDefaultRoot[] = "html";
 const char kDefaultIndex[] = "index.html";
@@ -22,6 +24,7 @@ const char kDefaultPort[] = "80";
 const char kDefaultServerName[] = "";
 
 const bool kDefaultAutoindex = false;
+const bool kDefaultCgiMode = false;
 const bool kDefaultRedirectOn = false;
 
 }  // namespace ConfigInitValue
@@ -135,6 +138,17 @@ struct ReturnDirective {
           text() {}
 };
 
+struct CgiDirectove {
+    bool is_cgi_mode;
+    std::set<std::string> extension;
+    std::size_t timeout_sec;
+
+    CgiDirectove()
+        : is_cgi_mode(ConfigInitValue::kDefaultCgiMode),
+          extension(),
+          timeout_sec(ConfigInitValue::kDefaultCgiTimeoutSec) {}
+};
+
 struct DefaultConfig {
     std::string root_path;
     std::set<std::string> index_pages;
@@ -155,15 +169,18 @@ struct DefaultConfig {
 struct LocationConfig : public DefaultConfig {
     ReturnDirective redirection;  // can't use string `return`
     LimitExceptDirective limit_except;
+    CgiDirectove cgi;
 
     LocationConfig()
             : redirection(),
-              limit_except() {}
+              limit_except(),
+              cgi() {}
 
     explicit LocationConfig(const DefaultConfig &other)
             : DefaultConfig(other),
               redirection(),
-              limit_except() {}
+              limit_except(),
+              cgi(){}
 };
 
 struct ServerConfig : public DefaultConfig  {

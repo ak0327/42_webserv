@@ -345,7 +345,7 @@ std::vector<std::string> init_sh_tokens();
 extern const char EVENTS_BLOCK[];
 extern const char HTTP_BLOCK[];
 extern const char SERVER_BLOCK[];
-extern const char LOCATIONS_BLOCK[];
+extern const char LOCATION_BLOCK[];
 
 extern const char LISTEN_DIRECTIVE[];
 extern const char SERVER_NAME_DIRECTIVE[];
@@ -361,9 +361,9 @@ extern const char BODY_SIZE_DIRECTIVE[];
 extern const char ALLOW_DIRECTIVE[];
 extern const char DENY_DIRECTIVE[];
 
-extern const char CGI_DIRECTIVE[];
-extern const char CGI_PASS_DIRECTIVE[];
-extern const char CGI_PARAM_DIRECTIVE[];
+extern const char CGI_MODE_DIRECTIVE[];
+extern const char CGI_EXTENSION_DIRECTIVE[];
+extern const char CGI_TIMEOUT_DIRECTIVE[];
 
 extern const char LEFT_PAREN[];
 extern const char RIGHT_PAREN[];
