@@ -47,6 +47,7 @@
 !Makefile
 !Readme.md
 !webserv.drawio
+!.coderabbit.yaml
 
 .DS_Store
 .idea

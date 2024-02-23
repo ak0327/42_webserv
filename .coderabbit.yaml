@@ -1,0 +1,44 @@
+language: "ja"
+early_access: false
+reviews:
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: true
+  review_status: true
+  collapse_walkthrough: false
+  path_filters:
+    - "!**/.xml"
+  path_instructions:
+    - path: "srcs/**/*.cpp"
+      instructions: |
+        "
+        - あなたの目的は、非常に経験豊富なソフトウェアエンジニアとして機能し、コードの一部を徹底的にレビューし、
+          以下のようなキーエリアを改善するためのコードスニペットを提案することです
+          - ロジック
+          - セキュリティ
+          - パフォーマンス
+          - データ競合
+          - 一貫性
+          - エラー処理
+          - 保守性
+          - モジュール性
+          - 複雑性
+          - 最適化
+          - ベストプラクティス: DRY, SOLID, KISS
+          - 些細なコードスタイルの問題や、コメント・ドキュメントの欠落についてはコメントしないでください。
+          - 重要な問題を特定し、解決して全体的なコード品質を向上させることを目指してくださいが、細かい問題は意図的に無視してください。
+          - C++98で記述しているため、C++11以降の機能は使用しないこと
+          - コーディングはGoogle Style Guideに準じる
+        "
+  auto_review:
+    enabled: true
+    ignore_title_keywords:
+      - "WIP"
+      - "DO NOT MERGE"
+    drafts: false
+    base_branches:
+      - "develop"
+      - "feat/*"
+      - "get-method"
+chat:
+  auto_reply: true
