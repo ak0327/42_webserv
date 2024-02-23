@@ -14,20 +14,20 @@
 typedef std::deque<Token>::const_iterator TokenItr;
 typedef std::map<LocationPath, TokenItr> LocationItrMap;
 
-class Parser {
+class ConfigParser {
  public:
-	Parser();
-	explicit Parser(const char *file_path);
-	Parser(const Parser &other);
-	~Parser();
+	ConfigParser();
+	explicit ConfigParser(const char *file_path);
+	ConfigParser(const ConfigParser &other);
+	~ConfigParser();
 
-	Parser &operator=(const Parser &rhs);
+	ConfigParser &operator=(const ConfigParser &rhs);
 
 	Result<int, std::string> result() const;
 	HttpConfig config() const;
 
 #ifdef UNIT_TEST
-	friend class ParserTestFriend;
+	friend class ConfigParserTestFriend;
 #endif
 
  private:

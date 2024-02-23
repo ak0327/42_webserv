@@ -11,7 +11,7 @@
 #include "Color.hpp"
 #include "FileHandler.hpp"
 #include "Tokenizer.hpp"
-#include "Parser.hpp"
+#include "ConfigParser.hpp"
 #include "Server.hpp"
 #include "TestParser.hpp"
 #include "gtest/gtest.h"
@@ -46,7 +46,7 @@ TEST(TestParser, ParseOK) {
     Result<int, std::string> result;
     ListenDirective listen;
 
-    Parser parser1("test/test_conf/ok/parse_ok1.conf");
+    ConfigParser parser1("test/test_conf/ok/parse_ok1.conf");
 
     expected = {};
 
@@ -109,7 +109,7 @@ TEST(TestParser, ParseOK) {
 
     // -------------------------------------------------------------------------
 
-    Parser parser2("test/test_conf/ok/parse_ok2.conf");
+    ConfigParser parser2("test/test_conf/ok/parse_ok2.conf");
 
     expected = {};
 
@@ -136,7 +136,7 @@ TEST(TestParser, ParseOK) {
 
     // -------------------------------------------------------------------------
 
-    Parser parser3("test/test_conf/ok/parse_ok3.conf");
+    ConfigParser parser3("test/test_conf/ok/parse_ok3.conf");
 
     expected = {};
 
@@ -216,7 +216,7 @@ TEST(TestParser, ParseHttpBlockOK) {
     for (std::set<std::string>::const_iterator itr = conf_files.begin(); itr != conf_files.end(); ++itr) {
         debug_print("path: " + *itr, __LINE__);
 
-        Parser parser(itr->c_str());
+        ConfigParser parser(itr->c_str());
         Result<int, std::string> result = parser.result();
         EXPECT_TRUE(result.is_ok());
     }
@@ -229,7 +229,7 @@ TEST(TestParser, ParseHttpBlockNG) {
     for (std::set<std::string>::const_iterator itr = conf_files.begin(); itr != conf_files.end(); ++itr) {
         debug_print("path: " + *itr, __LINE__);
 
-        Parser parser(itr->c_str());
+        ConfigParser parser(itr->c_str());
 
         Result<int, std::string> result = parser.result();
         print_error_msg(result, __LINE__);
@@ -244,7 +244,7 @@ TEST(TestParser, ParseServerBlockOK) {
     for (std::set<std::string>::const_iterator itr = conf_files.begin(); itr != conf_files.end(); ++itr) {
         debug_print("path: " + *itr, __LINE__);
 
-        Parser parser(itr->c_str());
+        ConfigParser parser(itr->c_str());
         Result<int, std::string> result = parser.result();
         print_error_msg(result, __LINE__);
         EXPECT_TRUE(result.is_ok());
@@ -258,7 +258,7 @@ TEST(TestParser, ParseServerBlockNG) {
     for (std::set<std::string>::const_iterator itr = conf_files.begin(); itr != conf_files.end(); ++itr) {
         debug_print("path: " + *itr, __LINE__);
 
-        Parser parser(itr->c_str());
+        ConfigParser parser(itr->c_str());
 
         Result<int, std::string> result = parser.result();
         print_error_msg(result, __LINE__);
@@ -273,7 +273,7 @@ TEST(TestParser, ParseLocationBlockOK) {
     for (std::set<std::string>::const_iterator itr = conf_files.begin(); itr != conf_files.end(); ++itr) {
         debug_print("path: " + *itr, __LINE__);
 
-        Parser parser(itr->c_str());
+        ConfigParser parser(itr->c_str());
         Result<int, std::string> result = parser.result();
         // print_error_msg(result, __LINE__);
         EXPECT_TRUE(result.is_ok());
@@ -287,7 +287,7 @@ TEST(TestParser, ParseLocationBlockNG) {
     for (std::set<std::string>::const_iterator itr = conf_files.begin(); itr != conf_files.end(); ++itr) {
         debug_print("path: " + *itr, __LINE__);
 
-        Parser parser(itr->c_str());
+        ConfigParser parser(itr->c_str());
 
         Result<int, std::string> result = parser.result();
         print_error_msg(result, __LINE__);

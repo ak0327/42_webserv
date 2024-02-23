@@ -11,7 +11,7 @@
 #include "Color.hpp"
 #include "FileHandler.hpp"
 #include "Tokenizer.hpp"
-#include "Parser.hpp"
+#include "ConfigParser.hpp"
 #include "Server.hpp"
 #include "TestParser.hpp"
 #include "gtest/gtest.h"
