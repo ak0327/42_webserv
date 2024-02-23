@@ -64,9 +64,12 @@ class ClientSession {
     SessionResult process_client_event();
     SessionResult process_file_event();
 
+    time_t cgi_timeout_limit() const;
+
     void close_client_fd();
     void clear_request();
     void clear_response();
+    void kill_cgi_process();
     void clear_cgi();
 
     static AddressPortPair get_client_listen(const struct sockaddr_storage &client_addr);

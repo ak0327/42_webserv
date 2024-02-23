@@ -37,7 +37,7 @@ const int STAT_ERROR = -1;
 const pid_t PROCESSING = 0;
 const pid_t WAIT_ERROR = -1;
 
-const int CHILD_PROC = 0;
+const pid_t CHILD_PROC = 0;
 const std::size_t READ = 0;
 const std::size_t WRITE = 1;
 

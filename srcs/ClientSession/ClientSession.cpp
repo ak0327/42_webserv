@@ -62,10 +62,25 @@ void ClientSession::close_client_fd() {
 }
 
 
+void ClientSession::kill_cgi_process() {
+    if (this->response_) {
+        this->response_->kill_cgi_process();
+    }
+}
+
+
 // todo: unused??
 void ClientSession::clear_cgi() {
-    this->response_->clear_cgi();
+    if (this->response_) {
+        this->response_->clear_cgi();
+    }
 }
+
+
+time_t ClientSession::cgi_timeout_limit() const {
+    return this->response_ ? this->response_->cgi_timeout_limit() : 0;
+}
+
 
 
 // -----------------------------------------------------------------------------
@@ -234,8 +249,7 @@ Result<ProcResult, StatusCode> ClientSession::create_http_response() {
             case kExecutingMethod: {
                 DEBUG_SERVER_PRINT("     1 ExecutingMethod");
                 Result<ProcResult, StatusCode> method_result = execute_each_method();  // todo: rename
-                if (method_result.is_ok() && method_result.get_ok_value() == ExecutingCgi) {
-                    this->set_session_state(kExecutingCGI);
+                if (is_executing_cgi(method_result)) {
                     return Result<ProcResult, StatusCode>::ok(ExecutingCgi);
                 }
                 if (method_result.is_err()) {
@@ -416,18 +430,18 @@ SessionResult ClientSession::process_file_event() {
 
         case kExecutingCGI: {
             DEBUG_PRINT(YELLOW, "   FileEvent Recv");
-            Result<ProcResult, StatusCode> cgi_result = this->response_->recv_cgi_result();
-            if (cgi_result.is_err()) {
-                StatusCode error_code = cgi_result.get_err_value();
-                this->set_status(error_code);  // todo: code?
-                this->set_session_state(kSessionError);
-                DEBUG_PRINT(YELLOW, "    recv error, status: %d", error_code);
-                const std::string error_msg = CREATE_ERROR_INFO_STR("error: file event error");
-                return SessionResult::err(error_msg);
-            }
+            Result<ProcResult, StatusCode> cgi_result = this->response_->recv_to_cgi_buf();
             if (is_continue_recv(cgi_result)) {
                 DEBUG_PRINT(YELLOW, "    recv continue");
                 return SessionResult::ok(Continue);
+            }
+            if (cgi_result.is_err()) {
+                StatusCode error_code = cgi_result.get_err_value();
+                this->set_status(error_code);  // todo: code?
+                // this->set_session_state(kSessionError);
+                // DEBUG_PRINT(YELLOW, "    recv error, status: %d", error_code);
+                // const std::string error_msg = CREATE_ERROR_INFO_STR("error: file event error");
+                // return SessionResult::err(error_msg);
             }
             DEBUG_PRINT(YELLOW, "    recv finish");
             this->set_session_state(kCreatingCGIBody);

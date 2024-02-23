@@ -60,13 +60,16 @@ class HttpResponse {
 	const std::vector<unsigned char> &get_response_message() const;
 
     Result<ProcResult, StatusCode> exec_method(const StatusCode &status_code);
-    Result<ProcResult, StatusCode> recv_cgi_result();
+    Result<ProcResult, StatusCode> recv_to_cgi_buf();
     Result<ProcResult, StatusCode> interpret_cgi_output();
     Result<ProcResult, StatusCode> create_response_message(const StatusCode &code);
 
     ssize_t recv_to_buf(int fd);
+
     void clear_cgi();
     int cgi_fd() const;
+    time_t cgi_timeout_limit() const;
+    void kill_cgi_process();
 
 #ifdef ECHO
     HttpResponse();
