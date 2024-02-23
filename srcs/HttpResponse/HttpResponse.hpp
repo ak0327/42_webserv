@@ -77,7 +77,7 @@ class HttpResponse {
     std::string get_echo_msg() const;
 #endif
 
-#ifdef UTEST_FRIEND
+#ifdef UNIT_TEST
     friend class HttpResponseFriend;
 #endif
 
