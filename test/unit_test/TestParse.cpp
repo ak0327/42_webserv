@@ -101,6 +101,7 @@ TEST(TestParser, ParseOK) {
     location_config.cgi.timeout_sec = 60;
     server_config.locations["/cgi-bin/"] = location_config;
 
+
     location_config = LocationConfig(server_config);
     location_config.root_path = "www";
     server_config.locations["=/50x.html"] = location_config;

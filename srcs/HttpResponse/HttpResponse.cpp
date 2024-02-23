@@ -29,7 +29,10 @@ HttpResponse::HttpResponse(const HttpRequest &request,
       cgi_handler_(),
       headers_(),
       body_buf_(),
-      response_msg_() {}
+      response_msg_() {
+    time_t cgi_timeout = Config::get_cgi_timeout(server_config, request.request_target());
+    this->cgi_handler_.set_timeout_duration_sec(cgi_timeout);
+}
 
 
 HttpResponse::~HttpResponse() {}

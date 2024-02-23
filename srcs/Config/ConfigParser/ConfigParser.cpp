@@ -592,7 +592,6 @@ Result<int, std::string> ConfigParser::parse_location_block(TokenItr *current,
 
         } else if (consume(current, end, CGI_MODE_DIRECTIVE)) {
             result = parse_cgi_mode_directive(current, end, &location_config->cgi.is_cgi_mode);
-
         } else if (consume(current, end, CGI_EXTENSION_DIRECTIVE)) {
             result = parse_set_params(current, end, &location_config->cgi.extension, CGI_EXTENSION_DIRECTIVE);
 
@@ -1183,7 +1182,7 @@ Result<time_t, int> ConfigParser::parse_timeout_with_prefix(const std::string &t
 // "cgi_timeout"  timeout(s) | timeout_with_prefix(s,m)  ";"
 //                ^current                       ^return
 Result<int, std::string> ConfigParser::parse_cgi_timeout_directive(TokenItr *current,
-                                                                 const TokenItr &end,
+                                                                   const TokenItr &end,
                                                                    time_t *timeout_sec) {
     std::string timeout_str;
 

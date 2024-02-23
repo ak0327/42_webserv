@@ -83,6 +83,20 @@ void expect_eq_default_config(const DefaultConfig &expected,
 }
 
 
+void expect_eq_cgi(const CgiDirectove &expected,
+                   const CgiDirectove &actual,
+                   const std::size_t line) {
+    // cgi_mode
+    EXPECT_EQ(expected.is_cgi_mode, actual.is_cgi_mode) << "  at L:" << line;
+
+    // extension
+    EXPECT_EQ(expected.extension, actual.extension) << "  at L:" << line;
+
+    // timeout
+    EXPECT_EQ(expected.timeout_sec, actual.timeout_sec) << "  at L:" << line;
+}
+
+
 void expect_eq_location_config(const LocationConfig &expected,
                                const LocationConfig &actual,
                                const std::size_t line) {
@@ -91,6 +105,9 @@ void expect_eq_location_config(const LocationConfig &expected,
 
     // limit_except
     expect_eq_limit_except(expected.limit_except, actual.limit_except, line);
+
+    // cgi
+    expect_eq_cgi(expected.cgi, actual.cgi, line);
 
     // default_config
     DefaultConfig expected_default_config = static_cast<const DefaultConfig &>(expected);
@@ -2288,7 +2305,7 @@ TEST(TestParser, ParseCgiModeDirective) {
 
 TEST(TestParser, ParseCgiTimeoutDirective) {
     const std::string test_directive = "test_cgi_timeout";
-    std::size_t expected, actual;
+    time_t expected, actual;
     Result<int, std::string> result;
     TokenItr current;
     std::deque<Token> tokens;
