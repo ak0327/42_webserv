@@ -14,21 +14,10 @@
 #include "Color.hpp"
 #include "Debug.hpp"
 #include "Error.hpp"
+#include "FileHandler.hpp"
 #include "HttpResponse.hpp"
 #include "StringHandler.hpp"
 #include "Result.hpp"
-
-
-bool HttpResponse::is_directory(const std::string &path) {
-	struct stat	stat_buf = {};
-
-    DEBUG_PRINT(CYAN, "path: %s", path.c_str());
-	if (stat(path.c_str(), &stat_buf) == STAT_ERROR) {
-        DEBUG_PRINT(CYAN, "stat error");
-        return false;
-	}
-	return S_ISDIR(stat_buf.st_mode);  // todo: permission
-}
 
 
 bool HttpResponse::is_cgi_file() const {
@@ -143,7 +132,14 @@ StatusCode HttpResponse::get_request_body(const std::string &resource_path) {
     std::string indexed_path = get_indexed_path(resource_path);
     DEBUG_PRINT(CYAN, "  file_path: %s, autoindex: %s", indexed_path.c_str(), autoindex ? "on" : "off");
 
-    if (is_directory(indexed_path)) {
+
+    Result<bool, StatusCode> is_dir_result = FileHandler::is_directory(indexed_path);
+    if (is_dir_result.is_err()) {
+        StatusCode error_code = is_dir_result.get_err_value();
+        return error_code;
+    }
+    bool is_directory = is_dir_result.get_ok_value();
+    if (is_directory) {
         if (autoindex) {
             DEBUG_PRINT(CYAN, "  get_content -> directory_listing");
             return get_directory_listing(resource_path, &this->body_buf_);

@@ -38,6 +38,7 @@
 !*.cpp
 !*.h
 !*.hpp
+!*.tpp
 !*.txt
 !*.yml
 !*.md

@@ -10,6 +10,7 @@ const int CGI = 1;
 const int CONTINUE = 2;
 
 const int GETADDRINFO_SUCCESS = 0;
+const int REMOVE_SUCCESS = 0;
 
 const ssize_t RECV_CLOSED = 0;
 const ssize_t RECV_CONTINUE = -1;
@@ -79,12 +80,14 @@ std::map<StatusCode, std::string> init_reason_phrases() {
     // reason_phrases[] = "";
 
     reason_phrases[StatusOk]                = "OK";
+    reason_phrases[NoContent]               = "NoContent";
 
     reason_phrases[MultipleChoices]         = "Multiple Choices";
     reason_phrases[MovedPermanently]        = "Moved Permanently";
 
     reason_phrases[BadRequest]              = "Bad Request";
     reason_phrases[Unauthorized]            = "Unauthorized";
+    reason_phrases[Forbidden]               = "Forbidden";
     reason_phrases[NotFound]                = "Not Found";
     reason_phrases[MethodNotAllowed]        = "Method Not Allowed";
     reason_phrases[NotAcceptable]           = "Not Acceptable";

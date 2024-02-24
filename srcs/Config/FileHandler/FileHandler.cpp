@@ -1,5 +1,6 @@
 #include <sys/stat.h>
 #include <cctype>
+#include <cstdio>
 #include <fstream>
 #include <iostream>
 #include "webserv.hpp"
@@ -94,6 +95,9 @@ FileHandler::FileHandler(const char *path, const char *expected_extension) {
 }
 
 
+FileHandler::FileHandler(const std::string &path) : path_(path) {}
+
+
 FileHandler::~FileHandler() {}
 
 
@@ -169,7 +173,38 @@ Result<std::string, std::string> FileHandler::get_file_contents(const char *path
 }
 
 
-Result<int, std::string> FileHandler::get_result() { return this->result_; }
+StatusCode FileHandler::delete_file() {
+    Result<bool, StatusCode> is_file_result = FileHandler::is_file(this->path_);
+    if (is_file_result.is_err()) {
+        StatusCode error_code = is_file_result.get_err_value();
+        return error_code;
+    }
+    bool is_file = is_file_result.get_ok_value();
+    if (!is_file) {
+        return Forbidden;
+    }
+
+    if (std::remove(this->path_.c_str()) != REMOVE_SUCCESS) {
+        return BadRequest;
+    }
+    return NoContent;
+}
 
 
-std::string FileHandler::get_contents() { return this->contents_; }
+Result<int, std::string> FileHandler::result() const { return this->result_; }
+
+
+bool FileHandler::is_err() const { return this->result().is_err(); }
+
+
+const std::string &FileHandler::get_contents() const { return this->contents_; }
+
+
+Result<bool, StatusCode> FileHandler::is_directory(const std::string &path) {
+    return is_type(path, IsDir());
+}
+
+
+Result<bool, StatusCode> FileHandler::is_file(const std::string &path) {
+    return is_type(path, IsFile());
+}
