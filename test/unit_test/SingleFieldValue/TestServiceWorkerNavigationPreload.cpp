@@ -25,7 +25,7 @@ TEST(TestSingleFieldValue, ServiceWorkerNavigationPreloadOK1) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestSingleFieldValue, ServiceWorkerNavigationPreloadOK2) {
@@ -48,7 +48,7 @@ TEST(TestSingleFieldValue, ServiceWorkerNavigationPreloadOK2) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestSingleFieldValue, ServiceWorkerNavigationPreloadOK3) {
@@ -72,6 +72,5 @@ TEST(TestSingleFieldValue, ServiceWorkerNavigationPreloadOK3) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
-

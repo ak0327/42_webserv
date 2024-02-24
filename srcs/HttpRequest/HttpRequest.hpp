@@ -5,6 +5,7 @@
 # include <string>
 # include <sstream>
 # include <vector>
+# include "webserv.hpp"
 # include "ConfigStruct.hpp"
 # include "Date.hpp"
 # include "FieldValueBase.hpp"
@@ -14,24 +15,51 @@
 # include "Result.hpp"
 # include "SingleFieldValue.hpp"
 
+enum RequestParsePhase {
+    ParsingRequestLine,
+    ParsingRequestHeaders,
+    ParsingRequestBody,
+    ParseCompleted
+};
+
+
 class HttpRequest {
  public:
 	HttpRequest();
 	explicit HttpRequest(const std::string &input);
-    explicit HttpRequest(const std::vector<unsigned char> &input);
 	~HttpRequest();
 
-	int get_status_code() const;
-	std::string	get_method() const;
-	std::string get_request_target() const;
-	std::string	get_http_version() const;
+    RequestParsePhase parse_phase() const;
+    void set_parse_phase(RequestParsePhase new_phase);
+
+    void set_max_body_size(std::size_t max_body_size);
+
+	std::string	method() const;
+	std::string request_target() const;
+	std::string	http_version() const;
+    StatusCode status_code() const;
+    void set_status_code(const StatusCode &set_code);
+
+    Result<HostPortPair, StatusCode> server_info() const;
+    bool is_buf_empty() const;
 
     static ssize_t recv(int fd, void *buf, std::size_t bufsize);
-    size_t recv_all_data(int fd, std::size_t max_size);
-    Result<int, int> parse_request_line(int fd);
-    Result<int, int> parse_header(int fd);
-    Result<int, int> parse_body(int fd, std::size_t max_body_size);
-    Result<HostPortPair, int> get_server_info();
+    ssize_t recv_to_buf(int fd);
+    static ssize_t recv_to_buf(int fd, std::vector<unsigned char> *buf);
+
+    static bool is_crlf_in_buf(const unsigned char buf[], std::size_t size);
+    static void trim(std::vector<unsigned char> *buf, std::vector<unsigned char>::const_iterator start);
+
+    static Result<std::string, ProcResult> get_line(const std::vector<unsigned char> &data,
+                                                    std::vector<unsigned char>::const_iterator start,
+                                                    std::vector<unsigned char>::const_iterator *ret);
+
+    Result<ProcResult, StatusCode> parse_http_request();
+    Result<ProcResult, StatusCode> parse_start_line_and_headers();
+    Result<ProcResult, StatusCode> parse_body();
+    static Result<ProcResult, StatusCode> split_field_line(const std::string &field_line,
+                                                           std::string *ret_field_name,
+                                                           std::string *ret_field_value);
 
 	bool is_field_name_supported_parsing(const std::string &field_name);
 	bool is_valid_field_name_registered(const std::string &field_name);
@@ -40,9 +68,10 @@ class HttpRequest {
 	std::map<std::string, FieldValueBase*> get_request_header_fields(void);
 	FieldValueBase * get_field_values(const std::string &field_name) const;
 
-    Result<std::map<std::string, std::string>, int> get_host() const;
+    Result<std::map<std::string, std::string>, ProcResult> get_host() const;
+    Result<std::size_t, ProcResult> get_content_length() const;
 
-#ifdef UTEST
+#ifdef UNIT_TEST
     friend class HttpRequestFriend;
 #endif
 #ifdef ECHO
@@ -50,45 +79,38 @@ class HttpRequest {
 #endif
 
  private:
-	int status_code_;
+    RequestParsePhase phase_;
+    StatusCode status_code_;
+
 	RequestLine request_line_;
 	std::map<std::string, FieldValueBase *> request_header_fields_;
     std::vector<unsigned char> buf_;
+    std::vector<unsigned char> request_body_;
 
 	typedef Result<int, int> (HttpRequest::*func_ptr)(const std::string&, const std::string&);
 	std::map<std::string, func_ptr> field_value_parser_;
 	std::map<std::string, int> field_name_counter_;
 
+    std::size_t request_max_body_size_;
+
     std::string message_body_;  // todo: delete
+
 
 	HttpRequest(const HttpRequest &other);
 	HttpRequest &operator=(const HttpRequest &rhs);
 
 	/* parse, validate */
-    Result<int, std::string> recv_start_line(int fd);
-    Result<int, std::string> recv_until_empty_line(int fd);
-    static bool is_crlf_in_buf(const unsigned char buf[], std::size_t size);
-    static bool is_empty_line_in_buf(const unsigned char prev[3],
-                                     const unsigned char buf[],
-                                     std::size_t size);
-    static void trim(std::vector<unsigned char> *buf, std::vector<unsigned char>::const_iterator start);
+    Result<std::string, ProcResult> pop_line_from_buf();
 
-    static Result<std::string, std::string> get_line(const std::vector<unsigned char> &data,
-                                                     std::vector<unsigned char>::const_iterator start,
-                                                     std::vector<unsigned char>::const_iterator *ret);
     static void find_crlf(const std::vector<unsigned char> &data,
                           std::vector<unsigned char>::const_iterator start,
                           std::vector<unsigned char>::const_iterator *cr);
-    static void find_empty(const std::vector<unsigned char> &data,
-                           std::vector<unsigned char>::const_iterator start,
-                           std::vector<unsigned char>::const_iterator *ret);
 
-	int parse_and_validate_http_request(const std::string &input);
-	Result<int, int> parse_and_validate_field_lines(std::stringstream *ss);
-    Result<int, int> parse_and_validate_field_lines(const std::string &request_headers);
-    Result<int, int> parse_field_line(const std::string &field_line,
-									  std::string *ret_field_name,
-									  std::string *ret_field_value);
+
+	StatusCode parse_and_validate_http_request(const std::string &input);
+	Result<ProcResult, StatusCode> parse_and_validate_field_lines(std::stringstream *ss);
+    Result<ProcResult, StatusCode> parse_and_validate_field_lines(const std::string &request_headers);
+    Result<ProcResult, StatusCode> parse_and_validate_field_line(const std::string &field_line);
 	std::string parse_message_body(std::stringstream *ss);
 
 	/* operator */
@@ -100,8 +122,8 @@ class HttpRequest {
 
 	/* set data */
 	Result<int, int> set_multi_field_values(const std::string &field_name,
-											const std::string &field_value,
-											bool (*syntax_validate_func)(const std::string &));
+                                            const std::string &field_value,
+                                            bool (*syntax_validate_func)(const std::string &));
 	Result<int, int> set_valid_http_date(const std::string &field_name, const std::string &field_value);
 	Result<int, int> set_valid_media_type(const std::string &field_name, const std::string &field_value);
 

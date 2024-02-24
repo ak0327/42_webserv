@@ -5,6 +5,7 @@
 # include <string>
 # include <utility>
 # include <vector>
+# include "Constant.hpp"
 
 namespace ConfigInitValue {
 
@@ -12,6 +13,9 @@ const std::size_t KB = 1024;
 const std::size_t MB = KB * KB;
 const std::size_t GB = KB * KB * KB;
 const std::size_t kDefaultBodySize = 1 * MB;
+const time_t kDefaultCgiTimeoutSec = 5;
+const time_t kCgiTimeoutMinSec = 1;
+const time_t kCgiTImeoutMaxSec = 3600;
 
 const char kDefaultRoot[] = "html";
 const char kDefaultIndex[] = "index.html";
@@ -20,12 +24,13 @@ const char kDefaultPort[] = "80";
 const char kDefaultServerName[] = "";
 
 const bool kDefaultAutoindex = false;
+const bool kDefaultCgiMode = false;
 const bool kDefaultRedirectOn = false;
 
 }  // namespace ConfigInitValue
 
 
-typedef int StatusCode;
+// typedef int StatusCode;
 typedef std::string LocationPath;
 typedef std::pair<std::string, std::string> AddressPortPair;
 typedef std::pair<std::string, std::string> HostPortPair;
@@ -133,6 +138,17 @@ struct ReturnDirective {
           text() {}
 };
 
+struct CgiDirectove {
+    bool is_cgi_mode;
+    std::set<std::string> extension;
+    time_t timeout_sec;
+
+    CgiDirectove()
+        : is_cgi_mode(ConfigInitValue::kDefaultCgiMode),
+          extension(),
+          timeout_sec(ConfigInitValue::kDefaultCgiTimeoutSec) {}
+};
+
 struct DefaultConfig {
     std::string root_path;
     std::set<std::string> index_pages;
@@ -153,15 +169,18 @@ struct DefaultConfig {
 struct LocationConfig : public DefaultConfig {
     ReturnDirective redirection;  // can't use string `return`
     LimitExceptDirective limit_except;
+    CgiDirectove cgi;
 
     LocationConfig()
             : redirection(),
-              limit_except() {}
+              limit_except(),
+              cgi() {}
 
     explicit LocationConfig(const DefaultConfig &other)
             : DefaultConfig(other),
               redirection(),
-              limit_except() {}
+              limit_except(),
+              cgi(){}
 };
 
 struct ServerConfig : public DefaultConfig  {

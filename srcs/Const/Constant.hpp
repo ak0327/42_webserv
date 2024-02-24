@@ -2,6 +2,7 @@
 
 # include <sys/types.h>
 # include <string>
+# include <map>
 # include <vector>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -9,30 +10,47 @@
 
 extern const int OK;
 extern const int ERR;
+extern const int CGI;
+extern const int CONTINUE;
 
 extern const int GETADDRINFO_SUCCESS;
 
-extern const ssize_t RECV_COMPLETED;
+extern const ssize_t RECV_CLOSED;
+extern const ssize_t RECV_CONTINUE;
+extern const ssize_t RECV_ERROR;
+
 extern const ssize_t SEND_COMPLETED;
+extern const ssize_t SEND_ERROR;
 
 extern const int ACCEPT_ERROR;
 extern const int BIND_ERROR;
 extern const int CLOSE_ERROR;
 extern const int CONN_ERROR;
+extern const int DUP_ERROR;
+extern const int EXECVE_ERROR;
 extern const int FCNTL_ERROR;
+extern const int FORK_ERROR;
+extern const int KILL_ERROR;
 extern const int LISTEN_ERROR;
 extern const int SETSOCKOPT_ERROR;
 extern const int SOCKET_ERROR;
+extern const int SOCKETPAIR_ERROR;
 extern const int STAT_ERROR;
 
-extern const ssize_t RECV_ERROR;
-extern const ssize_t SEND_ERROR;
+
+extern const pid_t PROCESSING;
+extern const pid_t WAIT_ERROR;
+
+extern const pid_t CHILD_PROC;
+extern const std::size_t READ;
+extern const std::size_t WRITE;
 
 ////////////////////////////////////////////////////////////////////////////////
 /* initial value */
 
 extern const int COUNTER_INIT;
 extern const int INIT_FD;
+extern const int INIT_PID;
 
 extern const double WEIGHT_INIT;
 
@@ -57,6 +75,34 @@ extern const int STATUS_OK;
 extern const int STATUS_BAD_REQUEST;
 extern const int REQUEST_ENTITY_TOO_LARGE;
 extern const int STATUS_SERVER_ERROR;
+
+enum StatusCode {
+    StatusOk                = 200,
+
+    MultipleChoices         = 300,
+    MovedPermanently        = 301,
+
+    BadRequest              = 400,
+    Unauthorized            = 401,
+    NotFound                = 404,
+    MethodNotAllowed        = 405,
+    NotAcceptable           = 406,
+    RequestTimeout          = 408,
+    LengthRequired          = 411,
+    ContentTooLarge         = 413,
+
+    InternalServerError     = 500,
+    NotImplemented          = 501,
+    BadGateway              = 502,
+    ServiceUnavailable      = 503,
+    GatewayTimeout          = 504,
+    HTTPVersionNotSupported = 505
+};
+
+extern const std::map<StatusCode, std::string> STATUS_REASON_PHRASES;
+
+std::map<StatusCode, std::string> init_reason_phrases();
+
 
 ////////////////////////////////////////////////////////////////////////////////
 /* char */
@@ -99,6 +145,7 @@ extern const char SIGN_MINUS;
 extern const char CR;
 extern const char HT;
 extern const char LF;
+extern const char NL;
 extern const char SP;
 
 extern const char CRLF[];
@@ -298,7 +345,7 @@ std::vector<std::string> init_sh_tokens();
 extern const char EVENTS_BLOCK[];
 extern const char HTTP_BLOCK[];
 extern const char SERVER_BLOCK[];
-extern const char LOCATIONS_BLOCK[];
+extern const char LOCATION_BLOCK[];
 
 extern const char LISTEN_DIRECTIVE[];
 extern const char SERVER_NAME_DIRECTIVE[];
@@ -314,9 +361,9 @@ extern const char BODY_SIZE_DIRECTIVE[];
 extern const char ALLOW_DIRECTIVE[];
 extern const char DENY_DIRECTIVE[];
 
-extern const char CGI_DIRECTIVE[];
-extern const char CGI_PASS_DIRECTIVE[];
-extern const char CGI_PARAM_DIRECTIVE[];
+extern const char CGI_MODE_DIRECTIVE[];
+extern const char CGI_EXTENSION_DIRECTIVE[];
+extern const char CGI_TIMEOUT_DIRECTIVE[];
 
 extern const char LEFT_PAREN[];
 extern const char RIGHT_PAREN[];
@@ -326,3 +373,13 @@ extern const std::vector<std::string> DIRECTIVE_NAMES;
 
 std::vector<std::string> init_block_names();
 std::vector<std::string> init_directive_names();
+
+////////////////////////////////////////////////////////////////////////////////
+/* mime types */
+
+typedef std::string Extension;
+typedef std::string MimeType;
+typedef std::map<Extension, MimeType> MimeTypeMap;
+
+extern const MimeTypeMap MIME_TYPES;
+MimeTypeMap init_mime_types();

@@ -6,7 +6,7 @@
 #include <vector>
 #include "gtest/gtest.h"
 #include "Color.hpp"
-#include "Configuration.hpp"
+#include "Config.hpp"
 #include "Constant.hpp"
 #include "Socket.hpp"
 

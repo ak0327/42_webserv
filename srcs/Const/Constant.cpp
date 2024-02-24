@@ -6,30 +6,47 @@
 
 const int OK = 0;
 const int ERR = -1;
+const int CGI = 1;
+const int CONTINUE = 2;
 
 const int GETADDRINFO_SUCCESS = 0;
 
-const ssize_t RECV_COMPLETED = 0;
+const ssize_t RECV_CLOSED = 0;
+const ssize_t RECV_CONTINUE = -1;
+const ssize_t RECV_ERROR = -1;
+
 const ssize_t SEND_COMPLETED = 0;
+const ssize_t SEND_ERROR = -1;
 
 const int ACCEPT_ERROR = -1;
 const int BIND_ERROR = -1;
 const int CLOSE_ERROR = -1;
 const int CONN_ERROR = -1;
+const int DUP_ERROR = -1;
+const int EXECVE_ERROR = -1;
 const int FCNTL_ERROR = -1;
+const int FORK_ERROR = -1;
+const int KILL_ERROR = -1;
 const int LISTEN_ERROR = -1;
 const int SETSOCKOPT_ERROR = -1;
 const int SOCKET_ERROR = -1;
+const int SOCKETPAIR_ERROR = -1;
 const int STAT_ERROR = -1;
 
-const ssize_t RECV_ERROR = -1;
-const ssize_t SEND_ERROR = -1;
+
+const pid_t PROCESSING = 0;
+const pid_t WAIT_ERROR = -1;
+
+const pid_t CHILD_PROC = 0;
+const std::size_t READ = 0;
+const std::size_t WRITE = 1;
 
 ////////////////////////////////////////////////////////////////////////////////
 /* initial value */
 
 const int COUNTER_INIT = 0;
 const int INIT_FD = -1;
+const int INIT_PID = -1;
 const int FLAG_NONE = 0;
 
 const double WEIGHT_INIT = 1.0;
@@ -54,6 +71,36 @@ const int STATUS_OK = 200;
 const int STATUS_BAD_REQUEST = 400;
 const int REQUEST_ENTITY_TOO_LARGE = 413;
 const int STATUS_SERVER_ERROR = 500;
+
+const std::map<StatusCode, std::string> STATUS_REASON_PHRASES = init_reason_phrases();
+
+std::map<StatusCode, std::string> init_reason_phrases() {
+    std::map<StatusCode, std::string> reason_phrases;
+    // reason_phrases[] = "";
+
+    reason_phrases[StatusOk]                = "OK";
+
+    reason_phrases[MultipleChoices]         = "Multiple Choices";
+    reason_phrases[MovedPermanently]        = "Moved Permanently";
+
+    reason_phrases[BadRequest]              = "Bad Request";
+    reason_phrases[Unauthorized]            = "Unauthorized";
+    reason_phrases[NotFound]                = "Not Found";
+    reason_phrases[MethodNotAllowed]        = "Method Not Allowed";
+    reason_phrases[NotAcceptable]           = "Not Acceptable";
+    reason_phrases[RequestTimeout]          = "Request Timeout";
+    reason_phrases[LengthRequired]          = "Length Required";
+    reason_phrases[ContentTooLarge]         = "Content Too Large";
+
+    reason_phrases[InternalServerError]     = "Internal Server Error";
+    reason_phrases[NotImplemented]          = "Not Implemented";
+    reason_phrases[BadGateway]              = "Bad Gateway";
+    reason_phrases[ServiceUnavailable]      = "Service Unavailable";
+    reason_phrases[GatewayTimeout]          = "Gateway Timeout";
+    reason_phrases[HTTPVersionNotSupported] = "HTTP Version Not Supported";
+
+    return reason_phrases;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /* char */
@@ -96,6 +143,7 @@ const char SIGN_MINUS = '-';
 const char CR = '\r';
 const char HT = '\t';
 const char LF = '\n';
+const char NL = '\n';
 const char SP = ' ';
 
 const char CRLF[] = "\r\n";
@@ -201,6 +249,9 @@ const char PROXY_AUTHORIZATION[] = "proxy-authorization";
 const char RANGE[] = "range";
 const char REFERER[] = "referer";
 const char RETRY_AFTER[] = "retry-after";
+const char SEC_CH_UA[] = "sec-ch-ua";
+const char SEC_CH_UA_MOBILE[] = "sec-ch-ua-mobile";
+const char SEC_CH_UA_PLATFORM[] = "sec-ch-ua-platform";
 const char SEC_FETCH_DEST[] = "sec-fetch-dest";
 const char SEC_FETCH_MODE[] = "sec-fetch-mode";
 const char SEC_FETCH_SITE[] = "sec-fetch-site";
@@ -359,6 +410,9 @@ std::vector<std::string> init_ignore_headers() {
 	std::vector<std::string> ignore_headers;
 
 	ignore_headers.push_back(ACCEPT_CHARSET);
+    ignore_headers.push_back(SEC_CH_UA);            // for chrome
+    ignore_headers.push_back(SEC_CH_UA_MOBILE);     // for chrome
+    ignore_headers.push_back(SEC_CH_UA_PLATFORM);   // for chrome
 	return ignore_headers;
 }
 
@@ -477,7 +531,7 @@ std::vector<std::string> init_sh_tokens() {
 const char EVENTS_BLOCK[] = "events";
 const char HTTP_BLOCK[] = "http";
 const char SERVER_BLOCK[] = "server";
-const char LOCATIONS_BLOCK[] = "location";
+const char LOCATION_BLOCK[] = "location";
 
 const char LISTEN_DIRECTIVE[] = "listen";
 const char SERVER_NAME_DIRECTIVE[] = "server_name";
@@ -493,9 +547,9 @@ const char BODY_SIZE_DIRECTIVE[] = "client_max_body_size";
 const char ALLOW_DIRECTIVE[] = "allow";
 const char DENY_DIRECTIVE[] = "deny";
 
-const char CGI_DIRECTIVE[] = "webserv_cgi";
-const char CGI_PASS_DIRECTIVE[] = "webserv_cgi_pass";
-const char CGI_PARAM_DIRECTIVE[] = "webserv_cgi_param";
+const char CGI_MODE_DIRECTIVE[] = "cgi_mode";
+const char CGI_EXTENSION_DIRECTIVE[] = "cgi_extension";
+const char CGI_TIMEOUT_DIRECTIVE[] = "cgi_timeout";
 
 const char LEFT_PAREN[] = "{";
 const char RIGHT_PAREN[] = "}";
@@ -506,30 +560,54 @@ const std::vector<std::string> DIRECTIVE_NAMES = init_directive_names();
 std::vector<std::string> init_block_names() {
 	std::vector<std::string> block_names;
 
-	block_names.push_back("events");
-	block_names.push_back("http");
-	block_names.push_back("server");
-	block_names.push_back("location");
+	block_names.push_back(EVENTS_BLOCK);
+	block_names.push_back(HTTP_BLOCK);
+	block_names.push_back(SERVER_BLOCK);
+	block_names.push_back(LOCATION_BLOCK);
 	return block_names;
 }
 
 std::vector<std::string> init_directive_names() {
 	std::vector<std::string> directive_names;
 
-	directive_names.push_back("listen");
-	directive_names.push_back("server_name");
-	directive_names.push_back("error_page");
-	directive_names.push_back("client_max_body_size");
-	directive_names.push_back("rewrite");
-	directive_names.push_back("return");
-	directive_names.push_back("root");
-	directive_names.push_back("autoindex");
-	directive_names.push_back("index");
-	directive_names.push_back("limit_except");
-	directive_names.push_back("allow");  // inside limit_except
-	directive_names.push_back("deny");  // inside limit_except
-	directive_names.push_back("webserv_cgi");
-	directive_names.push_back("webserv_cgi_pass");
-	directive_names.push_back("webserv_cgi_param");
+	directive_names.push_back(LISTEN_DIRECTIVE);
+	directive_names.push_back(SERVER_NAME_DIRECTIVE);
+	directive_names.push_back(ERROR_PAGE_DIRECTIVE);
+	directive_names.push_back(BODY_SIZE_DIRECTIVE);
+	directive_names.push_back(RETURN_DIRECTIVE);
+	directive_names.push_back(ROOT_DIRECTIVE);
+	directive_names.push_back(AUTOINDEX_DIRECTIVE);
+	directive_names.push_back(INDEX_DIRECTIVE);
+	directive_names.push_back(LIMIT_EXCEPT_DIRECTIVE);
+	directive_names.push_back(ALLOW_DIRECTIVE);     // inside limit_except
+	directive_names.push_back(DENY_DIRECTIVE);      // inside limit_except
+	directive_names.push_back(CGI_MODE_DIRECTIVE);
+	directive_names.push_back(CGI_EXTENSION_DIRECTIVE);
+	directive_names.push_back(CGI_TIMEOUT_DIRECTIVE);
 	return directive_names;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/* mime types */
+
+const MimeTypeMap MIME_TYPES = init_mime_types();
+MimeTypeMap init_mime_types() {
+    MimeTypeMap mime_types;
+    // mime_types[""] = "";
+
+    mime_types["html"]  = "text/html";
+    mime_types["htm"]   = "text/htm";
+    mime_types["css"]   = "text/css";
+    mime_types["txt"]   = "text/plain";
+    mime_types["py"]    = "text/x-python";
+
+    mime_types["gif"]   = "image/gif";
+    mime_types["jpeg"]  = "image/jpeg";
+    mime_types["jpg"]   = "image/jpg";
+    mime_types["png"]   = "image/png";
+    mime_types["ico"]   = "image/x-ico";
+
+    mime_types["json"]  = "application/json";  // todo
+
+    return mime_types;
 }

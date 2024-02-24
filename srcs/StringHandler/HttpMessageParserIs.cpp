@@ -615,14 +615,13 @@ bool is_asterisk_form(const std::string &str) {
 }
 
 // request-target = origin-form / absolute-form / authority-form / asterisk-form
+//                                                ^^^^^^^^^^^^^^   ^^^^^^^^^^^^^
+//                                                CONNECT method   OPTION method
 bool is_valid_request_target(const std::string &request_target) {
-	if (request_target.empty()) {
+	if (request_target.empty() || request_target[0] != '/') {
 		return false;
 	}
-	return (is_origin_form(request_target)
-			|| is_absolure_form(request_target)
-			|| is_authority_form(request_target)
-			|| is_asterisk_form(request_target));
+	return is_origin_form(request_target) || is_absolure_form(request_target);
 }
 
 /*
@@ -630,13 +629,13 @@ bool is_valid_request_target(const std::string &request_target) {
   HTTP-name   = %x48.54.54.50 ; "HTTP", case-sensitive
  */
 bool is_valid_http_version(const std::string &http_version) {
-	std::vector<std::string>::const_iterator itr;
-
-	if (http_version.empty()) {
-		return false;
-	}
-	itr = std::find(HTTP_VERSIONS.begin(), HTTP_VERSIONS.end(), http_version);
-	return itr != HTTP_VERSIONS.end();
+    return http_version == std::string(HTTP_1_1);
+	// std::vector<std::string>::const_iterator itr;
+	// if (http_version.empty()) {
+	// 	return false;
+	// }
+	// itr = std::find(HTTP_VERSIONS.begin(), HTTP_VERSIONS.end(), http_version);
+	// return itr != HTTP_VERSIONS.end();
 }
 
 bool is_valid_field_name(const std::string &field_name) {

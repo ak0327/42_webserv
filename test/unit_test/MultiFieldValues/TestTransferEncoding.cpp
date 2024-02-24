@@ -29,7 +29,7 @@ TEST(TestMultiFieldValues, TransferEncodingOK1) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestMultiFieldValues, TransferEncodingOK2) {
@@ -56,7 +56,7 @@ TEST(TestMultiFieldValues, TransferEncodingOK2) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestMultiFieldValues, TransferEncodingOK3) {
@@ -83,7 +83,7 @@ TEST(TestMultiFieldValues, TransferEncodingOK3) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestMultiFieldValues, TransferEncodingOK4) {
@@ -114,7 +114,7 @@ TEST(TestMultiFieldValues, TransferEncodingOK4) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 
@@ -129,7 +129,7 @@ TEST(TestMultiFieldValues, TransferEncodingNG1) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 
@@ -144,7 +144,7 @@ TEST(TestMultiFieldValues, TransferEncodingNG2) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }
 
 TEST(TestMultiFieldValues, TransferEncodingNG3) {
@@ -158,5 +158,5 @@ TEST(TestMultiFieldValues, TransferEncodingNG3) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.status_code());
 }

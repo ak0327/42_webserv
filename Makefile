@@ -1,60 +1,44 @@
 NAME		=	webserv
 
 CXX			=	c++
-CXXFLAGS	=	-std=c++98 -Wall -Wextra -Werror -MMD -MP
+CXXFLAGS	=	-std=c++98 -Wall -Wextra -Werror -MMD -MP -pedantic
 CXXFLAGS	+=	-g -fsanitize=address,undefined -fno-omit-frame-pointer
 CXXFLAGS	+=	-D USE_SELECT
+CXXFLAGS	+=	-D DEBUG
+#CXXFLAGS	+=	-D ECHO
+#CXXFLAGS	+=	-D LEAKS
 
 # SRCS -------------------------------------------------------------------------
 SRCS_DIR	=	srcs
 
-#main
+# main
 SRCS		=	main.cpp
 
-#debug
-DEBUG_DIR	=	Debug
-SRCS		+=	$(DEBUG_DIR)/Debug.cpp
+# Config
+CONFIG_DIR	=	Config
+SRCS		+=	$(CONFIG_DIR)/FileHandler/FileHandler.cpp \
+				$(CONFIG_DIR)/ConfigParser/ConfigParser.cpp \
+				$(CONFIG_DIR)/Token/Token.cpp \
+				$(CONFIG_DIR)/Tokenizer/Tokenizer.cpp \
+				$(CONFIG_DIR)/Config.cpp
 
-#error
-ERROR_DIR	=	Error
-SRCS		+=	$(ERROR_DIR)/Error.cpp
-
-#io
-IO_DIR		=	IOMultiplexer
-SRCS		+=	$(IO_DIR)/IOMultiplexer.cpp
-
-#server
-SERVER_DIR	=	Server
-SRCS		+=	$(SERVER_DIR)/Server.cpp
-
-#socket
-SOCKET_DIR	=	Socket
-SRCS		+=	$(SOCKET_DIR)/Socket.cpp
-
-#const
+# Const
 CONST_DIR	=	Const
 SRCS		+=	$(CONST_DIR)/Constant.cpp
 
-#error
+# ClientSession
+CLIENT_SESSION_DIR = ClientSession
+SRCS		+=	$(CLIENT_SESSION_DIR)/ClientSession.cpp
+
+# Error
 ERROR_DIR	=	Error
 SRCS		+=	$(ERROR_DIR)/Error.cpp
 
-#debug
+# Debug
 DEBUG_DIR	=	Debug
 SRCS		+=	$(DEBUG_DIR)/Debug.cpp
 
-#socket
-SOCKET_DIR	=	Socket
-SRCS		+=	$(SOCKET_DIR)/Socket.cpp
-
-#StringHandler
-STR_HANDLER	=	StringHandler
-SRCS		+=	$(STR_HANDLER)/HttpMessageParser.cpp \
-				$(STR_HANDLER)/HttpMessageParserIs.cpp \
-				$(STR_HANDLER)/HttpMessageParserSkip.cpp \
-				$(STR_HANDLER)/StringHandler.cpp
-
-#httprequest
+# HTTP Request
 REQUEST_DIR	=	HttpRequest
 SRCS		+=	$(REQUEST_DIR)/HttpRequest.cpp \
 				$(REQUEST_DIR)/RequestLine/RequestLine.cpp
@@ -106,24 +90,35 @@ VALUE_AND_MAP_FIELD_VALUES_DIR = $(REQUEST_DIR)/ValueAndMapFieldValues
 SRCS		+=  $(VALUE_AND_MAP_FIELD_VALUES_DIR)/ValueAndMapFieldValues.cpp \
 				$(VALUE_AND_MAP_FIELD_VALUES_DIR)/set_content_disposition.cpp
 
+# IO
+IO_DIR		=	IOMultiplexer
+SRCS		+=	$(IO_DIR)/IOMultiplexer.cpp
+
+# Server
+SERVER_DIR	=	Server
+SRCS		+=	$(SERVER_DIR)/Server.cpp
+
+# Socket
+SOCKET_DIR	=	Socket
+SRCS		+=	$(SOCKET_DIR)/Socket.cpp
+
+# StringHandler
+STR_HANDLER	=	StringHandler
+SRCS		+=	$(STR_HANDLER)/HttpMessageParser.cpp \
+				$(STR_HANDLER)/HttpMessageParserIs.cpp \
+				$(STR_HANDLER)/HttpMessageParserSkip.cpp \
+				$(STR_HANDLER)/StringHandler.cpp
+
 #HTTP Response
 RESPONSE_DIR =	HttpResponse
 SRCS		+=	$(RESPONSE_DIR)/HttpResponse.cpp \
-				$(RESPONSE_DIR)/GET/get_cgi_result.cpp \
 				$(RESPONSE_DIR)/GET/get_directory_listing.cpp \
 				$(RESPONSE_DIR)/GET/get_file_content.cpp \
 				$(RESPONSE_DIR)/GET/get_request_body.cpp
 
-#config
-CONFIG_DIR	=	Configuration
-SRCS		+=	$(CONFIG_DIR)/FileHandler/FileHandler.cpp \
-				$(CONFIG_DIR)/Parser/Parser.cpp \
-				$(CONFIG_DIR)/Token/Token.cpp \
-				$(CONFIG_DIR)/Tokenizer/Tokenizer.cpp \
-				$(CONFIG_DIR)/Configuration.cpp
-
-CLIENT_SESSION_DIR	=	ClientSession
-SRCS		+=	$(CLIENT_SESSION_DIR)/ClientSession.cpp
+# CgiHandler
+CGI_DIR 	= $(RESPONSE_DIR)/CgiHandler
+SRCS		+=	$(CGI_DIR)/CgiHandler.cpp
 
 
 # OBJS -------------------------------------------------------------------------
@@ -148,11 +143,12 @@ INCLUDES_DIR =	includes \
 				$(REQUEST_INCLUDES) \
 				$(RESPONSE_INCLUDES) \
 				$(SRCS_DIR)/$(CONFIG_DIR)/FileHandler \
-				$(SRCS_DIR)/$(CONFIG_DIR)/Parser \
+				$(SRCS_DIR)/$(CONFIG_DIR)/ConfigParser \
 				$(SRCS_DIR)/$(CONFIG_DIR)/Token \
 				$(SRCS_DIR)/$(CONFIG_DIR)/Tokenizer \
 				$(SRCS_DIR)/$(CONFIG_DIR) \
 				$(SRCS_DIR)/$(CLIENT_SESSION_DIR) \
+				$(SRCS_DIR)/$(CGI_DIR)
 
 REQUEST_INCLUDES =	$(SRCS_DIR)/$(REQUEST_DIR) \
 					$(SRCS_DIR)/$(DATE_DIR) \
@@ -172,10 +168,6 @@ RESPONSE_INCLUDES =	$(SRCS_DIR)/$(RESPONSE_DIR) \
 					$(SRCS_DIR)/$(RESPONSE_DIR)/DELETE
 
 INCLUDES	 =	$(addprefix -I, $(INCLUDES_DIR))
-
-
-# include DEPS -----------------------------------------------------------------
--include $(DEPS)
 
 
 # RULES ------------------------------------------------------------------------
@@ -213,26 +205,26 @@ echo	: re
 .PHONY	: run_unit_test
 run_unit_test	:
 	#cmake -S . -B build
-	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D ECHO"
-	#cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D UTEST"
+#	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D ECHO"
+	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D ECHO -D DEBUG"
 	cmake --build build
 #	./build/unit_test 2>/dev/null
 	./build/unit_test  # leaks report
 
 .PHONY	: run_server_test
 run_server_test	:
-	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D UTEST -D ECHO -D DEBUG"
-	#cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D UTEST -D ECHO"
+	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D ECHO -D DEBUG"
+	#cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT  -D ECHO"
 	#cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG -D USE_SELECT"
 	cmake --build build
 	#./build/unit_test --gtest_filter=Server* 2>/dev/null
 	#./build/unit_test --gtest_filter=*.ConnectClientCase1
-	#./build/unit_test --gtest_filter=Server*
+	./build/unit_test --gtest_filter=Server*
 	#./build/unit_test --gtest_filter=ServerUnitTest.TestMultiServer
-#	./build/unit_test --gtest_filter=ServerUnitTest.ConnectClientCase*
-	#./build/unit_test --gtest_filter=ServerUnitTests.ConnectClientCase1
+	#./build/unit_test --gtest_filter=ServerUnitTest.ConnectClientCase*
+	#./build/unit_test --gtest_filter=ServerUnitTest.ConnectClientCase1
 	#./build/unit_test --gtest_filter=ServerUnitTest.ConnectClientCase2
-	./build/unit_test --gtest_filter=ServerUnitTest.ConnectMultiClient
+#	./build/unit_test --gtest_filter=ServerUnitTest.ConnectMultiClient
 
 .PHONY	: run_socket_test
 run_socket_test	:
@@ -260,7 +252,7 @@ run_request_test    :
 
 .PHONY    : run_req_test
 run_req_test    :
-	cmake -S . -B build -DCUSTOM_FLAGS="-D UTEST"
+	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
 	cmake --build build
 	./build/unit_test --gtest_filter=HttpRequestParser*
 
@@ -352,3 +344,14 @@ run_config_test    :
 	#cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestConfig*
+
+.PHONY    : run_get_test
+run_get_test    :
+	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG -D UNIT_TEST"
+	#cmake -S . -B build
+	cmake --build build
+	./build/unit_test --gtest_filter=HttpResponseGET*
+
+
+# include DEPS -----------------------------------------------------------------
+-include $(DEPS)

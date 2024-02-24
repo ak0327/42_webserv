@@ -1,0 +1,7 @@
+#!/usr/bin/env python3
+
+print('Content-Type: text/html')
+print('Status: 404')
+print('')
+
+print('hello 404')

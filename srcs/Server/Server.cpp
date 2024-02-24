@@ -7,13 +7,14 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <ctime>
 #include <deque>
 #include <iostream>
 #include <set>
 #include "webserv.hpp"
 #include "Color.hpp"
 #include "Constant.hpp"
-#include "Configuration.hpp"
+#include "Config.hpp"
 #include "Debug.hpp"
 #include "Error.hpp"
 #include "IOMultiplexer.hpp"
@@ -26,35 +27,41 @@ const int MAX_SESSION = 128;
 
 
 void stop_by_signal(int sig) {
-	DEBUG_SERVER_PRINT("stop by signal %d", sig);
-	std::cerr << "[Server] Stop running by signal" << std::endl;
-	std::exit(0);
+    switch (sig) {
+        case SIGINT:
+            std::cout << "[Server] Running stop" << std::endl;
+            std::exit(EXIT_SUCCESS);
+
+        case SIGTERM:
+            std::cout << "[Server] Running stop by SIGTERM" << std::endl;
+            std::exit(EXIT_SUCCESS);
+
+        case SIGABRT:
+            std::cout << "[Error] Server abort" << std::endl;
+            std::exit(EXIT_FAILURE);
+
+        default:
+            std::cout << "Received unknown signal: " << sig << std::endl;
+    }
 }
 
 
 ServerResult set_signal() {
-	std::string err_info;
+    return ServerResult::ok(OK);
 
+    // todo
 	errno = 0;
 	if (signal(SIGABRT, stop_by_signal) == SIG_ERR) {
-		err_info = CREATE_ERROR_INFO_ERRNO(errno);
-		return ServerResult::err(err_info);
+		const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+		return ServerResult::err(error_msg);
 	}
 	if (signal(SIGINT, stop_by_signal) == SIG_ERR) {
-		err_info = CREATE_ERROR_INFO_ERRNO(errno);
-		return ServerResult::err(err_info);
+		const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+		return ServerResult::err(error_msg);
 	}
 	if (signal(SIGTERM, stop_by_signal) == SIG_ERR) {
-		err_info = CREATE_ERROR_INFO_ERRNO(errno);
-		return ServerResult::err(err_info);
-	}
-	if (signal(SIGPIPE, SIG_IGN) == SIG_ERR) {
-		err_info = CREATE_ERROR_INFO_ERRNO(errno);
-		return ServerResult::err(err_info);
-	}
-	if (signal(SIGCHLD, SIG_IGN) == SIG_ERR) {
-		err_info = CREATE_ERROR_INFO_ERRNO(errno);
-		return ServerResult::err(err_info);
+		const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+		return ServerResult::err(error_msg);
 	}
 	return ServerResult::ok(OK);
 }
@@ -64,18 +71,14 @@ ServerResult set_signal() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Server::Server(const Configuration &config)
+Server::Server(const Config &config)
 	: sockets_(),
       fds_(NULL),
       config_(config) {}
 
 
 Server::~Server() {
-    std::map<Fd, ClientSession *>::iterator itr;
-    for (itr = this->sessions_.begin(); itr != sessions_.end(); ++itr) {
-        delete itr->second;
-    }
-    this->sessions_.clear();
+    clear_sessions();
     delete_sockets();
     delete this->fds_;
 }
@@ -149,7 +152,7 @@ Result<Socket *, std::string> Server::create_socket(const std::string &address,
 }
 
 
-ServerResult Server::create_sockets(const Configuration &config) {
+ServerResult Server::create_sockets(const Config &config) {
     const std::map<ServerInfo, const ServerConfig *> &server_configs = config.get_server_configs();
 
     std::map<ServerInfo, const ServerConfig *>::const_iterator servers;
@@ -246,31 +249,98 @@ Result<IOMultiplexer *, std::string> Server::create_io_multiplexer_fds() {
 
 
 ServerResult Server::run() {
+    this->set_timeout(500);  // todo
 	while (true) {
-        DEBUG_SERVER_PRINT(" loop 1 get_io_ready_fd");
+        DEBUG_SERVER_PRINT(" run 1 timeout management");
+        management_timeout_sessions();
+
+        DEBUG_SERVER_PRINT(" run 2 get_io_ready_fd");
         ServerResult fd_ready_result = this->fds_->get_io_ready_fd();
-        DEBUG_SERVER_PRINT(" loop 2 ready result");
+        DEBUG_SERVER_PRINT(" run 3 ready result");
 		if (fd_ready_result.is_err()) {
-            DEBUG_SERVER_PRINT(" loop : error 1");
+            DEBUG_SERVER_PRINT(" run : error 1");
             const std::string error_msg = fd_ready_result.get_err_value();
             return ServerResult::err(error_msg);
 		}
 		int ready_fd = fd_ready_result.get_ok_value();
-        DEBUG_SERVER_PRINT("loop 3: ready_fd: %d", ready_fd);
+        DEBUG_SERVER_PRINT(" run 4 ready_fd: %d", ready_fd);
 		if (ready_fd == IO_TIMEOUT) {
 			std::cerr << "[Server INFO] timeout" << std::endl;
-			break;
+#ifdef UNIT_TEST
+            break;
+#else
+            continue;
+#endif
 		}
-        DEBUG_SERVER_PRINT(" loop 4 communicate");
+        DEBUG_SERVER_PRINT(" run 5 communicate");
         ServerResult communicate_result = communicate_with_client(ready_fd);
 		if (communicate_result.is_err()) {
             const std::string error_msg = communicate_result.get_err_value();
-            DEBUG_SERVER_PRINT("");
-            std::cout << GREEN << " loop : error 2" << RESET << std::endl;
+            DEBUG_SERVER_PRINT(" run : error 2");
             return ServerResult::err(error_msg);
 		}
-        DEBUG_SERVER_PRINT(" loop 5 next loop");
+        DEBUG_SERVER_PRINT(" run 6 next loop");
     }
+    return ServerResult::ok(OK);
+}
+
+
+void Server::erase_from_timeout_manager(int cgi_fd) {
+    std::set<FdTimeoutLimitPair>::iterator itr;
+    for (itr = this->cgi_fds_.begin(); itr != this->cgi_fds_.end(); ++itr) {
+        int fd = itr->second;
+        if (cgi_fd == fd) {
+            this->cgi_fds_.erase(itr);
+            return;
+        }
+    }
+}
+
+
+void Server::clear_cgi_fd_from_event_manager(int cgi_fd) {
+    this->sessions_.erase(cgi_fd);
+    this->fds_->clear_fd(cgi_fd);
+    erase_from_timeout_manager(cgi_fd);
+}
+
+
+void Server::management_timeout_sessions() {
+    // cgi session
+    time_t current_time = std::time(NULL);
+    DEBUG_PRINT(GREEN, "management_timeout current: %zu", current_time);
+    std::set<FdTimeoutLimitPair>::const_iterator cgi;
+    for (cgi = this->cgi_fds_.begin(); cgi != this->cgi_fds_.end(); ++cgi) {
+        time_t timeout_limit = cgi->first;
+        DEBUG_SERVER_PRINT(" cgi_fd: %d, timelimit: %zu, current: %zu", cgi->second, timeout_limit, current_time);
+        if (current_time < timeout_limit) {
+            break;
+        }
+
+        int cgi_fd = cgi->second;
+        DEBUG_PRINT(GREEN, " timeout cgi %d -> kill", cgi_fd);
+        ClientSession *client = this->sessions_[cgi_fd];
+        client->kill_cgi_process();
+        DEBUG_PRINT(GREEN, " cgi killed by signal");
+    }
+
+    // client session
+    // todo
+}
+
+
+ServerResult Server::communicate_with_client(int ready_fd) {
+    if (is_socket_fd(ready_fd)) {
+        DEBUG_SERVER_PRINT("  ready_fd=socket fd: %d", ready_fd);
+        return create_session(ready_fd);
+    } else {
+        DEBUG_SERVER_PRINT("  ready_fd=client fd: %d", ready_fd);
+        return process_session(ready_fd);
+    }
+}
+
+
+ServerResult Server::echo() {
+    // todo
     return ServerResult::ok(OK);
 }
 
@@ -322,6 +392,7 @@ ServerResult Server::create_session(int socket_fd) {
 void Server::update_fd_type_read_to_write(const SessionState &session_state, int fd) {
     FdType fd_type = this->fds_->get_fd_type(fd);
     if (session_state == kSendingResponse && fd_type == kReadFd) {
+        DEBUG_SERVER_PRINT("fd read -> write");
         this->fds_->clear_fd(fd);
         this->fds_->register_write_fd(fd);
         // std::cout << RED << "update write fd: " << fd << RESET << std::endl;
@@ -331,7 +402,7 @@ void Server::update_fd_type_read_to_write(const SessionState &session_state, int
 
 void Server::delete_session(std::map<Fd, ClientSession *>::iterator session) {
     ClientSession *client_session = session->second;
-    int client_fd = client_session->get_client_fd();
+    int client_fd = client_session->client_fd();
 
     this->fds_->clear_fd(client_fd);
     delete client_session;
@@ -344,52 +415,143 @@ bool is_cgi_fd(int result_value) {
 }
 
 
+void Server::update_fd_type(int fd,
+                            FdType update_from,
+                            FdType update_to) {
+    if (this->fds_->get_fd_type(fd) == update_to || update_from == update_to) {
+        return;
+    }
+    this->fds_->clear_fd(fd);
+    if (update_to == kReadFd) {
+        this->fds_->register_read_fd(fd);
+    } else if (update_to == kWriteFd) {
+        this->fds_->register_write_fd(fd);
+    }
+}
+
+
+void Server::init_session(ClientSession *session) {
+    if (!session) {
+        return;
+    }
+    int client_fd = session->client_fd();
+    update_fd_type(client_fd, kWriteFd, kReadFd);
+    session->set_session_state(kReceivingRequest);
+    session->clear_request();
+    session->clear_response();
+}
+
+
+void Server::clear_sessions() {
+    std::map<Fd, ClientSession *>::iterator session;
+    for (session = this->sessions_.begin(); session != sessions_.end(); ++session) {
+        delete session->second;
+        session->second = NULL;
+    }
+    this->sessions_.clear();
+}
+
+
+bool Server::is_fd_type_expect(int fd, const FdType &type) {
+    return this->fds_->get_fd_type(fd) == type;
+}
+
+
+void Server::register_cgi_fd_to_event_manager(ClientSession **client) {
+    int fd = (*client)->cgi_fd();
+    DEBUG_SERVER_PRINT("       cgi_fd: %d", fd);
+
+    if (fd != INIT_FD) {
+        this->fds_->register_read_fd(fd);
+        this->sessions_[fd] = *client;
+
+        time_t timeout_limit = (*client)->cgi_timeout_limit();
+        DEBUG_SERVER_PRINT("       timeout: %zu", timeout_limit);
+        this->cgi_fds_.insert(FdTimeoutLimitPair(timeout_limit, fd));
+    }
+}
+
+
+bool Server::is_ready_to_send_response(const ClientSession &client) {
+    return client.is_session_state_expect(kSendingResponse)
+            && is_fd_type_expect(client.client_fd(), kReadFd);
+}
+
+
+bool Server::is_cgi_execute_completed(const ClientSession &client) {
+    return client.is_session_state_expect(kCreatingCGIBody);
+}
+
+
+bool Server::is_session_completed(const ClientSession &client) {
+    return client.is_session_state_expect(kSessionCompleted);
+}
+
+
+bool Server::is_session_error_occurred(const ClientSession &client) {
+    return client.is_session_state_expect(kSessionError);
+}
+
+
 ServerResult Server::process_session(int ready_fd) {
     std::map<Fd, ClientSession *>::iterator session = this->sessions_.find(ready_fd);
     if (session == this->sessions_.end()) {
-        return ServerResult::err("error: fd unknown");
+        const std::string error_msg = CREATE_ERROR_INFO_CSTR("error: fd unknown");
+        return ServerResult::err(error_msg);
     }
 
     SessionResult result;
-    ClientSession *client_session = session->second;
-    if (ready_fd == client_session->get_client_fd()) {
-        // std::cout << WHITE << " process_client_event" << RESET << std::endl;
-        result = client_session->process_client_event();
-    } else if (ready_fd == client_session->get_file_fd()) {
-        // std::cout << WHITE << " process_file_event" << RESET << std::endl;
-        result = client_session->process_file_event();
+    ClientSession *client = session->second;
+    if (ready_fd == client->client_fd()) {
+        DEBUG_SERVER_PRINT("process_client_event");
+        result = client->process_client_event();
+    } else if (ready_fd == client->cgi_fd()) {
+        DEBUG_SERVER_PRINT("process_file_event");
+        result = client->process_file_event();
     } else {
-        return ServerResult::err("error: fd unknown");
+        const std::string error_msg = CREATE_ERROR_INFO_CSTR("error: fd unknown");
+        return ServerResult::err(error_msg);
     }
 
     if (result.is_err()) {
         const std::string error_msg = result.get_err_value();
         return ServerResult::err(error_msg);
-    }
-    int result_value = result.get_ok_value();
-    if (is_cgi_fd(result_value)) {
-        int cgi_fd = result_value;
-        this->fds_->register_read_fd(cgi_fd);
+
+    } else if (ClientSession::is_continue_recv(result)) {
+        DEBUG_SERVER_PRINT("      process_session -> recv continue");
+        return ServerResult::ok(OK);
+
+    } else if (ClientSession::is_executing_cgi(result)) {
+        DEBUG_SERVER_PRINT("      process_session -> cgi");
+        register_cgi_fd_to_event_manager(&client);
+        return ServerResult::ok(OK);
+
+    } else if (ClientSession::is_connection_closed(result)) {
+        delete_session(session);
+        DEBUG_PRINT(RED, "connection closed");
         return ServerResult::ok(OK);
     }
-    update_fd_type_read_to_write(client_session->get_session_state(), ready_fd);
 
-    if (client_session->is_session_completed()) {
-        // std::cout << WHITE << " session complete fd: " << ready_fd << RESET << std::endl;
+    if (is_ready_to_send_response(*client)) {
+        DEBUG_SERVER_PRINT("fd read -> write");
+        this->fds_->clear_fd(ready_fd);
+        this->fds_->register_write_fd(ready_fd);
+
+    } else if (is_cgi_execute_completed(*client)) {
+        DEBUG_SERVER_PRINT("client process completed(CGI): fd %d -> close", ready_fd);
+        clear_cgi_fd_from_event_manager(ready_fd);
+        return process_session(client->client_fd());
+
+    } else if (is_session_completed(*client)) {
+        DEBUG_SERVER_PRINT("client process completed(Client): fd %d -> close", ready_fd);
+        delete_session(session);  // todo -> init_session
+        // init_session(client);
+
+    } else if (is_session_error_occurred(*client)) {
+        DEBUG_SERVER_PRINT("client process error occurred: fd %d -> close", ready_fd);
         delete_session(session);
     }
     return ServerResult::ok(OK);
-}
-
-
-ServerResult Server::communicate_with_client(int ready_fd) {
-	if (is_socket_fd(ready_fd)) {
-        DEBUG_SERVER_PRINT("  ready_fd=socket fd: %d", ready_fd);
-        return create_session(ready_fd);
-	} else {
-        DEBUG_SERVER_PRINT("  ready_fd=client fd: %d", ready_fd);
-        return process_session(ready_fd);
-    }
 }
 
 

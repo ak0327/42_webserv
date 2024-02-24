@@ -36,21 +36,6 @@ void DEBUG_CLIENT_PRINT(const char *fmt, ...) {
 #endif
 }
 
-void DEBUG_PRINT(const char *fmt, ...) {
-#ifdef DEBUG
-	pthread_mutex_lock(&print_mutex);
-	dprintf(STDERR_FILENO, "%s", "#DEBUG : ");
-	va_list args;
-	va_start(args, fmt);
-	vdprintf(STDERR_FILENO, fmt, args);
-	va_end(args);
-	dprintf(STDERR_FILENO, "%s\n", RESET);
-	pthread_mutex_unlock(&print_mutex);
-#else
-	(void)fmt;
-#endif
-}
-
 void DEBUG_PRINT(const char *color, const char *fmt, ...) {
 #ifdef DEBUG
 	pthread_mutex_lock(&print_mutex);

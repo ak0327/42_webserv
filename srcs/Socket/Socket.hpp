@@ -2,7 +2,7 @@
 
 # include <string>
 # include "webserv.hpp"
-# include "Configuration.hpp"
+# include "Config.hpp"
 # include "Result.hpp"
 
 typedef Result<int, std::string> SocketResult;
@@ -19,7 +19,8 @@ class Socket {
 	SocketResult bind();
 	SocketResult listen();
     SocketResult connect();
-	SocketResult set_fd_to_nonblock();
+    SocketResult set_fd_to_nonblock();
+	static SocketResult set_fd_to_nonblock(int fd);
     static SocketResult accept(int socket_fd, struct sockaddr_storage *client_addr);
 
  private:
