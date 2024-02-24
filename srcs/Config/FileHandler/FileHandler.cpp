@@ -187,7 +187,7 @@ StatusCode FileHandler::delete_file() {
     if (std::remove(this->path_.c_str()) != REMOVE_SUCCESS) {
         return BadRequest;
     }
-    return StatusOk;
+    return NoContent;
 }
 
 

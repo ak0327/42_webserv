@@ -201,6 +201,7 @@ set(post_srcs
 
 # DELETE
 set(delete_srcs
+        srcs/HttpResponse/DELETE/delete_target.cpp
 )
 
 list(APPEND http_response_srcs
