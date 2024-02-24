@@ -221,6 +221,7 @@ ssize_t HttpResponse::recv_to_buf(int fd) {
 
 
 Result<ProcResult, StatusCode> HttpResponse::recv_to_cgi_buf() {
+    return this->cgi_handler_.recv_cgi_output();
     DEBUG_PRINT(YELLOW, "     recv_to_cgi_buf at %zu", std::time(NULL));
     ssize_t recv_size = this->cgi_handler_.recv_to_buf(cgi_handler_.fd());
     DEBUG_PRINT(YELLOW, "      recv_size: %zd", recv_size);

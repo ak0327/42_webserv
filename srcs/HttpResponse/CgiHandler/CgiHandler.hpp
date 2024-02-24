@@ -28,7 +28,7 @@ class CgiHandler {
     bool is_process_timeout() const;
 
     StatusCode exec_script(const std::string &file_path);
-    // Result<ProcResult, StatusCode> recv_cgi_output();
+    Result<ProcResult, StatusCode> recv_cgi_output();
     StatusCode parse_document_response();
 
     ssize_t recv_to_buf(int fd);
