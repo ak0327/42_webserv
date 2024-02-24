@@ -67,10 +67,12 @@ std::string HttpResponse::get_indexed_path(const std::string &resource_path) {
     Result<std::string, int> index_exist = Config::get_index(this->server_config_,
                                                              this->request_.request_target());
     if (index_exist.is_err()) {
+        DEBUG_PRINT(CYAN, "index nothing");
         return resource_path;
     }
     std::string index_page = index_exist.get_ok_value();
     std::string extension = StringHandler::get_extension(resource_path);
+    DEBUG_PRINT(CYAN, "index_page: %s", index_page.c_str());
 
     std::string indexed_path = resource_path;
     if (extension.empty()) {

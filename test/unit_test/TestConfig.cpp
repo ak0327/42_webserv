@@ -431,7 +431,7 @@ TEST(TestConfig, ConfigGetterOK1) {
     EXPECT_EQ(expected_cgi_timeout, Config::get_cgi_timeout(server_config, location_path));
 
 
-    location_path = "=/50x.html";
+    location_path = "/50x.html";
     expected_error = false;
 
     expected_root = "www";
@@ -729,7 +729,7 @@ TEST(TestConfig, ConfigGetterOK1) {
 
 
 
-    location_path = "=/50x.html";
+    location_path = "/50x.html";
     expected_error = false;
 
     expected_root = "www";
@@ -946,7 +946,7 @@ TEST(TestConfig, ConfigGetterOK1) {
 
 
 
-    location_path = "=/50x.html";
+    location_path = "/50x.html";
     expected_error = false;
 
     expected_root = "www";

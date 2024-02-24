@@ -291,7 +291,7 @@ std::string get_pattern_matching_path(const ServerConfig &server_config,
 }
 
 
-std::string find_matching_path(const ServerConfig &server_config,
+std::string find_basic_matching_path(const ServerConfig &server_config,
                                     const std::string &target_path) {
     std::string matching_location;
 
@@ -302,8 +302,16 @@ std::string find_matching_path(const ServerConfig &server_config,
         if (target_path.length() < config_location.length()) {
             continue;
         }
-        std::string target = target_path.substr(0, config_location.length());
-        if (target == config_location) {
+        std::string location_extension = StringHandler::get_extension(config_location);
+        if (!location_extension.empty()) {
+            if (target_path == config_location) {
+                matching_location = config_location;
+                break;
+            }
+            continue;
+        }
+        std::string target_prefix = target_path.substr(0, config_location.length());
+        if (target_prefix == config_location) {
             if (matching_location.length() < config_location.length()) {
                 matching_location = config_location;
             }
@@ -319,15 +327,18 @@ Result<std::string, int> Config::get_matching_location(const ServerConfig &serve
 
     matching_location = get_pattern_matching_path(server_config, target_path);
     if (!matching_location.empty()) {
+        // DEBUG_PRINT(WHITE, "target[%s] matches location[%s]", target_path.c_str(), matching_location.c_str());
         // std::cout << RED << "pattern_matching: target[" << target_path << "], location[" << matching_location << "]" << RESET << std::endl;
         return Result<std::string, int>::ok(matching_location);
     }
 
-    matching_location = find_matching_path(server_config, target_path);
+    matching_location = find_basic_matching_path(server_config, target_path);
     if (!matching_location.empty()) {
+        // DEBUG_PRINT(WHITE, "target[%s] matches location[%s]", target_path.c_str(), matching_location.c_str());
         // std::cout << RED << "find_matching_path: target[" << target_path << "], location[" << matching_location << "]" << RESET << std::endl;
         return Result<std::string, int>::ok(matching_location);
     }
+    // DEBUG_PRINT(WHITE, "target[%s] matches location[NOTHING]", target_path.c_str());
     return Result<std::string, int>::err(ERR);
 }
 
@@ -336,10 +347,11 @@ Result<LocationConfig, int> Config::get_location_config(const ServerConfig &serv
                                                         const std::string &target_path) {
     Result<std::string, int> matching_result = Config::get_matching_location(server_config, target_path);
     if (matching_result.is_err()) {
+        DEBUG_PRINT(WHITE, "target[%s] matches location[NOTHING]", target_path.c_str());
         return Result<LocationConfig, int>::err(ERR);
     }
     const std::string matching_location = matching_result.get_ok_value();
-    // std::cout << RED << "matching: target[" << target_path << "], location[" << matching_location << "]" << RESET << std::endl;
+    DEBUG_PRINT(WHITE, "target[%s] matches location[%s]", target_path.c_str(), matching_location.c_str());
     std::map<LocationPath, LocationConfig>::const_iterator location;
     location = server_config.locations.find(matching_location);
     if (location == server_config.locations.end()) {
