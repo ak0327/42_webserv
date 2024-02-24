@@ -131,15 +131,10 @@ SessionResult ClientSession::process_client_event() {
         case kCreatingResponseBody:
         case kCreatingCGIBody: {
             DEBUG_SERVER_PRINT("   Session: 3 CreatingResponse");
-            Result<ProcResult, StatusCode> response_result = create_http_response();
-            if (is_executing_cgi(response_result)) {
+            ProcResult response_result = create_http_response();
+            if (response_result == ExecutingCgi) {
                 this->set_session_state(kExecutingCGI);
                 return SessionResult::ok(ExecutingCgi);
-            }
-            if (response_result.is_err()) {
-                StatusCode error_code = response_result.get_err_value();
-                this->set_status(error_code);
-                DEBUG_SERVER_PRINT("    request error2, status: %d", this->status_code());
             }
             break;
         }
@@ -242,20 +237,18 @@ Result<ProcResult, StatusCode> ClientSession::parse_http_request() {
 // -----------------------------------------------------------------------------
 
 
-Result<ProcResult, StatusCode> ClientSession::create_http_response() {
+ProcResult ClientSession::create_http_response() {
     DEBUG_SERVER_PRINT("    CreatingResponse status: %d", this->status_code());
     while (true) {
         switch (this->session_state_) {
             case kExecutingMethod: {
                 DEBUG_SERVER_PRINT("     1 ExecutingMethod");
-                Result<ProcResult, StatusCode> method_result = execute_each_method();  // todo: rename
-                if (is_executing_cgi(method_result)) {
-                    return Result<ProcResult, StatusCode>::ok(ExecutingCgi);
+                ProcResult method_result = execute_each_method();  // todo: rename
+                if (method_result == FatalError) {
+                    return FatalError;
                 }
-                if (method_result.is_err()) {
-                    StatusCode error_code = method_result.get_err_value();
-                    this->set_status(error_code);
-                    DEBUG_SERVER_PRINT("    request error2, status: %d", this->status_code());
+                if (method_result == ExecutingCgi) {
+                    return ExecutingCgi;
                 }
             }
             // fallthrough
@@ -265,12 +258,7 @@ Result<ProcResult, StatusCode> ClientSession::create_http_response() {
     #ifdef ECHO
                 this->response_->create_echo_msg(this->request_->get_buf());
     #else
-                Result<ProcResult, StatusCode> body_result = this->response_->create_response_message(this->status_code());
-                if (body_result.is_err()) {
-                    DEBUG_SERVER_PRINT("    request error3, status: %d", body_result.get_err_value());
-                    StatusCode error_code = body_result.get_err_value();
-                    this->set_status(error_code);
-                }
+                this->response_->create_response_message();
     #endif
                 this->set_session_state(kSendingResponse);
                 break;
@@ -278,12 +266,7 @@ Result<ProcResult, StatusCode> ClientSession::create_http_response() {
 
             case kCreatingCGIBody: {
                 DEBUG_SERVER_PRINT("     3 CreatingCGIBody");
-                Result<ProcResult, StatusCode> cgi_result = this->response_->interpret_cgi_output();
-                if (cgi_result.is_err()) {
-                    StatusCode error_code = cgi_result.get_err_value();
-                    DEBUG_SERVER_PRINT("      CGI status: %d", error_code);
-                    this->set_status(error_code);
-                }
+                this->response_->interpret_cgi_output();
                 this->set_session_state(kCreatingResponseBody);
                 continue;
             }
@@ -293,7 +276,7 @@ Result<ProcResult, StatusCode> ClientSession::create_http_response() {
         }
         break;
     }
-    return Result<ProcResult, StatusCode>::ok(Success);
+    return Success;
 }
 
 
@@ -377,7 +360,7 @@ SessionResult ClientSession::update_config_params() {
 // -----------------------------------------------------------------------------
 
 
-Result<ProcResult, StatusCode> ClientSession::execute_each_method() {
+ProcResult ClientSession::execute_each_method() {
 #ifdef ECHO
     try {
         HttpRequest request;
@@ -392,15 +375,15 @@ Result<ProcResult, StatusCode> ClientSession::execute_each_method() {
     return Result<ProcResult, StatusCode>::ok(Success);
 #else
     try {
-        this->response_ = new HttpResponse(*this->request_, this->server_config_);
+        this->response_ = new HttpResponse(*this->request_, this->status_code(), this->server_config_);
         // std::cout << CYAN << "     response_message[" << this->http_response_->get_response_message() << "]" << RESET << std::endl;
     }
     catch (const std::exception &e) {
         const std::string err_info = CREATE_ERROR_INFO_STR("Failed to allocate memory");
         std::cerr << err_info << std::endl;
-        return Result<ProcResult, StatusCode> ::err(InternalServerError);
+        return FatalError;
     }
-    return this->response_->exec_method(this->status_code());
+    return this->response_->exec_method();  // return Success or ExecutingCgi
 #endif
 }
 
@@ -430,18 +413,10 @@ SessionResult ClientSession::process_file_event() {
 
         case kExecutingCGI: {
             DEBUG_PRINT(YELLOW, "   FileEvent Recv");
-            Result<ProcResult, StatusCode> cgi_result = this->response_->recv_to_cgi_buf();
-            if (is_continue_recv(cgi_result)) {
+            ProcResult cgi_result = this->response_->recv_to_cgi_buf();
+            if (cgi_result == Continue) {
                 DEBUG_PRINT(YELLOW, "    recv continue");
                 return SessionResult::ok(Continue);
-            }
-            if (cgi_result.is_err()) {
-                StatusCode error_code = cgi_result.get_err_value();
-                this->set_status(error_code);  // todo: code?
-                // this->set_session_state(kSessionError);
-                // DEBUG_PRINT(YELLOW, "    recv error, status: %d", error_code);
-                // const std::string error_msg = CREATE_ERROR_INFO_STR("error: file event error");
-                // return SessionResult::err(error_msg);
             }
             DEBUG_PRINT(YELLOW, "    recv finish");
             this->set_session_state(kCreatingCGIBody);

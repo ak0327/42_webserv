@@ -9,6 +9,7 @@
 #include "webserv.hpp"
 #include "Color.hpp"
 #include "Config.hpp"
+#include "ClientSession.hpp"
 #include "Debug.hpp"
 #include "Error.hpp"
 #include "HttpRequest.hpp"
@@ -23,10 +24,12 @@ namespace {
 ////////////////////////////////////////////////////////////////////////////////
 
 HttpResponse::HttpResponse(const HttpRequest &request,
+                           const StatusCode &request_status,
                            const ServerConfig &server_config)
     : request_(request),
       server_config_(server_config),
       cgi_handler_(),
+      status_code_(request_status),
       headers_(),
       body_buf_(),
       response_msg_() {
@@ -38,19 +41,22 @@ HttpResponse::HttpResponse(const HttpRequest &request,
 HttpResponse::~HttpResponse() {}
 
 
-// todo: 分岐する？get_contentで取得する？
 bool HttpResponse::is_response_error_page(const StatusCode &status_code) const {
-    // todo
-    return status_code == NotFound;
+    Result<std::string, int> result;
+    result = Config::get_error_page(this->server_config_,
+                                    this->request_.request_target(),
+                                    status_code);
+    return result.is_ok();
 }
+
 
 bool HttpResponse::is_executing_cgi() const {
-    return this->cgi_handler_.pid() != INIT_PID;  // todo: is_processing() ?
+    return this->cgi_handler_.is_processing();
 }
 
 
-Result<ProcResult, StatusCode> HttpResponse::exec_method(const StatusCode &status_code) {
-    StatusCode status = status_code;
+ProcResult HttpResponse::exec_method() {
+    StatusCode status = this->status_code();
     DEBUG_PRINT(YELLOW, " exec_method 1 status(%d)", status);
 
     if (!is_response_error_page(status)) {
@@ -81,22 +87,21 @@ Result<ProcResult, StatusCode> HttpResponse::exec_method(const StatusCode &statu
         }
     }
 
+    this->set_status_code(status);
     DEBUG_PRINT(YELLOW, " exec_method 5");
-    if (is_response_error_page(status)) {  // todo: error page case
-        DEBUG_PRINT(YELLOW, "  result->error");
-        get_error_page(status);
-        DEBUG_PRINT(YELLOW, "  get_error_page ok");
-        return Result<ProcResult, StatusCode>::err(status);  // todo: err ? ok?
+    if (is_executing_cgi()) {
+        DEBUG_PRINT(YELLOW, " executing cgi -> continue");
+        return ExecutingCgi;
     }
 
     DEBUG_PRINT(YELLOW, " exec_method 6");
-    if (is_executing_cgi()) {
-        DEBUG_PRINT(YELLOW, " executing cgi -> continue");
-        return Result<ProcResult, StatusCode>::ok(ExecutingCgi);
+    if (is_response_error_page(this->status_code())) {  // todo: error page case
+        DEBUG_PRINT(YELLOW, "  result->error");
+        get_error_page(this->status_code());
+        DEBUG_PRINT(YELLOW, "  get_error_page ok");
     }
-
     DEBUG_PRINT(YELLOW, " exec_method 7 -> next");
-    return Result<ProcResult, StatusCode>::ok(Success);
+    return Success;
 }
 
 /*
@@ -131,12 +136,13 @@ Result<ProcResult, StatusCode> HttpResponse::exec_method(const StatusCode &statu
  The newline (NL) sequence is LF; servers should also accept CR LF as a newline.
                                           ^^^^^^
  */
-Result<ProcResult, StatusCode> HttpResponse::interpret_cgi_output() {
-    StatusCode parse_result = this->cgi_handler_.parse_document_response();
+ProcResult HttpResponse::interpret_cgi_output() {
+    StatusCode parse_status = this->cgi_handler_.parse_document_response();
     this->body_buf_ = this->cgi_handler_.cgi_body();
 
-    // error_page
-    return Result<ProcResult, StatusCode>::err(parse_result);
+    this->set_status_code(parse_status);
+    // if error -> buf clear
+    return Success;
 }
 
 
@@ -147,8 +153,8 @@ Result<ProcResult, StatusCode> HttpResponse::interpret_cgi_output() {
 				[ message-body ]
  https://triple-underscore.github.io/http1-ja.html#http.message
  */
-Result<ProcResult, StatusCode> HttpResponse::create_response_message(const StatusCode &code) {
-    std::string status_line = create_status_line(code) + CRLF;
+void HttpResponse::create_response_message() {
+    std::string status_line = create_status_line(this->status_code()) + CRLF;
     std::string field_lines = create_field_lines();
     std::string empty = CRLF;
 
@@ -159,7 +165,6 @@ Result<ProcResult, StatusCode> HttpResponse::create_response_message(const Statu
 
     std::string msg(this->response_msg_.begin(), this->response_msg_.end());
     DEBUG_SERVER_PRINT("response_message2:[%s]", msg.c_str());
-    return Result<ProcResult, StatusCode>::ok(Success);
 }
 
 
@@ -220,31 +225,16 @@ ssize_t HttpResponse::recv_to_buf(int fd) {
 }
 
 
-Result<ProcResult, StatusCode> HttpResponse::recv_to_cgi_buf() {
-    return this->cgi_handler_.recv_cgi_output();
-    DEBUG_PRINT(YELLOW, "     recv_to_cgi_buf at %zu", std::time(NULL));
-    ssize_t recv_size = this->cgi_handler_.recv_to_buf(cgi_handler_.fd());
-    DEBUG_PRINT(YELLOW, "      recv_size: %zd", recv_size);
-    // if (recv_size == RECV_CLOSED) {
-    //     DEBUG_PRINT(YELLOW, "     recv_size: %zd", recv_size);
-    //     if (this->is_executing_cgi()) {
-    //         DEBUG_PRINT(YELLOW, "      kill cgi proc");
-    //         this->cgi_handler_.kill_cgi_process();
-    //     }
-    //     return Result<ProcResult, StatusCode>::ok(ConnectionClosed);
-    // }
-
-    int process_exit_status = EXIT_SUCCESS;
-    if (this->cgi_handler_.is_processing(&process_exit_status)) {
-        return Result<ProcResult, StatusCode>::ok(Continue);
+ProcResult HttpResponse::recv_to_cgi_buf() {
+    Result<ProcResult, StatusCode> result = this->cgi_handler_.recv_cgi_output();
+    if (result.is_err()) {
+        StatusCode error_code = result.get_err_value();
+        this->set_status_code(error_code);
     }
-    this->cgi_handler_.close_cgi_fd();
-    DEBUG_PRINT(YELLOW, "     process_exit_status: %d", process_exit_status);
-    if (process_exit_status != EXIT_SUCCESS) {
-        this->cgi_handler_.clear_buf();
-        return Result<ProcResult, StatusCode>::err(InternalServerError);
+    if (ClientSession::is_continue_recv(result)) {
+        return Continue;
     }
-    return Result<ProcResult, StatusCode>::ok(Success);
+    return Success;
 }
 
 
@@ -255,6 +245,16 @@ const std::vector<unsigned char> &HttpResponse::body_buf() const {
 
 const std::vector<unsigned char> &HttpResponse::get_response_message() const {
     return this->response_msg_;
+}
+
+
+StatusCode HttpResponse::status_code() const {
+    return this->status_code_;
+}
+
+
+void HttpResponse::set_status_code(const StatusCode &set_status) {
+    this->status_code_ = set_status;
 }
 
 

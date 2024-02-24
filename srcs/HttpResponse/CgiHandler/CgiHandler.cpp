@@ -387,6 +387,10 @@ StatusCode CgiHandler::exec_script(const std::string &file_path) {
 }
 
 
+bool CgiHandler::is_processing() const {
+    return this->pid() != INIT_PID;
+}
+
 
 bool CgiHandler::is_processing(int *status) {
     DEBUG_PRINT(YELLOW, "    is_cgi_processing 1 pid: %d at %zu", pid(), std::time(NULL));
@@ -407,9 +411,10 @@ bool CgiHandler::is_processing(int *status) {
             *status = EXIT_FAILURE;
             int term_sig = WTERMSIG(child_status);
             DEBUG_PRINT(YELLOW, "    Child terminated by signal: %d", term_sig);
+        } else {
+            *status = WEXITSTATUS(child_status);
+            DEBUG_PRINT(YELLOW, "    is_cgi_processing 7 status: %d", *status);
         }
-        *status = WEXITSTATUS(child_status);
-        DEBUG_PRINT(YELLOW, "    is_cgi_processing 7 status: %d", *status);
     }
     DEBUG_PRINT(YELLOW, "    is_cgi_processing 8 pid set to init -> next");
     set_cgi_pid(INIT_PID);
