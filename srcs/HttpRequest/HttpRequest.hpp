@@ -38,6 +38,8 @@ class HttpRequest {
 	std::string request_target() const;
 	std::string	http_version() const;
     StatusCode status_code() const;
+    void set_status_code(const StatusCode &set_code);
+
     Result<HostPortPair, StatusCode> server_info();
     bool is_buf_empty() const;
 
@@ -78,6 +80,7 @@ class HttpRequest {
 
  private:
     RequestParsePhase phase_;
+    StatusCode status_code_;
 
 	RequestLine request_line_;
 	std::map<std::string, FieldValueBase *> request_header_fields_;
@@ -91,7 +94,6 @@ class HttpRequest {
     std::size_t request_max_body_size_;
 
     std::string message_body_;  // todo: delete
-    StatusCode status_code_;  // for test
 
 
 	HttpRequest(const HttpRequest &other);

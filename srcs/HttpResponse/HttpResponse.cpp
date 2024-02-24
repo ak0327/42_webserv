@@ -24,15 +24,16 @@ namespace {
 ////////////////////////////////////////////////////////////////////////////////
 
 HttpResponse::HttpResponse(const HttpRequest &request,
-                           const StatusCode &request_status,
                            const ServerConfig &server_config)
     : request_(request),
       server_config_(server_config),
       cgi_handler_(),
-      status_code_(request_status),
       headers_(),
       body_buf_(),
       response_msg_() {
+    StatusCode request_status = this->request_.status_code();
+    this->set_status_code(request_status);
+
     time_t cgi_timeout = Config::get_cgi_timeout(server_config, request.request_target());
     this->cgi_handler_.set_timeout_duration_sec(cgi_timeout);
 }
@@ -41,11 +42,15 @@ HttpResponse::HttpResponse(const HttpRequest &request,
 HttpResponse::~HttpResponse() {}
 
 
-bool HttpResponse::is_response_error_page(const StatusCode &status_code) const {
+bool HttpResponse::is_response_error_page() const {
+    std::cout << RED << "is_response_error_page()" << RESET << std::endl;
     Result<std::string, int> result;
     result = Config::get_error_page(this->server_config_,
                                     this->request_.request_target(),
-                                    status_code);
+                                    this->status_code());
+    if (result.is_ok()) {
+        std::cout << RED << " error_page: " << result.get_ok_value() << RESET << std::endl;
+    }
     return result.is_ok();
 }
 
@@ -56,51 +61,50 @@ bool HttpResponse::is_executing_cgi() const {
 
 
 ProcResult HttpResponse::exec_method() {
-    StatusCode status = this->status_code();
-    DEBUG_PRINT(YELLOW, " exec_method 1 status(%d)", status);
+    DEBUG_PRINT(YELLOW, " exec_method 1 status(%d)", this->status_code());
+    if (is_response_error_page()) {
+        DEBUG_PRINT(YELLOW, " exec_method 2 -> error_page");
+        return Success;
+    }
+    std::string target_path = HttpResponse::get_resource_path();
+    Method method = HttpMessageParser::get_method(this->request_.method());
 
-    if (!is_response_error_page(status)) {
-        std::string target_path = HttpResponse::get_resource_path();
-        DEBUG_PRINT(YELLOW, " exec_method 2 path: ", target_path.c_str());
-        Method method = HttpMessageParser::get_method(this->request_.method());
-        DEBUG_PRINT(YELLOW, " exec_method 3 method: ", method);
+    std::string method_str;
+    if (method == kGET) { method_str = GET_METHOD; }
+    if (method == kPOST) { method_str = POST_METHOD; }
+    if (method == kDELETE) { method_str = DELETE_METHOD; }
+    DEBUG_PRINT(YELLOW, " exec_method 2 path: %s, method: %s", target_path.c_str(), method_str.c_str());
 
-        switch (method) {
-            case kGET:
-                DEBUG_PRINT(YELLOW, " exec_method 4 - GET");
-                status = get_request_body(target_path);
-                break;
+    StatusCode status;
+    switch (method) {
+        case kGET:
+            DEBUG_PRINT(YELLOW, " exec_method 4 - GET");
+            status = get_request_body(target_path);
+            break;
 
-            case kPOST:
-                DEBUG_PRINT(YELLOW, " exec_method 4 - POST");
-                status = post_request_body(target_path);
-                break;
+        case kPOST:
+            DEBUG_PRINT(YELLOW, " exec_method 4 - POST");
+            status = post_request_body(target_path);
+            break;
 
-            case kDELETE:
-                DEBUG_PRINT(YELLOW, " exec_method 4 - DELETE");
-                status = delete_request_body(target_path);
-                break;
+        case kDELETE:
+            DEBUG_PRINT(YELLOW, " exec_method 4 - DELETE");
+            status = delete_request_body(target_path);
+            break;
 
-            default:
-                DEBUG_PRINT(YELLOW, " exec_method 4 - err");
-                status = BadRequest;
-        }
+        default:
+            DEBUG_PRINT(YELLOW, " exec_method 4 - err");
+            status = BadRequest;
     }
 
     this->set_status_code(status);
-    DEBUG_PRINT(YELLOW, " exec_method 5");
+    DEBUG_PRINT(YELLOW, " exec_method 5 status: %d", this->status_code());
     if (is_executing_cgi()) {
         DEBUG_PRINT(YELLOW, " executing cgi -> continue");
         return ExecutingCgi;
     }
 
-    DEBUG_PRINT(YELLOW, " exec_method 6");
-    if (is_response_error_page(this->status_code())) {  // todo: error page case
-        DEBUG_PRINT(YELLOW, "  result->error");
-        get_error_page(this->status_code());
-        DEBUG_PRINT(YELLOW, "  get_error_page ok");
-    }
-    DEBUG_PRINT(YELLOW, " exec_method 7 -> next");
+    DEBUG_PRINT(YELLOW, " exec_method 6 -> next");
     return Success;
 }
 
@@ -154,6 +158,11 @@ ProcResult HttpResponse::interpret_cgi_output() {
  https://triple-underscore.github.io/http1-ja.html#http.message
  */
 void HttpResponse::create_response_message() {
+    if (is_response_error_page()) {
+        DEBUG_PRINT(YELLOW, " exec_method 2 -> error_page", this->status_code());
+        get_error_page_to_body();
+    }
+
     std::string status_line = create_status_line(this->status_code()) + CRLF;
     std::string field_lines = create_field_lines();
     std::string empty = CRLF;
