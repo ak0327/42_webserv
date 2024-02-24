@@ -54,7 +54,6 @@ struct file_info {
 class HttpResponse {
  public:
 	explicit HttpResponse(const HttpRequest &request,
-                          const StatusCode &request_status,
                           const ServerConfig &server_config);
 	~HttpResponse();
 
@@ -105,12 +104,12 @@ class HttpResponse {
     std::string create_status_line(const StatusCode &code) const;
     std::string create_field_lines() const;
     bool is_executing_cgi() const;
-    bool is_response_error_page(const StatusCode &status_code) const;
+    bool is_response_error_page() const;
 
     // GET
     StatusCode get_request_body(const std::string &resource_path);
     std::string get_indexed_path(const std::string &resource_path);
-    void get_error_page(const StatusCode &code);
+    void get_error_page_to_body();
     static bool is_directory(const std::string &path);
     bool is_cgi_file() const;
     StatusCode get_file_content(const std::string &file_path, std::vector<unsigned char> *buf);

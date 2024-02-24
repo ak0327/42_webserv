@@ -105,6 +105,7 @@ Result<std::string, StatusCode> get_field_line_by_remove_cr(const std::string &l
 
 HttpRequest::HttpRequest()
     : phase_(ParsingRequestLine),
+      status_code_(StatusOk),
       buf_(),
       request_body_(),
       field_value_parser_(),
@@ -116,6 +117,7 @@ HttpRequest::HttpRequest()
 
 HttpRequest::HttpRequest(const std::string &input)  // for test
     : phase_(ParsingRequestLine),
+      status_code_(StatusOk),
       buf_(),
       request_body_(),
       field_value_parser_(),
@@ -728,6 +730,11 @@ bool HttpRequest::is_buf_empty() const {
 
 StatusCode HttpRequest::status_code() const {
     return this->status_code_;
+}
+
+
+void HttpRequest::set_status_code(const StatusCode &set_code) {
+    this->status_code_ = set_code;
 }
 
 

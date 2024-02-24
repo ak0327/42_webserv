@@ -47,10 +47,8 @@ class ClientSession {
     int client_fd() const;
     int cgi_fd() const;
     SessionState session_state() const;
-    StatusCode status_code() const;
 
     void set_session_state(const SessionState &set_state);
-    void set_status(const StatusCode &code);
 
     bool is_session_state_expect(const SessionState &expect) const;
 
@@ -83,7 +81,6 @@ class ClientSession {
     ServerConfig server_config_;
 
     SessionState session_state_;
-    StatusCode status_code_;
 
     HttpRequest *request_;  // todo: ptr; tmp & delete for next session
     HttpResponse *response_;  // todo: ptr; tmp & delete for next session
@@ -95,7 +92,7 @@ class ClientSession {
     ProcResult recv_http_request();
     ProcResult send_http_response();
 
-    Result<ProcResult, StatusCode> parse_http_request();
+    ProcResult parse_http_request();
     ProcResult create_http_response();
 
     ProcResult execute_each_method();

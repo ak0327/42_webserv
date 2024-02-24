@@ -24,7 +24,6 @@ ClientSession::ClientSession(int socket_fd,
       server_info_(),
       server_config_(),
       session_state_(kSessionInit),
-      status_code_(StatusOk),
       request_(NULL),
       response_(NULL),
       request_max_body_size_(0),
@@ -113,15 +112,11 @@ SessionResult ClientSession::process_client_event() {
 
         case kParsingRequest: {
             DEBUG_SERVER_PRINT("   Session: 2 ParsingRequest");
-            Result<ProcResult, StatusCode> request_result = parse_http_request();
-            if (is_continue_recv(request_result)) {
+            ProcResult request_result = parse_http_request();
+            if (request_result == Continue) {
                 DEBUG_SERVER_PRINT("     recv continue(process_client_event)");
                 this->set_session_state(kReceivingRequest);
                 return SessionResult::ok(Continue);
-            }
-            if (request_result.is_err()) {
-                StatusCode error_code = request_result.get_err_value();
-                this->set_status(error_code);
             }
             this->set_session_state(kExecutingMethod);
         }
@@ -186,8 +181,7 @@ ProcResult ClientSession::recv_http_request() {
 // -----------------------------------------------------------------------------
 
 
-// todo: mv to request ?
-Result<ProcResult, StatusCode> ClientSession::parse_http_request() {
+ProcResult ClientSession::parse_http_request() {
     DEBUG_SERVER_PRINT("               ParsingRequest start");
 #ifdef ECHO
     this->set_session_state(kCreatingResponseBody);
@@ -199,18 +193,20 @@ Result<ProcResult, StatusCode> ClientSession::parse_http_request() {
         if (parse_result.is_err()) {
             StatusCode error_code = parse_result.get_err_value();
             DEBUG_SERVER_PRINT("               ParsingRequest 2 error: %d", error_code);
-            return Result<ProcResult, StatusCode>::err(error_code);
+            this->request_->set_status_code(error_code);
+            return Success;
         }
         if (is_continue_recv(parse_result)) {
             DEBUG_SERVER_PRINT("               ParsingRequest 3 -> continue");
-            return Result<ProcResult, StatusCode>::ok(Continue);
+            return Continue;
         }
 
         DEBUG_SERVER_PRINT("               ParsingRequest 4");
         Result<ProcResult, std::string> update_result = update_config_params();
         if (update_result.is_err()) {
             DEBUG_SERVER_PRINT("               ParsingRequest 5 error: %s", update_result.get_err_value().c_str());
-            return Result<ProcResult, StatusCode>::err(NotFound);  // todo: code?
+            this->request_->set_status_code(NotFound);
+            return Success;
         }
         this->request_->set_parse_phase(ParsingRequestBody);
     }
@@ -221,16 +217,17 @@ Result<ProcResult, StatusCode> ClientSession::parse_http_request() {
         if (parse_result.is_err()) {
             StatusCode error_code = parse_result.get_err_value();
             DEBUG_SERVER_PRINT("               ParsingRequest 7 body error: %d", error_code);
-            return Result<ProcResult, StatusCode>::err(error_code);
+            this->request_->set_status_code(error_code);
+            return Success;
         }
         if (is_continue_recv(parse_result)) {
             DEBUG_SERVER_PRINT("               ParsingRequest 8 -> continue");
-            return Result<ProcResult, StatusCode>::ok(Continue);
+            return Continue;
         }
         DEBUG_SERVER_PRINT("               ParsingRequest 9");
     }
 #endif
-    return Result<ProcResult, StatusCode>::ok(Success);
+    return Success;
 }
 
 
@@ -238,7 +235,7 @@ Result<ProcResult, StatusCode> ClientSession::parse_http_request() {
 
 
 ProcResult ClientSession::create_http_response() {
-    DEBUG_SERVER_PRINT("    CreatingResponse status: %d", this->status_code());
+    DEBUG_SERVER_PRINT("    CreatingResponse status: %d", this->request_->status_code());
     while (true) {
         switch (this->session_state_) {
             case kExecutingMethod: {
@@ -375,7 +372,7 @@ ProcResult ClientSession::execute_each_method() {
     return Result<ProcResult, StatusCode>::ok(Success);
 #else
     try {
-        this->response_ = new HttpResponse(*this->request_, this->status_code(), this->server_config_);
+        this->response_ = new HttpResponse(*this->request_, this->server_config_);
         // std::cout << CYAN << "     response_message[" << this->http_response_->get_response_message() << "]" << RESET << std::endl;
     }
     catch (const std::exception &e) {
@@ -451,16 +448,6 @@ SessionState ClientSession::session_state() const {
 
 void ClientSession::set_session_state(const SessionState &set_state) {
     this->session_state_ = set_state;
-}
-
-
-StatusCode ClientSession::status_code() const {
-    return this->status_code_;
-}
-
-
-void ClientSession::set_status(const StatusCode &code) {
-    this->status_code_ = code;
 }
 
 
