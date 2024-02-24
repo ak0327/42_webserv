@@ -22,7 +22,7 @@ class CgiHandler {
     time_t timeout_limit() const;
     void set_timeout_duration_sec(time_t timeout_sec);
     const std::vector<unsigned char> &cgi_body() const;
-    void clear_buf();
+    void clear_recv_buf();
 
     bool is_processing(int *status);
     bool is_processing() const;

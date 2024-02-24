@@ -108,6 +108,15 @@ ProcResult HttpResponse::exec_method() {
     return Success;
 }
 
+
+bool is_status_error(StatusCode code) {
+    int code_num = static_cast<int>(code);
+    std::cout << MAGENTA << "is_status_error: " << code_num
+              << (400 <= code_num && code_num <= 599 ? " true" : " false") << RESET << std::endl;
+    return 400 <= code_num && code_num <= 599;
+}
+
+
 /*
  6.2.1. Document Response
  document-response = Content-Type [ Status ] *other-field NL response-body
@@ -142,10 +151,11 @@ ProcResult HttpResponse::exec_method() {
  */
 ProcResult HttpResponse::interpret_cgi_output() {
     StatusCode parse_status = this->cgi_handler_.parse_document_response();
-    this->body_buf_ = this->cgi_handler_.cgi_body();
-
     this->set_status_code(parse_status);
-    // if error -> buf clear
+
+    if (!is_status_error(this->status_code())) {
+        this->body_buf_ = this->cgi_handler_.cgi_body();
+    }
     return Success;
 }
 
@@ -158,6 +168,9 @@ ProcResult HttpResponse::interpret_cgi_output() {
  https://triple-underscore.github.io/http1-ja.html#http.message
  */
 void HttpResponse::create_response_message() {
+    if (is_status_error(this->status_code())) {
+        this->body_buf_.clear();
+    }
     if (is_response_error_page()) {
         DEBUG_PRINT(YELLOW, " exec_method 2 -> error_page", this->status_code());
         get_error_page_to_body();

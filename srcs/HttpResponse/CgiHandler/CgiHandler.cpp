@@ -157,7 +157,7 @@ Result<ProcResult, StatusCode> CgiHandler::recv_cgi_output() {
     close_cgi_fd();
     DEBUG_PRINT(YELLOW, "     process_exit_status: %d", process_exit_status);
     if (process_exit_status != EXIT_SUCCESS) {
-        clear_buf();
+        clear_recv_buf();
         return Result<ProcResult, StatusCode>::err(InternalServerError);
     }
     return Result<ProcResult, StatusCode>::ok(Success);
@@ -435,9 +435,10 @@ void CgiHandler::set_timeout_limit() {
 }
 
 
-void CgiHandler::clear_buf() {
+void CgiHandler::clear_recv_buf() {
     this->recv_buf_.clear();
 }
+
 
 int CgiHandler::fd() const { return this->cgi_read_fd_; }
 pid_t CgiHandler::pid() const { return this->cgi_pid_; }
