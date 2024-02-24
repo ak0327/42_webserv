@@ -212,7 +212,7 @@ TEST(HttpResponseGET, GetFilePath) {
     request_msg = "GET /a/b/c HTTP/1.1\r\n"
                   "Host: localhost\r\n"
                   "\r\n";
-    expected_path = "html/a/b/c/index.html";
+    expected_path = "html/a/b/c/file_c.html";
     EXPECT_EQ_INDEXED_PATH(server_config, request_msg, expected_path);
 
 

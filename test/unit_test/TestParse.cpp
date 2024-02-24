@@ -79,6 +79,7 @@ TEST(TestParser, ParseOK) {
     location_config.redirection.return_on = true;
     location_config.redirection.code = MovedPermanently;
     location_config.redirection.text = "/new.html";
+    location_config.cgi.extension = {"hello"};
     server_config.locations["/old.html"] = location_config;
 
     // location "/upload"
@@ -92,6 +93,9 @@ TEST(TestParser, ParseOK) {
     location_config.limit_except.rules.push_back(AccessRule(kDENY, "all"));
     location_config.max_body_size_bytes = 20 * ConfigInitValue::MB;
     location_config.root_path = "/upload";
+    location_config.cgi.is_cgi_mode = true;
+    location_config.cgi.extension = {"py", "php"};
+    location_config.cgi.timeout_sec = 60;
     server_config.locations["/post"] = location_config;
 
     // location "/cgi-bin/"
