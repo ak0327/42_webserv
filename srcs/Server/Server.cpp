@@ -27,35 +27,41 @@ const int MAX_SESSION = 128;
 
 
 void stop_by_signal(int sig) {
-	DEBUG_SERVER_PRINT("stop by signal %d", sig);
-	std::cerr << "[Server] Stop running by signal" << std::endl;
-	std::exit(EXIT_SUCCESS);
+    switch (sig) {
+        case SIGINT:
+            std::cout << "[Server] Running stop" << std::endl;
+            std::exit(EXIT_SUCCESS);
+
+        case SIGTERM:
+            std::cout << "[Server] Running stop by SIGTERM" << std::endl;
+            std::exit(EXIT_SUCCESS);
+
+        case SIGABRT:
+            std::cout << "[Error] Server abort" << std::endl;
+            std::exit(EXIT_FAILURE);
+
+        default:
+            std::cout << "Received unknown signal: " << sig << std::endl;
+    }
 }
 
 
 ServerResult set_signal() {
-	std::string err_info;
+    return ServerResult::ok(OK);
 
+    // todo
 	errno = 0;
 	if (signal(SIGABRT, stop_by_signal) == SIG_ERR) {
-		err_info = CREATE_ERROR_INFO_ERRNO(errno);
-		return ServerResult::err(err_info);
+		const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+		return ServerResult::err(error_msg);
 	}
 	if (signal(SIGINT, stop_by_signal) == SIG_ERR) {
-		err_info = CREATE_ERROR_INFO_ERRNO(errno);
-		return ServerResult::err(err_info);
+		const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+		return ServerResult::err(error_msg);
 	}
 	if (signal(SIGTERM, stop_by_signal) == SIG_ERR) {
-		err_info = CREATE_ERROR_INFO_ERRNO(errno);
-		return ServerResult::err(err_info);
-	}
-	if (signal(SIGPIPE, SIG_IGN) == SIG_ERR) {
-		err_info = CREATE_ERROR_INFO_ERRNO(errno);
-		return ServerResult::err(err_info);
-	}
-	if (signal(SIGCHLD, SIG_IGN) == SIG_ERR) {
-		err_info = CREATE_ERROR_INFO_ERRNO(errno);
-		return ServerResult::err(err_info);
+		const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+		return ServerResult::err(error_msg);
 	}
 	return ServerResult::ok(OK);
 }

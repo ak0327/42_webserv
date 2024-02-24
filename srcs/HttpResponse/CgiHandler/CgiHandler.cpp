@@ -57,9 +57,8 @@ void CgiHandler::kill_cgi_process() {
     // if (!is_processing(&process_status)) {
     //     return;
     // }
-    errno = 0;
     DEBUG_PRINT(RED, "kill pid: %d at %zu", pid(), std::time(NULL));
-
+    errno = 0;
     if (kill(pid(), SIGKILL) == KILL_ERROR) {
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
         std::cerr << error_msg << std::endl;  // todo: log
@@ -146,31 +145,23 @@ void skip_field_lines(std::istringstream *iss) {
 }
 
 
-// Result<ProcResult, StatusCode> CgiHandler::recv_cgi_output() {
-//     ssize_t recv_size = recv_to_buf(this->fd());
-//     // if (recv_size == RECV_CLOSED) {
-//     //     return Result<ProcResult, StatusCode>::ok(ConnectionClosed);
-//     // }
-//     DEBUG_PRINT(YELLOW, "      recv_size: %zd", recv_size);
-//     // if (recv_size == RECV_CLOSED) {
-//     //     DEBUG_PRINT(YELLOW, "     recv_size: %zd", recv_size);
-//     //     if (this->is_executing_cgi()) {
-//     //         DEBUG_PRINT(YELLOW, "      kill cgi proc");
-//     //         this->cgi_handler_.kill_cgi_process();
-//     //     }
-//     //     return Result<ProcResult, StatusCode>::ok(ConnectionClosed);
-//
-//     int process_exit_status;
-//     if (is_processing(&process_exit_status)) {
-//         return Result<ProcResult, StatusCode>::ok(Continue);
-//     }
-//     DEBUG_PRINT(YELLOW, "     process_exit_status: %d", process_exit_status);
-//     if (process_exit_status != EXIT_SUCCESS) {
-//         return Result<ProcResult, StatusCode>::err(InternalServerError);
-//     }
-//     close_cgi_fd();
-//     return Result<ProcResult, StatusCode>::ok(Success);
-// }
+Result<ProcResult, StatusCode> CgiHandler::recv_cgi_output() {
+    DEBUG_PRINT(YELLOW, "     recv_to_cgi_buf at %zu", std::time(NULL));
+    ssize_t recv_size = recv_to_buf(this->fd());
+    DEBUG_PRINT(YELLOW, "      recv_size: %zd", recv_size);
+
+    int process_exit_status;
+    if (is_processing(&process_exit_status)) {
+        return Result<ProcResult, StatusCode>::ok(Continue);
+    }
+    close_cgi_fd();
+    DEBUG_PRINT(YELLOW, "     process_exit_status: %d", process_exit_status);
+    if (process_exit_status != EXIT_SUCCESS) {
+        clear_buf();
+        return Result<ProcResult, StatusCode>::err(InternalServerError);
+    }
+    return Result<ProcResult, StatusCode>::ok(Success);
+}
 
 
 StatusCode CgiHandler::parse_document_response() {
@@ -399,45 +390,28 @@ StatusCode CgiHandler::exec_script(const std::string &file_path) {
 
 bool CgiHandler::is_processing(int *status) {
     DEBUG_PRINT(YELLOW, "    is_cgi_processing 1 pid: %d at %zu", pid(), std::time(NULL));
-    // if (pid() == INIT_PID) {
-    //     DEBUG_PRINT(YELLOW, "    is_cgi_processing 2 pid == init -> killed");
-    //     // killed
-    //     *status = EXIT_FAILURE;
-    //     return false;
-    // }
-
     int child_status;
     errno = 0;
     pid_t wait_result = waitpid(pid(), &child_status, WNOHANG);
     int tmp_err = errno;
-    // DEBUG_PRINT(YELLOW, "    is_cgi_processing 3");
-    // DEBUG_PRINT(YELLOW, "     wait_result: %d, errno: %d(ECHILD: %d)", wait_result, tmp_err, ECHILD);
-    if (tmp_err != 0) {
-        // DEBUG_PRINT(YELLOW, "    is_cgi_processing 4");
-        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(tmp_err);
-        std::cerr << error_msg << std::endl;  // todo: log
-    }
+    DEBUG_PRINT(YELLOW, "    is_cgi_processing 3");
+    DEBUG_PRINT(YELLOW, "     wait_result: %d, errno: %d (ECHILD: %d)", wait_result, tmp_err, ECHILD);
     if (wait_result == PROCESSING || (wait_result == WAIT_ERROR && tmp_err != ECHILD)) {
-        // DEBUG_PRINT(YELLOW, "    is_cgi_processing 5 -> continue");
+        DEBUG_PRINT(YELLOW, "    is_cgi_processing 5 -> continue");
         return true;
     }
 
-    // DEBUG_PRINT(YELLOW, "    is_cgi_processing 6");
+    DEBUG_PRINT(YELLOW, "    is_cgi_processing 6");
     if (0 < wait_result && status) {
         if (WIFSIGNALED(child_status)) {
-            // int term_sig = WTERMSIG(child_status);
             *status = EXIT_FAILURE;
-            // DEBUG_PRINT(YELLOW, "    Child terminated by signal: %d", term_sig);
+            int term_sig = WTERMSIG(child_status);
+            DEBUG_PRINT(YELLOW, "    Child terminated by signal: %d", term_sig);
         }
         *status = WEXITSTATUS(child_status);
-        // DEBUG_PRINT(YELLOW, "    is_cgi_processing 7 status: %d", *status);
-    } else if (tmp_err == ECHILD && status) {
-        // term by sig?
-        *status = EXIT_FAILURE;
-        // int term_sig = WTERMSIG(child_status);
-        // DEBUG_PRINT(YELLOW, "    Child terminated by signal: %d", term_sig);
+        DEBUG_PRINT(YELLOW, "    is_cgi_processing 7 status: %d", *status);
     }
-    // DEBUG_PRINT(YELLOW, "    is_cgi_processing 8 pid set to init -> next");
+    DEBUG_PRINT(YELLOW, "    is_cgi_processing 8 pid set to init -> next");
     set_cgi_pid(INIT_PID);
     return false;
 }
