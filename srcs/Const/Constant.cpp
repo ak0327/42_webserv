@@ -599,6 +599,7 @@ MimeTypeMap init_mime_types() {
     mime_types["htm"]   = "text/htm";
     mime_types["css"]   = "text/css";
     mime_types["txt"]   = "text/plain";
+    mime_types["py"]    = "text/x-python";
 
     mime_types["gif"]   = "image/gif";
     mime_types["jpeg"]  = "image/jpeg";

@@ -25,6 +25,7 @@ class CgiHandler {
     void clear_buf();
 
     bool is_processing(int *status);
+    bool is_processing() const;
     bool is_process_timeout() const;
 
     StatusCode exec_script(const std::string &file_path);

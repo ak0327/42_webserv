@@ -96,9 +96,9 @@ class ClientSession {
     ProcResult send_http_response();
 
     Result<ProcResult, StatusCode> parse_http_request();
-    Result<ProcResult, StatusCode> create_http_response();
+    ProcResult create_http_response();
 
-    Result<ProcResult, StatusCode> execute_each_method();
+    ProcResult execute_each_method();
     Result<AddressPortPair, std::string> get_address_port_pair() const;
     Result<ServerConfig, std::string> get_server_config() const;
     SessionResult update_config_params();

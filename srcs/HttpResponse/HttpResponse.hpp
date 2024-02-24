@@ -53,18 +53,21 @@ struct file_info {
 
 class HttpResponse {
  public:
-	explicit HttpResponse(const HttpRequest &request, const ServerConfig &server_config);
+	explicit HttpResponse(const HttpRequest &request,
+                          const StatusCode &request_status,
+                          const ServerConfig &server_config);
 	~HttpResponse();
 
     const std::vector<unsigned char> &body_buf() const;
 	const std::vector<unsigned char> &get_response_message() const;
 
-    Result<ProcResult, StatusCode> exec_method(const StatusCode &status_code);
-    Result<ProcResult, StatusCode> recv_to_cgi_buf();
-    Result<ProcResult, StatusCode> interpret_cgi_output();
-    Result<ProcResult, StatusCode> create_response_message(const StatusCode &code);
+    ProcResult exec_method();
+    ProcResult recv_to_cgi_buf();
+    ProcResult interpret_cgi_output();
+    void create_response_message();
 
     ssize_t recv_to_buf(int fd);
+
 
     void clear_cgi();
     int cgi_fd() const;
@@ -86,12 +89,17 @@ class HttpResponse {
     const ServerConfig &server_config_;
     CgiHandler cgi_handler_;
 
+    StatusCode status_code_;
+
 	/* response message */
 	std::string status_line_;
 	std::map<std::string, std::string> headers_;
 	std::vector<unsigned char> body_buf_;
     std::vector<unsigned char> response_msg_;
 
+
+    StatusCode status_code() const;
+    void set_status_code(const StatusCode &set_status);
 
     std::string get_resource_path();
     std::string create_status_line(const StatusCode &code) const;
@@ -104,7 +112,7 @@ class HttpResponse {
     std::string get_indexed_path(const std::string &resource_path);
     void get_error_page(const StatusCode &code);
     static bool is_directory(const std::string &path);
-    static bool is_cgi_file(const std::string &path);
+    bool is_cgi_file() const;
     StatusCode get_file_content(const std::string &file_path, std::vector<unsigned char> *buf);
     StatusCode get_directory_listing(const std::string &directory_path,
                                      std::vector<unsigned char> *buf);

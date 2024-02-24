@@ -31,9 +31,18 @@ bool HttpResponse::is_directory(const std::string &path) {
 }
 
 
-bool HttpResponse::is_cgi_file(const std::string &path) {  // todo: config method
-	const std::string extension = StringHandler::get_extension(path);
-	return extension == "py" || extension == "php";
+bool HttpResponse::is_cgi_file() const {
+    Result<bool, int> result = Config::is_cgi_mode_on(this->server_config_,
+                                                      this->request_.request_target());
+    if (result.is_err()) {
+        return false;
+    }
+    bool cgi_mode = result.get_ok_value();
+    if (!cgi_mode) {
+        return false;
+    }
+    return Config::is_cgi_extension(this->server_config_,
+                                    this->request_.request_target());
 }
 
 
@@ -104,7 +113,7 @@ StatusCode HttpResponse::get_request_body(const std::string &resource_path) {
         }
     }
 
-    if (is_cgi_file(indexed_path)) {
+    if (is_cgi_file()) {
         DEBUG_PRINT(CYAN, "  get_content -> cgi");
         return this->cgi_handler_.exec_script(indexed_path);
     } else {
