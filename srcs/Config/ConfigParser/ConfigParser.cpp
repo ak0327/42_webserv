@@ -15,7 +15,7 @@ ConfigParser::ConfigParser() {}
 
 ConfigParser::ConfigParser(const char *file_path) {
     FileHandler file_handler(file_path, CONFIG_FILE_EXTENSION);
-    Result<int, std::string> read_file_result = file_handler.get_result();
+    Result<int, std::string> read_file_result = file_handler.result();
     if (read_file_result.is_err()) {
         const std::string error_msg = read_file_result.get_err_value();
         this->result_ = Result<int, std::string>::err(error_msg);
