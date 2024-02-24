@@ -14,6 +14,7 @@ extern const int CGI;
 extern const int CONTINUE;
 
 extern const int GETADDRINFO_SUCCESS;
+extern const int REMOVE_SUCCESS;
 
 extern const ssize_t RECV_CLOSED;
 extern const ssize_t RECV_CONTINUE;
@@ -84,6 +85,7 @@ enum StatusCode {
 
     BadRequest              = 400,
     Unauthorized            = 401,
+    Forbidden               = 403,
     NotFound                = 404,
     MethodNotAllowed        = 405,
     NotAcceptable           = 406,
