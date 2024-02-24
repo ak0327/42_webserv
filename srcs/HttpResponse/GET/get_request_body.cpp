@@ -92,6 +92,45 @@ std::string HttpResponse::get_indexed_path(const std::string &resource_path) {
 }
 
 
+bool HttpResponse::is_redirect() const {
+    Result<bool, int> result = Config::is_redirect(this->server_config_,
+                                                   this->request_.request_target());
+    return result.is_ok() && result.get_ok_value();
+}
+
+
+StatusCode HttpResponse::get_redirect_content(std::map<std::string, std::string> *headers) {
+    if (!headers) { return InternalServerError; }
+
+    Result<ReturnDirective, int> redirect_result = Config::get_redirect(this->server_config_,
+                                                                        this->request_.request_target());
+    if (redirect_result.is_err()) {
+        return BadRequest;
+    }
+    ReturnDirective redirect = redirect_result.get_ok_value();
+
+    Result<HostPortPair, StatusCode> info_result = this->request_.server_info();
+    if (info_result.is_err()) {
+        return info_result.get_err_value();
+    }
+
+    HostPortPair server_info = info_result.get_ok_value();
+    std::string location = "http://";
+
+    location.append(server_info.first);
+    location.append(":");
+    if (!server_info.second.empty()) {
+        location.append(server_info.second);
+    } else {
+        location.append(this->address_port_pair_.first);
+    }
+    location.append(redirect.text);
+
+    (*headers)[LOCATION] = location;
+    return redirect.code;
+}
+
+
 StatusCode HttpResponse::get_request_body(const std::string &resource_path) {
     Result<bool, int> autoindex_result;
     autoindex_result = Config::is_autoindex_on(this->server_config_,
@@ -112,11 +151,11 @@ StatusCode HttpResponse::get_request_body(const std::string &resource_path) {
             DEBUG_PRINT(CYAN, "  get_content -> directory -> 404");
             return NotFound;
         }
-    }
-
-    if (is_cgi_file()) {
+    } else if (is_cgi_file()) {
         DEBUG_PRINT(CYAN, "  get_content -> cgi");
         return this->cgi_handler_.exec_script(indexed_path);
+    } else if (is_redirect()) {
+        return get_redirect_content(&this->headers_);
     } else {
         DEBUG_PRINT(CYAN, "  get_content -> file_content");
         return get_file_content(indexed_path, &this->body_buf_);

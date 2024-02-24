@@ -40,7 +40,7 @@ class HttpRequest {
     StatusCode status_code() const;
     void set_status_code(const StatusCode &set_code);
 
-    Result<HostPortPair, StatusCode> server_info();
+    Result<HostPortPair, StatusCode> server_info() const;
     bool is_buf_empty() const;
 
     static ssize_t recv(int fd, void *buf, std::size_t bufsize);
