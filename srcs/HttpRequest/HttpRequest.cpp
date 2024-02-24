@@ -389,7 +389,7 @@ Result<ProcResult, StatusCode> HttpRequest::parse_body() {
 }
 
 
-Result<HostPortPair, StatusCode> HttpRequest::server_info() {
+Result<HostPortPair, StatusCode> HttpRequest::server_info() const {
     Result<std::map<std::string, std::string>, ProcResult> result = get_host();
     if (result.is_err()) {
         return Result<HostPortPair, StatusCode>::err(BadRequest);  // 400 Bad Request

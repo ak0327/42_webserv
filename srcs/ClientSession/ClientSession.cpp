@@ -299,12 +299,6 @@ Result<AddressPortPair, std::string> ClientSession::get_address_port_pair() cons
 
 
 Result<ServerConfig, std::string> ClientSession::get_server_config() const {
-    Result<AddressPortPair, std::string> address_result = get_address_port_pair();
-    if (address_result.is_err()) {
-        const std::string error_msg = address_result.get_err_value();
-        return Result<ServerConfig, std::string>::err(error_msg);
-    }
-    AddressPortPair address_port_pair = address_result.get_ok_value();
     // DEBUG_PRINT(YELLOW, "get_server_config");
     // DEBUG_PRINT(YELLOW, " address: %s, port:%s", address_port_pair.first.c_str(), address_port_pair.second.c_str());
 
@@ -316,7 +310,7 @@ Result<ServerConfig, std::string> ClientSession::get_server_config() const {
     HostPortPair host_port_pair = get_request_host.get_ok_value();
     // DEBUG_PRINT(YELLOW, " host: %s, port:%s", host_port_pair.first.c_str(), host_port_pair.second.c_str());
 
-    Result<ServerConfig, std::string> config_result = config_.get_server_config(address_port_pair, host_port_pair);
+    Result<ServerConfig, std::string> config_result = config_.get_server_config(this->address_port_pair_, host_port_pair);
     if (config_result.is_err()) {
         // DEBUG_PRINT(YELLOW, "get_server_config err");
         const std::string error_msg = config_result.get_err_value();
@@ -329,6 +323,13 @@ Result<ServerConfig, std::string> ClientSession::get_server_config() const {
 
 
 SessionResult ClientSession::update_config_params() {
+    Result<AddressPortPair, std::string> address_result = get_address_port_pair();
+    if (address_result.is_err()) {
+        const std::string error_msg = address_result.get_err_value();
+        return SessionResult::err(error_msg);
+    }
+    this->address_port_pair_ = address_result.get_ok_value();
+
     Result<ServerConfig, std::string> config_result = ClientSession::get_server_config();
     if (config_result.is_err()) {
         const std::string error_msg = config_result.get_err_value();
@@ -358,22 +359,25 @@ ProcResult ClientSession::execute_each_method() {
     try {
         HttpRequest request;
         ServerConfig config;
-        this->response_ = new HttpResponse(request, config);
+        AddressPortPair pair;
+        this->response_ = new HttpResponse(request, config, pair);
     }
     catch (const std::exception &e) {
-        const std::string err_info = CREATE_ERROR_INFO_STR("Failed to allocate memory");
-        std::cerr << err_info << std::endl;
+        const std::string error_msg = CREATE_ERROR_INFO_STR("Failed to allocate memory");
+        std::cerr << error_msg << std::endl;
         return FatalError;
     }
     return Success;
 #else
     try {
-        this->response_ = new HttpResponse(*this->request_, this->server_config_);
+        this->response_ = new HttpResponse(*this->request_,
+                                           this->server_config_,
+                                           this->address_port_pair_);
         // std::cout << CYAN << "     response_message[" << this->http_response_->get_response_message() << "]" << RESET << std::endl;
     }
     catch (const std::exception &e) {
-        const std::string err_info = CREATE_ERROR_INFO_STR("Failed to allocate memory");
-        std::cerr << err_info << std::endl;
+        const std::string error_msg = CREATE_ERROR_INFO_STR("Failed to allocate memory");
+        std::cerr << error_msg << std::endl;
         return FatalError;
     }
     return this->response_->exec_method();  // return Success or ExecutingCgi

@@ -13,8 +13,9 @@ void expect_eq_target(const ServerConfig &server_config,
                       const std::string &request_msg,
                       const std::string &expected_path,
                       std::size_t line) {
+    AddressPortPair pair;
     HttpRequest request(request_msg);
-    HttpResponse response(request, server_config);
+    HttpResponse response(request, server_config, pair);
 
     std::string actual_path = HttpResponseFriend::get_resource_path(response);
     EXPECT_EQ(expected_path, actual_path) << "  at L" << line;
@@ -159,8 +160,9 @@ void expect_eq_indexed_path(const ServerConfig &server_config,
                       const std::string &request_msg,
                       const std::string &expected_path,
                       std::size_t line) {
+    AddressPortPair pair;
     HttpRequest request(request_msg);
-    HttpResponse response(request, server_config);
+    HttpResponse response(request, server_config, pair);
 
     std::string resource_path = HttpResponseFriend::get_resource_path(response);
     std::string actual_path = HttpResponseFriend::get_indexed_path(response, resource_path);

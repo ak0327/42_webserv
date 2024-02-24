@@ -24,9 +24,11 @@ namespace {
 ////////////////////////////////////////////////////////////////////////////////
 
 HttpResponse::HttpResponse(const HttpRequest &request,
-                           const ServerConfig &server_config)
+                           const ServerConfig &server_config,
+                           const AddressPortPair &pair)
     : request_(request),
       server_config_(server_config),
+      address_port_pair_(pair),
       cgi_handler_(),
       headers_(),
       body_buf_(),

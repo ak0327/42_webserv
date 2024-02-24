@@ -54,7 +54,8 @@ struct file_info {
 class HttpResponse {
  public:
 	explicit HttpResponse(const HttpRequest &request,
-                          const ServerConfig &server_config);
+                          const ServerConfig &server_config,
+                          const AddressPortPair &pair);
 	~HttpResponse();
 
     const std::vector<unsigned char> &body_buf() const;
@@ -86,6 +87,7 @@ class HttpResponse {
  private:
     const HttpRequest &request_;
     const ServerConfig &server_config_;
+    const AddressPortPair address_port_pair_;
     CgiHandler cgi_handler_;
 
     StatusCode status_code_;
@@ -112,9 +114,12 @@ class HttpResponse {
     void get_error_page_to_body();
     static bool is_directory(const std::string &path);
     bool is_cgi_file() const;
-    StatusCode get_file_content(const std::string &file_path, std::vector<unsigned char> *buf);
+    bool is_redirect() const;
+    StatusCode get_file_content(const std::string &file_path,
+                                std::vector<unsigned char> *buf);
     StatusCode get_directory_listing(const std::string &directory_path,
                                      std::vector<unsigned char> *buf);
+    StatusCode get_redirect_content(std::map<std::string, std::string> *headers);
 
     // POST
 	StatusCode post_request_body(const std::string &target) {

@@ -79,6 +79,7 @@ class ClientSession {
     const Config &config_;
     ServerInfo server_info_;
     ServerConfig server_config_;
+    AddressPortPair address_port_pair_;
 
     SessionState session_state_;
 
