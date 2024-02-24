@@ -112,7 +112,6 @@ class HttpResponse {
     StatusCode get_request_body(const std::string &resource_path);
     std::string get_indexed_path(const std::string &resource_path);
     void get_error_page_to_body();
-    static bool is_directory(const std::string &path);
     bool is_cgi_file() const;
     bool is_redirect() const;
     StatusCode get_file_content(const std::string &file_path,
@@ -128,11 +127,7 @@ class HttpResponse {
     }
 
     // DELETE
-	StatusCode delete_request_body(const std::string &target) {
-        (void)target;
-        return StatusOk;
-    }
-
+	StatusCode delete_target(const std::string &target);
 
 	HttpResponse(const HttpResponse &other);
 	HttpResponse &operator=(const HttpResponse &rhs);

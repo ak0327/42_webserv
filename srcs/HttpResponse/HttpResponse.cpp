@@ -91,7 +91,7 @@ ProcResult HttpResponse::exec_method() {
 
         case kDELETE:
             DEBUG_PRINT(YELLOW, " exec_method 4 - DELETE");
-            status = delete_request_body(target_path);
+            status = delete_target(target_path);
             break;
 
         default:
