@@ -26,7 +26,7 @@ ClientSession::ClientSession(int socket_fd,
       session_state_(kSessionInit),
       request_(NULL),
       response_(NULL),
-      request_max_body_size_(0),
+      request_max_body_size_(ConfigInitValue::kDefaultBodySize),
       client_listen_(client_listen) {}
 
 
@@ -329,9 +329,6 @@ Result<ServerConfig, std::string> ClientSession::get_server_config() const {
 
 
 SessionResult ClientSession::update_config_params() {
-#ifdef ECHO
-    this->request_->set_max_body_size(ConfigInitValue::kDefaultBodySize);
-#else
     Result<ServerConfig, std::string> config_result = ClientSession::get_server_config();
     if (config_result.is_err()) {
         const std::string error_msg = config_result.get_err_value();
@@ -349,7 +346,6 @@ SessionResult ClientSession::update_config_params() {
     }
     std::size_t max_body_size = body_size_result.get_ok_value();
     this->request_->set_max_body_size(max_body_size);
-#endif
     return SessionResult::ok(Success);
 }
 
@@ -367,9 +363,9 @@ ProcResult ClientSession::execute_each_method() {
     catch (const std::exception &e) {
         const std::string err_info = CREATE_ERROR_INFO_STR("Failed to allocate memory");
         std::cerr << err_info << std::endl;
-        return Result<ProcResult, StatusCode>::err(InternalServerError);
+        return FatalError;
     }
-    return Result<ProcResult, StatusCode>::ok(Success);
+    return Success;
 #else
     try {
         this->response_ = new HttpResponse(*this->request_, this->server_config_);
