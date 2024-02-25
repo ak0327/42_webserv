@@ -14,6 +14,8 @@
 # include "RequestLine.hpp"
 # include "Result.hpp"
 # include "SingleFieldValue.hpp"
+# include "MediaType.hpp"
+
 
 enum RequestParsePhase {
     ParsingRequestLine,
@@ -55,7 +57,6 @@ class HttpRequest {
                                                     std::vector<unsigned char>::const_iterator start,
                                                     std::vector<unsigned char>::const_iterator *ret);
 
-    Result<ProcResult, StatusCode> parse_http_request();
     Result<ProcResult, StatusCode> parse_start_line_and_headers();
     Result<ProcResult, StatusCode> parse_body();
     static Result<ProcResult, StatusCode> split_field_line(const std::string &field_line,
@@ -70,6 +71,7 @@ class HttpRequest {
 	FieldValueBase * get_field_values(const std::string &field_name) const;
 
     Result<std::map<std::string, std::string>, ProcResult> get_host() const;
+    Result<MediaType, ProcResult> get_content_type() const;
     Result<std::size_t, ProcResult> get_content_length() const;
 
 #ifdef UNIT_TEST
