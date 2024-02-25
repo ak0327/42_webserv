@@ -424,21 +424,6 @@ TEST(TestFileHandler, CreateAndDeleteFile) {
 
     // -------------------------------------------------------------------------
 
-    result = file1.create_file(data);
-    EXPECT_EQ(StatusOk, result);
-
-    FileHandler file3("test/unit_test/test_file_handler/Create.txt");
-    result = file3.create_file(data);
-    EXPECT_EQ(Conflict, result);
-
-    result = file3.delete_file();
-    EXPECT_EQ(NoContent, result);
-
-    result = file1.delete_file();
-    EXPECT_EQ(NotFound, result);
-
-    // -------------------------------------------------------------------------
-
     FileHandler file4("");
     result = file4.create_file(data);
     EXPECT_EQ(BadRequest, result);

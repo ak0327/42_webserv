@@ -68,7 +68,7 @@ void CgiHandler::kill_cgi_process() {
 
 
 void CgiHandler::close_cgi_fd() {
-    DEBUG_PRINT(YELLOW, "cgi: close fd: %d", fd());
+    DEBUG_PRINT(GRAY, "cgi: close fd: %d", fd());
     if (fd() == INIT_FD) {
         return;
     }

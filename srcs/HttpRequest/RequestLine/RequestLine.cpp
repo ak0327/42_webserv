@@ -65,10 +65,10 @@ Result<ProcResult, StatusCode> RequestLine::parse_and_validate(const std::string
 ////////////////////////////////////////////////////////////////////////////////
 /* parse */
 
-bool is_request_target_directory(const std::string &target) {
-    std::string extension = StringHandler::get_extension(target);
-    return extension.empty();
-}
+// bool is_request_target_directory(const std::string &target) {
+//     std::string extension = StringHandler::get_extension(target);
+//     return extension.empty();
+// }
 
 
 /*
@@ -148,9 +148,5 @@ Result<ProcResult, StatusCode> RequestLine::validate() const {
 void RequestLine::update_target_path() {
     std::string decoded = HttpMessageParser::decode(this->request_target_);
     std::string normalized = HttpMessageParser::normalize(decoded);
-    if (is_request_target_directory(normalized)
-    && !normalized.empty() && normalized[normalized.length() - 1] != '/') {
-        normalized.append("/");
-    }
     this->request_target_ = normalized;
 }

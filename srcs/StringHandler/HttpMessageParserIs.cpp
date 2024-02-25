@@ -618,7 +618,7 @@ bool is_asterisk_form(const std::string &str) {
 //                                                ^^^^^^^^^^^^^^   ^^^^^^^^^^^^^
 //                                                CONNECT method   OPTION method
 bool is_valid_request_target(const std::string &request_target) {
-	if (request_target.empty() || request_target[0] != '/') {
+	if (request_target.empty()) {
 		return false;
 	}
 	return is_origin_form(request_target) || is_absolure_form(request_target);
