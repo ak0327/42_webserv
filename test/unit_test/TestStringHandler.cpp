@@ -408,3 +408,38 @@ TEST(TestStringHandler, GetExtension) {
     actual = StringHandler::get_extension(path);
     EXPECT_EQ(expected, actual);
 }
+
+
+TEST(TestStringHandler, Unquote) {
+    std::string quoted, actual, expected;
+
+    quoted = "\"abc\"";
+    expected = "abc";
+    actual = StringHandler::unquote(quoted);
+    EXPECT_EQ(expected, actual);
+
+    quoted = "\"ab'c\"";
+    expected = "ab'c";
+    actual = StringHandler::unquote(quoted);
+    EXPECT_EQ(expected, actual);
+
+    quoted = "\"\"";
+    expected = "\"\"";;
+    actual = StringHandler::unquote(quoted);
+    EXPECT_EQ(expected, actual);
+
+    quoted = "\"abc";
+    expected = "\"abc";
+    actual = StringHandler::unquote(quoted);
+    EXPECT_EQ(expected, actual);
+
+    quoted = "";
+    expected = "";
+    actual = StringHandler::unquote(quoted);
+    EXPECT_EQ(expected, actual);
+
+    quoted = "abc";
+    expected = "abc";
+    actual = StringHandler::unquote(quoted);
+    EXPECT_EQ(expected, actual);
+}
