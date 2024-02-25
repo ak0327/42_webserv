@@ -62,6 +62,27 @@ bool HttpResponse::is_executing_cgi() const {
 }
 
 
+bool HttpResponse::is_method_allowed(const Method &method) const {
+    Result<bool, int> allowed = Config::is_method_allowed(this->server_config_,
+                                                          this->request_.request_target(),
+                                                          method);
+    if (allowed.is_err()) {
+        return false;
+    }
+    bool is_delete_allowed = allowed.get_ok_value();
+    if (!is_delete_allowed) {
+        return false;
+    }
+    return true;
+}
+
+
+void HttpResponse::process_method_not_allowed(const Method &method) {
+    this->headers_["Allow"] = HttpMessageParser::convert_to_str(method);
+    this->set_status_code(MethodNotAllowed);
+}
+
+
 ProcResult HttpResponse::exec_method() {
     DEBUG_PRINT(YELLOW, " exec_method 1 status(%d)", this->status_code());
     if (is_response_error_page()) {
@@ -77,6 +98,11 @@ ProcResult HttpResponse::exec_method() {
     if (method == kDELETE) { method_str = DELETE_METHOD; }
     DEBUG_PRINT(YELLOW, " exec_method 2 path: %s, method: %s", target_path.c_str(), method_str.c_str());
 
+    if (!is_method_allowed(method)) {
+        process_method_not_allowed(method);
+        return Success;
+    }
+
     StatusCode status;
     switch (method) {
         case kGET:
@@ -86,7 +112,7 @@ ProcResult HttpResponse::exec_method() {
 
         case kPOST:
             DEBUG_PRINT(YELLOW, " exec_method 4 - POST");
-            status = post_request_body(target_path);
+            status = post_target(target_path);
             break;
 
         case kDELETE:

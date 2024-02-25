@@ -156,6 +156,10 @@ extern const char CRLF[];
 ////////////////////////////////////////////////////////////////////////////////
 /* method */
 
+enum Method {
+    kGET, kPOST, kDELETE, kErrorMethod
+};
+
 extern const char GET_METHOD[];
 extern const char POST_METHOD[];
 extern const char DELETE_METHOD[];
