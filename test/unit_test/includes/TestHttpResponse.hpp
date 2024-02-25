@@ -28,7 +28,7 @@ class HttpResponseFriend : public ::testing::Test {
         return response.is_urlencoded_form_data();
     }
 
-    static bool is_multipart_form_data(HttpResponse &response) {
-        return response.is_multipart_form_data();
+    static bool is_multipart_form_data(HttpResponse &response, std::string *boundary) {
+        return response.is_multipart_form_data(boundary);
     }
 };
