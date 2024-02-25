@@ -56,6 +56,7 @@ class HttpRequest {
     static Result<std::string, ProcResult> get_line(const std::vector<unsigned char> &data,
                                                     std::vector<unsigned char>::const_iterator start,
                                                     std::vector<unsigned char>::const_iterator *ret);
+    static Result<std::string, ProcResult> pop_line_from_buf(std::vector<unsigned char> *buf);
 
     Result<ProcResult, StatusCode> parse_start_line_and_headers();
     Result<ProcResult, StatusCode> parse_body();
@@ -73,6 +74,11 @@ class HttpRequest {
     Result<std::map<std::string, std::string>, ProcResult> get_host() const;
     Result<MediaType, ProcResult> get_content_type() const;
     Result<std::size_t, ProcResult> get_content_length() const;
+
+    static Result<int, int>
+    parse_and_validate_content_disposition(const std::string &field_value,
+                                           std::string *disposition_type,
+                                           std::map<std::string, std::string> *disposition_param);
 
 #ifdef UNIT_TEST
     friend class HttpRequestFriend;

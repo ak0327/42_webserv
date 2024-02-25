@@ -83,6 +83,7 @@ enum StatusCode {
 
     MultipleChoices         = 300,
     MovedPermanently        = 301,
+    SeeOther                = 303,
 
     BadRequest              = 400,
     Unauthorized            = 401,

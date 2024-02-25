@@ -61,8 +61,11 @@ TEST(HttpResponsePOST, IsMultipartForm) {
     AddressPortPair pair;
     HttpResponse response1(request1, config, pair);
 
-    bool result = HttpResponseFriend::is_multipart_form_data(response1);
+    std::string expected, actual;
+    expected = "----WebKitFormBoundaryOzc5oS6JxLwBcmay";
+    bool result = HttpResponseFriend::is_multipart_form_data(response1, &actual);
     EXPECT_TRUE(result);
+    EXPECT_EQ(expected, actual);
 
     // -------------------------------------------------------------------------
 
@@ -76,7 +79,7 @@ TEST(HttpResponsePOST, IsMultipartForm) {
 
     HttpResponse response2(request2, config, pair);
 
-    result = HttpResponseFriend::is_multipart_form_data(response2);
+    result = HttpResponseFriend::is_multipart_form_data(response2, &actual);
     EXPECT_FALSE(result);
 
     // -------------------------------------------------------------------------
@@ -91,6 +94,6 @@ TEST(HttpResponsePOST, IsMultipartForm) {
 
     HttpResponse response3(request3, config, pair);
 
-    result = HttpResponseFriend::is_multipart_form_data(response3);
+    result = HttpResponseFriend::is_multipart_form_data(response3, &actual);
     EXPECT_FALSE(result);
 }

@@ -30,6 +30,7 @@ struct file_info {
 
 struct FormData {
     std::string file_name;
+    std::string content_type;
     std::vector<unsigned char> binary;
 };
 
@@ -84,15 +85,18 @@ class HttpResponse {
     std::vector<unsigned char> response_msg_;
 
 
-    StatusCode status_code() const;
     void set_status_code(const StatusCode &set_status);
 
+    StatusCode status_code() const;
     std::string get_resource_path();
     std::string create_status_line(const StatusCode &code) const;
     std::string create_field_lines() const;
+
     bool is_executing_cgi() const;
     bool is_response_error_page() const;
+
     StatusCode check_resource_availability(const Method &method) const;
+
     void add_allow_header();
     void process_method_not_allowed();
     bool is_status_error() const;
@@ -100,21 +104,30 @@ class HttpResponse {
     // GET
     StatusCode get_request_body();
     std::string get_indexed_path();
+
     void get_error_page_to_body();
+
     bool is_cgi_file() const;
     bool is_redirect() const;
+
     StatusCode get_file_content(const std::string &file_path,
                                 std::vector<unsigned char> *buf);
     StatusCode get_directory_listing(const std::string &directory_path,
                                      std::vector<unsigned char> *buf);
     StatusCode get_redirect_content(std::map<std::string, std::string> *headers);
 
+
     // POST
 	StatusCode post_target();
     StatusCode get_urlencoded_form_content();
     StatusCode show_body();
+    StatusCode upload_file(const std::string &boundary);
+
+    Result<FormData, ProcResult> parse_multipart_form_data(const std::string &boundary);
+
     bool is_urlencoded_form_data();
-    bool is_multipart_form_data();
+    bool is_multipart_form_data(std::string *boundary);
+
 
     // DELETE
 	StatusCode delete_target();
