@@ -62,7 +62,9 @@ void HttpResponse::get_error_page_to_body() {
 }
 
 
-std::string HttpResponse::get_indexed_path(const std::string &resource_path) {
+std::string HttpResponse::get_indexed_path() {
+    std::string resource_path = HttpResponse::get_resource_path();
+
     Result<std::string, int> index_exist = Config::get_index(this->server_config_,
                                                              this->request_.request_target());
     if (index_exist.is_err()) {
@@ -120,7 +122,7 @@ StatusCode HttpResponse::get_redirect_content(std::map<std::string, std::string>
 }
 
 
-StatusCode HttpResponse::get_request_body(const std::string &resource_path) {
+StatusCode HttpResponse::get_request_body() {
     Result<bool, int> autoindex_result;
     autoindex_result = Config::is_autoindex_on(this->server_config_,
                                                this->request_.request_target());
@@ -129,7 +131,7 @@ StatusCode HttpResponse::get_request_body(const std::string &resource_path) {
     }
     bool autoindex = autoindex_result.get_ok_value();
 
-    std::string indexed_path = get_indexed_path(resource_path);
+    std::string indexed_path = get_indexed_path();
     DEBUG_PRINT(CYAN, "  file_path: %s, autoindex: %s", indexed_path.c_str(), autoindex ? "on" : "off");
 
 
@@ -142,7 +144,7 @@ StatusCode HttpResponse::get_request_body(const std::string &resource_path) {
     if (is_directory) {
         if (autoindex) {
             DEBUG_PRINT(CYAN, "  get_content -> directory_listing");
-            return get_directory_listing(resource_path, &this->body_buf_);
+            return get_directory_listing(indexed_path, &this->body_buf_);
         } else {
             DEBUG_PRINT(CYAN, "  get_content -> directory -> 404");
             return NotFound;
