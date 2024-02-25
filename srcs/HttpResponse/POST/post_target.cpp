@@ -1,22 +1,26 @@
+#include "Constant.hpp"
+#include "Color.hpp"
+#include "Debug.hpp"
+#include "FileHandler.hpp"
 #include "HttpMessageParser.hpp"
 #include "HttpResponse.hpp"
 
-std::map<std::string, std::vector<std::string> > get_post_parameters(const std::vector<unsigned char> &body) {
-    std::map<std::string, std::vector<std::string> > parameters;
+UrlEncodedFormData parse_urlencoded_form_data(const std::vector<unsigned char> &request_body) {
+    UrlEncodedFormData parameters;
 
     std::vector<std::string> name_value_pairs;
     std::vector<unsigned char>::const_iterator head, tail;
-    head = body.begin();
-    while (head != body.end()) {
+    head = request_body.begin();
+    while (head != request_body.end()) {
         tail = head;
-        while (tail != body.end() && *tail != '&') {
+        while (tail != request_body.end() && *tail != '&') {
             ++tail;
         }
         std::string name_value(head, tail);
         name_value_pairs.push_back(name_value);
 
         head = tail;
-        if (head == body.end()) {
+        if (head == request_body.end()) {
             break;
         }
         ++head;
@@ -40,23 +44,28 @@ std::map<std::string, std::vector<std::string> > get_post_parameters(const std::
     return parameters;
 }
 
-// request body -> get parameters -> html
-StatusCode HttpResponse::post_target() {
+
+StatusCode HttpResponse::get_urlencoded_form_content() {
+    // content_type
+    // multipart/form-data
+
+    // application/x-www-form-urlencoded
+
     std::string head = "<!doctype html>\n"
                        "<html lang=\"ja\">\n"
                        "<head>\n"
                        "    <meta charset=\"UTF-8\">\n"
                        "    <title>POST params</title>\n"
                        "</head>\n"
-                       "<body>";
+                       "<body>\n";
 
     std::string tail = "</body>\n"
                        "</html>";
 
-    std::map<std::string, std::vector<std::string> > parameters = get_post_parameters(this->body_buf_);
+    UrlEncodedFormData parameters = parse_urlencoded_form_data(this->body_buf_);
     std::string parameters_str;
 
-    std::map<std::string, std::vector<std::string> >::const_iterator itr;
+    UrlEncodedFormData::const_iterator itr;
     for (itr = parameters.begin(); itr != parameters.end(); ++itr) {
         std::ostringstream oss;
         oss << itr->first << " : ";
@@ -79,5 +88,79 @@ StatusCode HttpResponse::post_target() {
     body.insert(body.end(), parameters_str.begin(), parameters_str.end());
     body.insert(body.end(), tail.begin(), tail.end());
     this->body_buf_ = body;
+
     return StatusOk;
+}
+
+
+Result<FormData, int> parse_multipart_form_data() {
+    FormData form_data;
+    std::string boundary;
+
+    // todo
+    return Result<FormData, int>::ok(form_data);
+}
+
+
+StatusCode upload_file() {
+    Result<FormData, int> parse_result = parse_multipart_form_data();
+    if (parse_result.is_err()) {
+        return BadRequest;
+    }
+    FormData form_data = parse_result.get_ok_value();
+
+    const std::string file_name = form_data.file_name;
+    const std::string path = "./html/upload/" + file_name;
+
+    FileHandler file(path);
+    return file.create_file(form_data.binary);
+}
+
+
+StatusCode HttpResponse::show_body() {
+    std::string head = "<!doctype html>\n"
+                       "<html lang=\"ja\">\n"
+                       "<head>\n"
+                       "    <meta charset=\"UTF-8\">\n"
+                       "    <title>POST params</title>\n"
+                       "</head>\n"
+                       "<body>\n";
+
+    std::string tail = "</body>\n"
+                       "</html>";
+
+    std::vector<unsigned char> body;
+    body.insert(body.end(), head.begin(), head.end());
+    body.insert(body.end(), this->body_buf_.begin(), this->body_buf_.end());
+    body.insert(body.end(), tail.begin(), tail.end());
+    this->body_buf_ = body;
+
+    return StatusOk;
+}
+
+
+bool HttpResponse::is_urlencoded_form_data() {
+    // todo
+    return true;
+}
+
+
+bool HttpResponse::is_multipart_form_data() {
+    // todo
+    return true;
+}
+
+
+StatusCode HttpResponse::post_target() {
+    if (this->request_.request_target() == "/show_body") {
+        return show_body();
+    }
+
+    if (is_urlencoded_form_data()) {
+        return get_urlencoded_form_content();
+    }
+    if (is_multipart_form_data()) {
+        return upload_file();
+    }
+    return BadRequest;
 }

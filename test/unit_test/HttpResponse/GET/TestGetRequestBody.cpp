@@ -78,7 +78,7 @@ TEST(HttpResponseGET, GetResourcePath) {
     request_msg = "GET /dir_a HTTP/1.1\r\n"
                   "Host: localhost\r\n"
                   "\r\n";
-    expected_path = "html/dir_a/";
+    expected_path = "html/dir_a";
     EXPECT_EQ_TARGET(server_config, request_msg, expected_path);
 
 
@@ -92,35 +92,35 @@ TEST(HttpResponseGET, GetResourcePath) {
     request_msg = "GET /a/b HTTP/1.1\r\n"
                   "Host: localhost\r\n"
                   "\r\n";
-    expected_path = "html/a/b/";
+    expected_path = "html/a/b";
     EXPECT_EQ_TARGET(server_config, request_msg, expected_path);
 
 
     request_msg = "GET /a/b/c HTTP/1.1\r\n"
                   "Host: localhost\r\n"
                   "\r\n";
-    expected_path = "html/a/b/c/";
+    expected_path = "html/a/b/c";
     EXPECT_EQ_TARGET(server_config, request_msg, expected_path);
 
 
     request_msg = "GET /a/b/.//.. HTTP/1.1\r\n"
                   "Host: localhost\r\n"
                   "\r\n";
-    expected_path = "html/a/";
+    expected_path = "html/a";
     EXPECT_EQ_TARGET(server_config, request_msg, expected_path);
 
 
     request_msg = "GET /a/b/.//../c HTTP/1.1\r\n"
                   "Host: localhost\r\n"
                   "\r\n";
-    expected_path = "html/a/c/";
+    expected_path = "html/a/c";
     EXPECT_EQ_TARGET(server_config, request_msg, expected_path);
 
 
     request_msg = "GET /nothing HTTP/1.1\r\n"
                   "Host: localhost\r\n"
                   "\r\n";
-    expected_path = "html/nothing/";
+    expected_path = "html/nothing";
     EXPECT_EQ_TARGET(server_config, request_msg, expected_path);
 
 
@@ -148,7 +148,7 @@ TEST(HttpResponseGET, GetResourcePath) {
     request_msg = "GET /autoindex_files HTTP/1.1\r\n"
                   "Host: localhost\r\n"
                   "\r\n";
-    expected_path = "html/autoindex_files/";
+    expected_path = "html/autoindex_files";
     EXPECT_EQ_TARGET(server_config, request_msg, expected_path);
 }
 
@@ -203,17 +203,31 @@ TEST(HttpResponseGET, GetFilePath) {
     EXPECT_EQ_INDEXED_PATH(server_config, request_msg, expected_path);
 
 
-    request_msg = "GET /a/b HTTP/1.1\r\n"
+    request_msg = "GET /a/b/ HTTP/1.1\r\n"
                   "Host: localhost\r\n"
                   "\r\n";
     expected_path = "html/a/b/file_b.html";
     EXPECT_EQ_INDEXED_PATH(server_config, request_msg, expected_path);
 
 
-    request_msg = "GET /a/b/c HTTP/1.1\r\n"
+    request_msg = "GET /a/b HTTP/1.1\r\n"
+                  "Host: localhost\r\n"
+                  "\r\n";
+    expected_path = "html/a/b";
+    EXPECT_EQ_INDEXED_PATH(server_config, request_msg, expected_path);
+
+
+    request_msg = "GET /a/b/c/ HTTP/1.1\r\n"
                   "Host: localhost\r\n"
                   "\r\n";
     expected_path = "html/a/b/c/file_c.html";
+    EXPECT_EQ_INDEXED_PATH(server_config, request_msg, expected_path);
+
+
+    request_msg = "GET /a/b/c HTTP/1.1\r\n"
+                  "Host: localhost\r\n"
+                  "\r\n";
+    expected_path = "html/a/b/c";
     EXPECT_EQ_INDEXED_PATH(server_config, request_msg, expected_path);
 
 
@@ -227,7 +241,7 @@ TEST(HttpResponseGET, GetFilePath) {
     request_msg = "GET /autoindex_files HTTP/1.1\r\n"
                   "Host: localhost\r\n"
                   "\r\n";
-    expected_path = "html/autoindex_files/";
+    expected_path = "html/autoindex_files";
     EXPECT_EQ_INDEXED_PATH(server_config, request_msg, expected_path);
 
 }
