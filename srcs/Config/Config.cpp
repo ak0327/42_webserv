@@ -552,25 +552,40 @@ Result<bool, int> Config::is_autoindex_on(const AddressPortPair &address_port_pa
 }
 
 
-Result<bool, int> Config::is_method_allowed(const ServerConfig &server_config,
-                                            const std::string &target_path,
-                                            const Method &method) {
+Result<LimitExceptDirective, int> Config::limit_except(const ServerConfig &server_config,
+                                                       const std::string &target_path) {
     Result<LocationConfig, int> location_result = get_location_config(server_config, target_path);
     if (location_result.is_err()) {
-        return Result<bool, int>::err(ERR);
+        return Result<LimitExceptDirective, int>::err(ERR);
     }
 
     LocationConfig location_config = location_result.get_ok_value();
     LimitExceptDirective &limit_except = location_config.limit_except;
-    std::set<Method> &excluded_methods = limit_except.excluded_methods;
+    return Result<LimitExceptDirective, int>::ok(limit_except);
+}
 
-    // todo: deny, accept
-    // if (!limit_except.limited) {
-    //     return Result<bool, int>::ok(true);
-    // }
-    if (excluded_methods.empty()) {
+
+Result<bool, int> Config::is_method_allowed(const ServerConfig &server_config,
+                                            const std::string &target_path,
+                                            const Method &method) {
+    Result<LimitExceptDirective, int> result = Config::limit_except(server_config, target_path);
+    if (result.is_err()) {
+        return Result<bool, int>::err(ERR);
+    }
+
+    LimitExceptDirective limit_except = result.get_ok_value();
+    if (!limit_except.limited) {
         return Result<bool, int>::ok(true);
     }
+    std::set<Method> &excluded_methods = limit_except.excluded_methods;
+
+
+    std::set<Method>::const_iterator itr;
+    for (itr = excluded_methods.begin(); itr != excluded_methods.end(); ++itr) {
+        std::string method_str = HttpMessageParser::convert_to_str(*itr);
+    }
+
+
     bool is_method_allowed = (excluded_methods.find(method) != excluded_methods.end());
     return Result<bool, int>::ok(is_method_allowed);
 }

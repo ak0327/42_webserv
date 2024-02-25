@@ -63,6 +63,9 @@ class Config {
     Result<bool, int> is_autoindex_on(const AddressPortPair &address_port_pair,
                                       const std::string &target_path) const;
 
+    static Result<LimitExceptDirective, int> limit_except(const ServerConfig &server_config,
+                                                          const std::string &target_path);
+
     static Result<bool, int> is_method_allowed(const ServerConfig &server_config,
                                                const std::string &target_path,
                                                const Method &method);
