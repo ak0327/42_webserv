@@ -58,17 +58,26 @@ bool HttpResponse::is_executing_cgi() const {
 }
 
 
+bool is_method_limited(const Method &method, const std::set<Method> &excluded_methods) {
+    std::set<Method>::const_iterator itr = excluded_methods.find(method);
+    return itr == excluded_methods.end();
+}
+
+
 StatusCode HttpResponse::check_resource_availability(const Method &method) const {
-    // todo: limit_except -> accept, deny
-    Result<bool, int> allowed = Config::is_method_allowed(this->server_config_,
-                                                          this->request_.request_target(),
-                                                          method);
-    if (allowed.is_err()) {
+    Result<LimitExceptDirective, int> limit_except_result;
+    limit_except_result = Config::limit_except(this->server_config_,
+                                               this->request_.request_target());
+    if (limit_except_result.is_err()) {
         return NotFound;
     }
-    bool is_method_allowed = allowed.get_ok_value();
-    if (!is_method_allowed) {
-        return MethodNotAllowed;
+
+    LimitExceptDirective limit_except = limit_except_result.get_ok_value();
+    if (limit_except.limited) {
+        if (is_method_limited(method, limit_except.excluded_methods)) {
+            // todo: allow, deny -> StatusOk
+            return MethodNotAllowed;
+        }
     }
     return StatusOk;
 }
@@ -111,7 +120,7 @@ void HttpResponse::process_method_not_allowed() {
 
 ProcResult HttpResponse::exec_method() {
     DEBUG_PRINT(YELLOW, " exec_method 1 status(%d)", this->status_code());
-    if (is_response_error_page()) {
+    if (is_status_error()) {
         DEBUG_PRINT(YELLOW, " exec_method 2 -> error_page");
         return Success;
     }
@@ -166,8 +175,8 @@ ProcResult HttpResponse::exec_method() {
 }
 
 
-bool is_status_error(StatusCode code) {
-    int code_num = static_cast<int>(code);
+bool HttpResponse::is_status_error() const {
+    int code_num = static_cast<int>(this->status_code());
     std::cout << MAGENTA << "is_status_error: " << code_num
               << (400 <= code_num && code_num <= 599 ? " true" : " false") << RESET << std::endl;
     return 400 <= code_num && code_num <= 599;
@@ -210,7 +219,7 @@ ProcResult HttpResponse::interpret_cgi_output() {
     StatusCode parse_status = this->cgi_handler_.parse_document_response();
     this->set_status_code(parse_status);
 
-    if (!is_status_error(this->status_code())) {
+    if (!is_status_error()) {
         this->body_buf_ = this->cgi_handler_.cgi_body();
     }
     return Success;
@@ -225,7 +234,7 @@ ProcResult HttpResponse::interpret_cgi_output() {
  https://triple-underscore.github.io/http1-ja.html#http.message
  */
 void HttpResponse::create_response_message() {
-    if (is_status_error(this->status_code())) {
+    if (is_status_error()) {
         this->body_buf_.clear();
     }
     if (is_response_error_page()) {

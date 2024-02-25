@@ -110,6 +110,7 @@ class HttpResponse {
     StatusCode check_resource_availability(const Method &method) const;
     void add_allow_header();
     void process_method_not_allowed();
+    bool is_status_error() const;
 
     // GET
     StatusCode get_request_body(const std::string &resource_path);
