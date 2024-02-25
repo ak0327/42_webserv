@@ -38,6 +38,8 @@ HttpResponse::HttpResponse(const HttpRequest &request,
 
     time_t cgi_timeout = Config::get_cgi_timeout(server_config, request.request_target());
     this->cgi_handler_.set_timeout_duration_sec(cgi_timeout);
+
+    this->body_buf_ = this->request_.body();
 }
 
 

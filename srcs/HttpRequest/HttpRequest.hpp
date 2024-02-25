@@ -37,6 +37,7 @@ class HttpRequest {
 	std::string	method() const;
 	std::string request_target() const;
 	std::string	http_version() const;
+    const std::vector<unsigned char> body() const;
     StatusCode status_code() const;
     void set_status_code(const StatusCode &set_code);
 

@@ -659,7 +659,7 @@ std::string decode(const std::string& encoded) {
             char hex_str[3] = {0};
             iss.read(hex_str, 2);
 
-            if (isxdigit(hex_str[0]) && isxdigit(hex_str[1])) {
+            if (std::isxdigit(hex_str[0]) && std::isxdigit(hex_str[1])) {
                 char decoded_char = static_cast<char>(std::strtol(hex_str, NULL, 16));
                 decoded.push_back(decoded_char);
             } else {

@@ -385,6 +385,8 @@ Result<ProcResult, StatusCode> HttpRequest::parse_body() {
         return Result<ProcResult, StatusCode>::ok(Continue);
     }
     DEBUG_SERVER_PRINT("      ParseBody  body ok");
+    std::string debug_body(this->request_body_.begin(), this->request_body_.end());
+    DEBUG_SERVER_PRINT("       debug_body:[%s]", debug_body.c_str());
     return Result<ProcResult, StatusCode>::ok(Success);
 }
 
@@ -720,6 +722,11 @@ std::string HttpRequest::request_target() const {
 
 std::string HttpRequest::http_version() const {
 	return this->request_line_.http_version();
+}
+
+
+const std::vector<unsigned char> HttpRequest::body() const {
+    return this->request_body_;
 }
 
 
