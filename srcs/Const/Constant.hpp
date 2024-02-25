@@ -91,6 +91,7 @@ enum StatusCode {
     MethodNotAllowed        = 405,
     NotAcceptable           = 406,
     RequestTimeout          = 408,
+    Conflict                = 409,
     LengthRequired          = 411,
     ContentTooLarge         = 413,
 

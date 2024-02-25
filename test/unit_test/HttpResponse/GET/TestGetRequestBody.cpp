@@ -164,8 +164,7 @@ void expect_eq_indexed_path(const ServerConfig &server_config,
     HttpRequest request(request_msg);
     HttpResponse response(request, server_config, pair);
 
-    std::string resource_path = HttpResponseFriend::get_resource_path(response);
-    std::string actual_path = HttpResponseFriend::get_indexed_path(response, resource_path);
+    std::string actual_path = HttpResponseFriend::get_indexed_path(response);
     EXPECT_EQ(expected_path, actual_path) << "  at L" << line;
 }
 
