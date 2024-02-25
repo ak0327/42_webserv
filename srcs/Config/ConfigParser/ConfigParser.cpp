@@ -1009,7 +1009,7 @@ Result<int, std::string> ConfigParser::parse_limit_except_directive(TokenItr *cu
         const std::string error_msg = create_syntax_err_msg(*current, end, RIGHT_PAREN);
         return Result<int, std::string>::err(error_msg);
     }
-
+    limit_except->limited = true;
     return Result<int, std::string>::ok(OK);
 }
 
