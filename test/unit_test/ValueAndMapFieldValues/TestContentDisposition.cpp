@@ -54,7 +54,7 @@ TEST(TestValueAndMapFieldValues, ContentDispositionOK1) {
 TEST(TestValueAndMapFieldValues, ContentDispositionOK2) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Content-Disposition: attachment;a=\"A\";b=B\r\n"
+									 "Content-Disposition: attachment;a=\"A\";   b=B\r\n"
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
@@ -101,7 +101,7 @@ TEST(TestValueAndMapFieldValues, ContentDispositionOK2) {
 TEST(TestValueAndMapFieldValues, ContentDispositionOK3) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Content-Disposition: attachment;filename*=UTF-8''%E5%AE%9F%E9%A8%93%E3%83%87%E3%83%BC%E3%82%BF.csv\r\n"
+									 "Content-Disposition: attachment; filename*=UTF-8''%E5%AE%9F%E9%A8%93%E3%83%87%E3%83%BC%E3%82%BF.csv\r\n"
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
@@ -211,7 +211,7 @@ TEST(TestValueAndMapFieldValues, ContentDispositionNG1) {
 TEST(TestValueAndMapFieldValues, ContentDispositionNG2) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Content-Disposition: a; b=c\r\n"
+									 "Content-Disposition: a; b=c  ;   \r\n"
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
