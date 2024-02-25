@@ -680,7 +680,8 @@ std::string normalize(const std::string& path) {
     std::vector<std::string> segments;
     std::istringstream path_stream(path);
     std::string segment;
-    std::string normalized_path;
+    std::string normalized;
+    bool ends_with_slash = !path.empty() && path[path.length() - 1] == '/';
 
     while (getline(path_stream, segment, '/')) {
         if (segment == "..") {
@@ -693,11 +694,14 @@ std::string normalize(const std::string& path) {
     }
 
     for (size_t i = 0; i < segments.size(); ++i) {
-        normalized_path += "/";
-        normalized_path += segments[i];
+        normalized += "/";
+        normalized += segments[i];
     }
 
-    return normalized_path.empty() ? "/" : normalized_path;
+    if (ends_with_slash && !normalized.empty() && normalized[normalized.length() - 1] != '/') {
+        normalized += "/";
+    }
+    return normalized.empty() ? "/" : normalized;
 }
 
 
