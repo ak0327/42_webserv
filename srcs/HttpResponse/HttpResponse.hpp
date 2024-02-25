@@ -107,6 +107,8 @@ class HttpResponse {
     std::string create_field_lines() const;
     bool is_executing_cgi() const;
     bool is_response_error_page() const;
+    bool is_method_allowed(const Method &method) const;
+    void process_method_not_allowed(const Method &method);
 
     // GET
     StatusCode get_request_body(const std::string &resource_path);
@@ -121,10 +123,7 @@ class HttpResponse {
     StatusCode get_redirect_content(std::map<std::string, std::string> *headers);
 
     // POST
-	StatusCode post_request_body(const std::string &target) {
-        (void)target;
-        return StatusOk;
-    }
+	StatusCode post_target(const std::string &target);
 
     // DELETE
 	StatusCode delete_target(const std::string &target);
