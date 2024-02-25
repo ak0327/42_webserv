@@ -711,5 +711,18 @@ Result<StatusCode, ProcResult> convert_to_enum(int code) {
     return Result<StatusCode, ProcResult>::err(Failure);
 }
 
+std::string convert_to_str(const Method &method) {
+    switch (method) {
+        case kGET:
+            return GET_METHOD;
+        case kPOST:
+            return POST_METHOD;
+        case kDELETE:
+            return DELETE_METHOD;
+        default:
+            return "invalid method";
+    }
+}
+
 
 }  // namespace HttpMessageParser
