@@ -58,6 +58,7 @@ void expect_eq_limit_except(const LimitExceptDirective &expected,
                             const LimitExceptDirective &actual,
                             const std::size_t line) {
 
+    EXPECT_EQ(expected.limited, actual.limited) << "  at L:" << line;
     EXPECT_EQ(expected.excluded_methods, actual.excluded_methods) << "  at L:" << line;
     expect_eq_access_rules(expected.rules, actual.rules, line);
 }
@@ -1123,6 +1124,7 @@ TEST(TestParser, ParseLimitExceptDirective) {
 
     expected = {};
     expected.excluded_methods = {kGET};
+    expected.limited = true;
 
     cnt = 0;
     tokens = {};
@@ -1141,6 +1143,7 @@ TEST(TestParser, ParseLimitExceptDirective) {
 
     expected = {};
     expected.excluded_methods = {kPOST};
+    expected.limited = true;
 
     cnt = 0;
     tokens = {};
@@ -1159,6 +1162,7 @@ TEST(TestParser, ParseLimitExceptDirective) {
 
     expected = {};
     expected.excluded_methods = {kPOST};
+    expected.limited = true;
 
     cnt = 0;
     tokens = {};
@@ -1178,6 +1182,7 @@ TEST(TestParser, ParseLimitExceptDirective) {
     expected = {};
     expected.excluded_methods = {kDELETE};
     expected.rules.push_back(AccessRule(kDENY, "all"));
+    expected.limited = true;
 
     cnt = 0;
     tokens = {};
@@ -1199,6 +1204,7 @@ TEST(TestParser, ParseLimitExceptDirective) {
 
     expected = {};
     expected.excluded_methods = {kGET, kPOST, kDELETE};
+    expected.limited = true;
 
     cnt = 0;
     tokens = {};
@@ -3167,6 +3173,7 @@ TEST(TestParser, ParseLocationBlock) {
     expected.root_path = "html";
     expected.index_pages = {"index.html", "index.htm"};
     expected.limit_except.excluded_methods = {kGET};
+    expected.limit_except.limited = true;
     expected.autoindex = true;
     expected.max_body_size_bytes = 2 * ConfigInitValue::MB;
 
@@ -3206,6 +3213,7 @@ TEST(TestParser, ParseLocationBlock) {
     expected.redirection.text = "/new_page";
     expected.limit_except.excluded_methods = {kGET, kDELETE};
     expected.limit_except.rules.push_back(AccessRule(kDENY, "all"));
+    expected.limit_except.limited = true;
 
     actual = {};
     result = ConfigParserTestFriend::parse_location_block(&current, tokens.end(), &actual);
@@ -3514,6 +3522,7 @@ TEST(TestParser, ParseServer) {
     location_config.root_path = "html";
     location_config.index_pages = {"index.html", "index.htm"};
     location_config.limit_except.excluded_methods = {kGET};
+    location_config.limit_except.limited = true;
     location_config.autoindex = true;
     location_config.max_body_size_bytes = 2 * ConfigInitValue::MB;
     location_config.error_pages = {

@@ -45,14 +45,10 @@ HttpResponse::~HttpResponse() {}
 
 
 bool HttpResponse::is_response_error_page() const {
-    std::cout << RED << "is_response_error_page()" << RESET << std::endl;
     Result<std::string, int> result;
     result = Config::get_error_page(this->server_config_,
                                     this->request_.request_target(),
                                     this->status_code());
-    if (result.is_ok()) {
-        std::cout << RED << " error_page: " << result.get_ok_value() << RESET << std::endl;
-    }
     return result.is_ok();
 }
 
@@ -62,23 +58,54 @@ bool HttpResponse::is_executing_cgi() const {
 }
 
 
-bool HttpResponse::is_method_allowed(const Method &method) const {
+StatusCode HttpResponse::check_resource_availability(const Method &method) const {
+    // todo: limit_except -> accept, deny
     Result<bool, int> allowed = Config::is_method_allowed(this->server_config_,
                                                           this->request_.request_target(),
                                                           method);
     if (allowed.is_err()) {
-        return false;
+        return NotFound;
     }
-    bool is_delete_allowed = allowed.get_ok_value();
-    if (!is_delete_allowed) {
-        return false;
+    bool is_method_allowed = allowed.get_ok_value();
+    if (!is_method_allowed) {
+        return MethodNotAllowed;
     }
-    return true;
+    return StatusOk;
 }
 
 
-void HttpResponse::process_method_not_allowed(const Method &method) {
-    this->headers_["Allow"] = HttpMessageParser::convert_to_str(method);
+void HttpResponse::add_allow_header() {
+    Result<LimitExceptDirective, int> result = Config::limit_except(this->server_config_,
+                                                                    this->request_.request_target());
+    if (result.is_err()) {
+        const std::string error_msg = CREATE_ERROR_INFO_STR("error: location not found");
+        DEBUG_PRINT(RED, "%s", error_msg.c_str());
+        // todo: log
+        return;
+    }
+    LimitExceptDirective limit_except = result.get_ok_value();
+    std::set<Method> &excluded_methods = limit_except.excluded_methods;
+    if (excluded_methods.empty()) {
+        const std::string error_msg = CREATE_ERROR_INFO_STR("error: excluded method not found");
+        DEBUG_PRINT(RED, "%s", error_msg.c_str());
+        return;
+    }
+
+    std::string allowed_method;
+    std::set<Method>::const_iterator method;
+    for (method = excluded_methods.begin(); method != excluded_methods.end(); ++method) {
+        if (!allowed_method.empty()) {
+            allowed_method.append(", ");
+        }
+        std::string method_str = HttpMessageParser::convert_to_str(*method);
+        allowed_method.append(method_str);
+    }
+    this->headers_["Allow"] = allowed_method;
+}
+
+
+void HttpResponse::process_method_not_allowed() {
+    add_allow_header();
     this->set_status_code(MethodNotAllowed);
 }
 
@@ -89,50 +116,53 @@ ProcResult HttpResponse::exec_method() {
         DEBUG_PRINT(YELLOW, " exec_method 2 -> error_page");
         return Success;
     }
-    std::string target_path = HttpResponse::get_resource_path();
     Method method = HttpMessageParser::get_method(this->request_.method());
 
-    std::string method_str;
-    if (method == kGET) { method_str = GET_METHOD; }
-    if (method == kPOST) { method_str = POST_METHOD; }
-    if (method == kDELETE) { method_str = DELETE_METHOD; }
-    DEBUG_PRINT(YELLOW, " exec_method 2 path: %s, method: %s", target_path.c_str(), method_str.c_str());
-
-    if (!is_method_allowed(method)) {
-        process_method_not_allowed(method);
+    StatusCode availability = check_resource_availability(method);
+    DEBUG_PRINT(YELLOW, "  check_resource_availablity -> %d", availability);
+    if (availability != StatusOk) {
+        if (availability == MethodNotAllowed) {
+            add_allow_header();
+        }
+        this->set_status_code(availability);
+        DEBUG_PRINT(YELLOW, " exec_method 3 -> error %d", availability);
         return Success;
     }
+
+    std::string target_path = HttpResponse::get_resource_path();
+    DEBUG_PRINT(YELLOW, " exec_method 4 path: %s, method: %s",
+                target_path.c_str(), HttpMessageParser::convert_to_str(method).c_str());
 
     StatusCode status;
     switch (method) {
         case kGET:
-            DEBUG_PRINT(YELLOW, " exec_method 4 - GET");
+            DEBUG_PRINT(YELLOW, " exec_method 5 - GET");
             status = get_request_body(target_path);
             break;
 
         case kPOST:
-            DEBUG_PRINT(YELLOW, " exec_method 4 - POST");
+            DEBUG_PRINT(YELLOW, " exec_method 5 - POST");
             status = post_target(target_path);
             break;
 
         case kDELETE:
-            DEBUG_PRINT(YELLOW, " exec_method 4 - DELETE");
+            DEBUG_PRINT(YELLOW, " exec_method 5 - DELETE");
             status = delete_target(target_path);
             break;
 
         default:
-            DEBUG_PRINT(YELLOW, " exec_method 4 - err");
+            DEBUG_PRINT(YELLOW, " exec_method 5 - method err");
             status = BadRequest;
     }
 
     this->set_status_code(status);
-    DEBUG_PRINT(YELLOW, " exec_method 5 status: %d", this->status_code());
+    DEBUG_PRINT(YELLOW, " exec_method 6 status: %d", this->status_code());
     if (is_executing_cgi()) {
-        DEBUG_PRINT(YELLOW, " executing cgi -> continue");
+        DEBUG_PRINT(YELLOW, " exec_method 7 executing cgi -> continue");
         return ExecutingCgi;
     }
 
-    DEBUG_PRINT(YELLOW, " exec_method 6 -> next");
+    DEBUG_PRINT(YELLOW, " exec_method 8 -> next");
     return Success;
 }
 
