@@ -84,6 +84,7 @@ std::map<StatusCode, std::string> init_reason_phrases() {
 
     reason_phrases[MultipleChoices]         = "Multiple Choices";
     reason_phrases[MovedPermanently]        = "Moved Permanently";
+    reason_phrases[SeeOther]                = "See Other";
 
     reason_phrases[BadRequest]              = "Bad Request";
     reason_phrases[Unauthorized]            = "Unauthorized";

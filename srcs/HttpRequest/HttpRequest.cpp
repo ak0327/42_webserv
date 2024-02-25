@@ -253,21 +253,29 @@ Result<std::string, ProcResult> HttpRequest::get_line(const std::vector<unsigned
 }
 
 
-Result<std::string, ProcResult> HttpRequest::pop_line_from_buf() {
-    std::vector<unsigned char>::const_iterator next_line;
+Result<std::string, ProcResult> HttpRequest::pop_line_from_buf(std::vector<unsigned char> *buf) {
+    if (!buf) {
+        return Result<std::string, ProcResult>::err(Failure);
+    }
 
-    Result<std::string, ProcResult> result = get_line(this->buf_,
-                                                      this->buf_.begin(),
+    std::vector<unsigned char>::const_iterator next_line;
+    Result<std::string, ProcResult> result = get_line(*buf,
+                                                      buf->begin(),
                                                       &next_line);
     if (result.is_err()) {
         return Result<std::string, ProcResult>::err(Failure);
     }
     std::string line = result.get_ok_value();
-    trim(&this->buf_, next_line);
+    trim(buf, next_line);
 
-    std::string debug_buf(this->buf_.begin(), this->buf_.end());
+    std::string debug_buf(buf->begin(), buf->end());
     DEBUG_SERVER_PRINT("buf[%s]", debug_buf.c_str());
     return Result<std::string, ProcResult>::ok(line);
+}
+
+
+Result<std::string, ProcResult> HttpRequest::pop_line_from_buf() {
+    return pop_line_from_buf(&this->buf_);
 }
 
 

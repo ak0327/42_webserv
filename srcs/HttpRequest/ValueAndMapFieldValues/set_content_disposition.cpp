@@ -132,7 +132,7 @@ Result<int, int> parse_param(const std::string &field_value,
 /*
   content-disposition = "Content-Disposition" ":"
                          disposition-type *( ";" disposition-parm )
-
+                                                ^OWS
   disposition-parm    = filename-parm | disp-ext-parm
 
   filename-parm       = "filename" "=" value
@@ -166,6 +166,7 @@ parse_disposition_param(const std::string &field_value,
 			return Result<std::map<std::string, std::string>, int>::err(ERR);
 		}
 		++pos;
+        HttpMessageParser::skip_ows(field_value, &pos);
 
 		parse_result = parse_param(field_value, pos, &end, &key, &value);
 		if (parse_result.is_err()) {
@@ -301,6 +302,11 @@ parse_and_validate_disposition_param(const std::string &field_value,
 	return Result<std::map<std::string, std::string> , int>::ok(disposition_param);
 }
 
+
+}  // namespace
+
+////////////////////////////////////////////////////////////////////////////////
+
 /*
  content-disposition = "Content-Disposition" ":"
                         disposition-type *( ";" disposition-parm )
@@ -317,38 +323,39 @@ parse_and_validate_disposition_param(const std::string &field_value,
  disp-ext-parm       = token "=" value
                      | ext-token "=" ext-value
  ext-token           = <the characters in token, followed by "*">
+
+ token         = <token, defined in [RFC2616], Section 2.2>
+ quoted-string = <quoted-string, defined in [RFC2616], Section 2.2>
+ value         = <value, defined in [RFC2616], Section 3.6>
+                ; token | quoted-string
  https://httpwg.org/specs/rfc6266.html#header.field.definition
  */
 
 Result<int, int>
-parse_and_validate_content_disposition(const std::string &field_value,
-									   std::string *disposition_type,
-									   std::map<std::string, std::string> *disposition_param) {
-	Result<int, int> result;
-	std::size_t pos, end;
+HttpRequest::parse_and_validate_content_disposition(const std::string &field_value,
+                                                    std::string *disposition_type,
+                                                    std::map<std::string, std::string> *disposition_param) {
+    Result<int, int> result;
+    std::size_t pos, end;
 
-	pos = 0;
-	result = HttpMessageParser::parse_value_and_map_values(field_value,
-														   pos, &end,
-														   disposition_type,
-														   disposition_param,
-														   parse_and_validate_disposition_type,
-														   parse_and_validate_disposition_param);
-	if (result.is_err()) {
-		return Result<int, int>::err(ERR);
-	}
-	pos = end;
+    pos = 0;
+    result = HttpMessageParser::parse_value_and_map_values(field_value,
+                                                           pos, &end,
+                                                           disposition_type,
+                                                           disposition_param,
+                                                           parse_and_validate_disposition_type,
+                                                           parse_and_validate_disposition_param);
+    if (result.is_err()) {
+        return Result<int, int>::err(ERR);
+    }
+    pos = end;
 
-	if (field_value[pos] != '\0') {
-		return Result<int, int>::err(ERR);
-	}
-	return Result<int, int>::ok(OK);
+    if (field_value[pos] != '\0') {
+        return Result<int, int>::err(ERR);
+    }
+    return Result<int, int>::ok(OK);
 }
 
-
-}  // namespace
-
-////////////////////////////////////////////////////////////////////////////////
 
 Result<int, int> HttpRequest::set_content_disposition(const std::string &field_name,
 													  const std::string &field_value) {
