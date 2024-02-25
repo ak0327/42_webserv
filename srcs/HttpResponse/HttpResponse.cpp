@@ -139,25 +139,22 @@ ProcResult HttpResponse::exec_method() {
         return Success;
     }
 
-    std::string target_path = HttpResponse::get_resource_path();
-    DEBUG_PRINT(YELLOW, " exec_method 4 path: %s, method: %s",
-                target_path.c_str(), HttpMessageParser::convert_to_str(method).c_str());
 
     StatusCode status;
     switch (method) {
         case kGET:
             DEBUG_PRINT(YELLOW, " exec_method 5 - GET");
-            status = get_request_body(target_path);
+            status = get_request_body();
             break;
 
         case kPOST:
             DEBUG_PRINT(YELLOW, " exec_method 5 - POST");
-            status = post_target(target_path);
+            status = post_target();
             break;
 
         case kDELETE:
             DEBUG_PRINT(YELLOW, " exec_method 5 - DELETE");
-            status = delete_target(target_path);
+            status = delete_target();
             break;
 
         default:
@@ -180,7 +177,8 @@ ProcResult HttpResponse::exec_method() {
 bool HttpResponse::is_status_error() const {
     int code_num = static_cast<int>(this->status_code());
     std::cout << MAGENTA << "is_status_error: " << code_num
-              << (400 <= code_num && code_num <= 599 ? " true" : " false") << RESET << std::endl;
+              << (400 <= code_num && code_num <= 599 ? " true" : " false")
+              << RESET << std::endl;
     return 400 <= code_num && code_num <= 599;
 }
 

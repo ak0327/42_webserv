@@ -28,28 +28,9 @@ struct file_info {
 	std::string	last_modified_time;  // dd-mm-yy hh:mm
 };
 
-// std::map<std::string, std::string> get_mime_types() {
-//     std::map<std::string, std::string> types;
-//
-//     types["html"] = "text/html";
-//     types["css"] = "text/css";
-//     types["text"] = "text/plain";
-//
-//     types["gif"] = "image/gif";
-//     types["jpeg"] = "image/jpeg";
-//     types["jpg"] = "image/jpg";
-//     types["png"] = "image/png";
-//     return types;
-// }
-
-// bool operator<(const file_info &lhs, const file_info &rhs);
-// std::string get_extension(const std::string &path);
-// bool is_directory(const std::string &path);
-
-// todo: mv config?
-// bool is_cgi_file(const std::string &path);
-
-//------------------------------------------------------------------------------
+typedef std::vector<std::string> StringVector;
+typedef std::map<std::string, StringVector> UrlEncodedFormData;
+typedef std::map<std::string, std::vector<unsigned char> > MultipartFormData;
 
 class HttpResponse {
  public:
@@ -113,8 +94,8 @@ class HttpResponse {
     bool is_status_error() const;
 
     // GET
-    StatusCode get_request_body(const std::string &resource_path);
-    std::string get_indexed_path(const std::string &resource_path);
+    StatusCode get_request_body();
+    std::string get_indexed_path();
     void get_error_page_to_body();
     bool is_cgi_file() const;
     bool is_redirect() const;
@@ -125,10 +106,10 @@ class HttpResponse {
     StatusCode get_redirect_content(std::map<std::string, std::string> *headers);
 
     // POST
-	StatusCode post_target(const std::string &target);
+	StatusCode post_target();
 
     // DELETE
-	StatusCode delete_target(const std::string &target);
+	StatusCode delete_target();
 
 	HttpResponse(const HttpResponse &other);
 	HttpResponse &operator=(const HttpResponse &rhs);
