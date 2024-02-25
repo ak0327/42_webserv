@@ -1,13 +1,17 @@
 #include <sys/stat.h>
+#include <algorithm>
 #include <cctype>
 #include <cstdio>
 #include <fstream>
 #include <iostream>
+#include <vector>
 #include "webserv.hpp"
 #include "Config.hpp"
 #include "Constant.hpp"
 #include "Color.hpp"
+#include "Debug.hpp"
 #include "FileHandler.hpp"
+#include "StringHandler.hpp"
 
 namespace {
 
@@ -173,7 +177,19 @@ Result<std::string, std::string> FileHandler::get_file_contents(const char *path
 }
 
 
+bool FileHandler::is_valid_file_name(const std::string &path) {
+    if (path.empty()) {
+        return false;
+    }
+    std::string extension = StringHandler::get_extension(path);
+    return !extension.empty();
+}
+
+
 StatusCode FileHandler::delete_file() {
+    if (!is_valid_file_name(this->path_)) {
+        return BadRequest;
+    }
     Result<bool, StatusCode> is_file_result = FileHandler::is_file(this->path_);
     if (is_file_result.is_err()) {
         StatusCode error_code = is_file_result.get_err_value();
@@ -187,7 +203,34 @@ StatusCode FileHandler::delete_file() {
     if (std::remove(this->path_.c_str()) != REMOVE_SUCCESS) {
         return BadRequest;
     }
+    DEBUG_PRINT(WHITE, "%s deleted", this->path_.c_str());
     return NoContent;
+}
+
+
+StatusCode FileHandler::create_file(const std::vector<unsigned char> &data) {
+    if (!is_valid_file_name(this->path_)) {
+        return BadRequest;
+    }
+    Result<bool, StatusCode> result = is_file(this->path_);
+    if (result.is_ok()) {
+        return Conflict;
+    }
+    StatusCode file_result = result.get_err_value();
+    if (file_result != NotFound) {
+        return Forbidden;
+    }
+
+    std::ofstream ofs(this->path_.c_str(), std::ios::binary);
+    if (!ofs) {
+        return InternalServerError;
+    }
+    std::copy(data.begin(), data.end(), std::ostreambuf_iterator<char>(ofs));
+    if (!ofs) {
+        return InternalServerError;
+    }
+    DEBUG_PRINT(WHITE, "%s created", this->path_.c_str());
+    return StatusOk;
 }
 
 

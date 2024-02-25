@@ -29,6 +29,7 @@
 !playground
 
 !test
+!test/unit_test/test_file_handler/tmp
 
 !html
 !html/**

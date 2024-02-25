@@ -378,13 +378,33 @@ TEST(TestStringHandler, GetExtension) {
     actual = StringHandler::get_extension(path);
     EXPECT_EQ(expected, actual);
 
+    path = ".gitignore";
+    expected = "";
+    actual = StringHandler::get_extension(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "..gitignore";
+    expected = "gitignore";
+    actual = StringHandler::get_extension(path);
+    EXPECT_EQ(expected, actual);
+
     path = ".";
     expected = "";
     actual = StringHandler::get_extension(path);
     EXPECT_EQ(expected, actual);
 
+    path = "a.  ng";
+    expected = "";
+    actual = StringHandler::get_extension(path);
+    EXPECT_EQ(expected, actual);
+
+    path = " .   \n\r";
+    expected = "";
+    actual = StringHandler::get_extension(path);
+    EXPECT_EQ(expected, actual);
+
     path = ".   \n\r";
-    expected = "   \n\r";
+    expected = "";
     actual = StringHandler::get_extension(path);
     EXPECT_EQ(expected, actual);
 }
