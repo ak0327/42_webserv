@@ -5,6 +5,7 @@
 # include <fstream>
 # include <string>
 # include <cerrno>
+# include <vector>
 # include "Constant.hpp"
 # include "Result.hpp"
 
@@ -29,6 +30,9 @@ class FileHandler {
 	Result<int, std::string> result() const;
 	const std::string &get_contents() const;
     StatusCode delete_file();
+    StatusCode create_file(const std::vector<unsigned char> &data);
+
+    static bool is_valid_file_name(const std::string &path);
 
     static Result<bool, StatusCode> is_file(const std::string &path);
     static Result<bool, StatusCode> is_directory(const std::string &path);

@@ -41,9 +41,7 @@ std::map<std::string, std::vector<std::string> > get_post_parameters(const std::
 }
 
 // request body -> get parameters -> html
-StatusCode HttpResponse::post_target(const std::string &target) {
-    (void)target;
-
+StatusCode HttpResponse::post_target() {
     std::string head = "<!doctype html>\n"
                        "<html lang=\"ja\">\n"
                        "<head>\n"

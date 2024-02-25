@@ -28,9 +28,13 @@ struct file_info {
 	std::string	last_modified_time;  // dd-mm-yy hh:mm
 };
 
+struct FormData {
+    std::string file_name;
+    std::vector<unsigned char> binary;
+};
+
 typedef std::vector<std::string> StringVector;
 typedef std::map<std::string, StringVector> UrlEncodedFormData;
-typedef std::map<std::string, std::vector<unsigned char> > MultipartFormData;
 
 class HttpResponse {
  public:
@@ -107,6 +111,10 @@ class HttpResponse {
 
     // POST
 	StatusCode post_target();
+    StatusCode get_urlencoded_form_content();
+    StatusCode show_body();
+    bool is_urlencoded_form_data();
+    bool is_multipart_form_data();
 
     // DELETE
 	StatusCode delete_target();

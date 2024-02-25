@@ -347,3 +347,111 @@ TEST(TestFileHandler, Contents) {
 	EXPECT_EQ(expected_contents_6, file_handler_6.get_contents());
 	// std::cout << CYAN << file_handler_6.get_contents() << RESET << std::endl;
 }
+
+
+TEST(TestFileHandler, IsValidFileName) {
+    bool result;
+    std::string file_name;
+
+    file_name = "a.txt";
+    result = FileHandler::is_valid_file_name(file_name);
+    EXPECT_TRUE(result);
+
+    file_name = "a.text.text";
+    result = FileHandler::is_valid_file_name(file_name);
+    EXPECT_TRUE(result);
+
+
+    // -------------------------------------------------------------------------
+
+
+    file_name = "";
+    result = FileHandler::is_valid_file_name(file_name);
+    EXPECT_FALSE(result);
+
+    file_name = ".";
+    result = FileHandler::is_valid_file_name(file_name);
+    EXPECT_FALSE(result);
+
+    file_name = ".hoge";
+    result = FileHandler::is_valid_file_name(file_name);
+    EXPECT_FALSE(result);
+
+    file_name = "/";
+    result = FileHandler::is_valid_file_name(file_name);
+    EXPECT_FALSE(result);
+
+    file_name = "../";
+    result = FileHandler::is_valid_file_name(file_name);
+    EXPECT_FALSE(result);
+
+    file_name = "..";
+    result = FileHandler::is_valid_file_name(file_name);
+    EXPECT_FALSE(result);
+
+    file_name = "txt";
+    result = FileHandler::is_valid_file_name(file_name);
+    EXPECT_FALSE(result);
+}
+
+
+TEST(TestFileHandler, CreateAndDeleteFile) {
+    FileHandler file1("test/unit_test/test_file_handler/create.txt");
+    std::string hello = "hello";
+    std::vector<unsigned char> data(hello.begin(), hello.end());
+
+    StatusCode result = file1.create_file(data);
+    EXPECT_EQ(StatusOk, result);
+
+    result = file1.create_file(data);
+    EXPECT_EQ(Conflict, result);
+
+    result = file1.delete_file();
+    EXPECT_EQ(NoContent, result);
+
+    result = file1.delete_file();
+    EXPECT_EQ(NotFound, result);
+
+    // -------------------------------------------------------------------------
+
+    FileHandler file2("test/unit_test/test_file_handler");
+
+    result = file2.create_file(data);
+    EXPECT_EQ(BadRequest, result);
+
+    result = file2.delete_file();
+    EXPECT_EQ(BadRequest, result);
+
+    // -------------------------------------------------------------------------
+
+    result = file1.create_file(data);
+    EXPECT_EQ(StatusOk, result);
+
+    FileHandler file3("test/unit_test/test_file_handler/Create.txt");
+    result = file3.create_file(data);
+    EXPECT_EQ(Conflict, result);
+
+    result = file3.delete_file();
+    EXPECT_EQ(NoContent, result);
+
+    result = file1.delete_file();
+    EXPECT_EQ(NotFound, result);
+
+    // -------------------------------------------------------------------------
+
+    FileHandler file4("");
+    result = file4.create_file(data);
+    EXPECT_EQ(BadRequest, result);
+
+    result = file4.delete_file();
+    EXPECT_EQ(BadRequest, result);
+
+    // -------------------------------------------------------------------------
+
+    FileHandler file6("/");
+    result = file6.create_file(data);
+    EXPECT_EQ(BadRequest, result);
+
+    result = file6.delete_file();
+    EXPECT_EQ(BadRequest, result);
+}

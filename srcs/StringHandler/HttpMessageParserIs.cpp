@@ -21,7 +21,7 @@ bool is_print(const std::string &str)
 	}
 
 	for (size_t pos = 0; pos < str.length(); ++pos) {
-		if (isprint(str[pos])) {
+		if (std::isprint(str[pos])) {
 			continue;
 		}
 		return false;

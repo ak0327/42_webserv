@@ -92,6 +92,7 @@ std::map<StatusCode, std::string> init_reason_phrases() {
     reason_phrases[MethodNotAllowed]        = "Method Not Allowed";
     reason_phrases[NotAcceptable]           = "Not Acceptable";
     reason_phrases[RequestTimeout]          = "Request Timeout";
+    reason_phrases[Conflict]                = "Conflict";
     reason_phrases[LengthRequired]          = "Length Required";
     reason_phrases[ContentTooLarge]         = "Content Too Large";
 
