@@ -1,9 +1,11 @@
+#include <algorithm>
 #include "Constant.hpp"
 #include "Color.hpp"
 #include "Debug.hpp"
 #include "FileHandler.hpp"
 #include "HttpMessageParser.hpp"
 #include "HttpResponse.hpp"
+#include "MediaType.hpp"
 
 UrlEncodedFormData parse_urlencoded_form_data(const std::vector<unsigned char> &request_body) {
     UrlEncodedFormData parameters;
@@ -46,11 +48,6 @@ UrlEncodedFormData parse_urlencoded_form_data(const std::vector<unsigned char> &
 
 
 StatusCode HttpResponse::get_urlencoded_form_content() {
-    // content_type
-    // multipart/form-data
-
-    // application/x-www-form-urlencoded
-
     std::string head = "<!doctype html>\n"
                        "<html lang=\"ja\">\n"
                        "<head>\n"
@@ -139,15 +136,32 @@ StatusCode HttpResponse::show_body() {
 }
 
 
+// media-type = type "/" subtype parameters
+// Content-Type: application/x-www-form-urlencoded
 bool HttpResponse::is_urlencoded_form_data() {
-    // todo
-    return true;
+    Result<MediaType, ProcResult> result = this->request_.get_content_type();
+    if (result.is_err()) {
+        return false;
+    }
+    MediaType media_type = result.get_ok_value();
+    return media_type.type() == "application" && media_type.subtype() == "x-www-form-urlencoded";
 }
 
 
+// Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryOzc5oS6JxLwBcmay
 bool HttpResponse::is_multipart_form_data() {
-    // todo
-    return true;
+    Result<MediaType, ProcResult> result = this->request_.get_content_type();
+    if (result.is_err()) {
+        return false;
+    }
+    MediaType media_type = result.get_ok_value();
+    if (!(media_type.type() == "multipart" && media_type.subtype() == "form-data")) {
+        return false;
+    }
+
+    const std::map<std::string, std::string> &parameters = media_type.parameters();
+    std::map<std::string, std::string>::const_iterator itr = parameters.find("boundary");
+    return itr != parameters.end() && !itr->second.empty();
 }
 
 

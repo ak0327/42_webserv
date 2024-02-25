@@ -14,6 +14,7 @@
 #include "HttpRequest.hpp"
 #include "HttpMessageParser.hpp"
 #include "StringHandler.hpp"
+#include "MediaType.hpp"
 
 /* sub funcs; unnamed namespace */
 namespace {
@@ -808,6 +809,18 @@ Result<std::size_t, ProcResult> HttpRequest::get_content_length() const {
     return Result<std::size_t, ProcResult>::ok(length);
 }
 
+
+Result<MediaType, ProcResult> HttpRequest::get_content_type() const {
+    FieldValueBase *field_values = get_field_values(CONTENT_TYPE);
+    if (!field_values) {
+        return Result<MediaType, ProcResult>::err(Failure);
+    }
+    MediaType *media_type = dynamic_cast<MediaType *>(field_values);
+    if (!media_type) {
+        return Result<MediaType, ProcResult>::err(Failure);
+    }
+    return Result<MediaType, ProcResult>::ok(*media_type);
+}
 
 
 

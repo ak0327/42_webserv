@@ -354,6 +354,12 @@ run_get_test    :
 	cmake --build build
 	./build/unit_test --gtest_filter=HttpResponseGET*
 
+.PHONY    : run_post_test
+run_post_test    :
+	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG -D UNIT_TEST"
+	#cmake -S . -B build
+	cmake --build build
+	./build/unit_test --gtest_filter=HttpResponsePOST*
 
 # include DEPS -----------------------------------------------------------------
 -include $(DEPS)

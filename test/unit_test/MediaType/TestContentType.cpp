@@ -26,12 +26,12 @@ TEST(TestMediaType, ContentTypeOK1) {
 
 		//----------------------------------------------------------------------
 
-		EXPECT_EQ("text", data->get_type());
-		EXPECT_EQ("html", data->get_subtype());
+		EXPECT_EQ("text", data->type());
+		EXPECT_EQ("html", data->subtype());
 
 		//----------------------------------------------------------------------
 
-		std::map<std::string, std::string> actual_param = data->get_parameters();
+		std::map<std::string, std::string> actual_param = data->parameters();
 		std::map<std::string, std::string> expected_param = {};
 
 		EXPECT_EQ(actual_param, expected_param);
