@@ -107,8 +107,9 @@ class HttpResponse {
     std::string create_field_lines() const;
     bool is_executing_cgi() const;
     bool is_response_error_page() const;
-    bool is_method_allowed(const Method &method) const;
-    void process_method_not_allowed(const Method &method);
+    StatusCode check_resource_availability(const Method &method) const;
+    void add_allow_header();
+    void process_method_not_allowed();
 
     // GET
     StatusCode get_request_body(const std::string &resource_path);

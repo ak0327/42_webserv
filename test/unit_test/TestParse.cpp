@@ -91,6 +91,7 @@ TEST(TestParser, ParseOK) {
     location_config = LocationConfig(server_config);
     location_config.limit_except.excluded_methods = {kPOST, kDELETE};
     location_config.limit_except.rules.push_back(AccessRule(kDENY, "all"));
+    location_config.limit_except.limited = true;
     location_config.max_body_size_bytes = 20 * ConfigInitValue::MB;
     location_config.root_path = "/upload";
     location_config.cgi.is_cgi_mode = true;
@@ -187,6 +188,7 @@ TEST(TestParser, ParseOK) {
     location_config = LocationConfig(server_config);
     location_config.limit_except.excluded_methods = {kPOST, kDELETE};
     location_config.limit_except.rules.push_back(AccessRule(kDENY, "all"));
+    location_config.limit_except.limited = true;
     location_config.max_body_size_bytes = 20 * ConfigInitValue::MB;
     location_config.root_path = "/upload";
     server_config.locations["/post"] = location_config;
