@@ -420,4 +420,13 @@ std::string get_extension(const std::string &path) {
 }
 
 
+std::string unquote(const std::string &quoted) {
+    if (!HttpMessageParser::is_quoted_string(quoted)) {
+        return quoted;
+    }
+    std::string unquote = quoted.substr(1, quoted.length() - 2);
+    return unquote;
+}
+
+
 }  // namespace StringHandler

@@ -29,4 +29,6 @@ Result<std::string, int> parse_pos_to_wsp(const std::string &str,
 
 std::string get_extension(const std::string &path);
 
+std::string unquote(const std::string &quoted);
+
 }  // namespace StringHandler
