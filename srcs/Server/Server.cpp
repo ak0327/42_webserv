@@ -249,7 +249,9 @@ Result<IOMultiplexer *, std::string> Server::create_io_multiplexer_fds() {
 
 
 ServerResult Server::run() {
+#ifndef DEBUG
     this->set_timeout(500);  // todo
+#endif
 	while (true) {
         DEBUG_SERVER_PRINT(" run 1 timeout management");
         management_timeout_sessions();

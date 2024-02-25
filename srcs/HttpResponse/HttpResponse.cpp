@@ -79,15 +79,14 @@ void HttpResponse::add_allow_header() {
                                                                     this->request_.request_target());
     if (result.is_err()) {
         const std::string error_msg = CREATE_ERROR_INFO_STR("error: location not found");
-        DEBUG_PRINT(RED, "%s", error_msg.c_str());
-        // todo: log
+        DEBUG_PRINT(RED, "%s", error_msg.c_str());  // todo: log
         return;
     }
     LimitExceptDirective limit_except = result.get_ok_value();
     std::set<Method> &excluded_methods = limit_except.excluded_methods;
     if (excluded_methods.empty()) {
         const std::string error_msg = CREATE_ERROR_INFO_STR("error: excluded method not found");
-        DEBUG_PRINT(RED, "%s", error_msg.c_str());
+        DEBUG_PRINT(RED, "%s", error_msg.c_str());  // todo: log
         return;
     }
 
