@@ -105,8 +105,8 @@ Result<int, int> MediaType::validate() {
 ////////////////////////////////////////////////////////////////////////////////
 /* getter */
 
-std::string MediaType::get_type() const { return this->type_; }
-std::string MediaType::get_subtype() const { return this->subtype_; }
-std::map<std::string, std::string> MediaType::get_parameters() const { return this->parameters_; }
+std::string MediaType::type() const { return this->type_; }
+std::string MediaType::subtype() const { return this->subtype_; }
+std::map<std::string, std::string> MediaType::parameters() const { return this->parameters_; }
 bool MediaType::is_ok() const { return this->result_.is_ok(); }
 bool MediaType::is_err() const { return this->result_.is_err(); }

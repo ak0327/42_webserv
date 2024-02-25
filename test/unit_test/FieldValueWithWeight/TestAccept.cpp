@@ -47,8 +47,8 @@ TEST(TestFieldValueWithWeight, AcceptOK1) {
 			std::string expected_subtype = (*expected_itr)[SUBTYPE];
 			double expected_weight = HttpMessageParser::to_floating_num((*expected_itr)[WEIGHT], 3, NULL);
 
-			EXPECT_EQ(expected_type, media_type->get_type());
-			EXPECT_EQ(expected_subtype, media_type->get_subtype());
+			EXPECT_EQ(expected_type, media_type->type());
+			EXPECT_EQ(expected_subtype, media_type->subtype());
 			EXPECT_EQ(expected_weight, weight);
 
 			++actual_itr;
@@ -98,8 +98,8 @@ TEST(TestFieldValueWithWeight, AcceptOK2) {
 			std::string expected_subtype = (*expected_itr)[SUBTYPE];
 			double expected_weight = HttpMessageParser::to_floating_num((*expected_itr)[WEIGHT], 3, NULL);
 
-			EXPECT_EQ(expected_type, media_type->get_type());
-			EXPECT_EQ(expected_subtype, media_type->get_subtype());
+			EXPECT_EQ(expected_type, media_type->type());
+			EXPECT_EQ(expected_subtype, media_type->subtype());
 			EXPECT_EQ(expected_weight, weight);
 
 			++actual_itr;
@@ -149,8 +149,8 @@ TEST(TestFieldValueWithWeight, AcceptOK3) {
 			std::string expected_subtype = (*expected_itr)[SUBTYPE];
 			double expected_weight = HttpMessageParser::to_floating_num((*expected_itr)[WEIGHT], 3, NULL);
 
-			EXPECT_EQ(expected_type, media_type->get_type());
-			EXPECT_EQ(expected_subtype, media_type->get_subtype());
+			EXPECT_EQ(expected_type, media_type->type());
+			EXPECT_EQ(expected_subtype, media_type->subtype());
 			EXPECT_EQ(expected_weight, weight);
 
 			++actual_itr;
@@ -200,8 +200,8 @@ TEST(TestFieldValueWithWeight, AcceptOK4) {
 			std::string expected_subtype = (*expected_itr)[SUBTYPE];
 			double expected_weight = HttpMessageParser::to_floating_num((*expected_itr)[WEIGHT], 3, NULL);
 
-			EXPECT_EQ(expected_type, media_type->get_type());
-			EXPECT_EQ(expected_subtype, media_type->get_subtype());
+			EXPECT_EQ(expected_type, media_type->type());
+			EXPECT_EQ(expected_subtype, media_type->subtype());
 			EXPECT_EQ(expected_weight, weight);
 
 			++actual_itr;
@@ -250,8 +250,8 @@ TEST(TestFieldValueWithWeight, AcceptOK5) {
 			std::string expected_subtype = (*expected_itr)[SUBTYPE];
 			double expected_weight = HttpMessageParser::to_floating_num((*expected_itr)[WEIGHT], 3, NULL);
 
-			EXPECT_EQ(expected_type, media_type->get_type());
-			EXPECT_EQ(expected_subtype, media_type->get_subtype());
+			EXPECT_EQ(expected_type, media_type->type());
+			EXPECT_EQ(expected_subtype, media_type->subtype());
 			EXPECT_EQ(expected_weight, weight);
 
 			++actual_itr;
@@ -303,8 +303,8 @@ TEST(TestFieldValueWithWeight, AcceptOK6) {
 			std::string expected_subtype = (*expected_itr)[SUBTYPE];
 			double expected_weight = HttpMessageParser::to_floating_num((*expected_itr)[WEIGHT], 3, NULL);
 
-			EXPECT_EQ(expected_type, media_type->get_type());
-			EXPECT_EQ(expected_subtype, media_type->get_subtype());
+			EXPECT_EQ(expected_type, media_type->type());
+			EXPECT_EQ(expected_subtype, media_type->subtype());
 			EXPECT_EQ(expected_weight, weight);
 
 			++actual_itr;
@@ -355,8 +355,8 @@ TEST(TestFieldValueWithWeight, AcceptOK7) {
 			std::string expected_subtype = (*expected_itr)[SUBTYPE];
 			double expected_weight = HttpMessageParser::to_floating_num((*expected_itr)[WEIGHT], 3, NULL);
 
-			EXPECT_EQ(expected_type, media_type->get_type());
-			EXPECT_EQ(expected_subtype, media_type->get_subtype());
+			EXPECT_EQ(expected_type, media_type->type());
+			EXPECT_EQ(expected_subtype, media_type->subtype());
 			EXPECT_EQ(expected_weight, weight);
 
 			++actual_itr;
