@@ -146,7 +146,7 @@ Result<ProcResult, StatusCode> RequestLine::validate() const {
 }
 
 void RequestLine::update_target_path() {
-    std::string decoded = HttpMessageParser::decode(this->request_target_);
-    std::string normalized = HttpMessageParser::normalize(decoded);
+    std::string decoded = StringHandler::decode(this->request_target_);
+    std::string normalized = StringHandler::normalize_to_absolute_path(decoded);
     this->request_target_ = normalized;
 }

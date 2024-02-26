@@ -443,3 +443,165 @@ TEST(TestStringHandler, Unquote) {
     actual = StringHandler::unquote(quoted);
     EXPECT_EQ(expected, actual);
 }
+
+
+TEST(TestHttpMessageParser, Decode) {
+    std::string encoded;
+    std::string expected, actual;
+
+    encoded = "HelloWorld";
+    expected = "HelloWorld";
+    actual = StringHandler::decode(encoded);
+    EXPECT_EQ(expected, actual);
+
+    encoded = "Hello%20World";
+    expected = "Hello World";
+    actual = StringHandler::decode(encoded);
+    EXPECT_EQ(expected, actual);
+
+    encoded = "Hello%20World%21";
+    expected = "Hello World!";
+    actual = StringHandler::decode(encoded);
+    EXPECT_EQ(expected, actual);
+
+    encoded = "%7E";
+    expected = "~";
+    actual = StringHandler::decode(encoded);
+    EXPECT_EQ(expected, actual);
+
+    encoded = "Hello%2";
+    expected = "Hello%2";
+    actual = StringHandler::decode(encoded);
+    EXPECT_EQ(expected, actual);
+
+    encoded = "Hello%2World";
+    expected = "Hello%2World";
+    actual = StringHandler::decode(encoded);
+    EXPECT_EQ(expected, actual);
+
+    encoded = "";
+    expected = "";
+    actual = StringHandler::decode(encoded);
+    EXPECT_EQ(expected, actual);
+
+    encoded = "%%";
+    expected = "%%";
+    actual = StringHandler::decode(encoded);
+    EXPECT_EQ(expected, actual);
+
+    encoded = "Hello%20%21%22World";
+    expected = "Hello !\"World";
+    actual = StringHandler::decode(encoded);
+    EXPECT_EQ(expected, actual);
+}
+
+
+TEST(TestHttpMessageParser, Normalize) {
+    std::string path;
+    std::string expected, actual;
+
+    path = "/a/b/c";
+    expected = "/a/b/c";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/a/./b/./c";
+    expected = "/a/b/c";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/a/b/../c";
+    expected = "/a/c";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/a//b/c";
+    expected = "/a/b/c";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/../a/b";
+    expected = "/a/b";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/";
+    expected = "/";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "";
+    expected = "/";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = ".";
+    expected = "/";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "..";
+    expected = "/";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "...";
+    expected = "/...";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = ".././..";
+    expected = "/";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = ".././../";
+    expected = "/";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "../a/b";
+    expected = "/a/b";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "//";
+    expected = "/";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "///";
+    expected = "/";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "///./..//";
+    expected = "/";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "//a";
+    expected = "/a";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/a/b/c/../../d";
+    expected = "/a/d";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/a/./b/../../c/../d";
+    expected = "/d";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/../../a";
+    expected = "/a";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "../../a";
+    expected = "/a";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+}
