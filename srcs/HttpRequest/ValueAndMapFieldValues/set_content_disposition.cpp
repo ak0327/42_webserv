@@ -350,7 +350,7 @@ HttpRequest::parse_and_validate_content_disposition(const std::string &field_val
     }
     pos = end;
 
-    if (field_value[pos] != '\0') {
+    if (pos != field_value.length()) {
         return Result<int, int>::err(ERR);
     }
     return Result<int, int>::ok(OK);
