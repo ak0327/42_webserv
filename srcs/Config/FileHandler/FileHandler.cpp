@@ -77,7 +77,7 @@ FileHandler::FileHandler(const char *path, const char *expected_extension) {
 		this->result_ = Result<int, std::string>::err(error_msg);
 		return;
 	}
-	if (!is_valid_extension(expected_extension)) {
+	if (!StringHandler::is_valid_extension(expected_extension)) {
 		error_msg = std::string(INVALID_ARG_ERROR_MSG);
 		this->result_ = Result<int, std::string>::err(error_msg);
 		return;
@@ -108,21 +108,6 @@ FileHandler::FileHandler(const std::string &path) {
 
 
 FileHandler::~FileHandler() {}
-
-
-bool FileHandler::is_valid_extension(const char *expected_extension) {
-    std::string extension = std::string(expected_extension);
-
-	if (extension.empty()) {
-		return false;
-	}
-	for (std::size_t pos = 0; pos < extension.length(); ++pos) {
-		if (!std::isalnum(extension[pos])) {
-			return false;
-		}
-	}
-	return true;
-}
 
 
 bool FileHandler::is_valid_path(const char *path,
@@ -182,17 +167,8 @@ Result<std::string, std::string> FileHandler::get_file_contents(const char *path
 }
 
 
-bool FileHandler::is_valid_file_name(const std::string &path) {
-    if (path.empty()) {
-        return false;
-    }
-    std::string extension = StringHandler::get_extension(path);
-    return !extension.empty();
-}
-
-
 StatusCode FileHandler::delete_file() {
-    if (!is_valid_file_name(this->path_)) {
+    if (!StringHandler::is_valid_file_name(this->path_)) {
         return BadRequest;
     }
     Result<bool, StatusCode> is_file_result = FileHandler::is_file(this->path_);
@@ -214,7 +190,7 @@ StatusCode FileHandler::delete_file() {
 
 
 StatusCode FileHandler::create_file(const std::vector<unsigned char> &data) {
-    if (!is_valid_file_name(this->path_)) {
+    if (!StringHandler::is_valid_file_name(this->path_)) {
         return BadRequest;
     }
     Result<bool, StatusCode> result = is_file(this->path_);

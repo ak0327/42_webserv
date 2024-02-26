@@ -32,8 +32,6 @@ class FileHandler {
     StatusCode delete_file();
     StatusCode create_file(const std::vector<unsigned char> &data);
 
-    static bool is_valid_file_name(const std::string &path);
-
     static Result<bool, StatusCode> is_file(const std::string &path);
     static Result<bool, StatusCode> is_directory(const std::string &path);
 
@@ -45,7 +43,6 @@ class FileHandler {
 	FileHandler(const FileHandler &other);
 	FileHandler &operator=(const FileHandler &rhs);
 
-	static bool is_valid_extension(const char *expected_extension);
 	static bool is_valid_path(const char *path,
 							  const char *expected_extension);
 	static Result<std::string, std::string> get_file_contents(const char *path);
