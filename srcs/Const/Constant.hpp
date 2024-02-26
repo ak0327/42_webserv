@@ -79,6 +79,7 @@ extern const int STATUS_SERVER_ERROR;
 
 enum StatusCode {
     StatusOk                = 200,
+    Created                 = 201,
     NoContent               = 204,
 
     MultipleChoices         = 300,
