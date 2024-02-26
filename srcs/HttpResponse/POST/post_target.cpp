@@ -40,8 +40,8 @@ UrlEncodedFormData parse_urlencoded_form_data(const std::vector<unsigned char> &
         std::string key = name_value.substr(0, delimiter_pos);
         std::string value = name_value.substr(delimiter_pos + 1);
 
-        key = HttpMessageParser::decode(key);
-        value = HttpMessageParser::decode(value);
+        key = StringHandler::decode(key);
+        value = StringHandler::decode(value);
         parameters[key].push_back(value);
         std::cout << "key: " << key << ", value: " << value << std::endl;
     }

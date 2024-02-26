@@ -28,7 +28,8 @@ Result<std::string, int> parse_pos_to_wsp(const std::string &str,
 										  std::size_t *end_pos);
 
 std::string get_extension(const std::string &path);
-
 std::string unquote(const std::string &quoted);
+std::string decode(const std::string &encoded);
+std::string normalize_to_absolute_path(const std::string &path);
 
 }  // namespace StringHandler
