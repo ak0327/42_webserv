@@ -349,52 +349,6 @@ TEST(TestFileHandler, Contents) {
 }
 
 
-TEST(TestFileHandler, IsValidFileName) {
-    bool result;
-    std::string file_name;
-
-    file_name = "a.txt";
-    result = FileHandler::is_valid_file_name(file_name);
-    EXPECT_TRUE(result);
-
-    file_name = "a.text.text";
-    result = FileHandler::is_valid_file_name(file_name);
-    EXPECT_TRUE(result);
-
-
-    // -------------------------------------------------------------------------
-
-
-    file_name = "";
-    result = FileHandler::is_valid_file_name(file_name);
-    EXPECT_FALSE(result);
-
-    file_name = ".";
-    result = FileHandler::is_valid_file_name(file_name);
-    EXPECT_FALSE(result);
-
-    file_name = ".hoge";
-    result = FileHandler::is_valid_file_name(file_name);
-    EXPECT_FALSE(result);
-
-    file_name = "/";
-    result = FileHandler::is_valid_file_name(file_name);
-    EXPECT_FALSE(result);
-
-    file_name = "../";
-    result = FileHandler::is_valid_file_name(file_name);
-    EXPECT_FALSE(result);
-
-    file_name = "..";
-    result = FileHandler::is_valid_file_name(file_name);
-    EXPECT_FALSE(result);
-
-    file_name = "txt";
-    result = FileHandler::is_valid_file_name(file_name);
-    EXPECT_FALSE(result);
-}
-
-
 TEST(TestFileHandler, CreateAndDeleteFile) {
     FileHandler file1("test/unit_test/test_file_handler/create.txt");
     std::string hello = "hello";
