@@ -13,6 +13,7 @@
 #include "Error.hpp"
 #include "HttpRequest.hpp"
 #include "HttpMessageParser.hpp"
+#include "Socket.hpp"
 #include "StringHandler.hpp"
 #include "MediaType.hpp"
 
@@ -149,53 +150,9 @@ void HttpRequest::clear_field_values_of(const std::string &field_name) {
 ////////////////////////////////////////////////////////////////////////////////
 
 
-ssize_t HttpRequest::recv(int fd, void *buf, std::size_t bufsize) {
-    ssize_t recv_size;
-
-    errno = 0;
-    recv_size = ::recv(fd, buf, bufsize, FLAG_NONE);
-    int tmp_errno = errno;
-    DEBUG_SERVER_PRINT("    recv_size: %zd", recv_size);
-    if (recv_size == RECV_CLOSED) {
-        return RECV_CLOSED;
-    }
-    if (recv_size == RECV_CONTINUE) {
-        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(tmp_errno);
-        DEBUG_SERVER_PRINT("%s", error_msg.c_str());
-        // return Result<std::size_t, std::string>::err(error_info);
-        return RECV_CONTINUE;  // non-blocking -> recv completed
-    }
-    return recv_size;
-}
-
-
 ssize_t HttpRequest::recv_to_buf(int fd) {
-    return HttpRequest::recv_to_buf(fd, &this->buf_);
+    return Socket::recv_to_buf(fd, &this->buf_);
 }
-
-
-ssize_t HttpRequest::recv_to_buf(int fd, std::vector<unsigned char> *buf) {
-    if (!buf) {
-        return 0;
-    }
-
-    std::vector<unsigned char> recv_buf(BUFSIZ);
-    ssize_t recv_size;
-
-    DEBUG_SERVER_PRINT("    recv start");
-    recv_size = HttpRequest::recv(fd, &recv_buf[0], BUFSIZ);
-
-    DEBUG_SERVER_PRINT("     recv_size: %zd", recv_size);
-    std::string debug_recv_mes(recv_buf.begin(), recv_buf.begin() + recv_size);
-    DEBUG_SERVER_PRINT("     recv_msg[%s]", debug_recv_mes.c_str());
-
-    if (0 < recv_size) {
-        buf->insert(buf->end(), recv_buf.begin(), recv_buf.begin() + recv_size);
-    }
-    DEBUG_SERVER_PRINT("    recv end");
-    return recv_size;
-}
-
 
 
 bool HttpRequest::is_crlf_in_buf(const unsigned char buf[], std::size_t size) {
@@ -734,6 +691,11 @@ std::string HttpRequest::http_version() const {
 }
 
 
+std::string HttpRequest::query_string() const {
+    return this->request_line_.query();
+}
+
+
 const std::vector<unsigned char> HttpRequest::body() const {
     return this->request_body_;
 }
@@ -830,6 +792,20 @@ Result<MediaType, ProcResult> HttpRequest::get_content_type() const {
     return Result<MediaType, ProcResult>::ok(*media_type);
 }
 
+
+std::string HttpRequest::content_type() const {
+    Result<MediaType, ProcResult> result = get_content_type();
+    if (result.is_err()) {
+        return EMPTY;
+    }
+    MediaType media_type = result.get_ok_value();
+    std::string content_type = media_type.type();
+    if (!media_type.subtype().empty()) {
+        content_type.append("/");
+        content_type.append(media_type.subtype());
+    }
+    return content_type;
+}
 
 
 #ifdef ECHO
