@@ -102,121 +102,181 @@ std::vector<unsigned char>::iterator get_non_const_itr(std::vector<unsigned char
 }
 
 
-Result<FormData, ProcResult> HttpResponse::parse_multipart_form_data(const std::string &boundary) {
-    std::cout << RED << "  parser 1" << RESET << std::endl;
-
-    if (this->body_buf_.empty() || boundary.empty()) {
-        std::cout << RED << "  parser 2" << RESET << std::endl;
-        return Result<FormData, ProcResult>::err(Failure);
+// The Content-Disposition header field MUST also contain an additional parameter of "name".
+Result<std::string, ProcResult> parse_file_name(const std::string &value) {
+    // std::cout << RED << "    parser_file_name: 1" << RESET << std::endl;
+    std::string type;
+    std::map<std::string, std::string> params;
+    Result<int, int> content_disposition_result;
+    content_disposition_result = HttpRequest::parse_and_validate_content_disposition(value,
+                                                                                     &type,
+                                                                                     &params);
+    if (content_disposition_result.is_err()) {
+        // std::cout << RED << "    parser_file_name: 2" << RESET << std::endl;
+        return Result<std::string, ProcResult>::err(Failure);
+    }
+    if (type != "form-data") {
+        // std::cout << RED << "    parser_file_name: 3" << RESET << std::endl;
+        return Result<std::string, ProcResult>::err(Failure);
+    }
+    std::map<std::string, std::string>::const_iterator itr = params.find("name");
+    if (itr == params.end() || itr->second != "\"file_name\"") {
+        // std::cout << RED << "    parser_file_name: 4" << RESET << std::endl;
+        return Result<std::string, ProcResult>::err(Failure);
     }
 
-    // todo
-    // get_line
-    //  name -> filename
-    //  boundary -> skip
-    //  Content-Type -> serarch next boundary
-    //                  copy begin to end
-    FormData form_data;
+    itr = params.find("filename");
+    if (itr == params.end()) {
+        // std::cout << RED << "    parser_file_name: 5" << RESET << std::endl;
+        return Result<std::string, ProcResult>::err(Failure);
+    }
+    std::string file_name = itr->second;
+    // std::cout << RED << "    parser_file_name: 6" << RESET << std::endl;
+    return Result<std::string, ProcResult>::ok(file_name);
+}
+
+
+Result<std::string, ProcResult> parse_content_type(const std::string &value) {
+    // std::cout << RED << "    parser_content_type: 1" << RESET << std::endl;
+    MediaType media_type(value);
+    if (media_type.is_err()) {
+        // std::cout << RED << "    parser_content_type: 2" << RESET << std::endl;
+        return Result<std::string, ProcResult>::err(Failure);
+    }
+    std::string content_type = media_type.type();
+    if (!media_type.subtype().empty()) {
+        content_type.append("/");
+        content_type.append(media_type.subtype());
+        // std::cout << RED << "    parser_content_type: 3" << RESET << std::endl;
+    }
+    // std::cout << RED << "    parser_content_type: 4" << RESET << std::endl;
+    return Result<std::string, ProcResult>::ok(content_type);
+}
+
+
+
+ProcResult HttpResponse::parse_until_binary(const std::string &boundary,
+                                            std::string *file_name,
+                                            std::string *content_type) {
+    if (!file_name || !content_type) {
+        return FatalError;
+    }
+    const std::string separator = "--" + boundary;
 
     Result<std::string, ProcResult> line_result;
     Result<ProcResult, StatusCode> split_result;
-    std::string line, name, value;
-    std::cout << RED << "  parser 3" << RESET << std::endl;
     while (true) {
-        std::cout << RED << "  parser 4" << RESET << std::endl;
+        // std::cout << RED << "   parser1: 1" << RESET << std::endl;
         line_result = HttpRequest::pop_line_from_buf(&this->body_buf_);
         if (line_result.is_err()) {
-            std::cout << RED << "  parser 5" << RESET << std::endl;
-            return Result<FormData, ProcResult>::err(Failure);
+            // std::cout << RED << "   parser1: 2c" << RESET << std::endl;
+            return Failure;
         }
-        line = line_result.get_ok_value();
-        std::cout << RED << "  parser 6 line:" << line << RESET << std::endl;
+        std::string line = line_result.get_ok_value();
+        // std::cout << RED << "   parser1: 3 line:" << line << RESET << std::endl;
 
-        if (line == "--" + boundary || line.empty()) {
+        if (line == separator || line.empty()) {
             continue;
         }
-        if (12 <= line.length() && line.substr(0, 12) == "hidden_value") {
-            continue;
-        }
+        std::string name, value;
         split_result = HttpRequest::split_field_line(line, &name, &value);
         if (split_result.is_err()) {
-            std::cout << RED << "  parser 7" << RESET << std::endl;
-            return Result<FormData, ProcResult>::err(Failure);
+            // std::cout << RED << "   parser1: 4                std::cout << RED << \"   parser1: 7\" << RESET << std::endl;" << RESET << std::endl;
+            return Failure;
         }
-        std::cout << RED << "  parser 8" << RESET << std::endl;
+        // std::cout << RED << "   parser1: 5" << RESET << std::endl;
         name = StringHandler::to_lower(name);
         DEBUG_PRINT(RED, "name[%s], value[%s]", name.c_str(), value.c_str());
 
         if (name == std::string(CONTENT_DISPOSITION)) {
-            std::cout << RED << "  parser 9" << RESET << std::endl;
-            std::string type;
-            std::map<std::string, std::string> params;
-            Result<int, int> content_disposition_result;
-            content_disposition_result = HttpRequest::parse_and_validate_content_disposition(value,
-                                                                                             &type,
-                                                                                             &params);
-            if (content_disposition_result.is_err()) {
-                std::cout << RED << "  parser 10" << RESET << std::endl;
-                return Result<FormData, ProcResult>::err(Failure);
+            // std::cout << RED << "   parser1: 6" << RESET << std::endl;
+            Result<std::string, ProcResult> file_name_result = parse_file_name(value);
+            if (file_name_result.is_err()) {
+                // std::cout << RED << "   parser1: 7 err" << RESET << std::endl;
+                return Failure;
             }
-            if (type != "form-data") {
-                std::cout << RED << "  parser 11" << RESET << std::endl;
-                return Result<FormData, ProcResult>::err(Failure);
-            }
-            std::map<std::string, std::string>::const_iterator itr = params.find("filename");
-            if (itr != params.end()) {
-                form_data.file_name = itr->second;
-                DEBUG_PRINT(RED, " file_name[%s]", form_data.file_name.c_str());
-                std::cout << RED << "  parser 12" << RESET << std::endl;
-            }
-            std::cout << RED << "  parser 13" << RESET << std::endl;
+            *file_name = file_name_result.get_ok_value();
+            DEBUG_PRINT(RED, " file_name[%s]", file_name->c_str());
+
         } else if (name == std::string(CONTENT_TYPE)) {
-            std::cout << RED << "  parser 14" << RESET << std::endl;
-            MediaType media_type(value);
-            if (media_type.is_err()) {
-                std::cout << RED << "  parser 15" << RESET << std::endl;
-                return Result<FormData, ProcResult>::err(Failure);
+            // std::cout << RED << "   parser1: 8" << RESET << std::endl;
+            Result<std::string, ProcResult> content_type_result = parse_content_type(value);
+            if (content_type_result.is_err()) {
+                // std::cout << RED << "   parser1: 9 err" << RESET << std::endl;
+                return Failure;
             }
-            form_data.content_type = media_type.type();
-            if (!media_type.subtype().empty()) {
-                form_data.content_type.append("/");
-                form_data.content_type.append(media_type.subtype());
-                std::cout << RED << "  parser 16" << RESET << std::endl;
-            }
-            DEBUG_PRINT(RED, " content_type[%s]", form_data.content_type.c_str());
-            std::cout << RED << "  parser 17" << RESET << std::endl;
+            *content_type = content_type_result.get_ok_value();
+            DEBUG_PRINT(RED, " content_type[%s]", content_type->c_str());
+
+            // std::cout << RED << "   parser1: 10" << RESET << std::endl;
             break;
         }
     }
 
-    std::cout << RED << "  parser 18" << RESET << std::endl;
+    // std::cout << RED << "   parser1: 11" << RESET << std::endl;
     line_result = HttpRequest::pop_line_from_buf(&this->body_buf_);
     if (line_result.is_err()) {
-        return Result<FormData, ProcResult>::err(Failure);
+        // std::cout << RED << "   parser1: 12 err" << RESET << std::endl;
+        return Failure;
     }
-    line = line_result.get_ok_value();
+    std::string line = line_result.get_ok_value();
     if (!line.empty()) {
-        return Result<FormData, ProcResult>::err(Failure);
+        // std::cout << RED << "   parser1: 13 err" << RESET << std::endl;
+        return Failure;
     }
 
+    // std::cout << RED << "   parser1: 14" << RESET << std::endl;
+    return Success;
+}
+
+
+ProcResult HttpResponse::parse_binary_data(const std::string &boundary,
+                                           std::vector<unsigned char> *data) {
+    if (!data) {
+        return FatalError;
+    }
+
+    // std::cout << RED << "   parser2: 1" << RESET << std::endl;
     std::vector<unsigned char>::const_iterator pos, next;
     pos = this->body_buf_.begin();
     while (pos != this->body_buf_.end()) {
-        line_result = HttpRequest::get_line(this->body_buf_, pos, &next);
+        // std::cout << RED << "   parser2: 2" << RESET << std::endl;
+        Result<std::string, ProcResult> line_result = HttpRequest::get_line(this->body_buf_, pos, &next);
         if (line_result.is_err()) {
-            return Result<FormData, ProcResult>::err(Failure);
+            // std::cout << RED << "   parser2: 3" << RESET << std::endl;
+            return Failure;
         }
-        line = line_result.get_ok_value();
-        if (line == boundary) {
+        std::string line = line_result.get_ok_value();
+        if (line == "--" + boundary + "--" || line == "--" + boundary) {
+            // std::cout << RED << "   parser2: 4" << RESET << std::endl;
+            if (pos != data->begin()) { --pos; }
+            if (pos != data->begin()) { --pos; }
             break;
         }
         pos = next;
     }
 
     std::vector<unsigned char>::iterator non_const_pos = get_non_const_itr(this->body_buf_.begin(), pos);
-    form_data.binary.assign(this->body_buf_.begin(), non_const_pos);
-    std::string debug_str(form_data.binary.begin(), form_data.binary.end());
+    data->assign(this->body_buf_.begin(), non_const_pos);
+    std::string debug_str(data->begin(), data->end());
     DEBUG_PRINT(RED, " binary[%s]", debug_str.c_str());
+    return Success;
+}
+
+
+Result<FormData, ProcResult> HttpResponse::parse_multipart_form_data(const std::string &boundary) {
+    // std::cout << RED << "  parser 1" << RESET << std::endl;
+
+    if (this->body_buf_.empty() || boundary.empty()) {
+        // std::cout << RED << "  parser 2" << RESET << std::endl;
+        return Result<FormData, ProcResult>::err(Failure);
+    }
+    FormData form_data;
+
+    // std::cout << RED << "  parser 3" << RESET << std::endl;
+
+    parse_until_binary(boundary, &form_data.file_name, &form_data.content_type);
+    parse_binary_data(boundary, &form_data.binary);
 
     if (HttpMessageParser::is_quoted_string(form_data.file_name)) {
         DEBUG_PRINT(RED, " quoted file_name[%s]", form_data.file_name.c_str());
@@ -233,20 +293,20 @@ Result<FormData, ProcResult> HttpResponse::parse_multipart_form_data(const std::
 
 
 StatusCode HttpResponse::upload_file(const std::string &boundary) {
-    std::cout << RED << " upload 1" << RESET << std::endl;
+    // std::cout << RED << " upload 1" << RESET << std::endl;
     Result<FormData, ProcResult> parse_result = parse_multipart_form_data(boundary);
     if (parse_result.is_err()) {
-        std::cout << RED << " upload 2" << RESET << std::endl;
+        // std::cout << RED << " upload 2" << RESET << std::endl;
         return BadRequest;
     }
-    std::cout << RED << " upload 3" << RESET << std::endl;
+    // std::cout << RED << " upload 3" << RESET << std::endl;
     FormData form_data = parse_result.get_ok_value();
 
     const std::string file_name = form_data.file_name;
     const std::string path = "./html/upload/" + file_name;
 
     FileHandler file(path);
-    std::cout << RED << " upload 4 path:" << path << RESET << std::endl;
+    // std::cout << RED << " upload 4 path:" << path << RESET << std::endl;
     StatusCode upload_result = file.create_file(form_data.binary);
 
     if (upload_result == StatusOk) {
@@ -331,19 +391,19 @@ bool HttpResponse::is_multipart_form_data(std::string *boundary) {
 
 
 StatusCode HttpResponse::post_target() {
-    std::cout << RED << "post 1" << RESET << std::endl;
+    // std::cout << RED << "post 1" << RESET << std::endl;
     if (this->request_.request_target() == "/show_body") {
         return show_body();
     }
-    std::cout << RED << "post 2" << RESET << std::endl;
+    // std::cout << RED << "post 2" << RESET << std::endl;
     if (is_urlencoded_form_data()) {
         return get_urlencoded_form_content();
     }
-    std::cout << RED << "post 3" << RESET << std::endl;
+    // std::cout << RED << "post 3" << RESET << std::endl;
     std::string boundary;
     if (is_multipart_form_data(&boundary)) {
         return upload_file(boundary);
     }
-    std::cout << RED << "post 4" << RESET << std::endl;
+    // std::cout << RED << "post 4" << RESET << std::endl;
     return BadRequest;
 }

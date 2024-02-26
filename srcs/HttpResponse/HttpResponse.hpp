@@ -124,6 +124,11 @@ class HttpResponse {
     StatusCode upload_file(const std::string &boundary);
 
     Result<FormData, ProcResult> parse_multipart_form_data(const std::string &boundary);
+    ProcResult parse_until_binary(const std::string &separator,
+                                  std::string *file_name,
+                                  std::string *content_type);
+    ProcResult parse_binary_data(const std::string &separator,
+                                 std::vector<unsigned char> *data);
 
     bool is_urlencoded_form_data();
     bool is_multipart_form_data(std::string *boundary);

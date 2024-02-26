@@ -7,6 +7,9 @@
 # include "Constant.hpp"
 # include "MediaType.hpp"
 
+struct CgiParams {
+};
+
 class CgiHandler {
  public:
     CgiHandler();
