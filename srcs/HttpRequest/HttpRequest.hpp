@@ -39,6 +39,7 @@ class HttpRequest {
 	std::string	method() const;
 	std::string request_target() const;
 	std::string	http_version() const;
+    std::string query_string() const;
     const std::vector<unsigned char> body() const;
     StatusCode status_code() const;
     void set_status_code(const StatusCode &set_code);
@@ -46,9 +47,7 @@ class HttpRequest {
     Result<HostPortPair, StatusCode> server_info() const;
     bool is_buf_empty() const;
 
-    static ssize_t recv(int fd, void *buf, std::size_t bufsize);
     ssize_t recv_to_buf(int fd);
-    static ssize_t recv_to_buf(int fd, std::vector<unsigned char> *buf);
 
     static bool is_crlf_in_buf(const unsigned char buf[], std::size_t size);
     static void trim(std::vector<unsigned char> *buf, std::vector<unsigned char>::const_iterator start);
@@ -72,6 +71,8 @@ class HttpRequest {
 	FieldValueBase * get_field_values(const std::string &field_name) const;
 
     Result<std::map<std::string, std::string>, ProcResult> get_host() const;
+
+    std::string content_type() const;
     Result<MediaType, ProcResult> get_content_type() const;
     Result<std::size_t, ProcResult> get_content_length() const;
 

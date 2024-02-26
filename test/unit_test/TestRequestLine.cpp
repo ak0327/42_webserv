@@ -48,10 +48,25 @@ TEST(TestRequestLine, ResuestLineOK4) {
 
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("GET", request.method());
-	EXPECT_EQ("/index.html?hoge?", request.request_target());
+	EXPECT_EQ("/index.html", request.request_target());
 	EXPECT_EQ("HTTP/1.1", request.http_version());
+    EXPECT_EQ("hoge?", request.query());
 	EXPECT_TRUE(result.is_ok());
 }
+
+TEST(TestRequestLine, ResuestLineOK5) {
+    const std::string request_line = "GET /path?key1=value1&key2=value2 HTTP/1.1";
+    RequestLine request;
+    Result<ProcResult, StatusCode> result;
+
+    result = request.parse_and_validate(request_line);
+    EXPECT_EQ("GET", request.method());
+    EXPECT_EQ("/path", request.request_target());
+    EXPECT_EQ("HTTP/1.1", request.http_version());
+    EXPECT_EQ("key1=value1&key2=value2", request.query());
+    EXPECT_TRUE(result.is_ok());
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
