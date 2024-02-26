@@ -4,6 +4,7 @@
 #include <iostream>
 #include <limits>
 #include <sstream>
+#include <vector>
 #include "Color.hpp"
 #include "Constant.hpp"
 #include "StringHandler.hpp"
@@ -426,6 +427,66 @@ std::string unquote(const std::string &quoted) {
     }
     std::string unquote = quoted.substr(1, quoted.length() - 2);
     return unquote;
+}
+
+
+std::string decode(const std::string& encoded) {
+    std::string decoded;
+    std::istringstream iss(encoded);
+    char ch;
+
+    while (iss.get(ch)) {
+        if (ch == '%' && !iss.eof()) {
+            char hex_str[3] = {0};
+            iss.read(hex_str, 2);
+
+            if (std::isxdigit(hex_str[0]) && std::isxdigit(hex_str[1])) {
+                char decoded_char = static_cast<char>(std::strtol(hex_str, NULL, 16));
+                decoded.push_back(decoded_char);
+            } else {
+                decoded.push_back(ch);
+                if (hex_str[0] != '\0') {
+                    decoded.push_back(hex_str[0]);
+                }
+                if (hex_str[1] != '\0') {
+                    decoded.push_back(hex_str[1]);
+                }
+            }
+        } else {
+            decoded.push_back(ch);
+        }
+    }
+    return decoded;
+}
+
+
+// "../" -> "/"
+std::string normalize_to_absolute_path(const std::string& path) {
+    std::vector<std::string> segments;
+    std::istringstream path_stream(path);
+    std::string segment;
+    std::string normalized;
+    bool ends_with_slash = !path.empty() && (path[path.length() - 1] == '/');
+
+    while (std::getline(path_stream, segment, '/')) {
+        if (segment == "..") {
+            if (!segments.empty()) {
+                segments.pop_back();
+            }
+        } else if (!segment.empty() && segment != ".") {
+            segments.push_back(segment);
+        }
+    }
+
+    for (std::size_t i = 0; i < segments.size(); ++i) {
+        normalized += "/";
+        normalized += segments[i];
+    }
+
+    if (ends_with_slash && !normalized.empty() && normalized[normalized.length() - 1] != '/') {
+        normalized += "/";
+    }
+    return normalized.empty() ? "/" : normalized;
 }
 
 

@@ -484,10 +484,6 @@ Result<int, int> validate_http_date(date_format format,
 
 
 Method get_method(const std::string &method);
-
-std::string decode(const std::string &encoded);
-std::string normalize(const std::string &path);
-
 Result<StatusCode, ProcResult> convert_to_enum(int code);
 std::string convert_to_str(const Method &method);
 
