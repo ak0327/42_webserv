@@ -250,8 +250,21 @@ StatusCode HttpResponse::upload_file(const std::string &boundary) {
     StatusCode upload_result = file.create_file(form_data.binary);
 
     if (upload_result == StatusOk) {
-        upload_result = SeeOther;
+        // upload_result = SeeOther;
+        upload_result = Created;
         this->headers_["Location"] = "/upload/";
+
+        std::string jump_to_upload = "<!doctype html>\n"
+                                     "<html lang=\"ja\">\n"
+                                     "<head>\n"
+                                     "    <meta charset=\"UTF-8\">\n"
+                                     "    <title>POST params</title>\n"
+                                     "</head>\n"
+                                     "<body>\n"
+                                     "<a href=\"/upload/\">jump to upload</a>"
+                                     "</body>\n"
+                                     "</html>";
+        this->body_buf_.assign(jump_to_upload.begin(), jump_to_upload.end());
     }
     return upload_result;
 }

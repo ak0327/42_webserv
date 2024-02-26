@@ -80,6 +80,7 @@ std::map<StatusCode, std::string> init_reason_phrases() {
     // reason_phrases[] = "";
 
     reason_phrases[StatusOk]                = "OK";
+    reason_phrases[Created]                 = "Created";
     reason_phrases[NoContent]               = "NoContent";
 
     reason_phrases[MultipleChoices]         = "Multiple Choices";
