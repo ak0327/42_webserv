@@ -99,14 +99,19 @@ FileHandler::FileHandler(const char *path, const char *expected_extension) {
 }
 
 
-FileHandler::FileHandler(const std::string &path) : path_(path) {}
+FileHandler::FileHandler(const std::string &path) {
+    this->path_ = StringHandler::normalize_to_absolute_path(path);
+    if (!this->path_.empty() && this->path_[0] == '/') {
+        this->path_ = this->path_.substr(1);
+    }
+}
 
 
 FileHandler::~FileHandler() {}
 
 
 bool FileHandler::is_valid_extension(const char *expected_extension) {
-	std::string extension = std::string(expected_extension);
+    std::string extension = std::string(expected_extension);
 
 	if (extension.empty()) {
 		return false;
