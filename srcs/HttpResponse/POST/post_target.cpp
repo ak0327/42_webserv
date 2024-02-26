@@ -62,7 +62,7 @@ StatusCode HttpResponse::get_urlencoded_form_content() {
                        "</html>";
 
     UrlEncodedFormData parameters = parse_urlencoded_form_data(this->body_buf_);
-    std::string parameters_str;
+    std::string parameters_html;
 
     UrlEncodedFormData::const_iterator itr;
     for (itr = parameters.begin(); itr != parameters.end(); ++itr) {
@@ -78,13 +78,14 @@ StatusCode HttpResponse::get_urlencoded_form_content() {
                 oss << ", ";
             }
         }
-        oss << "<br><br>" << std::endl;
-        parameters_str.append(oss.str());
+        std::string escaped_html = HttpMessageParser::escape_html(oss.str());
+        parameters_html.append(escaped_html);
+        parameters_html.append("<br><br>");
     }
 
     std::vector<unsigned char> body;
     body.insert(body.end(), head.begin(), head.end());
-    body.insert(body.end(), parameters_str.begin(), parameters_str.end());
+    body.insert(body.end(), parameters_html.begin(), parameters_html.end());
     body.insert(body.end(), tail.begin(), tail.end());
     this->body_buf_ = body;
 

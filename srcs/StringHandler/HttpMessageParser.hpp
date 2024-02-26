@@ -486,5 +486,6 @@ Result<int, int> validate_http_date(date_format format,
 Method get_method(const std::string &method);
 Result<StatusCode, ProcResult> convert_to_enum(int code);
 std::string convert_to_str(const Method &method);
+std::string escape_html(const std::string &html);
 
 }  // namespace HttpMessageParser
