@@ -104,6 +104,8 @@ class CgiHandler {
 
     static Result<std::vector<std::string>, ProcResult> get_interpreter(const std::string &file_path);
 
+    void strcpy(char *dst, const char *src);
+
 
     CgiHandler(const CgiHandler &other);
     CgiHandler &operator=(const CgiHandler &other);

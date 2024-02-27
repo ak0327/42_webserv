@@ -114,6 +114,16 @@ Result<int, std::string> CgiHandler::create_socketpair(int socket_fds[2]) {
 }
 
 
+void CgiHandler::strcpy(char *dst, const char *src) {
+    std::size_t i = 0;
+    while (src[i]) {
+        dst[i] = src[i];
+        ++i;
+    }
+    dst[i] = '\0';
+}
+
+
 char **CgiHandler::create_argv(const std::string &file_path) {
     Result<std::vector<std::string>, ProcResult> interpreter_result;
     interpreter_result = CgiHandler::get_interpreter(file_path);
@@ -130,7 +140,7 @@ char **CgiHandler::create_argv(const std::string &file_path) {
         argv = new char*[argv_strings.size() + 1];
         for (size_t i = 0; i < argv_strings.size(); ++i) {
             argv[i] = new char[argv_strings[i].size() + 1];
-            std::strcpy(argv[i], argv_strings[i].c_str());
+            CgiHandler::strcpy(argv[i], argv_strings[i].c_str());
         }
         argv[argv_strings.size()] = NULL;
     }
@@ -164,7 +174,7 @@ char **CgiHandler::create_envp(const CgiParams &params) {
         envp = new char*[env_strings.size() + 1];
         for (size_t i = 0; i < env_strings.size(); ++i) {
             envp[i] = new char[env_strings[i].size() + 1];
-            std::strcpy(envp[i], env_strings[i].c_str());
+            CgiHandler::strcpy(envp[i], env_strings[i].c_str());
         }
         envp[env_strings.size()] = NULL;
     }
