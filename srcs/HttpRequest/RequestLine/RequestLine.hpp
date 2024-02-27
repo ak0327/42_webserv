@@ -14,6 +14,8 @@ class RequestLine {
 	std::string	method() const;
 	std::string request_target() const;
 	std::string	http_version() const;
+    std::string	query() const;
+    void separate_target_and_query();
 
 	Result<ProcResult, StatusCode> parse_and_validate(const std::string &line);
 
@@ -25,4 +27,5 @@ class RequestLine {
 	std::string method_;
 	std::string request_target_;
 	std::string http_version_;
+    std::string query_;
 };

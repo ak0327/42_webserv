@@ -2,6 +2,7 @@
 
 # include <sys/types.h>
 # include <map>
+# include <utility>
 # include <set>
 # include <string>
 # include <vector>
@@ -34,8 +35,9 @@ struct FormData {
     std::vector<unsigned char> binary;
 };
 
-typedef std::vector<std::string> StringVector;
-typedef std::map<std::string, StringVector> UrlEncodedFormData;
+typedef std::string ScriptPath;
+typedef std::string PathInfo;
+typedef std::map<std::string, std::vector<std::string> > UrlEncodedFormData;
 
 class HttpResponse {
  public:
@@ -48,17 +50,23 @@ class HttpResponse {
 	const std::vector<unsigned char> &get_response_message() const;
 
     ProcResult exec_method();
+    ProcResult exec_cgi_process();
+    ProcResult send_request_body_to_cgi();
     ProcResult recv_to_cgi_buf();
     ProcResult interpret_cgi_output();
+    CgiParams get_cgi_params(const std::string &script_path,
+                             const std::string &path_info);
+    std::pair<ScriptPath, PathInfo> get_script_path_and_path_info();
     void create_response_message();
-
     ssize_t recv_to_buf(int fd);
-
+    ProcResult send_http_response(int client_fd);
 
     void clear_cgi();
-    int cgi_fd() const;
+    int cgi_read_fd() const;
+    int cgi_write_fd() const;
     time_t cgi_timeout_limit() const;
     void kill_cgi_process();
+    bool is_exec_cgi();
 
 #ifdef ECHO
     HttpResponse();
@@ -83,7 +91,6 @@ class HttpResponse {
 	std::map<std::string, std::string> headers_;
 	std::vector<unsigned char> body_buf_;
     std::vector<unsigned char> response_msg_;
-
 
     void set_status_code(const StatusCode &set_status);
 
