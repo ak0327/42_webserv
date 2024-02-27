@@ -711,7 +711,7 @@ StatusCode HttpRequest::status_code() const {
 }
 
 
-void HttpRequest::set_status_code(const StatusCode &set_code) {
+void HttpRequest::set_request_status(const StatusCode &set_code) {
     this->status_code_ = set_code;
 }
 

@@ -15,6 +15,7 @@
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
 #include "HttpMessageParser.hpp"
+#include "Socket.hpp"
 #include "StringHandler.hpp"
 
 namespace {
@@ -139,7 +140,6 @@ ProcResult HttpResponse::exec_method() {
         return Success;
     }
 
-
     StatusCode status;
     switch (method) {
         case kGET:
@@ -163,11 +163,11 @@ ProcResult HttpResponse::exec_method() {
     }
 
     this->set_status_code(status);
-    DEBUG_PRINT(YELLOW, " exec_method 6 status: %d", this->status_code());
-    if (is_executing_cgi()) {
-        DEBUG_PRINT(YELLOW, " exec_method 7 executing cgi -> continue");
-        return ExecutingCgi;
-    }
+    // DEBUG_PRINT(YELLOW, " exec_method 6 status: %d", this->status_code());
+    // if (is_executing_cgi()) {
+    //     DEBUG_PRINT(YELLOW, " exec_method 7 executing cgi -> continue");
+    //     return ExecutingCgi;
+    // }
 
     DEBUG_PRINT(YELLOW, " exec_method 8 -> next");
     return Success;
@@ -180,6 +180,103 @@ bool HttpResponse::is_status_error() const {
               << (400 <= code_num && code_num <= 599 ? " true" : " false")
               << RESET << std::endl;
     return 400 <= code_num && code_num <= 599;
+}
+
+
+bool HttpResponse::is_exec_cgi() {
+    std::pair<ScriptPath, PathInfo> pair = get_script_path_and_path_info();
+    return !pair.first.empty();
+}
+
+/*
+ path/to/script.cgi/path/info
+                    ^^^^^^^^^ PATH_INFO
+
+  PATH_INFO = "" | ( "/" path )
+  path      = lsegment *( "/" lsegment )
+  lsegment  = *lchar
+  lchar     = <any TEXT or CTL except "/">
+  TEXT      = <any printable character>
+  CTL       = <any control character>
+  https://tex2e.github.io/rfc-translater/html/rfc3875.html#4-1-5--PATHINFO
+ */
+std::pair<ScriptPath, PathInfo> HttpResponse::get_script_path_and_path_info() {
+    std::string target = this->request_.request_target();
+    std::string script_path, path_info;
+
+    DEBUG_PRINT(MAGENTA, "get script_path and path_info");
+    std::size_t slash_pos = 0;
+    while (slash_pos < target.length()) {
+        slash_pos = target.find('/', slash_pos);
+        if (slash_pos == std::string::npos) {
+            break;
+        }
+        std::string tmp_script_path = target.substr(0, slash_pos);
+        if (Config::is_cgi_extension(this->server_config_, tmp_script_path)) {
+            script_path = tmp_script_path;
+            path_info = target.substr(slash_pos + 1);
+            break;
+        }
+        ++slash_pos;
+    }
+
+    if (script_path.empty() && Config::is_cgi_extension(this->server_config_, target)) {
+        script_path = target;
+    }
+
+    std::string root;
+    Result<std::string, int> root_result = Config::get_root(this->server_config_,
+                                                            script_path);
+    if (root_result.is_ok()) {
+        root = root_result.get_ok_value();
+        if (!root.empty() && root[root.length() - 1] == '/' && script_path[0] == '/') {
+            script_path = script_path.substr(1);
+        }
+        script_path = root + script_path;
+    }
+
+    DEBUG_PRINT(MAGENTA, " script_path and path_info");
+    DEBUG_PRINT(MAGENTA, "  script_path[%s]", script_path.c_str());
+    DEBUG_PRINT(MAGENTA, "  path_info  [%s]", path_info.c_str());
+    return std::make_pair(script_path, path_info);
+}
+
+
+CgiParams HttpResponse::get_cgi_params(const std::string &script_path,
+                                       const std::string &path_info) {
+    CgiParams params;
+
+    params.content = this->request_.body();
+    params.content_length = params.content.size();
+    params.content_type = this->request_.content_type();
+    params.query_string = this->request_.query_string();
+    params.path_info = path_info;
+    params.script_path = script_path;
+
+    DEBUG_PRINT(MAGENTA, "cgi params ");
+    DEBUG_PRINT(MAGENTA, " content       : [%s]", std::string(params.content.begin(), params.content.end()).c_str());
+    DEBUG_PRINT(MAGENTA, " content_length: [%zu]", params.content_length);
+    DEBUG_PRINT(MAGENTA, " content_type  : [%s]", params.content_type.c_str());
+    DEBUG_PRINT(MAGENTA, " query_string  : [%s]", params.query_string.c_str());
+    DEBUG_PRINT(MAGENTA, " path_info     : [%s]", params.path_info.c_str());
+    DEBUG_PRINT(MAGENTA, " script_path   : [%s]", params.script_path.c_str());
+
+    return params;
+}
+
+
+ProcResult HttpResponse::exec_cgi_process() {
+    std::pair<ScriptPath, PathInfo> pair = HttpResponse::get_script_path_and_path_info();
+
+    CgiParams params = get_cgi_params(pair.first, pair.second);
+    this->cgi_handler_.set_cgi_params(params);
+
+    if (this->cgi_handler_.exec_script(params.script_path) == Failure) {
+        this->set_status_code(InternalServerError);
+        this->clear_cgi();
+        return Failure;
+    }
+    return Success;
 }
 
 
@@ -216,12 +313,28 @@ bool HttpResponse::is_status_error() const {
                                           ^^^^^^
  */
 ProcResult HttpResponse::interpret_cgi_output() {
-    StatusCode parse_status = this->cgi_handler_.parse_document_response();
-    this->set_status_code(parse_status);
+    if (this->cgi_handler_.cgi_status_code() == StatusOk) {
+        StatusCode parse_status = this->cgi_handler_.parse_document_response();
+        this->set_status_code(parse_status);
 
-    if (!is_status_error()) {
-        this->body_buf_ = this->cgi_handler_.cgi_body();
+        if (!is_status_error()) {
+            this->body_buf_ = this->cgi_handler_.cgi_body();
+        }
     }
+    return Success;
+}
+
+
+ProcResult HttpResponse::send_http_response(int client_fd) {
+    DEBUG_SERVER_PRINT("   send start");
+
+    errno = 0;
+    ssize_t send_size = Socket::send_buf(client_fd, &this->response_msg_);
+    if (send_size == SEND_CONTINUE) {
+        return Continue;
+    }
+
+    DEBUG_SERVER_PRINT("   send end");
     return Success;
 }
 
@@ -308,21 +421,34 @@ std::string HttpResponse::get_resource_path() {
 }
 
 
+ProcResult HttpResponse::send_request_body_to_cgi() {
+    ProcResult result = this->cgi_handler_.send_request_body_to_cgi();
+    if (result == Continue) {
+        return Continue;
+    }
+    if (result == Failure) {
+        StatusCode error_code = InternalServerError;
+        this->set_status_code(error_code);
+    }
+    return result;
+}
+
+
 ssize_t HttpResponse::recv_to_buf(int fd) {
-    return HttpRequest::recv_to_buf(fd, &this->body_buf_);
+    return Socket::recv_to_buf(fd, &this->body_buf_);
 }
 
 
 ProcResult HttpResponse::recv_to_cgi_buf() {
-    Result<ProcResult, StatusCode> result = this->cgi_handler_.recv_cgi_output();
-    if (result.is_err()) {
-        StatusCode error_code = result.get_err_value();
-        this->set_status_code(error_code);
-    }
-    if (ClientSession::is_continue_recv(result)) {
+    ProcResult result = this->cgi_handler_.recv_cgi_output();
+    if (result == Continue) {
         return Continue;
     }
-    return Success;
+    if (result == Failure) {
+        StatusCode error_code = InternalServerError;
+        this->set_status_code(error_code);
+    }
+    return result;
 }
 
 
@@ -346,8 +472,12 @@ void HttpResponse::set_status_code(const StatusCode &set_status) {
 }
 
 
-int HttpResponse::cgi_fd() const {
-    return this->cgi_handler_.fd();
+int HttpResponse::cgi_read_fd() const {
+    return this->cgi_handler_.read_fd();
+}
+
+int HttpResponse::cgi_write_fd() const {
+    return this->cgi_handler_.write_fd();
 }
 
 
