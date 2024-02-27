@@ -256,8 +256,11 @@ bool Config::is_exact_match(const std::string &pattern, const std::string &targe
 
 
 bool Config::is_prefix_match(const std::string &pattern, const std::string &target) {
-    const std::size_t PREFIX_LEN = 2;
+    if (pattern.empty() || target.empty()) {
+        return false;
+    }
 
+    const std::size_t PREFIX_LEN = 2;
     if (pattern.length() <= PREFIX_LEN || target.length() + PREFIX_LEN < pattern.length()) {
         return false;
     }

@@ -149,9 +149,9 @@ StatusCode HttpResponse::get_request_body() {
             DEBUG_PRINT(CYAN, "  get_content -> directory -> 404");
             return NotFound;
         }
-    } else if (is_cgi_file()) {
-        DEBUG_PRINT(CYAN, "  get_content -> cgi");
-        return this->cgi_handler_.exec_script(indexed_path);
+    // } else if (is_cgi_file()) {
+    //     DEBUG_PRINT(CYAN, "  get_content -> cgi");
+    //     return this->cgi_handler_.exec_script(indexed_path);
     } else if (is_redirect()) {
         return get_redirect_content(&this->headers_);
     } else {

@@ -42,7 +42,7 @@ class HttpRequest {
     std::string query_string() const;
     const std::vector<unsigned char> body() const;
     StatusCode status_code() const;
-    void set_status_code(const StatusCode &set_code);
+    void set_request_status(const StatusCode &set_code);
 
     Result<HostPortPair, StatusCode> server_info() const;
     bool is_buf_empty() const;

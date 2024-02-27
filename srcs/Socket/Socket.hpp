@@ -1,6 +1,7 @@
 #pragma once
 
 # include <string>
+# include <vector>
 # include "webserv.hpp"
 # include "Config.hpp"
 # include "Result.hpp"
@@ -22,6 +23,11 @@ class Socket {
     SocketResult set_fd_to_nonblock();
 	static SocketResult set_fd_to_nonblock(int fd);
     static SocketResult accept(int socket_fd, struct sockaddr_storage *client_addr);
+
+    static ssize_t recv(int fd, void *buf, std::size_t bufsize);
+    static ssize_t recv_to_buf(int fd, std::vector<unsigned char> *buf);
+    static ssize_t send(int fd, void *buf, std::size_t bufsize);
+    static ssize_t send_buf(int fd, std::vector<unsigned char> *buf);
 
  private:
 	int socket_fd_;

@@ -154,7 +154,11 @@ Result<std::string, ProcResult> parse_content_type(const std::string &value) {
 }
 
 
-
+// 4.8. Other "Content-" Header Fields
+// The multipart/form-data media type does not support any MIME header fields in parts other
+// than Content-Type, Content-Disposition, and (in limited circumstances) Content-Transfer-Encoding.
+// Other header fields MUST NOT be included and MUST be ignored.
+// https://tex2e.github.io/rfc-translater/html/rfc7578.html#4-8--Other-Content--Header-Fields
 ProcResult HttpResponse::parse_until_binary(const std::string &boundary,
                                             std::string *file_name,
                                             std::string *content_type) {
