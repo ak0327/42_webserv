@@ -41,7 +41,7 @@ class HttpRequest {
 	std::string	http_version() const;
     std::string query_string() const;
     const std::vector<unsigned char> body() const;
-    StatusCode status_code() const;
+    StatusCode request_status() const;
     void set_request_status(const StatusCode &set_code);
 
     Result<HostPortPair, StatusCode> server_info() const;
@@ -62,6 +62,7 @@ class HttpRequest {
     static Result<ProcResult, StatusCode> split_field_line(const std::string &field_line,
                                                            std::string *ret_field_name,
                                                            std::string *ret_field_value);
+    ProcResult validate_request_headers();
 
 	bool is_field_name_supported_parsing(const std::string &field_name);
 	bool is_valid_field_name_registered(const std::string &field_name);

@@ -181,12 +181,7 @@ Result<ServerConfig, std::string> Config::get_server_config(const AddressPortPai
     // DEBUG_PRINT(CYAN, "get_server_config");
 
     if (!request_port.empty() && request_port != socket_port) {
-        result = get_default_server(actual);
-        if (result.is_err()) {
-            return Result<ServerConfig, std::string>::err("error");
-        }
-        return Result<ServerConfig, std::string>::ok(result.get_ok_value());
-        // return Result<ServerConfig, std::string>::err("error: request ip not found");  // todo
+        return Result<ServerConfig, std::string>::err("error: request ip not found");
     }
     // DEBUG_PRINT(CYAN, " 1");
 

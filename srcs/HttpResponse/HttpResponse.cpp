@@ -1,4 +1,5 @@
 #include <sys/wait.h>
+#include <sys/socket.h>
 #include <signal.h>
 #include <unistd.h>
 #include <cerrno>
@@ -12,6 +13,7 @@
 #include "ClientSession.hpp"
 #include "Debug.hpp"
 #include "Error.hpp"
+#include "FileHandler.hpp"
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
 #include "HttpMessageParser.hpp"
@@ -34,7 +36,7 @@ HttpResponse::HttpResponse(const HttpRequest &request,
       headers_(),
       body_buf_(),
       response_msg_() {
-    StatusCode request_status = this->request_.status_code();
+    StatusCode request_status = this->request_.request_status();
     this->set_status_code(request_status);
 
     time_t cgi_timeout = Config::get_cgi_timeout(server_config, request.request_target());
@@ -175,19 +177,20 @@ ProcResult HttpResponse::exec_method() {
 
 bool HttpResponse::is_status_error() const {
     int code_num = static_cast<int>(this->status_code());
-    std::cout << MAGENTA << "is_status_error: " << code_num
-              << (400 <= code_num && code_num <= 599 ? " true" : " false")
-              << RESET << std::endl;
+    DEBUG_PRINT(MAGENTA, "is_status_error: %d %s"
+                , code_num, (400 <= code_num && code_num <= 599 ? " true" : " false"));
     return 400 <= code_num && code_num <= 599;
 }
 
 
 bool HttpResponse::is_exec_cgi() {
-    if (this->request_.method() == kGET || this->request_.method() == kPOST) {
-        std::pair<ScriptPath, PathInfo> pair = get_script_path_and_path_info();
-        return !pair.first.empty();
+    if (this->request_.method() != kGET && this->request_.method() != kPOST) {
+        return false;
     }
-    return false;
+    std::pair<ScriptPath, PathInfo> pair = get_script_path_and_path_info();
+    std::string script_path = pair.first;
+    Result<bool, StatusCode> result = FileHandler::is_file(script_path);
+    return result.is_ok();
 }
 
 /*
@@ -421,6 +424,7 @@ ProcResult HttpResponse::send_request_body_to_cgi() {
     if (result == Continue) {
         return Continue;
     }
+    shutdown(this->cgi_write_fd(), SHUT_WR);
     if (result == Failure) {
         StatusCode error_code = InternalServerError;
         this->set_status_code(error_code);
