@@ -211,6 +211,9 @@ ProcResult Socket::send_buf(int fd, std::vector<unsigned char> *buf) {
     if (!buf) { return FatalError; }
 
     ssize_t send_size = Socket::send(fd, buf->data(), buf->size());
+    if (send_size == SEND_ERROR) {
+        return Failure;
+    }
     if (0 < send_size) {
         DEBUG_SERVER_PRINT(" erase buf");
         buf->erase(buf->begin(), buf->begin() + send_size);
