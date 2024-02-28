@@ -18,7 +18,7 @@ TEST(HttpResponseGet, CGIGetInterPreter) {
 	EXPECT_EQ(expected, actual);
 
 	file_path = "html/cgi-bin/page.php";
-	expected = {"/usr/bin/env", "php"};
+	expected = {"/opt/homebrew/bin/php"};
 	result = CgiHandlerFriend::get_interpreter(file_path);
 	actual = result.get_ok_value();
 	EXPECT_TRUE(result.is_ok());

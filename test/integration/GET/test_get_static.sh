@@ -64,6 +64,8 @@ test() {
 
 ################################################################################
 
+CONF_PATH="test/integration/integration_test.conf"
+
 TEST_DIR="test/integration/GET/"
 RED="\033[31m"
 GREEN="\033[32m"
@@ -80,7 +82,7 @@ skip_cases=()
 
 ################################################################################
 
-./webserv test/integration/integration_test.conf &
+./webserv $CONF_PATH &
 
 SERVER_PID=$!
 
@@ -177,7 +179,7 @@ test "GET .. HTTP/1.1\r\nHost: localhost\r\n\r\n"       "localhost 4242"  "HTTP/
 test "GET html HTTP/1.1\r\nHost: localhost\r\n\r\n"     "localhost 4242"  "HTTP/1.1 400 Bad Request"    ""
 test "GET ../html HTTP/1.1\r\nHost: localhost\r\n\r\n"  "localhost 4242"  "HTTP/1.1 400 Bad Request"    ""
 test "GET ./html HTTP/1.1\r\nHost: localhost\r\n\r\n"   "localhost 4242"  "HTTP/1.1 400 Bad Request"    ""
-test "GET %2E HTTP/1.1\r\nHost: localhost\r\n\r\n"        "localhost 4242"  "HTTP/1.1 400 Bad Request"  ""
+test "GET %2E HTTP/1.1\r\nHost: localhost\r\n\r\n"      "localhost 4242"  "HTTP/1.1 400 Bad Request"  ""
 
 ##  invalid http-version
 test "GET / HTTP/2.0\r\nHost: localhost\r\n\r\n"        "localhost 4242"  "HTTP/1.1 400 Bad Request"    ""
@@ -191,8 +193,6 @@ test "GET / HTTP/1.1\r\nHost:\r\n\r\n"                  "localhost 4242"  "HTTP/
 test "GET / HTTP/1.1\r\nHost : localhost\r\n\r\n"       "localhost 4242"  "HTTP/1.1 400 Bad Request"   ""
 test "GET / HTTP/1.1\r\nHost: a b c\r\n\r\n"            "localhost 4242"  "HTTP/1.1 400 Bad Request"   ""
 test "GET / HTTP/1.1\r\nHost: a b c\r\n\r\n"            "localhost 4242"  "HTTP/1.1 400 Bad Request"   ""
-
-
 
 
 ################################################################################
