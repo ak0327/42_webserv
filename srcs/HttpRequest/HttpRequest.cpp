@@ -289,7 +289,6 @@ Result<ProcResult, StatusCode> HttpRequest::parse_start_line_and_headers() {
             case ParsingRequestHeaders:
                 DEBUG_SERVER_PRINT("    parse Headers");
                 if (line.empty()) {
-                    std::cout << CYAN << "empty -> body" << RESET << std::endl;
                     this->phase_ = ParsingRequestBody;
                     DEBUG_SERVER_PRINT("     parse Headers -> body");
                     return Result<ProcResult, StatusCode>::ok(PrepareNextProc);  // conf -> parse body
@@ -365,6 +364,19 @@ Result<HostPortPair, StatusCode> HttpRequest::server_info() const {
     std::map<std::string, std::string> host = result.get_ok_value();
     HostPortPair pair = std::make_pair(host[URI_HOST], host[PORT]);
     return Result<HostPortPair, StatusCode>::ok(pair);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+ProcResult HttpRequest::validate_request_headers() {
+    // todo: validate field_names, such as 'must' header,...
+    if (!is_valid_field_name_registered(std::string(HOST))) {
+        this->set_request_status(BadRequest);
+        return Failure;
+    }
+    return Success;
 }
 
 
@@ -706,7 +718,7 @@ bool HttpRequest::is_buf_empty() const {
 }
 
 
-StatusCode HttpRequest::status_code() const {
+StatusCode HttpRequest::request_status() const {
     return this->status_code_;
 }
 

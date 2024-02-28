@@ -277,8 +277,8 @@ ServerResult Server::run() {
 		int ready_fd = fd_ready_result.get_ok_value();
         DEBUG_SERVER_PRINT(" run 4 ready_fd: %d", ready_fd);
 		if (ready_fd == IO_TIMEOUT) {
-			std::cerr << "[Server INFO] timeout" << std::endl;
 #ifdef UNIT_TEST
+			std::cerr << "[Server INFO] timeout" << std::endl;
             break;
 #else
             continue;
@@ -383,9 +383,10 @@ ServerResult Server::create_session(int socket_fd) {
     int connect_fd = accept_result.get_ok_value();
     // todo: mv
     errno = 0;
-    if (fcntl(connect_fd, F_SETFL, O_NONBLOCK | FD_CLOEXEC) == FCNTL_ERROR) {
-        std::string err_info = CREATE_ERROR_INFO_ERRNO(errno);
-        return Result<int, std::string>::err("fcntl:" + err_info);
+    Result<int, std::string> non_block = Socket::set_fd_to_nonblock(connect_fd);
+    if (non_block.is_err()) {
+        const std::string error_msg = CREATE_ERROR_INFO_STR(non_block.get_err_value());
+        return Result<int, std::string>::err(error_msg);
     }
 
     // std::cout << CYAN << " accept fd: " << connect_fd << RESET << std::endl;
@@ -590,10 +591,11 @@ ServerResult Server::process_session(int ready_fd) {
 
     } else if (ClientSession::is_executing_cgi(result)) {
         // After exec CGI-Script. Send body to script start
-        DEBUG_SERVER_PRINT("      process_session -> cgi, read_fd:%d, write_fd:%d",
-                           client->cgi_read_fd(), client->cgi_write_fd());
+        DEBUG_SERVER_PRINT("      process_session -> cgi, client_fd:%d, read_fd:%d, write_fd:%d",
+                           client->client_fd(), client->cgi_read_fd(), client->cgi_write_fd());
         register_cgi_write_fd_to_event_manager(&client);
         register_cgi_read_fd_to_event_manager(&client);
+        this->fds_->clear_fd(client->client_fd());
         return ServerResult::ok(OK);
 
     } else if (ClientSession::is_connection_closed(result)) {
@@ -605,18 +607,18 @@ ServerResult Server::process_session(int ready_fd) {
 
     if (is_receiving_cgi_response(*client)) {
         // After Send to CGI-Script. Recv response start
-        DEBUG_SERVER_PRINT("[CGI] recv start, read_fd:%d, write_fd:%d",
-                           client->cgi_read_fd(), client->cgi_write_fd());
+        DEBUG_SERVER_PRINT("[CGI] recv start, client_fd:%d, read_fd:%d, write_fd:%d",
+                           client->client_fd(), client->cgi_read_fd(), client->cgi_write_fd());
         clear_fd_from_event_manager(client->cgi_write_fd());
         // register_cgi_read_fd_to_event_manager(&client);  // todo
 
     } else if (is_cgi_execute_completed(*client)) {
         // After Recv response. Create body start
-        DEBUG_SERVER_PRINT("[CGI] recv complete, read_fd:%d, write_fd:%d",
-                           client->cgi_read_fd(), client->cgi_write_fd());
+        DEBUG_SERVER_PRINT("[CGI] recv complete, client_fd:%d, read_fd:%d, write_fd:%d",
+                           client->client_fd(), client->cgi_read_fd(), client->cgi_write_fd());
         clear_fd_from_event_manager(client->cgi_read_fd());
-        clear_fd_from_event_manager(
-                client->cgi_write_fd());  // send error occurred
+        clear_fd_from_event_manager(client->cgi_write_fd());  // send error occurred
+        this->fds_->register_write_fd(client->client_fd());
         return process_session(client->client_fd());
 
     } else if (is_ready_to_send_response(*client)) {
@@ -625,12 +627,12 @@ ServerResult Server::process_session(int ready_fd) {
         this->fds_->register_write_fd(ready_fd);
 
     } else if (is_session_completed(*client)) {
-        DEBUG_SERVER_PRINT("client process completed(Client): read_fd %d -> close", ready_fd);
+        DEBUG_SERVER_PRINT("client process completed(Client): client_fd %d -> close", ready_fd);
         delete_session(session);  // todo -> init_session & keep-alive
         // init_session(client);
 
     } else if (is_session_error_occurred(*client)) {
-        DEBUG_SERVER_PRINT("client process error occurred: read_fd %d -> close", ready_fd);
+        DEBUG_SERVER_PRINT("client process error occurred: ready_fd %d -> close", ready_fd);
         delete_session(session);
     }
     return ServerResult::ok(OK);
