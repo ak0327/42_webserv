@@ -262,14 +262,18 @@ const int SELECT_TIMEOUT = 0;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Select::Select() {
+Select::Select()
+    : read_fds_(),
+      write_fds_(),
+      read_fd_set_(),
+      write_fd_set_(),
+      max_fd_(0) {
 	DEBUG_SERVER_PRINT("[I/O multiplexer : select]");
     FD_ZERO(&this->read_fd_set_);
     FD_ZERO(&this->write_fd_set_);
 
-    max_fd_ = 0;
-
     this->timeout_.tv_sec = 0;
+    this->timeout_.tv_usec = 0;
 }
 
 
