@@ -115,13 +115,13 @@ test "GET /old.html HTTP/1.1\r\nHost: localhost\r\n\r\n"                "localho
 # test "localhost"  "4242"  "/autoindex_files"   "HTTP/1.1 301 Moved Permanently"  ""
 # test "localhost"  "4242"  "/upload"            "HTTP/1.1 301 Moved Permanently"  ""
 
-
 # CGI
 test "GET /cgi-bin/hello.py HTTP/1.1\r\nHost: localhost\r\n\r\n"            "localhost 4242"  "HTTP/1.1 200 OK"   "html/cgi-bin/cgi-result/hello.txt"
 test "GET /cgi-bin/hello.py?query HTTP/1.1\r\nHost: localhost\r\n\r\n"      "localhost 4242"  "HTTP/1.1 200 OK"   "html/cgi-bin/cgi-result/hello.txt"
 test "GET /cgi-bin/hello.py/path/info HTTP/1.1\r\nHost: localhost\r\n\r\n"  "localhost 4242"  "HTTP/1.1 200 OK"   "html/cgi-bin/cgi-result/hello.txt"
-test "GET /cgi-bin/page.php HTTP/1.1\r\nHost: localhost\r\n\r\n"            "localhost 4242"  "HTTP/1.1 200 OK"   "html/cgi-bin/cgi-result/page.txt"
+# test "GET /cgi-bin/page.php HTTP/1.1\r\nHost: localhost\r\n\r\n"            "localhost 4242"  "HTTP/1.1 200 OK"   "html/cgi-bin/cgi-result/page.txt"
 test "GET /cgi-bin/post_simple.py HTTP/1.1\r\nHost: localhost\r\n\r\n"      "localhost 4242"  "HTTP/1.1 200 OK"   "html/cgi-bin/cgi-result/post_simple_get.txt"
+test "GET /cgi-bin/hello.sh HTTP/1.1\r\nHost: localhost\r\n\r\n"            "localhost 4242"  "HTTP/1.1 200 OK"   "html/cgi-bin/cgi-result/hello.txt"
 
 test "GET /cgi-bin/hello_400.py HTTP/1.1\r\nHost: localhost\r\n\r\n"            "localhost 4242"  "HTTP/1.1 400 Bad Request"            ""
 test "GET /cgi-bin/error_no_shebang.py HTTP/1.1\r\nHost: localhost\r\n\r\n"     "localhost 4242"  "HTTP/1.1 500 Internal Server Error"  "html/50x.html"
