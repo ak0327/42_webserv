@@ -6,6 +6,9 @@
 !unit_test/**/
 !unit_test/HttpResponse/GET/empty_file_for_get_interpreter
 
+!integration
+!integration/**
+
 !test_conf
 !test_conf/**/
 !test_conf/ng/**

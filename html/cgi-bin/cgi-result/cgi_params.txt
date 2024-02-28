@@ -1,0 +1,5 @@
+<html><body>
+<h1>PATH_INFO and QUERY_STRING</h1>
+<p>PATH_INFO   : path/info</p>
+<p>QUERY_STRING: query?string</p>
+</body></html>
