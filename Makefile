@@ -5,7 +5,7 @@ CXXFLAGS	=	-std=c++98 -Wall -Wextra -Werror -MMD -MP -pedantic
 #CXXFLAGS	+=	-g -fsanitize=address,undefined -fno-omit-frame-pointer
 CXXFLAGS	+=	-D USE_SELECT
 #CXXFLAGS	+=	-D USE_POLL
-CXXFLAGS	+=	-D DEBUG
+#CXXFLAGS	+=	-D DEBUG
 #CXXFLAGS	+=	-D ECHO
 #CXXFLAGS	+=	-D LEAKS
 
