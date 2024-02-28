@@ -12,11 +12,11 @@ const int CONTINUE = 2;
 const int GETADDRINFO_SUCCESS = 0;
 const int REMOVE_SUCCESS = 0;
 
-const ssize_t RECV_CLOSED = 0;
+const ssize_t RECV_COMPLETED = 0;
 const ssize_t RECV_CONTINUE = -1;
 const ssize_t RECV_ERROR = -1;
 
-const ssize_t SEND_CLOSED = 0;
+const ssize_t SEND_COMPLETED = 0;
 const ssize_t SEND_CONTINUE = -1;
 const ssize_t SEND_ERROR = -1;
 
