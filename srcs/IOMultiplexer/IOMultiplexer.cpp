@@ -317,23 +317,24 @@ void Select::init_fds() {
 
 Result<int, std::string> Select::select_fds() {
     // debug
-    std::cout << CYAN << "select_fds:" << RESET << std::endl;
-    std::cout << CYAN << " read_fds [";
+    std::ostringstream oss;
+    oss << " read_fds [";
     for (std::size_t i = 0; i < this->read_fds_.size(); ++i) {
-        std::cout << this->read_fds_[i];
+        oss << this->read_fds_[i];
         if (i + 1 < this->read_fds_.size()) {
-            std::cout << ", ";
+            oss << ", ";
         }
     }
-    std::cout << "]" << RESET << std::endl;
-    std::cout << CYAN << " write_fds [";
+    oss << "]" << std::endl;
+    oss << " write_fds [";
     for (std::size_t i = 0; i < this->write_fds_.size(); ++i) {
-        std::cout << this->write_fds_[i];
+        oss << this->write_fds_[i];
         if (i + 1 < this->write_fds_.size()) {
-            std::cout << ", ";
+            oss << ", ";
         }
     }
-    std::cout << "]" << RESET << std::endl;
+    oss << "]" << std::endl;
+    DEBUG_PRINT(CYAN, "select_fds:\n%s", oss.str().c_str());
 
     init_fds();
     this->max_fd_ = get_max_fd();
@@ -457,7 +458,9 @@ Result<int, std::string> Select::clear_fd(int clear_fd) {
 Result<int, std::string> Select::register_read_fd(int read_fd) {
     if (FD_ISSET(read_fd, &this->read_fd_set_)) {
         std::string err_info = CREATE_ERROR_INFO_STR("read_fd already registered");
-        return Result<int, std::string>::err(err_info);
+        DEBUG_PRINT(WHITE, "%s", err_info.c_str());
+        // return Result<int, std::string>::err(err_info);
+        return Result<int, std::string>::ok(OK);
     }
 
     this->read_fds_.push_back(read_fd);
@@ -470,7 +473,9 @@ Result<int, std::string> Select::register_read_fd(int read_fd) {
 Result<int, std::string> Select::register_write_fd(int write_fd) {
     if (FD_ISSET(write_fd, &this->write_fd_set_)) {
         std::string err_info = CREATE_ERROR_INFO_STR("write_fd already registered");
-        return Result<int, std::string>::err(err_info);
+        DEBUG_PRINT(WHITE, "%s", err_info.c_str());
+        // return Result<int, std::string>::err(err_info);
+        return Result<int, std::string>::ok(OK);
     }
 
     this->write_fds_.push_back(write_fd);

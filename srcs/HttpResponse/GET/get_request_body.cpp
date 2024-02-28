@@ -39,7 +39,7 @@ void HttpResponse::get_error_page_to_body() {
     this->body_buf_.clear();
 
     // get_error_page_path
-    DEBUG_PRINT(CYAN, "  get_error_page 1 target: %s, status_code: %d",
+    DEBUG_PRINT(CYAN, "  get_error_page 1 target: %s, request_status: %d",
                 this->request_.request_target().c_str(), this->status_code());
     Result<std::string, int> result;
     result = Config::get_error_page_path(this->server_config_,
