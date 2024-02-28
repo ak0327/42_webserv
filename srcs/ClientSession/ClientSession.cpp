@@ -198,11 +198,19 @@ ProcResult ClientSession::parse_http_request() {
             return Continue;
         }
 
+        if (this->request_->validate_request_headers() == FatalError) {
+            this->request_->set_request_status(BadRequest);
+            return Success;
+        }
+
         DEBUG_SERVER_PRINT("               ParsingRequest 4");
-        Result<ProcResult, std::string> update_result = update_config_params();
-        if (update_result.is_err()) {
-            DEBUG_SERVER_PRINT("               ParsingRequest 5 error: %s", update_result.get_err_value().c_str());
-            this->request_->set_request_status(NotFound);
+        // todo: Result<ProcResult, StatusCode>
+        Result<ProcResult, std::string> config_result = get_host_config();
+        if (config_result.is_err()) {
+            DEBUG_SERVER_PRINT("               ParsingRequest 5 error: %s", config_result.get_err_value().c_str());
+            // StatusCode error_code = config_result.get_err_value();
+            // DEBUG_SERVER_PRINT("               ParsingRequest 5 error: %d", error_code);
+            this->request_->set_request_status(BadRequest);
             return Success;
         }
         this->request_->set_parse_phase(ParsingRequestBody);
@@ -233,7 +241,8 @@ ProcResult ClientSession::parse_http_request() {
 
 // status changes in each func
 ProcResult ClientSession::create_http_response() {
-    DEBUG_SERVER_PRINT("    CreatingResponse status: %d", this->request_->status_code());
+    DEBUG_SERVER_PRINT("    CreatingResponse status: %d",
+                       this->request_->request_status());
     while (true) {
         switch (this->session_state_) {
             case kExecutingMethod: {
@@ -311,7 +320,8 @@ Result<ServerConfig, std::string> ClientSession::get_server_config() const {
     HostPortPair host_port_pair = get_request_host.get_ok_value();
     // DEBUG_PRINT(YELLOW, " host: %s, port:%s", host_port_pair.first.c_str(), host_port_pair.second.c_str());
 
-    Result<ServerConfig, std::string> config_result = config_.get_server_config(this->address_port_pair_, host_port_pair);
+    Result<ServerConfig, std::string> config_result;
+    config_result = config_.get_server_config(this->address_port_pair_, host_port_pair);
     if (config_result.is_err()) {
         // DEBUG_PRINT(YELLOW, "get_server_config err");
         const std::string error_msg = config_result.get_err_value();
@@ -323,7 +333,7 @@ Result<ServerConfig, std::string> ClientSession::get_server_config() const {
 }
 
 
-SessionResult ClientSession::update_config_params() {
+SessionResult ClientSession::get_host_config() {
     Result<AddressPortPair, std::string> address_result = get_address_port_pair();
     if (address_result.is_err()) {
         const std::string error_msg = address_result.get_err_value();

@@ -106,7 +106,7 @@ class ClientSession {
     ProcResult execute_each_method();
     Result<AddressPortPair, std::string> get_address_port_pair() const;
     Result<ServerConfig, std::string> get_server_config() const;
-    SessionResult update_config_params();
+    SessionResult get_host_config();
     SessionResult recv_cgi_result();
 
     ClientSession(const ClientSession &other);

@@ -131,6 +131,8 @@ class Config {
     static bool is_exact_match(const std::string &pattern, const std::string &target);
     static bool is_prefix_match(const std::string &pattern, const std::string &target);
 
+    Result<ServerConfig, int> get_default_server(const AddressPortPair &pair) const;
+
  private:
 	HttpConfig http_config_;
     std::map<ServerInfo, const ServerConfig *> server_configs_;
@@ -143,7 +145,6 @@ class Config {
     void set_default_server_to_first_listen();
     void set_server_configs();
 
-    Result<ServerConfig, int> get_default_server(const AddressPortPair &pair) const;
 
     static Result<LocationConfig, int> get_location_config(const ServerConfig &server_config,
                                                            const std::string &location_path);

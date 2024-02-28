@@ -448,24 +448,26 @@ int CgiHandler::exec_script_in_child(int from_parant[2],
 
     char **argv = create_argv(file_path);
     if (!argv) {
+        DEBUG_PRINT(CYAN, "    cgi(child) 3");
         return EXIT_FAILURE;
     }
     char **envp = create_envp(this->params_);
     if (!envp) {
         delete_char_double_ptr(argv);
+        DEBUG_PRINT(CYAN, "    cgi(child) 4");
         return EXIT_FAILURE;
     }
 
-    DEBUG_PRINT(CYAN, "    cgi(child) 3");
+    // DEBUG_PRINT(CYAN, "    cgi(child) 5, argv[0]:%s", argv[0]);
     errno = 0;
     if (execve(argv[0],
                static_cast<char *const *>(argv),
                static_cast<char *const *>(envp)) == EXECVE_ERROR) {
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
         std::cerr << error_msg << std::endl;  // todo: tmp -> log?
-        DEBUG_PRINT(CYAN, "    cgi(child) 4 error");
+        DEBUG_PRINT(CYAN, "    cgi(child) 6 error");
     }
-    DEBUG_PRINT(CYAN, "    cgi(child) 5 error");
+    DEBUG_PRINT(CYAN, "    cgi(child) 7 error");
     delete_char_double_ptr(envp);
     delete_char_double_ptr(argv);
     return EXIT_FAILURE;
@@ -617,7 +619,7 @@ void CgiHandler::set_cgi_pid(pid_t pid) {
 
 void CgiHandler::set_timeout_limit() {
     this->timeout_limit_ = std::time(NULL) + this->timeout_duration_sec();
-    DEBUG_PRINT(YELLOW, "set_timeout_limit: %zu", this->timeout_limit());
+    DEBUG_PRINT(YELLOW, "set_timeout_limit: %zu, duration: %zu sec", this->timeout_limit(), this->timeout_duration_sec());
 }
 
 
@@ -635,7 +637,9 @@ time_t CgiHandler::timeout_duration_sec() const { return this->timeout_duration_
 const std::vector<unsigned char> &CgiHandler::cgi_body() const { return this->recv_buf_; }
 
 void CgiHandler::set_timeout_duration_sec(time_t timeout_sec) {
+    DEBUG_PRINT(RED, "set_timeout_duration");
     if (ConfigParser::is_valid_cgi_timeout(timeout_sec)) {
+        DEBUG_PRINT(RED, " valid duration [%zu]->[%zu]sec", this->timeout_duration_sec_, timeout_sec);
         this->timeout_duration_sec_ = timeout_sec;
     }
 }
