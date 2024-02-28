@@ -25,7 +25,7 @@ TEST(TestSingleFieldValue, AccessControlRequestMethod1) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestSingleFieldValue, AccessControlRequestMethod2) {
@@ -48,7 +48,7 @@ TEST(TestSingleFieldValue, AccessControlRequestMethod2) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestSingleFieldValue, AccessControlRequestMethod3) {
@@ -71,7 +71,7 @@ TEST(TestSingleFieldValue, AccessControlRequestMethod3) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestSingleFieldValue, AccessControlRequestMethod4) {
@@ -86,7 +86,7 @@ TEST(TestSingleFieldValue, AccessControlRequestMethod4) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestSingleFieldValue, AccessControlRequestMethod5) {
@@ -102,7 +102,7 @@ TEST(TestSingleFieldValue, AccessControlRequestMethod5) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestSingleFieldValue, AccessControlRequestMethod6) {
@@ -117,7 +117,7 @@ TEST(TestSingleFieldValue, AccessControlRequestMethod6) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestSingleFieldValue, AccessControlRequestMethod7) {
@@ -132,7 +132,7 @@ TEST(TestSingleFieldValue, AccessControlRequestMethod7) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestSingleFieldValue, AccessControlRequestMethod8) {
@@ -147,7 +147,7 @@ TEST(TestSingleFieldValue, AccessControlRequestMethod8) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestSingleFieldValue, AccessControlRequestMethod9) {
@@ -162,5 +162,5 @@ TEST(TestSingleFieldValue, AccessControlRequestMethod9) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }

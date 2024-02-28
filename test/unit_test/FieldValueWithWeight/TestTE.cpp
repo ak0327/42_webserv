@@ -101,7 +101,7 @@ TEST(TestFieldValueWithWeight, TeOK1) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestFieldValueWithWeight, TeOK2) {
@@ -189,7 +189,7 @@ TEST(TestFieldValueWithWeight, TeOK2) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 
@@ -278,7 +278,7 @@ TEST(TestFieldValueWithWeight, TeOK3) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestFieldValueWithWeight, TeOK4) {
@@ -369,7 +369,7 @@ TEST(TestFieldValueWithWeight, TeOK4) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 
@@ -386,7 +386,7 @@ TEST(TestFieldValueWithWeight, TeNG1) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestFieldValueWithWeight, TeNG2) {
@@ -400,7 +400,7 @@ TEST(TestFieldValueWithWeight, TeNG2) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 
@@ -415,5 +415,5 @@ TEST(TestFieldValueWithWeight, TeNG3) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
