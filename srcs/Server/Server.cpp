@@ -225,24 +225,19 @@ void Server::close_client_fd(int fd) {
 
 Result<IOMultiplexer *, std::string> Server::create_io_multiplexer_fds() {
     try {
-#if defined(__linux__) && !defined(USE_SELECT)
+#if defined(__linux__) && !defined(USE_SELECT) && !defined(USE_POLL)
         IOMultiplexer *fds = new EPoll();
-#elif defined(__APPLE__) && !defined(USE_SELECT)
+#elif defined(__APPLE__) && !defined(USE_SELECT) && !defined(USE_POLL)
         IOMultiplexer *fds = new Kqueue();
-#else
+#elif defined(USE_SELECT)
         IOMultiplexer *fds = new Select();
+#else
+        IOMultiplexer *fds = new Poll();
 #endif
         std::map<Fd, Socket *>::const_iterator socket;
         for (socket = this->sockets_.begin(); socket != this->sockets_.end(); ++socket) {
             int socket_fd = socket->first;
-
-#if defined(__linux__) && !defined(USE_SELECT)
-            fds->register_fd(socket_fd);
-#elif defined(__APPLE__) && !defined(USE_SELECT)
-            fds->register_fd(socket_fd);
-#else
             fds->register_read_fd(socket_fd);
-#endif
             this->socket_fds_.push_back(socket_fd);
             DEBUG_SERVER_PRINT(" socket_fd: %d", socket_fd);
         }
