@@ -26,7 +26,7 @@ TEST(TestSingleFieldValue, IfRangeOK1) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestSingleFieldValue, IfRangeOK2) {
@@ -50,7 +50,7 @@ TEST(TestSingleFieldValue, IfRangeOK2) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@ TEST(TestSingleFieldValue, IfRangeNG1) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 
@@ -83,7 +83,7 @@ TEST(TestSingleFieldValue, IfRangeNG2) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestSingleFieldValue, IfRangeNG3) {
@@ -99,5 +99,5 @@ TEST(TestSingleFieldValue, IfRangeNG3) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_BAD_REQUEST, request.status_code());
+	EXPECT_EQ(STATUS_BAD_REQUEST, request.request_status());
 }

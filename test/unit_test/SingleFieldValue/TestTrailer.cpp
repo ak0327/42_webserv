@@ -25,7 +25,7 @@ TEST(TestSingleFieldValue, TrailerOK1) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestSingleFieldValue, TrailerOK2) {
@@ -48,7 +48,7 @@ TEST(TestSingleFieldValue, TrailerOK2) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestSingleFieldValue, TrailerNG1) {
@@ -63,7 +63,7 @@ TEST(TestSingleFieldValue, TrailerNG1) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 
@@ -79,5 +79,5 @@ TEST(TestSingleFieldValue, TrailerNG2) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }

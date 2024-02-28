@@ -58,7 +58,7 @@ TEST(TestFieldValueWithWeight, AcceptLanguageOK1) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestFieldValueWithWeight, AcceptLanguageOK2) {
@@ -106,7 +106,7 @@ TEST(TestFieldValueWithWeight, AcceptLanguageOK2) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestFieldValueWithWeight, AcceptLanguageOK3) {
@@ -157,7 +157,7 @@ TEST(TestFieldValueWithWeight, AcceptLanguageOK3) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestFieldValueWithWeight, AcceptLanguageOK4) {
@@ -208,7 +208,7 @@ TEST(TestFieldValueWithWeight, AcceptLanguageOK4) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestFieldValueWithWeight, AcceptLanguageOK5) {
@@ -256,7 +256,7 @@ TEST(TestFieldValueWithWeight, AcceptLanguageOK5) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -272,7 +272,7 @@ TEST(TestFieldValueWithWeight, AcceptLanguageNG1) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestFieldValueWithWeight, AcceptLanguageNG2) {
@@ -286,7 +286,7 @@ TEST(TestFieldValueWithWeight, AcceptLanguageNG2) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestFieldValueWithWeight, AcceptLanguageNG3) {
@@ -300,7 +300,7 @@ TEST(TestFieldValueWithWeight, AcceptLanguageNG3) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestFieldValueWithWeight, AcceptLanguageNG4) {
@@ -314,7 +314,7 @@ TEST(TestFieldValueWithWeight, AcceptLanguageNG4) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestFieldValueWithWeight, AcceptLanguageNG5) {
@@ -328,7 +328,7 @@ TEST(TestFieldValueWithWeight, AcceptLanguageNG5) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestFieldValueWithWeight, AcceptLanguageNG6) {
@@ -342,7 +342,7 @@ TEST(TestFieldValueWithWeight, AcceptLanguageNG6) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestFieldValueWithWeight, AcceptLanguageNG7) {
@@ -356,7 +356,7 @@ TEST(TestFieldValueWithWeight, AcceptLanguageNG7) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestFieldValueWithWeight, AcceptLanguageNG8) {
@@ -370,7 +370,7 @@ TEST(TestFieldValueWithWeight, AcceptLanguageNG8) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestFieldValueWithWeight, AcceptLanguageNG9) {
@@ -384,5 +384,5 @@ TEST(TestFieldValueWithWeight, AcceptLanguageNG9) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
