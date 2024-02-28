@@ -14,7 +14,7 @@
 #include "Result.hpp"
 #include "Server.hpp"
 
-#if defined(__linux__) && !defined(USE_SELECT)
+#if defined(__linux__) && !defined(USE_SELECT) && !defined(USE_POLL)
 
 namespace {
 
@@ -111,7 +111,7 @@ void EPollMultiplexer::set_timeout(int timeout_msec) {
 }
 
 
-#elif defined(__APPLE__) && !defined(USE_SELECT)
+#elif defined(__APPLE__) && !defined(USE_SELECT) && !defined(USE_POLL)
 
 namespace {
 
@@ -251,7 +251,7 @@ void Kqueue::set_timeout(int timeout_msec) {
     }
 }
 
-#else
+#elif defined(USE_SELECT)
 
 namespace {
 
@@ -513,5 +513,36 @@ void Select::set_timeout(int timeout_msec) {
         this->timeout_.tv_usec = timeout_msec % 1000 * 1000;
     }
 }
+
+#else
+
+Poll::Poll() {}
+
+Poll::~Poll() {}
+
+Result<int, std::string> Poll::get_io_ready_fd() {
+    return Result<int, std::string>::ok(OK);
+}
+
+Result<int, std::string> Poll::register_read_fd(int read_fd) {
+    (void)read_fd;
+    return Result<int, std::string>::ok(OK);
+}
+
+Result<int, std::string> Poll::register_write_fd(int write_fd) {
+    (void)write_fd;
+    return Result<int, std::string>::ok(OK);
+}
+
+Result<int, std::string> Poll::clear_fd(int fd) {
+    (void)fd;
+    return Result<int, std::string>::ok(OK);
+}
+
+FdType Poll::get_fd_type(int fd) {
+    (void)fd;
+    return kReadFd;
+}
+
 
 #endif
