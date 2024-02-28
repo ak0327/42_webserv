@@ -25,7 +25,7 @@ TEST(TestSingleFieldValue, MaxForwardsOK1) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestSingleFieldValue, MaxForwardsOK2) {
@@ -49,7 +49,7 @@ TEST(TestSingleFieldValue, MaxForwardsOK2) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestSingleFieldValue, MaxForwardsOK3) {
@@ -72,7 +72,7 @@ TEST(TestSingleFieldValue, MaxForwardsOK3) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestSingleFieldValue, MaxForwardsOK4) {
@@ -95,7 +95,7 @@ TEST(TestSingleFieldValue, MaxForwardsOK4) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 
@@ -114,7 +114,7 @@ TEST(TestSingleFieldValue, MaxForwardsNG1) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestSingleFieldValue, MaxForwardsNG2) {
@@ -130,7 +130,7 @@ TEST(TestSingleFieldValue, MaxForwardsNG2) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestSingleFieldValue, MaxForwardsNG3) {
@@ -145,7 +145,7 @@ TEST(TestSingleFieldValue, MaxForwardsNG3) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestSingleFieldValue, MaxForwardsNG4) {
@@ -161,5 +161,5 @@ TEST(TestSingleFieldValue, MaxForwardsNG4) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }

@@ -32,7 +32,7 @@ TEST(TestMapSetFieldValues, ForwardedOK1) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapSetFieldValues, ForwardedOK2) {
@@ -60,7 +60,7 @@ TEST(TestMapSetFieldValues, ForwardedOK2) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapSetFieldValues, ForwardedOK3) {
@@ -88,7 +88,7 @@ TEST(TestMapSetFieldValues, ForwardedOK3) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapSetFieldValues, ForwardedOK4) {
@@ -118,7 +118,7 @@ TEST(TestMapSetFieldValues, ForwardedOK4) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapSetFieldValues, ForwardedOK5) {
@@ -150,7 +150,7 @@ TEST(TestMapSetFieldValues, ForwardedOK5) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapSetFieldValues, ForwardedOK6) {
@@ -181,7 +181,7 @@ TEST(TestMapSetFieldValues, ForwardedOK6) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapSetFieldValues, ForwardedOK7) {
@@ -212,7 +212,7 @@ TEST(TestMapSetFieldValues, ForwardedOK7) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 
@@ -229,7 +229,7 @@ TEST(TestMapSetFieldValues, ForwardedNG1) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapSetFieldValues, ForwardedNG2) {
@@ -243,7 +243,7 @@ TEST(TestMapSetFieldValues, ForwardedNG2) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapSetFieldValues, ForwardedNG3) {
@@ -257,7 +257,7 @@ TEST(TestMapSetFieldValues, ForwardedNG3) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapSetFieldValues, ForwardedNG4) {
@@ -271,7 +271,7 @@ TEST(TestMapSetFieldValues, ForwardedNG4) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapSetFieldValues, ForwardedNG5) {
@@ -285,7 +285,7 @@ TEST(TestMapSetFieldValues, ForwardedNG5) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapSetFieldValues, ForwardedNG6) {
@@ -299,5 +299,5 @@ TEST(TestMapSetFieldValues, ForwardedNG6) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
