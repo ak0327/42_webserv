@@ -676,8 +676,8 @@ void HttpRequest::init_field_name_parser() {
 }
 
 
-std::string HttpRequest::method() const {
-	return this->request_line_.method();
+Method HttpRequest::method() const {
+    return HttpMessageParser::get_method(this->request_line_.method());
 }
 
 

@@ -164,7 +164,9 @@ char **CgiHandler::create_envp(const CgiParams &params) {
 
     std::vector<std::string> env_strings;
     env_strings.push_back(make_key_value_pair("CONTENT_LENGTH", content_length.str()));
-    env_strings.push_back(make_key_value_pair("CONTENT_TYPE", params.content_type));
+    if (!params.content_type.empty()) {
+        env_strings.push_back(make_key_value_pair("CONTENT_TYPE", params.content_type));
+    }
     env_strings.push_back(make_key_value_pair("QUERY_STRING", params.query_string));
     env_strings.push_back(make_key_value_pair("PATH_INFO", params.path_info));
     env_strings.push_back(make_key_value_pair("SCRIPT_NAME", params.script_path));
@@ -236,24 +238,7 @@ Result<std::vector<std::string>, ProcResult> CgiHandler::get_interpreter(const s
 
 
 ProcResult CgiHandler::send_request_body_to_cgi() {
-    DEBUG_PRINT(YELLOW, "     send_to_cgi at %zu", std::time(NULL));
-    ssize_t send_size = Socket::send_buf(this->write_fd(), &this->params_.content);
-    DEBUG_PRINT(YELLOW, "      send_size: %zd", send_size);
-
-    if (send_size == SEND_CONTINUE) {
-        DEBUG_PRINT(YELLOW, "      continue");
-        return Continue;
-    }
-    if (send_size == SEND_CLOSED) {
-        shutdown(this->write_fd(), SHUT_WR);
-        if (this->params_.content_length != this->send_size_) {
-            DEBUG_PRINT(YELLOW, "      size invalid");
-            return Failure;
-        }
-        return Success;
-    }
-    this->send_size_ += send_size;  // < max_body_size
-    return Continue;
+    return Socket::send_buf(this->write_fd(), &this->params_.content);
 }
 
 
@@ -453,30 +438,34 @@ ProcResult CgiHandler::handle_child_fd(int from_parant[2], int to_parent[2]) {
 int CgiHandler::exec_script_in_child(int from_parant[2],
                                      int to_parent[2],
                                      const std::string &file_path) {
-    char **envp = create_envp(this->params_);
-    if (!envp) { return EXIT_FAILURE; }
+    DEBUG_PRINT(CYAN, "    cgi(child) 1");
+    if (handle_child_fd(from_parant, to_parent) == Failure) {
+        DEBUG_PRINT(CYAN, "    cgi(child) 2 error");
+        return EXIT_FAILURE;
+    }
+    // DEBUG_PRINT(RED, "-------------- error occurred --------------");
+    // return EXIT_FAILURE;
 
     char **argv = create_argv(file_path);
     if (!argv) {
-        delete_char_double_ptr(envp);
+        return EXIT_FAILURE;
+    }
+    char **envp = create_envp(this->params_);
+    if (!envp) {
+        delete_char_double_ptr(argv);
         return EXIT_FAILURE;
     }
 
     DEBUG_PRINT(CYAN, "    cgi(child) 3");
-    if (handle_child_fd(from_parant, to_parent) == Failure) {
-        DEBUG_PRINT(CYAN, "    cgi(child) 4 error");
-        delete_char_double_ptr(envp);
-        delete_char_double_ptr(argv);
-        return EXIT_FAILURE;
-    }
-    DEBUG_PRINT(CYAN, "    cgi(child) 5");
     errno = 0;
-    if (execve(argv[0], argv, envp) == EXECVE_ERROR) {
+    if (execve(argv[0],
+               static_cast<char *const *>(argv),
+               static_cast<char *const *>(envp)) == EXECVE_ERROR) {
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
         std::cerr << error_msg << std::endl;  // todo: tmp -> log?
-        DEBUG_PRINT(CYAN, "    cgi(child) 6 error");
+        DEBUG_PRINT(CYAN, "    cgi(child) 4 error");
     }
-    DEBUG_PRINT(CYAN, "    cgi(child) 7 error");
+    DEBUG_PRINT(CYAN, "    cgi(child) 5 error");
     delete_char_double_ptr(envp);
     delete_char_double_ptr(argv);
     return EXIT_FAILURE;

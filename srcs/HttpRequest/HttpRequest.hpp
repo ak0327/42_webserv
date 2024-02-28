@@ -36,7 +36,7 @@ class HttpRequest {
 
     void set_max_body_size(std::size_t max_body_size);
 
-	std::string	method() const;
+    Method method() const;
 	std::string request_target() const;
 	std::string	http_version() const;
     std::string query_string() const;
