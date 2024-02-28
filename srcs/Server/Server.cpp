@@ -40,6 +40,11 @@ void stop_by_signal(int sig) {
             std::cout << "[Error] Server abort" << std::endl;
             std::exit(EXIT_FAILURE);
 
+        case SIGPIPE:
+            std::cout << "Received SIGPIPE" << std::endl;
+            return;
+            std::exit(EXIT_FAILURE);
+
         default:
             std::cout << "Received unknown signal: " << sig << std::endl;
     }
@@ -63,6 +68,10 @@ ServerResult set_signal() {
 		const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
 		return ServerResult::err(error_msg);
 	}
+    if (signal(SIGPIPE, stop_by_signal) == SIG_ERR) {
+        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+        return ServerResult::err(error_msg);
+    }
 	return ServerResult::ok(OK);
 }
 

@@ -27,7 +27,7 @@ class Socket {
     static ssize_t recv(int fd, void *buf, std::size_t bufsize);
     static ssize_t recv_to_buf(int fd, std::vector<unsigned char> *buf);
     static ssize_t send(int fd, void *buf, std::size_t bufsize);
-    static ssize_t send_buf(int fd, std::vector<unsigned char> *buf);
+    static ProcResult send_buf(int fd, std::vector<unsigned char> *buf);
 
  private:
 	int socket_fd_;

@@ -155,8 +155,8 @@ ssize_t Socket::recv(int fd, void *buf, std::size_t bufsize) {
     recv_size = ::recv(fd, buf, bufsize, FLAG_NONE);
     int tmp_errno = errno;
     DEBUG_SERVER_PRINT("recv_size: %zd", recv_size);
-    if (recv_size == RECV_CLOSED) {
-        return RECV_CLOSED;
+    if (recv_size == RECV_COMPLETED) {
+        return RECV_COMPLETED;
     }
     if (recv_size == RECV_CONTINUE) {
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(tmp_errno);
@@ -191,29 +191,24 @@ ssize_t Socket::recv_to_buf(int fd, std::vector<unsigned char> *buf) {
 
 ssize_t Socket::send(int fd, void *buf, std::size_t bufsize) {
     errno = 0;
-#if defined(__linux__)
-    int flag = MSG_NOSIGNAL;
-#else
-    int flag = SO_NOSIGPIPE;
-#endif
-    ssize_t send_size = ::send(fd, buf, bufsize, flag);  // disable SIGPIPE
+    ssize_t send_size = ::send(fd, buf, bufsize, MSG_NOSIGNAL);  // disable SIGPIPE
     int tmp_errno = errno;
-    if (send_size == SEND_CLOSED) {
-        return SEND_CLOSED;
+    if (send_size == SEND_COMPLETED) {
+        return SEND_COMPLETED;
     }
-    if (send_size == SEND_CONTINUE) {
+    if (send_size == SEND_ERROR) {
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(tmp_errno);
         DEBUG_SERVER_PRINT("%s", error_msg.c_str());
         // return Result<std::size_t, std::string>::err(error_info);
-        return SEND_CONTINUE;
+        return SEND_ERROR;
     }
     return send_size;
 }
 
 
-ssize_t Socket::send_buf(int fd, std::vector<unsigned char> *buf) {
+ProcResult Socket::send_buf(int fd, std::vector<unsigned char> *buf) {
     DEBUG_SERVER_PRINT("send start");
-    if (!buf) { return 0; }
+    if (!buf) { return FatalError; }
 
     ssize_t send_size = Socket::send(fd, buf->data(), buf->size());
     if (0 < send_size) {
@@ -221,5 +216,5 @@ ssize_t Socket::send_buf(int fd, std::vector<unsigned char> *buf) {
         buf->erase(buf->begin(), buf->begin() + send_size);
     }
     DEBUG_SERVER_PRINT("send end size: %zd", send_size);
-    return send_size;
+    return buf->empty() ? Success : Continue;
 }

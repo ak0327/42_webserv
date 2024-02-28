@@ -127,9 +127,8 @@ ProcResult HttpResponse::exec_method() {
         DEBUG_PRINT(YELLOW, " exec_method 2 -> error_page");
         return Success;
     }
-    Method method = HttpMessageParser::get_method(this->request_.method());
 
-    StatusCode availability = check_resource_availability(method);
+    StatusCode availability = check_resource_availability(this->request_.method());
     DEBUG_PRINT(YELLOW, "  check_resource_availablity -> %d", availability);
     if (availability != StatusOk) {
         if (availability == MethodNotAllowed) {
@@ -141,7 +140,7 @@ ProcResult HttpResponse::exec_method() {
     }
 
     StatusCode status;
-    switch (method) {
+    switch (this->request_.method()) {
         case kGET:
             DEBUG_PRINT(YELLOW, " exec_method 5 - GET");
             status = get_request_body();
@@ -184,8 +183,11 @@ bool HttpResponse::is_status_error() const {
 
 
 bool HttpResponse::is_exec_cgi() {
-    std::pair<ScriptPath, PathInfo> pair = get_script_path_and_path_info();
-    return !pair.first.empty();
+    if (this->request_.method() == kGET || this->request_.method() == kPOST) {
+        std::pair<ScriptPath, PathInfo> pair = get_script_path_and_path_info();
+        return !pair.first.empty();
+    }
+    return false;
 }
 
 /*
@@ -246,9 +248,11 @@ CgiParams HttpResponse::get_cgi_params(const std::string &script_path,
                                        const std::string &path_info) {
     CgiParams params;
 
-    params.content = this->request_.body();
-    params.content_length = params.content.size();
-    params.content_type = this->request_.content_type();
+    if (this->request_.method() == kPOST) {
+        params.content = this->request_.body();
+        params.content_length = params.content.size();
+        params.content_type = this->request_.content_type();
+    }
     params.query_string = this->request_.query_string();
     params.path_info = path_info;
     params.script_path = script_path;
@@ -326,16 +330,7 @@ ProcResult HttpResponse::interpret_cgi_output() {
 
 
 ProcResult HttpResponse::send_http_response(int client_fd) {
-    DEBUG_SERVER_PRINT("   send start");
-
-    errno = 0;
-    ssize_t send_size = Socket::send_buf(client_fd, &this->response_msg_);
-    if (send_size == SEND_CONTINUE) {
-        return Continue;
-    }
-
-    DEBUG_SERVER_PRINT("   send end");
-    return Success;
+    return Socket::send_buf(client_fd, &this->response_msg_);
 }
 
 
