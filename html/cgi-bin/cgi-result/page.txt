@@ -1,0 +1,6 @@
+<html>
+ <head><title>CGI Test Page</title></head>
+ <body>
+  <center><h1>CGI Test Page by PHP</h1></center>
+ </body>
+</html>
