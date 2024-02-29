@@ -1,4 +1,6 @@
+#include <dirent.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <algorithm>
 #include <cctype>
 #include <cstdio>
@@ -168,46 +170,66 @@ Result<std::string, std::string> FileHandler::get_file_contents(const char *path
 
 
 StatusCode FileHandler::delete_file() {
+    // std::cout << CYAN << "  delete_file 1" << RESET << std::endl;
     if (!StringHandler::is_valid_file_name(this->path_)) {
+        // std::cout << CYAN << "  delete_file 4 err: invalid filename -> BadRequest" << RESET << std::endl;
         return BadRequest;
     }
-    Result<bool, StatusCode> is_file_result = FileHandler::is_file(this->path_);
+
+    Result<bool, StatusCode> is_dir = this->is_directory();
+    if (is_dir.is_ok() && is_dir.get_ok_value()) {
+        // std::cout << CYAN << "  delete_file 2 err: dir -> Forbidden " << RESET << std::endl;
+        return Forbidden;
+    }
+
+    Result<bool, StatusCode> is_file_result = this->is_file();
     if (is_file_result.is_err()) {
         StatusCode error_code = is_file_result.get_err_value();
+        // std::cout << CYAN << "  delete_file 3 err: is_file error " << error_code << RESET << std::endl;
         return error_code;
     }
     bool is_file = is_file_result.get_ok_value();
     if (!is_file) {
+        // std::cout << CYAN << "  delete_file 5 err: is not file -> Forbidden" << RESET << std::endl;
         return Forbidden;
     }
 
     if (std::remove(this->path_.c_str()) != REMOVE_SUCCESS) {
-        return BadRequest;
+        // std::cout << CYAN << "  delete_file 6 err: remove failure -> ServerError" << RESET << std::endl;
+        return InternalServerError;
     }
     DEBUG_PRINT(WHITE, "%s deleted", this->path_.c_str());
+    // std::cout << CYAN << "  delete_file 7 ok" << RESET << std::endl;
     return NoContent;
 }
 
 
 StatusCode FileHandler::create_file(const std::vector<unsigned char> &data) {
+    // std::cout << YELLOW << "create_file 1" << RESET << std::endl;
+
     if (!StringHandler::is_valid_file_name(this->path_)) {
+        // std::cout << YELLOW << "create_file 2 error -> 400" << RESET << std::endl;
         return BadRequest;
     }
-    Result<bool, StatusCode> result = is_file(this->path_);
+    Result<bool, StatusCode> result = this->is_file();
     if (result.is_ok()) {
+        // std::cout << YELLOW << "create_file 3 error -> 409" << RESET << std::endl;
         return Conflict;
     }
     StatusCode file_result = result.get_err_value();
     if (file_result != NotFound) {
+        // std::cout << YELLOW << "create_file 4 error -> 403" << RESET << std::endl;
         return Forbidden;
     }
 
     std::ofstream ofs(this->path_.c_str(), std::ios::binary);
     if (!ofs) {
+        // std::cout << YELLOW << "create_file 5 error -> 500" << RESET << std::endl;
         return InternalServerError;
     }
     std::copy(data.begin(), data.end(), std::ostreambuf_iterator<char>(ofs));
     if (!ofs) {
+        // std::cout << YELLOW << "create_file 6 error -> 500" << RESET << std::endl;
         return InternalServerError;
     }
     DEBUG_PRINT(WHITE, "%s created", this->path_.c_str());
@@ -225,10 +247,35 @@ const std::string &FileHandler::get_contents() const { return this->contents_; }
 
 
 Result<bool, StatusCode> FileHandler::is_directory(const std::string &path) {
-    return is_type(path, IsDir());
+    return is_type(path, IsDir(), can_read_directory);
+}
+
+Result<bool, StatusCode> FileHandler::is_directory() {
+    return FileHandler::is_directory(this->path_);
 }
 
 
 Result<bool, StatusCode> FileHandler::is_file(const std::string &path) {
-    return is_type(path, IsFile());
+    return is_type(path, IsFile(), can_read_file);
+}
+
+
+Result<bool, StatusCode> FileHandler::is_file() {
+    return FileHandler::is_file(this->path_);
+}
+
+
+bool FileHandler::can_read_file(const std::string &path) {
+    std::ifstream ifs(path.c_str());
+    return ifs.is_open();
+}
+
+
+bool FileHandler::can_read_directory(const std::string &path) {
+    DIR *dir = opendir(path.c_str());
+    if (dir) {
+        closedir(dir);
+        return true;
+    }
+    return false;
 }
