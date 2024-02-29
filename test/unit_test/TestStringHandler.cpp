@@ -772,6 +772,16 @@ TEST(TestHttpMessageParser, Normalize) {
     actual = StringHandler::normalize_to_absolute_path(path);
     EXPECT_EQ(expected, actual);
 
+    path = "/a/b/";
+    expected = "/a/b/";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "a/b/";
+    expected = "/a/b/";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
     path = "//";
     expected = "/";
     actual = StringHandler::normalize_to_absolute_path(path);
@@ -807,8 +817,18 @@ TEST(TestHttpMessageParser, Normalize) {
     actual = StringHandler::normalize_to_absolute_path(path);
     EXPECT_EQ(expected, actual);
 
+    path = "/../../a/";
+    expected = "/a/";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
     path = "../../a";
     expected = "/a";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "../../a/";
+    expected = "/a/";
     actual = StringHandler::normalize_to_absolute_path(path);
     EXPECT_EQ(expected, actual);
 }
