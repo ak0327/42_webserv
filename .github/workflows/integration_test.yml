@@ -10,7 +10,7 @@ jobs:
         run: make
 
       - name: run integration test
-        run: chmod +x test/integration/test_get.sh && ./test/integration/test_get.sh
+        run: chmod +x test/integration/run_test.sh && ./test/integration/run_test.sh
 
       - uses: sarisia/actions-status-discord@v1
         if: always()
@@ -48,7 +48,7 @@ jobs:
         run: make
 
       - name: run integration test
-        run: chmod +x test/integration/test_get.sh && ./test/integration/test_get.sh
+        run: chmod +x test/integration/run_test.sh && ./test/integration/run_test.sh
 
       - uses: sarisia/actions-status-discord@v1
         if: always()

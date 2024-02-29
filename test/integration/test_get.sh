@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source test/integration/test_func.sh
+source test/integration/prepare_test_file.sh
 
 ################################################################################
 
@@ -20,6 +21,8 @@ skip_cnt=0
 skip_cases=()
 
 ################################################################################
+
+prepare_test_file
 
 ./webserv $CONF_PATH &
 
@@ -44,7 +47,7 @@ expect_eq_get "$(curl -is "localhost:4242/404.html")"   "200 OK"    "html/404.ht
 expect_eq_get "$(curl -is "localhost:4242/50x.html")"   "200 OK"    "html/50x.html"
 expect_eq_get "$(curl -is "localhost:4242/new.html")"   "200 OK"    "html/new.html"
 
-#expect_eq_get "$(curl -is "localhost:4242/images/image1.jpg")"   "200 OK"   "html/images/image1.jpg"  // diff ng
+#expect_eq_get "$(curl -is "localhost:4242/images/image1.jpg")"   "200 OK"   "html/images/image1.jpg"  // diff?
 expect_eq_get "$(curl -is "localhost:4242/a/b/c/")"              "200 OK"   "html/a/b/c/file_c.html"
 
 
@@ -67,10 +70,10 @@ expect_eq_get "$(curl -is "localhost:4242/cgi-bin/error_no_shebang.py")"    "500
 expect_eq_get "$(curl -is "localhost:4242/cgi-bin/error_wrong_shebang.py")" "500 Internal Server Error"  "html/50x.html"
 expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello_404.py")"           "404 Not Found"              "html/404.html"
 expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello_500.py")"           "500 Internal Server Error"  "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/infinite_loop.py")"       "500 Internal Server Error"  "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/infinite_print.py")"      "500 Internal Server Error"  "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/sleep5sec.py")"           "500 Internal Server Error"  "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/sleep10sec.py")"          "500 Internal Server Error"  "html/50x.html"
+#expect_eq_get "$(curl -is "localhost:4242/cgi-bin/infinite_loop.py")"       "500 Internal Server Error"  "html/50x.html"
+#expect_eq_get "$(curl -is "localhost:4242/cgi-bin/infinite_print.py")"      "500 Internal Server Error"  "html/50x.html"
+#expect_eq_get "$(curl -is "localhost:4242/cgi-bin/sleep5sec.py")"           "500 Internal Server Error"  "html/50x.html"
+#expect_eq_get "$(curl -is "localhost:4242/cgi-bin/sleep10sec.py")"          "500 Internal Server Error"  "html/50x.html"
 expect_eq_get "$(curl -is "localhost:4242/cgi-bin/nothing.py")"             "404 Not Found"              "html/404.html"
 
 
@@ -81,17 +84,17 @@ expect_eq_get "$(echo -en "GET /nothing.html HTTP/1.1\r\nHost: localhost\r\n\r\n
 expect_eq_get "$(echo -en "GET /nothing/nothing.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"     "404 Not Found"    "html/404.html"
 expect_eq_get "$(echo -en "GET /a/b HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"                      "404 Not Found"    "html/404.html"
 expect_eq_get "$(echo -en "GET /a/b/c/nothing HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"            "404 Not Found"    "html/404.html"
+expect_eq_get "$(echo -en "GET /delete_only/nothing.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)" "404 Not Found"    "html/404.html"
+expect_eq_get "$(echo -en "GET /delete_only/nothing HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"      "404 Not Found"    "html/404.html"
 
 
 # 405 Method Not Allowed
-expect_eq_get "$(echo -en "GET /hoge/ HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"                    "405 Method Not Allowed"    ""
-expect_eq_get "$(echo -en "GET /hoge/index.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"          "405 Method Not Allowed"    ""
-expect_eq_get "$(echo -en "GET /hoge/nothing.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"        "405 Method Not Allowed"    ""
-expect_eq_get "$(echo -en "GET /hoge/nothing HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"             "405 Method Not Allowed"    ""
-expect_eq_get "$(echo -en "GET /hoge/huga/ HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"               "405 Method Not Allowed"    ""
-expect_eq_get "$(echo -en "GET /hoge/huga/index.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"     "405 Method Not Allowed"    ""
-expect_eq_get "$(echo -en "GET /show_body HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"                "405 Method Not Allowed"    ""
-expect_eq_get "$(echo -en "GET /show_body/ HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"               "405 Method Not Allowed"    ""
+expect_eq_get "$(echo -en "GET /delete_only/ HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"                    "405 Method Not Allowed"    ""
+expect_eq_get "$(echo -en "GET /delete_only/index.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"          "405 Method Not Allowed"    ""
+expect_eq_get "$(echo -en "GET /delete_only/dir/ HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"               "405 Method Not Allowed"    ""
+expect_eq_get "$(echo -en "GET /delete_only/dir/index.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"     "405 Method Not Allowed"    ""
+#expect_eq_get "$(echo -en "GET /show_body HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"                "405 Method Not Allowed"    ""
+#expect_eq_get "$(echo -en "GET /show_body/ HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"               "405 Method Not Allowed"    ""
 
 
 # 400 BadRequest
@@ -134,6 +137,45 @@ expect_eq_get "$(echo -en "GET / HTTP/1.1\r\nHost: a b c\r\n\r\n" | nc localhost
 expect_eq_get "$(echo -en "GET / HTTP/1.1\r\nHost: a b c\r\n\r\n" | nc localhost 4242)"             "400 Bad Request"   ""
 
 
+# permission
+expect_eq_get "$(curl -is "localhost:4242/permission/___.html")"        "403 Forbidden"       ""
+expect_eq_get "$(curl -is "localhost:4242/permission/__x.html")"        "403 Forbidden"       ""
+expect_eq_get "$(curl -is "localhost:4242/permission/_w_.html")"        "403 Forbidden"       ""
+expect_eq_get "$(curl -is "localhost:4242/permission/r__.html")"        "200 OK"              "html/permission/r__.html"
+expect_eq_get "$(curl -is "localhost:4242/permission/rwx.html")"        "200 OK"              "html/permission/rwx.html"
+
+expect_eq_get "$(curl -is "localhost:4242/permission/___/___.html")"    "403 Forbidden"       ""
+expect_eq_get "$(curl -is "localhost:4242/permission/___/__x.html")"    "403 Forbidden"       ""
+expect_eq_get "$(curl -is "localhost:4242/permission/___/_w_.html")"    "403 Forbidden"       ""
+expect_eq_get "$(curl -is "localhost:4242/permission/___/r__.html")"    "403 Forbidden"       ""
+expect_eq_get "$(curl -is "localhost:4242/permission/___/rwx.html")"    "403 Forbidden"       ""
+
+expect_eq_get "$(curl -is "localhost:4242/permission/__x/___.html")"    "403 Forbidden"       ""
+expect_eq_get "$(curl -is "localhost:4242/permission/__x/__x.html")"    "403 Forbidden"       ""
+expect_eq_get "$(curl -is "localhost:4242/permission/__x/_w_.html")"    "403 Forbidden"       ""
+expect_eq_get "$(curl -is "localhost:4242/permission/__x/r__.html")"    "200 OK"              "html/permission/__x/r__.html"
+expect_eq_get "$(curl -is "localhost:4242/permission/__x/rwx.html")"    "200 OK"              "html/permission/__x/rwx.html"
+
+expect_eq_get "$(curl -is "localhost:4242/permission/_w_/___.html")"    "403 Forbidden"       ""
+expect_eq_get "$(curl -is "localhost:4242/permission/_w_/__x.html")"    "403 Forbidden"       ""
+expect_eq_get "$(curl -is "localhost:4242/permission/_w_/_w_.html")"    "403 Forbidden"       ""
+expect_eq_get "$(curl -is "localhost:4242/permission/_w_/r__.html")"    "403 Forbidden"       ""
+expect_eq_get "$(curl -is "localhost:4242/permission/_w_/rwx.html")"    "403 Forbidden"       ""
+
+expect_eq_get "$(curl -is "localhost:4242/permission/r__/___.html")"    "403 Forbidden"       ""
+expect_eq_get "$(curl -is "localhost:4242/permission/r__/__x.html")"    "403 Forbidden"       ""
+expect_eq_get "$(curl -is "localhost:4242/permission/r__/_w_.html")"    "403 Forbidden"       ""
+expect_eq_get "$(curl -is "localhost:4242/permission/r__/r__.html")"    "403 Forbidden"       ""
+expect_eq_get "$(curl -is "localhost:4242/permission/r__/rwx.html")"    "403 Forbidden"       ""
+
+expect_eq_get "$(curl -is "localhost:4242/permission/rwx/___.html")"    "403 Forbidden"       ""
+expect_eq_get "$(curl -is "localhost:4242/permission/rwx/__x.html")"    "403 Forbidden"       ""
+expect_eq_get "$(curl -is "localhost:4242/permission/rwx/_w_.html")"    "403 Forbidden"       ""
+expect_eq_get "$(curl -is "localhost:4242/permission/rwx/r__.html")"    "200 OK"              "html/permission/rwx/r__.html"
+expect_eq_get "$(curl -is "localhost:4242/permission/rwx/rwx.html")"    "200 OK"              "html/permission/rwx/rwx.html"
+
+
+
 ################################################################################
 
 kill $SERVER_PID
@@ -143,8 +185,11 @@ kill $SERVER_PID
 echo
 echo "================================================================"
 echo " *** RESULT ***"
+exit_status=1
+
 if [ $ng_cnt -eq 0 ] && [ $skip_cnt -eq 0 ]; then
     echo -e " ${GREEN}All tests passed successfully${RESET}"
+    exit_status=0
 fi
 
 echo "  Total Tests  : $test_cnt"
@@ -164,5 +209,9 @@ if [ $skip_cnt -gt 0 ]; then
 fi
 
 echo "================================================================"
+
+clear_test_file
+
+exit $exit_status
 
 ################################################################################

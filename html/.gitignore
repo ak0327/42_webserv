@@ -1,0 +1,24 @@
+*
+
+!a
+!a/**
+!autoindex_files
+!autoindex_files/**
+!cgi-bin
+!cgi-bin/**
+!delete_only
+!delete_only/**
+!dir_*
+!hoge
+!images
+!upload
+!upload/**
+
+!*.html
+!*.txt
+
+# test file
+html/permission
+html/big_size
+
+.DS_Store

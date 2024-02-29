@@ -69,11 +69,22 @@ bool is_method_limited(const Method &method, const std::set<Method> &excluded_me
 }
 
 
-StatusCode HttpResponse::check_resource_availability(const Method &method) const {
+StatusCode HttpResponse::is_resource_available(const Method &method) const {
+    // std::cout << CYAN << "is_resource_available target: " << this->request_.request_target() << RESET << std::endl;
+    Result<std::string, StatusCode> indexed_result = Config::get_indexed_path(this->server_config_,
+                                                                              this->request_.request_target());
+    if (indexed_result.is_err()) {
+        // std::cout << CYAN << " get_index failure: " << indexed_result.get_err_value() << RESET << std::endl;
+        return indexed_result.get_err_value();
+    }
+
+    // std::cout << CYAN << " indexed_path: " << indexed_result.get_ok_value() << RESET << std::endl;
+
     Result<LimitExceptDirective, int> limit_except_result;
     limit_except_result = Config::limit_except(this->server_config_,
                                                this->request_.request_target());
     if (limit_except_result.is_err()) {
+        // std::cout << CYAN << " not found" << RESET << std::endl;
         return NotFound;
     }
 
@@ -81,9 +92,11 @@ StatusCode HttpResponse::check_resource_availability(const Method &method) const
     if (limit_except.limited) {
         if (is_method_limited(method, limit_except.excluded_methods)) {
             // todo: allow, deny -> StatusOk
+            // std::cout << CYAN << " method not allowed" << RESET << std::endl;
             return MethodNotAllowed;
         }
     }
+    // std::cout << CYAN << " ok" << RESET << std::endl;
     return StatusOk;
 }
 
@@ -130,7 +143,7 @@ ProcResult HttpResponse::exec_method() {
         return Success;
     }
 
-    StatusCode availability = check_resource_availability(this->request_.method());
+    StatusCode availability = is_resource_available(this->request_.method());
     DEBUG_PRINT(YELLOW, "  check_resource_availablity -> %d", availability);
     if (availability != StatusOk) {
         if (availability == MethodNotAllowed) {
@@ -138,6 +151,7 @@ ProcResult HttpResponse::exec_method() {
         }
         this->set_status_code(availability);
         DEBUG_PRINT(YELLOW, " exec_method 3 -> error %d", availability);
+        // std::cout << CYAN << "availability ng -> " << availability << RESET << std::endl;
         return Success;
     }
 
@@ -406,7 +420,7 @@ std::string HttpResponse::create_field_lines() const {
 }
 
 
-std::string HttpResponse::get_resource_path() {
+std::string HttpResponse::get_rooted_path() const {
     std::string root;
     Result<std::string, int> root_result = Config::get_root(this->server_config_,
                                                             this->request_.request_target());
