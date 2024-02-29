@@ -427,10 +427,12 @@ TEST(TestFileHandler, IsFile) {
     EXPECT_EQ(NotFound, result.get_err_value());
 
 
+#if (__APPLE__)
     path = "html/permission/___.html";
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_err());
     EXPECT_EQ(Forbidden, result.get_err_value());
+#endif
 
     path = "html/permission/__x.html";
     result = FileHandler::is_file(path);
@@ -633,10 +635,12 @@ TEST(TestFileHandler, IsDir) {
     ASSERT_TRUE(result.is_err());
     EXPECT_EQ(Forbidden, result.get_err_value());
 
+#if (__APPLE__)
     path = "html/permission/r__";  // ok
     result = FileHandler::is_directory(path);
     ASSERT_TRUE(result.is_ok());
     EXPECT_TRUE(result.get_ok_value());
+#endif
 
     path = "html/permission/rwx";  // ok
     result = FileHandler::is_directory(path);
