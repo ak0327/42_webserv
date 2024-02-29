@@ -108,6 +108,17 @@ class HttpResponse {
     void process_method_not_allowed();
     bool is_status_error() const;
 
+    bool is_api_endpoint();
+    bool has_valid_index_page();
+    bool is_method_available();
+    bool is_autoindex();
+    bool is_redirect_target();
+    StatusCode redirect_to(const std::string &move_to);
+    StatusCode response_api();
+    StatusCode get_now();
+
+    std::string get_response_date();
+
     // GET
     StatusCode get_request_body();
 
@@ -120,7 +131,7 @@ class HttpResponse {
                                 std::vector<unsigned char> *buf);
     StatusCode get_directory_listing(const std::string &directory_path,
                                      std::vector<unsigned char> *buf);
-    StatusCode get_redirect_content(std::map<std::string, std::string> *headers);
+    StatusCode get_redirect_content(const ReturnDirective &redirect);
 
 
     // POST

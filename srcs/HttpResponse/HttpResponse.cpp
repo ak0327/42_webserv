@@ -143,17 +143,17 @@ ProcResult HttpResponse::exec_method() {
         return Success;
     }
 
-    StatusCode availability = is_resource_available(this->request_.method());
-    DEBUG_PRINT(YELLOW, "  check_resource_availablity -> %d", availability);
-    if (availability != StatusOk) {
-        if (availability == MethodNotAllowed) {
-            add_allow_header();
-        }
-        this->set_status_code(availability);
-        DEBUG_PRINT(YELLOW, " exec_method 3 -> error %d", availability);
-        // std::cout << CYAN << "availability ng -> " << availability << RESET << std::endl;
-        return Success;
-    }
+    // StatusCode availability = is_resource_available(this->request_.method());
+    // DEBUG_PRINT(YELLOW, "  check_resource_availablity -> %d", availability);
+    // if (availability != StatusOk) {
+    //     if (availability == MethodNotAllowed) {
+    //         add_allow_header();
+    //     }
+    //     this->set_status_code(availability);
+    //     DEBUG_PRINT(YELLOW, " exec_method 3 -> error %d", availability);
+    //     // std::cout << CYAN << "availability ng -> " << availability << RESET << std::endl;
+    //     return Success;
+    // }
 
     StatusCode status;
     switch (this->request_.method()) {

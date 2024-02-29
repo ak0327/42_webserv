@@ -393,15 +393,21 @@ ProcResult ClientSession::execute_each_method() {
     }
     if (this->response_->is_exec_cgi()) {
         this->set_session_state(kExecuteCGI);
-        SessionResult result = process_file_event();
-        if (result.is_err()) {
-            std::cerr << result.get_err_value() << std::endl;  // todo: logging
-            return Failure;  // todo: 500
-        }
-        return ExecutingCgi;
+        return exec_cgi();
+    } else {
+        return this->response_->exec_method();  // return Success or ExecutingCgi
     }
-    return this->response_->exec_method();  // return Success or ExecutingCgi
 #endif
+}
+
+
+ProcResult ClientSession::exec_cgi() {
+    SessionResult result = process_file_event();
+    if (result.is_err()) {
+        std::cerr << result.get_err_value() << std::endl;  // todo: logging
+        return Failure;  // todo: 500
+    }
+    return ExecutingCgi;
 }
 
 

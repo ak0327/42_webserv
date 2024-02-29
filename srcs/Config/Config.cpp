@@ -690,6 +690,17 @@ Result<bool, int> Config::is_redirect(const AddressPortPair &address_port_pair,
 }
 
 
+// use after validate target_path
+ReturnDirective Config::get_return(const ServerConfig &server_config,
+                                   const std::string &target_path) {
+    Result<ReturnDirective, int> result = get_redirect(server_config, target_path);
+    if (result.is_err()) {
+        return ReturnDirective();
+    }
+    return result.get_ok_value();
+}
+
+
 Result<ReturnDirective, int> Config::get_redirect(const ServerConfig &server_config,
                                                   const std::string &target_path) {
     Result<LocationConfig, int> location_result = get_location_config(server_config, target_path);

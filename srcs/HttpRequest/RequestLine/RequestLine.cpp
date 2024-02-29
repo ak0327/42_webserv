@@ -55,7 +55,7 @@ Result<ProcResult, StatusCode> RequestLine::parse_and_validate(const std::string
 		return Result<ProcResult, StatusCode>::err(BadRequest);
 	}
 
-	validate_result = this->validate();
+    validate_result = this->validate();
 	if (validate_result.is_err()) {
         this->http_version_ = std::string(HTTP_1_1);  // needed for response
         return Result<ProcResult, StatusCode>::err(BadRequest);
