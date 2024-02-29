@@ -60,6 +60,74 @@ expect_eq_get() {
 }
 
 
+test_post_upload() {
+    local url=$1
+    local upload_path=$2
+    local filename=$3
+    local expected_file=$3
+    local expected_status=$4
+    local expect_created=$5
+
+    local call_line=${BASH_LINENO[0]}
+
+    echo "----------------------------------------------------------------"
+    ((test_cnt++))
+    echo "TEST No.${test_cnt} (L${call_line})"
+
+    local file_path="html/upload/${filename}"
+
+    local is_file_existed=0
+    if [ -f "$file_path" ]; then
+      is_file_existed=1
+    fi
+
+    local cmd
+    cmd="-is -F @file_name@${upload_path}${file_name} ${url}"
+    curl $cmd > "$response_file"
+
+
+    local actual_start_line
+    actual_start_line=$(head -n 1 ${response_file} | tr -d '\r')
+
+    local expected_start_line
+    expected_start_line="HTTP/1.1 ${expected_status}"
+
+    echo -n " Start-Line : "
+    if [[ "$expected_start_line" == "$actual_start_line" ]]; then
+        echo -e "${GREEN}OK${RESET}"
+    else
+        ((ng_cnt++))
+        ng_cases+=("No.${test_cnt} (L${call_line}): Start-Line NG: [${cmd}]")
+        echo -e "${RED}NG -> Expected: \"$expected_start_line\", Actual: \"$actual_start_line\"${RESET}"
+    fi
+
+
+    echo -n " UPLOAD     : "
+    local is_created
+    if [[ $is_file_existed == 0 && -f "$file_path" ]]; then
+      is_created="true"
+    else
+      is_created="false"
+    fi
+
+
+    if [[ "$expect_created" == "$is_created" ]]; then
+        echo -e "${GREEN}OK${RESET}"
+    else
+        ((ng_cnt++))
+        ng_cases+=("No.${test_cnt} (L${call_line}): Upload NG: [${cmd}]")
+        echo -e "${RED}NG${RESET}"
+    fi
+
+
+    if [[ "$expect_created" == "true" ]] && [ -f "$expected_file" ]; then
+        [ -f $file_path ] && rm "$file_path"
+    fi
+
+    [ -f "$response_file" ] && rm "$response_file"
+}
+
+
 expect_eq_delete() {
     local host=$1
     local port=$2

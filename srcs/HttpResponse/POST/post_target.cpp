@@ -394,6 +394,12 @@ bool HttpResponse::is_multipart_form_data(std::string *boundary) {
 }
 
 
+// static
+//   file      -> error
+//   directory -> error
+// dynamic
+//   cgi       -> error / response
+//   api       -> error / response
 StatusCode HttpResponse::post_target() {
     // std::cout << RED << "post 1" << RESET << std::endl;
     if (this->request_.request_target() == "/show_body") {

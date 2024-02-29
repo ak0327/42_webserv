@@ -13,6 +13,8 @@
 !images
 !upload
 !upload/**
+!old
+!new
 
 !*.html
 !*.txt
