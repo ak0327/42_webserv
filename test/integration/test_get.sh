@@ -52,9 +52,10 @@ expect_eq_get "$(curl -is "localhost:4242/a/b/c/")"              "200 OK"   "htm
 
 
 # redirect -> todo: location
-expect_eq_get "$(curl -is "localhost:4242/old.html")""  "   "301 Moved Permanently"    ""
-# expect_eq_get "$(curl -is "localhost:4242st"  "4242"  "/autoindex_files"   "301 Moved Permanently"  ""
-# expect_eq_get "$(curl -is "localhost:4242st"  "4242"  "/upload"            "301 Moved Permanently"  ""
+expect_eq_get "$(curl -is "localhost:4242/old.html")"           "301 Moved Permanently"    ""
+expect_eq_get "$(curl -is "localhost:4242/old/")"               "301 Moved Permanently"    ""
+expect_eq_get "$(curl -is "localhost:4242/autoindex_files")"    "301 Moved Permanently"    ""
+expect_eq_get "$(curl -is "localhost:4242/upload")"             "301 Moved Permanently"    ""
 
 # CGI
 expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.py")"               "200 OK"   "html/cgi-bin/cgi-result/hello.txt"
@@ -78,23 +79,24 @@ expect_eq_get "$(curl -is "localhost:4242/cgi-bin/nothing.py")"             "404
 
 
 # 404 Not Found
-expect_eq_get "$(echo -en "GET /nothing HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"                  "404 Not Found"    "html/404.html"
-expect_eq_get "$(echo -en "GET /nothing/ HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"                 "404 Not Found"    "html/404.html"
-expect_eq_get "$(echo -en "GET /nothing.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"             "404 Not Found"    "html/404.html"
-expect_eq_get "$(echo -en "GET /nothing/nothing.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"     "404 Not Found"    "html/404.html"
-expect_eq_get "$(echo -en "GET /a/b HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"                      "404 Not Found"    "html/404.html"
-expect_eq_get "$(echo -en "GET /a/b/c/nothing HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"            "404 Not Found"    "html/404.html"
-expect_eq_get "$(echo -en "GET /delete_only/nothing.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)" "404 Not Found"    "html/404.html"
-expect_eq_get "$(echo -en "GET /delete_only/nothing HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"      "404 Not Found"    "html/404.html"
+expect_eq_get "$(curl -is "localhost:4242/nothing")"                    "404 Not Found"    "html/404.html"
+expect_eq_get "$(curl -is "localhost:4242/nothing/")"                   "404 Not Found"    "html/404.html"
+expect_eq_get "$(curl -is "localhost:4242/nothing.html")"               "404 Not Found"    "html/404.html"
+expect_eq_get "$(curl -is "localhost:4242/nothing/nothing.html")"       "404 Not Found"    "html/404.html"
+expect_eq_get "$(curl -is "localhost:4242/a/b/c/nothing/")"             "404 Not Found"    "html/404.html"
+expect_eq_get "$(curl -is "localhost:4242/nothing")"                    "404 Not Found"    "html/404.html"
+expect_eq_get "$(curl -is "localhost:4242/nothing/hoge/huga")"          "404 Not Found"    "html/404.html"
 
 
 # 405 Method Not Allowed
-expect_eq_get "$(echo -en "GET /delete_only/ HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"                    "405 Method Not Allowed"    ""
-expect_eq_get "$(echo -en "GET /delete_only/index.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"          "405 Method Not Allowed"    ""
-expect_eq_get "$(echo -en "GET /delete_only/dir/ HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"               "405 Method Not Allowed"    ""
-expect_eq_get "$(echo -en "GET /delete_only/dir/index.html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"     "405 Method Not Allowed"    ""
-#expect_eq_get "$(echo -en "GET /show_body HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"                "405 Method Not Allowed"    ""
-#expect_eq_get "$(echo -en "GET /show_body/ HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"               "405 Method Not Allowed"    ""
+expect_eq_get "$(curl -is "localhost:4242/delete_only/")"                 "405 Method Not Allowed"    ""
+expect_eq_get "$(curl -is "localhost:4242/delete_only/index.html")"       "405 Method Not Allowed"    ""
+expect_eq_get "$(curl -is "localhost:4242/delete_only/dir/")"             "405 Method Not Allowed"    ""
+expect_eq_get "$(curl -is "localhost:4242/delete_only/dir/index.html")"   "405 Method Not Allowed"    ""
+expect_eq_get "$(curl -is "localhost:4242/delete_only/nothing.html")"     "405 Method Not Allowed"    ""
+expect_eq_get "$(curl -is "localhost:4242/delete_only/nothing.html")"     "405 Method Not Allowed"    ""
+expect_eq_get "$(curl -is "localhost:4242/api/show-response")"            "405 Method Not Allowed"    ""
+expect_eq_get "$(curl -is "localhost:4242/api/form-data")"                "405 Method Not Allowed"    ""
 
 
 # 400 BadRequest

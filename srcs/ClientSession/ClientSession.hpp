@@ -64,6 +64,7 @@ class ClientSession {
 
     SessionResult process_client_event();
     SessionResult process_file_event();
+    ProcResult exec_cgi();
 
     time_t cgi_timeout_limit() const;
 

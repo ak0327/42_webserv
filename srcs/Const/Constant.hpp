@@ -394,3 +394,9 @@ typedef std::map<Extension, MimeType> MimeTypeMap;
 
 extern const MimeTypeMap MIME_TYPES;
 MimeTypeMap init_mime_types();
+
+////////////////////////////////////////////////////////////////////////////////
+/* API endpoint */
+
+extern const std::vector<std::string> API_ENDPOINTS;
+std::vector<std::string> init_endpoints();

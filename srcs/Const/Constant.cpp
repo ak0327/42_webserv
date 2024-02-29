@@ -618,3 +618,18 @@ MimeTypeMap init_mime_types() {
 
     return mime_types;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+/* API endpoint */
+
+const std::vector<std::string> API_ENDPOINTS = init_endpoints();
+
+std::vector<std::string> init_endpoints() {
+    std::vector<std::string> endpoints;
+    // endpoints.push_back("");
+
+    endpoints.push_back("/api/form-data");
+    endpoints.push_back("/api/show-response");
+    endpoints.push_back("/api/now");
+    return endpoints;
+}

@@ -86,6 +86,9 @@ class Config {
     Result<bool, int> is_redirect(const AddressPortPair &address_port_pair,
                                   const std::string &target_path) const;
 
+    static ReturnDirective get_return(const ServerConfig &server_config,
+                                      const std::string &target_path);
+
     static Result<ReturnDirective, int> get_redirect(const ServerConfig &server_config,
                                                      const std::string &target_path);
     Result<ReturnDirective, int> get_redirect(const ServerInfo &server_info,
