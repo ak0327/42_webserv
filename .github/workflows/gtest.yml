@@ -19,7 +19,8 @@ jobs:
 
       - name: run all tests on Linux
         run: |
-          ./build/unit_test 2>/dev/null
+#          ./build/unit_test 2>/dev/null
+          ./build/unit_test
           clear_test_files
 
       - uses: sarisia/actions-status-discord@v1
@@ -67,7 +68,8 @@ jobs:
 
       - name: run all tests on Linux
         run: |
-          ./build/unit_test 2>/dev/null
+#          ./build/unit_test 2>/dev/null
+          ./build/unit_test
           clear_test_files
 
       - uses: sarisia/actions-status-discord@v1
