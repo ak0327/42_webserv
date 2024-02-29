@@ -29,6 +29,9 @@ class Config {
     static Result<std::string, int> get_matching_location(const ServerConfig &server_config,
                                                           const std::string &target_path);
 
+    static Result<std::string, StatusCode> get_indexed_path(const ServerConfig &server_config,
+                                                            const std::string &target_path);
+
     static Result<std::string, int> get_root(const ServerConfig &server_config,
                                              const std::string &target_path);
     Result<std::string, int> get_root(const ServerInfo &server_info,

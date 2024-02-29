@@ -10,12 +10,8 @@
 class HttpResponseFriend : public ::testing::Test {
  public:
     // GET
-    static std::string get_resource_path(HttpResponse &response) {
-        return response.get_resource_path();
-    }
-
-    static std::string get_indexed_path(HttpResponse &response) {
-        return response.get_indexed_path();
+    static std::string get_rooted_path(HttpResponse &response) {
+        return response.get_rooted_path();
     }
 
     static StatusCode get_request_body(HttpResponse &response) {

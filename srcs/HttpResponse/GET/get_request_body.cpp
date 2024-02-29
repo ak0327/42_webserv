@@ -62,27 +62,6 @@ void HttpResponse::get_error_page_to_body() {
 }
 
 
-std::string HttpResponse::get_indexed_path() {
-    std::string resource_path = HttpResponse::get_resource_path();
-
-    Result<std::string, int> index_exist = Config::get_index(this->server_config_,
-                                                             this->request_.request_target());
-    if (index_exist.is_err()) {
-        DEBUG_PRINT(CYAN, "index nothing");
-        return resource_path;
-    }
-    std::string index_page = index_exist.get_ok_value();
-    std::string extension = StringHandler::get_extension(resource_path);
-    DEBUG_PRINT(CYAN, "index_page: %s", index_page.c_str());
-
-    std::string indexed_path = resource_path;
-    if (extension.empty()) {
-        indexed_path.append(index_page);
-    }
-    return indexed_path;
-}
-
-
 bool HttpResponse::is_redirect() const {
     Result<bool, int> result = Config::is_redirect(this->server_config_,
                                                    this->request_.request_target());
@@ -124,6 +103,7 @@ StatusCode HttpResponse::get_redirect_content(std::map<std::string, std::string>
 
 StatusCode HttpResponse::get_request_body() {
     Result<bool, int> autoindex_result;
+
     autoindex_result = Config::is_autoindex_on(this->server_config_,
                                                this->request_.request_target());
     if (autoindex_result.is_err()) {
@@ -131,8 +111,13 @@ StatusCode HttpResponse::get_request_body() {
     }
     bool autoindex = autoindex_result.get_ok_value();
 
-    std::string indexed_path = get_indexed_path();
-    DEBUG_PRINT(CYAN, "  file_path: %s, autoindex: %s", indexed_path.c_str(), autoindex ? "on" : "off");
+    Result<std::string, StatusCode> indexed_result = Config::get_indexed_path(this->server_config_,
+                                                                              this->request_.request_target());
+    if (indexed_result.is_err()) {
+        return indexed_result.get_err_value();
+    }
+    std::string indexed_path = indexed_result.get_ok_value();
+    // DEBUG_PRINT(CYAN, "  file_path: %s, autoindex: %s", indexed_path.c_str(), autoindex ? "on" : "off");
 
 
     Result<bool, StatusCode> is_dir_result = FileHandler::is_directory(indexed_path);
@@ -143,10 +128,10 @@ StatusCode HttpResponse::get_request_body() {
     bool is_directory = is_dir_result.get_ok_value();
     if (is_directory) {
         if (autoindex) {
-            DEBUG_PRINT(CYAN, "  get_content -> directory_listing");
+            // DEBUG_PRINT(CYAN, "  get_content -> directory_listing");
             return get_directory_listing(indexed_path, &this->body_buf_);
         } else {
-            DEBUG_PRINT(CYAN, "  get_content -> directory -> 404");
+            // DEBUG_PRINT(CYAN, "  get_content -> directory -> 404");
             return NotFound;
         }
     // } else if (is_cgi_file()) {
@@ -155,7 +140,7 @@ StatusCode HttpResponse::get_request_body() {
     } else if (is_redirect()) {
         return get_redirect_content(&this->headers_);
     } else {
-        DEBUG_PRINT(CYAN, "  get_content -> file_content");
+        // DEBUG_PRINT(CYAN, "  get_content -> file_content");
         return get_file_content(indexed_path, &this->body_buf_);
     }
 }

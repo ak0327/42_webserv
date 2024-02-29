@@ -207,15 +207,19 @@ echo	: re
 
 .PHONY	: run_unit_test
 run_unit_test	:
-	@. test/integration/permission_files.sh; clear_permission_files
-	@. test/integration/permission_files.sh; create_permission_files
+	@. test/integration/prepare_test_file.sh; prepare_test_file
 	#cmake -S . -B build
 #	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D ECHO"
 	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D ECHO -D DEBUG"
 	cmake --build build
 #	./build/unit_test 2>/dev/null
 	./build/unit_test  # leaks report
-	@. test/integration/permission_files.sh; create_permission_files
+	@. test/integration/prepare_test_file.sh; prepare_test_file
+
+.PHONY	: run_integration_test
+run_integration_test	:
+	make
+	./test/integration/run_test.sh
 
 .PHONY	: run_server_test
 run_server_test	:
@@ -324,13 +328,12 @@ run_date_test    :
 
 .PHONY    : run_file_test
 run_file_test    :
-	@. test/integration/permission_files.sh; clear_permission_files
-	@. test/integration/permission_files.sh; create_permission_files
-	rm -f test/unit_test/test_file_handler/*
+	@. test/integration/prepare_test_file.sh; prepare_test_file
+	rm -f test/unit_test/test_file_handler/*.txt
 	cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestFileHandler*
-	@. test/integration/permission_files.sh; clear_permission_files
+	@. test/integration/prepare_test_file.sh; clear_test_files
 
 .PHONY    : run_token_test
 run_token_test    :
@@ -357,23 +360,21 @@ run_config_test    :
 
 .PHONY    : run_get_test
 run_get_test    :
-	@. test/integration/permission_files.sh; clear_permission_files
-	@. test/integration/permission_files.sh; create_permission_files
+	@. test/integration/prepare_test_file.sh; prepare_test_file
 	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG -D UNIT_TEST"
 	#cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=HttpResponseGET*
-	@. test/integration/permission_files.sh; clear_permission_files
+	@. test/integration/prepare_test_file.sh; clear_test_files
 
 .PHONY    : run_post_test
 run_post_test    :
-	@. test/integration/permission_files.sh; clear_permission_files
-	@. test/integration/permission_files.sh; create_permission_files
+	@. test/integration/prepare_test_file.sh; prepare_test_file
 	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG -D UNIT_TEST"
 	#cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=HttpResponsePOST*
-	@. test/integration/permission_files.sh; clear_permission_files
+	@. test/integration/prepare_test_file.sh; clear_test_files
 
 # include DEPS -----------------------------------------------------------------
 -include $(DEPS)
