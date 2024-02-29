@@ -32,7 +32,11 @@ class FileHandler {
     StatusCode delete_file();
     StatusCode create_file(const std::vector<unsigned char> &data);
 
+
+    Result<bool, StatusCode> is_file();
     static Result<bool, StatusCode> is_file(const std::string &path);
+
+    Result<bool, StatusCode> is_directory();
     static Result<bool, StatusCode> is_directory(const std::string &path);
 
  private:
@@ -47,9 +51,13 @@ class FileHandler {
 							  const char *expected_extension);
 	static Result<std::string, std::string> get_file_contents(const char *path);
 
-    template<typename CheckFunc>
-    static Result<bool, StatusCode> is_type(const std::string &path, CheckFunc func);
-};
+    static bool can_read_file(const std::string &path);
+    static bool can_read_directory(const std::string &path);
 
+    template<typename CheckFunc>
+    static Result<bool, StatusCode> is_type(const std::string &path,
+                                            CheckFunc check,
+                                            bool (*can_open)(const std::string&));
+};
 
 # include "FileHandler.tpp"
