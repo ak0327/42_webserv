@@ -205,7 +205,7 @@ StatusCode FileHandler::delete_file() {
 
 
 StatusCode FileHandler::create_file(const std::vector<unsigned char> &data) {
-    // std::cout << YELLOW << "create_file 1" << RESET << std::endl;
+    // std::cout << YELLOW << "create_file 1 path: " << this->path_ << RESET << std::endl;
 
     if (!StringHandler::is_valid_file_name(this->path_)) {
         // std::cout << YELLOW << "create_file 2 error -> 400" << RESET << std::endl;

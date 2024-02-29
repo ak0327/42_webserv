@@ -363,6 +363,52 @@ Result<LocationConfig, int> Config::get_location_config(const ServerConfig &serv
 }
 
 
+Result<std::string, StatusCode> Config::get_indexed_path(const ServerConfig &server_config,
+                                                         const std::string &target_path) {
+    // std::cout << s << "get_indexed_path 1 target: " << target_path << RESET << std::endl;
+
+    Result<std::string, int> root_result = Config::get_root(server_config, target_path);
+    if (root_result.is_err()) {
+        // std::cout << s << "get_indexed_path 1 err: target invalid" << RESET << std::endl;
+        return Result<std::string, StatusCode>::err(BadRequest);
+    }
+    std::string root = root_result.get_ok_value();
+    std::string rooted_path = root + target_path;
+    // std::cout << s << "get_indexed_path 2 rooted_path: " << rooted_path << RESET << std::endl;
+
+    Result<bool, StatusCode> is_file = FileHandler::is_file(rooted_path);
+    if (is_file.is_ok() && is_file.get_ok_value()) {
+        // std::cout << s << "get_indexed_path 3 file -> ok" << RESET << std::endl;
+        return Result<std::string, StatusCode>::ok(rooted_path);
+    } else if (is_file.is_err()) {
+        // std::cout << s << "get_indexed_path 4 file ng -> " << is_file.get_err_value() << RESET << std::endl;
+        return Result<std::string, StatusCode>::err(is_file.get_err_value());
+    }
+
+    Result<bool, StatusCode> is_dir = FileHandler::is_directory(rooted_path);
+    if (is_dir.is_err()) {
+        // std::cout << s << "get_indexed_path 5 err: is_dir error" << RESET << std::endl;
+        return Result<std::string, StatusCode>::err(is_dir.get_err_value());
+    }
+    // std::cout << s << "get_indexed_path 6 dir" << RESET << std::endl;
+
+    Result<std::string, int> index_exist = Config::get_index(server_config, target_path);
+    if (index_exist.is_err()) {
+        // std::cout << s << "get_indexed_path 7 err: target invalid" << RESET << std::endl;
+        // target is dir and no index page
+        DEBUG_PRINT(CYAN, "%s index nothing at -> NotFound", target_path.c_str(), rooted_path.c_str());
+        return Result<std::string, StatusCode>::err(NotFound);
+    }
+
+    std::string index_page = index_exist.get_ok_value();
+    std::string indexed_path = rooted_path + index_page;
+    DEBUG_PRINT(CYAN, "index_page: %s, indexed_path: %s", index_page.c_str(), indexed_path.c_str());
+    // std::cout << s << "get_indexed_path 8 ok: index_page: "
+    // << index_page << ", indexed_path: " << indexed_path << RESET << std::endl;
+    return Result<std::string, StatusCode>::ok(indexed_path);
+}
+
+
 Result<std::string, int> Config::get_root(const ServerConfig &server_config,
                                           const std::string &target_path) {
     Result<LocationConfig, int> location_result = get_location_config(server_config, target_path);

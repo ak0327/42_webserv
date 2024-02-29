@@ -95,14 +95,14 @@ class HttpResponse {
     void set_status_code(const StatusCode &set_status);
 
     StatusCode status_code() const;
-    std::string get_resource_path();
+    std::string get_rooted_path() const;
     std::string create_status_line(const StatusCode &code) const;
     std::string create_field_lines() const;
 
     bool is_executing_cgi() const;
     bool is_response_error_page() const;
 
-    StatusCode check_resource_availability(const Method &method) const;
+    StatusCode is_resource_available(const Method &method) const;
 
     void add_allow_header();
     void process_method_not_allowed();
@@ -110,7 +110,6 @@ class HttpResponse {
 
     // GET
     StatusCode get_request_body();
-    std::string get_indexed_path();
 
     void get_error_page_to_body();
 

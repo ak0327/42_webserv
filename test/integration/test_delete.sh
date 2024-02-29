@@ -37,10 +37,9 @@ expect_eq_delete "localhost" "4242" "/upload/index.html"  "html/upload/index.htm
 expect_eq_delete "localhost" "4242" "/upload/sub/a.txt"   "html/upload/sub/a.txt"   "204 No Content"          true
 
 expect_eq_delete "localhost" "4242" "/upload/nothing"     ""                        "404 Not Found"           false
-expect_eq_delete "localhost" "4242" "/a/b/c/d/"           ""                        "404 Not Found"           false
-
 expect_eq_delete "localhost" "4242" "/upload/"            "html/upload/"            "404 Not Found"           false # upload/index.html nothing
-
+expect_eq_delete "localhost" "4242" "/upload/dir/"        "html/upload/dir/"        "404 Not Found"           false # upload/dir/index.html nothing
+expect_eq_delete "localhost" "4242" "/a/b/c/d/"           ""                        "404 Not Found"           false # a/b/c/d not found
 
 expect_eq_delete "localhost" "4242" "/"                   "html/index.html"         "405 Method Not Allowed"  false
 expect_eq_delete "localhost" "4242" "/../../../"          "html/index.html"         "405 Method Not Allowed"  false
@@ -58,8 +57,10 @@ kill $SERVER_PID
 echo
 echo "================================================================"
 echo " *** RESULT ***"
+exit_status=1
 if [ $ng_cnt -eq 0 ] && [ $skip_cnt -eq 0 ]; then
     echo -e " ${GREEN}All tests passed successfully${RESET}"
+    exit_status=0
 fi
 
 echo "  Total Tests  : $test_cnt"
@@ -79,5 +80,7 @@ if [ $skip_cnt -gt 0 ]; then
 fi
 
 echo "================================================================"
+
+exit $exit_status
 
 ################################################################################
