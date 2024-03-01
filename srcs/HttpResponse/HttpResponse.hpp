@@ -108,14 +108,17 @@ class HttpResponse {
     void process_method_not_allowed();
     bool is_status_error() const;
 
-    bool is_api_endpoint();
+    bool has_trailing_slash(const std::string &path);
     bool has_valid_index_page();
+    bool is_api_endpoint();
     bool is_method_available();
     bool is_autoindex();
     bool is_redirect_target();
     StatusCode redirect_to(const std::string &move_to);
     StatusCode response_api();
     StatusCode get_now();
+    StatusCode show_data();
+    StatusCode upload_file();
 
     std::string get_response_date();
 
@@ -138,7 +141,7 @@ class HttpResponse {
 	StatusCode post_target();
     StatusCode get_urlencoded_form_content();
     StatusCode show_body();
-    StatusCode upload_file(const std::string &boundary);
+    StatusCode upload_multipart_form_data(const std::string &boundary);
 
     Result<FormData, ProcResult> parse_multipart_form_data(const std::string &boundary);
     ProcResult parse_until_binary(const std::string &separator,
