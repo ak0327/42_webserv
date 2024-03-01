@@ -11,6 +11,7 @@
 #include "Config.hpp"
 #include "Constant.hpp"
 #include "Debug.hpp"
+#include "Error.hpp"
 #include "Server.hpp"
 
 namespace {
@@ -64,7 +65,8 @@ void *run_server(void *server_info) {
 	}
 	catch (std::exception const &e) {
 		is_server_success = false;
-		std::cout << "server exception: " << e.what() << std::endl;
+        const std::string error_msg = CREATE_ERROR_INFO_STR(e.what());
+        std::cerr << "error: server exception: " << error_msg << std::endl;
 	}
 	return (void *)(is_server_success);
 }
@@ -91,7 +93,8 @@ void *run_client(void *client_info) {
     }
 	catch (std::exception const &e) {
 		is_client_success = false;
-		std::cout << "client_exception: " << e.what() << std::endl;
+        const std::string error_msg = CREATE_ERROR_INFO_STR(e.what());
+        std::cerr << "error: client exception: " << error_msg << std::endl;
     }
     DEBUG_PRINT(YELLOW, "client no:%d finish", c->no);
 	return (void *)(is_client_success);
@@ -112,19 +115,23 @@ void run_server_and_client(const char *server_ip,
 	ret_server = pthread_create(&server_tid, NULL, run_server, (void *)&server_info);
 	ret_client = pthread_create(&client_tid, NULL, run_client, (void *)&client_info);
 	if (ret_server != OK || ret_client != OK) {
-		throw std::runtime_error("pthread_create error");
+        std::string error_msg = CREATE_ERROR_INFO_STR("pthread_create error");
+        throw std::runtime_error(error_msg);
 	}
 
 	ret_server = pthread_join(server_tid, (void **)&is_server_success);
 	ret_client = pthread_join(client_tid, (void **)&is_client_success);
 	if (ret_server != OK || ret_client != OK) {
-		throw std::runtime_error("pthread_join error");
+        std::string error_msg = CREATE_ERROR_INFO_STR("pthread_join error");
+        throw std::runtime_error(error_msg);
 	}
 	if (!is_server_success) {
-		throw std::runtime_error("server error");
+        std::string error_msg = CREATE_ERROR_INFO_STR("server error");
+        throw std::runtime_error(error_msg);
 	}
 	if (!is_client_success) {
-		throw std::runtime_error("client error");
+        std::string error_msg = CREATE_ERROR_INFO_STR("client error");
+        throw std::runtime_error(error_msg);
 	}
 	server_recv_msg = server_info.recv_msg;
 	client_recv_msg = client_info.recv_msg;
@@ -159,23 +166,27 @@ void run_server_and_multi_client(const char *server_ip,
 
 	ret_server = pthread_create(&server_tid, NULL, run_server, (void *)&server_info);
 	if (ret_server != OK) {
-		throw std::runtime_error("pthread_create error");
+        std::string error_msg = CREATE_ERROR_INFO_STR("pthread_create error");
+        throw std::runtime_error(error_msg);
 	}
 	for (int i = 0; i < client_count; ++i) {
 		ret_client = pthread_create(&client_tids[i], NULL, run_client, (void *)&client_infos[i]);
 		if (ret_client != OK) {
-			throw std::runtime_error("pthread_create error");
+            std::string error_msg = CREATE_ERROR_INFO_STR("pthread_join error");
+            throw std::runtime_error(error_msg);
 		}
 	}
 
 	ret_server = pthread_join(server_tid, (void **)&is_server_success);
 	if (ret_server != OK || !is_server_success) {
-		throw std::runtime_error("server error");
+        std::string error_msg = CREATE_ERROR_INFO_STR("server error");
+        throw std::runtime_error(error_msg);
 	}
 	for (int i = 0; i < client_count; ++i) {
 		ret_client = pthread_join(client_tids[i], (void **)&is_client_success);
 		if (ret_client != OK || !is_client_success) {
-			throw std::runtime_error("client error");
+            std::string error_msg = CREATE_ERROR_INFO_STR("client error");
+            throw std::runtime_error(error_msg);
 		}
 	}
 	server_recv_msg = server_info.recv_msg;

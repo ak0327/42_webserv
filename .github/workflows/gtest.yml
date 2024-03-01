@@ -16,7 +16,7 @@ jobs:
           cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D ECHO"
           cmake --build build
 
-      - name: run all tests on Linux
+      - name: run all unit tests on Linux
         run: |
           ./build/unit_test 2>/dev/null
           . test/integration/prepare_test_file.sh; clear_test_file
@@ -28,25 +28,6 @@ jobs:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
           status: ${{ job.status }}
 
-#  Linux_epoll:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v3
-#
-#      - name: build
-#        run: |
-#          cmake -S . -B build
-#          cmake --build build
-#
-#      - name: run all tests on Linux
-#        run: ./build/unit_test 2>/dev/null
-#
-#      - uses: sarisia/actions-status-discord@v1
-#        if: always()
-#        with:
-#          title: "[UNIT_TEST] EPOLL Ver. (on Linux)"
-#          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-#          status: ${{ job.status }}
 
   macOS_select:
     runs-on: macos-latest
@@ -63,7 +44,7 @@ jobs:
           cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D ECHO"
           cmake --build build
 
-      - name: run all tests on Linux
+      - name: run all unit tests on macOS
         run: |
           ./build/unit_test 2>/dev/null
           . test/integration/prepare_test_file.sh; clear_test_file
@@ -74,23 +55,3 @@ jobs:
           title: "[UNIT_TEST] SELECT Ver. (on macOS)"
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
           status: ${{ job.status }}
-
-#  macOS_kqueue:
-#    runs-on: macos-latest
-#    steps:
-#      - uses: actions/checkout@v3
-#
-#      - name: build
-#        run: |
-#          cmake -S . -B build
-#          cmake --build build
-#
-#      - name: run all tests on macOS
-#        run: ./build/unit_test 2>/dev/null
-#
-#      - uses: sarisia/actions-status-discord@v1
-#        if: always()
-#        with:
-#          title: "[UNIT TEST] KQUEUE Ver. (on macOS)"
-#          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-#          status: ${{ job.status }}
