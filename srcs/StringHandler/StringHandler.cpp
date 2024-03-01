@@ -161,13 +161,10 @@ std::string to_string(long num) {
 }
 
 
-double str_to_double(const std::string &num_str)
-{
-	std::istringstream iss(num_str);
-	double result;
-
-	iss >> result;
-	return result;
+std::string to_string(std::size_t num) {
+    std::ostringstream oss;
+    oss << num;
+    return oss.str();
 }
 
 

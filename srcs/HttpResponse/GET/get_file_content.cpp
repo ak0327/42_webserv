@@ -15,7 +15,18 @@
 #include "StringHandler.hpp"
 
 
-bool is_support_content_type(const std::string &path) {
+bool HttpResponse::is_supported_by_media_type(const std::string &type) {
+    std::map<std::string, std::string>::const_iterator itr;
+    for (itr = MIME_TYPES.begin(); itr != MIME_TYPES.end(); ++itr) {
+        if (itr->second == type) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+bool HttpResponse::is_support_content_type(const std::string &path) {
     std::string extension;
     std::map<std::string, std::string>::const_iterator itr;
     DEBUG_PRINT(CYAN, "    is_support_content_type");
@@ -65,5 +76,7 @@ StatusCode HttpResponse::get_file_content(const std::string &file_path,
     std::string body(this->body_buf_.begin(), this->body_buf_.end());
     DEBUG_PRINT(CYAN, "    get_file_content recv_body:[%s]", body.c_str());
 
+    std::string extension = StringHandler::get_extension(file_path);
+    add_content_header(extension);
     return StatusOk;
 }

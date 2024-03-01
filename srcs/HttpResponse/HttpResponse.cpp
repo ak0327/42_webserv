@@ -311,21 +311,85 @@ ProcResult HttpResponse::exec_cgi_process() {
  The newline (NL) sequence is LF; servers should also accept CR LF as a newline.
                                           ^^^^^^
  */
-ProcResult HttpResponse::interpret_cgi_output() {
-    if (this->cgi_handler_.cgi_status_code() == StatusOk) {
-        StatusCode parse_status = this->cgi_handler_.parse_document_response();
-        this->set_status_code(parse_status);
-
-        if (!is_status_error()) {
-            this->body_buf_ = this->cgi_handler_.cgi_body();
-        }
+void HttpResponse::interpret_cgi_output() {
+    if (this->cgi_handler_.cgi_status_code() != StatusOk) {  // todo: cgi_status ??
+        return;
     }
-    return Success;
+
+    StatusCode parse_status = this->cgi_handler_.parse_document_response();
+    this->set_status_code(parse_status);
+
+    if (is_status_error()) {
+        return;
+    }
+    if (!is_supported_by_media_type(this->cgi_handler_.content_type())) {
+        this->set_status_code(NotAcceptable);
+        return;
+    }
+
+    this->body_buf_ = this->cgi_handler_.cgi_body();
+    add_content_header_by_media_type(this->cgi_handler_.content_type());
 }
 
 
 ProcResult HttpResponse::send_http_response(int client_fd) {
     return Socket::send_buf(client_fd, &this->response_msg_);
+}
+
+
+std::string get_content_type(const std::string &type) {
+    std::map<std::string, std::string>::const_iterator itr;
+    itr = MIME_TYPES.find(type);
+    if (itr != MIME_TYPES.end()) {
+        return itr->second;
+    }
+    return "text/html";
+}
+
+
+void HttpResponse::add_content_header(const std::string &extension) {
+    if (this->body_buf_.empty()) {
+        return;
+    }
+
+    if (this->headers_.find("Content-Type") != this->headers_.end()) {
+        // already added
+        return;
+    }
+
+    std::string media_type = get_content_type(extension);
+    return add_content_header_by_media_type(media_type);
+}
+
+
+void HttpResponse::add_content_header_by_media_type(const std::string &media_type) {
+    if (this->body_buf_.empty()) {
+        return;
+    }
+
+    if (media_type.empty()) {
+        this->headers_["Content-Type"] = "text/html";
+    } else {
+        this->headers_["Content-Type"] = media_type;
+    }
+    this->headers_["Content-Length"] = StringHandler::to_string(this->body_buf_.size());
+}
+
+
+
+void HttpResponse::add_date_header() {
+    this->headers_["Date"] = get_http_date();
+}
+
+
+void HttpResponse::add_server_header() {
+    this->headers_["Server"] = std::string(SERVER_SEMANTIC_VERSION);
+}
+
+
+void HttpResponse::add_standard_headers() {
+    add_server_header();
+    add_date_header();
 }
 
 
@@ -344,6 +408,7 @@ void HttpResponse::create_response_message() {
         DEBUG_PRINT(YELLOW, " exec_method 2 -> error_page", this->status_code());
         get_error_page_to_body();
     }
+    add_standard_headers();
 
     std::string status_line = create_status_line(this->status_code()) + CRLF;
     std::string field_lines = create_field_lines();
