@@ -20,11 +20,6 @@
 #include "Socket.hpp"
 #include "StringHandler.hpp"
 
-namespace {
-
-}  // namespace
-
-////////////////////////////////////////////////////////////////////////////////
 
 HttpResponse::HttpResponse(const HttpRequest &request,
                            const ServerConfig &server_config,
@@ -143,18 +138,6 @@ ProcResult HttpResponse::exec_method() {
         return Success;
     }
 
-    // StatusCode availability = is_resource_available(this->request_.method());
-    // DEBUG_PRINT(YELLOW, "  check_resource_availablity -> %d", availability);
-    // if (availability != StatusOk) {
-    //     if (availability == MethodNotAllowed) {
-    //         add_allow_header();
-    //     }
-    //     this->set_status_code(availability);
-    //     DEBUG_PRINT(YELLOW, " exec_method 3 -> error %d", availability);
-    //     // std::cout << CYAN << "availability ng -> " << availability << RESET << std::endl;
-    //     return Success;
-    // }
-
     StatusCode status;
     switch (this->request_.method()) {
         case kGET:
@@ -178,12 +161,6 @@ ProcResult HttpResponse::exec_method() {
     }
 
     this->set_status_code(status);
-    // DEBUG_PRINT(YELLOW, " exec_method 6 status: %d", this->status_code());
-    // if (is_executing_cgi()) {
-    //     DEBUG_PRINT(YELLOW, " exec_method 7 executing cgi -> continue");
-    //     return ExecutingCgi;
-    // }
-
     DEBUG_PRINT(YELLOW, " exec_method 8 -> next");
     return Success;
 }
@@ -206,6 +183,7 @@ bool HttpResponse::is_exec_cgi() {
     Result<bool, StatusCode> result = FileHandler::is_file(script_path);
     return result.is_ok();
 }
+
 
 /*
  path/to/script.cgi/path/info

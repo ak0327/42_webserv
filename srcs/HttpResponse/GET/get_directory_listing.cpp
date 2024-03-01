@@ -24,7 +24,8 @@ const DIR* OPENDIR_ERROR = NULL;
 
 const char CURRENT_DIR[] = ".";
 const char PARENT_DIR[] = "..";
-const char hidden_file_prefix = '.';
+const char HIDDEN_FILE_PREFIX = '.';
+
 
 std::string get_timestamp(time_t time) {
     const std::size_t BUFSIZE = 30;
@@ -33,7 +34,8 @@ std::string get_timestamp(time_t time) {
 
     time_info = std::localtime(&time);
     std::strftime(formatted_time, sizeof(formatted_time), "%d-%b-%Y %H:%M", time_info);
-    return std::string(formatted_time);}
+    return std::string(formatted_time);
+}
 
 
 ProcResult get_file_info(const std::string &directory_path_with_trailing_slash,
@@ -79,7 +81,7 @@ ProcResult get_file_info(const std::string &directory_path_with_trailing_slash,
         filename = dirent_ptr->d_name;
         if (filename == std::string(CURRENT_DIR)
             || filename == std::string(PARENT_DIR)
-            || filename[0] == hidden_file_prefix) {
+            || filename[0] == HIDDEN_FILE_PREFIX) {
             continue;
         }
 
@@ -219,7 +221,9 @@ StatusCode get_directory_listing_html(const std::string &directory_path_with_tra
 
 }  // namespace
 
+
 ////////////////////////////////////////////////////////////////////////////////
+
 
 StatusCode HttpResponse::get_directory_listing(const std::string &directory_path_with_trailing_slash,
                                                std::vector<unsigned char> *buf) {
@@ -235,6 +239,7 @@ StatusCode HttpResponse::get_directory_listing(const std::string &directory_path
 
     return get_directory_listing_html(directory_path_with_trailing_slash, directories, files, buf);
 }
+
 
 bool operator<(const file_info &lhs, const file_info &rhs) {
     return lhs.name < rhs.name;
