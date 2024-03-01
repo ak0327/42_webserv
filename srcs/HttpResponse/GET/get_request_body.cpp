@@ -144,8 +144,8 @@ std::string HttpResponse::get_response_date() {
     size_t n;
     std::string date_string;
 
-    time(&gmt_time);
-    n = std::strftime(date, 1024, "%a, %d %b %Y %X %Z", gmtime(&gmt_time));
+    std::time(&gmt_time);
+    n = std::strftime(date, 1024, "%a, %d %b %Y %X %Z", std::gmtime(&gmt_time));
     date_string = std::string(date, n);
     return date_string;
 }
