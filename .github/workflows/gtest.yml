@@ -9,8 +9,7 @@ jobs:
       - name: prepare test files
         run: |
           chmod +x test/integration/prepare_test_file.sh
-          source test/integration/prepare_test_file.sh
-          prepare_test_file
+          . test/integration/prepare_test_file.sh; prepare_test_file
 
       - name: build
         run: |
@@ -19,9 +18,8 @@ jobs:
 
       - name: run all tests on Linux
         run: |
-#          ./build/unit_test 2>/dev/null
-          ./build/unit_test
-          clear_test_files
+          ./build/unit_test 2>/dev/null
+          . test/integration/prepare_test_file.sh; clear_test_file
 
       - uses: sarisia/actions-status-discord@v1
         if: always()
@@ -58,8 +56,7 @@ jobs:
       - name: prepare test files
         run: |
           chmod +x test/integration/prepare_test_file.sh
-          source test/integration/prepare_test_file.sh
-          prepare_test_file
+          . test/integration/prepare_test_file.sh; prepare_test_file
 
       - name: build
         run: |
@@ -68,9 +65,8 @@ jobs:
 
       - name: run all tests on Linux
         run: |
-#          ./build/unit_test 2>/dev/null
-          ./build/unit_test
-          clear_test_files
+          ./build/unit_test 2>/dev/null
+          . test/integration/prepare_test_file.sh; clear_test_file
 
       - uses: sarisia/actions-status-discord@v1
         if: always()
