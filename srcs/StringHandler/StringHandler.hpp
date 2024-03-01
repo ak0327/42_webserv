@@ -9,6 +9,7 @@ bool is_quoted(const std::string &value);
 bool is_char_in_str(char c, const std::string &str);
 bool is_valid_file_name(const std::string &path);
 bool is_valid_extension(const std::string &path);
+bool has_trailing_slash(const std::string &path);
 
 int to_digit(const char &c);
 int stoi(const std::string &str, std::size_t *idx, bool *overflow);
