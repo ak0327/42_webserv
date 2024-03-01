@@ -109,23 +109,17 @@ class HttpResponse {
     bool is_status_error() const;
 
     bool has_valid_index_page();
-    bool is_api_endpoint();
     bool is_method_available();
     bool is_autoindex();
     bool is_redirect_target();
     StatusCode redirect_to(const std::string &move_to);
-    StatusCode response_api();
-    StatusCode get_now();
-    StatusCode show_data();
     StatusCode upload_file();
 
-    std::string get_response_date();
+    std::string get_http_date();
 
     // GET
     StatusCode get_request_body();
-
     void get_error_page_to_body();
-
     bool is_cgi_file() const;
     bool is_redirect() const;
 
@@ -138,8 +132,6 @@ class HttpResponse {
 
     // POST
 	StatusCode post_target();
-    StatusCode get_urlencoded_form_content();
-    StatusCode show_body();
     StatusCode upload_multipart_form_data(const std::string &boundary);
 
     Result<FormData, ProcResult> parse_multipart_form_data(const std::string &boundary);
@@ -148,14 +140,25 @@ class HttpResponse {
                                   std::string *content_type);
     ProcResult parse_binary_data(const std::string &separator,
                                  std::vector<unsigned char> *data);
-
-    bool is_urlencoded_form_data();
     bool is_multipart_form_data(std::string *boundary);
 
 
     // DELETE
 	StatusCode delete_target();
 
-	HttpResponse(const HttpResponse &other);
+
+    // API
+    bool is_api_endpoint();
+    bool is_urlencoded_form_data();
+    StatusCode response_api();
+    StatusCode get_now();
+    StatusCode show_data();
+    StatusCode show_body();
+    StatusCode get_urlencoded_form_content();
+    UrlEncodedFormData parse_urlencoded_form_data(const std::vector<unsigned char> &request_body);
+
+
+    // unused
+    HttpResponse(const HttpResponse &other);
 	HttpResponse &operator=(const HttpResponse &rhs);
 };
