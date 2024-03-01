@@ -172,8 +172,9 @@ expect_eq_delete() {
         echo -e "${GREEN}OK${RESET}"
     else
         ((ng_cnt++))
-        ng_cases+=("No.${test_cnt} (L${call_line}): Start-Line NG: [${cmd}]")
-        echo -e "${RED}NG -> Expected: \"$expected_start_line\", Actual: \"$actual_start_line\"${RESET}"
+        result="Expected: \"$expected_start_line\", Actual: \"$actual_start_line\""
+        ng_cases+=("No.${test_cnt} (L${call_line}): Start-Line NG: [$result]")
+        echo -e "${RED}NG -> $result${RESET}"
     fi
 
 

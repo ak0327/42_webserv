@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source test/integration/test_func.sh
+source test/integration/prepare_test_file.sh
 
 ################################################################################
 
@@ -22,6 +23,12 @@ skip_cases=()
 
 ################################################################################
 
+echo "================================================================"
+echo " DELETE TEST"
+echo "================================================================"
+
+prepare_test_file
+
 ./webserv $CONF_PATH &
 
 SERVER_PID=$!
@@ -38,7 +45,7 @@ expect_eq_delete "localhost" "4242" "/upload/sub/a.txt"   "html/upload/sub/a.txt
 
 expect_eq_delete "localhost" "4242" "/upload/nothing"     ""                        "404 Not Found"           false
 expect_eq_delete "localhost" "4242" "/upload/"            "html/upload/"            "404 Not Found"           false # upload/index.html nothing
-expect_eq_delete "localhost" "4242" "/upload/dir/"        "html/upload/dir/"        "404 Not Found"           false # upload/dir/index.html nothing
+expect_eq_delete "localhost" "4242" "/upload/sub/"        "html/upload/sub/"        "404 Not Found"           false # upload/dir/index.html nothing
 
 expect_eq_delete "localhost" "4242" "/"                   "html/index.html"         "405 Method Not Allowed"  false
 expect_eq_delete "localhost" "4242" "/../../../"          "html/index.html"         "405 Method Not Allowed"  false
@@ -80,6 +87,9 @@ if [ $skip_cnt -gt 0 ]; then
 fi
 
 echo "================================================================"
+echo ""
+
+clear_test_file
 
 exit $exit_status
 
