@@ -14,13 +14,6 @@
 #include "Result.hpp"
 #include "StringHandler.hpp"
 
-namespace {
-
-}  // namespace
-
-
-////////////////////////////////////////////////////////////////////////////////
-
 
 bool is_support_content_type(const std::string &path) {
     std::string extension;
