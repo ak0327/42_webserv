@@ -11,7 +11,7 @@
 #include "Color.hpp"
 #include "FileHandler.hpp"
 #include "Tokenizer.hpp"
-#include "Parser.hpp"
+#include "ConfigParser.hpp"
 #include "Server.hpp"
 #include "TestParser.hpp"
 #include "gtest/gtest.h"
@@ -46,7 +46,7 @@ TEST(TestParser, ParseOK) {
     Result<int, std::string> result;
     ListenDirective listen;
 
-    Parser parser1("test/test_conf/ok/parse_ok1.conf");
+    ConfigParser parser1("test/test_conf/ok/parse_ok1.conf");
 
     expected = {};
 
@@ -61,11 +61,11 @@ TEST(TestParser, ParseOK) {
     server_config.root_path = "www";
 
     server_config.error_pages = {
-        {404, "/404.html"},
-        {500, "/50x.html"},
-        {502, "/50x.html"},
-        {503, "/50x.html"},
-        {504, "/50x.html"},
+            {NotFound               , "/404.html"},
+            {InternalServerError    , "/50x.html"},
+            {BadGateway             , "/50x.html"},
+            {ServiceUnavailable     , "/50x.html"},
+            {GatewayTimeout         , "/50x.html"},
     };
 
     // location "/"
@@ -77,8 +77,9 @@ TEST(TestParser, ParseOK) {
     // location "/old.html"
     location_config = LocationConfig(server_config);
     location_config.redirection.return_on = true;
-    location_config.redirection.code = 301;
+    location_config.redirection.code = MovedPermanently;
     location_config.redirection.text = "/new.html";
+    location_config.cgi.extension = {"hello"};
     server_config.locations["/old.html"] = location_config;
 
     // location "/upload"
@@ -90,9 +91,21 @@ TEST(TestParser, ParseOK) {
     location_config = LocationConfig(server_config);
     location_config.limit_except.excluded_methods = {kPOST, kDELETE};
     location_config.limit_except.rules.push_back(AccessRule(kDENY, "all"));
+    location_config.limit_except.limited = true;
     location_config.max_body_size_bytes = 20 * ConfigInitValue::MB;
     location_config.root_path = "/upload";
+    location_config.cgi.is_cgi_mode = true;
+    location_config.cgi.extension = {"py", "php"};
+    location_config.cgi.timeout_sec = 60;
     server_config.locations["/post"] = location_config;
+
+    // location "/cgi-bin/"
+    location_config = LocationConfig(server_config);
+    location_config.cgi.is_cgi_mode = true;
+    location_config.cgi.extension = {"py", "php"};
+    location_config.cgi.timeout_sec = 60;
+    server_config.locations["/cgi-bin/"] = location_config;
+
 
     location_config = LocationConfig(server_config);
     location_config.root_path = "www";
@@ -100,8 +113,8 @@ TEST(TestParser, ParseOK) {
 
     expected.servers.push_back(server_config);
 
-    actual = parser1.get_config();
-    result = parser1.get_result();
+    actual = parser1.config();
+    result = parser1.result();
 
     // print_error_msg(result, __LINE__);
     EXPECT_TRUE(result.is_ok());
@@ -109,7 +122,7 @@ TEST(TestParser, ParseOK) {
 
     // -------------------------------------------------------------------------
 
-    Parser parser2("test/test_conf/ok/parse_ok2.conf");
+    ConfigParser parser2("test/test_conf/ok/parse_ok2.conf");
 
     expected = {};
 
@@ -127,8 +140,8 @@ TEST(TestParser, ParseOK) {
 
     expected.servers.push_back(server_config);
 
-    actual = parser2.get_config();
-    result = parser2.get_result();
+    actual = parser2.config();
+    result = parser2.result();
 
     // print_error_msg(result, __LINE__);
     EXPECT_TRUE(result.is_ok());
@@ -136,7 +149,7 @@ TEST(TestParser, ParseOK) {
 
     // -------------------------------------------------------------------------
 
-    Parser parser3("test/test_conf/ok/parse_ok3.conf");
+    ConfigParser parser3("test/test_conf/ok/parse_ok3.conf");
 
     expected = {};
 
@@ -150,11 +163,11 @@ TEST(TestParser, ParseOK) {
     server_config.root_path = "www";
 
     server_config.error_pages = {
-        {404, "/404.html"},
-        {500, "/50x.html"},
-        {502, "/50x.html"},
-        {503, "/50x.html"},
-        {504, "/50x.html"},
+            {NotFound               , "/404.html"},
+            {InternalServerError    , "/50x.html"},
+            {BadGateway             , "/50x.html"},
+            {ServiceUnavailable     , "/50x.html"},
+            {GatewayTimeout         , "/50x.html"},
     };
 
     location_config = LocationConfig(server_config);
@@ -164,7 +177,7 @@ TEST(TestParser, ParseOK) {
 
     location_config = LocationConfig(server_config);
     location_config.redirection.return_on = true;
-    location_config.redirection.code = 301;
+    location_config.redirection.code = MovedPermanently;
     location_config.redirection.text = "/new.html";
     server_config.locations["/old.html"] = location_config;
 
@@ -175,6 +188,7 @@ TEST(TestParser, ParseOK) {
     location_config = LocationConfig(server_config);
     location_config.limit_except.excluded_methods = {kPOST, kDELETE};
     location_config.limit_except.rules.push_back(AccessRule(kDENY, "all"));
+    location_config.limit_except.limited = true;
     location_config.max_body_size_bytes = 20 * ConfigInitValue::MB;
     location_config.root_path = "/upload";
     server_config.locations["/post"] = location_config;
@@ -201,8 +215,8 @@ TEST(TestParser, ParseOK) {
 
     expected.servers.push_back(server_config);
 
-    actual = parser3.get_config();
-    result = parser3.get_result();
+    actual = parser3.config();
+    result = parser3.result();
 
     // print_error_msg(result, __LINE__);
     EXPECT_TRUE(result.is_ok());
@@ -216,8 +230,8 @@ TEST(TestParser, ParseHttpBlockOK) {
     for (std::set<std::string>::const_iterator itr = conf_files.begin(); itr != conf_files.end(); ++itr) {
         debug_print("path: " + *itr, __LINE__);
 
-        Parser parser(itr->c_str());
-        Result<int, std::string> result = parser.get_result();
+        ConfigParser parser(itr->c_str());
+        Result<int, std::string> result = parser.result();
         EXPECT_TRUE(result.is_ok());
     }
 }
@@ -229,9 +243,9 @@ TEST(TestParser, ParseHttpBlockNG) {
     for (std::set<std::string>::const_iterator itr = conf_files.begin(); itr != conf_files.end(); ++itr) {
         debug_print("path: " + *itr, __LINE__);
 
-        Parser parser(itr->c_str());
+        ConfigParser parser(itr->c_str());
 
-        Result<int, std::string> result = parser.get_result();
+        Result<int, std::string> result = parser.result();
         print_error_msg(result, __LINE__);
         EXPECT_TRUE(result.is_err());
     }
@@ -244,9 +258,9 @@ TEST(TestParser, ParseServerBlockOK) {
     for (std::set<std::string>::const_iterator itr = conf_files.begin(); itr != conf_files.end(); ++itr) {
         debug_print("path: " + *itr, __LINE__);
 
-        Parser parser(itr->c_str());
-        Result<int, std::string> result = parser.get_result();
-        // print_error_msg(result, __LINE__);
+        ConfigParser parser(itr->c_str());
+        Result<int, std::string> result = parser.result();
+        print_error_msg(result, __LINE__);
         EXPECT_TRUE(result.is_ok());
     }
 }
@@ -258,9 +272,9 @@ TEST(TestParser, ParseServerBlockNG) {
     for (std::set<std::string>::const_iterator itr = conf_files.begin(); itr != conf_files.end(); ++itr) {
         debug_print("path: " + *itr, __LINE__);
 
-        Parser parser(itr->c_str());
+        ConfigParser parser(itr->c_str());
 
-        Result<int, std::string> result = parser.get_result();
+        Result<int, std::string> result = parser.result();
         print_error_msg(result, __LINE__);
         EXPECT_TRUE(result.is_err());
     }
@@ -273,8 +287,8 @@ TEST(TestParser, ParseLocationBlockOK) {
     for (std::set<std::string>::const_iterator itr = conf_files.begin(); itr != conf_files.end(); ++itr) {
         debug_print("path: " + *itr, __LINE__);
 
-        Parser parser(itr->c_str());
-        Result<int, std::string> result = parser.get_result();
+        ConfigParser parser(itr->c_str());
+        Result<int, std::string> result = parser.result();
         // print_error_msg(result, __LINE__);
         EXPECT_TRUE(result.is_ok());
     }
@@ -287,9 +301,9 @@ TEST(TestParser, ParseLocationBlockNG) {
     for (std::set<std::string>::const_iterator itr = conf_files.begin(); itr != conf_files.end(); ++itr) {
         debug_print("path: " + *itr, __LINE__);
 
-        Parser parser(itr->c_str());
+        ConfigParser parser(itr->c_str());
 
-        Result<int, std::string> result = parser.get_result();
+        Result<int, std::string> result = parser.result();
         print_error_msg(result, __LINE__);
         EXPECT_TRUE(result.is_err());
     }

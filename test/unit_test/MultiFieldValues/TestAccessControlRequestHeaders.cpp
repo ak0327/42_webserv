@@ -29,7 +29,7 @@ TEST(TestMultiFieldValues, AccessControlRequestHeadersOK1) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMultiFieldValues, AccessControlRequestHeadersOK2) {
@@ -56,7 +56,7 @@ TEST(TestMultiFieldValues, AccessControlRequestHeadersOK2) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMultiFieldValues, AccessControlRequestHeadersOK3) {
@@ -72,7 +72,7 @@ TEST(TestMultiFieldValues, AccessControlRequestHeadersOK3) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 
@@ -87,7 +87,7 @@ TEST(TestMultiFieldValues, AccessControlRequestHeadersNG1) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 
@@ -102,5 +102,5 @@ TEST(TestMultiFieldValues, AccessControlRequestHeadersNG2) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }

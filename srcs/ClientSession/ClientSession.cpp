@@ -11,56 +11,45 @@
 #include "Debug.hpp"
 #include "Error.hpp"
 #include "HttpResponse.hpp"
+#include "Socket.hpp"
 #include "StringHandler.hpp"
 
-// recv request
-//  host -> ClientSession
-
-// create response
-//  method
-//   GET    -> read  / CGI
-//   POST   -> write / CGI
-//   DELETE -> delete?
-
-// send response
 
 ClientSession::ClientSession(int socket_fd,
                              int client_fd,
                              const AddressPortPair &client_listen,
-                             const Configuration &config)
+                             const Config &config)
     : socket_fd_(socket_fd),
       client_fd_(client_fd),
-      file_fd_(INIT_FD),
       config_(config),
       server_info_(),
       server_config_(),
       session_state_(kSessionInit),
       request_(NULL),
       response_(NULL),
-      request_max_body_size_(0),
+      request_max_body_size_(ConfigInitValue::kDefaultBodySize),
       client_listen_(client_listen) {}
 
 
 ClientSession::~ClientSession() {
-    close_file_fd();
     close_client_fd();
+    clear_request();
+    clear_response();
+}
 
+
+void ClientSession::clear_request() {
     if (this->request_) {
         delete this->request_;
         this->request_ = NULL;
     }
-
-    if (this->response_) {
-        delete this->response_;
-        this->response_ = NULL;
-    }
 }
 
 
-void ClientSession::close_file_fd() {
-    if (this->file_fd_ != INIT_FD) {
-        close(this->file_fd_);
-        this->file_fd_ = INIT_FD;
+void ClientSession::clear_response() {
+    if (this->response_) {
+        delete this->response_;
+        this->response_ = NULL;
     }
 }
 
@@ -73,77 +62,232 @@ void ClientSession::close_client_fd() {
 }
 
 
+void ClientSession::kill_cgi_process() {
+    if (this->response_) {
+        this->response_->kill_cgi_process();
+    }
+}
+
+
+// todo: unused??
+void ClientSession::clear_cgi() {
+    if (this->response_) {
+        this->response_->clear_cgi();
+    }
+}
+
+
+time_t ClientSession::cgi_timeout_limit() const {
+    return this->response_ ? this->response_->cgi_timeout_limit() : 0;
+}
+
+
+
+// -----------------------------------------------------------------------------
+
+
+// status code update in this func if error occurred
 SessionResult ClientSession::process_client_event() {
-    Result<std::string, std::string> recv_result;
-    Result<int, int> request_result, send_result;
-    Result<Fd, int> create_response_result, response_body_result;
-
+    DEBUG_SERVER_PRINT("  client_event start");
     switch (this->session_state_) {
-        case kSessionInit:
-            DEBUG_SERVER_PRINT("   session: 0 SessionInit");
-            this->session_state_ = kReadingRequest;
-            // fallthrough
+        case kSessionInit: {
+            DEBUG_SERVER_PRINT("   Session: 0 SessionInit");
+            this->set_session_state(kReceivingRequest);
+        }
+        // fallthrough
 
-        case kAccepted:
-            DEBUG_SERVER_PRINT("   session: 0 Accepted");
-            this->session_state_ = kReadingRequest;
-            // fallthrough
-
-        case kReadingRequest:
-            DEBUG_SERVER_PRINT("   session: 1 ReadingRequest");
-            request_result = parse_http_request();
-            if (request_result.is_err()) {
-                DEBUG_SERVER_PRINT("    request error1, status: %d", request_result.get_err_value());
+        case kReceivingRequest: {
+            DEBUG_SERVER_PRINT("   Session: 1 Recv");
+            ProcResult recv_result = recv_http_request();
+            if (recv_result == FatalError) {
+                const std::string error_msg = CREATE_ERROR_INFO_STR("fatal error");
+                return SessionResult::err(error_msg);
+            } else if (recv_result == Continue) {
+                return SessionResult::ok(Continue);
+            } else if (recv_result == ConnectionClosed) {
+                return SessionResult::ok(ConnectionClosed);
             }
-            this->session_state_ = kCreatingResponse;
-            // fallthrough
+            this->set_session_state(kParsingRequest);
+        }
+        // fallthrough
 
-        case kCreatingResponse:
-            DEBUG_SERVER_PRINT("   session: 2 CreatingResponse");
-            create_response_result = create_http_response();
-            if (create_response_result.is_err()) {
-                DEBUG_SERVER_PRINT("    request error2, status: %d", create_response_result.get_err_value());
-                this->session_state_ = kSessionError;
+        case kParsingRequest: {
+            DEBUG_SERVER_PRINT("   Session: 2 ParsingRequest");
+            ProcResult request_result = parse_http_request();
+            if (request_result == Continue) {
+                DEBUG_SERVER_PRINT("     recv continue(process_client_event)");
+                this->set_session_state(kReceivingRequest);
+                return SessionResult::ok(Continue);
             }
-            if (create_response_result.get_ok_value() == OK) {
-                this->session_state_ = kSendingResponse;
-            } else {
-                this->session_state_ = kExecutingCGI;
-            }
-            return SessionResult::ok(create_response_result.get_ok_value());  // -> register cgi_fd to fds as read fd
+            this->set_session_state(kExecutingMethod);
+        }
+        // fallthrough
 
+        case kExecutingMethod:
         case kCreatingResponseBody:
-            DEBUG_SERVER_PRINT("   session: 3 CreatingResponseBody");
-            response_body_result = this->response_->create_response_body();
-            if (response_body_result.is_err()) {
-                DEBUG_SERVER_PRINT("    request error3, status: %d", response_body_result.get_err_value());
-                this->session_state_ = kSessionError;
+        case kCreatingCGIBody: {
+            DEBUG_SERVER_PRINT("   Session: 3 CreatingResponse");
+            ProcResult response_result = create_http_response();
+            if (response_result == ExecutingCgi) {
+                return SessionResult::ok(ExecutingCgi);
             }
-            this->session_state_ = kSendingResponse;
             break;
+        }
 
-        case kSendingResponse:
-            DEBUG_SERVER_PRINT("   session: 4 SendingResponse");
-
-            send_result = send_response();
-            if (send_result.is_err()) {
-                DEBUG_SERVER_PRINT("    request error4, status: %d", send_result.get_err_value());
-                const std::string err_info = CREATE_ERROR_INFO_STR(send_result.get_err_value());
-                this->session_state_ = kSessionError;
-                return SessionResult::err("[Server Error] recv: " + err_info);
+        case kSendingResponse: {
+            DEBUG_SERVER_PRINT("   Session: 4 SendingResponse");
+            ProcResult send_result = this->response_->send_http_response(this->client_fd_);
+            if (send_result == Continue) {
+                return SessionResult::ok(Continue);
             }
-            this->session_state_ = kCompleted;
-            break;
-
-        case kCompleted:
-            break;
+            this->set_session_state(kSessionCompleted);
+            return SessionResult::ok(Success);
+        }
 
         default:
-            // kReadingFile, kExecutingCGI -> process_file_event()
-            break;
+            const std::string error_msg = CREATE_ERROR_INFO_STR("error: unknown session in client event");
+            return SessionResult::err(error_msg);
     }
-    return SessionResult::ok(OK);
+    DEBUG_SERVER_PRINT("  client_event end");
+    return SessionResult::ok(Success);
 }
+
+
+// -----------------------------------------------------------------------------
+
+
+ProcResult ClientSession::recv_http_request() {
+    if (!this->request_) {
+        try {
+            this->request_ = new HttpRequest();
+        }
+        catch (const std::exception &e) {
+            DEBUG_PRINT(RED, "error: fail to memory allocate");  // todo: logging
+            return FatalError;
+        }
+    }
+
+    ssize_t recv_size = this->request_->recv_to_buf(this->client_fd_);
+    if (recv_size == 0) {
+        return ConnectionClosed;
+    }
+    return 0 < recv_size ? Success : Continue;
+}
+
+
+// -----------------------------------------------------------------------------
+
+// status update this func
+ProcResult ClientSession::parse_http_request() {
+    DEBUG_SERVER_PRINT("               ParsingRequest start");
+#ifdef ECHO
+    this->set_session_state(kCreatingResponseBody);
+#else
+    if (this->request_->parse_phase() == ParsingRequestLine
+        || this->request_->parse_phase() == ParsingRequestHeaders) {
+        DEBUG_SERVER_PRINT("               ParsingRequest 1");
+        Result<ProcResult, StatusCode> parse_result = this->request_->parse_start_line_and_headers();
+        if (parse_result.is_err()) {
+            StatusCode error_code = parse_result.get_err_value();
+            DEBUG_SERVER_PRINT("               ParsingRequest 2 error: %d", error_code);
+            this->request_->set_request_status(error_code);
+            return Success;
+        }
+        if (is_continue_recv(parse_result)) {
+            DEBUG_SERVER_PRINT("               ParsingRequest 3 -> continue");
+            return Continue;
+        }
+
+        if (this->request_->validate_request_headers() == FatalError) {
+            this->request_->set_request_status(BadRequest);
+            return Success;
+        }
+
+        DEBUG_SERVER_PRINT("               ParsingRequest 4");
+        // todo: Result<ProcResult, StatusCode>
+        Result<ProcResult, std::string> config_result = get_host_config();
+        if (config_result.is_err()) {
+            DEBUG_SERVER_PRINT("               ParsingRequest 5 error: %s", config_result.get_err_value().c_str());
+            // StatusCode error_code = config_result.get_err_value();
+            // DEBUG_SERVER_PRINT("               ParsingRequest 5 error: %d", error_code);
+            this->request_->set_request_status(BadRequest);
+            return Success;
+        }
+        this->request_->set_parse_phase(ParsingRequestBody);
+    }
+
+    if (this->request_->parse_phase() == ParsingRequestBody) {
+        DEBUG_SERVER_PRINT("               ParsingRequest 6 body");
+        Result<ProcResult, StatusCode> parse_result = this->request_->parse_body();
+        if (parse_result.is_err()) {
+            StatusCode error_code = parse_result.get_err_value();
+            DEBUG_SERVER_PRINT("               ParsingRequest 7 body error: %d", error_code);
+            this->request_->set_request_status(error_code);
+            return Success;
+        }
+        if (is_continue_recv(parse_result)) {
+            DEBUG_SERVER_PRINT("               ParsingRequest 8 -> continue");
+            return Continue;
+        }
+        DEBUG_SERVER_PRINT("               ParsingRequest 9");
+    }
+#endif
+    return Success;
+}
+
+
+// -----------------------------------------------------------------------------
+
+
+// status changes in each func
+ProcResult ClientSession::create_http_response() {
+    DEBUG_SERVER_PRINT("    CreatingResponse status: %d",
+                       this->request_->request_status());
+    while (true) {
+        switch (this->session_state_) {
+            case kExecutingMethod: {
+                DEBUG_SERVER_PRINT("     1 ExecutingMethod");
+                ProcResult method_result = execute_each_method();  // todo: rename
+                if (method_result == FatalError) {
+                    DEBUG_SERVER_PRINT("      ExecutingMethod 1 err");
+                    return FatalError;  // fail to new Request -> can't send 500
+                }
+                if (method_result == ExecutingCgi) {
+                    DEBUG_SERVER_PRINT("      ExecutingMethod 2 cgi -> send body to cgi");
+                    return ExecutingCgi;
+                }
+                DEBUG_SERVER_PRINT("      ExecutingMethod 3 create body");
+            }
+            // fallthrough
+
+            case kCreatingResponseBody: {
+                DEBUG_SERVER_PRINT("     2 CreatingResponseBody");
+    #ifdef ECHO
+                this->response_->create_echo_msg(this->request_->get_buf());
+    #else
+                this->response_->create_response_message();
+    #endif
+                this->set_session_state(kSendingResponse);
+                break;
+            }
+
+            case kCreatingCGIBody: {
+                DEBUG_SERVER_PRINT("     3 CreatingCGIBody");
+                this->response_->interpret_cgi_output();
+                this->set_session_state(kCreatingResponseBody);
+                continue;
+            }
+
+            default:
+                break;
+        }
+        break;
+    }
+    return Success;
+}
+
+
+// -----------------------------------------------------------------------------
 
 
 Result<AddressPortPair, std::string> ClientSession::get_address_port_pair() const {
@@ -165,32 +309,38 @@ Result<AddressPortPair, std::string> ClientSession::get_address_port_pair() cons
 
 
 Result<ServerConfig, std::string> ClientSession::get_server_config() const {
-    // config
-    Result<AddressPortPair, std::string> address_result = get_address_port_pair();
-    if (address_result.is_err()) {
-        const std::string error_msg = address_result.get_err_value();
-        return Result<ServerConfig, std::string>::err(error_msg);
-    }
-    AddressPortPair address_port_pair = address_result.get_ok_value();
+    // DEBUG_PRINT(YELLOW, "get_server_config");
+    // DEBUG_PRINT(YELLOW, " address: %s, port:%s", address_port_pair.first.c_str(), address_port_pair.second.c_str());
 
-    Result<HostPortPair, int> get_info_result = this->request_->get_server_info();
-    if (get_info_result.is_err()) {
+    Result<HostPortPair, StatusCode> get_request_host = this->request_->server_info();
+    if (get_request_host.is_err()) {
         const std::string error_msg = CREATE_ERROR_INFO_STR("Fail to get host from Host header");
         return Result<ServerConfig, std::string>::err(error_msg);
     }
-    HostPortPair host_port_pair = get_info_result.get_ok_value();
+    HostPortPair host_port_pair = get_request_host.get_ok_value();
+    // DEBUG_PRINT(YELLOW, " host: %s, port:%s", host_port_pair.first.c_str(), host_port_pair.second.c_str());
 
-    Result<ServerConfig, std::string> config_result = config_.get_server_config(address_port_pair, host_port_pair);
+    Result<ServerConfig, std::string> config_result;
+    config_result = config_.get_server_config(this->address_port_pair_, host_port_pair);
     if (config_result.is_err()) {
+        // DEBUG_PRINT(YELLOW, "get_server_config err");
         const std::string error_msg = config_result.get_err_value();
         return Result<ServerConfig, std::string>::err(error_msg);
     }
+    // DEBUG_PRINT(YELLOW, "get_server_config ok");
     ServerConfig server_config = config_result.get_ok_value();
     return Result<ServerConfig, std::string>::ok(server_config);
 }
 
 
-SessionResult ClientSession::update_config_params() {
+SessionResult ClientSession::get_host_config() {
+    Result<AddressPortPair, std::string> address_result = get_address_port_pair();
+    if (address_result.is_err()) {
+        const std::string error_msg = address_result.get_err_value();
+        return SessionResult::err(error_msg);
+    }
+    this->address_port_pair_ = address_result.get_ok_value();
+
     Result<ServerConfig, std::string> config_result = ClientSession::get_server_config();
     if (config_result.is_err()) {
         const std::string error_msg = config_result.get_err_value();
@@ -198,140 +348,231 @@ SessionResult ClientSession::update_config_params() {
     }
     this->server_config_ = config_result.get_ok_value();
 
-
-    const std::string request_target = this->request_->get_request_target();
+    const std::string request_target = this->request_->request_target();
 
     Result<std::size_t, int> body_size_result;
-    body_size_result = Configuration::get_max_body_size(server_config_, request_target);
+    body_size_result = Config::get_max_body_size(server_config_, request_target);
     if (body_size_result.is_err()) {
         const std::string error_msg = CREATE_ERROR_INFO_STR("error: fail to get client_max_body_size");
         return SessionResult::err(error_msg);
     }
-    this->request_max_body_size_ = body_size_result.get_ok_value();
-    return SessionResult::ok(OK);
+    std::size_t max_body_size = body_size_result.get_ok_value();
+    this->request_->set_max_body_size(max_body_size);
+    return SessionResult::ok(Success);
 }
 
 
-Result<int, int> ClientSession::parse_http_request() {
-    try {
-        this->request_ = new HttpRequest();
-    }
-    catch (const std::exception &e) {
-        return Result<int, int>::err(STATUS_SERVER_ERROR);
-    }
-#ifdef ECHO
-    this->request_max_body_size_ = ConfigInitValue::kDefaultBodySize;
-#else
-    // request line
-    Result<int, int> request_line_result = this->request_->parse_request_line(this->client_fd_);
-    if (request_line_result.is_err()) {
-        return Result<int, int>::err(request_line_result.get_err_value());
-    }
-
-    // request header
-    Result<int, int> header_result = this->request_->parse_header(this->client_fd_);
-    if (header_result.is_err()) {
-        return Result<int, int>::err(header_result.get_err_value());
-    }
-    // config
-    Result<int, std::string> update_result = update_config_params();
-    if (update_result.is_err()) {
-        return Result<int, int>::err(STATUS_BAD_REQUEST);  // todo
-    }
-#endif
-    // body
-    Result<int, int> body_result;
-    body_result = this->request_->parse_body(this->client_fd_,
-                                             this->request_max_body_size_);
-    if (body_result.is_err()) {
-        return Result<int, int>::err(body_result.get_err_value());
-    }
-    return Result<int, int>::ok(OK);
-}
+// -----------------------------------------------------------------------------
 
 
-Result<Fd, int> ClientSession::create_http_response() {
+ProcResult ClientSession::execute_each_method() {
 #ifdef ECHO
     try {
         HttpRequest request;
-        this->response_ = new HttpResponse(request);
+        ServerConfig config;
+        AddressPortPair pair;
+        this->response_ = new HttpResponse(request, config, pair);
     }
     catch (const std::exception &e) {
-        const std::string err_info = CREATE_ERROR_INFO_STR("Failed to allocate memory");
-        std::cerr << err_info << std::endl;
-        return Result<Fd, int> ::err(STATUS_SERVER_ERROR);
+        const std::string error_msg = CREATE_ERROR_INFO_STR("Failed to allocate memory");
+        std::cerr << error_msg << std::endl;
+        return FatalError;
     }
-    this->response_->create_echo_msg(this->request_->get_buf());
-    return Result<Fd, int> ::ok(OK);
+    return Success;
 #else
     try {
-        this->response_ = new HttpResponse(*this->request_);
+        this->response_ = new HttpResponse(*this->request_,
+                                           this->server_config_,
+                                           this->address_port_pair_);
         // std::cout << CYAN << "     response_message[" << this->http_response_->get_response_message() << "]" << RESET << std::endl;
     }
     catch (const std::exception &e) {
-        const std::string err_info = CREATE_ERROR_INFO_STR("Failed to allocate memory");
-        std::cerr << err_info << std::endl;
-        return Result<Fd, int> ::err(STATUS_SERVER_ERROR);
+        const std::string error_msg = CREATE_ERROR_INFO_STR("Failed to allocate memory");
+        std::cerr << error_msg << std::endl;
+        return FatalError;
     }
-    return this->response_->exec_method();
-    // todo
+    if (this->response_->is_exec_cgi()) {
+        this->set_session_state(kExecuteCGI);
+        return exec_cgi();
+    } else {
+        return this->response_->exec_method();  // return Success or ExecutingCgi
+    }
 #endif
 }
 
 
-Result<int, int> ClientSession::send_response() {
-#ifdef ECHO
-    std::string response_msg = this->response_->get_echo_msg();
-#else
-    std::string response_msg = this->response_->get_response_message();
-#endif
-    // std::size_t	message_len = this->http_response_->get_response_size();
-    // std::string response_msg = this->recv_message_;
-
-    DEBUG_SERVER_PRINT("   send start");
-    DEBUG_SERVER_PRINT("    send_msg[%s]", response_msg.c_str());
-
-    errno = 0;
-    if (send(this->client_fd_, response_msg.c_str(), response_msg.size(), FLAG_NONE) == SEND_ERROR) {
-        return Result<int, int>::err(STATUS_SERVER_ERROR);
+ProcResult ClientSession::exec_cgi() {
+    SessionResult result = process_file_event();
+    if (result.is_err()) {
+        std::cerr << result.get_err_value() << std::endl;  // todo: logging
+        return Failure;  // todo: 500
     }
-    DEBUG_SERVER_PRINT("   send end");
-    return Result<int, int>::ok(OK);
+    return ExecutingCgi;
 }
 
 
 SessionResult ClientSession::process_file_event() {
-    SessionResult result;
-
     switch (this->session_state_) {
-        // case kReadingFile:
-        //     todo
-            // break;
-
-        case kExecutingCGI:
-            // todo
+        case kReadingFile: {
+            // unused
             break;
+        }
 
-        case kCompleted:
-            this->session_state_ = kCreatingResponseBody;
+        case kExecuteCGI: {
+            DEBUG_PRINT(YELLOW, "   CGI Executing");
+            ProcResult exec_result = this->response_->exec_cgi_process();
+            if (exec_result == Failure) {
+                const std::string error_msg = CREATE_ERROR_INFO_STR("cgi exec error");
+                return SessionResult::err(error_msg);
+            }
+            DEBUG_PRINT(YELLOW, "    success -> send");
+            this->set_session_state(kSendingRequestBodyToCgi);
+            return SessionResult::ok(ExecutingCgi);
+            // todo register write fd
+        }
+
+        case kSendingRequestBodyToCgi: {
+            DEBUG_PRINT(YELLOW, "   CGI Send");
+            ProcResult send_result = this->response_->send_request_body_to_cgi();
+            if (send_result == Continue) {
+                DEBUG_PRINT(YELLOW, "    send continue");
+                return SessionResult::ok(Continue);
+            }
+            if (send_result == Success) {
+                DEBUG_PRINT(YELLOW, "    send finish");
+                this->set_session_state(kReceivingCgiResponse);
+            } else {
+                // error -> response 500
+                DEBUG_PRINT(YELLOW, "    send erorr");
+                // this->set_session_state(kCreatingResponseBody);
+                // todo: close and clear read/write fd from manager
+                this->set_session_state(kCreatingCGIBody);
+            }
             break;
+        }
 
-        default:
-            // std::cerr << "Unknown session state." << std::endl;
-            return SessionResult::err("error: unknown session state in file event");
+        case kReceivingCgiResponse: {
+            DEBUG_PRINT(YELLOW, "   CGI Recv");
+            ProcResult recv_result = this->response_->recv_to_cgi_buf();
+            if (recv_result == Continue) {
+                DEBUG_PRINT(YELLOW, "    recv continue");
+                return SessionResult::ok(Continue);
+            }
+            if (recv_result == Success) {
+                DEBUG_PRINT(YELLOW, "    recv finish");
+                this->set_session_state(kCreatingCGIBody);
+            } else {
+                DEBUG_PRINT(YELLOW, "    recv error");
+                // error -> response 500
+                // this->set_session_state(kCreatingResponseBody);
+                this->set_session_state(kCreatingCGIBody);
+            }
+            break;
+        }
+
+        default: {
+            const std::string error_msg = CREATE_ERROR_INFO_STR("error: unknown session in file event");
+            return SessionResult::err(error_msg);
+        }
     }
-    if (result.is_err()) {
-        return SessionResult::err("error: file event error");
-    }
-    this->session_state_ = kCreatingResponse;
-    return SessionResult::ok(OK);
+    return SessionResult::ok(Success);
 }
 
 
-int ClientSession::get_file_fd() const { return this->file_fd_; }
-int ClientSession::get_client_fd() const { return this->client_fd_; }
-SessionState ClientSession::get_session_state() const { return this->session_state_; }
-bool ClientSession::is_session_completed() const { return this->session_state_ == kCompleted; }
+int ClientSession::cgi_read_fd() const {
+    if (!this->response_) {
+        return INIT_FD;
+    }
+    return this->response_->cgi_read_fd();
+}
+
+
+int ClientSession::cgi_write_fd() const {
+    if (!this->response_) {
+        return INIT_FD;
+    }
+    return this->response_->cgi_write_fd();
+}
+
+
+int ClientSession::client_fd() const {
+    return this->client_fd_;
+}
+
+
+SessionState ClientSession::session_state() const {
+    return this->session_state_;
+}
+
+
+const char *ClientSession::session_state_char() {
+    return session_state_char(this->session_state());
+}
+
+
+const char *ClientSession::session_state_char(const SessionState &state) {
+    switch (state) {
+        case kSessionInit: return "kSessionInit";
+        case kReceivingRequest: return "kReceivingRequest";
+        case kParsingRequest: return "kParsingRequest";
+        case kReceivingBody: return "kReceivingBody";
+        case kReadingRequest: return "kReadingRequest";
+        case kExecutingMethod: return "kExecutingMethod";
+        case kCreatingResponseBody: return "kCreatingResponseBody";
+        case kCreatingCGIBody: return "kCreatingCGIBody";
+        case kReadingFile: return "kReadingFile";
+        case kExecuteCGI: return "kExecuteCGI";
+        case kSendingRequestBodyToCgi: return "kSendingRequestBodyToCgi";
+        case kReceivingCgiResponse: return "kReceivingCgiResponse";
+        case kSendingResponse: return "kSendingResponse";
+        case kSessionCompleted: return "kSessionCompleted";
+        case kSessionError: return "kSessionError";
+        default: return "UnknownSession";
+    }
+}
+
+
+void ClientSession::set_session_state(const SessionState &set_state) {
+    DEBUG_PRINT(WHITE, "set_session_state [%s]->[%s]",
+                session_state_char(this->session_state_),
+                session_state_char(set_state));
+    this->session_state_ = set_state;
+}
+
+
+bool ClientSession::is_session_state_expect(const SessionState &expect) const {
+    return this->session_state_ == expect;
+}
+
+
+bool ClientSession::is_continue_recv(const Result<ProcResult, StatusCode> &result) {
+    return result.is_ok() && result.get_ok_value() == Continue;
+}
+
+
+bool ClientSession::is_continue_recv(const Result<ProcResult, std::string> &result) {
+    return result.is_ok() && result.get_ok_value() == Continue;
+}
+
+
+bool ClientSession::is_read_conf_for_parse_body(const Result<ProcResult, StatusCode> &result) {
+    return result.is_ok() && result.get_ok_value() == PrepareNextProc;
+}
+
+
+bool ClientSession::is_executing_cgi(const Result<ProcResult, StatusCode> &result) {
+    return result.is_ok() && result.get_ok_value() == ExecutingCgi;
+}
+
+
+bool ClientSession::is_executing_cgi(const Result<ProcResult, std::string> &result) {
+    return result.is_ok() && result.get_ok_value() == ExecutingCgi;
+}
+
+
+bool ClientSession::is_connection_closed(const Result<ProcResult, std::string> &result) {
+    return result.is_ok() && result.get_ok_value() == ConnectionClosed;
+}
 
 
 AddressPortPair ClientSession::get_client_listen(const struct sockaddr_storage &client_addr) {
@@ -342,14 +583,15 @@ AddressPortPair ClientSession::get_client_listen(const struct sockaddr_storage &
     struct sockaddr_in6 *addr_in6;
 
     switch (client_addr.ss_family) {
-        case AF_INET:
+        case AF_INET: {
             addr_in = (struct sockaddr_in *)&client_addr;
             inet_ntop(AF_INET, &addr_in->sin_addr, ip, sizeof(ip));
             address = ip;
             port_stream << ntohs(addr_in->sin_port);
             break;
+        }
 
-        case AF_INET6:
+        case AF_INET6: {
             addr_in6 = (struct sockaddr_in6 *)&client_addr;
             if (IN6_IS_ADDR_V4MAPPED(&addr_in6->sin6_addr)) {
                 inet_ntop(AF_INET, &addr_in6->sin6_addr.s6_addr[12], ip, INET_ADDRSTRLEN);
@@ -360,10 +602,12 @@ AddressPortPair ClientSession::get_client_listen(const struct sockaddr_storage &
             }
             port_stream << ntohs(addr_in6->sin6_port);
             break;
+        }
 
-        default:
+        default: {
             address = "unknown address";
             port = "unknown port";
+        }
     }
 
     if (port.empty()) {

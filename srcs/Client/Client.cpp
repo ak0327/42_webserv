@@ -13,6 +13,7 @@
 #include "Constant.hpp"
 #include "Client.hpp"
 #include "Debug.hpp"
+#include "Error.hpp"
 #include "Socket.hpp"
 
 
@@ -57,7 +58,8 @@ void Client::send_msg(const std::string &send_msg) const {
     errno = 0;
     send_size = send(this->connect_fd_, send_msg.c_str(), send_msg.size(), FLAG_NONE);
     if (send_size == SEND_ERROR) {
-        std::string err_str = "[Client Error] send: " + std::string(strerror(errno));
+        std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+        std::string err_str = "[Client Error] send: " + error_msg;
         throw std::runtime_error(RED + err_str + RESET);
     }
     DEBUG_CLIENT_PRINT("client send end");
@@ -78,7 +80,8 @@ void Client::recv_msg() {
         	break;
         }
         if (recv_size == RECV_ERROR) {
-            std::string err_str = "[Client Error] recv: " + std::string(strerror(errno));
+            std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+            std::string err_str = "[Client Error] recv: " + error_msg;
             throw std::runtime_error(RED + err_str + RESET);
         }
         buf[recv_size] = '\0';

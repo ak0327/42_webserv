@@ -1,4 +1,4 @@
-# Specification of Configuration file
+# Specification of Config file
 
 ## 1. Specification of NGINX conf
 
@@ -6,7 +6,7 @@
 * named: `nginx.conf`
 * placed in: `/usr/local/nginx/conf`, `/etc/nginx`, or `/usr/local/etc/nginx`.
 
-### 1-2) Configuration File’s Structure
+### 1-2) Config File’s Structure
 * simple direcvive
   - consists of the `name` and `parameters` separated by `spaces`
   - ends with a `semicolon ;`

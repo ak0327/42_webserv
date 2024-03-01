@@ -7,12 +7,12 @@
 !srcs
 !srcs/Client
 !srcs/ClientSession
-!srcs/Configuration
-!srcs/Configuration/FileHandler
-!srcs/Configuration/Parser
-!srcs/Configuration/Parser/RecursiveDescentParser
-!srcs/Configuration/Token
-!srcs/Configuration/Tokenizer
+!srcs/Config
+!srcs/Config/FileHandler
+!srcs/Config/ConfigParser
+!srcs/Config/ConfigParser/RecursiveDescentParser
+!srcs/Config/Token
+!srcs/Config/Tokenizer
 !srcs/Const
 !srcs/Debug
 !srcs/Error
@@ -29,6 +29,7 @@
 !playground
 
 !test
+!test/unit_test/test_file_handler/tmp
 
 !html
 !html/**
@@ -38,6 +39,7 @@
 !*.cpp
 !*.h
 !*.hpp
+!*.tpp
 !*.txt
 !*.yml
 !*.md
@@ -47,6 +49,7 @@
 !Makefile
 !Readme.md
 !webserv.drawio
+!.coderabbit.yaml
 
 .DS_Store
 .idea

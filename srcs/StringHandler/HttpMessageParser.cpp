@@ -649,55 +649,46 @@ Method get_method(const std::string & method) {
 }
 
 
-std::string decode(const std::string& encoded) {
-    std::string decoded;
-    std::istringstream iss(encoded);
-    char ch;
-
-    while (iss.get(ch)) {
-        if (ch == '%' && !iss.eof()) {
-            char hex_str[3] = {0};
-            iss.read(hex_str, 2);
-
-            if (isxdigit(hex_str[0]) && isxdigit(hex_str[1])) {
-                char decoded_char = static_cast<char>(std::strtol(hex_str, NULL, 16));
-                decoded.push_back(decoded_char);
-            } else {
-                decoded.push_back(ch);
-                if (hex_str[0] != '\0') decoded.push_back(hex_str[0]);
-                if (hex_str[1] != '\0') decoded.push_back(hex_str[1]);
-            }
-        } else {
-            decoded.push_back(ch);
+Result<StatusCode, ProcResult> convert_to_enum(int code) {
+    std::map<StatusCode, std::string>::const_iterator itr;
+    for (itr = STATUS_REASON_PHRASES.begin(); itr != STATUS_REASON_PHRASES.end(); ++itr) {
+        if (static_cast<int>(itr->first) == code) {
+            return Result<StatusCode, ProcResult>::ok(static_cast<StatusCode>(code));
         }
     }
-    return decoded;
+    return Result<StatusCode, ProcResult>::err(Failure);
 }
 
 
-// "../" -> "/"
-std::string normalize(const std::string& path) {
-    std::vector<std::string> segments;
-    std::istringstream path_stream(path);
-    std::string segment;
-    std::string normalized_path;
+std::string convert_to_str(const Method &method) {
+    switch (method) {
+        case kGET:
+            return GET_METHOD;
+        case kPOST:
+            return POST_METHOD;
+        case kDELETE:
+            return DELETE_METHOD;
+        default:
+            return "invalid method";
+    }
+}
 
-    while (getline(path_stream, segment, '/')) {
-        if (segment == "..") {
-            if (!segments.empty()) {
-                segments.pop_back();
-            }
-        } else if (!segment.empty() && segment != ".") {
-            segments.push_back(segment);
+
+std::string escape_html(const std::string &raw_html) {
+    std::string escaped_html;
+
+    for (std::size_t i = 0; i < raw_html.length(); ++i) {
+        char c = raw_html[i];
+        switch (c) {
+            case '<': escaped_html += "&lt;"; break;
+            case '>': escaped_html += "&gt;"; break;
+            case '&': escaped_html += "&amp;"; break;
+            case '"': escaped_html += "&quot;"; break;
+            default: escaped_html += c; break;
         }
     }
-
-    for (size_t i = 0; i < segments.size(); ++i) {
-        normalized_path += "/";
-        normalized_path += segments[i];
-    }
-
-    return normalized_path.empty() ? "/" : normalized_path;
+    return escaped_html;
 }
+
 
 }  // namespace HttpMessageParser

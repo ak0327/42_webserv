@@ -33,7 +33,7 @@ TEST(TestDate, LastModifiedOK1) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestDate, LastModifiedOK2) {
@@ -66,7 +66,7 @@ TEST(TestDate, LastModifiedOK2) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestDate, LastModifiedOK3) {
@@ -99,7 +99,7 @@ TEST(TestDate, LastModifiedOK3) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestDate, LastModifiedOK4) {
@@ -137,7 +137,7 @@ TEST(TestDate, LastModifiedOK4) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -154,7 +154,7 @@ TEST(TestDate, LastModifiedNG1) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
+	EXPECT_EQ(STATUS_BAD_REQUEST, request.request_status());
 }
 
 TEST(TestDate, LastModifiedNG2) {
@@ -169,7 +169,7 @@ TEST(TestDate, LastModifiedNG2) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
+	EXPECT_EQ(STATUS_BAD_REQUEST, request.request_status());
 }
 
 TEST(TestDate, LastModifiedNG3) {
@@ -184,7 +184,7 @@ TEST(TestDate, LastModifiedNG3) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
+	EXPECT_EQ(STATUS_BAD_REQUEST, request.request_status());
 }
 
 TEST(TestDate, LastModifiedNG4) {
@@ -199,7 +199,7 @@ TEST(TestDate, LastModifiedNG4) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
+	EXPECT_EQ(STATUS_BAD_REQUEST, request.request_status());
 }
 
 TEST(TestDate, LastModifiedNG5) {
@@ -214,7 +214,7 @@ TEST(TestDate, LastModifiedNG5) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
+	EXPECT_EQ(STATUS_BAD_REQUEST, request.request_status());
 }
 
 TEST(TestDate, LastModifiedNG6) {
@@ -229,7 +229,7 @@ TEST(TestDate, LastModifiedNG6) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
+	EXPECT_EQ(STATUS_BAD_REQUEST, request.request_status());
 }
 
 TEST(TestDate, LastModifiedNG7) {
@@ -244,7 +244,7 @@ TEST(TestDate, LastModifiedNG7) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
+	EXPECT_EQ(STATUS_BAD_REQUEST, request.request_status());
 }
 
 TEST(TestDate, LastModifiedNG8) {
@@ -259,7 +259,7 @@ TEST(TestDate, LastModifiedNG8) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
+	EXPECT_EQ(STATUS_BAD_REQUEST, request.request_status());
 }
 
 TEST(TestDate, LastModifiedNG9) {
@@ -274,7 +274,7 @@ TEST(TestDate, LastModifiedNG9) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
+	EXPECT_EQ(STATUS_BAD_REQUEST, request.request_status());
 }
 
 TEST(TestDate, LastModifiedNG10) {
@@ -289,7 +289,7 @@ TEST(TestDate, LastModifiedNG10) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
+	EXPECT_EQ(STATUS_BAD_REQUEST, request.request_status());
 }
 
 TEST(TestDate, LastModifiedNG11) {
@@ -304,7 +304,7 @@ TEST(TestDate, LastModifiedNG11) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
+	EXPECT_EQ(STATUS_BAD_REQUEST, request.request_status());
 }
 
 TEST(TestDate, LastModifiedNG12) {
@@ -319,7 +319,7 @@ TEST(TestDate, LastModifiedNG12) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
+	EXPECT_EQ(STATUS_BAD_REQUEST, request.request_status());
 }
 
 TEST(TestDate, LastModifiedNG13) {
@@ -334,7 +334,7 @@ TEST(TestDate, LastModifiedNG13) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
+	EXPECT_EQ(STATUS_BAD_REQUEST, request.request_status());
 }
 
 TEST(TestDate, LastModifiedNG14) {
@@ -350,5 +350,5 @@ TEST(TestDate, LastModifiedNG14) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
+	EXPECT_EQ(STATUS_BAD_REQUEST, request.request_status());
 }

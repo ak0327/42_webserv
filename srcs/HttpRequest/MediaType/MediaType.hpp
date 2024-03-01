@@ -17,9 +17,9 @@ class MediaType : public FieldValueBase {
 
 	MediaType &operator=(const MediaType &rhs);
 
-	std::string get_type() const;
-	std::string get_subtype() const;
-	std::map<std::string, std::string> get_parameters() const;
+	std::string type() const;
+	std::string subtype() const;
+	std::map<std::string, std::string> parameters() const;
 
 	bool is_ok() const;
 	bool is_err() const;

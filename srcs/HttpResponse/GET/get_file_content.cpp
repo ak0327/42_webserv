@@ -1,84 +1,82 @@
-// #include <fcntl.h>
-// #include <sys/stat.h>
-// #include <cerrno>
-// #include <cstdio>
-// #include <fstream>
-// #include <iostream>
-// #include <map>
-// #include <set>
-// #include <sstream>
-// #include "Color.hpp"
-// #include "Error.hpp"
-// #include "HttpResponse.hpp"
-// #include "Result.hpp"
-//
-// namespace {
-//
-// // tmp -----------------------------
-// // const char PATH_ROOT[] = "/";
-// // const char PATH_INDEX[] = "index.html";
-//
-// // mv Const.h
-// // const int OK = 0;
-// // const int ERR = -1;
-//
-// const char EXTENSION_DOT = '.';
-// const char EMPTY_STR[] = "";
-//
-// // ---------------------------------
-//
-// bool is_support_content_type(const std::string &path,
-// 							 const std::map<std::string, std::string> &mime_types) {
-// 	std::string extension;
-// 	std::map<std::string, std::string>::const_iterator itr;
-//
-// 	extension = get_extension(path);
-// 	itr = mime_types.find(extension);
-// 	return itr != mime_types.end();
-// }
-//
-//
-// }  // namespace
-//
-//
-// // todo: mv lib
-// std::string get_extension(const std::string &path) {
-// 	std::size_t ext_pos;
-//
-// 	ext_pos = path.find_last_of(EXTENSION_DOT);
-// 	if (ext_pos == std::string::npos) {
-// 		return std::string(EMPTY_STR);
-// 	}
-// 	return path.substr(ext_pos + 1);
-// }
-//
-//
-// ////////////////////////////////////////////////////////////////////////////////
-//
-//
-// /* return file content and content_length */
-// Result<std::string, int> HttpResponse::get_file_content(const std::string &file_path,
-// 														const std::map<std::string, std::string> &mime_types) const {
-// 	std::ifstream	ifs;
-// 	std::string		content;
-// 	std::string		buf;
-//
-// 	if (!is_support_content_type(file_path, mime_types)) {
-// 		return Result<std::string, int>::err(STATUS_NOT_ACCEPTABLE);
-// 	}
-//
-// 	ifs.open(file_path.c_str(), std::ios::in);
-// 	if (ifs.fail()) {
-// 		return Result<std::string, int>::err(STATUS_NOT_FOUND);
-// 	}
-//
-// 	content = EMPTY_STR;
-// 	while (std::getline(ifs, buf)) {
-// 		content.append(buf + (ifs.eof() ? "" : "\n"));
-// 	}
-// 	ifs.close();
-// 	// if (ifs.fail()) {
-// 	// 	return Result<std::string, int>::err(STATUS_NOT_FOUND);  // error... why??
-// 	// }
-// 	return Result<std::string, int>::ok(content);
-// }
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <cerrno>
+#include <cstdio>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <set>
+#include <sstream>
+#include "Color.hpp"
+#include "Error.hpp"
+#include "Debug.hpp"
+#include "HttpResponse.hpp"
+#include "Result.hpp"
+#include "StringHandler.hpp"
+
+
+bool HttpResponse::is_supported_by_media_type(const std::string &type) {
+    std::map<std::string, std::string>::const_iterator itr;
+    for (itr = MIME_TYPES.begin(); itr != MIME_TYPES.end(); ++itr) {
+        if (itr->second == type) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+bool HttpResponse::is_support_content_type(const std::string &path) {
+    std::string extension;
+    std::map<std::string, std::string>::const_iterator itr;
+    DEBUG_PRINT(CYAN, "    is_support_content_type");
+
+    extension = StringHandler::get_extension(path);
+
+    DEBUG_PRINT(CYAN, "     path      : %s", path.c_str());
+    DEBUG_PRINT(CYAN, "     extensnion: %s", extension.c_str());
+    itr = MIME_TYPES.find(extension);
+    return itr != MIME_TYPES.end();
+}
+
+
+StatusCode HttpResponse::get_file_content(const std::string &file_path,
+                                          std::vector<unsigned char> *buf) {
+    if (!buf) {
+        return InternalServerError;
+    }
+    DEBUG_PRINT(CYAN, "    get_file_content 1 path:[%s]", file_path.c_str());
+    DEBUG_PRINT(CYAN, "    get_file_content 2");
+    std::ifstream file(file_path.c_str(), std::ios::binary);
+    if (!file) {
+        DEBUG_PRINT(CYAN, "    get_file_content 3 -> file not found 404");
+        return NotFound;
+    }
+    DEBUG_PRINT(CYAN, "    get_file_content 5");
+
+    if (!is_support_content_type(file_path)) {
+        DEBUG_PRINT(RED, "   not support content: %s", file_path.c_str());
+		return NotAcceptable;
+	}
+
+    file.seekg(0, std::ios::end);
+    std::streamsize file_size = file.tellg();
+    file.seekg(0, std::ios::beg);
+    DEBUG_PRINT(CYAN, "    get_file_content 5 file_size: %zu", file_size);
+
+    buf->resize(file_size);
+    if (!file.read(reinterpret_cast<char*>(&(*buf)[0]), file_size)) {
+        const std::string error_msg = CREATE_ERROR_INFO_STR("fail to read file: " + file_path);
+        std::cerr << error_msg << std::endl;  // todo log
+
+        buf->clear();
+        return BadRequest;
+    }
+    DEBUG_PRINT(CYAN, "    get_file_content 6");
+    std::string body(this->body_buf_.begin(), this->body_buf_.end());
+    DEBUG_PRINT(CYAN, "    get_file_content recv_body:[%s]", body.c_str());
+
+    std::string extension = StringHandler::get_extension(file_path);
+    add_content_header(extension);
+    return StatusOk;
+}

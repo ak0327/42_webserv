@@ -1,6 +1,7 @@
 #include <iostream>
 #include "Constant.hpp"
 #include "Color.hpp"
+#include "Debug.hpp"
 #include "HttpMessageParser.hpp"
 #include "MediaType.hpp"
 #include "StringHandler.hpp"
@@ -53,6 +54,7 @@ MediaType &MediaType::operator=(const MediaType &rhs) {
 	this->type_ = rhs.type_;
 	this->subtype_ = rhs.subtype_;
 	this->parameters_ = rhs.parameters_;
+    this->result_ = rhs.result_;
 	return *this;
 }
 
@@ -103,8 +105,8 @@ Result<int, int> MediaType::validate() {
 ////////////////////////////////////////////////////////////////////////////////
 /* getter */
 
-std::string MediaType::get_type() const { return this->type_; }
-std::string MediaType::get_subtype() const { return this->subtype_; }
-std::map<std::string, std::string> MediaType::get_parameters() const { return this->parameters_; }
+std::string MediaType::type() const { return this->type_; }
+std::string MediaType::subtype() const { return this->subtype_; }
+std::map<std::string, std::string> MediaType::parameters() const { return this->parameters_; }
 bool MediaType::is_ok() const { return this->result_.is_ok(); }
 bool MediaType::is_err() const { return this->result_.is_err(); }

@@ -25,7 +25,7 @@ TEST(TestSingleFieldValue, SecPurposeOK1) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestSingleFieldValue, SecPurposeOK2) {
@@ -49,7 +49,7 @@ TEST(TestSingleFieldValue, SecPurposeOK2) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 
@@ -66,7 +66,7 @@ TEST(TestSingleFieldValue, SecPurposeNG1) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestSingleFieldValue, SecPurposeNG2) {
@@ -81,5 +81,5 @@ TEST(TestSingleFieldValue, SecPurposeNG2) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }

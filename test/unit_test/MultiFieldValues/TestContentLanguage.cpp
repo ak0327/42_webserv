@@ -29,7 +29,7 @@ TEST(TestMultiFieldValues, ContentLanguageOK1) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMultiFieldValues, ContentLanguageOK2) {
@@ -56,7 +56,7 @@ TEST(TestMultiFieldValues, ContentLanguageOK2) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMultiFieldValues, ContentLanguageOK3) {
@@ -83,7 +83,7 @@ TEST(TestMultiFieldValues, ContentLanguageOK3) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMultiFieldValues, ContentLanguageOK4) {
@@ -110,7 +110,7 @@ TEST(TestMultiFieldValues, ContentLanguageOK4) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 
@@ -127,7 +127,7 @@ TEST(TestMultiFieldValues, ContentLanguageNG1) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 
@@ -142,7 +142,7 @@ TEST(TestMultiFieldValues, ContentLanguageNG2) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMultiFieldValues, ContentLanguageNG3) {
@@ -156,5 +156,5 @@ TEST(TestMultiFieldValues, ContentLanguageNG3) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <limits>
 #include <sstream>
+#include <vector>
 #include "Color.hpp"
 #include "Constant.hpp"
 #include "StringHandler.hpp"
@@ -68,51 +69,6 @@ int to_digit(const char &c) {
 	return (c - '0');
 }
 
-bool	is_positive_and_under_intmax(const std::string &num_str)
-{
-	size_t	pos = 0;
-
-	while (num_str[pos] != '\0')
-	{
-		if (std::isdigit(num_str[pos]) == false)
-			return (false);
-		pos++;
-	}
-	std::istringstream	iss(num_str);
-	size_t				result;
-	iss >> result;
-	if (result > INT_MAX)
-		return (false);
-	return (true);
-}
-
-bool is_quoted(const std::string &value) {
-	std::size_t head, tail;
-
-	if (std::count(value.begin(), value.end(), '"') != 2) {
-		return false;
-	}
-	head = value.find('"');
-	tail = value.rfind('"');
-	return head == 0 && tail + 1 == value.length();
-}
-
-bool is_endl_semicolon_and_no_inner_semicoron(const std::string &word) {
-	size_t	pos = 0;
-	size_t	semicolon_count = 0;
-
-	while (word[pos] != '\0')
-	{
-		if (word[pos] == ';')
-			semicolon_count++;
-		pos++;
-	}
-	if (semicolon_count != 1)
-		return (false);
-	if (word[pos - 1] != ';')
-		return (false);
-	return (true);
-}
 
 int stoi(const std::string &str, std::size_t *idx, bool *overflow) {
 	std::size_t	i;
@@ -150,6 +106,7 @@ int stoi(const std::string &str, std::size_t *idx, bool *overflow) {
 	if (idx) { *idx = i; }
 	return num;
 }
+
 
 long stol(const std::string &str, std::size_t *idx, bool *overflow) {
 	std::size_t	i;
@@ -189,11 +146,13 @@ long stol(const std::string &str, std::size_t *idx, bool *overflow) {
 	return num;
 }
 
+
 std::string to_string(int num) {
 	std::ostringstream oss;
 	oss << num;
 	return oss.str();
 }
+
 
 std::string to_string(long num) {
 	std::ostringstream oss;
@@ -201,118 +160,13 @@ std::string to_string(long num) {
 	return oss.str();
 }
 
-double str_to_double(const std::string &num_str)
-{
-	std::istringstream iss(num_str);
-	double result;
 
-	iss >> result;
-	return result;
+std::string to_string(std::size_t num) {
+    std::ostringstream oss;
+    oss << num;
+    return oss.str();
 }
 
-int	str_to_int(const std::string &word)
-{
-	size_t	pos = 0;
-	int		num = 0;
-
-	while (word[pos] != '\0')
-	{
-		num = num * 10 + to_digit(word[pos]);
-		pos++;
-	}
-	return (num);
-}
-
-std::string int_to_str(int num)
-{
-	std::string result;
-
-	if (num == 0)
-		return "0";
-	while (num > 0)
-	{
-		result += static_cast<char>(toascii(num % 10));
-		num /= 10;
-	}
-	return result;
-}
-
-std::string obtain_word_before_delimiter(const std::string &field_value, const char &delimiter)
-{
-	return field_value.substr(0, field_value.find(delimiter));
-}
-
-std::string obtain_word_after_delimiter(const std::string &str, char delimiter)
-{
-	return str.substr(str.find(delimiter) + 1);
-}
-
-std::string	obtain_weight(const std::string &field_value)
-{
-	return (obtain_word_after_delimiter(field_value, '='));
-}
-
-std::string obtain_withoutows_value(const std::string &field_value_with_ows)
-{
-	size_t		before_pos = 0;
-	size_t		after_pos = field_value_with_ows.length() - 1;
-
-	if (field_value_with_ows == "")
-		return "";
-	while (HttpMessageParser::is_whitespace(field_value_with_ows[before_pos]) == true && before_pos != field_value_with_ows.length())
-		before_pos++;
-	while (HttpMessageParser::is_whitespace(field_value_with_ows[after_pos]) == true && after_pos != 0)
-		after_pos--;
-	if (before_pos > after_pos)
-		return "";
-	return (field_value_with_ows.substr(before_pos, after_pos - before_pos + 1));
-}
-
-
-bool	is_positive_under_intmax_double(const std::string &value)
-{
-	size_t				dot_counter = 0;
-	size_t				now_pos = 0;
-	size_t				value_length = value.length();
-	std::istringstream	ss(value);
-	double				value_to_double;
-
-	if (value.find('.') == std::string::npos)
-		return (false);
-	while (now_pos != value_length)
-	{
-		if (value[now_pos] == '.')
-		{
-			dot_counter++;
-			now_pos++;
-		}
-		if (!(std::isdigit(value[now_pos])))
-			return (false);
-		now_pos++;
-	}
-	if (dot_counter > 1)
-		return (false);
-	if (ss >> value_to_double)
-	{
-		if (value_to_double < 0)
-			return (false);
-		if (value_to_double <= INT_MAX)
-			return (true);
-		else
-			return (false);
-	}
-	else
-		return (false);
-	return (true);
-}
-
-std::string	skip_lastsemicolon(const std::string &word) {
-	return word.substr(0, word.find(';'));
-}
-
-std::string obtain_unquote_str(const std::string &quoted_str) {
-	return quoted_str.substr(1, quoted_str.length() - 2);
-}
 
 std::string to_lower(const std::string &str) {
 	std::string lower_str;
@@ -371,6 +225,7 @@ Result<std::string, int> parse_pos_to_delimiter(const std::string &src_str,
 	return Result<std::string, int>::ok(ret_str);
 }
 
+
 Result<std::string, int> parse_pos_to_wsp(const std::string &str,
 										  std::size_t start_pos,
 										  std::size_t *end_pos) {
@@ -395,8 +250,146 @@ Result<std::string, int> parse_pos_to_wsp(const std::string &str,
 	return Result<std::string, int>::ok(ret_str);
 }
 
+
 bool is_char_in_str(char c, const std::string &str) {
 	return str.find(c) != std::string::npos;
+}
+
+
+bool is_valid_extension(const std::string &extension) {
+    if (extension.empty()) {
+        return false;
+    }
+    for (std::size_t pos = 0; pos < extension.length(); ++pos) {
+        if (!std::isalnum(extension[pos])) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+bool is_valid_file_name(const std::string &path) {
+    std::string file_name = StringHandler::get_file_name(path);
+    std::string extension = get_extension(file_name);
+
+    if (file_name.empty() || extension.empty()) {
+        return false;
+    }
+
+    std::size_t name_len = file_name.length() - extension.length() - 1;
+    for (std::size_t pos = 0; pos < name_len; ++pos) {
+        if (!std::isprint(static_cast<unsigned char>(file_name[pos]))) {
+            return false;
+        }
+    }
+    if (!StringHandler::is_valid_extension(extension)) {
+        return false;
+    }
+    return true;
+}
+
+
+bool has_trailing_slash(const std::string &path) {
+    if (path.empty()) {
+        return false;
+    }
+    return path[path.length() - 1] == '/';
+}
+
+
+std::string get_file_name(const std::string &path) {
+    std::size_t slash_pos;
+
+    slash_pos = path.find_last_of(PATH_DELIM);
+    if (slash_pos == std::string::npos) {
+        return std::string(path);
+    }
+    return path.substr(slash_pos + 1);
+}
+
+
+std::string get_extension(const std::string &path) {
+    std::size_t ext_pos, slash_pos;
+
+    ext_pos = path.find_last_of(EXTENSION_DELIM);
+    if (ext_pos == std::string::npos || ext_pos == 0) {
+        return std::string(EMPTY);
+    }
+    slash_pos = path.find_last_of(PATH_DELIM);
+    if (slash_pos != std::string::npos && ext_pos < slash_pos) {
+        return std::string(EMPTY);
+    }
+    return path.substr(ext_pos + 1);
+}
+
+
+std::string unquote(const std::string &quoted) {
+    if (!HttpMessageParser::is_quoted_string(quoted)) {
+        return quoted;
+    }
+    std::string unquote = quoted.substr(1, quoted.length() - 2);
+    return unquote;
+}
+
+
+std::string decode(const std::string& encoded) {
+    std::string decoded;
+    std::istringstream iss(encoded);
+    char ch;
+
+    while (iss.get(ch)) {
+        if (ch == '%' && !iss.eof()) {
+            char hex_str[3] = {0};
+            iss.read(hex_str, 2);
+
+            if (std::isxdigit(hex_str[0]) && std::isxdigit(hex_str[1])) {
+                char decoded_char = static_cast<char>(std::strtol(hex_str, NULL, 16));
+                decoded.push_back(decoded_char);
+            } else {
+                decoded.push_back(ch);
+                if (hex_str[0] != '\0') {
+                    decoded.push_back(hex_str[0]);
+                }
+                if (hex_str[1] != '\0') {
+                    decoded.push_back(hex_str[1]);
+                }
+            }
+        } else {
+            decoded.push_back(ch);
+        }
+    }
+    return decoded;
+}
+
+
+// "../" -> "/"
+std::string normalize_to_absolute_path(const std::string& path) {
+    std::vector<std::string> segments;
+    std::istringstream path_stream(path);
+    std::string segment;
+    std::string normalized;
+    bool ends_with_slash = !path.empty() && (path[path.length() - 1] == '/');
+
+    while (std::getline(path_stream, segment, '/')) {
+        if (segment == "..") {
+            if (!segments.empty()) {
+                segments.pop_back();
+            }
+        } else if (!segment.empty() && segment != ".") {
+            segments.push_back(segment);
+        }
+    }
+
+    for (std::size_t i = 0; i < segments.size(); ++i) {
+        normalized += "/";
+        normalized += segments[i];
+    }
+
+    if (ends_with_slash && !normalized.empty() && normalized[normalized.length() - 1] != '/') {
+        normalized += "/";
+    }
+    return normalized.empty() ? "/" : normalized;
 }
 
 

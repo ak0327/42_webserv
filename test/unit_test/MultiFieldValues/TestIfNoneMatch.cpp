@@ -29,7 +29,7 @@ TEST(TestMultiFieldValues, IfNoneMatchOK1) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMultiFieldValues, IfNoneMatchOK2) {
@@ -56,7 +56,7 @@ TEST(TestMultiFieldValues, IfNoneMatchOK2) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMultiFieldValues, IfNoneMatchOK3) {
@@ -83,7 +83,7 @@ TEST(TestMultiFieldValues, IfNoneMatchOK3) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 
@@ -98,7 +98,7 @@ TEST(TestMultiFieldValues, IfNoneMatchNG1) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 
@@ -113,7 +113,7 @@ TEST(TestMultiFieldValues, IfNoneMatchNG2) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMultiFieldValues, IfNoneMatchNG3) {
@@ -127,7 +127,7 @@ TEST(TestMultiFieldValues, IfNoneMatchNG3) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMultiFieldValues, IfNoneMatchNG4) {
@@ -141,7 +141,7 @@ TEST(TestMultiFieldValues, IfNoneMatchNG4) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMultiFieldValues, IfNoneMatchNG5) {
@@ -155,5 +155,5 @@ TEST(TestMultiFieldValues, IfNoneMatchNG5) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }

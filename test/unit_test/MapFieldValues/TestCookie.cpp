@@ -29,7 +29,7 @@ TEST(TestMapFieldValues, CookieOK1) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapFieldValues, CookieOK2) {
@@ -58,7 +58,7 @@ TEST(TestMapFieldValues, CookieOK2) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapFieldValues, CookieOK3) {
@@ -88,7 +88,7 @@ TEST(TestMapFieldValues, CookieOK3) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapFieldValues, CookieOK4) {
@@ -116,7 +116,7 @@ TEST(TestMapFieldValues, CookieOK4) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapFieldValues, CookieOK5) {
@@ -144,7 +144,7 @@ TEST(TestMapFieldValues, CookieOK5) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapFieldValues, CookieOK6) {
@@ -174,7 +174,7 @@ TEST(TestMapFieldValues, CookieOK6) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -190,7 +190,7 @@ TEST(TestMapFieldValues, CookieNG1) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapFieldValues, CookieNG2) {
@@ -204,7 +204,7 @@ TEST(TestMapFieldValues, CookieNG2) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapFieldValues, CookieNG3) {
@@ -218,7 +218,7 @@ TEST(TestMapFieldValues, CookieNG3) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapFieldValues, CookieNG4) {
@@ -232,7 +232,7 @@ TEST(TestMapFieldValues, CookieNG4) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapFieldValues, CookieNG5) {
@@ -246,7 +246,7 @@ TEST(TestMapFieldValues, CookieNG5) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapFieldValues, CookieNG6) {
@@ -260,7 +260,7 @@ TEST(TestMapFieldValues, CookieNG6) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapFieldValues, CookieNG7) {
@@ -274,7 +274,7 @@ TEST(TestMapFieldValues, CookieNG7) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapFieldValues, CookieNG8) {
@@ -288,7 +288,7 @@ TEST(TestMapFieldValues, CookieNG8) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapFieldValues, CookieNG9) {
@@ -302,7 +302,7 @@ TEST(TestMapFieldValues, CookieNG9) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapFieldValues, CookieNG10) {
@@ -316,7 +316,7 @@ TEST(TestMapFieldValues, CookieNG10) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapFieldValues, CookieNG11) {
@@ -330,7 +330,7 @@ TEST(TestMapFieldValues, CookieNG11) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapFieldValues, CookieNG12) {
@@ -344,5 +344,5 @@ TEST(TestMapFieldValues, CookieNG12) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }

@@ -30,7 +30,7 @@ TEST(TestMapFieldValues, AuthorizationOK1) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapFieldValues, AuthorizationOK2) {
@@ -57,7 +57,7 @@ TEST(TestMapFieldValues, AuthorizationOK2) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 
@@ -74,7 +74,7 @@ TEST(TestMapFieldValues, AuthorizationNG1) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapFieldValues, AuthorizationNG2) {
@@ -88,7 +88,7 @@ TEST(TestMapFieldValues, AuthorizationNG2) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapFieldValues, AuthorizationNG3) {
@@ -104,5 +104,5 @@ TEST(TestMapFieldValues, AuthorizationNG3) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
+	EXPECT_EQ(STATUS_BAD_REQUEST, request.request_status());
 }

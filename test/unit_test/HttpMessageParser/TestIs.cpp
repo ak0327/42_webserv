@@ -324,13 +324,6 @@ TEST(TestHttpMessageParser, IsValidRequestTarget) {
 	EXPECT_TRUE(HttpMessageParser::is_valid_request_target("/index.html?query"));
 	EXPECT_TRUE(HttpMessageParser::is_valid_request_target("////"));
 	EXPECT_TRUE(HttpMessageParser::is_valid_request_target("//?/?../../"));
-	EXPECT_TRUE(HttpMessageParser::is_valid_request_target("."));
-	EXPECT_TRUE(HttpMessageParser::is_valid_request_target("-"));
-	EXPECT_TRUE(HttpMessageParser::is_valid_request_target("*"));
-	EXPECT_TRUE(HttpMessageParser::is_valid_request_target("~"));
-	EXPECT_TRUE(HttpMessageParser::is_valid_request_target("'"));
-	EXPECT_TRUE(HttpMessageParser::is_valid_request_target("localhost"));
-	EXPECT_TRUE(HttpMessageParser::is_valid_request_target("'index.html'"));
 	EXPECT_TRUE(HttpMessageParser::is_valid_request_target("/index.html?query"));
 
 	EXPECT_FALSE(HttpMessageParser::is_valid_request_target(""));
@@ -343,13 +336,20 @@ TEST(TestHttpMessageParser, IsValidRequestTarget) {
 	EXPECT_FALSE(HttpMessageParser::is_valid_request_target("\"index.html\""));
 	EXPECT_FALSE(HttpMessageParser::is_valid_request_target("'index.html'?query"));
 	EXPECT_FALSE(HttpMessageParser::is_valid_request_target("index.html?query"));
+	EXPECT_FALSE(HttpMessageParser::is_valid_request_target("."));
+	EXPECT_FALSE(HttpMessageParser::is_valid_request_target("-"));
+	EXPECT_FALSE(HttpMessageParser::is_valid_request_target("*"));
+	EXPECT_FALSE(HttpMessageParser::is_valid_request_target("~"));
+	EXPECT_FALSE(HttpMessageParser::is_valid_request_target("'"));
+	EXPECT_FALSE(HttpMessageParser::is_valid_request_target("localhost"));
+	EXPECT_FALSE(HttpMessageParser::is_valid_request_target("'index.html'"));
 }
 
 TEST(TestHttpMessageParser, IsValidHttpVersion) {
 	EXPECT_TRUE(HttpMessageParser::is_valid_http_version("HTTP/1.1"));
-	EXPECT_TRUE(HttpMessageParser::is_valid_http_version("HTTP/2.0"));
-	EXPECT_TRUE(HttpMessageParser::is_valid_http_version("HTTP/3.0"));
 
+	EXPECT_FALSE(HttpMessageParser::is_valid_http_version("HTTP/2.0"));  // update
+	EXPECT_FALSE(HttpMessageParser::is_valid_http_version("HTTP/3.0"));  // update
 	EXPECT_FALSE(HttpMessageParser::is_valid_http_version("http/1.1"));
 	EXPECT_FALSE(HttpMessageParser::is_valid_http_version("HTTP/1.1 "));
 	EXPECT_FALSE(HttpMessageParser::is_valid_http_version("HTTP1.1"));
@@ -1155,6 +1155,8 @@ TEST(TestHttpMessageParser, IsPathAbsolute) {
 	EXPECT_FALSE(HttpMessageParser::is_path_absolute("//"));
 	EXPECT_FALSE(HttpMessageParser::is_path_absolute(""));
 	EXPECT_FALSE(HttpMessageParser::is_path_absolute("/ /"));
+    EXPECT_FALSE(HttpMessageParser::is_path_absolute("abc"));
+    EXPECT_FALSE(HttpMessageParser::is_path_absolute("123"));
 }
 
 TEST(TestHttpMessageParser, IsPathNoscheme) {
@@ -1449,4 +1451,3 @@ TEST(TestHttpMessageParser, IsOriginForm) {
 //
 //	EXPECT_FALSE(HttpMessageParser::);
 //}
-

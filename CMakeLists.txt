@@ -6,10 +6,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -pedantic")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fsanitize=address,undefined -fno-omit-frame-pointer")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D UTEST")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D ECHO")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D DEBUG")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D UNIT_TEST")
+
+# LOCAL -----
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D ECHO")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D DEBUG")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D USE_SELECT")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D USE_POLL")
+# -----------
 
 if(DEFINED CUSTOM_FLAGS)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CUSTOM_FLAGS}")
@@ -40,11 +44,11 @@ include_directories(
         srcs/Const
         srcs/Client
         srcs/ClientSession
-        srcs/Configuration/FileHandler
-        srcs/Configuration/Parser
-        srcs/Configuration/Token
-        srcs/Configuration/Tokenizer
-        srcs/Configuration
+        srcs/Config/FileHandler
+        srcs/Config/ConfigParser
+        srcs/Config/Token
+        srcs/Config/Tokenizer
+        srcs/Config
         srcs/Debug
         srcs/Error
         srcs/IOMultiplexer
@@ -52,6 +56,8 @@ include_directories(
         srcs/Socket
         srcs/StringHandler
         srcs/HttpResponse
+        srcs/HttpResponse/Api
+        srcs/HttpResponse/CgiHandler
         srcs/HttpResponse/GET
         srcs/HttpResponse/POST
         srcs/HttpResponse/DELETE
@@ -76,11 +82,11 @@ set(webserv_srcs
         srcs/Const/Constant.cpp
         srcs/Client/Client.cpp
         srcs/ClientSession/ClientSession.cpp
-        srcs/Configuration/FileHandler/FileHandler.cpp
-        srcs/Configuration/Parser/Parser.cpp
-        srcs/Configuration/Token/Token.cpp
-        srcs/Configuration/Tokenizer/Tokenizer.cpp
-        srcs/Configuration/Configuration.cpp
+        srcs/Config/FileHandler/FileHandler.cpp
+        srcs/Config/ConfigParser/ConfigParser.cpp
+        srcs/Config/Token/Token.cpp
+        srcs/Config/Tokenizer/Tokenizer.cpp
+        srcs/Config/Config.cpp
         srcs/Debug/Debug.cpp
         srcs/Error/Error.cpp
         srcs/IOMultiplexer/IOMultiplexer.cpp
@@ -182,10 +188,11 @@ list(APPEND webserv_srcs
 # response_srcs ----------------------------------------------------------------
 set(http_response_srcs
         srcs/HttpResponse/HttpResponse.cpp
+        srcs/HttpResponse/Api/api.cpp
 )
 # GET
 set(get_srcs
-        srcs/HttpResponse/GET/get_cgi_result.cpp
+        srcs/HttpResponse/CgiHandler/CgiHandler.cpp
         srcs/HttpResponse/GET/get_directory_listing.cpp
         srcs/HttpResponse/GET/get_file_content.cpp
         srcs/HttpResponse/GET/get_request_body.cpp
@@ -193,10 +200,12 @@ set(get_srcs
 
 # POST
 set(post_srcs
+        srcs/HttpResponse/POST/post_target.cpp
 )
 
 # DELETE
 set(delete_srcs
+        srcs/HttpResponse/DELETE/delete_target.cpp
 )
 
 list(APPEND http_response_srcs
@@ -229,7 +238,7 @@ set (unit_test_srcs
         test/unit_test/TestTokenizer.cpp
         test/unit_test/TestParserFunc.cpp
         test/unit_test/TestParse.cpp
-        test/unit_test/TestConfiguration.cpp
+        test/unit_test/TestConfig.cpp
 
         test/unit_test/TestRequestLine.cpp
 
@@ -304,6 +313,12 @@ set (unit_test_srcs
         # ValueAndMapFieldValues
         test/unit_test/ValueAndMapFieldValues/TestContentDisposition.cpp
 
+        # GET -> uncomment after implement GET
+#        test/unit_test/HttpResponse/GET/TestAutoIndex.cpp
+#        test/unit_test/HttpResponse/GET/TestCGI.cpp
+        test/unit_test/HttpResponse/GET/TestGetInterpreter.cpp
+        test/unit_test/HttpResponse/GET/TestGetRequestBody.cpp
+        test/unit_test/HttpResponse/POST/TestPOST.cpp
 )
 
 add_executable(unit_test

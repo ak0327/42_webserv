@@ -2,28 +2,42 @@
 #include <iostream>
 #include <string>
 #include "webserv.hpp"
-#include "Configuration.hpp"
+#include "Config.hpp"
 #include "Debug.hpp"
 #include "Server.hpp"
 
 namespace {
 
-int CONFIG_FILE_INDEX = 1;
-int CONFIG_FILE_GIVEN_ARGC = 2;
+
+const int kDefaultConfigFileUseArgc = 1;
+const int kConfigFileGivenArgc = 2;
+const std::size_t kConfigFileGivenIndex = 1;
+const char kDefaultConfigPath[] = "conf/webserv.conf";
+
+const char *get_config_file_path(int argc, char **argv) {
+    if (argc == kDefaultConfigFileUseArgc) {
+        return kDefaultConfigPath;
+    }
+    if (argc == kConfigFileGivenArgc) {
+        return argv[kConfigFileGivenIndex];
+    }
+    return NULL;
+}
+
 
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char **argv) {
-    if (argc != CONFIG_FILE_GIVEN_ARGC) {
-        std::cerr << "[Error] invalid argument" << std::endl;
+    const char *config_file_path = get_config_file_path(argc, argv);
+    if (!config_file_path) {
+        std::cerr << "Usage: ./webserv  [path_to_configuration_file.conf]" << std::endl;
         return EXIT_FAILURE;
     }
-    char *config_file_path = argv[CONFIG_FILE_INDEX];
-    DEBUG_PRINT("config_file_path=[%s]", config_file_path);
+    DEBUG_PRINT(WHITE, "config_file_path=[%s]", config_file_path);
 
-    Configuration config(config_file_path);
+    Config config(config_file_path);
     Result<int, std::string> config_result = config.get_result();
     if (config_result.is_err()) {
         const std::string error_msg = config_result.get_err_value();
@@ -48,3 +62,14 @@ int main(int argc, char **argv) {
     }
 	return EXIT_SUCCESS;
 }
+
+
+#ifdef LEAKS
+
+__attribute__((destructor))
+static void	destructor(void)
+{
+	system("leaks -q webserv");
+}
+
+#endif

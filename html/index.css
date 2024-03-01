@@ -1,11 +1,16 @@
 h2 {
-    color: red;
+    color: yellow;
 }
 
-h3 {
-    color: blue;
-}
+/*h3 {*/
+/*    color: red;*/
+/*}*/
+
+/*h4 {*/
+/*    color: blue;*/
+/*}*/
+
 
 h5 {
-    color: yellow;
+    color: darkgreen;
 }

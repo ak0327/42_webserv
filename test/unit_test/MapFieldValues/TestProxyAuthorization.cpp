@@ -30,7 +30,7 @@ TEST(TestMapFieldValues, ProxyAuthorizationOK1) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapFieldValues, ProxyAuthorizationOK2) {
@@ -59,7 +59,7 @@ TEST(TestMapFieldValues, ProxyAuthorizationOK2) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 
@@ -76,7 +76,7 @@ TEST(TestMapFieldValues, ProxyAuthorizationNG1) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapFieldValues, ProxyAuthorizationNG2) {
@@ -90,5 +90,5 @@ TEST(TestMapFieldValues, ProxyAuthorizationNG2) {
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }

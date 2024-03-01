@@ -33,7 +33,7 @@ TEST(TestMapSetFieldValues, LinkOK1) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapSetFieldValues, LinkOK2) {
@@ -66,7 +66,7 @@ TEST(TestMapSetFieldValues, LinkOK2) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapSetFieldValues, LinkOK3) {
@@ -96,7 +96,7 @@ TEST(TestMapSetFieldValues, LinkOK3) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapSetFieldValues, LinkOK4) {
@@ -129,7 +129,7 @@ TEST(TestMapSetFieldValues, LinkOK4) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapSetFieldValues, LinkOK5) {
@@ -178,7 +178,7 @@ TEST(TestMapSetFieldValues, LinkOK5) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -193,5 +193,5 @@ TEST(TestMapSetFieldValues, LinkNG1) {
 	bool has_field_name = request.is_valid_field_name_registered(field_name);
 
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }

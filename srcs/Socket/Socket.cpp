@@ -3,16 +3,15 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <cerrno>
+#include <cstdio>
 #include <cstring>
 #include <iostream>
 #include <string>
 #include "Color.hpp"
 #include "Constant.hpp"
+#include "Debug.hpp"
 #include "Error.hpp"
 #include "Socket.hpp"
-
-
-////////////////////////////////////////////////////////////////////////////////
 
 
 Socket::Socket(const std::string &ip_addr, const std::string &port)
@@ -41,7 +40,7 @@ Socket::~Socket() {
 Result<int, std::string> Socket::init_addr_info() {
 	struct addrinfo	hints = {};
     hints.ai_socktype = SOCK_STREAM;
-    hints.ai_family = AF_UNSPEC;  // allows IPv4 and IPv6
+    hints.ai_family = AF_INET;  // IPv4  AF_UNSPEC; allows IPv4 and IPv6
     hints.ai_flags = AI_PASSIVE | AI_NUMERICHOST | AI_NUMERICSERV;  // socket, IP, PORT
     hints.ai_protocol = IPPROTO_TCP;
     const char *ip = (this->server_ip_ != "*") ? this->server_ip_.c_str() : NULL;
@@ -131,9 +130,14 @@ Result<int, std::string> Socket::accept(int socket_fd,
 }
 
 
-Result<int, std::string> Socket::set_fd_to_nonblock() {
+SocketResult Socket::set_fd_to_nonblock() {
+    return set_fd_to_nonblock(this->socket_fd_);
+}
+
+
+Result<int, std::string> Socket::set_fd_to_nonblock(int fd) {
 	errno = 0;
-	if (fcntl(this->socket_fd_, F_SETFL, O_NONBLOCK | FD_CLOEXEC) == FCNTL_ERROR) {
+	if (fcntl(fd, F_SETFL, O_NONBLOCK) == FCNTL_ERROR) {
 		std::string err_info = CREATE_ERROR_INFO_ERRNO(errno);
 		return Result<int, std::string>::err("fcntl:" + err_info);
 	}
@@ -142,3 +146,78 @@ Result<int, std::string> Socket::set_fd_to_nonblock() {
 
 
 int Socket::get_socket_fd() const { return this->socket_fd_; }
+
+
+ssize_t Socket::recv(int fd, void *buf, std::size_t bufsize) {
+    ssize_t recv_size;
+
+    errno = 0;
+    recv_size = ::recv(fd, buf, bufsize, FLAG_NONE);
+    int tmp_errno = errno;
+    DEBUG_SERVER_PRINT("recv_size: %zd", recv_size);
+    if (recv_size == RECV_COMPLETED) {
+        return RECV_COMPLETED;
+    }
+    if (recv_size == RECV_CONTINUE) {
+        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(tmp_errno);
+        DEBUG_SERVER_PRINT("%s", error_msg.c_str());
+        // return Result<std::size_t, std::string>::err(error_info);
+        return RECV_CONTINUE;
+    }
+    return recv_size;
+}
+
+
+ssize_t Socket::recv_to_buf(int fd, std::vector<unsigned char> *buf) {
+    if (!buf) { return 0; }
+
+    std::vector<unsigned char> recv_buf(BUFSIZ);
+    ssize_t recv_size;
+
+    DEBUG_SERVER_PRINT("recv start");
+    recv_size = Socket::recv(fd, &recv_buf[0], BUFSIZ);
+
+    DEBUG_SERVER_PRINT(" recv_size: %zd", recv_size);
+    std::string debug_recv_msg(recv_buf.begin(), recv_buf.begin() + recv_size);
+    DEBUG_SERVER_PRINT(" recv_msg[%s]", debug_recv_msg.c_str());
+
+    if (0 < recv_size) {
+        buf->insert(buf->end(), recv_buf.begin(), recv_buf.begin() + recv_size);
+    }
+    DEBUG_SERVER_PRINT("recv end");
+    return recv_size;
+}
+
+
+ssize_t Socket::send(int fd, void *buf, std::size_t bufsize) {
+    errno = 0;
+    ssize_t send_size = ::send(fd, buf, bufsize, MSG_NOSIGNAL);  // disable SIGPIPE
+    int tmp_errno = errno;
+    if (send_size == SEND_COMPLETED) {
+        return SEND_COMPLETED;
+    }
+    if (send_size == SEND_ERROR) {
+        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(tmp_errno);
+        DEBUG_SERVER_PRINT("%s", error_msg.c_str());
+        // return Result<std::size_t, std::string>::err(error_info);
+        return SEND_ERROR;
+    }
+    return send_size;
+}
+
+
+ProcResult Socket::send_buf(int fd, std::vector<unsigned char> *buf) {
+    DEBUG_SERVER_PRINT("send start");
+    if (!buf) { return FatalError; }
+
+    ssize_t send_size = Socket::send(fd, buf->data(), buf->size());
+    if (send_size == SEND_ERROR) {
+        return Failure;
+    }
+    if (0 < send_size) {
+        DEBUG_SERVER_PRINT(" erase buf");
+        buf->erase(buf->begin(), buf->begin() + send_size);
+    }
+    DEBUG_SERVER_PRINT("send end size: %zd", send_size);
+    return buf->empty() ? Success : Continue;
+}

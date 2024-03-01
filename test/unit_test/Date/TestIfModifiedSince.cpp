@@ -33,7 +33,7 @@ TEST(TestDate, IfModifiedSinceOK1) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestDate, IfModifiedSinceOK2) {
@@ -65,7 +65,7 @@ TEST(TestDate, IfModifiedSinceOK2) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestDate, IfModifiedSinceOK3) {
@@ -97,7 +97,7 @@ TEST(TestDate, IfModifiedSinceOK3) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.get_status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -114,7 +114,7 @@ TEST(TestDate, IfModifiedSinceNG1) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
+	EXPECT_EQ(STATUS_BAD_REQUEST, request.request_status());
 }
 
 TEST(TestDate, IfModifiedSinceNG2) {
@@ -130,7 +130,7 @@ TEST(TestDate, IfModifiedSinceNG2) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
+	EXPECT_EQ(STATUS_BAD_REQUEST, request.request_status());
 }
 
 TEST(TestDate, IfModifiedSinceNG3) {
@@ -150,5 +150,5 @@ TEST(TestDate, IfModifiedSinceNG3) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_BAD_REQUEST, request.get_status_code());
+	EXPECT_EQ(STATUS_BAD_REQUEST, request.request_status());
 }
