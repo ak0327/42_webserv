@@ -93,18 +93,13 @@ StatusCode HttpResponse::get_redirect_content(const ReturnDirective &redirect) {
 }
 
 
-bool HttpResponse::is_api_endpoint() {
-    std::vector<std::string>::const_iterator itr;
-    itr = std::find(API_ENDPOINTS.begin(), API_ENDPOINTS.end(), this->request_.request_target());
-    return itr != API_ENDPOINTS.end();
-}
-
 bool HttpResponse::has_valid_index_page() {
     Result<std::string, StatusCode> indexed;
     indexed = Config::get_indexed_path(this->server_config_,
                                        this->request_.request_target());
     return indexed.is_ok();
 }
+
 
 bool HttpResponse::is_method_available() {
     Result<bool, int> allowed;
@@ -114,12 +109,14 @@ bool HttpResponse::is_method_available() {
     return allowed.is_ok() && allowed.get_ok_value();
 }
 
+
 bool HttpResponse::is_autoindex() {
     Result<bool, int> is_autoindex;
     is_autoindex = Config::is_autoindex_on(this->server_config_,
                                            this->request_.request_target());
     return is_autoindex.is_ok() && is_autoindex.get_ok_value();
 }
+
 
 bool HttpResponse::is_redirect_target() {
     Result<bool, int> is_redirect;
@@ -138,57 +135,16 @@ StatusCode HttpResponse::redirect_to(const std::string &move_to) {
 }
 
 
-std::string HttpResponse::get_response_date() {
+std::string HttpResponse::get_http_date() {
     char date[1024];
     time_t gmt_time;
-    size_t n;
     std::string date_string;
 
     std::time(&gmt_time);
-    n = std::strftime(date, 1024, "%a, %d %b %Y %X %Z", std::gmtime(&gmt_time));
-    date_string = std::string(date, n);
+    // IMF-fixdate "%a, %d %b %Y %H:%M:%S GMT"
+    std::strftime(date, sizeof(date), "%a, %d %b %Y %H:%M:%S GMT", std::gmtime(&gmt_time));
+    date_string = std::string(date);
     return date_string;
-}
-
-
-StatusCode HttpResponse::get_now() {
-    const std::string head = "<!doctype html>\n"
-                             "<html lang=\"ja\">\n"
-                             "<head>\n"
-                             "    <meta charset=\"UTF-8\">\n"
-                             "    <title>now</title>\n"
-                             "</head>\n"
-                             "<body>\n";
-
-    const std::string now = "Now: " + get_response_date();
-
-    const std::string tail = "</body>\n"
-                             "</html>";
-
-    std::vector<unsigned char> body;
-    body.insert(body.end(), head.begin(), head.end());
-    body.insert(body.end(), now.begin(), now.end());
-    body.insert(body.end(), tail.begin(), tail.end());
-    this->body_buf_ = body;
-
-    return StatusOk;
-}
-
-
-StatusCode HttpResponse::response_api() {
-    if (this->request_.request_target() == "/api/form-data") {
-        return show_data();
-    }
-    if (this->request_.request_target() == "/api/show-body") {
-        return show_body();
-    }
-    // if (this->request_.request_target() == "/api/upload") {
-    //     return upload_file();
-    // }
-    if (this->request_.request_target() == "/api/now") {
-        return get_now();
-    }
-    return NotFound;
 }
 
 
