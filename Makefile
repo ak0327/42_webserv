@@ -200,8 +200,8 @@ re		: fclean all
 .PHONY	: lint
 lint	:
 	python3 -m cpplint --recursive srcs \
-	&& echo "\033[0;32mCPPLINT DONE\033[0m" \
-	|| echo "\033[0;31mCPPLINT ERROR\033[0m"
+	&& echo -e "\033[0;32mCPPLINT DONE\033[0m" \
+	|| echo -e "\033[0;31mCPPLINT ERROR\033[0m"
 
 .PHONY	: echo
 echo	: CXXFLAGS += -D ECHO

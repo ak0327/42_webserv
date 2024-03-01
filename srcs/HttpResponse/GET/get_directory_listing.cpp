@@ -15,6 +15,7 @@
 #include "Error.hpp"
 #include "HttpResponse.hpp"
 #include "Result.hpp"
+#include "StringHandler.hpp"
 
 namespace {
 
@@ -27,17 +28,17 @@ const char hidden_file_prefix = '.';
 
 std::string get_timestamp(time_t time) {
     const std::size_t BUFSIZE = 30;
-    struct tm time_info;
     char formatted_time[BUFSIZE];
+    struct tm *time_info;
 
-    localtime_r(&time, &time_info);  // todo: can use?
-    strftime(formatted_time, sizeof(formatted_time), "%d-%b-%Y %H:%M", &time_info);  // todo: can use?
-    return std::string(formatted_time);
-}
+    time_info = std::localtime(&time);
+    std::strftime(formatted_time, sizeof(formatted_time), "%d-%b-%Y %H:%M", time_info);
+    return std::string(formatted_time);}
 
-Result<ProcResult, ProcResult> get_file_info(const std::string &directory_path_end_with_slash,
-                                             std::set<file_info> *ret_directories,
-                                             std::set<file_info> *ret_files) {
+
+ProcResult get_file_info(const std::string &directory_path_with_trailing_slash,
+                         std::set<file_info> *ret_directories,
+                         std::set<file_info> *ret_files) {
     DIR *dirp;
     struct dirent *dirent_ptr;
     struct stat stat_buf;
@@ -52,16 +53,16 @@ Result<ProcResult, ProcResult> get_file_info(const std::string &directory_path_e
     bool is_err = false;
 
     if (!ret_directories || !ret_files) {
-        return Result<ProcResult, ProcResult>::err(Failure);
+        return Failure;
     }
 
     // opendir
     errno = 0;
-    dirp = opendir(directory_path_end_with_slash.c_str());
+    dirp = opendir(directory_path_with_trailing_slash.c_str());
     if (dirp == OPENDIR_ERROR) {
-        err_info = create_error_info(errno, __FILE__, __LINE__);
+        err_info = CREATE_ERROR_INFO_ERRNO(errno);
         std::cerr << err_info << std::endl;  // todo
-        return Result<ProcResult, ProcResult>::err(Failure);
+        return Failure;
     }
 
     // readdir
@@ -70,7 +71,7 @@ Result<ProcResult, ProcResult> get_file_info(const std::string &directory_path_e
         dirent_ptr = readdir(dirp);
         if (!dirent_ptr) {
             if (errno != 0) {
-                err_info = create_error_info(errno, __FILE__, __LINE__);
+                err_info = CREATE_ERROR_INFO_ERRNO(errno);
                 is_err = true;
             }
             break;
@@ -82,14 +83,14 @@ Result<ProcResult, ProcResult> get_file_info(const std::string &directory_path_e
             continue;
         }
 
-        filepath = directory_path_end_with_slash + filename;
+        filepath = directory_path_with_trailing_slash + filename;
 
         errno = 0;
         // std::cout << CYAN << "filepath:[" << filepath << "]" << RESET << std::endl;
         stat_result = stat(filepath.c_str(), &stat_buf);
         if (stat_result == STAT_ERROR && !(errno == EACCES || errno == ENOENT)) {  // todo: linux
             // std::cout << CYAN << "errno:" << errno << RESET << std::endl;
-            err_info = create_error_info(errno, __FILE__, __LINE__);
+            err_info = CREATE_ERROR_INFO_ERRNO(errno);
             is_err = true;
             break;
         }
@@ -111,20 +112,21 @@ Result<ProcResult, ProcResult> get_file_info(const std::string &directory_path_e
 
     errno = 0;
     if (closedir(dirp) == CLOSEDIR_ERROR) {
-        err_info = create_error_info(errno, __FILE__, __LINE__);
+        err_info = CREATE_ERROR_INFO_ERRNO(errno);
         is_err = true;
     }
 
     if (is_err) {
         std::cerr << err_info << std::endl;  // todo, return err_info...?
-        return Result<ProcResult, ProcResult>::err(Failure);
+        return Failure;
     }
     *ret_directories = directories;
     *ret_files = files;
-    return Result<ProcResult, ProcResult>::ok(Success);
+    return Success;
 }
 
-StatusCode get_directory_listing_html(const std::string &directory_path_end_with_slash,
+
+StatusCode get_directory_listing_html(const std::string &directory_path_with_trailing_slash,
                                       const std::set<file_info> &directories,
                                       const std::set<file_info> &files,
                                       std::vector<unsigned char> *buf) {
@@ -138,11 +140,11 @@ StatusCode get_directory_listing_html(const std::string &directory_path_end_with
 
     const std::string TITLE = "<html>" CRLF
                               " <head><title>Index of "
-                              + directory_path_end_with_slash  // todo: path
+                              + directory_path_with_trailing_slash  // todo: path
                               + " </title></head>" CRLF;
     const std::string HEADER = "  <body>" CRLF
                                "   <h1>Index of "
-                               + directory_path_end_with_slash  // todo: path
+                               + directory_path_with_trailing_slash  // todo: path
                                + "</h1>" CRLF;
     const std::string TAIL =   "  </body>" CRLF
                                "</html>" CRLF;
@@ -172,7 +174,7 @@ StatusCode get_directory_listing_html(const std::string &directory_path_end_with
     /* directory */
     CURRENT_DIRECTORY_CONTENT = "";
     for (itr = directories.begin(); itr != directories.end(); ++itr) {
-        std::string file_path = directory_path_end_with_slash + itr->name;
+        std::string file_path = directory_path_with_trailing_slash + itr->name;
         std::ostringstream directory_oss;
         directory_oss << ROW_START;
         directory_oss << COL_NAME_START << "<a href=\"" << itr->name << "\">" << itr->name << "</a>" << COL_END;  // todo: link
@@ -185,7 +187,7 @@ StatusCode get_directory_listing_html(const std::string &directory_path_end_with
     /* file */
     FILE_CONTENT = "";
     for (itr = files.begin(); itr != files.end(); ++itr) {
-        std::string file_path = directory_path_end_with_slash + itr->name;
+        std::string file_path = directory_path_with_trailing_slash + itr->name;
         std::ostringstream file_oss;
         file_oss << ROW_START;
         file_oss << COL_NAME_START << "<a href=\"" << itr->name << "\">" << itr->name << "</a>" << COL_END;  // todo: link
@@ -214,40 +216,24 @@ StatusCode get_directory_listing_html(const std::string &directory_path_end_with
     return StatusOk;
 }
 
-std::string get_directory_path_end_with_slash(const std::string &directory_path) {
-    std::size_t len = directory_path.length();
-
-    if (len == 0) {
-        return directory_path;
-    }
-    if (directory_path[len - 1] == '/') {
-        return directory_path;
-    }
-    return directory_path + "/";
-}
 
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
 
-StatusCode HttpResponse::get_directory_listing(const std::string &directory_path,
-                                                                   std::vector<unsigned char> *buf) {
+StatusCode HttpResponse::get_directory_listing(const std::string &directory_path_with_trailing_slash,
+                                               std::vector<unsigned char> *buf) {
     if (!buf) {
         return InternalServerError;
     }
 
-    std::string directory_path_end_with_slash = get_directory_path_end_with_slash(directory_path);
     std::set<file_info>	directories;
     std::set<file_info>	files;
-
-    Result<ProcResult, ProcResult> get_info_result = get_file_info(directory_path_end_with_slash,
-                                                                   &directories,
-                                                                   &files);
-    if (get_info_result.is_err()) {
+    if (get_file_info(directory_path_with_trailing_slash, &directories, &files) == Failure) {
         return InternalServerError;
     }
 
-    return get_directory_listing_html(directory_path_end_with_slash, directories, files, buf);
+    return get_directory_listing_html(directory_path_with_trailing_slash, directories, files, buf);
 }
 
 bool operator<(const file_info &lhs, const file_info &rhs) {

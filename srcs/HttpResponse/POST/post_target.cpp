@@ -308,7 +308,7 @@ StatusCode HttpResponse::upload_multipart_form_data(const std::string &boundary)
 
     const std::string file_name = form_data.file_name;
     std::string rooted_path = get_rooted_path();
-    if (!has_trailing_slash(rooted_path)) {
+    if (!StringHandler::has_trailing_slash(rooted_path)) {
         rooted_path.append("/");
     }
     const std::string path = rooted_path + file_name;
