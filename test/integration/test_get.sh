@@ -64,8 +64,8 @@ expect_eq_get "$(curl -is "localhost:4242/upload")"             "301 Moved Perma
 expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.py")"               "200 OK"   "html/cgi-bin/cgi-result/hello.txt"
 expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.py?query")"         "200 OK"   "html/cgi-bin/cgi-result/hello.txt"
 expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.py/path/info")"     "200 OK"   "html/cgi-bin/cgi-result/hello.txt"
-# expect_eq_get "$(curl -is "localhost:4242i-bin/page.php")"""              "200 OK"   "html/cgi-bin/cgi-result/page.txt"
-# expect_eq_get "$(curl -is "localhost:4242i-bin/post_simple.py")"""        "200 OK"   "html/cgi-bin/cgi-result/post_simple_get.txt"
+ expect_eq_get "$(curl -is "localhost:4242i-bin/page.php")"""              "200 OK"   "html/cgi-bin/cgi-result/page.txt"
+ expect_eq_get "$(curl -is "localhost:4242i-bin/post_simple.py")"""        "200 OK"   "html/cgi-bin/cgi-result/post_simple_get.txt"
 expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.sh")"               "200 OK"   "html/cgi-bin/cgi-result/hello.txt"
 
 expect_eq_get "$(echo -en "GET  /  HTTP/1.1\r\nHost: localhost\r\n\r\n"       | nc localhost 4242)"   "400 Bad Request"    ""
@@ -74,10 +74,10 @@ expect_eq_get "$(curl -is "localhost:4242/cgi-bin/error_no_shebang.py")"    "500
 expect_eq_get "$(curl -is "localhost:4242/cgi-bin/error_wrong_shebang.py")" "500 Internal Server Error"  "html/50x.html"
 expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello_404.py")"           "404 Not Found"              "html/404.html"
 expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello_500.py")"           "500 Internal Server Error"  "html/50x.html"
-#expect_eq_get "$(curl -is "localhost:4242/cgi-bin/infinite_loop.py")"       "500 Internal Server Error"  "html/50x.html"
-#expect_eq_get "$(curl -is "localhost:4242/cgi-bin/infinite_print.py")"      "500 Internal Server Error"  "html/50x.html"
-#expect_eq_get "$(curl -is "localhost:4242/cgi-bin/sleep5sec.py")"           "500 Internal Server Error"  "html/50x.html"
-#expect_eq_get "$(curl -is "localhost:4242/cgi-bin/sleep10sec.py")"          "500 Internal Server Error"  "html/50x.html"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/infinite_loop.py")"       "500 Internal Server Error"  "html/50x.html"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/infinite_print.py")"      "500 Internal Server Error"  "html/50x.html"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/sleep5sec.py")"           "500 Internal Server Error"  "html/50x.html"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/sleep10sec.py")"          "500 Internal Server Error"  "html/50x.html"
 expect_eq_get "$(curl -is "localhost:4242/cgi-bin/nothing.py")"             "404 Not Found"              "html/404.html"
 
 
