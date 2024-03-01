@@ -30,7 +30,62 @@ sleep 1
 
 ################################################################################
 
-test_post_upload "localhost:4242/upload/"  "html/cgi-bin/"   "hello.py"   "html/upload/hello.txt"   "201 Created"   true
+# 201 Created
+test_post_upload "html/cgi-bin/"  "hello.py"      "localhost:4242/upload/"  "201 Created"   true
+test_post_upload "html/cgi-bin/"  "page.php"      "localhost:4242/upload/"  "201 Created"   true
+
+test_post_upload "html/images/"   "image1.jpg"    "localhost:4242/upload/"  "201 Created"   true
+test_post_upload "html/images/"   "image2.jpeg"   "localhost:4242/upload/"  "201 Created"   true
+test_post_upload "html/images/"   "image3.png"    "localhost:4242/upload/"  "201 Created"   true
+test_post_upload "html/images/"   "image4.gif"    "localhost:4242/upload/"  "201 Created"   true
+
+test_post_upload "html/big_size/" "1kB.txt"       "localhost:4242/upload/"  "201 Created"   true
+test_post_upload "html/big_size/" "1MB.txt"       "localhost:4242/upload/"  "201 Created"   true
+test_post_upload "html/big_size/" "10MB.txt"      "localhost:4242/upload/"  "201 Created"   true
+test_post_upload "html/big_size/" "19MB.txt"      "localhost:4242/upload/"  "201 Created"   true
+
+
+test_post_upload "html/big_size/" "20MB.txt"      "localhost:4242/upload/"  "413 Content Too Large"   false
+#test_post_upload "html/"          "hoge"          "localhost:4242/upload/"  "400 Bad Request"         false # curl error
+#test_post_upload "html/"          "nothing.html"  "localhost:4242/upload/"  "404 Not Found"           false # curl error
+
+
+#test_post_upload "html/permission/"       "___.html"  "localhost:4242/upload/"  "400 Bad Request" false # curl error
+#test_post_upload "html/permission/"       "__x.html"  "localhost:4242/upload/"  "400 Bad Request" false # curl error
+#test_post_upload "html/permission/"       "_w_.html"  "localhost:4242/upload/"  "400 Bad Request" false # curl error
+test_post_upload "html/permission/"       "r__.html"  "localhost:4242/upload/"  "201 Created" true
+test_post_upload "html/permission/"       "rwx.html"  "localhost:4242/upload/"  "201 Created" true
+
+#test_post_upload "html/permission/___/"   "___.html"  "localhost:4242/upload/"  "400 Bad Request" false # curl error
+#test_post_upload "html/permission/___/"   "__x.html"  "localhost:4242/upload/"  "400 Bad Request" false # curl error
+#test_post_upload "html/permission/___/"   "_w_.html"  "localhost:4242/upload/"  "400 Bad Request" false # curl error
+#test_post_upload "html/permission/___/"   "r__.html"  "localhost:4242/upload/"  "400 Bad Request" false # curl error
+#test_post_upload "html/permission/___/"   "rwx.html"  "localhost:4242/upload/"  "400 Bad Request" false # curl error
+#
+#test_post_upload "html/permission/__x/"   "___.html"  "localhost:4242/upload/"  "400 Bad Request" false # curl error
+#test_post_upload "html/permission/__x/"   "__x.html"  "localhost:4242/upload/"  "400 Bad Request" false # curl error
+#test_post_upload "html/permission/__x/"   "_w_.html"  "localhost:4242/upload/"  "400 Bad Request" false # curl error
+test_post_upload "html/permission/__x/"   "r__.html"  "localhost:4242/upload/"  "201 Created" true
+test_post_upload "html/permission/__x/"   "rwx.html"  "localhost:4242/upload/"  "201 Created" true
+
+#test_post_upload "html/permission/_w_/"   "___.html"  "localhost:4242/upload/"  "400 Bad Request" false # curl error
+#test_post_upload "html/permission/_w_/"   "__x.html"  "localhost:4242/upload/"  "400 Bad Request" false # curl error
+#test_post_upload "html/permission/_w_/"   "_w_.html"  "localhost:4242/upload/"  "400 Bad Request" false # curl error
+#test_post_upload "html/permission/_w_/"   "r__.html"  "localhost:4242/upload/"  "400 Bad Request" false # curl error
+#test_post_upload "html/permission/_w_/"   "rwx.html"  "localhost:4242/upload/"  "400 Bad Request" false # curl error
+#
+#test_post_upload "html/permission/r__/"   "___.html"  "localhost:4242/upload/"  "400 Bad Request" false # curl error
+#test_post_upload "html/permission/r__/"   "__x.html"  "localhost:4242/upload/"  "400 Bad Request" false # curl error
+#test_post_upload "html/permission/r__/"   "_w_.html"  "localhost:4242/upload/"  "400 Bad Request" false # curl error
+#test_post_upload "html/permission/r__/"   "r__.html"  "localhost:4242/upload/"  "400 Bad Request" false # curl error
+#test_post_upload "html/permission/r__/"   "rwx.html"  "localhost:4242/upload/"  "400 Bad Request" false # curl error
+#
+#test_post_upload "html/permission/rwx/"   "___.html"  "localhost:4242/upload/"  "400 Bad Request" false # curl error
+#test_post_upload "html/permission/rwx/"   "__x.html"  "localhost:4242/upload/"  "400 Bad Request" false # curl error
+#test_post_upload "html/permission/rwx/"   "_w_.html"  "localhost:4242/upload/"  "400 Bad Request" false # curl error
+test_post_upload "html/permission/rwx/"   "r__.html"  "localhost:4242/upload/"  "201 Created"     true
+test_post_upload "html/permission/rwx/"   "rwx.html"  "localhost:4242/upload/"  "201 Created"     true
+
 
 ################################################################################
 

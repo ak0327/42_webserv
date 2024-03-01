@@ -61,30 +61,28 @@ expect_eq_get() {
 
 
 test_post_upload() {
-    local url=$1
-    local upload_path=$2
-    local filename=$3
-    local expected_file=$3
+    local file_dir=$1
+    local file_name=$2
+    local url=$3
     local expected_status=$4
     local expect_created=$5
 
     local call_line=${BASH_LINENO[0]}
+    local response_file="${TEST_DIR}response.txt"
 
     echo "----------------------------------------------------------------"
     ((test_cnt++))
     echo "TEST No.${test_cnt} (L${call_line})"
 
-    local file_path="html/upload/${filename}"
+    local upload_path="html/upload/${file_name}"
+    local src_path="$file_dir$file_name"
 
-    local is_file_existed=0
-    if [ -f "$file_path" ]; then
-      is_file_existed=1
+    local is_file_already_existed=0
+    if [ -f "$upload_path" ]; then
+      is_file_already_existed=1
     fi
 
-    local cmd
-    cmd="-is -F @file_name@${upload_path}${file_name} ${url}"
-    curl $cmd > "$response_file"
-
+    curl -i -F "file_name=@$src_path"  "${url}" > "$response_file" 2> /dev/null
 
     local actual_start_line
     actual_start_line=$(head -n 1 ${response_file} | tr -d '\r')
@@ -97,14 +95,15 @@ test_post_upload() {
         echo -e "${GREEN}OK${RESET}"
     else
         ((ng_cnt++))
-        ng_cases+=("No.${test_cnt} (L${call_line}): Start-Line NG: [${cmd}]")
-        echo -e "${RED}NG -> Expected: \"$expected_start_line\", Actual: \"$actual_start_line\"${RESET}"
+        result="Expected: \"$expected_start_line\", Actual: \"$actual_start_line\""
+        ng_cases+=("No.${test_cnt} (L${call_line}): Start-Line NG: [$result]")
+        echo -e "${RED}NG -> $result${RESET}"
     fi
 
 
     echo -n " UPLOAD     : "
     local is_created
-    if [[ $is_file_existed == 0 && -f "$file_path" ]]; then
+    if [[ $is_file_already_existed == 0 && -f "$upload_path" ]]; then
       is_created="true"
     else
       is_created="false"
@@ -112,16 +111,24 @@ test_post_upload() {
 
 
     if [[ "$expect_created" == "$is_created" ]]; then
-        echo -e "${GREEN}OK${RESET}"
+        diff_output=$(diff $src_path $upload_path)
+
+        if [[ -z "$diff_output" ]]; then
+            echo -e "${GREEN}OK${RESET}"
+        else
+            ((ng_cnt++))
+            ng_cases+=("No.${test_cnt} (L${call_line}): Upload NG: [${file_dir}${file_name}: $diff_output]")
+            echo -e "${RED}NG${RESET}"
+        fi
     else
         ((ng_cnt++))
-        ng_cases+=("No.${test_cnt} (L${call_line}): Upload NG: [${cmd}]")
+        ng_cases+=("No.${test_cnt} (L${call_line}): Upload NG: [${file_dir}${file_name}: expect_created:"$expect_created" created:"$is_created"]")
         echo -e "${RED}NG${RESET}"
     fi
 
 
-    if [[ "$expect_created" == "true" ]] && [ -f "$expected_file" ]; then
-        [ -f $file_path ] && rm "$file_path"
+    if [[ "$expect_created" == "true" ]] && [ -f "$upload_path" ]; then
+        rm "$upload_path"
     fi
 
     [ -f "$response_file" ] && rm "$response_file"

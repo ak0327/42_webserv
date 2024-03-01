@@ -296,7 +296,7 @@ Result<FormData, ProcResult> HttpResponse::parse_multipart_form_data(const std::
 }
 
 
-StatusCode HttpResponse::upload_file(const std::string &boundary) {
+StatusCode HttpResponse::upload_multipart_form_data(const std::string &boundary) {
     // std::cout << RED << " upload 1" << RESET << std::endl;
     Result<FormData, ProcResult> parse_result = parse_multipart_form_data(boundary);
     if (parse_result.is_err()) {
@@ -307,7 +307,11 @@ StatusCode HttpResponse::upload_file(const std::string &boundary) {
     FormData form_data = parse_result.get_ok_value();
 
     const std::string file_name = form_data.file_name;
-    const std::string path = "./html/upload/" + file_name;
+    std::string rooted_path = get_rooted_path();
+    if (!has_trailing_slash(rooted_path)) {
+        rooted_path.append("/");
+    }
+    const std::string path = rooted_path + file_name;
 
     FileHandler file(path);
     // std::cout << RED << " upload 4 path:" << path << RESET << std::endl;
@@ -394,6 +398,27 @@ bool HttpResponse::is_multipart_form_data(std::string *boundary) {
 }
 
 
+StatusCode HttpResponse::show_data() {
+    if (is_urlencoded_form_data()) {
+        // DEBUG_PRINT(YELLOW, "   show_data -> urlencoded_form");
+        return get_urlencoded_form_content();
+    }
+    // DEBUG_PRINT(YELLOW, "   show_data err: 400");
+    return BadRequest;
+}
+
+
+StatusCode HttpResponse::upload_file() {
+    std::string boundary;
+    if (is_multipart_form_data(&boundary)) {
+        // DEBUG_PRINT(YELLOW, "    upload_file -> multipart_form");
+        return upload_multipart_form_data(boundary);
+    }
+    // DEBUG_PRINT(YELLOW, "    upload_file err: 400");
+    return BadRequest;
+}
+
+
 // static
 //   file      -> error
 //   directory -> error
@@ -401,19 +426,28 @@ bool HttpResponse::is_multipart_form_data(std::string *boundary) {
 //   cgi       -> error / response
 //   api       -> error / response
 StatusCode HttpResponse::post_target() {
-    // std::cout << RED << "post 1" << RESET << std::endl;
-    if (this->request_.request_target() == "/show_body") {
-        return show_body();
+    // DEBUG_PRINT(YELLOW, "  POST 1 target[%s]", this->request_.request_target().c_str());
+
+    if (!is_method_available()) {
+        // DEBUG_PRINT(YELLOW, "  POST 2 err: 405");
+        return MethodNotAllowed;
     }
-    // std::cout << RED << "post 2" << RESET << std::endl;
-    if (is_urlencoded_form_data()) {
-        return get_urlencoded_form_content();
+
+    // api?
+    //  Yes -> api
+    if (is_api_endpoint()) {
+        // DEBUG_PRINT(YELLOW, "  POST 3 -> api");
+        return response_api();
     }
-    // std::cout << RED << "post 3" << RESET << std::endl;
+
     std::string boundary;
     if (is_multipart_form_data(&boundary)) {
-        return upload_file(boundary);
+        // DEBUG_PRINT(YELLOW, "    upload_file -> multipart_form");
+        return upload_multipart_form_data(boundary);
     }
+    // DEBUG_PRINT(YELLOW, "    upload_file err: 400");
+
     // std::cout << RED << "post 4" << RESET << std::endl;
+    // DEBUG_PRINT(YELLOW, "  POST 4s err: 400");
     return BadRequest;
 }
