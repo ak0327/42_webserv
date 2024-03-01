@@ -54,11 +54,6 @@ void HttpResponse::get_error_page_to_body() {
     std::string error_page_path = result.get_ok_value();
     DEBUG_PRINT(CYAN, "  get_error_page 4 error_page_path: %s", error_page_path.c_str());
 
-    std::map<std::string, std::string> mime_types;  // todo
-    mime_types["html"] = "text/html";
-    mime_types["htm"] = "text/htm";
-    mime_types["jpg"] = "text/htm";
-
     get_file_content(error_page_path, &this->body_buf_);
 }
 
@@ -93,7 +88,7 @@ StatusCode HttpResponse::get_redirect_content(const ReturnDirective &redirect) {
 }
 
 
-bool HttpResponse::has_valid_index_page() {
+bool HttpResponse::has_valid_index_page() const {
     Result<std::string, StatusCode> indexed;
     indexed = Config::get_indexed_path(this->server_config_,
                                        this->request_.request_target());
@@ -101,7 +96,7 @@ bool HttpResponse::has_valid_index_page() {
 }
 
 
-bool HttpResponse::is_method_available() {
+bool HttpResponse::is_method_available() const {
     Result<bool, int> allowed;
     allowed = Config::is_method_allowed(this->server_config_,
                                         this->request_.request_target(),
@@ -110,7 +105,7 @@ bool HttpResponse::is_method_available() {
 }
 
 
-bool HttpResponse::is_autoindex() {
+bool HttpResponse::is_autoindex() const {
     Result<bool, int> is_autoindex;
     is_autoindex = Config::is_autoindex_on(this->server_config_,
                                            this->request_.request_target());
@@ -118,7 +113,7 @@ bool HttpResponse::is_autoindex() {
 }
 
 
-bool HttpResponse::is_redirect_target() {
+bool HttpResponse::is_redirect_target() const {
     Result<bool, int> is_redirect;
     is_redirect = Config::is_redirect(this->server_config_,
                                       this->request_.request_target());

@@ -44,7 +44,7 @@ StatusCode HttpResponse::get_now() {
     const std::string now = "Now: " + get_http_date();
 
     const std::string tail = "</body>\n"
-                             "</html>";
+                             "</html>\n";
 
     std::vector<unsigned char> body;
     body.insert(body.end(), head.begin(), head.end());
@@ -52,6 +52,7 @@ StatusCode HttpResponse::get_now() {
     body.insert(body.end(), tail.begin(), tail.end());
     this->body_buf_ = body;
 
+    add_content_header("html");
     return StatusOk;
 }
 
@@ -66,7 +67,7 @@ StatusCode HttpResponse::show_body() {
                        "<body>\n";
 
     std::string tail = "</body>\n"
-                       "</html>";
+                       "</html>\n";
 
     std::vector<unsigned char> body;
     body.insert(body.end(), head.begin(), head.end());
@@ -74,6 +75,7 @@ StatusCode HttpResponse::show_body() {
     body.insert(body.end(), tail.begin(), tail.end());
     this->body_buf_ = body;
 
+    add_content_header("html");
     return StatusOk;
 }
 
@@ -150,7 +152,7 @@ StatusCode HttpResponse::get_urlencoded_form_content() {
                        "<body>\n";
 
     std::string tail = "</body>\n"
-                       "</html>";
+                       "</html>\n";
 
     UrlEncodedFormData parameters = parse_urlencoded_form_data(this->body_buf_);
     std::string parameters_html;
@@ -180,5 +182,6 @@ StatusCode HttpResponse::get_urlencoded_form_content() {
     body.insert(body.end(), tail.begin(), tail.end());
     this->body_buf_ = body;
 
+    add_content_header("html");
     return StatusOk;
 }

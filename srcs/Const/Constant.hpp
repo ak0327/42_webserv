@@ -400,3 +400,8 @@ MimeTypeMap init_mime_types();
 
 extern const std::vector<std::string> API_ENDPOINTS;
 std::vector<std::string> init_endpoints();
+
+////////////////////////////////////////////////////////////////////////////////
+/* server information */
+
+extern const char SERVER_SEMANTIC_VERSION[];

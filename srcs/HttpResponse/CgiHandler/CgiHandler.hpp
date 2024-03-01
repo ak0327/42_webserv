@@ -56,6 +56,8 @@ class CgiHandler {
     ProcResult recv_cgi_output();
     StatusCode parse_document_response();
 
+    std::string content_type();
+
 #ifdef UNIT_TEST
     friend class CgiHandlerFriend;
 #endif
