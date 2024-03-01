@@ -633,3 +633,8 @@ std::vector<std::string> init_endpoints() {
     endpoints.push_back("/api/now");
     return endpoints;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+/* server information */
+
+const char SERVER_SEMANTIC_VERSION[] = "webserv/1.0.0";
