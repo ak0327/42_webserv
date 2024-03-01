@@ -56,6 +56,7 @@ include_directories(
         srcs/Socket
         srcs/StringHandler
         srcs/HttpResponse
+        srcs/HttpResponse/Api
         srcs/HttpResponse/CgiHandler
         srcs/HttpResponse/GET
         srcs/HttpResponse/POST
@@ -187,6 +188,7 @@ list(APPEND webserv_srcs
 # response_srcs ----------------------------------------------------------------
 set(http_response_srcs
         srcs/HttpResponse/HttpResponse.cpp
+        srcs/HttpResponse/Api/api.cpp
 )
 # GET
 set(get_srcs
