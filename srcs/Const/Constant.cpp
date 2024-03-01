@@ -12,11 +12,12 @@ const int CONTINUE = 2;
 const int GETADDRINFO_SUCCESS = 0;
 const int REMOVE_SUCCESS = 0;
 
-const ssize_t RECV_CLOSED = 0;
+const ssize_t RECV_COMPLETED = 0;
 const ssize_t RECV_CONTINUE = -1;
 const ssize_t RECV_ERROR = -1;
 
 const ssize_t SEND_COMPLETED = 0;
+const ssize_t SEND_CONTINUE = -1;
 const ssize_t SEND_ERROR = -1;
 
 const int ACCEPT_ERROR = -1;
@@ -80,10 +81,12 @@ std::map<StatusCode, std::string> init_reason_phrases() {
     // reason_phrases[] = "";
 
     reason_phrases[StatusOk]                = "OK";
-    reason_phrases[NoContent]               = "NoContent";
+    reason_phrases[Created]                 = "Created";
+    reason_phrases[NoContent]               = "No Content";
 
     reason_phrases[MultipleChoices]         = "Multiple Choices";
     reason_phrases[MovedPermanently]        = "Moved Permanently";
+    reason_phrases[SeeOther]                = "See Other";
 
     reason_phrases[BadRequest]              = "Bad Request";
     reason_phrases[Unauthorized]            = "Unauthorized";
@@ -92,6 +95,7 @@ std::map<StatusCode, std::string> init_reason_phrases() {
     reason_phrases[MethodNotAllowed]        = "Method Not Allowed";
     reason_phrases[NotAcceptable]           = "Not Acceptable";
     reason_phrases[RequestTimeout]          = "Request Timeout";
+    reason_phrases[Conflict]                = "Conflict";
     reason_phrases[LengthRequired]          = "Length Required";
     reason_phrases[ContentTooLarge]         = "Content Too Large";
 
@@ -613,4 +617,19 @@ MimeTypeMap init_mime_types() {
     mime_types["json"]  = "application/json";  // todo
 
     return mime_types;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/* API endpoint */
+
+const std::vector<std::string> API_ENDPOINTS = init_endpoints();
+
+std::vector<std::string> init_endpoints() {
+    std::vector<std::string> endpoints;
+    // endpoints.push_back("");
+
+    endpoints.push_back("/api/form-data");
+    endpoints.push_back("/api/show-response");
+    endpoints.push_back("/api/now");
+    return endpoints;
 }

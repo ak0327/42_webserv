@@ -48,13 +48,13 @@ TEST(TestValueAndMapFieldValues, ContentDispositionOK1) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestValueAndMapFieldValues, ContentDispositionOK2) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Content-Disposition: attachment;a=\"A\";b=B\r\n"
+									 "Content-Disposition: attachment;a=\"A\";   b=B\r\n"
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
@@ -95,13 +95,13 @@ TEST(TestValueAndMapFieldValues, ContentDispositionOK2) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestValueAndMapFieldValues, ContentDispositionOK3) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Content-Disposition: attachment;filename*=UTF-8''%E5%AE%9F%E9%A8%93%E3%83%87%E3%83%BC%E3%82%BF.csv\r\n"
+									 "Content-Disposition: attachment; filename*=UTF-8''%E5%AE%9F%E9%A8%93%E3%83%87%E3%83%BC%E3%82%BF.csv\r\n"
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
@@ -141,7 +141,7 @@ TEST(TestValueAndMapFieldValues, ContentDispositionOK3) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestValueAndMapFieldValues, ContentDispositionOK4) {
@@ -187,7 +187,7 @@ TEST(TestValueAndMapFieldValues, ContentDispositionOK4) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 
@@ -205,13 +205,13 @@ TEST(TestValueAndMapFieldValues, ContentDispositionNG1) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestValueAndMapFieldValues, ContentDispositionNG2) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r\n"
 									 "Host: example.com\r\n"
-									 "Content-Disposition: a; b=c\r\n"
+									 "Content-Disposition: a; b=c  ;   \r\n"
 									 "\r\n";
 	HttpRequest request(request_line);
 	bool has_field_name;
@@ -220,7 +220,7 @@ TEST(TestValueAndMapFieldValues, ContentDispositionNG2) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestValueAndMapFieldValues, ContentDispositionNG3) {
@@ -235,7 +235,7 @@ TEST(TestValueAndMapFieldValues, ContentDispositionNG3) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestValueAndMapFieldValues, ContentDispositionNG4) {
@@ -250,5 +250,5 @@ TEST(TestValueAndMapFieldValues, ContentDispositionNG4) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }

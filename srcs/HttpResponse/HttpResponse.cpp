@@ -1,4 +1,5 @@
 #include <sys/wait.h>
+#include <sys/socket.h>
 #include <signal.h>
 #include <unistd.h>
 #include <cerrno>
@@ -12,9 +13,11 @@
 #include "ClientSession.hpp"
 #include "Debug.hpp"
 #include "Error.hpp"
+#include "FileHandler.hpp"
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
 #include "HttpMessageParser.hpp"
+#include "Socket.hpp"
 #include "StringHandler.hpp"
 
 namespace {
@@ -33,11 +36,13 @@ HttpResponse::HttpResponse(const HttpRequest &request,
       headers_(),
       body_buf_(),
       response_msg_() {
-    StatusCode request_status = this->request_.status_code();
+    StatusCode request_status = this->request_.request_status();
     this->set_status_code(request_status);
 
     time_t cgi_timeout = Config::get_cgi_timeout(server_config, request.request_target());
     this->cgi_handler_.set_timeout_duration_sec(cgi_timeout);
+
+    this->body_buf_ = this->request_.body();
 }
 
 
@@ -45,14 +50,10 @@ HttpResponse::~HttpResponse() {}
 
 
 bool HttpResponse::is_response_error_page() const {
-    std::cout << RED << "is_response_error_page()" << RESET << std::endl;
     Result<std::string, int> result;
     result = Config::get_error_page(this->server_config_,
                                     this->request_.request_target(),
                                     this->status_code());
-    if (result.is_ok()) {
-        std::cout << RED << " error_page: " << result.get_ok_value() << RESET << std::endl;
-    }
     return result.is_ok();
 }
 
@@ -62,60 +63,241 @@ bool HttpResponse::is_executing_cgi() const {
 }
 
 
+bool is_method_limited(const Method &method, const std::set<Method> &excluded_methods) {
+    std::set<Method>::const_iterator itr = excluded_methods.find(method);
+    return itr == excluded_methods.end();
+}
+
+
+StatusCode HttpResponse::is_resource_available(const Method &method) const {
+    // std::cout << CYAN << "is_resource_available target: " << this->request_.request_target() << RESET << std::endl;
+    Result<std::string, StatusCode> indexed_result = Config::get_indexed_path(this->server_config_,
+                                                                              this->request_.request_target());
+    if (indexed_result.is_err()) {
+        // std::cout << CYAN << " get_index failure: " << indexed_result.get_err_value() << RESET << std::endl;
+        return indexed_result.get_err_value();
+    }
+
+    // std::cout << CYAN << " indexed_path: " << indexed_result.get_ok_value() << RESET << std::endl;
+
+    Result<LimitExceptDirective, int> limit_except_result;
+    limit_except_result = Config::limit_except(this->server_config_,
+                                               this->request_.request_target());
+    if (limit_except_result.is_err()) {
+        // std::cout << CYAN << " not found" << RESET << std::endl;
+        return NotFound;
+    }
+
+    LimitExceptDirective limit_except = limit_except_result.get_ok_value();
+    if (limit_except.limited) {
+        if (is_method_limited(method, limit_except.excluded_methods)) {
+            // todo: allow, deny -> StatusOk
+            // std::cout << CYAN << " method not allowed" << RESET << std::endl;
+            return MethodNotAllowed;
+        }
+    }
+    // std::cout << CYAN << " ok" << RESET << std::endl;
+    return StatusOk;
+}
+
+
+void HttpResponse::add_allow_header() {
+    Result<LimitExceptDirective, int> result = Config::limit_except(this->server_config_,
+                                                                    this->request_.request_target());
+    if (result.is_err()) {
+        const std::string error_msg = CREATE_ERROR_INFO_STR("error: location not found");
+        DEBUG_PRINT(RED, "%s", error_msg.c_str());  // todo: log
+        return;
+    }
+    LimitExceptDirective limit_except = result.get_ok_value();
+    std::set<Method> &excluded_methods = limit_except.excluded_methods;
+    if (excluded_methods.empty()) {
+        const std::string error_msg = CREATE_ERROR_INFO_STR("error: excluded method not found");
+        DEBUG_PRINT(RED, "%s", error_msg.c_str());  // todo: log
+        return;
+    }
+
+    std::string allowed_method;
+    std::set<Method>::const_iterator method;
+    for (method = excluded_methods.begin(); method != excluded_methods.end(); ++method) {
+        if (!allowed_method.empty()) {
+            allowed_method.append(", ");
+        }
+        std::string method_str = HttpMessageParser::convert_to_str(*method);
+        allowed_method.append(method_str);
+    }
+    this->headers_["Allow"] = allowed_method;
+}
+
+
+void HttpResponse::process_method_not_allowed() {
+    add_allow_header();
+    this->set_status_code(MethodNotAllowed);
+}
+
+
 ProcResult HttpResponse::exec_method() {
     DEBUG_PRINT(YELLOW, " exec_method 1 status(%d)", this->status_code());
-    if (is_response_error_page()) {
+    if (is_status_error()) {
         DEBUG_PRINT(YELLOW, " exec_method 2 -> error_page");
         return Success;
     }
-    std::string target_path = HttpResponse::get_resource_path();
-    Method method = HttpMessageParser::get_method(this->request_.method());
 
-    std::string method_str;
-    if (method == kGET) { method_str = GET_METHOD; }
-    if (method == kPOST) { method_str = POST_METHOD; }
-    if (method == kDELETE) { method_str = DELETE_METHOD; }
-    DEBUG_PRINT(YELLOW, " exec_method 2 path: %s, method: %s", target_path.c_str(), method_str.c_str());
+    // StatusCode availability = is_resource_available(this->request_.method());
+    // DEBUG_PRINT(YELLOW, "  check_resource_availablity -> %d", availability);
+    // if (availability != StatusOk) {
+    //     if (availability == MethodNotAllowed) {
+    //         add_allow_header();
+    //     }
+    //     this->set_status_code(availability);
+    //     DEBUG_PRINT(YELLOW, " exec_method 3 -> error %d", availability);
+    //     // std::cout << CYAN << "availability ng -> " << availability << RESET << std::endl;
+    //     return Success;
+    // }
 
     StatusCode status;
-    switch (method) {
+    switch (this->request_.method()) {
         case kGET:
-            DEBUG_PRINT(YELLOW, " exec_method 4 - GET");
-            status = get_request_body(target_path);
+            DEBUG_PRINT(YELLOW, " exec_method 5 - GET");
+            status = get_request_body();
             break;
 
         case kPOST:
-            DEBUG_PRINT(YELLOW, " exec_method 4 - POST");
-            status = post_request_body(target_path);
+            DEBUG_PRINT(YELLOW, " exec_method 5 - POST");
+            status = post_target();
             break;
 
         case kDELETE:
-            DEBUG_PRINT(YELLOW, " exec_method 4 - DELETE");
-            status = delete_target(target_path);
+            DEBUG_PRINT(YELLOW, " exec_method 5 - DELETE");
+            status = delete_target();
             break;
 
         default:
-            DEBUG_PRINT(YELLOW, " exec_method 4 - err");
+            DEBUG_PRINT(YELLOW, " exec_method 5 - method err");
             status = BadRequest;
     }
 
     this->set_status_code(status);
-    DEBUG_PRINT(YELLOW, " exec_method 5 status: %d", this->status_code());
-    if (is_executing_cgi()) {
-        DEBUG_PRINT(YELLOW, " executing cgi -> continue");
-        return ExecutingCgi;
-    }
+    // DEBUG_PRINT(YELLOW, " exec_method 6 status: %d", this->status_code());
+    // if (is_executing_cgi()) {
+    //     DEBUG_PRINT(YELLOW, " exec_method 7 executing cgi -> continue");
+    //     return ExecutingCgi;
+    // }
 
-    DEBUG_PRINT(YELLOW, " exec_method 6 -> next");
+    DEBUG_PRINT(YELLOW, " exec_method 8 -> next");
     return Success;
 }
 
 
-bool is_status_error(StatusCode code) {
-    int code_num = static_cast<int>(code);
-    std::cout << MAGENTA << "is_status_error: " << code_num
-              << (400 <= code_num && code_num <= 599 ? " true" : " false") << RESET << std::endl;
+bool HttpResponse::is_status_error() const {
+    int code_num = static_cast<int>(this->status_code());
+    DEBUG_PRINT(MAGENTA, "is_status_error: %d %s"
+                , code_num, (400 <= code_num && code_num <= 599 ? " true" : " false"));
     return 400 <= code_num && code_num <= 599;
+}
+
+
+bool HttpResponse::is_exec_cgi() {
+    if (this->request_.method() != kGET && this->request_.method() != kPOST) {
+        return false;
+    }
+    std::pair<ScriptPath, PathInfo> pair = get_script_path_and_path_info();
+    std::string script_path = pair.first;
+    Result<bool, StatusCode> result = FileHandler::is_file(script_path);
+    return result.is_ok();
+}
+
+/*
+ path/to/script.cgi/path/info
+                    ^^^^^^^^^ PATH_INFO
+
+  PATH_INFO = "" | ( "/" path )
+  path      = lsegment *( "/" lsegment )
+  lsegment  = *lchar
+  lchar     = <any TEXT or CTL except "/">
+  TEXT      = <any printable character>
+  CTL       = <any control character>
+  https://tex2e.github.io/rfc-translater/html/rfc3875.html#4-1-5--PATHINFO
+ */
+std::pair<ScriptPath, PathInfo> HttpResponse::get_script_path_and_path_info() {
+    std::string target = this->request_.request_target();
+    std::string script_path, path_info;
+
+    DEBUG_PRINT(MAGENTA, "get script_path and path_info");
+    std::size_t slash_pos = 0;
+    while (slash_pos < target.length()) {
+        slash_pos = target.find('/', slash_pos);
+        if (slash_pos == std::string::npos) {
+            break;
+        }
+        std::string tmp_script_path = target.substr(0, slash_pos);
+        if (Config::is_cgi_extension(this->server_config_, tmp_script_path)) {
+            script_path = tmp_script_path;
+            path_info = target.substr(slash_pos + 1);
+            break;
+        }
+        ++slash_pos;
+    }
+
+    if (script_path.empty() && Config::is_cgi_extension(this->server_config_, target)) {
+        script_path = target;
+    }
+
+    std::string root;
+    Result<std::string, int> root_result = Config::get_root(this->server_config_,
+                                                            script_path);
+    if (root_result.is_ok()) {
+        root = root_result.get_ok_value();
+        if (!root.empty() && root[root.length() - 1] == '/' && script_path[0] == '/') {
+            script_path = script_path.substr(1);
+        }
+        script_path = root + script_path;
+    }
+
+    DEBUG_PRINT(MAGENTA, " script_path and path_info");
+    DEBUG_PRINT(MAGENTA, "  script_path[%s]", script_path.c_str());
+    DEBUG_PRINT(MAGENTA, "  path_info  [%s]", path_info.c_str());
+    return std::make_pair(script_path, path_info);
+}
+
+
+CgiParams HttpResponse::get_cgi_params(const std::string &script_path,
+                                       const std::string &path_info) {
+    CgiParams params;
+
+    if (this->request_.method() == kPOST) {
+        params.content = this->request_.body();
+        params.content_length = params.content.size();
+        params.content_type = this->request_.content_type();
+    }
+    params.query_string = this->request_.query_string();
+    params.path_info = path_info;
+    params.script_path = script_path;
+
+    DEBUG_PRINT(MAGENTA, "cgi params ");
+    DEBUG_PRINT(MAGENTA, " content       : [%s]", std::string(params.content.begin(), params.content.end()).c_str());
+    DEBUG_PRINT(MAGENTA, " content_length: [%zu]", params.content_length);
+    DEBUG_PRINT(MAGENTA, " content_type  : [%s]", params.content_type.c_str());
+    DEBUG_PRINT(MAGENTA, " query_string  : [%s]", params.query_string.c_str());
+    DEBUG_PRINT(MAGENTA, " path_info     : [%s]", params.path_info.c_str());
+    DEBUG_PRINT(MAGENTA, " script_path   : [%s]", params.script_path.c_str());
+
+    return params;
+}
+
+
+ProcResult HttpResponse::exec_cgi_process() {
+    std::pair<ScriptPath, PathInfo> pair = HttpResponse::get_script_path_and_path_info();
+
+    CgiParams params = get_cgi_params(pair.first, pair.second);
+    this->cgi_handler_.set_cgi_params(params);
+
+    if (this->cgi_handler_.exec_script(params.script_path) == Failure) {
+        this->set_status_code(InternalServerError);
+        this->clear_cgi();
+        return Failure;
+    }
+    return Success;
 }
 
 
@@ -152,13 +334,20 @@ bool is_status_error(StatusCode code) {
                                           ^^^^^^
  */
 ProcResult HttpResponse::interpret_cgi_output() {
-    StatusCode parse_status = this->cgi_handler_.parse_document_response();
-    this->set_status_code(parse_status);
+    if (this->cgi_handler_.cgi_status_code() == StatusOk) {
+        StatusCode parse_status = this->cgi_handler_.parse_document_response();
+        this->set_status_code(parse_status);
 
-    if (!is_status_error(this->status_code())) {
-        this->body_buf_ = this->cgi_handler_.cgi_body();
+        if (!is_status_error()) {
+            this->body_buf_ = this->cgi_handler_.cgi_body();
+        }
     }
     return Success;
+}
+
+
+ProcResult HttpResponse::send_http_response(int client_fd) {
+    return Socket::send_buf(client_fd, &this->response_msg_);
 }
 
 
@@ -170,7 +359,7 @@ ProcResult HttpResponse::interpret_cgi_output() {
  https://triple-underscore.github.io/http1-ja.html#http.message
  */
 void HttpResponse::create_response_message() {
-    if (is_status_error(this->status_code())) {
+    if (is_status_error()) {
         this->body_buf_.clear();
     }
     if (is_response_error_page()) {
@@ -231,7 +420,7 @@ std::string HttpResponse::create_field_lines() const {
 }
 
 
-std::string HttpResponse::get_resource_path() {
+std::string HttpResponse::get_rooted_path() const {
     std::string root;
     Result<std::string, int> root_result = Config::get_root(this->server_config_,
                                                             this->request_.request_target());
@@ -244,21 +433,35 @@ std::string HttpResponse::get_resource_path() {
 }
 
 
+ProcResult HttpResponse::send_request_body_to_cgi() {
+    ProcResult result = this->cgi_handler_.send_request_body_to_cgi();
+    if (result == Continue) {
+        return Continue;
+    }
+    shutdown(this->cgi_write_fd(), SHUT_WR);
+    if (result == Failure) {
+        StatusCode error_code = InternalServerError;
+        this->set_status_code(error_code);
+    }
+    return result;
+}
+
+
 ssize_t HttpResponse::recv_to_buf(int fd) {
-    return HttpRequest::recv_to_buf(fd, &this->body_buf_);
+    return Socket::recv_to_buf(fd, &this->body_buf_);
 }
 
 
 ProcResult HttpResponse::recv_to_cgi_buf() {
-    Result<ProcResult, StatusCode> result = this->cgi_handler_.recv_cgi_output();
-    if (result.is_err()) {
-        StatusCode error_code = result.get_err_value();
-        this->set_status_code(error_code);
-    }
-    if (ClientSession::is_continue_recv(result)) {
+    ProcResult result = this->cgi_handler_.recv_cgi_output();
+    if (result == Continue) {
         return Continue;
     }
-    return Success;
+    if (result == Failure) {
+        StatusCode error_code = InternalServerError;
+        this->set_status_code(error_code);
+    }
+    return result;
 }
 
 
@@ -282,8 +485,12 @@ void HttpResponse::set_status_code(const StatusCode &set_status) {
 }
 
 
-int HttpResponse::cgi_fd() const {
-    return this->cgi_handler_.fd();
+int HttpResponse::cgi_read_fd() const {
+    return this->cgi_handler_.read_fd();
+}
+
+int HttpResponse::cgi_write_fd() const {
+    return this->cgi_handler_.write_fd();
 }
 
 

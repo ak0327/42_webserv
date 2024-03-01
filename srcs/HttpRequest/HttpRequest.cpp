@@ -13,7 +13,9 @@
 #include "Error.hpp"
 #include "HttpRequest.hpp"
 #include "HttpMessageParser.hpp"
+#include "Socket.hpp"
 #include "StringHandler.hpp"
+#include "MediaType.hpp"
 
 /* sub funcs; unnamed namespace */
 namespace {
@@ -148,53 +150,9 @@ void HttpRequest::clear_field_values_of(const std::string &field_name) {
 ////////////////////////////////////////////////////////////////////////////////
 
 
-ssize_t HttpRequest::recv(int fd, void *buf, std::size_t bufsize) {
-    ssize_t recv_size;
-
-    errno = 0;
-    recv_size = ::recv(fd, buf, bufsize, FLAG_NONE);
-    int tmp_errno = errno;
-    DEBUG_SERVER_PRINT("    recv_size: %zd", recv_size);
-    if (recv_size == RECV_CLOSED) {
-        return RECV_CLOSED;
-    }
-    if (recv_size == RECV_CONTINUE) {
-        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(tmp_errno);
-        DEBUG_SERVER_PRINT("%s", error_msg.c_str());
-        // return Result<std::size_t, std::string>::err(error_info);
-        return RECV_CONTINUE;  // non-blocking -> recv completed
-    }
-    return recv_size;
-}
-
-
 ssize_t HttpRequest::recv_to_buf(int fd) {
-    return HttpRequest::recv_to_buf(fd, &this->buf_);
+    return Socket::recv_to_buf(fd, &this->buf_);
 }
-
-
-ssize_t HttpRequest::recv_to_buf(int fd, std::vector<unsigned char> *buf) {
-    if (!buf) {
-        return 0;
-    }
-
-    std::vector<unsigned char> recv_buf(BUFSIZ);
-    ssize_t recv_size;
-
-    DEBUG_SERVER_PRINT("    recv start");
-    recv_size = HttpRequest::recv(fd, &recv_buf[0], BUFSIZ);
-
-    DEBUG_SERVER_PRINT("     recv_size: %zd", recv_size);
-    std::string debug_recv_mes(recv_buf.begin(), recv_buf.begin() + recv_size);
-    DEBUG_SERVER_PRINT("     recv_msg[%s]", debug_recv_mes.c_str());
-
-    if (0 < recv_size) {
-        buf->insert(buf->end(), recv_buf.begin(), recv_buf.begin() + recv_size);
-    }
-    DEBUG_SERVER_PRINT("    recv end");
-    return recv_size;
-}
-
 
 
 bool HttpRequest::is_crlf_in_buf(const unsigned char buf[], std::size_t size) {
@@ -252,21 +210,29 @@ Result<std::string, ProcResult> HttpRequest::get_line(const std::vector<unsigned
 }
 
 
-Result<std::string, ProcResult> HttpRequest::pop_line_from_buf() {
-    std::vector<unsigned char>::const_iterator next_line;
+Result<std::string, ProcResult> HttpRequest::pop_line_from_buf(std::vector<unsigned char> *buf) {
+    if (!buf) {
+        return Result<std::string, ProcResult>::err(Failure);
+    }
 
-    Result<std::string, ProcResult> result = get_line(this->buf_,
-                                                      this->buf_.begin(),
+    std::vector<unsigned char>::const_iterator next_line;
+    Result<std::string, ProcResult> result = get_line(*buf,
+                                                      buf->begin(),
                                                       &next_line);
     if (result.is_err()) {
         return Result<std::string, ProcResult>::err(Failure);
     }
     std::string line = result.get_ok_value();
-    trim(&this->buf_, next_line);
+    trim(buf, next_line);
 
-    std::string debug_buf(this->buf_.begin(), this->buf_.end());
+    std::string debug_buf(buf->begin(), buf->end());
     DEBUG_SERVER_PRINT("buf[%s]", debug_buf.c_str());
     return Result<std::string, ProcResult>::ok(line);
+}
+
+
+Result<std::string, ProcResult> HttpRequest::pop_line_from_buf() {
+    return pop_line_from_buf(&this->buf_);
 }
 
 
@@ -323,7 +289,6 @@ Result<ProcResult, StatusCode> HttpRequest::parse_start_line_and_headers() {
             case ParsingRequestHeaders:
                 DEBUG_SERVER_PRINT("    parse Headers");
                 if (line.empty()) {
-                    std::cout << CYAN << "empty -> body" << RESET << std::endl;
                     this->phase_ = ParsingRequestBody;
                     DEBUG_SERVER_PRINT("     parse Headers -> body");
                     return Result<ProcResult, StatusCode>::ok(PrepareNextProc);  // conf -> parse body
@@ -385,6 +350,8 @@ Result<ProcResult, StatusCode> HttpRequest::parse_body() {
         return Result<ProcResult, StatusCode>::ok(Continue);
     }
     DEBUG_SERVER_PRINT("      ParseBody  body ok");
+    std::string debug_body(this->request_body_.begin(), this->request_body_.end());
+    DEBUG_SERVER_PRINT("       debug_body:[%s]", debug_body.c_str());
     return Result<ProcResult, StatusCode>::ok(Success);
 }
 
@@ -397,6 +364,19 @@ Result<HostPortPair, StatusCode> HttpRequest::server_info() const {
     std::map<std::string, std::string> host = result.get_ok_value();
     HostPortPair pair = std::make_pair(host[URI_HOST], host[PORT]);
     return Result<HostPortPair, StatusCode>::ok(pair);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+ProcResult HttpRequest::validate_request_headers() {
+    // todo: validate field_names, such as 'must' header,...
+    if (!is_valid_field_name_registered(std::string(HOST))) {
+        this->set_request_status(BadRequest);
+        return Failure;
+    }
+    return Success;
 }
 
 
@@ -708,8 +688,8 @@ void HttpRequest::init_field_name_parser() {
 }
 
 
-std::string HttpRequest::method() const {
-	return this->request_line_.method();
+Method HttpRequest::method() const {
+    return HttpMessageParser::get_method(this->request_line_.method());
 }
 
 
@@ -723,17 +703,27 @@ std::string HttpRequest::http_version() const {
 }
 
 
+std::string HttpRequest::query_string() const {
+    return this->request_line_.query();
+}
+
+
+const std::vector<unsigned char> HttpRequest::body() const {
+    return this->request_body_;
+}
+
+
 bool HttpRequest::is_buf_empty() const {
     return this->buf_.empty();
 }
 
 
-StatusCode HttpRequest::status_code() const {
+StatusCode HttpRequest::request_status() const {
     return this->status_code_;
 }
 
 
-void HttpRequest::set_status_code(const StatusCode &set_code) {
+void HttpRequest::set_request_status(const StatusCode &set_code) {
     this->status_code_ = set_code;
 }
 
@@ -802,6 +792,32 @@ Result<std::size_t, ProcResult> HttpRequest::get_content_length() const {
 }
 
 
+Result<MediaType, ProcResult> HttpRequest::get_content_type() const {
+    FieldValueBase *field_values = get_field_values(CONTENT_TYPE);
+    if (!field_values) {
+        return Result<MediaType, ProcResult>::err(Failure);
+    }
+    MediaType *media_type = dynamic_cast<MediaType *>(field_values);
+    if (!media_type) {
+        return Result<MediaType, ProcResult>::err(Failure);
+    }
+    return Result<MediaType, ProcResult>::ok(*media_type);
+}
+
+
+std::string HttpRequest::content_type() const {
+    Result<MediaType, ProcResult> result = get_content_type();
+    if (result.is_err()) {
+        return EMPTY;
+    }
+    MediaType media_type = result.get_ok_value();
+    std::string content_type = media_type.type();
+    if (!media_type.subtype().empty()) {
+        content_type.append("/");
+        content_type.append(media_type.subtype());
+    }
+    return content_type;
+}
 
 
 #ifdef ECHO

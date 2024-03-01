@@ -9,21 +9,22 @@
 
 class HttpResponseFriend : public ::testing::Test {
  public:
-    static std::string get_resource_path(HttpResponse &response) {
-        return response.get_resource_path();
+    // GET
+    static std::string get_rooted_path(HttpResponse &response) {
+        return response.get_rooted_path();
     }
 
-    static std::string get_indexed_path(HttpResponse &response,
-                                        const std::string &resource_path) {
-        return response.get_indexed_path(resource_path);
+    static StatusCode get_request_body(HttpResponse &response) {
+        return response.get_request_body();
     }
 
 
+    // POST
+    static bool is_urlencoded_form_data(HttpResponse &response) {
+        return response.is_urlencoded_form_data();
+    }
 
-
-
-    static StatusCode get_request_body(HttpResponse &response,
-                                       const std::string &resource_path) {
-        return response.get_request_body(resource_path);
+    static bool is_multipart_form_data(HttpResponse &response, std::string *boundary) {
+        return response.is_multipart_form_data(boundary);
     }
 };

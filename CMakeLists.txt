@@ -10,8 +10,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D UNIT_TEST")
 
 # LOCAL -----
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D ECHO")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D DEBUG")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D DEBUG")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D USE_SELECT")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D USE_POLL")
 # -----------
 
 if(DEFINED CUSTOM_FLAGS)
@@ -197,6 +198,7 @@ set(get_srcs
 
 # POST
 set(post_srcs
+        srcs/HttpResponse/POST/post_target.cpp
 )
 
 # DELETE
@@ -314,7 +316,7 @@ set (unit_test_srcs
 #        test/unit_test/HttpResponse/GET/TestCGI.cpp
         test/unit_test/HttpResponse/GET/TestGetInterpreter.cpp
         test/unit_test/HttpResponse/GET/TestGetRequestBody.cpp
-
+        test/unit_test/HttpResponse/POST/TestPOST.cpp
 )
 
 add_executable(unit_test

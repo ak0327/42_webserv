@@ -29,18 +29,21 @@ RequestLine &RequestLine::operator=(const RequestLine &rhs) {
 }
 
 /* getter */
-std::string	RequestLine::method(void) const {
+std::string	RequestLine::method() const {
 	return this->method_;
 }
 
-std::string RequestLine::request_target(void) const {
+std::string RequestLine::request_target() const {
 	return this->request_target_;
 }
 
-std::string	RequestLine::http_version(void) const {
+std::string	RequestLine::http_version() const {
 	return this->http_version_;
 }
 
+std::string	RequestLine::query() const {
+    return this->query_;
+}
 
 /* parse and validate */
 Result<ProcResult, StatusCode> RequestLine::parse_and_validate(const std::string &line) {
@@ -52,23 +55,24 @@ Result<ProcResult, StatusCode> RequestLine::parse_and_validate(const std::string
 		return Result<ProcResult, StatusCode>::err(BadRequest);
 	}
 
-	validate_result = this->validate();
+    validate_result = this->validate();
 	if (validate_result.is_err()) {
         this->http_version_ = std::string(HTTP_1_1);  // needed for response
         return Result<ProcResult, StatusCode>::err(BadRequest);
 	}
 
     update_target_path();
+    separate_target_and_query();
 	return Result<ProcResult, StatusCode>::ok(Success);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 /* parse */
 
-bool is_request_target_directory(const std::string &target) {
-    std::string extension = StringHandler::get_extension(target);
-    return extension.empty();
-}
+// bool is_request_target_directory(const std::string &target) {
+//     std::string extension = StringHandler::get_extension(target);
+//     return extension.empty();
+// }
 
 
 /*
@@ -146,11 +150,20 @@ Result<ProcResult, StatusCode> RequestLine::validate() const {
 }
 
 void RequestLine::update_target_path() {
-    std::string decoded = HttpMessageParser::decode(this->request_target_);
-    std::string normalized = HttpMessageParser::normalize(decoded);
-    if (is_request_target_directory(normalized)
-    && !normalized.empty() && normalized[normalized.length() - 1] != '/') {
-        normalized.append("/");
-    }
+    std::string decoded = StringHandler::decode(this->request_target_);
+    std::string normalized = StringHandler::normalize_to_absolute_path(decoded);
     this->request_target_ = normalized;
+}
+
+void RequestLine::separate_target_and_query() {
+    std::string target = this->request_target_;
+    std::size_t pos = 0;
+    while (pos < target.length() && target[pos] != '?') {
+        ++pos;
+    }
+    if (pos == target.length()) {
+        return;
+    }
+    this->request_target_ = target.substr(0, pos);
+    this->query_ = target.substr(pos + 1);
 }

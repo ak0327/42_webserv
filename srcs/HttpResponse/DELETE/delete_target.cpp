@@ -4,19 +4,21 @@
 #include "FileHandler.hpp"
 #include "HttpResponse.hpp"
 
-
-StatusCode HttpResponse::delete_target(const std::string &target) {
-    Result<bool, int> delete_allowed = Config::is_method_allowed(this->server_config_,
-                                                                 this->request_.request_target(),
-                                                                 kDELETE);
-    if (delete_allowed.is_err()) {
-        return NotFound;
-    }
-    bool is_delete_allowed = delete_allowed.get_ok_value();
-    if (!is_delete_allowed) {
+StatusCode HttpResponse::delete_target() {
+    if (!is_method_available()) {
         return MethodNotAllowed;
     }
 
-    FileHandler file(target);
-    return file.delete_file();
+    Result<std::string, StatusCode> indexed_result = Config::get_indexed_path(this->server_config_,
+                                                                              this->request_.request_target());
+    if (indexed_result.is_err()) {
+        return indexed_result.get_err_value();
+    }
+    std::string path = indexed_result.get_ok_value();
+    DEBUG_PRINT(YELLOW, " DELETE path: %s", path.c_str());
+
+    FileHandler file(path);
+    StatusCode result = file.delete_file();
+    // std::cout << CYAN << "  delete result: " << result << RESET << std::endl;
+    return result;
 }

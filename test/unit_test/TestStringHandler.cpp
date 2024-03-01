@@ -315,6 +315,86 @@ TEST(TestStringHandler, StolConvertNG) {
 }
 
 
+TEST(TestStringHandler, GetFileName) {
+    std::string path, expected, actual;
+
+    path = "/root/a.html";
+    expected = "a.html";
+    actual = StringHandler::get_file_name(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "a.html";
+    expected = "a.html";
+    actual = StringHandler::get_file_name(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "a..html";
+    expected = "a..html";
+    actual = StringHandler::get_file_name(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "root/a.html.b.c.html";
+    expected = "a.html.b.c.html";
+    actual = StringHandler::get_file_name(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/extension_nothing";
+    expected = "extension_nothing";
+    actual = StringHandler::get_file_name(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "extension_nothing/";
+    expected = "";
+    actual = StringHandler::get_file_name(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/root/a.html/directory/";
+    expected = "";
+    actual = StringHandler::get_file_name(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "";
+    expected = "";
+    actual = StringHandler::get_file_name(path);
+    EXPECT_EQ(expected, actual);
+
+    path = ".";
+    expected = ".";
+    actual = StringHandler::get_file_name(path);
+    EXPECT_EQ(expected, actual);
+
+    path = ".gitignore";
+    expected = ".gitignore";
+    actual = StringHandler::get_file_name(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "..gitignore";
+    expected = "..gitignore";
+    actual = StringHandler::get_file_name(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/";
+    expected = "";
+    actual = StringHandler::get_file_name(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "///";
+    expected = "";
+    actual = StringHandler::get_file_name(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/ .   \n\r";
+    expected = " .   \n\r";
+    actual = StringHandler::get_file_name(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "///.././xxx.y";
+    expected = "xxx.y";
+    actual = StringHandler::get_file_name(path);
+    EXPECT_EQ(expected, actual);
+}
+
+
 TEST(TestStringHandler, GetExtension) {
     std::string path, expected, actual;
 
@@ -378,13 +458,377 @@ TEST(TestStringHandler, GetExtension) {
     actual = StringHandler::get_extension(path);
     EXPECT_EQ(expected, actual);
 
+    path = ".gitignore";
+    expected = "";
+    actual = StringHandler::get_extension(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "..gitignore";
+    expected = "gitignore";
+    actual = StringHandler::get_extension(path);
+    EXPECT_EQ(expected, actual);
+
     path = ".";
     expected = "";
     actual = StringHandler::get_extension(path);
     EXPECT_EQ(expected, actual);
 
-    path = ".   \n\r";
+    path = "a.  ng";
+    expected = "  ng";
+    actual = StringHandler::get_extension(path);
+    EXPECT_EQ(expected, actual);
+
+    path = " .   \n\r";
     expected = "   \n\r";
     actual = StringHandler::get_extension(path);
+    EXPECT_EQ(expected, actual);
+
+    path = ".   \n\r";
+    expected = "";
+    actual = StringHandler::get_extension(path);
+    EXPECT_EQ(expected, actual);
+}
+
+
+TEST(TestStringHandler, IsValidFileName) {
+    std::string path;
+    bool actual;
+
+    path = "/root/a.html";
+    actual = StringHandler::is_valid_file_name(path);
+    EXPECT_TRUE(actual);
+
+    path = "a.html";
+    actual = StringHandler::is_valid_file_name(path);
+    EXPECT_TRUE(actual);
+
+    path = "html/index.html";
+    actual = StringHandler::is_valid_file_name(path);
+    EXPECT_TRUE(actual);
+
+    path = "/index .html";
+    actual = StringHandler::is_valid_file_name(path);
+    EXPECT_TRUE(actual);
+
+    path = "index.html.html";
+    actual = StringHandler::is_valid_file_name(path);
+    EXPECT_TRUE(actual);
+
+    // -------------------------------------------------------------------------
+
+    path = "";
+    actual = StringHandler::is_valid_file_name(path);
+    EXPECT_FALSE(actual);
+
+    path = ".hoge";
+    actual = StringHandler::is_valid_file_name(path);
+    EXPECT_FALSE(actual);
+
+    path = "/";
+    actual = StringHandler::is_valid_file_name(path);
+    EXPECT_FALSE(actual);
+
+    path = "../";
+    actual = StringHandler::is_valid_file_name(path);
+    EXPECT_FALSE(actual);
+
+    path = ".";
+    actual = StringHandler::is_valid_file_name(path);
+    EXPECT_FALSE(actual);
+
+    path = "..";
+    actual = StringHandler::is_valid_file_name(path);
+    EXPECT_FALSE(actual);
+
+    path = "a.";
+    actual = StringHandler::is_valid_file_name(path);
+    EXPECT_FALSE(actual);
+
+    path = "html/index";
+    actual = StringHandler::is_valid_file_name(path);
+    EXPECT_FALSE(actual);
+
+    path = "/index\n.html";
+    actual = StringHandler::is_valid_file_name(path);
+    EXPECT_FALSE(actual);
+
+    path = "/index\t.html";
+    actual = StringHandler::is_valid_file_name(path);
+    EXPECT_FALSE(actual);
+
+    path = "/../.gitignore";  // todo
+    actual = StringHandler::is_valid_file_name(path);
+    EXPECT_FALSE(actual);
+
+    path = "   ";
+    actual = StringHandler::is_valid_file_name(path);
+    EXPECT_FALSE(actual);
+}
+
+
+TEST(TestStringHandler, IsValidExtension) {
+    std::string extension;
+    bool actual;
+
+    extension = "html";
+    actual = StringHandler::is_valid_extension(extension);
+    EXPECT_TRUE(actual);
+
+    extension = "htm";
+    actual = StringHandler::is_valid_extension(extension);
+    EXPECT_TRUE(actual);
+
+    extension = "123";
+    actual = StringHandler::is_valid_extension(extension);
+    EXPECT_TRUE(actual);
+
+    extension = "";
+    actual = StringHandler::is_valid_extension(extension);
+    EXPECT_FALSE(actual);
+
+    extension = ".";
+    actual = StringHandler::is_valid_extension(extension);
+    EXPECT_FALSE(actual);
+
+    extension = " ";
+    actual = StringHandler::is_valid_extension(extension);
+    EXPECT_FALSE(actual);
+
+    extension = "htm l";
+    actual = StringHandler::is_valid_extension(extension);
+    EXPECT_FALSE(actual);
+
+    extension = "a b c";
+    actual = StringHandler::is_valid_extension(extension);
+    EXPECT_FALSE(actual);
+
+    extension = "\r";
+    actual = StringHandler::is_valid_extension(extension);
+    EXPECT_FALSE(actual);
+
+    extension = "\n";
+    actual = StringHandler::is_valid_extension(extension);
+    EXPECT_FALSE(actual);
+
+    extension = "\t";
+    actual = StringHandler::is_valid_extension(extension);
+    EXPECT_FALSE(actual);
+}
+
+
+
+TEST(TestStringHandler, Unquote) {
+    std::string quoted, actual, expected;
+
+    quoted = "\"abc\"";
+    expected = "abc";
+    actual = StringHandler::unquote(quoted);
+    EXPECT_EQ(expected, actual);
+
+    quoted = "\"ab'c\"";
+    expected = "ab'c";
+    actual = StringHandler::unquote(quoted);
+    EXPECT_EQ(expected, actual);
+
+    quoted = "\"\"";
+    expected = "\"\"";;
+    actual = StringHandler::unquote(quoted);
+    EXPECT_EQ(expected, actual);
+
+    quoted = "\"abc";
+    expected = "\"abc";
+    actual = StringHandler::unquote(quoted);
+    EXPECT_EQ(expected, actual);
+
+    quoted = "";
+    expected = "";
+    actual = StringHandler::unquote(quoted);
+    EXPECT_EQ(expected, actual);
+
+    quoted = "abc";
+    expected = "abc";
+    actual = StringHandler::unquote(quoted);
+    EXPECT_EQ(expected, actual);
+}
+
+
+TEST(TestHttpMessageParser, Decode) {
+    std::string encoded;
+    std::string expected, actual;
+
+    encoded = "HelloWorld";
+    expected = "HelloWorld";
+    actual = StringHandler::decode(encoded);
+    EXPECT_EQ(expected, actual);
+
+    encoded = "Hello%20World";
+    expected = "Hello World";
+    actual = StringHandler::decode(encoded);
+    EXPECT_EQ(expected, actual);
+
+    encoded = "Hello%20World%21";
+    expected = "Hello World!";
+    actual = StringHandler::decode(encoded);
+    EXPECT_EQ(expected, actual);
+
+    encoded = "%7E";
+    expected = "~";
+    actual = StringHandler::decode(encoded);
+    EXPECT_EQ(expected, actual);
+
+    encoded = "Hello%2";
+    expected = "Hello%2";
+    actual = StringHandler::decode(encoded);
+    EXPECT_EQ(expected, actual);
+
+    encoded = "Hello%2World";
+    expected = "Hello%2World";
+    actual = StringHandler::decode(encoded);
+    EXPECT_EQ(expected, actual);
+
+    encoded = "";
+    expected = "";
+    actual = StringHandler::decode(encoded);
+    EXPECT_EQ(expected, actual);
+
+    encoded = "%%";
+    expected = "%%";
+    actual = StringHandler::decode(encoded);
+    EXPECT_EQ(expected, actual);
+
+    encoded = "Hello%20%21%22World";
+    expected = "Hello !\"World";
+    actual = StringHandler::decode(encoded);
+    EXPECT_EQ(expected, actual);
+}
+
+
+TEST(TestHttpMessageParser, Normalize) {
+    std::string path;
+    std::string expected, actual;
+
+    path = "/a/b/c";
+    expected = "/a/b/c";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/a/./b/./c";
+    expected = "/a/b/c";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/a/b/../c";
+    expected = "/a/c";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/a//b/c";
+    expected = "/a/b/c";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/../a/b";
+    expected = "/a/b";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/";
+    expected = "/";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "";
+    expected = "/";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = ".";
+    expected = "/";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "..";
+    expected = "/";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "...";
+    expected = "/...";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = ".././..";
+    expected = "/";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = ".././../";
+    expected = "/";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "../a/b";
+    expected = "/a/b";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/a/b/";
+    expected = "/a/b/";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "a/b/";
+    expected = "/a/b/";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "//";
+    expected = "/";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "///";
+    expected = "/";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "///./..//";
+    expected = "/";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "//a";
+    expected = "/a";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/a/b/c/../../d";
+    expected = "/a/d";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/a/./b/../../c/../d";
+    expected = "/d";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/../../a";
+    expected = "/a";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "/../../a/";
+    expected = "/a/";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "../../a";
+    expected = "/a";
+    actual = StringHandler::normalize_to_absolute_path(path);
+    EXPECT_EQ(expected, actual);
+
+    path = "../../a/";
+    expected = "/a/";
+    actual = StringHandler::normalize_to_absolute_path(path);
     EXPECT_EQ(expected, actual);
 }

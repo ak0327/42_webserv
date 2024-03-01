@@ -1,4 +1,4 @@
-#!/usr/bin/env php
+#!/opt/homebrew/bin/php
 <?php
 echo 'Content-Type: text/html' . PHP_EOL;
 echo PHP_EOL;

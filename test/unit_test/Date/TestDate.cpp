@@ -34,7 +34,7 @@ TEST(TestDate, DateOK1) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestDate, DateOK2) {
@@ -67,7 +67,7 @@ TEST(TestDate, DateOK2) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestDate, DateOK3) {
@@ -100,7 +100,7 @@ TEST(TestDate, DateOK3) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestDate, DateOK4) {
@@ -138,7 +138,7 @@ TEST(TestDate, DateOK4) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -155,7 +155,7 @@ TEST(TestDate, DateNG1) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(BadRequest, request.status_code());
+	EXPECT_EQ(BadRequest, request.request_status());
 }
 
 TEST(TestDate, DateNG2) {
@@ -170,7 +170,7 @@ TEST(TestDate, DateNG2) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(BadRequest, request.status_code());
+	EXPECT_EQ(BadRequest, request.request_status());
 }
 
 TEST(TestDate, DateNG3) {
@@ -185,7 +185,7 @@ TEST(TestDate, DateNG3) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(BadRequest, request.status_code());
+	EXPECT_EQ(BadRequest, request.request_status());
 }
 
 TEST(TestDate, DateNG4) {
@@ -200,7 +200,7 @@ TEST(TestDate, DateNG4) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(BadRequest, request.status_code());
+	EXPECT_EQ(BadRequest, request.request_status());
 }
 
 TEST(TestDate, DateNG5) {
@@ -215,7 +215,7 @@ TEST(TestDate, DateNG5) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(BadRequest, request.status_code());
+	EXPECT_EQ(BadRequest, request.request_status());
 }
 
 TEST(TestDate, DateNG6) {
@@ -230,7 +230,7 @@ TEST(TestDate, DateNG6) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(BadRequest, request.status_code());
+	EXPECT_EQ(BadRequest, request.request_status());
 }
 
 TEST(TestDate, DateNG7) {
@@ -245,7 +245,7 @@ TEST(TestDate, DateNG7) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(BadRequest, request.status_code());
+	EXPECT_EQ(BadRequest, request.request_status());
 }
 
 TEST(TestDate, DateNG8) {
@@ -260,7 +260,7 @@ TEST(TestDate, DateNG8) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(BadRequest, request.status_code());
+	EXPECT_EQ(BadRequest, request.request_status());
 }
 
 TEST(TestDate, DateNG9) {
@@ -275,7 +275,7 @@ TEST(TestDate, DateNG9) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(BadRequest, request.status_code());
+	EXPECT_EQ(BadRequest, request.request_status());
 }
 
 TEST(TestDate, DateNG10) {
@@ -290,7 +290,7 @@ TEST(TestDate, DateNG10) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(BadRequest, request.status_code());
+	EXPECT_EQ(BadRequest, request.request_status());
 }
 
 TEST(TestDate, DateNG11) {
@@ -305,7 +305,7 @@ TEST(TestDate, DateNG11) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(BadRequest, request.status_code());
+	EXPECT_EQ(BadRequest, request.request_status());
 }
 
 TEST(TestDate, DateNG12) {
@@ -320,7 +320,7 @@ TEST(TestDate, DateNG12) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(BadRequest, request.status_code());
+	EXPECT_EQ(BadRequest, request.request_status());
 }
 
 TEST(TestDate, DateNG13) {
@@ -335,7 +335,7 @@ TEST(TestDate, DateNG13) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(BadRequest, request.status_code());
+	EXPECT_EQ(BadRequest, request.request_status());
 }
 
 TEST(TestDate, DateNG14) {
@@ -351,7 +351,7 @@ TEST(TestDate, DateNG14) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(BadRequest, request.status_code());
+	EXPECT_EQ(BadRequest, request.request_status());
 }
 
 TEST(TestDate, DateNG15) {
@@ -369,5 +369,5 @@ TEST(TestDate, DateNG15) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_TRUE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }

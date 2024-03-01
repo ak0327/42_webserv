@@ -24,7 +24,9 @@ enum SessionState {
     kCreatingCGIBody,
 
     kReadingFile,  // unused
-    kExecutingCGI,
+    kExecuteCGI,
+    kSendingRequestBodyToCgi,
+    kReceivingCgiResponse,
 
     kSendingResponse,
 
@@ -45,7 +47,8 @@ class ClientSession {
     ~ClientSession();
 
     int client_fd() const;
-    int cgi_fd() const;
+    int cgi_read_fd() const;
+    int cgi_write_fd() const;
     SessionState session_state() const;
 
     void set_session_state(const SessionState &set_state);
@@ -61,6 +64,7 @@ class ClientSession {
 
     SessionResult process_client_event();
     SessionResult process_file_event();
+    ProcResult exec_cgi();
 
     time_t cgi_timeout_limit() const;
 
@@ -69,8 +73,12 @@ class ClientSession {
     void clear_response();
     void kill_cgi_process();
     void clear_cgi();
+    void close_cgi_read_fd();
+    void close_cgi_write_fd();
 
     static AddressPortPair get_client_listen(const struct sockaddr_storage &client_addr);
+    const char *session_state_char();
+    static const char *session_state_char(const SessionState &state);
 
  private:
     int socket_fd_;
@@ -99,7 +107,7 @@ class ClientSession {
     ProcResult execute_each_method();
     Result<AddressPortPair, std::string> get_address_port_pair() const;
     Result<ServerConfig, std::string> get_server_config() const;
-    SessionResult update_config_params();
+    SessionResult get_host_config();
     SessionResult recv_cgi_result();
 
     ClientSession(const ClientSession &other);

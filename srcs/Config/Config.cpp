@@ -181,7 +181,6 @@ Result<ServerConfig, std::string> Config::get_server_config(const AddressPortPai
     // DEBUG_PRINT(CYAN, "get_server_config");
 
     if (!request_port.empty() && request_port != socket_port) {
-        // DEBUG_PRINT(CYAN, "get_server_config");
         return Result<ServerConfig, std::string>::err("error: request ip not found");
     }
     // DEBUG_PRINT(CYAN, " 1");
@@ -256,8 +255,11 @@ bool Config::is_exact_match(const std::string &pattern, const std::string &targe
 
 
 bool Config::is_prefix_match(const std::string &pattern, const std::string &target) {
-    const std::size_t PREFIX_LEN = 2;
+    if (pattern.empty() || target.empty()) {
+        return false;
+    }
 
+    const std::size_t PREFIX_LEN = 2;
     if (pattern.length() <= PREFIX_LEN || target.length() + PREFIX_LEN < pattern.length()) {
         return false;
     }
@@ -358,6 +360,52 @@ Result<LocationConfig, int> Config::get_location_config(const ServerConfig &serv
         return Result<LocationConfig, int>::err(ERR);
     }
     return Result<LocationConfig, int>::ok(location->second);
+}
+
+
+Result<std::string, StatusCode> Config::get_indexed_path(const ServerConfig &server_config,
+                                                         const std::string &target_path) {
+    // std::cout << s << "get_indexed_path 1 target: " << target_path << RESET << std::endl;
+
+    Result<std::string, int> root_result = Config::get_root(server_config, target_path);
+    if (root_result.is_err()) {
+        // std::cout << s << "get_indexed_path 1 err: target invalid" << RESET << std::endl;
+        return Result<std::string, StatusCode>::err(BadRequest);
+    }
+    std::string root = root_result.get_ok_value();
+    std::string rooted_path = root + target_path;
+    // std::cout << s << "get_indexed_path 2 rooted_path: " << rooted_path << RESET << std::endl;
+
+    Result<bool, StatusCode> is_file = FileHandler::is_file(rooted_path);
+    if (is_file.is_ok() && is_file.get_ok_value()) {
+        // std::cout << s << "get_indexed_path 3 file -> ok" << RESET << std::endl;
+        return Result<std::string, StatusCode>::ok(rooted_path);
+    } else if (is_file.is_err()) {
+        // std::cout << s << "get_indexed_path 4 file ng -> " << is_file.get_err_value() << RESET << std::endl;
+        return Result<std::string, StatusCode>::err(is_file.get_err_value());
+    }
+
+    Result<bool, StatusCode> is_dir = FileHandler::is_directory(rooted_path);
+    if (is_dir.is_err()) {
+        // std::cout << s << "get_indexed_path 5 err: is_dir error" << RESET << std::endl;
+        return Result<std::string, StatusCode>::err(is_dir.get_err_value());
+    }
+    // std::cout << s << "get_indexed_path 6 dir" << RESET << std::endl;
+
+    Result<std::string, int> index_exist = Config::get_index(server_config, target_path);
+    if (index_exist.is_err()) {
+        // std::cout << s << "get_indexed_path 7 err: target invalid" << RESET << std::endl;
+        // target is dir and no index page
+        DEBUG_PRINT(CYAN, "%s index nothing at -> NotFound", target_path.c_str(), rooted_path.c_str());
+        return Result<std::string, StatusCode>::err(NotFound);
+    }
+
+    std::string index_page = index_exist.get_ok_value();
+    std::string indexed_path = rooted_path + index_page;
+    DEBUG_PRINT(CYAN, "index_page: %s, indexed_path: %s", index_page.c_str(), indexed_path.c_str());
+    // std::cout << s << "get_indexed_path 8 ok: index_page: "
+    // << index_page << ", indexed_path: " << indexed_path << RESET << std::endl;
+    return Result<std::string, StatusCode>::ok(indexed_path);
 }
 
 
@@ -552,26 +600,40 @@ Result<bool, int> Config::is_autoindex_on(const AddressPortPair &address_port_pa
 }
 
 
-Result<bool, int> Config::is_method_allowed(const ServerConfig &server_config,
-                                            const std::string &target_path,
-                                            const Method &method) {
+Result<LimitExceptDirective, int> Config::limit_except(const ServerConfig &server_config,
+                                                       const std::string &target_path) {
     Result<LocationConfig, int> location_result = get_location_config(server_config, target_path);
     if (location_result.is_err()) {
-        return Result<bool, int>::err(ERR);
+        return Result<LimitExceptDirective, int>::err(ERR);
     }
 
     LocationConfig location_config = location_result.get_ok_value();
     LimitExceptDirective &limit_except = location_config.limit_except;
-    std::set<Method> &excluded_methods = limit_except.excluded_methods;
+    return Result<LimitExceptDirective, int>::ok(limit_except);
+}
 
-    // todo: deny, accept
-    // if (!limit_except.limited) {
-    //     return Result<bool, int>::ok(true);
-    // }
-    if (excluded_methods.empty()) {
+
+Result<bool, int> Config::is_method_allowed(const ServerConfig &server_config,
+                                            const std::string &target_path,
+                                            const Method &method) {
+    DEBUG_PRINT(CYAN, "method allowed 1");
+    Result<LimitExceptDirective, int> result = Config::limit_except(server_config, target_path);
+    if (result.is_err()) {
+        DEBUG_PRINT(CYAN, "method allowed 2");
+        return Result<bool, int>::err(ERR);
+    }
+
+    DEBUG_PRINT(CYAN, "method allowed 3");
+    LimitExceptDirective directive = result.get_ok_value();
+    if (!directive.limited) {
+        DEBUG_PRINT(CYAN, "method allowed 4");
         return Result<bool, int>::ok(true);
     }
-    bool is_method_allowed = (excluded_methods.find(method) != excluded_methods.end());
+    DEBUG_PRINT(CYAN, "method allowed 5");
+    bool is_method_allowed = (directive.excluded_methods.find(method) != directive.excluded_methods.end());
+    DEBUG_PRINT(CYAN, "method allowed 6 method[%s], allowed[%s]",
+                HttpMessageParser::convert_to_str(method).c_str(),
+                is_method_allowed ? "true" : "false");
     return Result<bool, int>::ok(is_method_allowed);
 }
 
@@ -633,6 +695,17 @@ Result<bool, int> Config::is_redirect(const AddressPortPair &address_port_pair,
     }
     ServerConfig server_config = server_config_result.get_ok_value();
     return is_redirect(server_config, target_path);
+}
+
+
+// use after validate target_path
+ReturnDirective Config::get_return(const ServerConfig &server_config,
+                                   const std::string &target_path) {
+    Result<ReturnDirective, int> result = get_redirect(server_config, target_path);
+    if (result.is_err()) {
+        return ReturnDirective();
+    }
+    return result.get_ok_value();
 }
 
 

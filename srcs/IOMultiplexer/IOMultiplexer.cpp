@@ -14,7 +14,7 @@
 #include "Result.hpp"
 #include "Server.hpp"
 
-#if defined(__linux__) && !defined(USE_SELECT)
+#if defined(__linux__) && !defined(USE_SELECT) && !defined(USE_POLL)
 
 namespace {
 
@@ -111,7 +111,7 @@ void EPollMultiplexer::set_timeout(int timeout_msec) {
 }
 
 
-#elif defined(__APPLE__) && !defined(USE_SELECT)
+#elif defined(__APPLE__) && !defined(USE_SELECT) && !defined(USE_POLL)
 
 namespace {
 
@@ -251,7 +251,7 @@ void Kqueue::set_timeout(int timeout_msec) {
     }
 }
 
-#else
+#elif defined(USE_SELECT)
 
 namespace {
 
@@ -262,14 +262,18 @@ const int SELECT_TIMEOUT = 0;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Select::Select() {
+Select::Select()
+    : read_fds_(),
+      write_fds_(),
+      read_fd_set_(),
+      write_fd_set_(),
+      max_fd_(0) {
 	DEBUG_SERVER_PRINT("[I/O multiplexer : select]");
     FD_ZERO(&this->read_fd_set_);
     FD_ZERO(&this->write_fd_set_);
 
-    max_fd_ = 0;
-
     this->timeout_.tv_sec = 0;
+    this->timeout_.tv_usec = 0;
 }
 
 
@@ -317,23 +321,24 @@ void Select::init_fds() {
 
 Result<int, std::string> Select::select_fds() {
     // debug
-    std::cout << CYAN << "select_fds:" << RESET << std::endl;
-    std::cout << CYAN << "read_fds [";
+    std::ostringstream oss;
+    oss << " read_fds [";
     for (std::size_t i = 0; i < this->read_fds_.size(); ++i) {
-        std::cout << this->read_fds_[i];
+        oss << this->read_fds_[i];
         if (i + 1 < this->read_fds_.size()) {
-            std::cout << ", ";
+            oss << ", ";
         }
     }
-    std::cout << "]" << RESET << std::endl;
-    std::cout << CYAN << "write_fds [";
+    oss << "]" << std::endl;
+    oss << " write_fds [";
     for (std::size_t i = 0; i < this->write_fds_.size(); ++i) {
-        std::cout << this->write_fds_[i];
+        oss << this->write_fds_[i];
         if (i + 1 < this->write_fds_.size()) {
-            std::cout << ", ";
+            oss << ", ";
         }
     }
-    std::cout << "]" << RESET << std::endl;
+    oss << "]" << std::endl;
+    DEBUG_PRINT(CYAN, "select_fds:\n%s", oss.str().c_str());
 
     init_fds();
     this->max_fd_ = get_max_fd();
@@ -449,7 +454,7 @@ Result<int, std::string> Select::clear_fd(int clear_fd) {
         return Result<int, std::string>::ok(OK);
     }
 
-    std::string err_info = CREATE_ERROR_INFO_STR("clear fd not found");
+    std::string err_info = CREATE_ERROR_INFO_STR("clear read_fd not found");
     return Result<int, std::string>::err("[Server Error] " + err_info);
 }
 
@@ -457,7 +462,9 @@ Result<int, std::string> Select::clear_fd(int clear_fd) {
 Result<int, std::string> Select::register_read_fd(int read_fd) {
     if (FD_ISSET(read_fd, &this->read_fd_set_)) {
         std::string err_info = CREATE_ERROR_INFO_STR("read_fd already registered");
-        return Result<int, std::string>::err(err_info);
+        DEBUG_PRINT(WHITE, "%s", err_info.c_str());
+        // return Result<int, std::string>::err(err_info);
+        return Result<int, std::string>::ok(OK);
     }
 
     this->read_fds_.push_back(read_fd);
@@ -470,7 +477,9 @@ Result<int, std::string> Select::register_read_fd(int read_fd) {
 Result<int, std::string> Select::register_write_fd(int write_fd) {
     if (FD_ISSET(write_fd, &this->write_fd_set_)) {
         std::string err_info = CREATE_ERROR_INFO_STR("write_fd already registered");
-        return Result<int, std::string>::err(err_info);
+        DEBUG_PRINT(WHITE, "%s", err_info.c_str());
+        // return Result<int, std::string>::err(err_info);
+        return Result<int, std::string>::ok(OK);
     }
 
     this->write_fds_.push_back(write_fd);
@@ -504,5 +513,36 @@ void Select::set_timeout(int timeout_msec) {
         this->timeout_.tv_usec = timeout_msec % 1000 * 1000;
     }
 }
+
+#else
+
+Poll::Poll() {}
+
+Poll::~Poll() {}
+
+Result<int, std::string> Poll::get_io_ready_fd() {
+    return Result<int, std::string>::ok(OK);
+}
+
+Result<int, std::string> Poll::register_read_fd(int read_fd) {
+    (void)read_fd;
+    return Result<int, std::string>::ok(OK);
+}
+
+Result<int, std::string> Poll::register_write_fd(int write_fd) {
+    (void)write_fd;
+    return Result<int, std::string>::ok(OK);
+}
+
+Result<int, std::string> Poll::clear_fd(int fd) {
+    (void)fd;
+    return Result<int, std::string>::ok(OK);
+}
+
+FdType Poll::get_fd_type(int fd) {
+    (void)fd;
+    return kReadFd;
+}
+
 
 #endif

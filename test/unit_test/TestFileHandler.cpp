@@ -347,3 +347,303 @@ TEST(TestFileHandler, Contents) {
 	EXPECT_EQ(expected_contents_6, file_handler_6.get_contents());
 	// std::cout << CYAN << file_handler_6.get_contents() << RESET << std::endl;
 }
+
+
+TEST(TestFileHandler, CreateAndDeleteFile) {
+    FileHandler file1("test/unit_test/test_file_handler/create.txt");
+    std::string hello = "hello";
+    std::vector<unsigned char> data(hello.begin(), hello.end());
+
+    StatusCode result = file1.create_file(data);
+    EXPECT_EQ(StatusOk, result);
+
+    result = file1.create_file(data);
+    EXPECT_EQ(Conflict, result);
+
+    result = file1.delete_file();
+    EXPECT_EQ(NoContent, result);
+
+    result = file1.delete_file();
+    EXPECT_EQ(NotFound, result);
+
+    // -------------------------------------------------------------------------
+
+    FileHandler file2("test/unit_test/test_file_handler");
+
+    result = file2.create_file(data);
+    EXPECT_EQ(BadRequest, result);
+
+    result = file2.delete_file();
+    EXPECT_EQ(BadRequest, result);
+
+    // -------------------------------------------------------------------------
+
+    FileHandler file4("");
+    result = file4.create_file(data);
+    EXPECT_EQ(BadRequest, result);
+
+    result = file4.delete_file();
+    EXPECT_EQ(BadRequest, result);
+
+    // -------------------------------------------------------------------------
+
+    FileHandler file6("/");
+    result = file6.create_file(data);
+    EXPECT_EQ(BadRequest, result);
+
+    result = file6.delete_file();
+    EXPECT_EQ(BadRequest, result);
+}
+
+
+TEST(TestFileHandler, IsFile) {
+    Result<bool, StatusCode> result;
+    std::string path;
+
+    path = "test/unit_test/TestFileHandler.cpp";
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_TRUE(result.get_ok_value());
+
+    path = ".gitignore";
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_TRUE(result.get_ok_value());
+
+    path = "Makefile";
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_TRUE(result.get_ok_value());
+
+
+    path = "test";
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_FALSE(result.get_ok_value());  // directory
+
+    path = "nothing";
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_err());
+    EXPECT_EQ(NotFound, result.get_err_value());
+
+
+#if (__APPLE__)
+    path = "html/permission/___.html";
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_err());
+    EXPECT_EQ(Forbidden, result.get_err_value());
+#endif
+
+    path = "html/permission/__x.html";
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_err());
+    EXPECT_EQ(Forbidden, result.get_err_value());
+
+    path = "html/permission/_w_.html";
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_err());
+    EXPECT_EQ(Forbidden, result.get_err_value());
+
+    path = "html/permission/r__.html";  // ok
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_TRUE(result.get_ok_value());
+
+    path = "html/permission/rwx.html";  // ok
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_TRUE(result.get_ok_value());
+
+
+    path = "html/permission/___/___.html";
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_err());
+    EXPECT_EQ(Forbidden, result.get_err_value());
+
+    path = "html/permission/___/__x.html";
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_err());
+    EXPECT_EQ(Forbidden, result.get_err_value());
+
+    path = "html/permission/___/_w_.html";
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_err());
+    EXPECT_EQ(Forbidden, result.get_err_value());
+
+    path = "html/permission/___/r__.html";
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_err());
+    EXPECT_EQ(Forbidden, result.get_err_value());
+
+    path = "html/permission/___/rwx.html";
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_err());
+    EXPECT_EQ(Forbidden, result.get_err_value());
+
+
+    path = "html/permission/__x/___.html";
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_err());
+    EXPECT_EQ(Forbidden, result.get_err_value());
+
+    path = "html/permission/__x/__x.html";
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_err());
+    EXPECT_EQ(Forbidden, result.get_err_value());
+
+    path = "html/permission/__x/_w_.html";
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_err());
+    EXPECT_EQ(Forbidden, result.get_err_value());
+
+    path = "html/permission/__x/r__.html";  // ok
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_TRUE(result.get_ok_value());
+
+    path = "html/permission/__x/rwx.html";  // ok
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_TRUE(result.get_ok_value());
+
+
+    path = "html/permission/_w_/___.html";
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_err());
+    EXPECT_EQ(Forbidden, result.get_err_value());
+
+    path = "html/permission/_w_/__x.html";
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_err());
+    EXPECT_EQ(Forbidden, result.get_err_value());
+
+    path = "html/permission/_w_/_w_.html";
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_err());
+    EXPECT_EQ(Forbidden, result.get_err_value());
+
+    path = "html/permission/_w_/r__.html";
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_err());
+    EXPECT_EQ(Forbidden, result.get_err_value());
+
+    path = "html/permission/_w_/rwx.html";
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_err());
+    EXPECT_EQ(Forbidden, result.get_err_value());
+
+
+    path = "html/permission/r__/___.html";
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_err());
+    EXPECT_EQ(Forbidden, result.get_err_value());
+
+    path = "html/permission/r__/__x.html";
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_err());
+    EXPECT_EQ(Forbidden, result.get_err_value());
+
+    path = "html/permission/r__/_w_.html";
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_err());
+    EXPECT_EQ(Forbidden, result.get_err_value());
+
+    path = "html/permission/r__/r__.html";
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_err());
+    EXPECT_EQ(Forbidden, result.get_err_value());
+
+    path = "html/permission/r__/rwx.html";
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_err());
+    EXPECT_EQ(Forbidden, result.get_err_value());
+
+
+    path = "html/permission/rwx/___.html";
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_err());
+    EXPECT_EQ(Forbidden, result.get_err_value());
+
+    path = "html/permission/rwx/__x.html";
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_err());
+    EXPECT_EQ(Forbidden, result.get_err_value());
+
+    path = "html/permission/rwx/_w_.html";
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_err());
+    EXPECT_EQ(Forbidden, result.get_err_value());
+
+    path = "html/permission/rwx/r__.html";  // ok
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_TRUE(result.get_ok_value());
+
+    path = "html/permission/rwx/rwx.html";  // ok
+    result = FileHandler::is_file(path);
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_TRUE(result.get_ok_value());
+}
+
+
+TEST(TestFileHandler, IsDir) {
+    Result<bool, StatusCode> result;
+    std::string path;
+
+    path = "test/unit_test/";
+    result = FileHandler::is_directory(path);
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_TRUE(result.get_ok_value());
+
+    path = "test/unit_test";
+    result = FileHandler::is_directory(path);
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_TRUE(result.get_ok_value());
+
+    path = "test/nothing";
+    result = FileHandler::is_directory(path);
+    ASSERT_TRUE(result.is_err());
+    EXPECT_EQ(NotFound, result.get_err_value());
+
+    path = ".gitignore";
+    result = FileHandler::is_directory(path);
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_FALSE(result.get_ok_value());
+
+    path = "Makefile";
+    result = FileHandler::is_directory(path);
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_FALSE(result.get_ok_value());
+
+    path = "html/permission/";
+    result = FileHandler::is_directory(path);
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_TRUE(result.get_ok_value());
+
+    path = "html/permission/___";
+    result = FileHandler::is_directory(path);
+    ASSERT_TRUE(result.is_err());
+    EXPECT_EQ(Forbidden, result.get_err_value());
+
+    path = "html/permission/__x";
+    result = FileHandler::is_directory(path);
+    ASSERT_TRUE(result.is_err());
+    EXPECT_EQ(Forbidden, result.get_err_value());
+
+    path = "html/permission/_w_";
+    result = FileHandler::is_directory(path);
+    ASSERT_TRUE(result.is_err());
+    EXPECT_EQ(Forbidden, result.get_err_value());
+
+#if (__APPLE__)
+    path = "html/permission/r__";  // ok
+    result = FileHandler::is_directory(path);
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_TRUE(result.get_ok_value());
+#endif
+
+    path = "html/permission/rwx";  // ok
+    result = FileHandler::is_directory(path);
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_TRUE(result.get_ok_value());
+}

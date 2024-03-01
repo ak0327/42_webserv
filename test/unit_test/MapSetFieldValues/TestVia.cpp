@@ -36,7 +36,7 @@ TEST(TestMapSetFieldValues, ViaOK1) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapSetFieldValues, ViaOK2) {
@@ -72,7 +72,7 @@ TEST(TestMapSetFieldValues, ViaOK2) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapSetFieldValues, ViaOK3) {
@@ -112,7 +112,7 @@ TEST(TestMapSetFieldValues, ViaOK3) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -127,7 +127,7 @@ TEST(TestMapSetFieldValues, ViaNG1) {
 	bool has_field_name = request.is_valid_field_name_registered(field_name);
 
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMapSetFieldValues, ViaNG2) {
@@ -140,5 +140,5 @@ TEST(TestMapSetFieldValues, ViaNG2) {
 	bool has_field_name = request.is_valid_field_name_registered(field_name);
 
 	EXPECT_FALSE(has_field_name);
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }

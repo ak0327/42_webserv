@@ -5,6 +5,10 @@
 !unit_test
 !unit_test/**/
 !unit_test/HttpResponse/GET/empty_file_for_get_interpreter
+!unit_test/test_file_handler/**
+
+!integration
+!integration/**
 
 !test_conf
 !test_conf/**/
@@ -17,3 +21,5 @@
 !*.conf
 
 !Makefile
+
+.DS_Store

@@ -16,11 +16,12 @@ extern const int CONTINUE;
 extern const int GETADDRINFO_SUCCESS;
 extern const int REMOVE_SUCCESS;
 
-extern const ssize_t RECV_CLOSED;
+extern const ssize_t RECV_COMPLETED;
 extern const ssize_t RECV_CONTINUE;
 extern const ssize_t RECV_ERROR;
 
 extern const ssize_t SEND_COMPLETED;
+extern const ssize_t SEND_CONTINUE;
 extern const ssize_t SEND_ERROR;
 
 extern const int ACCEPT_ERROR;
@@ -79,10 +80,12 @@ extern const int STATUS_SERVER_ERROR;
 
 enum StatusCode {
     StatusOk                = 200,
+    Created                 = 201,
     NoContent               = 204,
 
     MultipleChoices         = 300,
     MovedPermanently        = 301,
+    SeeOther                = 303,
 
     BadRequest              = 400,
     Unauthorized            = 401,
@@ -91,6 +94,7 @@ enum StatusCode {
     MethodNotAllowed        = 405,
     NotAcceptable           = 406,
     RequestTimeout          = 408,
+    Conflict                = 409,
     LengthRequired          = 411,
     ContentTooLarge         = 413,
 
@@ -155,6 +159,10 @@ extern const char CRLF[];
 
 ////////////////////////////////////////////////////////////////////////////////
 /* method */
+
+enum Method {
+    kGET, kPOST, kDELETE, kErrorMethod
+};
 
 extern const char GET_METHOD[];
 extern const char POST_METHOD[];
@@ -386,3 +394,9 @@ typedef std::map<Extension, MimeType> MimeTypeMap;
 
 extern const MimeTypeMap MIME_TYPES;
 MimeTypeMap init_mime_types();
+
+////////////////////////////////////////////////////////////////////////////////
+/* API endpoint */
+
+extern const std::vector<std::string> API_ENDPOINTS;
+std::vector<std::string> init_endpoints();

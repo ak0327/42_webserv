@@ -5,7 +5,7 @@
 
 /* RequestLine passed line; getline(line, LF), from HttpRequest */
 /* so, RequestLine parses end with CR line */
-TEST(TestRequestLine, ResuestLineOK1) {
+TEST(TestRequestLine, RequestLineOK1) {
 	const std::string request_line = "GET /index.html HTTP/1.1";
 	RequestLine request;
 	Result<ProcResult, StatusCode> result;
@@ -17,7 +17,7 @@ TEST(TestRequestLine, ResuestLineOK1) {
 	EXPECT_TRUE(result.is_ok());
 }
 
-TEST(TestRequestLine, ResuestLineOK2) {
+TEST(TestRequestLine, RequestLineOK2) {
 	const std::string request_line = "POST /index.html HTTP/1.1";
 	RequestLine request;
 	Result<ProcResult, StatusCode> result;
@@ -29,7 +29,7 @@ TEST(TestRequestLine, ResuestLineOK2) {
 	EXPECT_TRUE(result.is_ok());
 }
 
-TEST(TestRequestLine, ResuestLineOK3) {
+TEST(TestRequestLine, RequestLineOK3) {
 	const std::string request_line = "DELETE /index.html HTTP/1.1";
 	RequestLine request;
 	Result<ProcResult, StatusCode> result;
@@ -41,21 +41,36 @@ TEST(TestRequestLine, ResuestLineOK3) {
 	EXPECT_TRUE(result.is_ok());
 }
 
-TEST(TestRequestLine, ResuestLineOK4) {
+TEST(TestRequestLine, RequestLineOK4) {
 	const std::string request_line = "GET /index.html?hoge? HTTP/1.1";
 	RequestLine request;
 	Result<ProcResult, StatusCode> result;
 
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("GET", request.method());
-	EXPECT_EQ("/index.html?hoge?", request.request_target());
+	EXPECT_EQ("/index.html", request.request_target());
 	EXPECT_EQ("HTTP/1.1", request.http_version());
+    EXPECT_EQ("hoge?", request.query());
 	EXPECT_TRUE(result.is_ok());
 }
 
+TEST(TestRequestLine, RequestLineOK5) {
+    const std::string request_line = "GET /path?key1=value1&key2=value2 HTTP/1.1";
+    RequestLine request;
+    Result<ProcResult, StatusCode> result;
+
+    result = request.parse_and_validate(request_line);
+    EXPECT_EQ("GET", request.method());
+    EXPECT_EQ("/path", request.request_target());
+    EXPECT_EQ("HTTP/1.1", request.http_version());
+    EXPECT_EQ("key1=value1&key2=value2", request.query());
+    EXPECT_TRUE(result.is_ok());
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
-TEST(TestRequestLine, ResuestLineNG1) {
+TEST(TestRequestLine, RequestLineNG1) {
 	const std::string request_line = "GET /index.html HTTP/1.1 ";
 	RequestLine request;
 	Result<ProcResult, StatusCode> result;
@@ -67,7 +82,7 @@ TEST(TestRequestLine, ResuestLineNG1) {
 	EXPECT_TRUE(result.is_err());
 }
 
-TEST(TestRequestLine, ResuestLineNG2) {
+TEST(TestRequestLine, RequestLineNG2) {
 	const std::string request_line = "GET /index.html HTTP/1.1\n";
 	RequestLine request;
 	Result<ProcResult, StatusCode> result;
@@ -79,7 +94,7 @@ TEST(TestRequestLine, ResuestLineNG2) {
 	EXPECT_TRUE(result.is_err());
 }
 
-TEST(TestRequestLine, ResuestLineNG3) {
+TEST(TestRequestLine, RequestLineNG3) {
 	const std::string request_line = "GET /index.html HTTP/1.1\r ";
 	RequestLine request;
 	Result<ProcResult, StatusCode> result;
@@ -91,7 +106,7 @@ TEST(TestRequestLine, ResuestLineNG3) {
 	EXPECT_TRUE(result.is_err());
 }
 
-TEST(TestRequestLine, ResuestLineNG4) {
+TEST(TestRequestLine, RequestLineNG4) {
 	const std::string request_line = "";
 	RequestLine request;
 	Result<ProcResult, StatusCode> result;
@@ -103,7 +118,7 @@ TEST(TestRequestLine, ResuestLineNG4) {
 	EXPECT_TRUE(result.is_err());
 }
 
-TEST(TestRequestLine, ResuestLineNG5) {
+TEST(TestRequestLine, RequestLineNG5) {
 	const std::string request_line = " ";
 	RequestLine request;
 	Result<ProcResult, StatusCode> result;
@@ -115,7 +130,7 @@ TEST(TestRequestLine, ResuestLineNG5) {
 	EXPECT_TRUE(result.is_err());
 }
 
-TEST(TestRequestLine, ResuestLineNG6) {
+TEST(TestRequestLine, RequestLineNG6) {
 	const std::string request_line = "";
 	RequestLine request;
 	Result<ProcResult, StatusCode> result;
@@ -127,7 +142,7 @@ TEST(TestRequestLine, ResuestLineNG6) {
 	EXPECT_TRUE(result.is_err());
 }
 
-TEST(TestRequestLine, ResuestLineNG7) {
+TEST(TestRequestLine, RequestLineNG7) {
 	const std::string request_line = "get /index.html HTTP/1.1";
 	RequestLine request;
 	Result<ProcResult, StatusCode> result;
@@ -139,7 +154,7 @@ TEST(TestRequestLine, ResuestLineNG7) {
 	EXPECT_TRUE(result.is_err());
 }
 
-TEST(TestRequestLine, ResuestLineNG8) {
+TEST(TestRequestLine, RequestLineNG8) {
 	const std::string request_line = "delete /index.html HTTP/1.1";
 	RequestLine request;
 	Result<ProcResult, StatusCode> result;
@@ -151,7 +166,7 @@ TEST(TestRequestLine, ResuestLineNG8) {
 	EXPECT_TRUE(result.is_err());
 }
 
-TEST(TestRequestLine, ResuestLineNG9) {
+TEST(TestRequestLine, RequestLineNG9) {
 	const std::string request_line = "GET /index.html HTTP/1.0";
 	RequestLine request;
 	Result<ProcResult, StatusCode> result;
@@ -163,7 +178,7 @@ TEST(TestRequestLine, ResuestLineNG9) {
 	EXPECT_TRUE(result.is_err());
 }
 
-TEST(TestRequestLine, ResuestLineNG10) {
+TEST(TestRequestLine, RequestLineNG10) {
 	const std::string request_line = "GET /index.html HTTP/1.12";
 	RequestLine request;
 	Result<ProcResult, StatusCode> result;
@@ -175,7 +190,7 @@ TEST(TestRequestLine, ResuestLineNG10) {
 	EXPECT_TRUE(result.is_err());
 }
 
-TEST(TestRequestLine, ResuestLineNG11) {
+TEST(TestRequestLine, RequestLineNG11) {
 	const std::string request_line = "GET /index.html http/1.1";
 	RequestLine request;
 	Result<ProcResult, StatusCode> result;
@@ -187,7 +202,7 @@ TEST(TestRequestLine, ResuestLineNG11) {
 	EXPECT_TRUE(result.is_err());
 }
 
-TEST(TestRequestLine, ResuestLineNG12) {
+TEST(TestRequestLine, RequestLineNG12) {
 	const std::string request_line = "GET \n/index.html HTTP/1.1";
 	RequestLine request;
 	Result<ProcResult, StatusCode> result;
@@ -199,7 +214,7 @@ TEST(TestRequestLine, ResuestLineNG12) {
 	EXPECT_TRUE(result.is_err());
 }
 
-TEST(TestRequestLine, ResuestLineNG13) {
+TEST(TestRequestLine, RequestLineNG13) {
 	const std::string request_line = "GET /index.html\nHTTP/1.1";
 	RequestLine request;
 	Result<ProcResult, StatusCode> result;
@@ -211,7 +226,7 @@ TEST(TestRequestLine, ResuestLineNG13) {
 	EXPECT_TRUE(result.is_err());
 }
 
-TEST(TestRequestLine, ResuestLineNG14) {
+TEST(TestRequestLine, RequestLineNG14) {
 	const std::string request_line = "HEAD /index.html HTTP/1.1";
 	RequestLine request;
 	Result<ProcResult, StatusCode> result;
@@ -223,7 +238,7 @@ TEST(TestRequestLine, ResuestLineNG14) {
 	EXPECT_TRUE(result.is_err());
 }
 
-TEST(TestRequestLine, ResuestLineNG15) {
+TEST(TestRequestLine, RequestLineNG15) {
 	const std::string request_line = "OPTIONS /index.html HTTP/1.1";
 	RequestLine request;
 	Result<ProcResult, StatusCode> result;
@@ -235,7 +250,7 @@ TEST(TestRequestLine, ResuestLineNG15) {
 	EXPECT_TRUE(result.is_err());
 }
 
-TEST(TestRequestLine, ResuestLineNG16) {
+TEST(TestRequestLine, RequestLineNG16) {
 	const std::string request_line = "PUT /index.html HTTP/1.1";
 	RequestLine request;
 	Result<ProcResult, StatusCode> result;
@@ -247,7 +262,7 @@ TEST(TestRequestLine, ResuestLineNG16) {
 	EXPECT_TRUE(result.is_err());
 }
 
-TEST(TestRequestLine, ResuestLineNG17) {
+TEST(TestRequestLine, RequestLineNG17) {
 	const std::string request_line = "TRACE /index.html HTTP/1.1";
 	RequestLine request;
 	Result<ProcResult, StatusCode> result;
@@ -259,7 +274,7 @@ TEST(TestRequestLine, ResuestLineNG17) {
 	EXPECT_TRUE(result.is_err());
 }
 
-TEST(TestRequestLine, ResuestLineNG18) {
+TEST(TestRequestLine, RequestLineNG18) {
 	const std::string request_line = "CONNECT /index.html HTTP/1.1";
 	RequestLine request;
 	Result<ProcResult, StatusCode> result;
@@ -271,7 +286,7 @@ TEST(TestRequestLine, ResuestLineNG18) {
 	EXPECT_TRUE(result.is_err());
 }
 
-TEST(TestRequestLine, ResuestLineNG19) {
+TEST(TestRequestLine, RequestLineNG19) {
 	const std::string request_line = "GET '/index.html' HTTP/1.1";
 	RequestLine request;
 	Result<ProcResult, StatusCode> result;
@@ -283,7 +298,7 @@ TEST(TestRequestLine, ResuestLineNG19) {
 	EXPECT_TRUE(result.is_err());
 }
 
-TEST(TestRequestLine, ResuestLineNG20) {
+TEST(TestRequestLine, RequestLineNG20) {
     const std::string request_line = "GET / HTTP/1.1\r";
     RequestLine request;
     Result<ProcResult, StatusCode> result;
@@ -295,7 +310,7 @@ TEST(TestRequestLine, ResuestLineNG20) {
     EXPECT_TRUE(result.is_err());
 }
 
-TEST(TestRequestLine, ResuestLineNG21) {
+TEST(TestRequestLine, RequestLineNG21) {
     const std::string request_line = "GET . HTTP/1.1";
     RequestLine request;
     Result<ProcResult, StatusCode> result;
@@ -307,7 +322,7 @@ TEST(TestRequestLine, ResuestLineNG21) {
     EXPECT_TRUE(result.is_err());
 }
 
-TEST(TestRequestLine, ResuestLineNG22) {
+TEST(TestRequestLine, RequestLineNG22) {
     const std::string request_line = "GET - HTTP/1.1";
     RequestLine request;
     Result<ProcResult, StatusCode> result;
@@ -319,7 +334,7 @@ TEST(TestRequestLine, ResuestLineNG22) {
     EXPECT_TRUE(result.is_err());
 }
 
-TEST(TestRequestLine, ResuestLineNG23) {
+TEST(TestRequestLine, RequestLineNG23) {
     const std::string request_line = "GET /index.html HTTP/2.0";
     RequestLine request;
     Result<ProcResult, StatusCode> result;
@@ -331,7 +346,7 @@ TEST(TestRequestLine, ResuestLineNG23) {
     EXPECT_TRUE(result.is_err());  // update
 }
 
-TEST(TestRequestLine, ResuestLineNG24) {
+TEST(TestRequestLine, RequestLineNG24) {
     const std::string request_line = "GET /index.html HTTP/3.0";
     RequestLine request;
     Result<ProcResult, StatusCode> result;

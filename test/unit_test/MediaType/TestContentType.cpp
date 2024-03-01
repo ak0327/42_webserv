@@ -26,12 +26,12 @@ TEST(TestMediaType, ContentTypeOK1) {
 
 		//----------------------------------------------------------------------
 
-		EXPECT_EQ("text", data->get_type());
-		EXPECT_EQ("html", data->get_subtype());
+		EXPECT_EQ("text", data->type());
+		EXPECT_EQ("html", data->subtype());
 
 		//----------------------------------------------------------------------
 
-		std::map<std::string, std::string> actual_param = data->get_parameters();
+		std::map<std::string, std::string> actual_param = data->parameters();
 		std::map<std::string, std::string> expected_param = {};
 
 		EXPECT_EQ(actual_param, expected_param);
@@ -42,7 +42,7 @@ TEST(TestMediaType, ContentTypeOK1) {
 		ADD_FAILURE() << field_name << " not found";
 	}
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 // TEST(TestMediaType, ContentTypeOK2) {
@@ -181,7 +181,7 @@ TEST(TestMediaType, ContentTypeNG1) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMediaType, ContentTypeNG2) {
@@ -196,7 +196,7 @@ TEST(TestMediaType, ContentTypeNG2) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }
 
 TEST(TestMediaType, ContentTypeNG3) {
@@ -211,5 +211,5 @@ TEST(TestMediaType, ContentTypeNG3) {
 	has_field_name = request.is_valid_field_name_registered(field_name);
 	EXPECT_FALSE(has_field_name);
 
-	EXPECT_EQ(STATUS_OK, request.status_code());
+	EXPECT_EQ(STATUS_OK, request.request_status());
 }

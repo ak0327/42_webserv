@@ -29,6 +29,9 @@ class Config {
     static Result<std::string, int> get_matching_location(const ServerConfig &server_config,
                                                           const std::string &target_path);
 
+    static Result<std::string, StatusCode> get_indexed_path(const ServerConfig &server_config,
+                                                            const std::string &target_path);
+
     static Result<std::string, int> get_root(const ServerConfig &server_config,
                                              const std::string &target_path);
     Result<std::string, int> get_root(const ServerInfo &server_info,
@@ -63,6 +66,9 @@ class Config {
     Result<bool, int> is_autoindex_on(const AddressPortPair &address_port_pair,
                                       const std::string &target_path) const;
 
+    static Result<LimitExceptDirective, int> limit_except(const ServerConfig &server_config,
+                                                          const std::string &target_path);
+
     static Result<bool, int> is_method_allowed(const ServerConfig &server_config,
                                                const std::string &target_path,
                                                const Method &method);
@@ -79,6 +85,9 @@ class Config {
                                   const std::string &target_path) const;
     Result<bool, int> is_redirect(const AddressPortPair &address_port_pair,
                                   const std::string &target_path) const;
+
+    static ReturnDirective get_return(const ServerConfig &server_config,
+                                      const std::string &target_path);
 
     static Result<ReturnDirective, int> get_redirect(const ServerConfig &server_config,
                                                      const std::string &target_path);
@@ -128,6 +137,8 @@ class Config {
     static bool is_exact_match(const std::string &pattern, const std::string &target);
     static bool is_prefix_match(const std::string &pattern, const std::string &target);
 
+    Result<ServerConfig, int> get_default_server(const AddressPortPair &pair) const;
+
  private:
 	HttpConfig http_config_;
     std::map<ServerInfo, const ServerConfig *> server_configs_;
@@ -140,7 +151,6 @@ class Config {
     void set_default_server_to_first_listen();
     void set_server_configs();
 
-    Result<ServerConfig, int> get_default_server(const AddressPortPair &pair) const;
 
     static Result<LocationConfig, int> get_location_config(const ServerConfig &server_config,
                                                            const std::string &location_path);

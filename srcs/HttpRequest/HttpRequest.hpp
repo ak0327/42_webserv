@@ -14,6 +14,8 @@
 # include "RequestLine.hpp"
 # include "Result.hpp"
 # include "SingleFieldValue.hpp"
+# include "MediaType.hpp"
+
 
 enum RequestParsePhase {
     ParsingRequestLine,
@@ -34,18 +36,18 @@ class HttpRequest {
 
     void set_max_body_size(std::size_t max_body_size);
 
-	std::string	method() const;
+    Method method() const;
 	std::string request_target() const;
 	std::string	http_version() const;
-    StatusCode status_code() const;
-    void set_status_code(const StatusCode &set_code);
+    std::string query_string() const;
+    const std::vector<unsigned char> body() const;
+    StatusCode request_status() const;
+    void set_request_status(const StatusCode &set_code);
 
     Result<HostPortPair, StatusCode> server_info() const;
     bool is_buf_empty() const;
 
-    static ssize_t recv(int fd, void *buf, std::size_t bufsize);
     ssize_t recv_to_buf(int fd);
-    static ssize_t recv_to_buf(int fd, std::vector<unsigned char> *buf);
 
     static bool is_crlf_in_buf(const unsigned char buf[], std::size_t size);
     static void trim(std::vector<unsigned char> *buf, std::vector<unsigned char>::const_iterator start);
@@ -53,13 +55,14 @@ class HttpRequest {
     static Result<std::string, ProcResult> get_line(const std::vector<unsigned char> &data,
                                                     std::vector<unsigned char>::const_iterator start,
                                                     std::vector<unsigned char>::const_iterator *ret);
+    static Result<std::string, ProcResult> pop_line_from_buf(std::vector<unsigned char> *buf);
 
-    Result<ProcResult, StatusCode> parse_http_request();
     Result<ProcResult, StatusCode> parse_start_line_and_headers();
     Result<ProcResult, StatusCode> parse_body();
     static Result<ProcResult, StatusCode> split_field_line(const std::string &field_line,
                                                            std::string *ret_field_name,
                                                            std::string *ret_field_value);
+    ProcResult validate_request_headers();
 
 	bool is_field_name_supported_parsing(const std::string &field_name);
 	bool is_valid_field_name_registered(const std::string &field_name);
@@ -69,7 +72,15 @@ class HttpRequest {
 	FieldValueBase * get_field_values(const std::string &field_name) const;
 
     Result<std::map<std::string, std::string>, ProcResult> get_host() const;
+
+    std::string content_type() const;
+    Result<MediaType, ProcResult> get_content_type() const;
     Result<std::size_t, ProcResult> get_content_length() const;
+
+    static Result<int, int>
+    parse_and_validate_content_disposition(const std::string &field_value,
+                                           std::string *disposition_type,
+                                           std::map<std::string, std::string> *disposition_param);
 
 #ifdef UNIT_TEST
     friend class HttpRequestFriend;

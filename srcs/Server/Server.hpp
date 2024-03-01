@@ -40,8 +40,8 @@ class Server {
     std::deque<Fd> client_fds_;
     std::set<FdTimeoutLimitPair> cgi_fds_;
 
-    // client_fd and cgi_fd may point same pointer
-    std::map<Fd, ClientSession *> sessions_;
+    std::map<Fd, ClientSession *> client_sessions_;
+    std::map<Fd, ClientSession *> cgi_sessions_;
 
     const Config &config_;
 
@@ -60,7 +60,10 @@ class Server {
     Result<IOMultiplexer *, std::string> create_io_multiplexer_fds();
 
     void management_timeout_sessions();
-    void register_cgi_fd_to_event_manager(ClientSession **client);
+    void register_cgi_write_fd_to_event_manager(ClientSession **client);
+    void register_cgi_read_fd_to_event_manager(ClientSession **client);
+    void clear_fd_from_event_manager(int fd);
+
     void clear_cgi_fd_from_event_manager(int fd);
     void erase_from_timeout_manager(int cgi_fd);
     std::set<FdTimeoutLimitPair>::iterator get_timeout_cgi();
@@ -73,7 +76,10 @@ class Server {
     void update_fd_type_read_to_write(const SessionState &session_state, int fd);
 
     bool is_ready_to_send_response(const ClientSession &client);
+    bool is_sending_request_body_to_cgi(const ClientSession &client);
+    bool is_receiving_cgi_response(const ClientSession &client);
     bool is_cgi_execute_completed(const ClientSession &client);
+    bool is_session_creating_response_body(const ClientSession &client);
     bool is_session_completed(const ClientSession &client);
     bool is_session_error_occurred(const ClientSession &client);
 };
