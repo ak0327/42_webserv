@@ -18,10 +18,7 @@ expect_eq_get() {
         return
     fi
 
-    local actual_start_line
     actual_start_line=$(echo "$response" | head -n 1 | tr -d '\r')
-
-    local expected_start_line
     expected_start_line="HTTP/1.1 ${expected_status}"
 
     echo -n " Start-Line  : "
@@ -36,7 +33,6 @@ expect_eq_get() {
     fi
 
 
-    local body_start_line
     body_start_line=$(echo "${response}" | awk '/^\r$/{print NR + 1; exit}')
     if [ -z "$body_start_line" ]; then
         body_start_line=$(echo "${response}" | awk '/^$/{print NR + 1; exit}')
@@ -74,20 +70,17 @@ test_post_upload() {
     ((test_cnt++))
     echo "TEST No.${test_cnt} (L${call_line})"
 
-    local upload_path="html/upload/${file_name}"
-    local src_path="$file_dir$file_name"
+    upload_path="html/upload/${file_name}"
+    src_path="$file_dir$file_name"
 
-    local is_file_already_existed=0
+    is_file_already_existed=0
     if [ -f "$upload_path" ]; then
       is_file_already_existed=1
     fi
 
     curl -i -F "file_name=@$src_path"  "${url}" > "$response_file" 2> /dev/null
 
-    local actual_start_line
     actual_start_line=$(head -n 1 ${response_file} | tr -d '\r')
-
-    local expected_start_line
     expected_start_line="HTTP/1.1 ${expected_status}"
 
     echo -n " Start-Line : "
@@ -102,7 +95,6 @@ test_post_upload() {
 
 
     echo -n " UPLOAD     : "
-    local is_created
     if [[ $is_file_already_existed == 0 && -f "$upload_path" ]]; then
       is_created="true"
     else
@@ -122,7 +114,7 @@ test_post_upload() {
         fi
     else
         ((ng_cnt++))
-        ng_cases+=("No.${test_cnt} (L${call_line}): Upload NG: [${file_dir}${file_name}: expect_created:"$expect_created" created:"$is_created"]")
+        ng_cases+=("No.${test_cnt} (L${call_line}): Upload NG: [${file_dir}${file_name}: expect_created:\"${expect_created}\" created:\"${is_created}\"]")
         echo -e "${RED}NG${RESET}"
     fi
 
@@ -156,15 +148,11 @@ expect_eq_delete() {
       touch "$check_file_path"
     fi
 
-    local cmd
     cmd="-is -X DELETE ${host}:${port}${path}"
     curl $cmd > "$response_file"
 
 
-    local actual_start_line
     actual_start_line=$(head -n 1 ${response_file} | tr -d '\r')
-
-    local expected_start_line
     expected_start_line="HTTP/1.1 ${expected_status}"
 
     echo -n " Start-Line : "
@@ -179,7 +167,6 @@ expect_eq_delete() {
 
 
     echo -n " Delete     : "
-    local is_deleted
     if [[ -z "$check_file_path" ]]; then
       is_deleted="false"
     elif [[ -f "$check_file_path" || -d "$check_file_path" ]]; then
