@@ -616,16 +616,24 @@ Result<LimitExceptDirective, int> Config::limit_except(const ServerConfig &serve
 Result<bool, int> Config::is_method_allowed(const ServerConfig &server_config,
                                             const std::string &target_path,
                                             const Method &method) {
+    DEBUG_PRINT(CYAN, "method allowed 1");
     Result<LimitExceptDirective, int> result = Config::limit_except(server_config, target_path);
     if (result.is_err()) {
+        DEBUG_PRINT(CYAN, "method allowed 2");
         return Result<bool, int>::err(ERR);
     }
 
+    DEBUG_PRINT(CYAN, "method allowed 3");
     LimitExceptDirective directive = result.get_ok_value();
     if (!directive.limited) {
+        DEBUG_PRINT(CYAN, "method allowed 4");
         return Result<bool, int>::ok(true);
     }
+    DEBUG_PRINT(CYAN, "method allowed 5");
     bool is_method_allowed = (directive.excluded_methods.find(method) != directive.excluded_methods.end());
+    DEBUG_PRINT(CYAN, "method allowed 6 method[%s], allowed[%s]",
+                HttpMessageParser::convert_to_str(method).c_str(),
+                is_method_allowed ? "true" : "false");
     return Result<bool, int>::ok(is_method_allowed);
 }
 

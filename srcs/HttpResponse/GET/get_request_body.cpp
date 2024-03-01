@@ -93,7 +93,7 @@ StatusCode HttpResponse::get_redirect_content(const ReturnDirective &redirect) {
 }
 
 
-bool has_trailing_slash(const std::string &path) {
+bool HttpResponse::has_trailing_slash(const std::string &path) {
     if (path.empty()) {
         return false;
     }
@@ -183,12 +183,15 @@ StatusCode HttpResponse::get_now() {
 
 
 StatusCode HttpResponse::response_api() {
-    if (this->request_.request_target() == "/api/show-data") {
-        return show_body();
+    if (this->request_.request_target() == "/api/form-data") {
+        return show_data();
     }
     if (this->request_.request_target() == "/api/show-body") {
         return show_body();
     }
+    // if (this->request_.request_target() == "/api/upload") {
+    //     return upload_file();
+    // }
     if (this->request_.request_target() == "/api/now") {
         return get_now();
     }
@@ -216,21 +219,22 @@ StatusCode HttpResponse::get_request_body() {
         return get_redirect_content(redirect);
     }
 
+    // api?
+    //  Yes -> api
+    if (is_api_endpoint()) {
+        DEBUG_PRINT(YELLOW, "  GET 4 -> api");
+        return response_api();
+    }
+
     const std::string rooted_path = get_rooted_path();
-    DEBUG_PRINT(YELLOW, "  GET 4 rooted_path[%s]", rooted_path.c_str());
+    DEBUG_PRINT(YELLOW, "  GET 5 rooted_path[%s]", rooted_path.c_str());
     Result<bool, StatusCode> is_directory = FileHandler::is_directory(rooted_path);
     if (is_directory.is_err()) {
-        DEBUG_PRINT(YELLOW, "  GET 5 err: directory");
-        // api?
-        //  Yes -> api
-        if (is_api_endpoint()) {
-            DEBUG_PRINT(YELLOW, "  GET 7 -> api");
-            return response_api();
-        }
+        DEBUG_PRINT(YELLOW, "  GET 6 err: directory");
         return is_directory.get_err_value();
     }
     if (is_directory.get_ok_value()) {
-        DEBUG_PRINT(YELLOW, "  GET 6");
+        DEBUG_PRINT(YELLOW, "  GET 7");
         const std::string &directory_path = rooted_path;
         if (!has_trailing_slash(directory_path)) {
             //  No -> 301
