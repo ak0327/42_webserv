@@ -93,13 +93,6 @@ StatusCode HttpResponse::get_redirect_content(const ReturnDirective &redirect) {
 }
 
 
-bool HttpResponse::has_trailing_slash(const std::string &path) {
-    if (path.empty()) {
-        return false;
-    }
-    return path[path.length() - 1] == '/';
-}
-
 bool HttpResponse::is_api_endpoint() {
     std::vector<std::string>::const_iterator itr;
     itr = std::find(API_ENDPOINTS.begin(), API_ENDPOINTS.end(), this->request_.request_target());
@@ -236,7 +229,7 @@ StatusCode HttpResponse::get_request_body() {
     if (is_directory.get_ok_value()) {
         DEBUG_PRINT(YELLOW, "  GET 7");
         const std::string &directory_path = rooted_path;
-        if (!has_trailing_slash(directory_path)) {
+        if (!StringHandler::has_trailing_slash(directory_path)) {
             //  No -> 301
             DEBUG_PRINT(YELLOW, "  GET 8 -> redirect + /");
             const std::string with_trailing_slash = this->request_.request_target() + "/";

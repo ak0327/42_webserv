@@ -108,7 +108,6 @@ class HttpResponse {
     void process_method_not_allowed();
     bool is_status_error() const;
 
-    bool has_trailing_slash(const std::string &path);
     bool has_valid_index_page();
     bool is_api_endpoint();
     bool is_method_available();
@@ -132,7 +131,7 @@ class HttpResponse {
 
     StatusCode get_file_content(const std::string &file_path,
                                 std::vector<unsigned char> *buf);
-    StatusCode get_directory_listing(const std::string &directory_path,
+    StatusCode get_directory_listing(const std::string &directory_path_with_trailing_slash,
                                      std::vector<unsigned char> *buf);
     StatusCode get_redirect_content(const ReturnDirective &redirect);
 

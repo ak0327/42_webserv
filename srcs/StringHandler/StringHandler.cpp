@@ -293,6 +293,14 @@ bool is_valid_file_name(const std::string &path) {
 }
 
 
+bool has_trailing_slash(const std::string &path) {
+    if (path.empty()) {
+        return false;
+    }
+    return path[path.length() - 1] == '/';
+}
+
+
 std::string get_file_name(const std::string &path) {
     std::size_t slash_pos;
 
