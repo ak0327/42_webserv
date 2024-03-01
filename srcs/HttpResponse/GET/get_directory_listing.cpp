@@ -237,7 +237,11 @@ StatusCode HttpResponse::get_directory_listing(const std::string &directory_path
         return InternalServerError;
     }
 
-    return get_directory_listing_html(directory_path_with_trailing_slash, directories, files, buf);
+    StatusCode result = get_directory_listing_html(directory_path_with_trailing_slash, directories, files, buf);
+    if (result == StatusOk) {
+        add_content_header("html");
+    }
+    return result;
 }
 
 

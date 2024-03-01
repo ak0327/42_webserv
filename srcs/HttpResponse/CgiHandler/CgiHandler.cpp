@@ -265,6 +265,22 @@ ProcResult CgiHandler::recv_cgi_output() {
 }
 
 
+std::string CgiHandler::content_type() {
+    std::string content_type;
+
+    if (this->media_type_.is_err()) {
+        return "text/html";
+    }
+
+    content_type = this->media_type_.type();
+    if (!this->media_type_.subtype().empty()) {
+        content_type.append("/");
+        content_type.append(this->media_type_.subtype());
+    }
+    return content_type;
+}
+
+
 StatusCode CgiHandler::parse_document_response() {
     StatusCode cgi_status = StatusOk;
     int status_count = 0;

@@ -247,8 +247,10 @@ StatusCode HttpResponse::upload_multipart_form_data(const std::string &boundary)
                                      "<body>\n"
                                      "<a href=\"/upload/\">jump to upload</a>"
                                      "</body>\n"
-                                     "</html>";
+                                     "</html>\n";
         this->body_buf_.assign(jump_to_upload.begin(), jump_to_upload.end());
+
+        add_content_header("html");
     }
     return upload_result;
 }

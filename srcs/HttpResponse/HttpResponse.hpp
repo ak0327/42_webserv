@@ -53,7 +53,7 @@ class HttpResponse {
     ProcResult exec_cgi_process();
     ProcResult send_request_body_to_cgi();
     ProcResult recv_to_cgi_buf();
-    ProcResult interpret_cgi_output();
+    void interpret_cgi_output();
     CgiParams get_cgi_params(const std::string &script_path,
                              const std::string &path_info);
     std::pair<ScriptPath, PathInfo> get_script_path_and_path_info();
@@ -104,20 +104,28 @@ class HttpResponse {
 
     StatusCode is_resource_available(const Method &method) const;
 
-    void add_allow_header();
     void process_method_not_allowed();
     bool is_status_error() const;
 
-    bool has_valid_index_page();
-    bool is_method_available();
-    bool is_autoindex();
-    bool is_redirect_target();
+    bool has_valid_index_page() const;
+    bool is_method_available() const;
+    bool is_autoindex() const;
+    bool is_redirect_target() const;
+    static bool is_support_content_type(const std::string &path);
+    static bool is_supported_by_media_type(const std::string &type);
+
     StatusCode redirect_to(const std::string &move_to);
     StatusCode upload_file();
+    static std::string get_http_date();
 
-    std::string get_http_date();
+    void add_allow_header();
+    void add_date_header();
+    void add_server_header();
+    void add_standard_headers();
+    void add_content_header(const std::string &extension);
+    void add_content_header_by_media_type(const std::string &media_type);
 
-    // GET
+        // GET
     StatusCode get_request_body();
     void get_error_page_to_body();
     bool is_cgi_file() const;
