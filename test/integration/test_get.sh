@@ -31,6 +31,8 @@ echo "================================================================"
 echo " GET TEST"
 echo "================================================================"
 
+pkill webserv
+
 prepare_test_file
 
 ./webserv $CONF_PATH &
@@ -65,12 +67,13 @@ expect_eq_get "$(curl -is "localhost:4242/autoindex_files")"    "301 Moved Perma
 expect_eq_get "$(curl -is "localhost:4242/upload")"             "301 Moved Permanently"    ""
 
 # CGI
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.py")"               "200 OK"   "html/cgi-bin/cgi-result/hello.txt"
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.py?query")"         "200 OK"   "html/cgi-bin/cgi-result/hello.txt"
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.py/path/info")"     "200 OK"   "html/cgi-bin/cgi-result/hello.txt"
-#expect_eq_get "$(curl -is "localhost:4242/cgi-bin/page.php")"               "200 OK"   "html/cgi-bin/cgi-result/page.txt"
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/post_simple.py")"         "200 OK"   "html/cgi-bin/cgi-result/post_simple_get.txt"
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.sh")"               "200 OK"   "html/cgi-bin/cgi-result/hello.txt"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.py")"                         "200 OK"   "test/integration/cgi-result/hello.txt"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.py?query")"                   "200 OK"   "test/integration/cgi-result/hello.txt"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.py/path/info")"               "200 OK"   "test/integration/cgi-result/hello.txt"
+# path... #expect_eq_get "$(curl -is "localhost:4242/cgi-bin/page.php")"               "200 OK"   "test/integration/cgi-result/page.txt"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/post_simple.py")"                   "200 OK"   "test/integration/cgi-result/post_simple_get.txt"
+expect_eq_get "$(curl -is --data "test text" localhost:4242/cgi-bin/post_simple.py)"  "200 OK"   "test/integration/cgi-result/post_simple_small.txt"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.sh")"                         "200 OK"   "test/integration/cgi-result/hello.txt"
 
 expect_eq_get "$(echo -en "GET  /  HTTP/1.1\r\nHost: localhost\r\n\r\n"       | nc localhost 4242)"   "400 Bad Request"    ""
 expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello_400.py")"           "400 Bad Request"            ""

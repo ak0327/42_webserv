@@ -482,6 +482,7 @@ ProcResult HttpResponse::send_request_body_to_cgi() {
         return Continue;
     }
     shutdown(this->cgi_write_fd(), SHUT_WR);
+    DEBUG_PRINT(YELLOW, "shutdown cgi write_fd");
     if (result == Failure) {
         StatusCode error_code = InternalServerError;
         this->set_status_code(error_code);

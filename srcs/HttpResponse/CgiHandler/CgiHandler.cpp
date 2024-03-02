@@ -629,13 +629,13 @@ void CgiHandler::set_cgi_write_fd(int write_fd) { this->cgi_write_fd_ = write_fd
 
 
 void CgiHandler::set_cgi_pid(pid_t pid) {
-    DEBUG_PRINT(RED, "set_pid  %d -> %d", this->pid(), pid);
+    DEBUG_PRINT(YELLOW, "cgi set_pid  %d -> %d", this->pid(), pid);
     this->cgi_pid_ = pid;
 }
 
 void CgiHandler::set_timeout_limit() {
     this->timeout_limit_ = std::time(NULL) + this->timeout_duration_sec();
-    DEBUG_PRINT(YELLOW, "set_timeout_limit: %zu, duration: %zu sec", this->timeout_limit(), this->timeout_duration_sec());
+    DEBUG_PRINT(YELLOW, "cgi set_timeout_limit: %zu, duration: %zu sec", this->timeout_limit(), this->timeout_duration_sec());
 }
 
 
@@ -653,9 +653,8 @@ time_t CgiHandler::timeout_duration_sec() const { return this->timeout_duration_
 const std::vector<unsigned char> &CgiHandler::cgi_body() const { return this->recv_buf_; }
 
 void CgiHandler::set_timeout_duration_sec(time_t timeout_sec) {
-    DEBUG_PRINT(RED, "set_timeout_duration");
     if (ConfigParser::is_valid_cgi_timeout(timeout_sec)) {
-        DEBUG_PRINT(RED, " valid duration [%zu]->[%zu]sec", this->timeout_duration_sec_, timeout_sec);
+        DEBUG_PRINT(RED, " cgi set_timeout_duration [%zu]->[%zu]sec", this->timeout_duration_sec_, timeout_sec);
         this->timeout_duration_sec_ = timeout_sec;
     }
 }

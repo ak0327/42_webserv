@@ -443,9 +443,8 @@ SessionResult ClientSession::process_file_event() {
                 this->set_session_state(kReceivingCgiResponse);
             } else {
                 // error -> response 500
-                DEBUG_PRINT(YELLOW, "    send erorr");
+                DEBUG_PRINT(YELLOW, "    send error");
                 // this->set_session_state(kCreatingResponseBody);
-                // todo: close and clear read/write fd from manager
                 this->set_session_state(kCreatingCGIBody);
             }
             break;
