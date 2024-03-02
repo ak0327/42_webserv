@@ -43,7 +43,7 @@ include_directories(
         includes
         srcs/Const
         srcs/Client
-        srcs/ClientSession
+        srcs/Event
         srcs/Config/FileHandler
         srcs/Config/ConfigParser
         srcs/Config/Token
@@ -81,7 +81,7 @@ include_directories(
 set(webserv_srcs
         srcs/Const/Constant.cpp
         srcs/Client/Client.cpp
-        srcs/ClientSession/ClientSession.cpp
+        srcs/Event/Event.cpp
         srcs/Config/FileHandler/FileHandler.cpp
         srcs/Config/ConfigParser/ConfigParser.cpp
         srcs/Config/Token/Token.cpp

@@ -27,9 +27,9 @@ SRCS		+=	$(CONFIG_DIR)/FileHandler/FileHandler.cpp \
 CONST_DIR	=	Const
 SRCS		+=	$(CONST_DIR)/Constant.cpp
 
-# ClientSession
-CLIENT_SESSION_DIR = ClientSession
-SRCS		+=	$(CLIENT_SESSION_DIR)/ClientSession.cpp
+# Event
+EVENT_DIR = Event
+SRCS		+=	$(EVENT_DIR)/Event.cpp
 
 # Error
 ERROR_DIR	=	Error
@@ -151,7 +151,7 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(CONFIG_DIR)/Token \
 				$(SRCS_DIR)/$(CONFIG_DIR)/Tokenizer \
 				$(SRCS_DIR)/$(CONFIG_DIR) \
-				$(SRCS_DIR)/$(CLIENT_SESSION_DIR) \
+				$(SRCS_DIR)/$(EVENT_DIR) \
 				$(SRCS_DIR)/$(CGI_DIR)
 
 REQUEST_INCLUDES =	$(SRCS_DIR)/$(REQUEST_DIR) \

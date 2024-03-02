@@ -10,7 +10,7 @@
 #include "webserv.hpp"
 #include "Color.hpp"
 #include "Config.hpp"
-#include "ClientSession.hpp"
+#include "Event.hpp"
 #include "Debug.hpp"
 #include "Error.hpp"
 #include "FileHandler.hpp"

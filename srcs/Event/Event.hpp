@@ -10,8 +10,8 @@
 # include "Result.hpp"
 # include "webserv.hpp"
 
-enum SessionState {
-    kSessionInit,
+enum EventState {
+    kEventInit,
 
     kReceivingRequest,
     kParsingRequest,
@@ -30,30 +30,30 @@ enum SessionState {
 
     kSendingResponse,
 
-    kSessionCompleted,
-    kSessionError
+    kEventCompleted,
+    kEventError
 };
 
 
-typedef Result<ProcResult, std::string> SessionResult;
+typedef Result<ProcResult, std::string> EventResult;
 
-class ClientSession {
+class Event {
  public:
-    ClientSession(int socket_fd,
-                  int client_fd,
-                  const AddressPortPair &client_listen,
-                  const Config &config);
+    Event(int socket_fd,
+          int client_fd,
+          const AddressPortPair &client_listen,
+          const Config &config);
 
-    ~ClientSession();
+    ~Event();
 
     int client_fd() const;
     int cgi_read_fd() const;
     int cgi_write_fd() const;
-    SessionState session_state() const;
+    EventState event_state() const;
 
-    void set_session_state(const SessionState &set_state);
+    void set_event_state(const EventState &set_state);
 
-    bool is_session_state_expect(const SessionState &expect) const;
+    bool is_event_state_expect(const EventState &expect) const;
 
     static bool is_continue_recv(const Result<ProcResult, StatusCode> &result);
     static bool is_continue_recv(const Result<ProcResult, std::string> &result);
@@ -62,8 +62,8 @@ class ClientSession {
     static bool is_executing_cgi(const Result<ProcResult, std::string> &result);
     static bool is_connection_closed(const Result<ProcResult, std::string> &result);
 
-    SessionResult process_client_event();
-    SessionResult process_file_event();
+    EventResult process_client_event();
+    EventResult process_file_event();
     ProcResult exec_cgi();
 
     time_t cgi_timeout_limit() const;
@@ -73,12 +73,10 @@ class ClientSession {
     void clear_response();
     void kill_cgi_process();
     void clear_cgi();
-    void close_cgi_read_fd();
-    void close_cgi_write_fd();
 
     static AddressPortPair get_client_listen(const struct sockaddr_storage &client_addr);
-    const char *session_state_char();
-    static const char *session_state_char(const SessionState &state);
+    const char *event_state_char();
+    static const char *event_state_char(const EventState &state);
 
  private:
     int socket_fd_;
@@ -89,7 +87,7 @@ class ClientSession {
     ServerConfig server_config_;
     AddressPortPair address_port_pair_;
 
-    SessionState session_state_;
+    EventState event_state_;
 
     HttpRequest *request_;  // todo: ptr; tmp & delete for next session
     HttpResponse *response_;  // todo: ptr; tmp & delete for next session
@@ -107,9 +105,9 @@ class ClientSession {
     ProcResult execute_each_method();
     Result<AddressPortPair, std::string> get_address_port_pair() const;
     Result<ServerConfig, std::string> get_server_config() const;
-    SessionResult get_host_config();
-    SessionResult recv_cgi_result();
+    EventResult get_host_config();
+    EventResult recv_cgi_result();
 
-    ClientSession(const ClientSession &other);
-    ClientSession &operator=(const ClientSession &rhs);
+    Event(const Event &other);
+    Event &operator=(const Event &rhs);
 };
