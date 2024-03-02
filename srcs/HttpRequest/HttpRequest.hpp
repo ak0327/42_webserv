@@ -33,7 +33,6 @@ class HttpRequest {
 
     RequestParsePhase parse_phase() const;
     void set_parse_phase(RequestParsePhase new_phase);
-
     void set_max_body_size(std::size_t max_body_size);
 
     Method method() const;

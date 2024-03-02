@@ -15,12 +15,11 @@
 
 Config::Config(const char *file_path) {
 	ConfigParser parser(file_path);
-    Result<int, std::string> parse_result = parser.result();
-	if (parse_result.is_err()) {
-		const std::string error_msg = parse_result.err_value();
+    if (parser.is_err()) {
+		const std::string error_msg = parser.result().err_value();
 		this->result_ = Result<int, std::string>::err(error_msg);
 		return;
-	}
+    }
 
     this->http_config_ = parser.config();
     set_server_configs();

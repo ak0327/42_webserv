@@ -23,6 +23,7 @@ class ConfigParser {
 
 	ConfigParser &operator=(const ConfigParser &rhs);
 
+    bool is_err() const;
 	Result<int, std::string> result() const;
 	HttpConfig config() const;
 

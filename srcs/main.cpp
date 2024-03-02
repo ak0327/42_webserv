@@ -27,7 +27,9 @@ const char *get_config_file_path(int argc, char **argv) {
 
 }  // namespace
 
+
 ////////////////////////////////////////////////////////////////////////////////
+
 
 int main(int argc, char **argv) {
     const char *config_file_path = get_config_file_path(argc, argv);

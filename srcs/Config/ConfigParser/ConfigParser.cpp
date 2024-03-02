@@ -199,6 +199,9 @@ void ConfigParser::fill_unspecified_server_name(HttpConfig *http_config) {
 }
 
 
+bool ConfigParser::is_err() const { return this->result_.is_err(); }
+
+
 Result<int, std::string> ConfigParser::result() const { return result_; }
 
 
