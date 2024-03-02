@@ -13,6 +13,12 @@ GREEN="\033[32m"
 YELLOW="\033[33m"
 RESET="\033[0m"
 
+SUCCESS=0
+FAILURE=1
+
+TRUE=1
+FALSE=0
+
 test_cnt=0
 
 ng_cnt=0
@@ -29,8 +35,6 @@ echo "================================================================"
 prepare_test_file
 
 ./webserv $CONF_PATH &
-
-SERVER_PID=$!
 
 sleep 1
 
@@ -95,34 +99,50 @@ test_post_upload "html/permission/rwx/"   "rwx.html"  "localhost:4242/upload/"  
 
 ################################################################################
 
-kill $SERVER_PID
+process_count=$(ps aux | grep '[w]ebserv' | wc -l)
+if [ "$process_count" -eq 0 ]; then
+  process_abort=$TRUE
+else
+  process_abort=$FALSE
+  pkill webserv
+fi
 
 ################################################################################
 
 echo
 echo "================================================================"
-echo " *** RESULT ***"
+echo " *** POST RESULT ***"
 exit_status=1
 if [ $ng_cnt -eq 0 ] && [ $skip_cnt -eq 0 ]; then
     echo -e " ${GREEN}All tests passed successfully${RESET}"
     exit_status=0
 fi
 
-echo "  Total Tests  : $test_cnt"
+echo "  Total Tests    : $test_cnt"
 
-echo "  Failed Tests : $ng_cnt"
+echo "  Failed Tests   : $ng_cnt"
 if [ $ng_cnt -gt 0 ]; then
     for case in "${ng_cases[@]}"; do
         echo -e "${RED}     $case${RESET}"
     done
 fi
 
-echo "  Skipped Tests: $skip_cnt"
+echo "  Skipped Tests  : $skip_cnt"
 if [ $skip_cnt -gt 0 ]; then
     for case in "${skip_cases[@]}"; do
         echo -e "${YELLOW}     $case${RESET}"
     done
 fi
+
+
+echo -n "  Process Aborted: "
+if [ $process_abort -eq $FALSE ]; then
+    echo -e "-"
+else
+    echo -e "${RED}Aborted${RESET}"
+    exit_status=$FAILURE
+fi
+
 
 echo "================================================================"
 echo ""

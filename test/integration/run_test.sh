@@ -19,8 +19,7 @@ if [ $get_result -eq 0 ] && [ $post_result -eq 0 ] && [ $delete_result -eq 0 ]; 
   echo -e "${GREEN}All tests passed successfully${RESET}"
 else
   echo -e "${RED}Some tests failed${RESET}"
-  # エラーがあった場合、どのテストが失敗したかを表示
-  [ $get_result -ne 0 ] && echo -e "${RED}test_get.sh failed${RESET}"
-  [ $post_result -ne 0 ] && echo -e "${RED}test_post.sh failed${RESET}"
-  [ $delete_result -ne 0 ] && echo -e "${RED}test_delete.sh failed${RESET}"
+  [ $get_result -ne 0 ] && echo -e "  ${RED}GET failed${RESET}"
+  [ $post_result -ne 0 ] && echo -e "  ${RED}POST failed${RESET}"
+  [ $delete_result -ne 0 ] && echo -e "  ${RED}DELETE failed${RESET}"
 fi
