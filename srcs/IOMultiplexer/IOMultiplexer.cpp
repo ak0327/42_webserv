@@ -425,7 +425,7 @@ int Select::get_max_fd() const {
 Result<int, std::string> Select::get_io_ready_fd() {
     this->max_fd_ = get_max_fd();
     // std::cout << CYAN << "max_fd: " << max_fd_ << RESET << std::endl;
-    this->set_io_multiplexer_timeout(500);
+    this->set_io_timeout(500);
 	init_fds();
 
     Result<int, std::string> select_result = select_fds();
@@ -513,14 +513,14 @@ FdType Select::get_fd_type(int fd) {
 }
 
 
-void Select::set_io_multiplexer_timeout(int timeout_msec) {
+void Select::set_io_timeout(int timeout_msec) {
     if (timeout_msec <= 0) {
-        DEBUG_PRINT(CYAN, "select set_io_multiplexer_timeout: [%d]->[-]sec",
+        DEBUG_PRINT(CYAN, "select set_io_timeout: [%d]->[-]sec",
                     this->timeout_.tv_sec + this->timeout_.tv_usec/1000000);
         this->timeout_.tv_sec = 0;
         this->timeout_.tv_usec = 0;
     } else {
-        DEBUG_PRINT(CYAN, "select set_io_multiplexer_timeout: [%d]->[%d]sec",
+        DEBUG_PRINT(CYAN, "select set_io_timeout: [%d]->[%d]sec",
                     this->timeout_.tv_sec + this->timeout_.tv_usec/1000000, timeout_msec/1000);
         this->timeout_.tv_sec = timeout_msec / 1000;
         this->timeout_.tv_usec = timeout_msec % 1000 * 1000;

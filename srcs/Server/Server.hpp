@@ -30,7 +30,7 @@ class Server {
     ServerResult init();
 	ServerResult run();
     ServerResult echo();  // todo: implement echo for test
-    void set_timeout(int timeout_msec);
+    void set_io_timeout(int timeout_msec);
 
  private:
 	std::map<Fd, Socket *> sockets_;
