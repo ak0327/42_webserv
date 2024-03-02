@@ -166,14 +166,9 @@ ServerResult Server::create_sockets(const Config &config) {
 
     std::map<ServerInfo, const ServerConfig *>::const_iterator servers;
     for (servers = server_configs.begin(); servers != server_configs.end(); ++servers) {
-        const std::string address = servers->first.address;
-        const std::string port = servers->first.port;
-
-        // std::cout << CYAN
-        // << "create_sockets -> ip: " << address
-        // << ", port: " << port << RESET << std::endl;
+        ServerInfo server = servers->first;
         try {
-            Result<Socket *, std::string> socket_result = create_socket(address, port);
+            Result<Socket *, std::string> socket_result = create_socket(server.address, server.port);
             if (socket_result.is_err()) {
                 const std::string error_msg = socket_result.err_value();
                 return ServerResult::err(error_msg);
@@ -183,7 +178,7 @@ ServerResult Server::create_sockets(const Config &config) {
             sockets_[socket_fd] = socket;
             // std::cout << "socket_fd: " << socket_fd << std::endl;
         }
-        catch (std::bad_alloc const &e) {
+        catch (const std::bad_alloc &e) {
             std::string err_info = CREATE_ERROR_INFO_STR("Failed to allocate memory");
             return ServerResult ::err(err_info);
         }
@@ -193,7 +188,7 @@ ServerResult Server::create_sockets(const Config &config) {
 
 
 void Server::delete_sockets() {
-    std::map<Fd, Socket *>::iterator itr;
+    std::map<SocketFd , Socket *>::iterator itr;
     for (itr = this->sockets_.begin(); itr != this->sockets_.end(); ++itr) {
         delete itr->second;
     }
@@ -208,7 +203,7 @@ void Server::close_client_fd(int fd) {
     if (this->fds_) {
         this->fds_->clear_fd(fd);
     }
-    std::deque<Fd>::iterator itr;
+    std::deque<ClientFd>::iterator itr;
     for (itr = this->client_fds_.begin(); itr != this->client_fds_.end(); ++itr) {
         if (*itr != fd) {
             continue;
@@ -234,7 +229,7 @@ Result<IOMultiplexer *, std::string> Server::create_io_multiplexer_fds() {
 #else
         IOMultiplexer *fds = new Poll();
 #endif
-        std::map<Fd, Socket *>::const_iterator socket;
+        std::map<SocketFd , Socket *>::const_iterator socket;
         for (socket = this->sockets_.begin(); socket != this->sockets_.end(); ++socket) {
             int socket_fd = socket->first;
             fds->register_read_fd(socket_fd);
@@ -242,7 +237,7 @@ Result<IOMultiplexer *, std::string> Server::create_io_multiplexer_fds() {
             DEBUG_SERVER_PRINT(" socket_fd: %d", socket_fd);
         }
         return Result<IOMultiplexer *, std::string>::ok(fds);
-    } catch (std::bad_alloc const &e) {
+    } catch (const std::bad_alloc &e) {
         std::string err_info = CREATE_ERROR_INFO_STR("Failed to allocate memory");
         return Result<IOMultiplexer *, std::string>::err(err_info);
     }
@@ -319,7 +314,7 @@ void Server::management_timeout_sessions() {
     std::set<FdTimeoutLimitPair>::const_iterator cgi;
 
     DEBUG_PRINT(GREEN, " debug print cgi_sessions:[");
-    for (std::map<Fd, ClientSession *>::iterator itr = cgi_sessions_.begin(); itr != cgi_sessions_.end(); ++itr) {
+    for (std::map<CgiFd, ClientSession *>::iterator itr = cgi_sessions_.begin(); itr != cgi_sessions_.end(); ++itr) {
         DEBUG_PRINT(GREEN, " fd:%d, client:%p", itr->first, itr->second);
     }
     DEBUG_PRINT(GREEN, "]");
@@ -462,7 +457,7 @@ void Server::init_session(ClientSession *session) {
 
 
 void Server::clear_sessions() {
-    std::map<Fd, ClientSession *>::iterator session;
+    std::map<ClientFd, ClientSession *>::iterator session;
     for (session = this->client_sessions_.begin(); session != client_sessions_.end(); ++session) {
         delete session->second;
         session->second = NULL;

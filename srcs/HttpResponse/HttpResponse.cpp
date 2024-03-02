@@ -439,9 +439,9 @@ std::string HttpResponse::create_status_line(const StatusCode &code) const {
     std::string status_line;
 
     status_line.append(this->request_.http_version());
-    status_line.append(SP);
+    status_line.append(1, SP);
     status_line.append(StringHandler::to_string(code));
-    status_line.append(SP);
+    status_line.append(1, SP);
     status_line.append(get_status_reason_phrase(code));
     return status_line;
 }

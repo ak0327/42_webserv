@@ -17,6 +17,7 @@
 # include "Socket.hpp"
 
 typedef Result<int, std::string> ServerResult;
+typedef Fd SocketFd;
 typedef Fd ClientFd;
 typedef Fd CgiFd;
 typedef std::pair<time_t, Fd> FdTimeoutLimitPair;
@@ -33,15 +34,15 @@ class Server {
     void set_io_timeout(int timeout_msec);
 
  private:
-	std::map<Fd, Socket *> sockets_;
+	std::map<SocketFd, Socket *> sockets_;
 	IOMultiplexer *fds_;
 
-    std::deque<Fd> socket_fds_;
-    std::deque<Fd> client_fds_;
+    std::deque<SocketFd> socket_fds_;
+    std::deque<ClientFd> client_fds_;
     std::set<FdTimeoutLimitPair> cgi_fds_;
 
-    std::map<Fd, ClientSession *> client_sessions_;
-    std::map<Fd, ClientSession *> cgi_sessions_;
+    std::map<ClientFd, ClientSession *> client_sessions_;
+    std::map<CgiFd, ClientSession *> cgi_sessions_;
 
     const Config &config_;
 
@@ -66,7 +67,6 @@ class Server {
 
     void clear_cgi_fd_from_event_manager(int fd);
     void erase_from_timeout_manager(int cgi_fd);
-    std::set<FdTimeoutLimitPair>::iterator get_timeout_cgi();
 
     bool is_socket_fd(int fd) const;
     bool is_fd_type_expect(int fd, const FdType &type);
