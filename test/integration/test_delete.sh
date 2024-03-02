@@ -27,19 +27,15 @@ ng_cases=()
 skip_cnt=0
 skip_cases=()
 
+defunct_before=0
+defunct_after=0
+defunct_count=0
+defunct_generated=$FALSE
+process_abort=$FALSE
+
 ################################################################################
 
-echo "================================================================"
-echo " DELETE TEST"
-echo "================================================================"
-
-pkill webserv
-
-prepare_test_file
-
-./webserv $CONF_PATH &
-
-sleep 1
+start_up "DELETE TEST"
 
 ################################################################################
 
@@ -63,15 +59,8 @@ expect_eq_delete "localhost" "4242" "/a/b/c/d/"           ""                    
 
 ################################################################################
 
-process_count=$(ps aux | grep '[w]ebserv' | wc -l)
-if [ "$process_count" -eq 0 ]; then
-  process_abort=$TRUE
-else
-  process_abort=$FALSE
-  pkill webserv
-fi
+tear_down
 
-#echo "process_count:$process_count, abort:$process_abort"
 ################################################################################
 
 echo
@@ -103,6 +92,14 @@ if [ $skip_cnt -gt 0 ]; then
     done
 fi
 
+
+echo -n "  Defunct Process: "
+if [ $defunct_generated -eq $FALSE ]; then
+    echo -e "-"
+else
+    echo -e "${RED}$defunct_count defunct process${RESET}"
+    exit_status=$FAILURE
+fi
 
 
 echo -n "  Process Aborted: "

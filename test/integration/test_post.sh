@@ -28,19 +28,15 @@ ng_cases=()
 skip_cnt=0
 skip_cases=()
 
+defunct_before=0
+defunct_after=0
+defunct_count=0
+defunct_generated=$FALSE
+process_abort=$FALSE
+
 ################################################################################
-echo "================================================================"
-echo " POST TEST"
-echo "================================================================"
 
-pkill webserv
-
-prepare_test_file
-
-./webserv $CONF_PATH &
-
-
-sleep 1
+start_up "POST TEST"
 
 ################################################################################
 
@@ -103,14 +99,7 @@ test_post_upload "html/permission/rwx/"   "rwx.html"  "localhost:4242/upload/"  
 
 ################################################################################
 
-
-process_count=$(ps aux | grep '[w]ebserv' | wc -l)
-if [ "$process_count" -eq 0 ]; then
-  process_abort=$TRUE
-else
-  process_abort=$FALSE
-  pkill webserv
-fi
+tear_down
 
 ################################################################################
 
@@ -126,8 +115,8 @@ fi
 
 echo "  Total Tests    : $test_cnt"
 
-echo "  Failed Tests   : $ng_cnt"
 
+echo "  Failed Tests   : $ng_cnt"
 if [ $ng_cnt -gt 0 ]; then
     for case in "${ng_cases[@]}"; do
         echo -e "${RED}     $case${RESET}"
@@ -143,6 +132,14 @@ if [ $skip_cnt -gt 0 ]; then
     done
 fi
 
+
+echo -n "  Defunct Process: "
+if [ $defunct_generated -eq $FALSE ]; then
+    echo -e "-"
+else
+    echo -e "${RED}$defunct_count defunct process${RESET}"
+    exit_status=$FAILURE
+fi
 
 
 echo -n "  Process Aborted: "
