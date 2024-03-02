@@ -11,7 +11,9 @@ enum ProcResult {
     ExecutingCgi,
     PrepareNextProc,
     ConnectionClosed,
-    
+
+    Timeout,
+
     Failure,
     FatalError
 };

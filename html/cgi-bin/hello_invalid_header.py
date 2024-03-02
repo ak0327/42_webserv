@@ -1,16 +1,13 @@
 #!/usr/bin/env python3
-import time
 
 
 def header():
-    print('Content-Type: text/html')
+    print('Status: 200')
     print()
 
 
 def main():
-    print('sleep...')
-    time.sleep(5)
-    print('...fin')
+    print('invalid header: NO Content-Type')
 
 
 if __name__ == "__main__":

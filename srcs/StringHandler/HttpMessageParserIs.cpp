@@ -14,17 +14,15 @@
 
 namespace HttpMessageParser {
 
-bool is_print(const std::string &str)
-{
+bool is_print(const std::string &str) {
 	if (str.empty()) {
 		return false;
 	}
 
 	for (size_t pos = 0; pos < str.length(); ++pos) {
-		if (std::isprint(str[pos])) {
-			continue;
+		if (!std::isprint(static_cast<unsigned char>(str[pos]))) {
+		    return false;
 		}
-		return false;
 	}
 	return true;
 }
@@ -600,7 +598,7 @@ bool is_origin_form(const std::string &str) {
 }
 
 // absolute-form = absolute-URI
-bool is_absolure_form(const std::string &str) {
+bool is_absolute_form(const std::string &str) {
 	return is_absolute_uri(str);
 }
 
@@ -621,7 +619,7 @@ bool is_valid_request_target(const std::string &request_target) {
 	if (request_target.empty()) {
 		return false;
 	}
-	return is_origin_form(request_target) || is_absolure_form(request_target);
+	return is_origin_form(request_target) || is_absolute_form(request_target);
 }
 
 /*

@@ -12,6 +12,7 @@ extern const int OK;
 extern const int ERR;
 extern const int CGI;
 extern const int CONTINUE;
+extern const int PROCESS_TIMEOUT;
 
 extern const int GETADDRINFO_SUCCESS;
 extern const int REMOVE_SUCCESS;

@@ -1,16 +1,13 @@
 #!/usr/bin/env python3
-import time
 
 
 def header():
-    print('Content-Type: text/html')
+    print("Content-Type: text/plain")
     print()
 
 
 def main():
-    print('sleep...')
-    time.sleep(5)
-    print('...fin')
+    exit(1)
 
 
 if __name__ == "__main__":

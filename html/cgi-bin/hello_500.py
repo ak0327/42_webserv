@@ -1,3 +1,9 @@
 #!/usr/bin/env python3
 
-print('hello 500, NO content-type')
+
+def main():
+    print('hello 500, NO content-type')
+
+
+if __name__ == "__main__":
+    main()

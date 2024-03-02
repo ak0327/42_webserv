@@ -255,13 +255,14 @@ ProcResult CgiHandler::recv_cgi_output() {
     }
     // CgiHandler::close_read_fd();  // close fd in ClientSession
     DEBUG_PRINT(YELLOW, "      process_exit_status: %d", process_exit_status);
-    if (process_exit_status != EXIT_SUCCESS) {
-        clear_recv_buf();
-        DEBUG_PRINT(YELLOW, "      recv failure");
-        return Failure;
+    if (process_exit_status == EXIT_SUCCESS) {
+        DEBUG_PRINT(YELLOW, "      recv success");
+        return Success;
     }
-    DEBUG_PRINT(YELLOW, "      recv success");
-    return Success;
+
+    clear_recv_buf();
+    DEBUG_PRINT(YELLOW, "      recv failure or timeout");
+    return process_exit_status == PROCESS_TIMEOUT ? Timeout : Failure;
 }
 
 
@@ -608,9 +609,13 @@ bool CgiHandler::is_processing(int *status) {
     DEBUG_PRINT(YELLOW, "    is_cgi_processing 6");
     if (0 < wait_result && status) {
         if (WIFSIGNALED(child_status)) {
-            *status = EXIT_FAILURE;
             int term_sig = WTERMSIG(child_status);
-            DEBUG_PRINT(YELLOW, "    Child terminated by signal: %d", term_sig);
+            if (term_sig == SIGKILL) {
+                *status = PROCESS_TIMEOUT;
+            } else {
+                *status = EXIT_FAILURE;
+            }
+            DEBUG_PRINT(YELLOW, "    Child terminated by signal: %d, status: %d", term_sig, *status);
         } else {
             *status = WEXITSTATUS(child_status);
             DEBUG_PRINT(YELLOW, "    is_cgi_processing 7 status: %d", *status);
@@ -629,13 +634,13 @@ void CgiHandler::set_cgi_write_fd(int write_fd) { this->cgi_write_fd_ = write_fd
 
 
 void CgiHandler::set_cgi_pid(pid_t pid) {
-    DEBUG_PRINT(RED, "set_pid  %d -> %d", this->pid(), pid);
+    DEBUG_PRINT(YELLOW, "cgi set_pid  %d -> %d", this->pid(), pid);
     this->cgi_pid_ = pid;
 }
 
 void CgiHandler::set_timeout_limit() {
     this->timeout_limit_ = std::time(NULL) + this->timeout_duration_sec();
-    DEBUG_PRINT(YELLOW, "set_timeout_limit: %zu, duration: %zu sec", this->timeout_limit(), this->timeout_duration_sec());
+    DEBUG_PRINT(YELLOW, "cgi set_timeout_limit: %zu, duration: %zu sec", this->timeout_limit(), this->timeout_duration_sec());
 }
 
 
@@ -655,7 +660,7 @@ const std::vector<unsigned char> &CgiHandler::cgi_body() const { return this->re
 void CgiHandler::set_timeout_duration_sec(time_t timeout_sec) {
     DEBUG_PRINT(RED, "set_timeout_duration");
     if (ConfigParser::is_valid_cgi_timeout(timeout_sec)) {
-        DEBUG_PRINT(RED, " valid duration [%zu]->[%zu]sec", this->timeout_duration_sec_, timeout_sec);
+        DEBUG_PRINT(RED, " cgi set_timeout_duration [%zu]->[%zu]sec", this->timeout_duration_sec_, timeout_sec);
         this->timeout_duration_sec_ = timeout_sec;
     }
 }

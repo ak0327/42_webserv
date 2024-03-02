@@ -42,7 +42,7 @@ void stop_by_signal(int sig) {
 
         case SIGPIPE:
             std::cout << "Received SIGPIPE" << std::endl;
-            return;
+            break;
             std::exit(EXIT_FAILURE);
 
         default:
@@ -253,10 +253,6 @@ Result<IOMultiplexer *, std::string> Server::create_io_multiplexer_fds() {
 
 
 ServerResult Server::run() {
-#ifndef UNIT_TEST
-    this->set_timeout(500);  // todo
-#endif
-    // this->set_timeout(1000);
 	while (true) {
         DEBUG_SERVER_PRINT(" run 1 timeout management");
         management_timeout_sessions();
@@ -272,10 +268,12 @@ ServerResult Server::run() {
 		int ready_fd = fd_ready_result.get_ok_value();
         DEBUG_SERVER_PRINT(" run 4 ready_fd: %d", ready_fd);
 		if (ready_fd == IO_TIMEOUT) {
+            // std::cerr << "[Server INFO] timeout" << std::endl;
 #ifdef UNIT_TEST
-			std::cerr << "[Server INFO] timeout" << std::endl;
+            DEBUG_SERVER_PRINT("  timeout -> break");
             break;
 #else
+            DEBUG_SERVER_PRINT("  timeout -> continue");
             continue;
 #endif
 		}
@@ -665,5 +663,5 @@ ServerResult Server::accept_connect_fd(int socket_fd,
 
 
 void Server::set_timeout(int timeout_msec) {
-    this->fds_->set_timeout(timeout_msec);
+    this->fds_->set_io_multiplexer_timeout(timeout_msec);
 }

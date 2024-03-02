@@ -1,5 +1,46 @@
 #!/bin/bash
 
+TRUE=1
+FALSE=0
+
+start_up() {
+    local test_name=$1
+    echo "================================================================"
+    echo " $test_name"
+    echo "================================================================"
+
+    pkill webserv
+
+    defunct_before=$(ps aux | grep defunct | grep -v grep | wc -l)
+
+    prepare_test_file
+
+    ./webserv $CONF_PATH &
+
+    sleep 1
+}
+
+
+tear_down() {
+    defunct_after=$(ps aux | grep defunct | grep -v grep | wc -l)
+    defunct_count=$((defunct_after - defunct_before))
+    if [ $defunct_count -eq 0 ]; then
+      defunct_generated=$FALSE
+    else
+      defunct_generated=$TRUE
+    fi
+
+
+    process_count=$(ps aux | grep '[w]ebserv' | wc -l)
+    if [ $process_count -eq 0 ]; then
+      process_abort=$TRUE
+    else
+      process_abort=$FALSE
+      pkill webserv
+    fi
+}
+
+
 expect_eq_get() {
     local response=$1
     local expected_status=$2

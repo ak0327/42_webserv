@@ -29,7 +29,7 @@ class IOMultiplexer {
     virtual Result<int, std::string> register_read_fd(int read_fd) = 0;
     virtual Result<int, std::string> register_write_fd(int write_fd) = 0;
     virtual Result<int, std::string> clear_fd(int fd) = 0;
-    virtual void set_timeout(int timeout_msec) = 0;
+    virtual void set_io_multiplexer_timeout(int timeout_msec) = 0;
     virtual FdType get_fd_type(int fd) = 0;
 };
 
@@ -85,7 +85,7 @@ class Select : public IOMultiplexer {
     virtual Result<int, std::string> register_read_fd(int read_fd);
     virtual Result<int, std::string> register_write_fd(int write_fd);
 	virtual Result<int, std::string> clear_fd(int fd);
-    virtual void set_timeout(int timeout_msec);
+    virtual void set_io_multiplexer_timeout(int timeout_msec);
 
     FdType get_fd_type(int fd);
 

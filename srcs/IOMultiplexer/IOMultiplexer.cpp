@@ -319,6 +319,13 @@ void Select::init_fds() {
 }
 
 
+bool is_setting_no_timeout(struct timeval timeout) {
+    return timeout.tv_sec < 0
+            || timeout.tv_usec < 0
+            || (timeout.tv_sec <= 0 && timeout.tv_usec <= 0);
+}
+
+
 Result<int, std::string> Select::select_fds() {
     // debug
     std::ostringstream oss;
@@ -345,9 +352,11 @@ Result<int, std::string> Select::select_fds() {
 
     errno = 0;
     int select_ret;
-    if (this->timeout_.tv_sec < 0 || this->timeout_.tv_usec < 0 || (this->timeout_.tv_sec <= 0 && this->timeout_.tv_usec <= 0)) {
+    if (is_setting_no_timeout(this->timeout_)) {
+        DEBUG_PRINT(CYAN, "select: timeout NULL");
         select_ret = select(this->max_fd_ + 1, &this->read_fd_set_, &this->write_fd_set_, NULL, NULL);
     } else {
+        DEBUG_PRINT(CYAN, "select: timeout %d sec", this->timeout_.tv_sec + this->timeout_.tv_usec / 1000000);
         select_ret = select(this->max_fd_ + 1, &this->read_fd_set_, &this->write_fd_set_, NULL, &this->timeout_);
     }
     // int select_ret = select(this->max_fd_ + 1, &this->fd_set_, NULL, NULL, NULL);
@@ -414,9 +423,9 @@ int Select::get_max_fd() const {
 
 
 Result<int, std::string> Select::get_io_ready_fd() {
-	this->max_fd_ = get_max_fd();
+    this->max_fd_ = get_max_fd();
     // std::cout << CYAN << "max_fd: " << max_fd_ << RESET << std::endl;
-
+    this->set_io_multiplexer_timeout(500);
 	init_fds();
 
     Result<int, std::string> select_result = select_fds();
@@ -504,11 +513,15 @@ FdType Select::get_fd_type(int fd) {
 }
 
 
-void Select::set_timeout(int timeout_msec) {
+void Select::set_io_multiplexer_timeout(int timeout_msec) {
     if (timeout_msec <= 0) {
+        DEBUG_PRINT(CYAN, "select set_io_multiplexer_timeout: [%d]->[-]sec",
+                    this->timeout_.tv_sec + this->timeout_.tv_usec/1000000);
         this->timeout_.tv_sec = 0;
         this->timeout_.tv_usec = 0;
     } else {
+        DEBUG_PRINT(CYAN, "select set_io_multiplexer_timeout: [%d]->[%d]sec",
+                    this->timeout_.tv_sec + this->timeout_.tv_usec/1000000, timeout_msec/1000);
         this->timeout_.tv_sec = timeout_msec / 1000;
         this->timeout_.tv_usec = timeout_msec % 1000 * 1000;
     }

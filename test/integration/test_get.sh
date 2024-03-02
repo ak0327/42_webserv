@@ -12,6 +12,12 @@ GREEN="\033[32m"
 YELLOW="\033[33m"
 RESET="\033[0m"
 
+SUCCESS=0
+FAILURE=1
+
+TRUE=1
+FALSE=0
+
 test_cnt=0
 
 ng_cnt=0
@@ -20,18 +26,15 @@ ng_cases=()
 skip_cnt=0
 skip_cases=()
 
+defunct_before=0
+defunct_after=0
+defunct_count=0
+defunct_generated=$FALSE
+process_abort=$FALSE
+
 ################################################################################
-echo "================================================================"
-echo " GET TEST"
-echo "================================================================"
 
-prepare_test_file
-
-./webserv $CONF_PATH &
-
-SERVER_PID=$!
-
-sleep 1
+start_up "GET TEST"
 
 ################################################################################
 
@@ -61,24 +64,30 @@ expect_eq_get "$(curl -is "localhost:4242/autoindex_files")"    "301 Moved Perma
 expect_eq_get "$(curl -is "localhost:4242/upload")"             "301 Moved Permanently"    ""
 
 # CGI
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.py")"               "200 OK"   "html/cgi-bin/cgi-result/hello.txt"
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.py?query")"         "200 OK"   "html/cgi-bin/cgi-result/hello.txt"
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.py/path/info")"     "200 OK"   "html/cgi-bin/cgi-result/hello.txt"
- expect_eq_get "$(curl -is "localhost:4242i-bin/page.php")"""              "200 OK"   "html/cgi-bin/cgi-result/page.txt"
- expect_eq_get "$(curl -is "localhost:4242i-bin/post_simple.py")"""        "200 OK"   "html/cgi-bin/cgi-result/post_simple_get.txt"
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.sh")"               "200 OK"   "html/cgi-bin/cgi-result/hello.txt"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.py")"                         "200 OK"   "test/integration/cgi-result/hello.txt"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.py?query")"                   "200 OK"   "test/integration/cgi-result/hello.txt"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.py/path/info")"               "200 OK"   "test/integration/cgi-result/hello.txt"
+# path... #expect_eq_get "$(curl -is "localhost:4242/cgi-bin/page.php")"               "200 OK"   "test/integration/cgi-result/page.txt"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/post_simple.py")"                   "200 OK"   "test/integration/cgi-result/post_simple_get.txt"
+expect_eq_get "$(curl -is --data "test text" localhost:4242/cgi-bin/post_simple.py)"  "200 OK"   "test/integration/cgi-result/post_simple_small.txt"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.sh")"                         "200 OK"   "test/integration/cgi-result/hello.txt"
 
-expect_eq_get "$(echo -en "GET  /  HTTP/1.1\r\nHost: localhost\r\n\r\n"       | nc localhost 4242)"   "400 Bad Request"    ""
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello_400.py")"           "400 Bad Request"            ""
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/error_no_shebang.py")"    "500 Internal Server Error"  "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/error_wrong_shebang.py")" "500 Internal Server Error"  "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello_404.py")"           "404 Not Found"              "html/404.html"
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello_500.py")"           "500 Internal Server Error"  "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/infinite_loop.py")"       "500 Internal Server Error"  "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/infinite_print.py")"      "500 Internal Server Error"  "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/sleep5sec.py")"           "500 Internal Server Error"  "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/sleep10sec.py")"          "500 Internal Server Error"  "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/nothing.py")"             "404 Not Found"              "html/404.html"
+
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello_400.py")"             "400 Bad Request"             ""
+
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello_404.py")"             "404 Not Found"               "html/404.html"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/nothing.py")"               "404 Not Found"               "html/404.html"
+
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/error_no_shebang.py")"      "500 Internal Server Error"   "html/50x.html"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/error_wrong_shebang.py")"   "500 Internal Server Error"   "html/50x.html"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/exit1.py")"                 "500 Internal Server Error"   "html/50x.html"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello_invalid_header.py")"  "500 Internal Server Error"   "html/50x.html"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello_500.py")"             "500 Internal Server Error"   "html/50x.html"
+
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/infinite_loop.py")"         "504 Gateway Timeout"         "html/50x.html"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/infinite_print.py")"        "504 Gateway Timeout"         "html/50x.html"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/sleep5sec.py")"             "504 Gateway Timeout"         "html/50x.html"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/sleep10sec.py")"            "504 Gateway Timeout"         "html/50x.html"
 
 
 # 404 Not Found
@@ -109,6 +118,7 @@ expect_eq_get "$(echo -en "GET\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"
 expect_eq_get "$(echo -en "GET /\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"                  "400 Bad Request"    ""
 expect_eq_get "$(echo -en "GET HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"           "400 Bad Request"    ""
 expect_eq_get "$(echo -en "  GET / \r\nHost: localhost\r\n\r\n" | nc localhost 4242)"               "400 Bad Request"    ""
+expect_eq_get "$(echo -en "GET  /  HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"       "400 Bad Request"    ""
 expect_eq_get "$(echo -en "GET / / HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"       "400 Bad Request"    ""
 
 ## invalid method
@@ -181,37 +191,58 @@ expect_eq_get "$(curl -is "localhost:4242/permission/rwx/rwx.html")"    "200 OK"
 
 
 
-################################################################################
-
-kill $SERVER_PID
+tear_down
 
 ################################################################################
 
 echo
 echo "================================================================"
-echo " *** RESULT ***"
-exit_status=1
+echo " *** GET RESULT ***"
+exit_status=$FAILURE
 
 if [ $ng_cnt -eq 0 ] && [ $skip_cnt -eq 0 ]; then
     echo -e " ${GREEN}All tests passed successfully${RESET}"
-    exit_status=0
+    exit_status=$SUCCESS
 fi
 
-echo "  Total Tests  : $test_cnt"
+echo "  Total Tests    : $test_cnt"
 
-echo "  Failed Tests : $ng_cnt"
+
+echo "  Failed Tests   : $ng_cnt"
 if [ $ng_cnt -gt 0 ]; then
     for case in "${ng_cases[@]}"; do
-        echo -e "${RED}     $case${RESET}"
+        echo -n "     "
+        echo -e "${RED}$case${RESET}"
     done
 fi
 
-echo "  Skipped Tests: $skip_cnt"
+
+echo "  Skipped Tests  : $skip_cnt"
 if [ $skip_cnt -gt 0 ]; then
     for case in "${skip_cases[@]}"; do
-        echo -e "${YELLOW}     $case${RESET}"
+        echo -n "     "
+        echo -e "${YELLOW}$case${RESET}"
     done
 fi
+
+
+echo -n "  Defunct Process: "
+if [ $defunct_generated -eq $FALSE ]; then
+    echo -e "-"
+else
+    echo -e "${RED}$defunct_count defunct process${RESET}"
+    exit_status=$FAILURE
+fi
+
+echo -n "  Process Aborted: "
+if [ $process_abort -eq $FALSE ]; then
+    echo -e "-"
+else
+    echo -e "${RED}Aborted${RESET}"
+    exit_status=$FAILURE
+fi
+
+
 
 echo "================================================================"
 echo ""

@@ -128,6 +128,10 @@ SessionResult ClientSession::process_client_event() {
         case kCreatingCGIBody: {
             DEBUG_SERVER_PRINT("   Session: 3 CreatingResponse");
             ProcResult response_result = create_http_response();
+            if (response_result == FatalError) {
+                // fail to new HttpRequest or HttpReqponse
+                return SessionResult::err("fail to memory allocate");
+            }
             if (response_result == ExecutingCgi) {
                 return SessionResult::ok(ExecutingCgi);
             }
@@ -241,8 +245,7 @@ ProcResult ClientSession::parse_http_request() {
 
 // status changes in each func
 ProcResult ClientSession::create_http_response() {
-    DEBUG_SERVER_PRINT("    CreatingResponse status: %d",
-                       this->request_->request_status());
+    DEBUG_SERVER_PRINT("    CreatingResponse status: %d", this->request_->request_status());
     while (true) {
         switch (this->session_state_) {
             case kExecutingMethod: {
@@ -389,7 +392,7 @@ ProcResult ClientSession::execute_each_method() {
     catch (const std::exception &e) {
         const std::string error_msg = CREATE_ERROR_INFO_STR("Failed to allocate memory");
         std::cerr << error_msg << std::endl;
-        return FatalError;
+        return FatalError;  // fail to new Request -> can't send 500
     }
     if (this->response_->is_exec_cgi()) {
         this->set_session_state(kExecuteCGI);
@@ -443,9 +446,8 @@ SessionResult ClientSession::process_file_event() {
                 this->set_session_state(kReceivingCgiResponse);
             } else {
                 // error -> response 500
-                DEBUG_PRINT(YELLOW, "    send erorr");
+                DEBUG_PRINT(YELLOW, "    send error");
                 // this->set_session_state(kCreatingResponseBody);
-                // todo: close and clear read/write fd from manager
                 this->set_session_state(kCreatingCGIBody);
             }
             break;
