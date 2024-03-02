@@ -663,5 +663,5 @@ ServerResult Server::accept_connect_fd(int socket_fd,
 
 
 void Server::set_timeout(int timeout_msec) {
-    this->fds_->set_timeout(timeout_msec);
+    this->fds_->set_io_multiplexer_timeout(timeout_msec);
 }
