@@ -25,7 +25,7 @@ TEST(TestConfig, ConfigOK) {
 
         Config config(itr->c_str());
 
-        Result<int, std::string> result = config.get_result();
+        Result<int, std::string> result = config.result();
         // print_error_msg(result, __LINE__);
         EXPECT_TRUE(result.is_ok());
     }
@@ -40,7 +40,7 @@ TEST(TestConfig, ConfigNG) {
 
         Config config(itr->c_str());
 
-        Result<int, std::string> result = config.get_result();
+        Result<int, std::string> result = config.result();
         print_error_msg(result, __LINE__);
         EXPECT_TRUE(result.is_err());
     }
@@ -253,7 +253,7 @@ TEST(TestConfig, ConfigGetterOK1) {
     ServerConfig server_config;
     Result<ServerConfig, int> server_config_result;
 
-    result = config.get_result();
+    result = config.result();
 
     // print_error_msg(result, __LINE__);
     ASSERT_TRUE(result.is_ok());
@@ -1051,7 +1051,7 @@ TEST(TestConfig, ConfigGetterOK2) {
     ServerConfig server_config;
     Result<ServerConfig, int> server_config_result;
 
-    result = config.get_result();
+    result = config.result();
 
     // print_error_msg(result, __LINE__);
     ASSERT_TRUE(result.is_ok());

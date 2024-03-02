@@ -52,6 +52,9 @@ Config &Config::operator=(const Config &rhs) {
 }
 
 
+bool Config::is_err() const { return this->result_.is_err(); }
+
+
 void Config::set_server_configs() {
     const std::vector<ServerConfig> &server_configs = this->http_config_.servers;
 
@@ -145,7 +148,7 @@ Result<int, std::string> Config::set_default_servers() {
 }
 
 
-Result<int, std::string> Config::get_result() const { return this->result_; }
+Result<int, std::string> Config::result() const { return this->result_; }
 
 
 std::map<ServerInfo, const ServerConfig *> Config::get_server_configs() const {

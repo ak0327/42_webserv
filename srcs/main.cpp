@@ -40,15 +40,13 @@ int main(int argc, char **argv) {
     DEBUG_PRINT(WHITE, "config_file_path=[%s]", config_file_path);
 
     Config config(config_file_path);
-    Result<int, std::string> config_result = config.get_result();
-    if (config_result.is_err()) {
-        const std::string error_msg = config_result.err_value();
+    if (config.is_err()) {
+        const std::string error_msg = config.result().err_value();
         std::cerr << error_msg << std::endl;
         return EXIT_FAILURE;
     }
 
     Server server(config);
-
     ServerResult init_result = server.init();
     if (init_result.is_err()) {
         const std::string error_msg = init_result.err_value();
