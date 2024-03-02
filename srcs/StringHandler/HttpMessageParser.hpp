@@ -94,7 +94,7 @@ bool is_authority(const std::string &str);
 bool is_mailbox(const std::string &str);
 bool is_atom(const std::string &str);
 bool is_origin_form(const std::string &str);
-bool is_absolure_form(const std::string &str);
+bool is_absolute_form(const std::string &str);
 bool is_authority_form(const std::string &str);
 bool is_asterisk_form(const std::string &str);
 

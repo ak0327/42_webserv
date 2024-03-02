@@ -675,19 +675,19 @@ std::string convert_to_str(const Method &method) {
 
 
 std::string escape_html(const std::string &raw_html) {
-    std::string escaped_html;
+    std::ostringstream escaped_html;
 
     for (std::size_t i = 0; i < raw_html.length(); ++i) {
         char c = raw_html[i];
         switch (c) {
-            case '<': escaped_html += "&lt;"; break;
-            case '>': escaped_html += "&gt;"; break;
-            case '&': escaped_html += "&amp;"; break;
-            case '"': escaped_html += "&quot;"; break;
-            default: escaped_html += c; break;
+            case '<': escaped_html << "&lt;"; break;
+            case '>': escaped_html << "&gt;"; break;
+            case '&': escaped_html << "&amp;"; break;
+            case '"': escaped_html << "&quot;"; break;
+            default: escaped_html << c; break;
         }
     }
-    return escaped_html;
+    return escaped_html.str();
 }
 
 
