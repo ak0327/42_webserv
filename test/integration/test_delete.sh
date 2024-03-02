@@ -77,6 +77,7 @@ fi
 echo
 echo "================================================================"
 echo " *** DELETE RESULT ***"
+
 exit_status=1
 if [ $ng_cnt -eq 0 ] && [ $skip_cnt -eq 0 ]; then
     echo -e " ${GREEN}All tests passed successfully${RESET}"
@@ -86,18 +87,22 @@ fi
 echo "  Total Tests    : $test_cnt"
 
 echo "  Failed Tests   : $ng_cnt"
+
 if [ $ng_cnt -gt 0 ]; then
     for case in "${ng_cases[@]}"; do
         echo -e "${RED}     $case${RESET}"
     done
 fi
 
+
 echo "  Skipped Tests  : $skip_cnt"
+
 if [ $skip_cnt -gt 0 ]; then
     for case in "${skip_cases[@]}"; do
         echo -e "${YELLOW}     $case${RESET}"
     done
 fi
+
 
 
 echo -n "  Process Aborted: "
