@@ -77,7 +77,6 @@ expect_eq_get "$(curl -is --data "test text" localhost:4242/cgi-bin/post_simple.
 expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.sh")"                         "200 OK"   "test/integration/cgi-result/hello.txt"
 
 
-expect_eq_get "$(echo -en "GET  /  HTTP/1.1\r\nHost: localhost\r\n\r\n"       | nc localhost 4242)"       "400 Bad Request"    ""
 expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello_400.py")"             "400 Bad Request"             ""
 
 expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello_404.py")"             "404 Not Found"               "html/404.html"
@@ -123,6 +122,7 @@ expect_eq_get "$(echo -en "GET\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"
 expect_eq_get "$(echo -en "GET /\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"                  "400 Bad Request"    ""
 expect_eq_get "$(echo -en "GET HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"           "400 Bad Request"    ""
 expect_eq_get "$(echo -en "  GET / \r\nHost: localhost\r\n\r\n" | nc localhost 4242)"               "400 Bad Request"    ""
+expect_eq_get "$(echo -en "GET  /  HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"       "400 Bad Request"    ""
 expect_eq_get "$(echo -en "GET / / HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"       "400 Bad Request"    ""
 
 ## invalid method
