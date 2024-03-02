@@ -81,7 +81,7 @@ parse_and_validate_transfer_parameter(const std::string &field_value,
 	if (parse_result.is_err()) {
 		return Result<std::map<std::string, std::string> , int>::err(ERR);
 	}
-	transfer_parameter = parse_result.get_ok_value();
+	transfer_parameter = parse_result.ok_value();
 
 	validate_result = validate_transfer_parameter(transfer_parameter);
 	if (validate_result.is_err()) {
@@ -151,7 +151,7 @@ parse_and_validate_t_codings_with_weight_set(const std::string &field_value) {
 		if (transfer_coding_result.is_err()) {
 			return Result<std::set<FieldValueWithWeight>, int>::err(ERR);
 		}
-		transfer_coding = transfer_coding_result.get_ok_value();
+		transfer_coding = transfer_coding_result.ok_value();
 		pos = end;
 
 		HttpMessageParser::skip_ows(field_value, &pos);
@@ -161,7 +161,7 @@ parse_and_validate_t_codings_with_weight_set(const std::string &field_value) {
 			delete transfer_coding;
 			return Result<std::set<FieldValueWithWeight>, int>::err(ERR);
 		}
-		weight = weight_result.get_ok_value();
+		weight = weight_result.ok_value();
 
 		pos = end;
 
@@ -172,7 +172,7 @@ parse_and_validate_t_codings_with_weight_set(const std::string &field_value) {
 		if (skip_result.is_err()) {
 			return Result<std::set<FieldValueWithWeight>, int>::err(ERR);
 		}
-		pos = skip_result.get_ok_value();
+		pos = skip_result.ok_value();
 	}
 	return Result<std::set<FieldValueWithWeight>, int>::ok(t_codings_set);
 }
@@ -199,13 +199,13 @@ Result<int, int> HttpRequest::set_te(const std::string &field_name,
 
 	result = parse_and_validate_t_codings_with_weight_set(field_value);
 	if (result.is_err()) {
-		if (result.get_err_value() == STATUS_SERVER_ERROR) {
+		if (result.err_value() == STATUS_SERVER_ERROR) {
 			return Result<int, int>::err(STATUS_SERVER_ERROR);
 		}
 		return Result<int, int>::ok(OK);
 	}
 
-	t_codings_set = result.get_ok_value();
+	t_codings_set = result.ok_value();
 	this->request_header_fields_[field_name] = new FieldValueWithWeightSet(t_codings_set);
 	return Result<int, int>::ok(OK);
 }

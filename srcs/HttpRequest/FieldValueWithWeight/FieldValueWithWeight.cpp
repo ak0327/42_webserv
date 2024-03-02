@@ -166,7 +166,7 @@ Result<double, int> FieldValueWithWeight::parse_valid_weight(const std::string &
 		if (parse_result.is_err()) {
 			return Result<double, int>::err(ERR);
 		}
-		weight = parse_result.get_ok_value();
+		weight = parse_result.ok_value();
 		pos = end;
 	} else {
 		weight = WEIGHT_INIT;

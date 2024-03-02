@@ -222,7 +222,7 @@ Result<std::string, ProcResult> HttpRequest::pop_line_from_buf(std::vector<unsig
     if (result.is_err()) {
         return Result<std::string, ProcResult>::err(Failure);
     }
-    std::string line = result.get_ok_value();
+    std::string line = result.ok_value();
     trim(buf, next_line);
 
     std::string debug_buf(buf->begin(), buf->end());
@@ -270,7 +270,7 @@ Result<ProcResult, StatusCode> HttpRequest::parse_start_line_and_headers() {
             DEBUG_SERVER_PRINT("    parse start_line_and_headers -> continue");
             return Result<ProcResult, StatusCode>::ok(Continue);  // no line in buf -> recv
         }
-        std::string line = line_result.get_ok_value();
+        std::string line = line_result.ok_value();
         DEBUG_SERVER_PRINT("    parse start_line_and_headers 3 line[%s]", line.c_str());
 
         switch (this->phase_) {
@@ -279,7 +279,7 @@ Result<ProcResult, StatusCode> HttpRequest::parse_start_line_and_headers() {
                 result = this->request_line_.parse_and_validate(line);
                 if (result.is_err()) {
                     DEBUG_SERVER_PRINT("     parse RequestLine err");
-                    error_status_code = result.get_err_value();
+                    error_status_code = result.err_value();
                     return Result<ProcResult, StatusCode>::err(error_status_code);  // todo: code
                 }
                 DEBUG_SERVER_PRINT("     parse RequestLine -> Header");
@@ -296,7 +296,7 @@ Result<ProcResult, StatusCode> HttpRequest::parse_start_line_and_headers() {
                 result = parse_and_validate_field_line(line);
                 if (result.is_err()) {
                     DEBUG_SERVER_PRINT("     parse Headers -> err");
-                    error_status_code = result.get_err_value();
+                    error_status_code = result.err_value();
                     return Result<ProcResult, StatusCode>::err(error_status_code);  // todo: code
                 }
                 DEBUG_SERVER_PRINT("     parse Headers -> continue");
@@ -327,7 +327,7 @@ Result<ProcResult, StatusCode> HttpRequest::parse_body() {
         }
     }
 
-    std::size_t content_length = result.get_ok_value();
+    std::size_t content_length = result.ok_value();
     DEBUG_SERVER_PRINT("      ParseBody content-length: %zu", content_length);
 
     if (this->request_max_body_size_ < content_length) {
@@ -361,7 +361,7 @@ Result<HostPortPair, StatusCode> HttpRequest::server_info() const {
     if (result.is_err()) {
         return Result<HostPortPair, StatusCode>::err(BadRequest);  // 400 Bad Request
     }
-    std::map<std::string, std::string> host = result.get_ok_value();
+    std::map<std::string, std::string> host = result.ok_value();
     HostPortPair pair = std::make_pair(host[URI_HOST], host[PORT]);
     return Result<HostPortPair, StatusCode>::ok(pair);
 }
@@ -411,7 +411,7 @@ StatusCode HttpRequest::parse_and_validate_http_request(const std::string &input
         Result<ProcResult, StatusCode> field_line_result = parse_and_validate_field_lines(&ss);
 
         if (field_line_result.is_err()) {
-            if (field_line_result.get_err_value() == InternalServerError) {
+            if (field_line_result.err_value() == InternalServerError) {
                 return InternalServerError;
             }
             return BadRequest;
@@ -457,7 +457,7 @@ Result<ProcResult, StatusCode> HttpRequest::parse_and_validate_field_lines(std::
 		if (get_line_result.is_err()) {
 			return Result<ProcResult, StatusCode>::err(BadRequest);
 		}
-		std::string field_line = get_line_result.get_ok_value();
+		std::string field_line = get_line_result.ok_value();
 
         std::string	field_name, field_value;
         Result<ProcResult, StatusCode> field_line_result = split_field_line(
@@ -538,7 +538,8 @@ Result<ProcResult, StatusCode> HttpRequest::parse_and_validate_field_lines(const
     try {
         Result<ProcResult, StatusCode> field_line_result = parse_and_validate_field_lines(&ss);
         if (field_line_result.is_err()) {
-            return Result<ProcResult, StatusCode>::err(field_line_result.get_err_value());
+            return Result<ProcResult, StatusCode>::err(
+                    field_line_result.err_value());
         }
         return Result<ProcResult, StatusCode>::ok(Success);
     } catch (const std::bad_alloc &e) {
@@ -559,7 +560,7 @@ Result<ProcResult, StatusCode> HttpRequest::split_field_line(const std::string &
 	if (field_name_result.is_err()) {
 		return Result<ProcResult, StatusCode>::err(BadRequest);
 	}
-	std::string field_name = field_name_result.get_ok_value();
+	std::string field_name = field_name_result.ok_value();
 
 	// ":"
 	if (field_line[pos] != ':') {
@@ -577,7 +578,7 @@ Result<ProcResult, StatusCode> HttpRequest::split_field_line(const std::string &
 	if (field_value_result.is_err()) {
 		return Result<ProcResult, StatusCode>::err(BadRequest);
 	}
-    std::string field_value = field_value_result.get_ok_value();
+    std::string field_value = field_value_result.ok_value();
 
 	// OWS
 	while (HttpMessageParser::is_whitespace(field_line[pos])) {
@@ -810,7 +811,7 @@ std::string HttpRequest::content_type() const {
     if (result.is_err()) {
         return EMPTY;
     }
-    MediaType media_type = result.get_ok_value();
+    MediaType media_type = result.ok_value();
     std::string content_type = media_type.type();
     if (!media_type.subtype().empty()) {
         content_type.append("/");

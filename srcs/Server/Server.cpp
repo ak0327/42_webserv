@@ -97,7 +97,7 @@ Server::~Server() {
 ServerResult Server::init() {
     ServerResult socket_result = create_sockets(this->config_);
     if (socket_result.is_err()) {
-        const std::string socket_err_msg = socket_result.get_err_value();
+        const std::string socket_err_msg = socket_result.err_value();
         std::ostringstream oss;
         oss << RED << "[Server Error] Initialization error: " << socket_err_msg << RESET;
         return ServerResult::err(oss.str());
@@ -106,17 +106,17 @@ ServerResult Server::init() {
     ServerResult signal_result = set_signal();
     if (signal_result.is_err()) {
         std::ostringstream oss;
-        oss << RED << "[Server Error] Initialization error: signal: " << signal_result.get_err_value() << RESET;
+        oss << RED << "[Server Error] Initialization error: signal: " << signal_result.err_value() << RESET;
         return ServerResult::err(oss.str());
     }
 
     Result<IOMultiplexer *, std::string> fds_result = create_io_multiplexer_fds();
     if (fds_result.is_err()) {
         std::ostringstream oss;
-        oss << RED << "[Server Error] Initialization error: " << fds_result.get_err_value() << RESET;
+        oss << RED << "[Server Error] Initialization error: " << fds_result.err_value() << RESET;
         return ServerResult::err(oss.str());
     }
-    this->fds_ = fds_result.get_ok_value();
+    this->fds_ = fds_result.ok_value();
     return ServerResult::ok(OK);
 }
 
@@ -130,22 +130,22 @@ Result<Socket *, std::string> Server::create_socket(const std::string &address,
 
         SocketResult init_result = socket->init();
         if (init_result.is_err()) {
-            throw std::runtime_error(init_result.get_err_value());
+            throw std::runtime_error(init_result.err_value());
         }
 
         SocketResult bind_result = socket->bind();
         if (bind_result.is_err()) {
-            throw std::runtime_error(bind_result.get_err_value());
+            throw std::runtime_error(bind_result.err_value());
         }
 
         SocketResult listen_result = socket->listen();
         if (listen_result.is_err()) {
-            throw std::runtime_error(listen_result.get_err_value());
+            throw std::runtime_error(listen_result.err_value());
         }
 
         SocketResult set_fd_result = socket->set_fd_to_nonblock();
         if (set_fd_result.is_err()) {
-            throw std::runtime_error(set_fd_result.get_err_value());
+            throw std::runtime_error(set_fd_result.err_value());
         }
 
         return Result<Socket *, std::string>::ok(socket);
@@ -175,10 +175,10 @@ ServerResult Server::create_sockets(const Config &config) {
         try {
             Result<Socket *, std::string> socket_result = create_socket(address, port);
             if (socket_result.is_err()) {
-                const std::string error_msg = socket_result.get_err_value();
+                const std::string error_msg = socket_result.err_value();
                 return ServerResult::err(error_msg);
             }
-            Socket *socket = socket_result.get_ok_value();
+            Socket *socket = socket_result.ok_value();
             int socket_fd = socket->get_socket_fd();
             sockets_[socket_fd] = socket;
             // std::cout << "socket_fd: " << socket_fd << std::endl;
@@ -262,10 +262,10 @@ ServerResult Server::run() {
         DEBUG_SERVER_PRINT(" run 3 ready result");
 		if (fd_ready_result.is_err()) {
             DEBUG_SERVER_PRINT(" run : error 1");
-            const std::string error_msg = fd_ready_result.get_err_value();
+            const std::string error_msg = fd_ready_result.err_value();
             return ServerResult::err(error_msg);
 		}
-		int ready_fd = fd_ready_result.get_ok_value();
+		int ready_fd = fd_ready_result.ok_value();
         DEBUG_SERVER_PRINT(" run 4 ready_fd: %d", ready_fd);
 		if (ready_fd == IO_TIMEOUT) {
             // std::cerr << "[Server INFO] timeout" << std::endl;
@@ -280,7 +280,7 @@ ServerResult Server::run() {
         DEBUG_SERVER_PRINT(" run 5 communicate");
         ServerResult communicate_result = communicate_with_client(ready_fd);
 		if (communicate_result.is_err()) {
-            const std::string error_msg = communicate_result.get_err_value();
+            const std::string error_msg = communicate_result.err_value();
             DEBUG_SERVER_PRINT(" run : error 2");
             return ServerResult::err(error_msg);
 		}
@@ -370,15 +370,16 @@ ServerResult Server::create_session(int socket_fd) {
     struct sockaddr_storage client_addr = {};
     ServerResult accept_result = accept_connect_fd(socket_fd, &client_addr);
     if (accept_result.is_err()) {
-        const std::string error_msg = accept_result.get_err_value();
+        const std::string error_msg = accept_result.err_value();
         return ServerResult::err(error_msg);
     }
-    int connect_fd = accept_result.get_ok_value();
+    int connect_fd = accept_result.ok_value();
     // todo: mv
     errno = 0;
     Result<int, std::string> non_block = Socket::set_fd_to_nonblock(connect_fd);
     if (non_block.is_err()) {
-        const std::string error_msg = CREATE_ERROR_INFO_STR(non_block.get_err_value());
+        const std::string error_msg = CREATE_ERROR_INFO_STR(
+                non_block.err_value());
         return Result<int, std::string>::err(error_msg);
     }
 
@@ -575,7 +576,7 @@ ServerResult Server::process_session(int ready_fd) {
     }
 
     if (result.is_err()) {
-        const std::string error_msg = result.get_err_value();
+        const std::string error_msg = result.err_value();
         return ServerResult::err(error_msg);
 
     } else if (ClientSession::is_continue_recv(result)) {
@@ -641,15 +642,16 @@ ServerResult Server::accept_connect_fd(int socket_fd,
 
     SocketResult accept_result = Socket::accept(socket_fd, client_addr);
     if (accept_result.is_err()) {
-        const std::string error_msg = accept_result.get_err_value();
+        const std::string error_msg = accept_result.err_value();
         return ServerResult::err(error_msg);
     }
-	int connect_fd = accept_result.get_ok_value();
+	int connect_fd = accept_result.ok_value();
     DEBUG_SERVER_PRINT("  accepted connect read_fd: %d", connect_fd);
 
     ServerResult fd_register_result = this->fds_->register_read_fd(connect_fd);
 	if (fd_register_result.is_err()) {
-		std::string err_info = CREATE_ERROR_INFO_STR(fd_register_result.get_err_value());
+		std::string err_info = CREATE_ERROR_INFO_STR(
+                fd_register_result.err_value());
 		std::cerr << "[Server Error]" << err_info << std::endl;
 		errno = 0;
 		if (close(connect_fd) == CLOSE_ERROR) {

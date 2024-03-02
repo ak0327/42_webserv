@@ -124,7 +124,7 @@ parse_and_validate_keep_alive_info(const std::string &field_value) {
 	if (parse_result.is_err()) {
 		return Result<std::map<std::string, std::string>, int>::err(ERR);
 	}
-	keep_alive_info = parse_result.get_ok_value();
+	keep_alive_info = parse_result.ok_value();
 
 	validate_result = validate_keep_alive_info(keep_alive_info);
 	if (validate_result.is_err()) {
@@ -158,7 +158,7 @@ Result<int, int> HttpRequest::set_keep_alive(const std::string &field_name,
 	clear_field_values_of(field_name);
 	result = parse_and_validate_keep_alive_info(field_value);
 	if (result.is_ok()) {
-		keep_alive_info = result.get_ok_value();
+		keep_alive_info = result.ok_value();
 		this->request_header_fields_[field_name] = new MapFieldValues(keep_alive_info);
 	}
 	return Result<int, int>::ok(STATUS_OK);

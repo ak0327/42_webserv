@@ -31,7 +31,7 @@ TEST(HttpResponseGET, GetResourcePath) {
     ServerInfo server_info = ServerInfo(server_name, address, port);
     Result<ServerConfig, int> server_config_result = config.get_server_config(server_info);
     ASSERT_TRUE(server_config_result.is_ok());
-    ServerConfig server_config = server_config_result.get_ok_value();
+    ServerConfig server_config = server_config_result.ok_value();
 
     std::string request_msg, expected_path;
     request_msg = "GET / HTTP/1.1\r\n"

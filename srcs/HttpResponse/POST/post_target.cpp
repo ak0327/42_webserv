@@ -92,7 +92,7 @@ ProcResult HttpResponse::parse_until_binary(const std::string &boundary,
             // std::cout << RED << "   parser1: 2c" << RESET << std::endl;
             return Failure;
         }
-        std::string line = line_result.get_ok_value();
+        std::string line = line_result.ok_value();
         // std::cout << RED << "   parser1: 3 line:" << line << RESET << std::endl;
 
         if (line == separator || line.empty()) {
@@ -115,7 +115,7 @@ ProcResult HttpResponse::parse_until_binary(const std::string &boundary,
                 // std::cout << RED << "   parser1: 7 err" << RESET << std::endl;
                 return Failure;
             }
-            *file_name = file_name_result.get_ok_value();
+            *file_name = file_name_result.ok_value();
             DEBUG_PRINT(RED, " file_name[%s]", file_name->c_str());
 
         } else if (name == std::string(CONTENT_TYPE)) {
@@ -125,7 +125,7 @@ ProcResult HttpResponse::parse_until_binary(const std::string &boundary,
                 // std::cout << RED << "   parser1: 9 err" << RESET << std::endl;
                 return Failure;
             }
-            *content_type = content_type_result.get_ok_value();
+            *content_type = content_type_result.ok_value();
             DEBUG_PRINT(RED, " content_type[%s]", content_type->c_str());
 
             // std::cout << RED << "   parser1: 10" << RESET << std::endl;
@@ -139,7 +139,7 @@ ProcResult HttpResponse::parse_until_binary(const std::string &boundary,
         // std::cout << RED << "   parser1: 12 err" << RESET << std::endl;
         return Failure;
     }
-    std::string line = line_result.get_ok_value();
+    std::string line = line_result.ok_value();
     if (!line.empty()) {
         // std::cout << RED << "   parser1: 13 err" << RESET << std::endl;
         return Failure;
@@ -166,7 +166,7 @@ ProcResult HttpResponse::parse_binary_data(const std::string &boundary,
             // std::cout << RED << "   parser2: 3" << RESET << std::endl;
             return Failure;
         }
-        std::string line = line_result.get_ok_value();
+        std::string line = line_result.ok_value();
         if (line == "--" + boundary + "--" || line == "--" + boundary) {
             // std::cout << RED << "   parser2: 4" << RESET << std::endl;
             if (pos != data->begin()) { --pos; }
@@ -220,7 +220,7 @@ StatusCode HttpResponse::upload_multipart_form_data(const std::string &boundary)
         return BadRequest;
     }
     // std::cout << RED << " upload 3" << RESET << std::endl;
-    FormData form_data = parse_result.get_ok_value();
+    FormData form_data = parse_result.ok_value();
 
     const std::string file_name = form_data.file_name;
     std::string rooted_path = get_rooted_path();
@@ -262,7 +262,7 @@ bool HttpResponse::is_multipart_form_data(std::string *boundary) {
     if (result.is_err()) {
         return false;
     }
-    MediaType media_type = result.get_ok_value();
+    MediaType media_type = result.ok_value();
     if (!(media_type.type() == "multipart" && media_type.subtype() == "form-data")) {
         return false;
     }

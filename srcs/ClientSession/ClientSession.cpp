@@ -192,7 +192,7 @@ ProcResult ClientSession::parse_http_request() {
         DEBUG_SERVER_PRINT("               ParsingRequest 1");
         Result<ProcResult, StatusCode> parse_result = this->request_->parse_start_line_and_headers();
         if (parse_result.is_err()) {
-            StatusCode error_code = parse_result.get_err_value();
+            StatusCode error_code = parse_result.err_value();
             DEBUG_SERVER_PRINT("               ParsingRequest 2 error: %d", error_code);
             this->request_->set_request_status(error_code);
             return Success;
@@ -211,7 +211,8 @@ ProcResult ClientSession::parse_http_request() {
         // todo: Result<ProcResult, StatusCode>
         Result<ProcResult, std::string> config_result = get_host_config();
         if (config_result.is_err()) {
-            DEBUG_SERVER_PRINT("               ParsingRequest 5 error: %s", config_result.get_err_value().c_str());
+            DEBUG_SERVER_PRINT("               ParsingRequest 5 error: %s",
+                               config_result.err_value().c_str());
             // StatusCode error_code = config_result.get_err_value();
             // DEBUG_SERVER_PRINT("               ParsingRequest 5 error: %d", error_code);
             this->request_->set_request_status(BadRequest);
@@ -224,7 +225,7 @@ ProcResult ClientSession::parse_http_request() {
         DEBUG_SERVER_PRINT("               ParsingRequest 6 body");
         Result<ProcResult, StatusCode> parse_result = this->request_->parse_body();
         if (parse_result.is_err()) {
-            StatusCode error_code = parse_result.get_err_value();
+            StatusCode error_code = parse_result.err_value();
             DEBUG_SERVER_PRINT("               ParsingRequest 7 body error: %d", error_code);
             this->request_->set_request_status(error_code);
             return Success;
@@ -320,18 +321,18 @@ Result<ServerConfig, std::string> ClientSession::get_server_config() const {
         const std::string error_msg = CREATE_ERROR_INFO_STR("Fail to get host from Host header");
         return Result<ServerConfig, std::string>::err(error_msg);
     }
-    HostPortPair host_port_pair = get_request_host.get_ok_value();
+    HostPortPair host_port_pair = get_request_host.ok_value();
     // DEBUG_PRINT(YELLOW, " host: %s, port:%s", host_port_pair.first.c_str(), host_port_pair.second.c_str());
 
     Result<ServerConfig, std::string> config_result;
     config_result = config_.get_server_config(this->address_port_pair_, host_port_pair);
     if (config_result.is_err()) {
         // DEBUG_PRINT(YELLOW, "get_server_config err");
-        const std::string error_msg = config_result.get_err_value();
+        const std::string error_msg = config_result.err_value();
         return Result<ServerConfig, std::string>::err(error_msg);
     }
     // DEBUG_PRINT(YELLOW, "get_server_config ok");
-    ServerConfig server_config = config_result.get_ok_value();
+    ServerConfig server_config = config_result.ok_value();
     return Result<ServerConfig, std::string>::ok(server_config);
 }
 
@@ -339,17 +340,17 @@ Result<ServerConfig, std::string> ClientSession::get_server_config() const {
 SessionResult ClientSession::get_host_config() {
     Result<AddressPortPair, std::string> address_result = get_address_port_pair();
     if (address_result.is_err()) {
-        const std::string error_msg = address_result.get_err_value();
+        const std::string error_msg = address_result.err_value();
         return SessionResult::err(error_msg);
     }
-    this->address_port_pair_ = address_result.get_ok_value();
+    this->address_port_pair_ = address_result.ok_value();
 
     Result<ServerConfig, std::string> config_result = ClientSession::get_server_config();
     if (config_result.is_err()) {
-        const std::string error_msg = config_result.get_err_value();
+        const std::string error_msg = config_result.err_value();
         return SessionResult::err(error_msg);
     }
-    this->server_config_ = config_result.get_ok_value();
+    this->server_config_ = config_result.ok_value();
 
     const std::string request_target = this->request_->request_target();
 
@@ -359,7 +360,7 @@ SessionResult ClientSession::get_host_config() {
         const std::string error_msg = CREATE_ERROR_INFO_STR("error: fail to get client_max_body_size");
         return SessionResult::err(error_msg);
     }
-    std::size_t max_body_size = body_size_result.get_ok_value();
+    std::size_t max_body_size = body_size_result.ok_value();
     this->request_->set_max_body_size(max_body_size);
     return SessionResult::ok(Success);
 }
@@ -407,7 +408,7 @@ ProcResult ClientSession::execute_each_method() {
 ProcResult ClientSession::exec_cgi() {
     SessionResult result = process_file_event();
     if (result.is_err()) {
-        std::cerr << result.get_err_value() << std::endl;  // todo: logging
+        std::cerr << result.err_value() << std::endl;  // todo: logging
         return Failure;  // todo: 500
     }
     return ExecutingCgi;
@@ -548,32 +549,32 @@ bool ClientSession::is_session_state_expect(const SessionState &expect) const {
 
 
 bool ClientSession::is_continue_recv(const Result<ProcResult, StatusCode> &result) {
-    return result.is_ok() && result.get_ok_value() == Continue;
+    return result.is_ok() && result.ok_value() == Continue;
 }
 
 
 bool ClientSession::is_continue_recv(const Result<ProcResult, std::string> &result) {
-    return result.is_ok() && result.get_ok_value() == Continue;
+    return result.is_ok() && result.ok_value() == Continue;
 }
 
 
 bool ClientSession::is_read_conf_for_parse_body(const Result<ProcResult, StatusCode> &result) {
-    return result.is_ok() && result.get_ok_value() == PrepareNextProc;
+    return result.is_ok() && result.ok_value() == PrepareNextProc;
 }
 
 
 bool ClientSession::is_executing_cgi(const Result<ProcResult, StatusCode> &result) {
-    return result.is_ok() && result.get_ok_value() == ExecutingCgi;
+    return result.is_ok() && result.ok_value() == ExecutingCgi;
 }
 
 
 bool ClientSession::is_executing_cgi(const Result<ProcResult, std::string> &result) {
-    return result.is_ok() && result.get_ok_value() == ExecutingCgi;
+    return result.is_ok() && result.ok_value() == ExecutingCgi;
 }
 
 
 bool ClientSession::is_connection_closed(const Result<ProcResult, std::string> &result) {
-    return result.is_ok() && result.get_ok_value() == ConnectionClosed;
+    return result.is_ok() && result.ok_value() == ConnectionClosed;
 }
 
 

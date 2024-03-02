@@ -92,11 +92,11 @@ FileHandler::FileHandler(const char *path, const char *expected_extension) {
 
 	get_file_contents_result = get_file_contents(path);
 	if (get_file_contents_result.is_err()) {
-		error_msg = get_file_contents_result.get_err_value();
+		error_msg = get_file_contents_result.err_value();
 		this->result_ = Result<int, std::string>::err(error_msg);
 		return;
 	}
-	this->contents_ = get_file_contents_result.get_ok_value();
+	this->contents_ = get_file_contents_result.ok_value();
 	this->result_ = Result<int, std::string>::ok(OK);
 }
 
@@ -177,18 +177,18 @@ StatusCode FileHandler::delete_file() {
     }
 
     Result<bool, StatusCode> is_dir = this->is_directory();
-    if (is_dir.is_ok() && is_dir.get_ok_value()) {
+    if (is_dir.is_ok() && is_dir.ok_value()) {
         // std::cout << CYAN << "  delete_file 2 err: dir -> Forbidden " << RESET << std::endl;
         return Forbidden;
     }
 
     Result<bool, StatusCode> is_file_result = this->is_file();
     if (is_file_result.is_err()) {
-        StatusCode error_code = is_file_result.get_err_value();
+        StatusCode error_code = is_file_result.err_value();
         // std::cout << CYAN << "  delete_file 3 err: is_file error " << error_code << RESET << std::endl;
         return error_code;
     }
-    bool is_file = is_file_result.get_ok_value();
+    bool is_file = is_file_result.ok_value();
     if (!is_file) {
         // std::cout << CYAN << "  delete_file 5 err: is not file -> Forbidden" << RESET << std::endl;
         return Forbidden;
@@ -216,7 +216,7 @@ StatusCode FileHandler::create_file(const std::vector<unsigned char> &data) {
         // std::cout << YELLOW << "create_file 3 error -> 409" << RESET << std::endl;
         return Conflict;
     }
-    StatusCode file_result = result.get_err_value();
+    StatusCode file_result = result.err_value();
     if (file_result != NotFound) {
         // std::cout << YELLOW << "create_file 4 error -> 403" << RESET << std::endl;
         return Forbidden;

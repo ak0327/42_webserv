@@ -176,7 +176,7 @@ void expect_eq_getter(const ServerConfig &server_config,
         ASSERT_TRUE(result.is_err()) << "  at L" << line;
     } else {
         ASSERT_TRUE(result.is_ok()) << "  at L" << line;
-        Value actual = result.get_ok_value();
+        Value actual = result.ok_value();
 
         EXPECT_EQ(expected, actual) << "  at L" << line;;
     }
@@ -199,7 +199,7 @@ void expect_eq_method(const ServerConfig &server_config,
             ASSERT_TRUE(result.is_ok()) << "  at L" << line;
 
             // std::cout << CYAN << " method: " << itr->first << ", expected: " << itr->second << ", actual: " << result.get_ok_value() << RESET << std::endl;
-            EXPECT_EQ(itr->second, result.get_ok_value()) << "  at L" << line;;
+            EXPECT_EQ(itr->second, result.ok_value()) << "  at L" << line;;
         }
     }
 }
@@ -217,7 +217,7 @@ void expect_eq_redirect(const ServerConfig &server_config,
     } else {
         ASSERT_TRUE(result.is_ok()) << "  at L" << line;
 
-        ReturnDirective actual = result.get_ok_value();
+        ReturnDirective actual = result.ok_value();
         EXPECT_EQ(expected.return_on, actual.return_on) << "  at L" << line;;
         EXPECT_EQ(expected.code, actual.code) << "  at L" << line;;
         EXPECT_EQ(expected.text, actual.text) << "  at L" << line;;
@@ -266,7 +266,7 @@ TEST(TestConfig, ConfigGetterOK1) {
     ServerInfo server_info = ServerInfo(server_name, address, port);
     server_config_result = config.get_server_config(server_info);
     ASSERT_TRUE(server_config_result.is_ok());
-    server_config = server_config_result.get_ok_value();
+    server_config = server_config_result.ok_value();
 
     location_path = "/";
     expected_error = false;
@@ -295,10 +295,10 @@ TEST(TestConfig, ConfigGetterOK1) {
     ASSERT_TRUE(error_page_result.is_err());
     error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     ASSERT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/404.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/404.html", error_page_result.ok_value());
     error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     ASSERT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/50x.html", error_page_result.ok_value());
 
     expected_cgi_mode = ConfigInitValue::kDefaultRedirectOn;
     expected_cgi_extension = {};
@@ -338,10 +338,10 @@ TEST(TestConfig, ConfigGetterOK1) {
     EXPECT_TRUE(error_page_result.is_err());
     error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/404.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/404.html", error_page_result.ok_value());
     error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/50x.html", error_page_result.ok_value());
 
     expected_cgi_mode = ConfigInitValue::kDefaultRedirectOn;
     expected_cgi_extension = {"hello"};
@@ -378,10 +378,10 @@ TEST(TestConfig, ConfigGetterOK1) {
     EXPECT_TRUE(error_page_result.is_err());
     error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/404.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/404.html", error_page_result.ok_value());
     error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/50x.html", error_page_result.ok_value());
 
     expected_cgi_mode = ConfigInitValue::kDefaultRedirectOn;
     expected_cgi_extension = {};
@@ -418,10 +418,10 @@ TEST(TestConfig, ConfigGetterOK1) {
     EXPECT_TRUE(error_page_result.is_err());
     error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/404.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/404.html", error_page_result.ok_value());
     error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/50x.html", error_page_result.ok_value());
 
     expected_cgi_mode = true;
     expected_cgi_extension = {"py", "php"};
@@ -456,10 +456,10 @@ TEST(TestConfig, ConfigGetterOK1) {
     EXPECT_TRUE(error_page_result.is_err());
     error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/404.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/404.html", error_page_result.ok_value());
     error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/50x.html", error_page_result.ok_value());
 
 
 
@@ -576,10 +576,10 @@ TEST(TestConfig, ConfigGetterOK1) {
     ASSERT_TRUE(error_page_result.is_err());
     error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     ASSERT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/404.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/404.html", error_page_result.ok_value());
     error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     ASSERT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/50x.html", error_page_result.ok_value());
 
 
     // -------------------------------------------------------------------------
@@ -591,7 +591,7 @@ TEST(TestConfig, ConfigGetterOK1) {
     server_info = ServerInfo(server_name, address, port);
     server_config_result = config.get_server_config(server_info);
     ASSERT_TRUE(server_config_result.is_ok());
-    server_config = server_config_result.get_ok_value();
+    server_config = server_config_result.ok_value();
 
 
     location_path = "/";
@@ -620,10 +620,10 @@ TEST(TestConfig, ConfigGetterOK1) {
     EXPECT_TRUE(error_page_result.is_err());
     error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/404.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/404.html", error_page_result.ok_value());
     error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/50x.html", error_page_result.ok_value());
 
 
 
@@ -656,10 +656,10 @@ TEST(TestConfig, ConfigGetterOK1) {
     EXPECT_TRUE(error_page_result.is_err());
     error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/404.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/404.html", error_page_result.ok_value());
     error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/50x.html", error_page_result.ok_value());
 
 
 
@@ -689,10 +689,10 @@ TEST(TestConfig, ConfigGetterOK1) {
     EXPECT_TRUE(error_page_result.is_err());
     error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/404.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/404.html", error_page_result.ok_value());
     error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/50x.html", error_page_result.ok_value());
 
 
 
@@ -722,10 +722,10 @@ TEST(TestConfig, ConfigGetterOK1) {
     EXPECT_TRUE(error_page_result.is_err());
     error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/404.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/404.html", error_page_result.ok_value());
     error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/50x.html", error_page_result.ok_value());
 
 
 
@@ -755,10 +755,10 @@ TEST(TestConfig, ConfigGetterOK1) {
     EXPECT_TRUE(error_page_result.is_err());
     error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/404.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/404.html", error_page_result.ok_value());
     error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/50x.html", error_page_result.ok_value());
 
 
 
@@ -808,7 +808,7 @@ TEST(TestConfig, ConfigGetterOK1) {
     server_info = ServerInfo(server_name, address, port);
     server_config_result = config.get_server_config(server_info);
     ASSERT_TRUE(server_config_result.is_ok());
-    server_config = server_config_result.get_ok_value();
+    server_config = server_config_result.ok_value();
 
 
     location_path = "/";
@@ -837,10 +837,10 @@ TEST(TestConfig, ConfigGetterOK1) {
     EXPECT_TRUE(error_page_result.is_err());
     error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/404.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/404.html", error_page_result.ok_value());
     error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/50x.html", error_page_result.ok_value());
 
 
 
@@ -873,10 +873,10 @@ TEST(TestConfig, ConfigGetterOK1) {
     EXPECT_TRUE(error_page_result.is_err());
     error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/404.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/404.html", error_page_result.ok_value());
     error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/50x.html", error_page_result.ok_value());
 
 
 
@@ -906,10 +906,10 @@ TEST(TestConfig, ConfigGetterOK1) {
     EXPECT_TRUE(error_page_result.is_err());
     error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/404.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/404.html", error_page_result.ok_value());
     error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/50x.html", error_page_result.ok_value());
 
 
 
@@ -939,10 +939,10 @@ TEST(TestConfig, ConfigGetterOK1) {
     EXPECT_TRUE(error_page_result.is_err());
     error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/404.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/404.html", error_page_result.ok_value());
     error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/50x.html", error_page_result.ok_value());
 
 
 
@@ -972,10 +972,10 @@ TEST(TestConfig, ConfigGetterOK1) {
     EXPECT_TRUE(error_page_result.is_err());
     error_page_result = Config::get_error_page(server_config, location_path, NotFound);
     EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/404.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/404.html", error_page_result.ok_value());
     error_page_result = Config::get_error_page(server_config, location_path, InternalServerError);
     EXPECT_TRUE(error_page_result.is_ok());
-    EXPECT_EQ("/50x.html", error_page_result.get_ok_value());
+    EXPECT_EQ("/50x.html", error_page_result.ok_value());
 
 
 
@@ -1064,7 +1064,7 @@ TEST(TestConfig, ConfigGetterOK2) {
     ServerInfo server_info = ServerInfo(server_name, address, port);
     server_config_result = config.get_server_config(server_info);
     ASSERT_TRUE(server_config_result.is_ok());
-    server_config = server_config_result.get_ok_value();
+    server_config = server_config_result.ok_value();
 
     location_path = "a";
     expected_error = false;
@@ -1150,7 +1150,7 @@ TEST(TestConfig, ConfigGetterOK2) {
     server_info = ServerInfo(server_name, address, port);
     server_config_result = config.get_server_config(server_info);
     ASSERT_TRUE(server_config_result.is_ok());
-    server_config = server_config_result.get_ok_value();
+    server_config = server_config_result.ok_value();
 
     location_path = "a";
     expected_error = false;
@@ -1235,7 +1235,7 @@ TEST(TestConfig, ConfigGetterOK2) {
     server_info = ServerInfo(server_name, address, port);
     server_config_result = config.get_server_config(server_info);
     ASSERT_TRUE(server_config_result.is_ok());
-    server_config = server_config_result.get_ok_value();
+    server_config = server_config_result.ok_value();
 
     location_path = "a";
     expected_error = false;
@@ -1338,21 +1338,21 @@ TEST(TestConfig, GetServerConfig) {
     server_info.port = "81";
     server_a_result = config.get_server_config(server_info);
     ASSERT_TRUE(server_a_result.is_ok());
-    expected_a = server_a_result.get_ok_value();
+    expected_a = server_a_result.ok_value();
 
     server_info.server_name = "b";
     server_info.address = "*";
     server_info.port = "80";
     server_b_result = config.get_server_config(server_info);
     ASSERT_TRUE(server_b_result.is_ok());
-    expected_b = server_b_result.get_ok_value();
+    expected_b = server_b_result.ok_value();
 
     server_info.server_name = "c";
     server_info.address = "*";
     server_info.port = "81";
     server_c_result = config.get_server_config(server_info);
     ASSERT_TRUE(server_c_result.is_ok());
-    expected_c = server_c_result.get_ok_value();
+    expected_c = server_c_result.ok_value();
 
 
     // server_a
@@ -1363,7 +1363,7 @@ TEST(TestConfig, GetServerConfig) {
     request_host_port_pair.second = "81";
     actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
     ASSERT_TRUE(actual_result.is_ok());
-    actual = actual_result.get_ok_value();
+    actual = actual_result.ok_value();
     expect_eq_server_config(expected_a, actual, __LINE__);
 
 
@@ -1373,7 +1373,7 @@ TEST(TestConfig, GetServerConfig) {
     request_host_port_pair.second = "81";
     actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
     ASSERT_TRUE(actual_result.is_ok());
-    actual = actual_result.get_ok_value();
+    actual = actual_result.ok_value();
     expect_eq_server_config(expected_c, actual, __LINE__);
 
     config_address_port_pair.first = "*";
@@ -1382,7 +1382,7 @@ TEST(TestConfig, GetServerConfig) {
     request_host_port_pair.second = "81";
     actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
     ASSERT_TRUE(actual_result.is_ok());
-    actual = actual_result.get_ok_value();
+    actual = actual_result.ok_value();
     expect_eq_server_config(expected_a, actual, __LINE__);
 
     config_address_port_pair.first = "*";
@@ -1391,7 +1391,7 @@ TEST(TestConfig, GetServerConfig) {
     request_host_port_pair.second = "81";
     actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
     ASSERT_TRUE(actual_result.is_ok());
-    actual = actual_result.get_ok_value();
+    actual = actual_result.ok_value();
     expect_eq_server_config(expected_c,  actual, __LINE__);
 
     config_address_port_pair.first = "*";
@@ -1400,7 +1400,7 @@ TEST(TestConfig, GetServerConfig) {
     request_host_port_pair.second = "80";
     actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
     ASSERT_TRUE(actual_result.is_ok());
-    actual = actual_result.get_ok_value();
+    actual = actual_result.ok_value();
     expect_eq_server_config(expected_b, actual, __LINE__);
 
 
@@ -1410,7 +1410,7 @@ TEST(TestConfig, GetServerConfig) {
     request_host_port_pair.second = "81";
     actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
     ASSERT_TRUE(actual_result.is_ok());
-    actual = actual_result.get_ok_value();
+    actual = actual_result.ok_value();
     expect_eq_server_config(expected_c, actual, __LINE__);
 
     config_address_port_pair.first = "*";
@@ -1419,7 +1419,7 @@ TEST(TestConfig, GetServerConfig) {
     request_host_port_pair.second = "81";
     actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
     ASSERT_TRUE(actual_result.is_ok());
-    actual = actual_result.get_ok_value();
+    actual = actual_result.ok_value();
     expect_eq_server_config(expected_c, actual, __LINE__);
 
     config_address_port_pair.first = "*";
@@ -1428,7 +1428,7 @@ TEST(TestConfig, GetServerConfig) {
     request_host_port_pair.second = "80";
     actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
     ASSERT_TRUE(actual_result.is_ok());
-    actual = actual_result.get_ok_value();
+    actual = actual_result.ok_value();
     expect_eq_server_config(expected_b, actual, __LINE__);
 
 
@@ -1438,7 +1438,7 @@ TEST(TestConfig, GetServerConfig) {
     request_host_port_pair.second = "80";
     actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
     ASSERT_TRUE(actual_result.is_ok());
-    actual = actual_result.get_ok_value();
+    actual = actual_result.ok_value();
     expect_eq_server_config(expected_b, actual, __LINE__);
 
     config_address_port_pair.first = "*";
@@ -1447,7 +1447,7 @@ TEST(TestConfig, GetServerConfig) {
     request_host_port_pair.second = "80";
     actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
     ASSERT_TRUE(actual_result.is_ok());
-    actual = actual_result.get_ok_value();
+    actual = actual_result.ok_value();
     expect_eq_server_config(expected_b, actual, __LINE__);
 
     config_address_port_pair.first = "*";
@@ -1456,7 +1456,7 @@ TEST(TestConfig, GetServerConfig) {
     request_host_port_pair.second = "80";
     actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
     ASSERT_TRUE(actual_result.is_ok());
-    actual = actual_result.get_ok_value();
+    actual = actual_result.ok_value();
     expect_eq_server_config(expected_b, actual, __LINE__);
 
     config_address_port_pair.first = "*";
@@ -1465,7 +1465,7 @@ TEST(TestConfig, GetServerConfig) {
     request_host_port_pair.second = "80";
     actual_result = config.get_server_config(config_address_port_pair, request_host_port_pair);
     ASSERT_TRUE(actual_result.is_ok());
-    actual = actual_result.get_ok_value();
+    actual = actual_result.ok_value();
     expect_eq_server_config(expected_b, actual, __LINE__);
 
     config_address_port_pair.first = "*";

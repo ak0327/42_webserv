@@ -54,7 +54,7 @@ void skip_range_set(const std::string &str,
 		if (skip_result.is_err()) {
 			break;
 		}
-		pos = skip_result.get_ok_value();
+		pos = skip_result.ok_value();
 	}
 	*end_pos = pos;
 }
@@ -87,7 +87,7 @@ Result<int, int> HttpRequest::set_range(const std::string &field_name,
 													   skip_range_set,
 													   HttpMessageParser::skip_noop);
 	if (result.is_ok()) {
-		range_specifier = result.get_ok_value();
+		range_specifier = result.ok_value();
 		this->request_header_fields_[field_name] = new MapFieldValues(range_specifier);
 	}
 	return Result<int, int>::ok(STATUS_OK);

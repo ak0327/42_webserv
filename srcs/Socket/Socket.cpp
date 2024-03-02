@@ -59,7 +59,7 @@ Result<int, std::string> Socket::init_addr_info() {
 Result<int, std::string> Socket::init() {
     SocketResult result = init_addr_info();
     if (result.is_err()) {
-        return Result<int, std::string>::err(result.get_err_value());
+        return Result<int, std::string>::err(result.err_value());
     }
 	const int ai_family = this->addr_info_->ai_family;
 	const int ai_socktype = this->addr_info_->ai_socktype;

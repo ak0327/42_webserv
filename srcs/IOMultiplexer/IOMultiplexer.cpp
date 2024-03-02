@@ -430,10 +430,10 @@ Result<int, std::string> Select::get_io_ready_fd() {
 
     Result<int, std::string> select_result = select_fds();
 	if (select_result.is_err()) {
-		std::string err_info = CREATE_ERROR_INFO_STR(select_result.get_err_value());
+		std::string err_info = CREATE_ERROR_INFO_STR(select_result.err_value());
 		return Result<int, std::string>::err("[Server Error] select:" + err_info);
 	}
-	if (select_result.get_ok_value() == SELECT_TIMEOUT) {
+	if (select_result.ok_value() == SELECT_TIMEOUT) {
 		return Result<int, std::string>::ok(IO_TIMEOUT);
 	}
 

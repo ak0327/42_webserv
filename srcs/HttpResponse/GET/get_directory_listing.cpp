@@ -39,17 +39,17 @@ std::string get_timestamp(time_t time) {
 
 
 ProcResult get_file_info(const std::string &directory_path_with_trailing_slash,
-                         std::set<file_info> *ret_directories,
-                         std::set<file_info> *ret_files) {
+                         std::set<FileInfo> *ret_directories,
+                         std::set<FileInfo> *ret_files) {
     DIR *dirp;
     struct dirent *dirent_ptr;
     struct stat stat_buf;
-    struct file_info info;
+    struct FileInfo info;
     std::string filepath;
     std::string filename;
     int stat_result;
 
-    std::set<file_info> directories, files;
+    std::set<FileInfo> directories, files;
 
     std::string err_info;
     bool is_err = false;
@@ -129,13 +129,13 @@ ProcResult get_file_info(const std::string &directory_path_with_trailing_slash,
 
 
 StatusCode get_directory_listing_html(const std::string &directory_path_with_trailing_slash,
-                                      const std::set<file_info> &directories,
-                                      const std::set<file_info> &files,
+                                      const std::set<FileInfo> &directories,
+                                      const std::set<FileInfo> &files,
                                       std::vector<unsigned char> *buf) {
     if (!buf) { return InternalServerError; }
 
     std::string PARENT_DIRECTORY_CONTENT, CURRENT_DIRECTORY_CONTENT, FILE_CONTENT;
-    std::set<file_info>::const_iterator itr;
+    std::set<FileInfo>::const_iterator itr;
     std::string name_width = "150";
     std::string time_width = "200";
     std::string size_width = "100";
@@ -231,8 +231,8 @@ StatusCode HttpResponse::get_directory_listing(const std::string &directory_path
         return InternalServerError;
     }
 
-    std::set<file_info>	directories;
-    std::set<file_info>	files;
+    std::set<FileInfo>	directories;
+    std::set<FileInfo>	files;
     if (get_file_info(directory_path_with_trailing_slash, &directories, &files) == Failure) {
         return InternalServerError;
     }
@@ -245,6 +245,6 @@ StatusCode HttpResponse::get_directory_listing(const std::string &directory_path
 }
 
 
-bool operator<(const file_info &lhs, const file_info &rhs) {
+bool operator<(const FileInfo &lhs, const FileInfo &rhs) {
     return lhs.name < rhs.name;
 }

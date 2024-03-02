@@ -301,7 +301,7 @@ parse_and_validate_link_value(const std::string &field_value,
 	if (parse_result.is_err()) {
 		return Result<std::map<std::string, std::string>, int>::err(ERR);
 	}
-	link_value = parse_result.get_ok_value();
+	link_value = parse_result.ok_value();
 
 	validate_result = validate_link_value(link_value);
 	if (validate_result.is_err()) {
@@ -349,7 +349,7 @@ Result<int, int> HttpRequest::set_link(const std::string &field_name,
 	if (result.is_err()) {
 		return Result<int, int>::ok(STATUS_OK);
 	}
-	link_values = result.get_ok_value();
+	link_values = result.ok_value();
 
 	this->request_header_fields_[field_name] = new MapSetFieldValues(link_values);
 	return Result<int, int>::ok(STATUS_OK);

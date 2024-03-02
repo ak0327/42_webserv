@@ -32,7 +32,7 @@ Result<int, int> HttpRequest::set_valid_media_type(const std::string &field_name
 		return Result<int, int>::ok(OK);
 	}
 
-	media_type = date_result.get_ok_value();
+	media_type = date_result.ok_value();
 	this->request_header_fields_[field_name] = media_type;
 	return Result<int, int>::ok(OK);
 }

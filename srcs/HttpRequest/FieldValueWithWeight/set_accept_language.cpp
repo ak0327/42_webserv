@@ -114,7 +114,7 @@ Result<SingleFieldValue *, int> parse_valid_language_range(const std::string &fi
 	if (result.is_err()) {
 		return Result<SingleFieldValue *, int>::err(ERR);
 	}
-	language_range = result.get_ok_value();
+	language_range = result.ok_value();
 	*end_pos = end;
 
 	try {
@@ -146,7 +146,7 @@ parse_and_validate_language_range_with_weight_set(const std::string &field_value
 		if (language_range_result.is_err()) {
 			return Result<std::set<FieldValueWithWeight>, int>::err(ERR);
 		}
-		language_range = language_range_result.get_ok_value();
+		language_range = language_range_result.ok_value();
 		pos = end;
 
 		HttpMessageParser::skip_ows(field_value, &pos);
@@ -156,7 +156,7 @@ parse_and_validate_language_range_with_weight_set(const std::string &field_value
 			delete language_range;
 			return Result<std::set<FieldValueWithWeight>, int>::err(ERR);
 		}
-		weight = weight_result.get_ok_value();
+		weight = weight_result.ok_value();
 		pos = end;
 
 		language_range_with_weight = FieldValueWithWeight(language_range, weight);
@@ -166,7 +166,7 @@ parse_and_validate_language_range_with_weight_set(const std::string &field_value
 		if (skip_result.is_err()) {
 			return Result<std::set<FieldValueWithWeight>, int>::err(ERR);
 		}
-		pos = skip_result.get_ok_value();
+		pos = skip_result.ok_value();
 	}
 	return Result<std::set<FieldValueWithWeight>, int>::ok(language_range_set);
 }
@@ -192,13 +192,13 @@ Result<int, int> HttpRequest::set_accept_language(const std::string &field_name,
 
 	result = parse_and_validate_language_range_with_weight_set(field_value);
 	if (result.is_err()) {
-		if (result.get_err_value() == STATUS_SERVER_ERROR) {
+		if (result.err_value() == STATUS_SERVER_ERROR) {
 			return Result<int, int>::err(STATUS_SERVER_ERROR);
 		}
 		return Result<int, int>::ok(OK);
 	}
 
-	language_range_weight_set = result.get_ok_value();
+	language_range_weight_set = result.ok_value();
 	this->request_header_fields_[field_name] = new FieldValueWithWeightSet(language_range_weight_set);
 	return Result<int, int>::ok(OK);
 }

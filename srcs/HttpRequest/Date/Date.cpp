@@ -258,7 +258,7 @@ Result<int, int> parse_date1(const std::string &http_date,
 	if (day_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}
-	*day = day_result.get_ok_value();
+	*day = day_result.ok_value();
 	pos = end;
 
 	if (http_date[pos] != SP) {
@@ -270,7 +270,7 @@ Result<int, int> parse_date1(const std::string &http_date,
 	if (month_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}
-	*month = month_result.get_ok_value();
+	*month = month_result.ok_value();
 	pos = end;
 
 	if (http_date[pos] != SP) {
@@ -282,7 +282,7 @@ Result<int, int> parse_date1(const std::string &http_date,
 	if (year_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}
-	*year = year_result.get_ok_value();
+	*year = year_result.ok_value();
 
 	*end_pos = end;
 	return Result<int, int>::ok(OK);
@@ -314,7 +314,7 @@ Result<int, int> parse_time_of_day(const std::string &http_date,
 	if (hour_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}
-	*hour = hour_result.get_ok_value();
+	*hour = hour_result.ok_value();
 	pos = end;
 
 	if (http_date[pos] != COLON) { return Result<int, int>::err(ERR); }
@@ -324,7 +324,7 @@ Result<int, int> parse_time_of_day(const std::string &http_date,
 	if (minute_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}
-	*minute = minute_result.get_ok_value();
+	*minute = minute_result.ok_value();
 	pos = end;
 
 	if (http_date[pos] != COLON) { return Result<int, int>::err(ERR); }
@@ -334,7 +334,7 @@ Result<int, int> parse_time_of_day(const std::string &http_date,
 	if (second_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}
-	*second = second_result.get_ok_value();
+	*second = second_result.ok_value();
 
 	*end_pos = end;
 	return Result<int, int>::ok(OK);
@@ -371,7 +371,7 @@ Result<int, int> parse_imf_fixdate(const std::string &http_date,
 	if (day_name_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}
-	*day_name = day_name_result.get_ok_value();
+	*day_name = day_name_result.ok_value();
 	pos = end_pos;
 
 	if (http_date[pos] != COMMA) {
@@ -412,7 +412,7 @@ Result<int, int> parse_imf_fixdate(const std::string &http_date,
 	if (gmt_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}
-	*gmt = gmt_result.get_ok_value();
+	*gmt = gmt_result.ok_value();
 
 	return Result<int, int>::ok(OK);
 }
@@ -484,7 +484,7 @@ Date::Date(const std::string &http_date) {
 		this->result_ = Result<int, int>::err(ERR);
 		return;
 	}
-	format = parse_result.get_ok_value();
+	format = parse_result.ok_value();
 
 	validate_result = validate_http_date(format,
 										 day_name,

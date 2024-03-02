@@ -411,7 +411,7 @@ Result<int, int> parse_madia_type(const std::string &field_value,
 	if (type_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}
-	*ret_type = type_result.get_ok_value();
+	*ret_type = type_result.ok_value();
 	pos = end;
 
 	if (field_value[pos] != SLASH) {
@@ -423,7 +423,7 @@ Result<int, int> parse_madia_type(const std::string &field_value,
 	if (subtype_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}
-	*ret_subtype = subtype_result.get_ok_value();
+	*ret_subtype = subtype_result.ok_value();
 	pos = end;
 
 	parameters_result = HttpMessageParser::parse_parameters(field_value,
@@ -433,7 +433,7 @@ Result<int, int> parse_madia_type(const std::string &field_value,
 	if (parameters_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}
-	*parameters = parameters_result.get_ok_value();
+	*parameters = parameters_result.ok_value();
 
 	*end_pos = end;
 	return Result<int, int>::ok(OK);
@@ -486,7 +486,7 @@ parse_map_field_values(const std::string &field_value,
 		if (skip_result.is_err()) {
 			return Result<std::map<std::string, std::string>, int>::err(ERR);
 		}
-		pos = skip_result.get_ok_value();
+		pos = skip_result.ok_value();
 	}
 	return Result<std::map<std::string, std::string>, int>::ok(parameters);
 }
@@ -570,7 +570,7 @@ parse_map_set_field_values(const std::string &field_value,
 		if (parse_result.is_err()) {
 			return Result<std::set<std::map<std::string, std::string> >, int>::err(ERR);
 		}
-		map_element = parse_result.get_ok_value();
+		map_element = parse_result.ok_value();
 		pos = end;
 
 		map_set.insert(map_element);
@@ -579,7 +579,7 @@ parse_map_set_field_values(const std::string &field_value,
 		if (skip_result.is_err()) {
 			return Result<std::set<std::map<std::string, std::string> >, int>::err(ERR);
 		}
-		pos = skip_result.get_ok_value();
+		pos = skip_result.ok_value();
 	}
 	return Result<std::set<std::map<std::string, std::string> >, int>::ok(map_set);
 }
@@ -618,7 +618,7 @@ parse_value_and_map_values(const std::string &field_value,
 	if (value_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}
-	*ret_value = value_result.get_ok_value();
+	*ret_value = value_result.ok_value();
 
 	pos = end;
 	*end_pos = pos;
@@ -631,7 +631,7 @@ parse_value_and_map_values(const std::string &field_value,
 	if (map_values_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}
-	*ret_map_values = map_values_result.get_ok_value();
+	*ret_map_values = map_values_result.ok_value();
 
 	pos = end;
 	*end_pos = pos;

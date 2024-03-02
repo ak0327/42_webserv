@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
     Config config(config_file_path);
     Result<int, std::string> config_result = config.get_result();
     if (config_result.is_err()) {
-        const std::string error_msg = config_result.get_err_value();
+        const std::string error_msg = config_result.err_value();
         std::cerr << error_msg << std::endl;
         return EXIT_FAILURE;
     }
@@ -49,14 +49,14 @@ int main(int argc, char **argv) {
 
     ServerResult init_result = server.init();
     if (init_result.is_err()) {
-        const std::string error_msg = init_result.get_err_value();
+        const std::string error_msg = init_result.err_value();
         std::cerr << "[Error] " << error_msg << std::endl;
         return EXIT_FAILURE;
     }
 
     ServerResult server_result = server.run();
     if (server_result.is_err()) {
-        const std::string error_msg = server_result.get_err_value();
+        const std::string error_msg = server_result.err_value();
         std::cerr << "[Error] " << error_msg << std::endl;
         return EXIT_FAILURE;
     }

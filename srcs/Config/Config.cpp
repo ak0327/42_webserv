@@ -17,7 +17,7 @@ Config::Config(const char *file_path) {
 	ConfigParser parser(file_path);
     Result<int, std::string> parse_result = parser.result();
 	if (parse_result.is_err()) {
-		const std::string error_msg = parse_result.get_err_value();
+		const std::string error_msg = parse_result.err_value();
 		this->result_ = Result<int, std::string>::err(error_msg);
 		return;
 	}
@@ -26,7 +26,7 @@ Config::Config(const char *file_path) {
     set_server_configs();
     Result<int, std::string> result = set_default_servers();
     if (result.is_err()) {
-        const std::string error_msg = result.get_err_value();
+        const std::string error_msg = result.err_value();
         this->result_ = Result<int, std::string>::err(error_msg);
         return;
     }
@@ -136,7 +136,7 @@ void Config::set_default_server_to_first_listen() {
 Result<int, std::string> Config::set_default_servers() {
     Result<int, std::string> result = set_default_server_to_default_listen();
     if (result.is_err()) {
-        const std::string error_msg = result.get_err_value();
+        const std::string error_msg = result.err_value();
         return Result<int, std::string>::err(error_msg);
     }
 
@@ -196,7 +196,7 @@ Result<ServerConfig, std::string> Config::get_server_config(const AddressPortPai
                 return Result<ServerConfig, std::string>::err("error");
             }
             // DEBUG_PRINT(CYAN, " 4 ok");
-            return Result<ServerConfig, std::string>::ok(result.get_ok_value());
+            return Result<ServerConfig, std::string>::ok(result.ok_value());
         } else if (socket_address == "*") {  // todo
             // DEBUG_PRINT(CYAN, " 5");
             AddressPortPair pair(request_address, socket_port);
@@ -206,7 +206,7 @@ Result<ServerConfig, std::string> Config::get_server_config(const AddressPortPai
                 return Result<ServerConfig, std::string>::err("error");
             }
             // DEBUG_PRINT(CYAN, " 7 ok");
-            return Result<ServerConfig, std::string>::ok(result.get_ok_value());
+            return Result<ServerConfig, std::string>::ok(result.ok_value());
         } else {
             // DEBUG_PRINT(CYAN, " 8 err");
             return Result<ServerConfig, std::string>::err("error: address is not mach with conf and request");
@@ -225,7 +225,7 @@ Result<ServerConfig, std::string> Config::get_server_config(const AddressPortPai
             return Result<ServerConfig, std::string>::err("error");
         }
         // DEBUG_PRINT(CYAN, " 11 ok");
-        return Result<ServerConfig, std::string>::ok(result.get_ok_value());
+        return Result<ServerConfig, std::string>::ok(result.ok_value());
     }
 }
 
@@ -352,7 +352,7 @@ Result<LocationConfig, int> Config::get_location_config(const ServerConfig &serv
         DEBUG_PRINT(WHITE, "target[%s] matches location[NOTHING]", target_path.c_str());
         return Result<LocationConfig, int>::err(ERR);
     }
-    const std::string matching_location = matching_result.get_ok_value();
+    const std::string matching_location = matching_result.ok_value();
     DEBUG_PRINT(WHITE, "target[%s] matches location[%s]", target_path.c_str(), matching_location.c_str());
     std::map<LocationPath, LocationConfig>::const_iterator location;
     location = server_config.locations.find(matching_location);
@@ -372,23 +372,23 @@ Result<std::string, StatusCode> Config::get_indexed_path(const ServerConfig &ser
         // std::cout << s << "get_indexed_path 1 err: target invalid" << RESET << std::endl;
         return Result<std::string, StatusCode>::err(BadRequest);
     }
-    std::string root = root_result.get_ok_value();
+    std::string root = root_result.ok_value();
     std::string rooted_path = root + target_path;
     // std::cout << s << "get_indexed_path 2 rooted_path: " << rooted_path << RESET << std::endl;
 
     Result<bool, StatusCode> is_file = FileHandler::is_file(rooted_path);
-    if (is_file.is_ok() && is_file.get_ok_value()) {
+    if (is_file.is_ok() && is_file.ok_value()) {
         // std::cout << s << "get_indexed_path 3 file -> ok" << RESET << std::endl;
         return Result<std::string, StatusCode>::ok(rooted_path);
     } else if (is_file.is_err()) {
         // std::cout << s << "get_indexed_path 4 file ng -> " << is_file.get_err_value() << RESET << std::endl;
-        return Result<std::string, StatusCode>::err(is_file.get_err_value());
+        return Result<std::string, StatusCode>::err(is_file.err_value());
     }
 
     Result<bool, StatusCode> is_dir = FileHandler::is_directory(rooted_path);
     if (is_dir.is_err()) {
         // std::cout << s << "get_indexed_path 5 err: is_dir error" << RESET << std::endl;
-        return Result<std::string, StatusCode>::err(is_dir.get_err_value());
+        return Result<std::string, StatusCode>::err(is_dir.err_value());
     }
     // std::cout << s << "get_indexed_path 6 dir" << RESET << std::endl;
 
@@ -400,7 +400,7 @@ Result<std::string, StatusCode> Config::get_indexed_path(const ServerConfig &ser
         return Result<std::string, StatusCode>::err(NotFound);
     }
 
-    std::string index_page = index_exist.get_ok_value();
+    std::string index_page = index_exist.ok_value();
     std::string indexed_path = rooted_path + index_page;
     DEBUG_PRINT(CYAN, "index_page: %s, indexed_path: %s", index_page.c_str(), indexed_path.c_str());
     // std::cout << s << "get_indexed_path 8 ok: index_page: "
@@ -415,7 +415,7 @@ Result<std::string, int> Config::get_root(const ServerConfig &server_config,
     if (location_result.is_err()) {
         return Result<std::string, int>::err(ERR);
     } else {
-        LocationConfig location = location_result.get_ok_value();
+        LocationConfig location = location_result.ok_value();
         return Result<std::string, int>::ok(location.root_path);
     }
 }
@@ -427,7 +427,7 @@ Result<std::string, int> Config::get_root(const ServerInfo &server_info,
     if (server_config_result.is_err()) {
         return Result<std::string, int>::err(ERR);
     }
-    ServerConfig server_config = server_config_result.get_ok_value();
+    ServerConfig server_config = server_config_result.ok_value();
     return get_root(server_config, target_path);
 }
 
@@ -438,7 +438,7 @@ Result<std::string, int> Config::get_root(const AddressPortPair &address_port_pa
     if (server_config_result.is_err()) {
         return Result<std::string, int>::err(ERR);
     }
-    ServerConfig server_config = server_config_result.get_ok_value();
+    ServerConfig server_config = server_config_result.ok_value();
     return get_root(server_config, target_path);
 }
 
@@ -452,14 +452,14 @@ Result<std::string, int> Config::get_index(const ServerConfig &server_config,
     if (location_result.is_err()) {
         return Result<std::string, int>::err(ERR);
     }
-    LocationConfig location_config = location_result.get_ok_value();
+    LocationConfig location_config = location_result.ok_value();
     index_pages = location_config.index_pages;
 
     Result<std::string, int> root_result = get_root(server_config, target_path);
     if (root_result.is_err()) {
         return Result<std::string, int>::err(ERR);
     }
-    const std::string root = root_result.get_ok_value();
+    const std::string root = root_result.ok_value();
     // DEBUG_PRINT(GREEN, " root: %s", root.c_str());
 
     for (std::set<std::string>::const_iterator page = index_pages.begin(); page != index_pages.end(); ++page) {
@@ -485,7 +485,7 @@ Result<std::string, int> Config::get_index(const ServerInfo &server_info,
     if (server_config_result.is_err()) {
         return Result<std::string, int>::err(ERR);
     }
-    ServerConfig server_config = server_config_result.get_ok_value();
+    ServerConfig server_config = server_config_result.ok_value();
     return get_index(server_config, target_path);
 }
 
@@ -496,7 +496,7 @@ Result<std::string, int> Config::get_index(const AddressPortPair &address_port_p
     if (server_config_result.is_err()) {
         return Result<std::string, int>::err(ERR);
     }
-    ServerConfig server_config = server_config_result.get_ok_value();
+    ServerConfig server_config = server_config_result.ok_value();
     return get_index(server_config, target_path);
 }
 
@@ -508,13 +508,13 @@ Result<std::string, int> Config::get_error_page_path(const ServerConfig &server_
     if (root_result.is_err()) {
         return Result<std::string, int>::err(ERR);
     }
-    std::string root = root_result.get_ok_value();
+    std::string root = root_result.ok_value();
 
     Result<std::string, int> error_page_result = Config::get_error_page(server_config, target_path, code);
     if (error_page_result.is_err()) {
         return Result<std::string, int>::err(ERR);
     }
-    std::string error_page = error_page_result.get_ok_value();
+    std::string error_page = error_page_result.ok_value();
     return Result<std::string, int>::ok(root + error_page);
 }
 
@@ -532,7 +532,7 @@ Result<std::string, int> Config::get_error_page(const ServerConfig &server_confi
         return Result<std::string, int>::err(ERR);
     }
 
-    LocationConfig location_config = location_result.get_ok_value();
+    LocationConfig location_config = location_result.ok_value();
     error_pages = location_config.error_pages;
 
     if (error_pages.find(code) == error_pages.end()) {
@@ -550,7 +550,7 @@ Result<std::string, int> Config::get_error_page(const ServerInfo &server_info,
     if (server_config_result.is_err()) {
         return Result<std::string, int>::err(ERR);
     }
-    ServerConfig server_config = server_config_result.get_ok_value();
+    ServerConfig server_config = server_config_result.ok_value();
     return get_error_page(server_config, target_path, code);
 }
 
@@ -562,7 +562,7 @@ Result<std::string, int> Config::get_error_page(const AddressPortPair &address_p
     if (server_config_result.is_err()) {
         return Result<std::string, int>::err(ERR);
     }
-    ServerConfig server_config = server_config_result.get_ok_value();
+    ServerConfig server_config = server_config_result.ok_value();
     return get_error_page(server_config, target_path, code);
 }
 
@@ -573,7 +573,7 @@ Result<bool, int> Config::is_autoindex_on(const ServerConfig &server_config,
     if (location_result.is_err()) {
         return Result<bool, int>::err(ERR);
     }
-    LocationConfig location = location_result.get_ok_value();
+    LocationConfig location = location_result.ok_value();
     return Result<bool, int>::ok(location.autoindex);
 }
 
@@ -584,7 +584,7 @@ Result<bool, int> Config::is_autoindex_on(const ServerInfo &server_info,
     if (server_config_result.is_err()) {
         return Result<bool, int>::err(ERR);
     }
-    ServerConfig server_config = server_config_result.get_ok_value();
+    ServerConfig server_config = server_config_result.ok_value();
     return is_autoindex_on(server_config, target_path);
 }
 
@@ -595,7 +595,7 @@ Result<bool, int> Config::is_autoindex_on(const AddressPortPair &address_port_pa
     if (server_config_result.is_err()) {
         return Result<bool, int>::err(ERR);
     }
-    ServerConfig server_config = server_config_result.get_ok_value();
+    ServerConfig server_config = server_config_result.ok_value();
     return is_autoindex_on(server_config, target_path);
 }
 
@@ -607,7 +607,7 @@ Result<LimitExceptDirective, int> Config::limit_except(const ServerConfig &serve
         return Result<LimitExceptDirective, int>::err(ERR);
     }
 
-    LocationConfig location_config = location_result.get_ok_value();
+    LocationConfig location_config = location_result.ok_value();
     LimitExceptDirective &limit_except = location_config.limit_except;
     return Result<LimitExceptDirective, int>::ok(limit_except);
 }
@@ -624,7 +624,7 @@ Result<bool, int> Config::is_method_allowed(const ServerConfig &server_config,
     }
 
     DEBUG_PRINT(CYAN, "method allowed 3");
-    LimitExceptDirective directive = result.get_ok_value();
+    LimitExceptDirective directive = result.ok_value();
     if (!directive.limited) {
         DEBUG_PRINT(CYAN, "method allowed 4");
         return Result<bool, int>::ok(true);
@@ -645,7 +645,7 @@ Result<bool, int> Config::is_method_allowed(const ServerInfo &server_info,
     if (server_config_result.is_err()) {
         return Result<bool, int>::err(ERR);
     }
-    ServerConfig server_config = server_config_result.get_ok_value();
+    ServerConfig server_config = server_config_result.ok_value();
     return is_method_allowed(server_config, target_path, method);
 }
 
@@ -657,7 +657,7 @@ Result<bool, int> Config::is_method_allowed(const AddressPortPair &address_port_
     if (server_config_result.is_err()) {
         return Result<bool, int>::err(ERR);
     }
-    ServerConfig server_config = server_config_result.get_ok_value();
+    ServerConfig server_config = server_config_result.ok_value();
     return is_method_allowed(server_config, target_path, method);
 }
 
@@ -670,7 +670,7 @@ Result<bool, int> Config::is_redirect(const ServerConfig &server_config,
         return Result<bool, int>::err(ERR);
     }
 
-    LocationConfig location_config = location_result.get_ok_value();
+    LocationConfig location_config = location_result.ok_value();
     ReturnDirective redirection = location_config.redirection;
     return Result<bool, int>::ok(redirection.return_on);
 }
@@ -682,7 +682,7 @@ Result<bool, int> Config::is_redirect(const ServerInfo &server_info,
     if (server_config_result.is_err()) {
         return Result<bool, int>::err(ERR);
     }
-    ServerConfig server_config = server_config_result.get_ok_value();
+    ServerConfig server_config = server_config_result.ok_value();
     return is_redirect(server_config, target_path);
 }
 
@@ -693,7 +693,7 @@ Result<bool, int> Config::is_redirect(const AddressPortPair &address_port_pair,
     if (server_config_result.is_err()) {
         return Result<bool, int>::err(ERR);
     }
-    ServerConfig server_config = server_config_result.get_ok_value();
+    ServerConfig server_config = server_config_result.ok_value();
     return is_redirect(server_config, target_path);
 }
 
@@ -705,7 +705,7 @@ ReturnDirective Config::get_return(const ServerConfig &server_config,
     if (result.is_err()) {
         return ReturnDirective();
     }
-    return result.get_ok_value();
+    return result.ok_value();
 }
 
 
@@ -716,7 +716,7 @@ Result<ReturnDirective, int> Config::get_redirect(const ServerConfig &server_con
         return Result<ReturnDirective, int>::err(ERR);
     }
 
-    LocationConfig location_config = location_result.get_ok_value();
+    LocationConfig location_config = location_result.ok_value();
     ReturnDirective redirection = location_config.redirection;
     return Result<ReturnDirective, int>::ok(redirection);
 }
@@ -728,7 +728,7 @@ Result<ReturnDirective, int> Config::get_redirect(const ServerInfo &server_info,
     if (server_config_result.is_err()) {
         return Result<ReturnDirective, int>::err(ERR);
     }
-    ServerConfig server_config = server_config_result.get_ok_value();
+    ServerConfig server_config = server_config_result.ok_value();
     return get_redirect(server_config, target_path);
 }
 
@@ -739,7 +739,7 @@ Result<ReturnDirective, int> Config::get_redirect(const AddressPortPair &address
     if (server_config_result.is_err()) {
         return Result<ReturnDirective, int>::err(ERR);
     }
-    ServerConfig server_config = server_config_result.get_ok_value();
+    ServerConfig server_config = server_config_result.ok_value();
     return get_redirect(server_config, target_path);
 }
 
@@ -750,7 +750,7 @@ Result<std::size_t, int> Config::get_max_body_size(const ServerConfig &server_co
     if (location_result.is_err()) {
         return Result<std::size_t, int>::err(ERR);
     }
-    LocationConfig location = location_result.get_ok_value();
+    LocationConfig location = location_result.ok_value();
     return Result<std::size_t, int>::ok(location.max_body_size_bytes);
 }
 
@@ -761,7 +761,7 @@ Result<std::size_t, int> Config::get_max_body_size(const ServerInfo &server_info
     if (server_config_result.is_err()) {
         return Result<std::size_t, int>::err(ERR);
     }
-    ServerConfig server_config = server_config_result.get_ok_value();
+    ServerConfig server_config = server_config_result.ok_value();
     return get_max_body_size(server_config, target_path);
 }
 
@@ -772,7 +772,7 @@ Result<std::size_t, int> Config::get_max_body_size(const AddressPortPair &addres
     if (server_config_result.is_err()) {
         return Result<std::size_t, int>::err(ERR);
     }
-    ServerConfig server_config = server_config_result.get_ok_value();
+    ServerConfig server_config = server_config_result.ok_value();
     return get_max_body_size(server_config, target_path);
 }
 
@@ -785,7 +785,7 @@ Result<bool, int> Config::is_cgi_mode_on(const ServerConfig &server_config,
         // std::cout << CYAN << "location error" << RESET << std::endl;
         return Result<bool, int>::err(ERR);
     }
-    LocationConfig location = location_result.get_ok_value();
+    LocationConfig location = location_result.ok_value();
     // std::cout << CYAN << "ok -> cgi_mode: "  << (location.cgi.is_cgi_mode ? "on": "off") << RESET << std::endl;
     return Result<bool, int>::ok(location.cgi.is_cgi_mode);
 }
@@ -797,7 +797,7 @@ Result<bool, int> Config::is_cgi_mode_on(const ServerInfo &server_info,
     if (server_config_result.is_err()) {
         return Result<bool, int>::err(ERR);
     }
-    ServerConfig server_config = server_config_result.get_ok_value();
+    ServerConfig server_config = server_config_result.ok_value();
     return is_cgi_mode_on(server_config, target_path);
 }
 
@@ -808,7 +808,7 @@ Result<bool, int> Config::is_cgi_mode_on(const AddressPortPair &address_port_pai
     if (server_config_result.is_err()) {
         return Result<bool, int>::err(ERR);
     }
-    ServerConfig server_config = server_config_result.get_ok_value();
+    ServerConfig server_config = server_config_result.ok_value();
     return is_cgi_mode_on(server_config, target_path);
 }
 
@@ -819,7 +819,7 @@ Result<std::set<std::string>, int> Config::get_cgi_extension(const ServerConfig 
     if (location_result.is_err()) {
         return Result<std::set<std::string>, int>::err(ERR);
     }
-    LocationConfig location = location_result.get_ok_value();
+    LocationConfig location = location_result.ok_value();
     return Result<std::set<std::string>, int>::ok(location.cgi.extension);
 }
 
@@ -830,7 +830,7 @@ Result<std::set<std::string>, int> Config::get_cgi_extension(const ServerInfo &s
     if (server_config_result.is_err()) {
         return Result<std::set<std::string>, int>::err(ERR);
     }
-    ServerConfig server_config = server_config_result.get_ok_value();
+    ServerConfig server_config = server_config_result.ok_value();
     return get_cgi_extension(server_config, target_path);
 }
 
@@ -841,7 +841,7 @@ Result<std::set<std::string>, int> Config::get_cgi_extension(const AddressPortPa
     if (server_config_result.is_err()) {
         return Result<std::set<std::string>, int>::err(ERR);
     }
-    ServerConfig server_config = server_config_result.get_ok_value();
+    ServerConfig server_config = server_config_result.ok_value();
     return get_cgi_extension(server_config, target_path);
 }
 
@@ -852,7 +852,7 @@ bool Config::is_cgi_extension(const ServerConfig &server_config,
     if (location_result.is_err()) {
         return false;
     }
-    LocationConfig location = location_result.get_ok_value();
+    LocationConfig location = location_result.ok_value();
     std::string extension = StringHandler::get_extension(target_path);
     if (extension.empty()) {
         return false;
@@ -867,7 +867,7 @@ bool Config::is_cgi_extension(const ServerInfo &server_info,
     if (server_config_result.is_err()) {
         return false;
     }
-    ServerConfig server_config = server_config_result.get_ok_value();
+    ServerConfig server_config = server_config_result.ok_value();
     return is_cgi_extension(server_config, target_path);
 }
 
@@ -878,7 +878,7 @@ bool Config::is_cgi_extension(const AddressPortPair &address_port_pair,
     if (server_config_result.is_err()) {
         return false;
     }
-    ServerConfig server_config = server_config_result.get_ok_value();
+    ServerConfig server_config = server_config_result.ok_value();
     return is_cgi_extension(server_config, target_path);
 }
 
@@ -889,7 +889,7 @@ time_t Config::get_cgi_timeout(const ServerConfig &server_config,
     if (location_result.is_err()) {
         return ConfigInitValue::kDefaultCgiTimeoutSec;
     }
-    LocationConfig location = location_result.get_ok_value();
+    LocationConfig location = location_result.ok_value();
     return location.cgi.timeout_sec;
 }
 
@@ -900,7 +900,7 @@ time_t Config::get_cgi_timeout(const ServerInfo &server_info,
     if (server_config_result.is_err()) {
         return ConfigInitValue::kDefaultCgiTimeoutSec;
     }
-    ServerConfig server_config = server_config_result.get_ok_value();
+    ServerConfig server_config = server_config_result.ok_value();
     return get_cgi_timeout(server_config, target_path);
 }
 
@@ -911,6 +911,6 @@ time_t Config::get_cgi_timeout(const AddressPortPair &address_port_pair,
     if (server_config_result.is_err()) {
         return ConfigInitValue::kDefaultCgiTimeoutSec;
     }
-    ServerConfig server_config = server_config_result.get_ok_value();
+    ServerConfig server_config = server_config_result.ok_value();
     return get_cgi_timeout(server_config, target_path);
 }

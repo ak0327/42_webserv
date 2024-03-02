@@ -190,7 +190,7 @@ void print_error_msg(Result<OkType, std::string> result, const std::size_t line)
 		std::cout << GRAY << "result is not error at L:" << line << RESET << std::endl;
         return;
 	}
-	std::string error_msg = result.get_err_value();
+	std::string error_msg = result.err_value();
 	std::cout << YELLOW << "error_msg: " << error_msg << RESET << " (test: L" << line << ")" << std::endl;
 #else
     (void)result;
@@ -543,7 +543,7 @@ TEST(TestParser, ParseListenParam) {
     expected_port = "8080";
     result = ConfigParserTestFriend::parse_listen_param(param);
     ASSERT_TRUE(result.is_ok());
-    pair = result.get_ok_value();
+    pair = result.ok_value();
     EXPECT_EQ(expected_addr, pair.first);
     EXPECT_EQ(expected_port, pair.second);
 
@@ -554,7 +554,7 @@ TEST(TestParser, ParseListenParam) {
     expected_port = "";
     result = ConfigParserTestFriend::parse_listen_param(param);
     ASSERT_TRUE(result.is_ok());
-    pair = result.get_ok_value();
+    pair = result.ok_value();
     EXPECT_EQ(expected_addr, pair.first);
     EXPECT_EQ(expected_port, pair.second);
 
@@ -565,7 +565,7 @@ TEST(TestParser, ParseListenParam) {
     expected_port = "8080";
     result = ConfigParserTestFriend::parse_listen_param(param);
     ASSERT_TRUE(result.is_ok());
-    pair = result.get_ok_value();
+    pair = result.ok_value();
     EXPECT_EQ(expected_addr, pair.first);
     EXPECT_EQ(expected_port, pair.second);
 
@@ -2935,7 +2935,7 @@ TEST(TestParser, ParseLocationPath) {
     result = ConfigParserTestFriend::parse_location_path(&current, tokens.end());
 
     ASSERT_TRUE(result.is_ok());
-    actual = result.get_ok_value();
+    actual = result.ok_value();
     EXPECT_EQ(expected, actual);
 
     // -------------------------------------------------------------------------
@@ -2950,7 +2950,7 @@ TEST(TestParser, ParseLocationPath) {
     result = ConfigParserTestFriend::parse_location_path(&current, tokens.end());
 
     ASSERT_TRUE(result.is_ok());
-    actual = result.get_ok_value();
+    actual = result.ok_value();
     EXPECT_EQ(expected, actual);
 
     // -------------------------------------------------------------------------
@@ -2966,7 +2966,7 @@ TEST(TestParser, ParseLocationPath) {
     result = ConfigParserTestFriend::parse_location_path(&current, tokens.end());
 
     ASSERT_TRUE(result.is_ok());
-    actual = result.get_ok_value();
+    actual = result.ok_value();
     EXPECT_EQ(expected, actual);
 
     // -------------------------------------------------------------------------
@@ -2982,7 +2982,7 @@ TEST(TestParser, ParseLocationPath) {
     result = ConfigParserTestFriend::parse_location_path(&current, tokens.end());
 
     ASSERT_TRUE(result.is_ok());
-    actual = result.get_ok_value();
+    actual = result.ok_value();
     EXPECT_EQ(expected, actual);
 
 

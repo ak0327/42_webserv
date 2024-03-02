@@ -11,7 +11,7 @@ TEST(TestFileHandler, InvalidArgument) {
 	Result<int, std::string> result_1 = file_handler_1.result();
 
 	EXPECT_TRUE(result_1.is_err());
-	EXPECT_EQ(std::string(INVALID_ARG_ERROR_MSG), result_1.get_err_value());
+	EXPECT_EQ(std::string(INVALID_ARG_ERROR_MSG), result_1.err_value());
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -22,7 +22,7 @@ TEST(TestFileHandler, InvalidArgument) {
 	Result<int, std::string> result_2 = file_handler_2.result();
 
 	EXPECT_TRUE(result_2.is_err());
-	EXPECT_EQ(std::string(INVALID_ARG_ERROR_MSG), result_2.get_err_value());
+	EXPECT_EQ(std::string(INVALID_ARG_ERROR_MSG), result_2.err_value());
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +33,7 @@ TEST(TestFileHandler, InvalidArgument) {
 	Result<int, std::string> result_3 = file_handler_3.result();
 
 	EXPECT_TRUE(result_3.is_err());
-	EXPECT_EQ(std::string(INVALID_ARG_ERROR_MSG), result_3.get_err_value());
+	EXPECT_EQ(std::string(INVALID_ARG_ERROR_MSG), result_3.err_value());
 }
 
 
@@ -45,7 +45,7 @@ TEST(TestFileHandler, InvalidExtension) {
 	Result<int, std::string> result_1 = file_handler_1.result();
 
 	EXPECT_TRUE(result_1.is_err());
-	EXPECT_EQ(std::string(INVALID_ARG_ERROR_MSG), result_1.get_err_value());
+	EXPECT_EQ(std::string(INVALID_ARG_ERROR_MSG), result_1.err_value());
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -56,7 +56,7 @@ TEST(TestFileHandler, InvalidExtension) {
 	Result<int, std::string> result_2 = file_handler_2.result();
 
 	EXPECT_TRUE(result_2.is_err());
-	EXPECT_EQ(std::string(INVALID_ARG_ERROR_MSG), result_2.get_err_value());
+	EXPECT_EQ(std::string(INVALID_ARG_ERROR_MSG), result_2.err_value());
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -67,7 +67,7 @@ TEST(TestFileHandler, InvalidExtension) {
 	Result<int, std::string> result_3 = file_handler_3.result();
 
 	EXPECT_TRUE(result_3.is_err());
-	EXPECT_EQ(std::string(INVALID_ARG_ERROR_MSG), result_3.get_err_value());
+	EXPECT_EQ(std::string(INVALID_ARG_ERROR_MSG), result_3.err_value());
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -78,7 +78,7 @@ TEST(TestFileHandler, InvalidExtension) {
 	Result<int, std::string> result_4 = file_handler_4.result();
 
 	EXPECT_TRUE(result_4.is_err());
-	EXPECT_EQ(std::string(INVALID_ARG_ERROR_MSG), result_4.get_err_value());
+	EXPECT_EQ(std::string(INVALID_ARG_ERROR_MSG), result_4.err_value());
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -89,7 +89,7 @@ TEST(TestFileHandler, InvalidExtension) {
 	Result<int, std::string> result_5 = file_handler_5.result();
 
 	EXPECT_TRUE(result_5.is_err());
-	EXPECT_EQ(std::string(INVALID_ARG_ERROR_MSG), result_5.get_err_value());
+	EXPECT_EQ(std::string(INVALID_ARG_ERROR_MSG), result_5.err_value());
 }
 
 
@@ -100,7 +100,7 @@ TEST(TestFileHandler, InvalidPath) {
 	Result<int, std::string> result_1 = file_handler_1.result();
 
 	EXPECT_TRUE(result_1.is_err());
-	EXPECT_EQ(std::string(INVALID_PATH_ERROR_MSG), result_1.get_err_value());
+	EXPECT_EQ(std::string(INVALID_PATH_ERROR_MSG), result_1.err_value());
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -110,7 +110,7 @@ TEST(TestFileHandler, InvalidPath) {
 	Result<int, std::string> result_2 = file_handler_2.result();
 
 	EXPECT_TRUE(result_2.is_err());
-	EXPECT_EQ(std::string(INVALID_PATH_ERROR_MSG), result_2.get_err_value());
+	EXPECT_EQ(std::string(INVALID_PATH_ERROR_MSG), result_2.err_value());
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -120,7 +120,7 @@ TEST(TestFileHandler, InvalidPath) {
 	Result<int, std::string> result_3 = file_handler_3.result();
 
 	EXPECT_TRUE(result_3.is_err());
-	EXPECT_EQ(std::string(INVALID_PATH_ERROR_MSG), result_3.get_err_value());
+	EXPECT_EQ(std::string(INVALID_PATH_ERROR_MSG), result_3.err_value());
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -130,7 +130,7 @@ TEST(TestFileHandler, InvalidPath) {
 	Result<int, std::string> result_4 = file_handler_4.result();
 
 	EXPECT_TRUE(result_4.is_err());
-	EXPECT_EQ(std::string(INVALID_PATH_ERROR_MSG), result_4.get_err_value());
+	EXPECT_EQ(std::string(INVALID_PATH_ERROR_MSG), result_4.err_value());
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -140,7 +140,7 @@ TEST(TestFileHandler, InvalidPath) {
 	Result<int, std::string> result_5 = file_handler_5.result();
 
 	EXPECT_TRUE(result_5.is_err());
-	EXPECT_EQ(std::string(INVALID_PATH_ERROR_MSG), result_5.get_err_value());
+	EXPECT_EQ(std::string(INVALID_PATH_ERROR_MSG), result_5.err_value());
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -150,7 +150,7 @@ TEST(TestFileHandler, InvalidPath) {
 	Result<int, std::string> result_6 = file_handler_6.result();
 
 	EXPECT_TRUE(result_6.is_err());
-	EXPECT_EQ(std::string(INVALID_PATH_ERROR_MSG), result_6.get_err_value());
+	EXPECT_EQ(std::string(INVALID_PATH_ERROR_MSG), result_6.err_value());
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -160,7 +160,7 @@ TEST(TestFileHandler, InvalidPath) {
 	Result<int, std::string> result_7 = file_handler_7.result();
 
 	EXPECT_TRUE(result_7.is_err());
-	EXPECT_EQ(std::string(INVALID_PATH_ERROR_MSG), result_7.get_err_value());
+	EXPECT_EQ(std::string(INVALID_PATH_ERROR_MSG), result_7.err_value());
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -170,7 +170,7 @@ TEST(TestFileHandler, InvalidPath) {
 	Result<int, std::string> result_8 = file_handler_8.result();
 
 	EXPECT_TRUE(result_8.is_err());
-	EXPECT_EQ(std::string(INVALID_PATH_ERROR_MSG), result_8.get_err_value());
+	EXPECT_EQ(std::string(INVALID_PATH_ERROR_MSG), result_8.err_value());
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -180,7 +180,7 @@ TEST(TestFileHandler, InvalidPath) {
 	Result<int, std::string> result_9 = file_handler_9.result();
 
 	EXPECT_TRUE(result_9.is_err());
-	EXPECT_EQ(std::string(INVALID_PATH_ERROR_MSG), result_9.get_err_value());
+	EXPECT_EQ(std::string(INVALID_PATH_ERROR_MSG), result_9.err_value());
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -190,7 +190,7 @@ TEST(TestFileHandler, InvalidPath) {
 	Result<int, std::string> result_10 = file_handler_10.result();
 
 	EXPECT_TRUE(result_10.is_err());
-	EXPECT_EQ(std::string(INVALID_PATH_ERROR_MSG), result_10.get_err_value());
+	EXPECT_EQ(std::string(INVALID_PATH_ERROR_MSG), result_10.err_value());
 }
 
 
@@ -200,7 +200,7 @@ TEST(TestFileHandler, FileSizeTooLarge) {
 	Result<int, std::string> result_1 = file_handler_1.result();
 
 	EXPECT_TRUE(result_1.is_err());
-	EXPECT_EQ(std::string(FILE_SIZE_TOO_LARGE_ERROR_MSG), result_1.get_err_value());
+	EXPECT_EQ(std::string(FILE_SIZE_TOO_LARGE_ERROR_MSG), result_1.err_value());
 }
 
 
@@ -210,7 +210,7 @@ TEST(TestFileHandler, OpenNG) {
 	Result<int, std::string> result_1 = file_handler_1.result();
 
 	EXPECT_TRUE(result_1.is_err());
-	EXPECT_EQ(std::string(INVALID_PATH_ERROR_MSG), result_1.get_err_value());
+	EXPECT_EQ(std::string(INVALID_PATH_ERROR_MSG), result_1.err_value());
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -219,7 +219,7 @@ TEST(TestFileHandler, OpenNG) {
 	Result<int, std::string> result_2 = file_handler_2.result();
 
 	EXPECT_TRUE(result_2.is_err());
-	EXPECT_EQ(std::string(INVALID_PATH_ERROR_MSG), result_2.get_err_value());
+	EXPECT_EQ(std::string(INVALID_PATH_ERROR_MSG), result_2.err_value());
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -228,7 +228,7 @@ TEST(TestFileHandler, OpenNG) {
 	Result<int, std::string> result_3 = file_handler_3.result();
 
 	EXPECT_TRUE(result_3.is_err());
-	EXPECT_EQ(std::string(INVALID_PATH_ERROR_MSG), result_3.get_err_value());
+	EXPECT_EQ(std::string(INVALID_PATH_ERROR_MSG), result_3.err_value());
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -247,7 +247,7 @@ TEST(TestFileHandler, OpenNG) {
 	Result<int, std::string> result_5 = file_handler_5.result();
 
 	EXPECT_TRUE(result_5.is_err());
-	EXPECT_EQ(std::string(INVALID_PATH_ERROR_MSG), result_5.get_err_value());
+	EXPECT_EQ(std::string(INVALID_PATH_ERROR_MSG), result_5.err_value());
 }
 
 
@@ -403,186 +403,186 @@ TEST(TestFileHandler, IsFile) {
     path = "test/unit_test/TestFileHandler.cpp";
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_ok());
-    EXPECT_TRUE(result.get_ok_value());
+    EXPECT_TRUE(result.ok_value());
 
     path = ".gitignore";
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_ok());
-    EXPECT_TRUE(result.get_ok_value());
+    EXPECT_TRUE(result.ok_value());
 
     path = "Makefile";
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_ok());
-    EXPECT_TRUE(result.get_ok_value());
+    EXPECT_TRUE(result.ok_value());
 
 
     path = "test";
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_ok());
-    EXPECT_FALSE(result.get_ok_value());  // directory
+    EXPECT_FALSE(result.ok_value());  // directory
 
     path = "nothing";
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_err());
-    EXPECT_EQ(NotFound, result.get_err_value());
+    EXPECT_EQ(NotFound, result.err_value());
 
 
 #if (__APPLE__)
     path = "html/permission/___.html";
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_err());
-    EXPECT_EQ(Forbidden, result.get_err_value());
+    EXPECT_EQ(Forbidden, result.err_value());
 #endif
 
     path = "html/permission/__x.html";
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_err());
-    EXPECT_EQ(Forbidden, result.get_err_value());
+    EXPECT_EQ(Forbidden, result.err_value());
 
     path = "html/permission/_w_.html";
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_err());
-    EXPECT_EQ(Forbidden, result.get_err_value());
+    EXPECT_EQ(Forbidden, result.err_value());
 
     path = "html/permission/r__.html";  // ok
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_ok());
-    EXPECT_TRUE(result.get_ok_value());
+    EXPECT_TRUE(result.ok_value());
 
     path = "html/permission/rwx.html";  // ok
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_ok());
-    EXPECT_TRUE(result.get_ok_value());
+    EXPECT_TRUE(result.ok_value());
 
 
     path = "html/permission/___/___.html";
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_err());
-    EXPECT_EQ(Forbidden, result.get_err_value());
+    EXPECT_EQ(Forbidden, result.err_value());
 
     path = "html/permission/___/__x.html";
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_err());
-    EXPECT_EQ(Forbidden, result.get_err_value());
+    EXPECT_EQ(Forbidden, result.err_value());
 
     path = "html/permission/___/_w_.html";
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_err());
-    EXPECT_EQ(Forbidden, result.get_err_value());
+    EXPECT_EQ(Forbidden, result.err_value());
 
     path = "html/permission/___/r__.html";
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_err());
-    EXPECT_EQ(Forbidden, result.get_err_value());
+    EXPECT_EQ(Forbidden, result.err_value());
 
     path = "html/permission/___/rwx.html";
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_err());
-    EXPECT_EQ(Forbidden, result.get_err_value());
+    EXPECT_EQ(Forbidden, result.err_value());
 
 
     path = "html/permission/__x/___.html";
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_err());
-    EXPECT_EQ(Forbidden, result.get_err_value());
+    EXPECT_EQ(Forbidden, result.err_value());
 
     path = "html/permission/__x/__x.html";
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_err());
-    EXPECT_EQ(Forbidden, result.get_err_value());
+    EXPECT_EQ(Forbidden, result.err_value());
 
     path = "html/permission/__x/_w_.html";
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_err());
-    EXPECT_EQ(Forbidden, result.get_err_value());
+    EXPECT_EQ(Forbidden, result.err_value());
 
     path = "html/permission/__x/r__.html";  // ok
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_ok());
-    EXPECT_TRUE(result.get_ok_value());
+    EXPECT_TRUE(result.ok_value());
 
     path = "html/permission/__x/rwx.html";  // ok
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_ok());
-    EXPECT_TRUE(result.get_ok_value());
+    EXPECT_TRUE(result.ok_value());
 
 
     path = "html/permission/_w_/___.html";
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_err());
-    EXPECT_EQ(Forbidden, result.get_err_value());
+    EXPECT_EQ(Forbidden, result.err_value());
 
     path = "html/permission/_w_/__x.html";
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_err());
-    EXPECT_EQ(Forbidden, result.get_err_value());
+    EXPECT_EQ(Forbidden, result.err_value());
 
     path = "html/permission/_w_/_w_.html";
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_err());
-    EXPECT_EQ(Forbidden, result.get_err_value());
+    EXPECT_EQ(Forbidden, result.err_value());
 
     path = "html/permission/_w_/r__.html";
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_err());
-    EXPECT_EQ(Forbidden, result.get_err_value());
+    EXPECT_EQ(Forbidden, result.err_value());
 
     path = "html/permission/_w_/rwx.html";
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_err());
-    EXPECT_EQ(Forbidden, result.get_err_value());
+    EXPECT_EQ(Forbidden, result.err_value());
 
 
     path = "html/permission/r__/___.html";
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_err());
-    EXPECT_EQ(Forbidden, result.get_err_value());
+    EXPECT_EQ(Forbidden, result.err_value());
 
     path = "html/permission/r__/__x.html";
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_err());
-    EXPECT_EQ(Forbidden, result.get_err_value());
+    EXPECT_EQ(Forbidden, result.err_value());
 
     path = "html/permission/r__/_w_.html";
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_err());
-    EXPECT_EQ(Forbidden, result.get_err_value());
+    EXPECT_EQ(Forbidden, result.err_value());
 
     path = "html/permission/r__/r__.html";
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_err());
-    EXPECT_EQ(Forbidden, result.get_err_value());
+    EXPECT_EQ(Forbidden, result.err_value());
 
     path = "html/permission/r__/rwx.html";
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_err());
-    EXPECT_EQ(Forbidden, result.get_err_value());
+    EXPECT_EQ(Forbidden, result.err_value());
 
 
     path = "html/permission/rwx/___.html";
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_err());
-    EXPECT_EQ(Forbidden, result.get_err_value());
+    EXPECT_EQ(Forbidden, result.err_value());
 
     path = "html/permission/rwx/__x.html";
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_err());
-    EXPECT_EQ(Forbidden, result.get_err_value());
+    EXPECT_EQ(Forbidden, result.err_value());
 
     path = "html/permission/rwx/_w_.html";
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_err());
-    EXPECT_EQ(Forbidden, result.get_err_value());
+    EXPECT_EQ(Forbidden, result.err_value());
 
     path = "html/permission/rwx/r__.html";  // ok
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_ok());
-    EXPECT_TRUE(result.get_ok_value());
+    EXPECT_TRUE(result.ok_value());
 
     path = "html/permission/rwx/rwx.html";  // ok
     result = FileHandler::is_file(path);
     ASSERT_TRUE(result.is_ok());
-    EXPECT_TRUE(result.get_ok_value());
+    EXPECT_TRUE(result.ok_value());
 }
 
 
@@ -593,57 +593,57 @@ TEST(TestFileHandler, IsDir) {
     path = "test/unit_test/";
     result = FileHandler::is_directory(path);
     ASSERT_TRUE(result.is_ok());
-    EXPECT_TRUE(result.get_ok_value());
+    EXPECT_TRUE(result.ok_value());
 
     path = "test/unit_test";
     result = FileHandler::is_directory(path);
     ASSERT_TRUE(result.is_ok());
-    EXPECT_TRUE(result.get_ok_value());
+    EXPECT_TRUE(result.ok_value());
 
     path = "test/nothing";
     result = FileHandler::is_directory(path);
     ASSERT_TRUE(result.is_err());
-    EXPECT_EQ(NotFound, result.get_err_value());
+    EXPECT_EQ(NotFound, result.err_value());
 
     path = ".gitignore";
     result = FileHandler::is_directory(path);
     ASSERT_TRUE(result.is_ok());
-    EXPECT_FALSE(result.get_ok_value());
+    EXPECT_FALSE(result.ok_value());
 
     path = "Makefile";
     result = FileHandler::is_directory(path);
     ASSERT_TRUE(result.is_ok());
-    EXPECT_FALSE(result.get_ok_value());
+    EXPECT_FALSE(result.ok_value());
 
     path = "html/permission/";
     result = FileHandler::is_directory(path);
     ASSERT_TRUE(result.is_ok());
-    EXPECT_TRUE(result.get_ok_value());
+    EXPECT_TRUE(result.ok_value());
 
     path = "html/permission/___";
     result = FileHandler::is_directory(path);
     ASSERT_TRUE(result.is_err());
-    EXPECT_EQ(Forbidden, result.get_err_value());
+    EXPECT_EQ(Forbidden, result.err_value());
 
     path = "html/permission/__x";
     result = FileHandler::is_directory(path);
     ASSERT_TRUE(result.is_err());
-    EXPECT_EQ(Forbidden, result.get_err_value());
+    EXPECT_EQ(Forbidden, result.err_value());
 
     path = "html/permission/_w_";
     result = FileHandler::is_directory(path);
     ASSERT_TRUE(result.is_err());
-    EXPECT_EQ(Forbidden, result.get_err_value());
+    EXPECT_EQ(Forbidden, result.err_value());
 
 #if (__APPLE__)
     path = "html/permission/r__";  // ok
     result = FileHandler::is_directory(path);
     ASSERT_TRUE(result.is_ok());
-    EXPECT_TRUE(result.get_ok_value());
+    EXPECT_TRUE(result.ok_value());
 #endif
 
     path = "html/permission/rwx";  // ok
     result = FileHandler::is_directory(path);
     ASSERT_TRUE(result.is_ok());
-    EXPECT_TRUE(result.get_ok_value());
+    EXPECT_TRUE(result.ok_value());
 }

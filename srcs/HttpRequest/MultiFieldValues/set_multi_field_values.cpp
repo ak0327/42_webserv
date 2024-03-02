@@ -212,7 +212,7 @@ Result<int, int> parse_serialized_origin(const std::string &field_value,
 	if (host_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}
-	*host = host_result.get_ok_value();
+	*host = host_result.ok_value();
 	pos = end;
 
 	// ":"
@@ -227,7 +227,7 @@ Result<int, int> parse_serialized_origin(const std::string &field_value,
 	if (port_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}
-	*port = port_result.get_ok_value();
+	*port = port_result.ok_value();
 
 	*end_pos = end;
 	return Result<int, int>::ok(OK);
@@ -304,7 +304,7 @@ parse_and_validate_origin_list_or_null(const std::string &field_value) {
 	if (result.is_err()) {
 		return Result<std::set<std::string>, int>::err(ERR);
 	}
-	origin_set = result.get_ok_value();
+	origin_set = result.ok_value();
 	return Result<std::set<std::string>, int>::ok(origin_set);
 }
 
@@ -433,7 +433,7 @@ Result<int, int> HttpRequest::set_origin(const std::string &field_name,
 	if (result.is_err()) {
 		return Result<int, int>::ok(STATUS_OK);
 	}
-	origin_set_or_null = result.get_ok_value();
+	origin_set_or_null = result.ok_value();
 
 	this->request_header_fields_[field_name] = new MultiFieldValues(origin_set_or_null);
 	return Result<int, int>::ok(STATUS_OK);

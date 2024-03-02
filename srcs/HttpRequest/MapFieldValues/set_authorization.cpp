@@ -133,7 +133,7 @@ parse_credentials(const std::string &field_value) {
 	if (auth_scheme_result.is_err()) {
 		return Result<std::map<std::string, std::string>, int>::err(ERR);
 	}
-	credentials[std::string(AUTH_SCHEME)] = auth_scheme_result.get_ok_value();
+	credentials[std::string(AUTH_SCHEME)] = auth_scheme_result.ok_value();
 	pos = end_pos;
 
 	if (field_value[pos] != '\0') {
@@ -141,7 +141,7 @@ parse_credentials(const std::string &field_value) {
 		if (auth_param_result.is_err()) {
 			return Result<std::map<std::string, std::string>, int>::err(ERR);
 		}
-		credentials[std::string(AUTH_PARAM)] = auth_param_result.get_ok_value();
+		credentials[std::string(AUTH_PARAM)] = auth_param_result.ok_value();
 	}
 	pos = end_pos;
 
@@ -161,7 +161,7 @@ parse_and_validate_credentials(const std::string &field_value) {
 	if (parse_result.is_err()) {
 		return Result<std::map<std::string, std::string>, int>::err(ERR);
 	}
-	credentials = parse_result.get_ok_value();
+	credentials = parse_result.ok_value();
 
 	validate_result = validate_credentials(credentials);
 	if (validate_result.is_err()) {
@@ -194,7 +194,7 @@ Result<int, int> HttpRequest::set_authorization(const std::string &field_name,
 
 	result = parse_and_validate_credentials(field_value);
 	if (result.is_ok()) {
-		credentials = result.get_ok_value();
+		credentials = result.ok_value();
 		this->request_header_fields_[field_name] = new MapFieldValues(credentials);
 	}
 	return Result<int, int>::ok(STATUS_OK);
@@ -214,7 +214,7 @@ Result<int, int> HttpRequest::set_proxy_authorization(const std::string &field_n
 
 	result = parse_and_validate_credentials(field_value);
 	if (result.is_ok()) {
-		credentials = result.get_ok_value();
+		credentials = result.ok_value();
 		this->request_header_fields_[field_name] = new MapFieldValues(credentials);
 	}
 	return Result<int, int>::ok(STATUS_OK);

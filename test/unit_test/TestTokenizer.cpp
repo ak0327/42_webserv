@@ -45,7 +45,7 @@ void print_error_msg(Result<int, std::string> result, std::size_t line){
 	if (!result.is_err()) {
 		FAIL() << " result is not error at L:" << line << std::endl;
 	}
-	std::string error_msg = result.get_err_value();
+	std::string error_msg = result.err_value();
 	std::cout << YELLOW << "error_msg: " << error_msg << RESET << std::endl;
 #else
 	(void)result;

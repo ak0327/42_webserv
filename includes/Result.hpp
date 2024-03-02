@@ -44,14 +44,14 @@ class Result {
 	bool is_ok() const { return is_ok_; }
 	bool is_err() const { return !is_ok_; }
 
-	OkType get_ok_value() const {
+	OkType ok_value() const {
 		if (is_ok_) {
 			return ok_value_;
 		}
 		throw std::runtime_error("[Result Error] Result is not OK");
 	}
 
-	ErrType get_err_value() const {
+	ErrType err_value() const {
 		if (!is_ok_) {
 			return err_value_;
 		}

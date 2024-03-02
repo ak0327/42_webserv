@@ -97,7 +97,7 @@ bool HttpResponse::is_urlencoded_form_data() {
     if (result.is_err()) {
         return false;
     }
-    MediaType media_type = result.get_ok_value();
+    MediaType media_type = result.ok_value();
     return media_type.type() == "application" && media_type.subtype() == "x-www-form-urlencoded";
 }
 
