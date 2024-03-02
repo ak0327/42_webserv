@@ -502,9 +502,6 @@ void Server::register_cgi_read_fd_to_event_manager(ClientSession **client) {
         DEBUG_SERVER_PRINT("        timeout: %zu, clilent: %p", timeout_limit, *client);
         this->cgi_fds_.insert(FdTimeoutLimitPair(timeout_limit, read_fd));
     }
-    this->cgi_sessions_.erase(fd);
-    this->fds_->clear_fd(fd);
-    erase_from_timeout_manager(fd);
 }
 
 
