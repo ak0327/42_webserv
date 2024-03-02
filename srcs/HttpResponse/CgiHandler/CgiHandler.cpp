@@ -255,13 +255,14 @@ ProcResult CgiHandler::recv_cgi_output() {
     }
     // CgiHandler::close_read_fd();  // close fd in ClientSession
     DEBUG_PRINT(YELLOW, "      process_exit_status: %d", process_exit_status);
-    if (process_exit_status != EXIT_SUCCESS) {
-        clear_recv_buf();
-        DEBUG_PRINT(YELLOW, "      recv failure");
-        return Failure;
+    if (process_exit_status == EXIT_SUCCESS) {
+        DEBUG_PRINT(YELLOW, "      recv success");
+        return Success;
     }
-    DEBUG_PRINT(YELLOW, "      recv success");
-    return Success;
+
+    clear_recv_buf();
+    DEBUG_PRINT(YELLOW, "      recv failure or timeout");
+    return process_exit_status == PROCESS_TIMEOUT ? Timeout : Failure;
 }
 
 
@@ -608,9 +609,13 @@ bool CgiHandler::is_processing(int *status) {
     DEBUG_PRINT(YELLOW, "    is_cgi_processing 6");
     if (0 < wait_result && status) {
         if (WIFSIGNALED(child_status)) {
-            *status = EXIT_FAILURE;
             int term_sig = WTERMSIG(child_status);
-            DEBUG_PRINT(YELLOW, "    Child terminated by signal: %d", term_sig);
+            if (term_sig == SIGKILL) {
+                *status = PROCESS_TIMEOUT;
+            } else {
+                *status = EXIT_FAILURE;
+            }
+            DEBUG_PRINT(YELLOW, "    Child terminated by signal: %d, status: %d", term_sig, *status);
         } else {
             *status = WEXITSTATUS(child_status);
             DEBUG_PRINT(YELLOW, "    is_cgi_processing 7 status: %d", *status);

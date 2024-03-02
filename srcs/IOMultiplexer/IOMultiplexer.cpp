@@ -320,7 +320,9 @@ void Select::init_fds() {
 
 
 bool is_setting_no_timeout(struct timeval timeout) {
-    return timeout.tv_sec < 0 || timeout.tv_usec < 0 || (timeout.tv_sec <= 0 && timeout.tv_usec <= 0);
+    return timeout.tv_sec < 0
+            || timeout.tv_usec < 0
+            || (timeout.tv_sec <= 0 && timeout.tv_usec <= 0);
 }
 
 
@@ -513,11 +515,13 @@ FdType Select::get_fd_type(int fd) {
 
 void Select::set_io_multiplexer_timeout(int timeout_msec) {
     if (timeout_msec <= 0) {
-        DEBUG_PRINT(CYAN, "select set_io_multiplexer_timeout: [%d]->[-]sec", this->timeout_.tv_sec + this->timeout_.tv_usec/1000000);
+        DEBUG_PRINT(CYAN, "select set_io_multiplexer_timeout: [%d]->[-]sec",
+                    this->timeout_.tv_sec + this->timeout_.tv_usec/1000000);
         this->timeout_.tv_sec = 0;
         this->timeout_.tv_usec = 0;
     } else {
-        DEBUG_PRINT(CYAN, "select set_io_multiplexer_timeout: [%d]->[%d]sec", this->timeout_.tv_sec + this->timeout_.tv_usec/1000000, timeout_msec/1000);
+        DEBUG_PRINT(CYAN, "select set_io_multiplexer_timeout: [%d]->[%d]sec",
+                    this->timeout_.tv_sec + this->timeout_.tv_usec/1000000, timeout_msec/1000);
         this->timeout_.tv_sec = timeout_msec / 1000;
         this->timeout_.tv_usec = timeout_msec % 1000 * 1000;
     }

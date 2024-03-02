@@ -312,7 +312,7 @@ ProcResult HttpResponse::exec_cgi_process() {
                                           ^^^^^^
  */
 void HttpResponse::interpret_cgi_output() {
-    if (this->cgi_handler_.cgi_status_code() != StatusOk) {  // todo: cgi_status ??
+    if (this->status_code() != StatusOk) {  // todo: cgi_status ??
         return;
     }
 
@@ -505,6 +505,10 @@ ProcResult HttpResponse::recv_to_cgi_buf() {
         StatusCode error_code = InternalServerError;
         this->set_status_code(error_code);
     }
+    if (result == Timeout) {
+        StatusCode error_code = GatewayTimeout;
+        this->set_status_code(error_code);
+    }
     return result;
 }
 
@@ -525,6 +529,7 @@ StatusCode HttpResponse::status_code() const {
 
 
 void HttpResponse::set_status_code(const StatusCode &set_status) {
+    DEBUG_PRINT(GRAY, "response set_status [%d]->[%d]", this->status_code(), set_status);
     this->status_code_ = set_status;
 }
 
