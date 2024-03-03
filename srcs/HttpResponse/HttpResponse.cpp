@@ -392,6 +392,20 @@ void HttpResponse::add_standard_headers() {
     add_date_header();
 }
 
+void HttpResponse::add_cookie_headers() {
+    if (this->cookies_.empty()) {
+        return;
+    }
+
+    std::map<std::string, std::string>::iterator cookie;
+    for (cookie = this->cookies_.begin(); cookie != this->cookies_.end(); ++cookie) {
+        std::ostringstream oss;
+        oss << "Set-Cookie: " << cookie->first << "=" << cookie->second << CRLF;
+        const std::string cookie_header = oss.str();
+        this->response_msg_.insert(this->response_msg_.end(), cookie_header.begin(), cookie_header.end());
+    }
+}
+
 
 /*
  HTTP-message = start-line CRLF
@@ -416,6 +430,7 @@ void HttpResponse::create_response_message() {
 
     this->response_msg_.insert(this->response_msg_.end(), status_line.begin(), status_line.end());
     this->response_msg_.insert(this->response_msg_.end(), field_lines.begin(), field_lines.end());
+    add_cookie_headers();
     this->response_msg_.insert(this->response_msg_.end(), empty.begin(), empty.end());
     this->response_msg_.insert(this->response_msg_.end(), this->body_buf_.begin(), this->body_buf_.end());
 

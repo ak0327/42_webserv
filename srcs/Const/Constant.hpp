@@ -86,6 +86,7 @@ enum StatusCode {
 
     MultipleChoices         = 300,
     MovedPermanently        = 301,
+    Found                   = 302,
     SeeOther                = 303,
 
     BadRequest              = 400,
@@ -395,12 +396,6 @@ typedef std::map<Extension, MimeType> MimeTypeMap;
 
 extern const MimeTypeMap MIME_TYPES;
 MimeTypeMap init_mime_types();
-
-////////////////////////////////////////////////////////////////////////////////
-/* API endpoint */
-
-extern const std::vector<std::string> API_ENDPOINTS;
-std::vector<std::string> init_endpoints();
 
 ////////////////////////////////////////////////////////////////////////////////
 /* server information */

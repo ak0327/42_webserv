@@ -621,22 +621,6 @@ MimeTypeMap init_mime_types() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/* API endpoint */
-
-const std::vector<std::string> API_ENDPOINTS = init_endpoints();
-
-std::vector<std::string> init_endpoints() {
-    std::vector<std::string> endpoints;
-    // endpoints.push_back("");
-
-    endpoints.push_back("/api/show-form-data");
-    endpoints.push_back("/api/show-response-body");
-    endpoints.push_back("/api/now");
-    endpoints.push_back("/api/login");
-    return endpoints;
-}
-
-////////////////////////////////////////////////////////////////////////////////
 /* server information */
 
 const char SERVER_SEMANTIC_VERSION[] = "webserv/1.0.0";

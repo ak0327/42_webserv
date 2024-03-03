@@ -774,6 +774,21 @@ Result<std::map<std::string, std::string>, ProcResult> HttpRequest::get_host() c
 }
 
 
+Result<std::map<std::string, std::string>, ProcResult> HttpRequest::get_cookie() const {
+    FieldValueBase *field_values = get_field_values(COOKIE);
+    if (!field_values) {
+        return Result<std::map<std::string, std::string>, ProcResult>::err(Failure);
+    }
+    MapFieldValues *map_field_values = dynamic_cast<MapFieldValues *>(field_values);
+    if (!map_field_values) {
+        return Result<std::map<std::string, std::string>, ProcResult>::err(Failure);
+    }
+
+    std::map<std::string, std::string> cookie = map_field_values->get_value_map();
+    return Result<std::map<std::string, std::string>, ProcResult>::ok(cookie);
+}
+
+
 Result<std::size_t, ProcResult> HttpRequest::get_content_length() const {
     FieldValueBase *field_values = get_field_values(CONTENT_LENGTH);
     if (!field_values) {

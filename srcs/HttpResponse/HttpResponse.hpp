@@ -77,6 +77,7 @@ class HttpResponse {
 	/* response message */
 	std::string status_line_;
 	std::map<std::string, std::string> headers_;
+    std::map<std::string, std::string> cookies_;
 	std::vector<unsigned char> body_buf_;
     std::vector<unsigned char> response_msg_;
 
@@ -110,6 +111,7 @@ class HttpResponse {
     void add_date_header();
     void add_server_header();
     void add_standard_headers();
+    void add_cookie_headers();
     void add_content_header(const std::string &extension);
     void add_content_header_by_media_type(const std::string &media_type);
 
@@ -150,9 +152,13 @@ class HttpResponse {
     StatusCode get_now();
     StatusCode show_form_data();
     StatusCode show_request_body();
-    StatusCode login();
+    StatusCode get_cookie_login_page();
+    StatusCode get_cookie_user_page();
     StatusCode get_urlencoded_form_content();
     UrlEncodedFormData parse_urlencoded_form_data(const std::vector<unsigned char> &request_body);
+
+    bool is_logged_in_user();
+    std::string get_user_name();
 
 
     // unused

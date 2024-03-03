@@ -71,6 +71,7 @@ class HttpRequest {
 	FieldValueBase * get_field_values(const std::string &field_name) const;
 
     Result<std::map<std::string, std::string>, ProcResult> get_host() const;
+    Result<std::map<std::string, std::string>, ProcResult> get_cookie() const;
 
     std::string content_type() const;
     Result<MediaType, ProcResult> get_content_type() const;
