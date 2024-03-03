@@ -515,12 +515,12 @@ FdType Select::get_fd_type(int fd) {
 
 void Select::set_io_timeout(int timeout_msec) {
     if (timeout_msec <= 0) {
-        DEBUG_PRINT(CYAN, "select set_io_timeout: [%d]->[-]sec",
+        DEBUG_PRINT(CYAN, "select set_io_timeout: [%.2f]->[-]sec",
                     this->timeout_.tv_sec + this->timeout_.tv_usec/1000000);
         this->timeout_.tv_sec = 0;
         this->timeout_.tv_usec = 0;
     } else {
-        DEBUG_PRINT(CYAN, "select set_io_timeout: [%d]->[%d]sec",
+        DEBUG_PRINT(CYAN, "select set_io_timeout: [%.2f]->[%.2f]sec",
                     this->timeout_.tv_sec + this->timeout_.tv_usec/1000000, timeout_msec/1000);
         this->timeout_.tv_sec = timeout_msec / 1000;
         this->timeout_.tv_usec = timeout_msec % 1000 * 1000;

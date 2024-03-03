@@ -559,12 +559,8 @@ void HttpResponse::clear_cgi() {
 }
 
 
-#ifdef ECHO
-
 void HttpResponse::create_echo_msg(const std::vector<unsigned char> &recv_msg) {
     this->response_msg_ = recv_msg;
     std::string echo_message = std::string(recv_msg.begin(), recv_msg.end());
     DEBUG_PRINT(GREEN, "    create_echo_msg:[%s]", echo_message.c_str());
 }
-
-#endif

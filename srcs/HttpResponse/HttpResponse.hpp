@@ -31,6 +31,7 @@ typedef std::map<std::string, std::vector<std::string> > UrlEncodedFormData;
 
 class HttpResponse {
  public:
+    HttpResponse();
 	explicit HttpResponse(const HttpRequest &request,
                           const ServerConfig &server_config,
                           const AddressPortPair &pair);
@@ -58,11 +59,8 @@ class HttpResponse {
     void kill_cgi_process();
     bool is_exec_cgi();
 
-#ifdef ECHO
-    HttpResponse();
     void create_echo_msg(const std::vector<unsigned char> &recv_msg);
     std::string get_echo_msg() const;
-#endif
 
 #ifdef UNIT_TEST
     friend class HttpResponseFriend;

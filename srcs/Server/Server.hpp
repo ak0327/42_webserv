@@ -46,6 +46,9 @@ class Server {
 
     const Config &config_;
 
+    bool echo_mode_on_;
+
+
 	ServerResult accept_connect_fd(int socket_fd, struct sockaddr_storage *client_addr);
     ServerResult create_event(int socket_fd);
     ServerResult process_event(int ready_fd);

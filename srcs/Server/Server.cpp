@@ -83,7 +83,8 @@ ServerResult set_signal() {
 Server::Server(const Config &config)
 	: sockets_(),
       fds_(NULL),
-      config_(config) {}
+      config_(config),
+      echo_mode_on_(false) {}
 
 
 Server::~Server() {
@@ -265,13 +266,13 @@ ServerResult Server::run() {
         DEBUG_SERVER_PRINT(" run 4 ready_fd: %d", ready_fd);
 		if (ready_fd == IO_TIMEOUT) {
             // std::cerr << "[Server INFO] timeout" << std::endl;
-#ifdef UNIT_TEST
-            DEBUG_SERVER_PRINT("  timeout -> break");
-            break;
-#else
-            DEBUG_SERVER_PRINT("  timeout -> continue");
-            continue;
-#endif
+            if (this->echo_mode_on_) {
+                DEBUG_SERVER_PRINT("  timeout -> break");
+                break;
+            } else {
+                DEBUG_SERVER_PRINT("  timeout -> continue");
+                continue;
+            }
 		}
         DEBUG_SERVER_PRINT(" run 5 communicate");
 
@@ -324,7 +325,7 @@ void Server::management_timeout_events() {
 
         int cgi_fd = cgi->second;
         Event *client = this->cgi_events_[cgi_fd];
-        DEBUG_PRINT(GREEN, " timeout cgi %d -> kill, client: %p", cgi_fd, client);
+        DEBUG_PRINT(GREEN, " timeout(%zu sec) cgi %d -> kill, client: %p", current_time - timeout_limit, cgi_fd, client);
         client->kill_cgi_process();
         DEBUG_PRINT(GREEN, " cgi killed by signal read:%d, write:%d", client->cgi_read_fd(), client->cgi_write_fd());
     }
@@ -335,8 +336,8 @@ void Server::management_timeout_events() {
 
 
 ServerResult Server::echo() {
-    // todo
-    return ServerResult::ok(OK);
+    this->echo_mode_on_ = true;
+    return run();
 }
 
 
@@ -371,7 +372,7 @@ ServerResult Server::create_event(int socket_fd) {
         std::ostringstream oss; oss << client_listen;
         DEBUG_SERVER_PRINT("%s", oss.str().c_str());
 
-        Event *new_session = new Event(socket_fd, connect_fd, client_listen, this->config_);
+        Event *new_session = new Event(socket_fd, connect_fd, client_listen, this->config_, this->echo_mode_on_);
         this->client_events_[connect_fd] = new_session;
         DEBUG_SERVER_PRINT("new_clilent: %p", new_session);
         // std::cout << CYAN << " event start" << connect_fd << RESET << std::endl;

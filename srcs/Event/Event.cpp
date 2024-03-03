@@ -18,7 +18,8 @@
 Event::Event(int socket_fd,
              int client_fd,
              const AddressPortPair &client_listen,
-             const Config &config)
+             const Config &config,
+             bool echo_mode_on = false)
     : socket_fd_(socket_fd),
       client_fd_(client_fd),
       config_(config),
@@ -28,7 +29,8 @@ Event::Event(int socket_fd,
       request_(NULL),
       response_(NULL),
       request_max_body_size_(ConfigInitValue::kDefaultBodySize),
-      client_listen_(client_listen) {}
+      client_listen_(client_listen),
+      echo_mode_on_(echo_mode_on) {}
 
 
 Event::~Event() {
@@ -184,9 +186,11 @@ ProcResult Event::recv_http_request() {
 // status update this func
 ProcResult Event::parse_http_request() {
     DEBUG_SERVER_PRINT("               ParsingRequest start");
-#ifdef ECHO
-    this->set_event_phase(kCreatingResponseBody);
-#else
+    if (this->echo_mode_on_) {
+        this->set_event_phase(kCreatingResponseBody);
+        return Success;
+    }
+
     if (this->request_->parse_phase() == ParsingRequestLine
         || this->request_->parse_phase() == ParsingRequestHeaders) {
         DEBUG_SERVER_PRINT("               ParsingRequest 1");
@@ -236,7 +240,6 @@ ProcResult Event::parse_http_request() {
         }
         DEBUG_SERVER_PRINT("               ParsingRequest 9");
     }
-#endif
     return Success;
 }
 
@@ -266,11 +269,12 @@ ProcResult Event::create_http_response() {
 
             case kCreatingResponseBody: {
                 DEBUG_SERVER_PRINT("     2 CreatingResponseBody");
-    #ifdef ECHO
-                this->response_->create_echo_msg(this->request_->get_buf());
-    #else
-                this->response_->create_response_message();
-    #endif
+                if (this->echo_mode_on_) {
+                    this->response_->create_echo_msg(this->request_->get_buf());
+                } else {
+                    this->response_->create_response_message();
+                }
+
                 this->set_event_phase(kSendingResponse);
                 break;
             }
@@ -370,20 +374,19 @@ EventResult Event::get_host_config() {
 
 
 ProcResult Event::execute_each_method() {
-#ifdef ECHO
-    try {
-        HttpRequest request;
-        ServerConfig config;
-        AddressPortPair pair;
-        this->response_ = new HttpResponse(request, config, pair);
+    if (this->echo_mode_on_) {
+        try {
+            HttpRequest request; ServerConfig config; AddressPortPair pair;
+            this->response_ = new HttpResponse(request, config, pair);
+        }
+        catch (const std::exception &e) {
+            const std::string error_msg = CREATE_ERROR_INFO_STR("Failed to allocate memory");
+            std::cerr << error_msg << std::endl;
+            return FatalError;
+        }
+        return Success;
     }
-    catch (const std::exception &e) {
-        const std::string error_msg = CREATE_ERROR_INFO_STR("Failed to allocate memory");
-        std::cerr << error_msg << std::endl;
-        return FatalError;
-    }
-    return Success;
-#else
+
     try {
         this->response_ = new HttpResponse(*this->request_,
                                            this->server_config_,
@@ -401,7 +404,6 @@ ProcResult Event::execute_each_method() {
     } else {
         return this->response_->exec_method();  // return Success or ExecutingCgi
     }
-#endif
 }
 
 

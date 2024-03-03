@@ -6,7 +6,6 @@ CXXFLAGS	=	-std=c++98 -Wall -Wextra -Werror -MMD -MP -pedantic
 CXXFLAGS	+=	-D USE_SELECT
 #CXXFLAGS	+=	-D USE_POLL
 CXXFLAGS	+=	-D DEBUG
-#CXXFLAGS	+=	-D ECHO
 #CXXFLAGS	+=	-D LEAKS
 
 # SRCS -------------------------------------------------------------------------
@@ -205,16 +204,12 @@ lint	:
 	&& echo -e "\033[0;32mCPPLINT DONE\033[0m" \
 	|| echo -e "\033[0;31mCPPLINT ERROR\033[0m"
 
-.PHONY	: echo
-echo	: CXXFLAGS += -D ECHO
-echo	: re
-
 .PHONY	: run_unit_test
 run_unit_test	:
 	. test/integration/prepare_test_file.sh; prepare_test_file
 	#cmake -S . -B build
-#	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D ECHO"
-	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D ECHO -D DEBUG"
+#	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT"
+	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D DEBUG"
 	cmake --build build
 #	./build/unit_test 2>/dev/null
 	./build/unit_test  # leaks report
@@ -227,8 +222,8 @@ run_integration_test	:
 
 .PHONY	: run_server_test
 run_server_test	:
-	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D ECHO -D DEBUG"
-	#cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT  -D ECHO"
+	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D DEBUG"
+	#cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT "
 	#cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG -D USE_SELECT"
 	cmake --build build
 	#./build/unit_test --gtest_filter=Server* 2>/dev/null

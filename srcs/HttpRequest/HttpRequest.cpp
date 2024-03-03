@@ -821,8 +821,6 @@ std::string HttpRequest::content_type() const {
 }
 
 
-#ifdef ECHO
 const std::vector<unsigned char> &HttpRequest::get_buf() const {
     return this->buf_;
 }
-#endif

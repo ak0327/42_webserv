@@ -42,7 +42,8 @@ class Event {
     Event(int socket_fd,
           int client_fd,
           const AddressPortPair &client_listen,
-          const Config &config);
+          const Config &config,
+          bool echo_mode_on);
 
     ~Event();
 
@@ -96,6 +97,8 @@ class Event {
     std::size_t request_max_body_size_;
 
     AddressPortPair client_listen_;
+
+    bool echo_mode_on_;
 
     ProcResult recv_http_request();
     ProcResult send_http_response();

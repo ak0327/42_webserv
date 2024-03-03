@@ -84,9 +84,7 @@ class HttpRequest {
 #ifdef UNIT_TEST
     friend class HttpRequestFriend;
 #endif
-#ifdef ECHO
     const std::vector<unsigned char> &get_buf() const;
-#endif
 
  private:
     RequestParsePhase phase_;
