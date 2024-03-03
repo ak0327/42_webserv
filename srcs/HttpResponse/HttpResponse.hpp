@@ -9,9 +9,9 @@
 # include "webserv.hpp"
 # include "CgiHandler.hpp"
 # include "ConfigStruct.hpp"
+# include "Dynamic.hpp"
 # include "HttpRequest.hpp"
 # include "Result.hpp"
-
 
 struct FileInfo {
 	std::string name;
@@ -71,6 +71,7 @@ class HttpResponse {
     const ServerConfig &server_config_;
     const AddressPortPair address_port_pair_;
     CgiHandler cgi_handler_;
+    Dynamic dynamic_;
 
     StatusCode status_code_;
 
@@ -146,9 +147,9 @@ class HttpResponse {
 
 
     // API
-    bool is_api_endpoint();
+    bool is_dynamic_endpoint();
     bool is_urlencoded_form_data();
-    StatusCode response_api();
+    StatusCode response_dynamic();
     StatusCode get_now();
     StatusCode show_form_data();
     StatusCode show_request_body();

@@ -4,73 +4,43 @@
 #include "Constant.hpp"
 #include "Color.hpp"
 #include "Debug.hpp"
+#include "Dynamic.hpp"
 #include "HttpMessageParser.hpp"
 #include "HttpResponse.hpp"
 #include "MediaType.hpp"
 #include "StringHandler.hpp"
 
 
-namespace {
-
-const char API_FORM_DATA[]          = "/api/form-data";
-const char API_RESPONSE_BODY[]      = "/api/show-response-body";
-const char API_NOW[]                = "/api/now";
-const char API_COOKIE_LOGIN[]       = "/api/cookie-login";
-const char API_COOKIE_USERPAGE[]    = "/api/cookie-userpage";
-const char API_SESSION_LOGIN[]       = "/api/session-login";
-const char API_SESSION_USERPAGE[]    = "/api/session-userpage";
-
-
-std::vector<std::string> init_endpoints() {
-    std::vector<std::string> endpoints;
-    // endpoints.push_back("");
-
-    endpoints.push_back(API_FORM_DATA);
-    endpoints.push_back(API_RESPONSE_BODY);
-    endpoints.push_back(API_NOW);
-    endpoints.push_back(API_COOKIE_LOGIN);
-    endpoints.push_back(API_COOKIE_USERPAGE);
-    endpoints.push_back(API_SESSION_LOGIN);
-    endpoints.push_back(API_SESSION_USERPAGE);
-    return endpoints;
-}
-
-const std::vector<std::string> API_ENDPOINTS = init_endpoints();
-
-
-}  // namespace
-
-
-////////////////////////////////////////////////////////////////////////////////
-
-
-bool HttpResponse::is_api_endpoint() {
+bool HttpResponse::is_dynamic_endpoint() {
     std::vector<std::string>::const_iterator itr;
-    itr = std::find(API_ENDPOINTS.begin(), API_ENDPOINTS.end(), this->request_.request_target());
-    return itr != API_ENDPOINTS.end();
+    itr = std::find(this->dynamic_.DYNAMIC_PAGES.begin(),
+                    this->dynamic_.DYNAMIC_PAGES.end(),
+                    this->request_.request_target());
+    return itr != this->dynamic_.DYNAMIC_PAGES.end();
 }
 
 
-StatusCode HttpResponse::response_api() {
-    if (this->request_.request_target() == std::string(API_FORM_DATA)) {
+StatusCode HttpResponse::response_dynamic() {
+    const std::string target = this->request_.request_target();
+    if (target == this->dynamic_.FORM_DATA) {
         return show_form_data();
     }
-    if (this->request_.request_target() == std::string(API_RESPONSE_BODY)) {
+    if (target == this->dynamic_.RESPONSE_BODY) {
         return show_request_body();
     }
-    if (this->request_.request_target() == std::string(API_NOW)) {
+    if (target == this->dynamic_.NOW) {
         return get_now();
     }
-    if (this->request_.request_target() == std::string(API_COOKIE_LOGIN)) {
+    if (target == this->dynamic_.COOKIE_LOGIN) {
         return get_cookie_login_page();
     }
-    if (this->request_.request_target() == std::string(API_COOKIE_USERPAGE)) {
+    if (target == this->dynamic_.COOKIE_USERPAGE) {
         return get_cookie_user_page();
     }
-    if (this->request_.request_target() == std::string(API_SESSION_LOGIN)) {
+    if (target == this->dynamic_.SESSION_LOGIN) {
         return get_session_login_page();
     }
-    if (this->request_.request_target() == std::string(API_SESSION_USERPAGE)) {
+    if (target == this->dynamic_.SESSION_USERPAGE) {
         return get_session_user_page();
     }
     return NotFound;
@@ -188,7 +158,7 @@ UrlEncodedFormData HttpResponse::parse_urlencoded_form_data(const std::vector<un
         key = StringHandler::decode(key);
         value = StringHandler::decode(value);
         parameters[key].push_back(value);
-        std::cout << "key: " << key << ", value: " << value << std::endl;
+        DEBUG_PRINT(YELLOW, "parse_urlencoded: key[%s] value[%s]", key.c_str(), value.c_str());
     }
     return parameters;
 }

@@ -116,9 +116,9 @@ SRCS		+=	$(STR_HANDLER)/HttpMessageParser.cpp \
 #HTTP Response
 RESPONSE_DIR =	HttpResponse
 SRCS		+=	$(RESPONSE_DIR)/HttpResponse.cpp \
-				$(RESPONSE_DIR)/Api/api.cpp \
-				$(RESPONSE_DIR)/Api/cookie_login.cpp \
-				$(RESPONSE_DIR)/Api/session_login.cpp \
+				$(RESPONSE_DIR)/Dynamic/Dynamic.cpp \
+				$(RESPONSE_DIR)/Dynamic/cookie_login.cpp \
+				$(RESPONSE_DIR)/Dynamic/session_login.cpp \
 				$(RESPONSE_DIR)/GET/get_directory_listing.cpp \
 				$(RESPONSE_DIR)/GET/get_file_content.cpp \
 				$(RESPONSE_DIR)/GET/get_request_body.cpp \
@@ -173,7 +173,7 @@ REQUEST_INCLUDES =	$(SRCS_DIR)/$(REQUEST_DIR) \
 					$(SRCS_DIR)/$(REQUEST_DIR)/RequestLine
 
 RESPONSE_INCLUDES =	$(SRCS_DIR)/$(RESPONSE_DIR) \
-					$(SRCS_DIR)/$(RESPONSE_DIR)/Api \
+					$(SRCS_DIR)/$(RESPONSE_DIR)/Dynamic \
 					$(SRCS_DIR)/$(RESPONSE_DIR)/GET \
 					$(SRCS_DIR)/$(RESPONSE_DIR)/POST \
 					$(SRCS_DIR)/$(RESPONSE_DIR)/DELETE

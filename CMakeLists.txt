@@ -56,7 +56,7 @@ include_directories(
         srcs/Socket
         srcs/StringHandler
         srcs/HttpResponse
-        srcs/HttpResponse/Api
+        srcs/HttpResponse/Dynamic
         srcs/HttpResponse/CgiHandler
         srcs/HttpResponse/GET
         srcs/HttpResponse/POST
@@ -189,9 +189,9 @@ list(APPEND webserv_srcs
 # response_srcs ----------------------------------------------------------------
 set(http_response_srcs
         srcs/HttpResponse/HttpResponse.cpp
-        srcs/HttpResponse/Api/api.cpp
-        srcs/HttpResponse/Api/cookie_login.cpp
-        srcs/HttpResponse/Api/session_login.cpp
+        srcs/HttpResponse/Dynamic/Dynamic.cpp
+        srcs/HttpResponse/Dynamic/cookie_login.cpp
+        srcs/HttpResponse/Dynamic/session_login.cpp
 )
 # GET
 set(get_srcs

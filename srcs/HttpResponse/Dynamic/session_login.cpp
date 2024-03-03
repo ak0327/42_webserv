@@ -4,6 +4,7 @@
 #include "Constant.hpp"
 #include "Color.hpp"
 #include "Debug.hpp"
+#include "Dynamic.hpp"
 #include "HttpResponse.hpp"
 #include "StringHandler.hpp"
 
@@ -21,7 +22,7 @@ StatusCode HttpResponse::get_session_user_page() {
         ReturnDirective redirect_to_login;
         redirect_to_login.return_on = true;
         redirect_to_login.code = Found;
-        redirect_to_login.text = "/login_cookie.html";
+        redirect_to_login.text = this->dynamic_.SESSION_LOGIN;
         return get_redirect_content(redirect_to_login);
     }
 }
@@ -53,7 +54,7 @@ StatusCode HttpResponse::get_session_login_page() {
             ReturnDirective redirect_to_userpage;
             redirect_to_userpage.return_on = true;
             redirect_to_userpage.code = Found;
-            redirect_to_userpage.text = "/api/session-userpage";
+            redirect_to_userpage.text = this->dynamic_.SESSION_USERPAGE;
             return get_redirect_content(redirect_to_userpage);
         }
         default: {

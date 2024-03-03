@@ -47,14 +47,15 @@ expect_eq_get "$(echo -en "GET / HTTP/1.1\r\nHost:  localhost   \r\n\r\n"       
 expect_eq_get "$(echo -en "GET / HTTP/1.1\r\nhost: localhost\r\n\r\n"           | nc localhost 4242)"   "200 OK"    "html/index.html"
 expect_eq_get "$(echo -en "GET /%2E%2E/ HTTP/1.1\r\nHost: localhost\r\n\r\n"    | nc localhost 4242)"   "200 OK"    "html/index.html"
 
-expect_eq_get "$(curl -is "localhost:4242/hello.py")"   "200 OK"    "html/hello.py"
-expect_eq_get "$(curl -is "localhost:4242/index.css")"  "200 OK"    "html/index.css"
-expect_eq_get "$(curl -is "localhost:4242/404.html")"   "200 OK"    "html/404.html"
-expect_eq_get "$(curl -is "localhost:4242/50x.html")"   "200 OK"    "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4242/new.html")"   "200 OK"    "html/new.html"
+expect_eq_get "$(curl -is "localhost:4242/hello.py")"     "200 OK"    "html/hello.py"
+expect_eq_get "$(curl -is "localhost:4242/index.css")"    "200 OK"    "html/index.css"
+expect_eq_get "$(curl -is "localhost:4242/404.html")"     "200 OK"    "html/404.html"
+expect_eq_get "$(curl -is "localhost:4242/50x.html")"     "200 OK"    "html/50x.html"
+expect_eq_get "$(curl -is "localhost:4242/new.html")"     "200 OK"    "html/new.html"
 
 #expect_eq_get "$(curl -is "localhost:4242/images/image1.jpg")"   "200 OK"   "html/images/image1.jpg"  // diff?
-expect_eq_get "$(curl -is "localhost:4242/a/b/c/")"              "200 OK"   "html/a/b/c/file_c.html"
+expect_eq_get "$(curl -is "localhost:4242/a/b/c/")"       "200 OK"    "html/a/b/c/file_c.html"
+#expect_eq_get "$(curl -is "localhost:4242/dynamic/now")"  "200 OK"    ""
 
 
 # redirect -> todo: location
@@ -112,8 +113,8 @@ expect_eq_get "$(curl -is "localhost:4242/delete_only/dir/")"             "405 M
 expect_eq_get "$(curl -is "localhost:4242/delete_only/dir/index.html")"   "405 Method Not Allowed"    ""
 expect_eq_get "$(curl -is "localhost:4242/delete_only/nothing.html")"     "405 Method Not Allowed"    ""
 expect_eq_get "$(curl -is "localhost:4242/delete_only/nothing.html")"     "405 Method Not Allowed"    ""
-expect_eq_get "$(curl -is "localhost:4242/api/show-response")"            "405 Method Not Allowed"    ""
-expect_eq_get "$(curl -is "localhost:4242/api/form-data")"                "405 Method Not Allowed"    ""
+expect_eq_get "$(curl -is "localhost:4242/dynamic/show-response")"        "405 Method Not Allowed"    ""
+expect_eq_get "$(curl -is "localhost:4242/dynamic/form-data")"            "405 Method Not Allowed"    ""
 
 
 # 400 BadRequest

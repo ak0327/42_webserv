@@ -163,11 +163,11 @@ StatusCode HttpResponse::get_request_body() {
         return get_redirect_content(redirect);
     }
 
-    // api?
-    //  Yes -> api
-    if (is_api_endpoint()) {
-        DEBUG_PRINT(YELLOW, "  GET 4 -> api");
-        return response_api();
+    // dynamic?
+    //  Yes -> dynamic
+    if (is_dynamic_endpoint()) {
+        DEBUG_PRINT(YELLOW, "  GET 4 -> dynamic");
+        return response_dynamic();
     }
 
     const std::string rooted_path = get_rooted_path();
