@@ -98,6 +98,10 @@ SRCS		+=	$(IO_DIR)/IOMultiplexer.cpp
 SERVER_DIR	=	Server
 SRCS		+=	$(SERVER_DIR)/Server.cpp
 
+# Session
+SESSION_DIR	=	Session
+SRCS		+=	$(SESSION_DIR)/Session.cpp
+
 # Socket
 SOCKET_DIR	=	Socket
 SRCS		+=	$(SOCKET_DIR)/Socket.cpp
@@ -143,6 +147,7 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(ERROR_DIR) \
 				$(SRCS_DIR)/$(IO_DIR) \
 				$(SRCS_DIR)/$(SERVER_DIR) \
+				$(SRCS_DIR)/$(SESSION_DIR) \
 				$(SRCS_DIR)/$(SOCKET_DIR) \
 				$(SRCS_DIR)/$(STR_HANDLER) \
 				$(REQUEST_INCLUDES) \

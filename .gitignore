@@ -17,6 +17,7 @@
 !srcs/Debug
 !srcs/Error
 !srcs/Server
+!srcs/Session
 !srcs/Socket
 !srcs/StringHandler
 !srcs/HttpRequest

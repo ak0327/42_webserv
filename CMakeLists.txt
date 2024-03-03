@@ -52,6 +52,7 @@ include_directories(
         srcs/Error
         srcs/IOMultiplexer
         srcs/Server
+        srcs/Session
         srcs/Socket
         srcs/StringHandler
         srcs/HttpResponse
@@ -90,6 +91,7 @@ set(webserv_srcs
         srcs/Error/Error.cpp
         srcs/IOMultiplexer/IOMultiplexer.cpp
         srcs/Server/Server.cpp
+        srcs/Session/Session.cpp
         srcs/Socket/Socket.cpp
         srcs/StringHandler/StringHandler.cpp
         srcs/StringHandler/HttpMessageParser.cpp
