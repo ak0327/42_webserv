@@ -148,8 +148,9 @@ class HttpResponse {
     bool is_urlencoded_form_data();
     StatusCode response_api();
     StatusCode get_now();
-    StatusCode show_data();
-    StatusCode show_body();
+    StatusCode show_form_data();
+    StatusCode show_request_body();
+    StatusCode login();
     StatusCode get_urlencoded_form_content();
     UrlEncodedFormData parse_urlencoded_form_data(const std::vector<unsigned char> &request_body);
 

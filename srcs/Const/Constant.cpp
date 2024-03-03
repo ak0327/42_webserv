@@ -629,9 +629,10 @@ std::vector<std::string> init_endpoints() {
     std::vector<std::string> endpoints;
     // endpoints.push_back("");
 
-    endpoints.push_back("/api/form-data");
-    endpoints.push_back("/api/show-response");
+    endpoints.push_back("/api/show-form-data");
+    endpoints.push_back("/api/show-response-body");
     endpoints.push_back("/api/now");
+    endpoints.push_back("/api/login");
     return endpoints;
 }
 

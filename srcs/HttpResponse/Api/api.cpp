@@ -16,11 +16,11 @@ bool HttpResponse::is_api_endpoint() {
 
 
 StatusCode HttpResponse::response_api() {
-    if (this->request_.request_target() == "/api/form-data") {
-        return show_data();
+    if (this->request_.request_target() == "/api/show-form-data") {
+        return show_form_data();
     }
-    if (this->request_.request_target() == "/api/show-body") {
-        return show_body();
+    if (this->request_.request_target() == "/api/show-response-body") {
+        return show_request_body();
     }
     // if (this->request_.request_target() == "/api/upload") {
     //     return upload_file();
@@ -57,7 +57,7 @@ StatusCode HttpResponse::get_now() {
 }
 
 
-StatusCode HttpResponse::show_body() {
+StatusCode HttpResponse::show_request_body() {
     std::string head = "<!doctype html>\n"
                        "<html lang=\"ja\">\n"
                        "<head>\n"
@@ -80,12 +80,12 @@ StatusCode HttpResponse::show_body() {
 }
 
 
-StatusCode HttpResponse::show_data() {
+StatusCode HttpResponse::show_form_data() {
     if (is_urlencoded_form_data()) {
-        // DEBUG_PRINT(YELLOW, "   show_data -> urlencoded_form");
+        // DEBUG_PRINT(YELLOW, "   show_form_data -> urlencoded_form");
         return get_urlencoded_form_content();
     }
-    // DEBUG_PRINT(YELLOW, "   show_data err: 400");
+    // DEBUG_PRINT(YELLOW, "   show_form_data err: 400");
     return BadRequest;
 }
 
