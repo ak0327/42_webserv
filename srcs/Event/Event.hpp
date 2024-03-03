@@ -10,7 +10,7 @@
 # include "Result.hpp"
 # include "webserv.hpp"
 
-enum EventState {
+enum EventState {  // todo: event phase
     kEventInit,
 
     kReceivingRequest,
@@ -77,6 +77,7 @@ class Event {
     static AddressPortPair get_client_listen(const struct sockaddr_storage &client_addr);
     const char *event_state_char();
     static const char *event_state_char(const EventState &state);
+    static std::string event_state_str(const EventState &state);
 
  private:
     int socket_fd_;
@@ -111,3 +112,6 @@ class Event {
     Event(const Event &other);
     Event &operator=(const Event &rhs);
 };
+
+
+std::ostringstream &operator<<(std::ostringstream &out, const Event &event);

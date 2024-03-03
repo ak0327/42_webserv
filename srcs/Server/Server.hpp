@@ -47,7 +47,6 @@ class Server {
     const Config &config_;
 
 	ServerResult accept_connect_fd(int socket_fd, struct sockaddr_storage *client_addr);
-    ServerResult communicate_with_client(int ready_fd);
     ServerResult create_event(int socket_fd);
     ServerResult process_event(int ready_fd);
 
@@ -61,11 +60,11 @@ class Server {
     Result<IOMultiplexer *, std::string> create_io_multiplexer_fds();
 
     void management_timeout_events();
-    void register_cgi_write_fd_to_event_manager(Event **cgi_event);
-    void register_cgi_read_fd_to_event_manager(Event **cgi_event);
+    void register_cgi_write_fd_to_event_manager(Event **client_event);
+    void register_cgi_read_fd_to_event_manager(Event **client_event);
+    void register_cgi_fds_to_event_manager(Event **client_event);
     void clear_fd_from_event_manager(int fd);
-
-    void clear_cgi_fd_from_event_manager(int fd);
+    void clear_cgi_fds_from_event_manager(const Event &cgi_event);
     void erase_from_timeout_manager(int cgi_fd);
 
     bool is_socket_fd(int fd) const;
@@ -75,11 +74,8 @@ class Server {
     void close_client_fd(int fd);
     void update_fd_type_read_to_write(const EventState &event_state, int fd);
 
-    bool is_ready_to_send_response(const Event &event);
-    bool is_sending_request_body_to_cgi(const Event &event);
-    bool is_receiving_cgi_response(const Event &event);
-    bool is_cgi_execute_completed(const Event &event);
-    bool is_event_creating_response_body(const Event &event);
-    bool is_event_completed(const Event &event);
-    bool is_event_error_occurred(const Event &event);
+    bool is_client_fd(int fd);
+    bool is_cgi_fd(int fd);
+    ServerResult handle_client_event(int client_fd);
+    ServerResult handle_cgi_event(int cgi_fd);
 };

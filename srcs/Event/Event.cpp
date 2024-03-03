@@ -508,6 +508,11 @@ EventState Event::event_state() const {
 }
 
 
+std::string Event::event_state_str(const EventState &state) {
+    return std::string(event_state_char(state));
+}
+
+
 const char *Event::event_state_char() {
     return event_state_char(this->event_state());
 }
@@ -515,24 +520,25 @@ const char *Event::event_state_char() {
 
 const char *Event::event_state_char(const EventState &state) {
     switch (state) {
-        case kEventInit: return "kSessionInit";
-        case kReceivingRequest: return "kReceivingRequest";
-        case kParsingRequest: return "kParsingRequest";
-        case kReceivingBody: return "kReceivingBody";
-        case kReadingRequest: return "kReadingRequest";
-        case kExecutingMethod: return "kExecutingMethod";
-        case kCreatingResponseBody: return "kCreatingResponseBody";
-        case kCreatingCGIBody: return "kCreatingCGIBody";
-        case kReadingFile: return "kReadingFile";
-        case kExecuteCGI: return "kExecuteCGI";
-        case kSendingRequestBodyToCgi: return "kSendingRequestBodyToCgi";
-        case kReceivingCgiResponse: return "kReceivingCgiResponse";
-        case kSendingResponse: return "kSendingResponse";
-        case kEventCompleted: return "kSessionCompleted";
-        case kEventError: return "kSessionError";
-        default: return "UnknownSession";
+        case kEventInit:                return "kEventInit";
+        case kReceivingRequest:         return "kReceivingRequest";
+        case kParsingRequest:           return "kParsingRequest";
+        case kReceivingBody:            return "kReceivingBody";
+        case kReadingRequest:           return "kReadingRequest";
+        case kExecutingMethod:          return "kExecutingMethod";
+        case kCreatingResponseBody:     return "kCreatingResponseBody";
+        case kCreatingCGIBody:          return "kCreatingCGIBody";
+        case kReadingFile:              return "kReadingFile";
+        case kExecuteCGI:               return "kExecuteCGI";
+        case kSendingRequestBodyToCgi:  return "kSendingRequestBodyToCgi";
+        case kReceivingCgiResponse:     return "kReceivingCgiResponse";
+        case kSendingResponse:          return "kSendingResponse";
+        case kEventCompleted:           return "kEventCompleted";
+        case kEventError:               return "kEventError";
+        default:                        return "UnknownEvent";
     }
 }
+
 
 
 void Event::set_event_state(const EventState &set_state) {
@@ -619,4 +625,13 @@ AddressPortPair Event::get_client_listen(const struct sockaddr_storage &client_a
     AddressPortPair pair(address, port);
     DEBUG_SERVER_PRINT("address: %s, port: %s", address.c_str(), port.c_str());
     return pair;
+}
+
+std::ostringstream &operator<<(std::ostringstream &out, const Event &event) {
+    out << "[Event]: ";
+    out << "phase: " << Event::event_state_str(event.event_state()) << ", ";
+    out << "client_fd: " << event.client_fd() << ", ";
+    out << "cgi_read_fd: " << event.cgi_read_fd() << ", ";
+    out << "cgi_write_fd: " << event.cgi_write_fd();
+    return out;
 }
