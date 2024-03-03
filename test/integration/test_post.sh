@@ -97,6 +97,9 @@ test_post_upload "html/permission/rwx/"   "r__.html"  "localhost:4242/upload/"  
 test_post_upload "html/permission/rwx/"   "rwx.html"  "localhost:4242/upload/"  "201 Created"     true
 
 
+expect_eq_get "$(curl -isX POST --data "test text" localhost:4242/cgi-bin/post_simple.py)"  "200 OK"   "test/integration/cgi-result/post_simple_small.txt"
+
+
 ################################################################################
 
 tear_down

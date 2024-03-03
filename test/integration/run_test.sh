@@ -11,9 +11,11 @@ get_result=$?
 
 ./test/integration/test_post.sh
 post_result=$?
+#post_result=0
 
 ./test/integration/test_delete.sh
 delete_result=$?
+#delete_result=0
 
 if [ $get_result -eq $SUCCESS ] && [ $post_result -eq $SUCCESS ] && [ $delete_result -eq $SUCCESS ]; then
   echo -e "${GREEN}All tests passed successfully${RESET}"

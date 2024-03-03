@@ -225,7 +225,7 @@ run_unit_test	:
 .PHONY	: run_integration_test
 run_integration_test	:
 	make
-	./test/integration/run_test.sh
+	./test/integration/run_test.sh 2>/dev/null
 
 .PHONY	: run_server_test
 run_server_test	:

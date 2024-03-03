@@ -41,7 +41,7 @@ void stop_by_signal(int sig) {
             std::exit(EXIT_FAILURE);
 
         case SIGPIPE:
-            std::cout << "Received SIGPIPE" << std::endl;
+            std::cout << RED << "Received SIGPIPE" << RESET << std::endl;
             break;
             std::exit(EXIT_FAILURE);
 
@@ -52,7 +52,7 @@ void stop_by_signal(int sig) {
 
 
 ServerResult set_signal() {
-    return ServerResult::ok(OK);
+    // return ServerResult::ok(OK);
 
     // todo
 	errno = 0;
@@ -549,7 +549,8 @@ ServerResult Server::handle_client_event(int client_fd) {
             std::ostringstream oss; oss << client_event;
             DEBUG_SERVER_PRINT("process_event(client) -> executing_cgi: %s", oss.str().c_str());
 
-            register_cgi_fds_to_event_manager(&client_event);
+            register_cgi_write_fd_to_event_manager(&client_event);
+            // register_cgi_fds_to_event_manager(&client_event);
             this->fds_->clear_fd(client_fd);
             return ServerResult::ok(OK);
         }
@@ -630,6 +631,7 @@ ServerResult Server::handle_cgi_event(int cgi_fd) {
             std::ostringstream oss; oss << cgi_event;
             DEBUG_SERVER_PRINT("process_event(cgi) -> [CGI] send fin, recv start: %s", oss.str().c_str());
             clear_fd_from_event_manager(cgi_event->cgi_write_fd());
+            register_cgi_read_fd_to_event_manager(&cgi_event);
             break;
         }
         case kCreatingCGIBody: {
