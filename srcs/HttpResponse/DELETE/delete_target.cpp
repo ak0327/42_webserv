@@ -12,9 +12,9 @@ StatusCode HttpResponse::delete_target() {
     Result<std::string, StatusCode> indexed_result = Config::get_indexed_path(this->server_config_,
                                                                               this->request_.request_target());
     if (indexed_result.is_err()) {
-        return indexed_result.get_err_value();
+        return indexed_result.err_value();
     }
-    std::string path = indexed_result.get_ok_value();
+    std::string path = indexed_result.ok_value();
     DEBUG_PRINT(YELLOW, " DELETE path: %s", path.c_str());
 
     FileHandler file(path);

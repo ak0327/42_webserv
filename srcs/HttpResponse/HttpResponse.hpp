@@ -12,21 +12,11 @@
 # include "HttpRequest.hpp"
 # include "Result.hpp"
 
-//------------------------------------------------------------------------------
-/* tmp */
-# define CRLF	"\r\n"
-# define SP		" "
 
-# define STATUS_OK				200
-# define STATUS_BAD_REQUEST		400
-# define STATUS_NOT_FOUND		404
-# define STATUS_NOT_ACCEPTABLE	406
-# define STATUS_SERVER_ERROR	500
-
-struct file_info {
-	std::string	name;
-	off_t		size;
-	std::string	last_modified_time;  // dd-mm-yy hh:mm
+struct FileInfo {
+	std::string name;
+	off_t       size;
+	std::string last_modified_time;  // dd-mm-yy hh:mm
 };
 
 struct FormData {
@@ -41,6 +31,7 @@ typedef std::map<std::string, std::vector<std::string> > UrlEncodedFormData;
 
 class HttpResponse {
  public:
+    HttpResponse();
 	explicit HttpResponse(const HttpRequest &request,
                           const ServerConfig &server_config,
                           const AddressPortPair &pair);
@@ -68,11 +59,8 @@ class HttpResponse {
     void kill_cgi_process();
     bool is_exec_cgi();
 
-#ifdef ECHO
-    HttpResponse();
     void create_echo_msg(const std::vector<unsigned char> &recv_msg);
     std::string get_echo_msg() const;
-#endif
 
 #ifdef UNIT_TEST
     friend class HttpResponseFriend;
@@ -125,7 +113,7 @@ class HttpResponse {
     void add_content_header(const std::string &extension);
     void add_content_header_by_media_type(const std::string &media_type);
 
-        // GET
+    // GET
     StatusCode get_request_body();
     void get_error_page_to_body();
     bool is_cgi_file() const;

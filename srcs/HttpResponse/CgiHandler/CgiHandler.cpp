@@ -130,7 +130,7 @@ char **CgiHandler::create_argv(const std::string &file_path) {
     if (interpreter_result.is_err()) {
         return NULL;
     }
-    std::vector<std::string> interpreter = interpreter_result.get_ok_value();
+    std::vector<std::string> interpreter = interpreter_result.ok_value();
 
     std::vector<std::string> argv_strings = interpreter;
     argv_strings.push_back(file_path);
@@ -290,7 +290,7 @@ StatusCode CgiHandler::parse_document_response() {
         if (line_result.is_err()) {
             return InternalServerError;  // no line in buf
         }
-        std::string field_line = line_result.get_ok_value();
+        std::string field_line = line_result.ok_value();
         if (field_line.empty()) {
             break;
         }
@@ -324,7 +324,7 @@ StatusCode CgiHandler::parse_document_response() {
             if (convert_result.is_err()) {
                 return InternalServerError;
             }
-            cgi_status = convert_result.get_ok_value();
+            cgi_status = convert_result.ok_value();
         }
     }
     if (this->media_type_.is_err()) {
@@ -385,7 +385,7 @@ Result<std::string, ProcResult> CgiHandler::pop_line_from_buf() {
     if (result.is_err()) {
         return Result<std::string, ProcResult>::err(Failure);
     }
-    std::string line = result.get_ok_value();
+    std::string line = result.ok_value();
     HttpRequest::trim(&this->recv_buf_, next_line);
 
     std::string debug_buf(this->recv_buf_.begin(), this->recv_buf_.end());
@@ -510,13 +510,13 @@ ProcResult CgiHandler::handle_parent_fd(int to_child[2], int from_child[2]) {
     Result<int, std::string> result;
     result = Socket::set_fd_to_nonblock(to_child[WRITE]);
     if (result.is_err()) {
-        const std::string error_msg = CREATE_ERROR_INFO_STR(result.get_err_value());
+        const std::string error_msg = CREATE_ERROR_INFO_STR(result.err_value());
         std::cerr << "to_child[WRITE]: fd=" << to_child[WRITE] << ": " << error_msg << std::endl;
         return Failure;
     }
     result = Socket::set_fd_to_nonblock(from_child[READ]);
     if (result.is_err()) {
-        const std::string error_msg = CREATE_ERROR_INFO_STR(result.get_err_value());
+        const std::string error_msg = CREATE_ERROR_INFO_STR(result.err_value());
         std::cerr << "from_child[READ]: fd="<< from_child[READ] << ": " << error_msg << std::endl;
         return Failure;
     }
@@ -537,14 +537,14 @@ ProcResult CgiHandler::create_socket_pair(int to_child[2], int from_child[2]) {
 
     socketpair_result = create_socketpair(to_child);
     if (socketpair_result.is_err()) {
-        const std::string error_msg = socketpair_result.get_err_value();
+        const std::string error_msg = socketpair_result.err_value();
         std::cerr << "[Error] socketpair: " << error_msg << std::endl;  // todo: tmp
         return Failure;  // todo: tmp
     }
 
     socketpair_result = create_socketpair(from_child);
     if (socketpair_result.is_err()) {
-        const std::string error_msg = socketpair_result.get_err_value();
+        const std::string error_msg = socketpair_result.err_value();
         std::cerr << "[Error] socketpair: " << error_msg << std::endl;  // todo: tmp
         return Failure;  // todo: tmp
     }

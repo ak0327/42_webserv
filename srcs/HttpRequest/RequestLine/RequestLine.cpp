@@ -99,7 +99,7 @@ Result<ProcResult, StatusCode> RequestLine::parse(const std::string &line) {
 	if (method_result.is_err()) {
 		return Result<ProcResult, StatusCode>::err(BadRequest);
 	}
-	this->method_ = method_result.get_ok_value();
+	this->method_ = method_result.ok_value();
 	pos = end_pos;
 
 	// SP
@@ -116,7 +116,7 @@ Result<ProcResult, StatusCode> RequestLine::parse(const std::string &line) {
 	if (request_target_result.is_err()) {
 		return Result<ProcResult, StatusCode>::err(BadRequest);
 	}
-    this->request_target_ = request_target_result.get_ok_value();
+    this->request_target_ = request_target_result.ok_value();
 	pos = end_pos;
 
 	// SP

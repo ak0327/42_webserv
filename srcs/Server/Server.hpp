@@ -7,7 +7,7 @@
 # include <utility>
 # include <vector>
 # include "webserv.hpp"
-# include "ClientSession.hpp"
+# include "Event.hpp"
 # include "Constant.hpp"
 # include "ConfigStruct.hpp"
 # include "Config.hpp"
@@ -17,6 +17,7 @@
 # include "Socket.hpp"
 
 typedef Result<int, std::string> ServerResult;
+typedef Fd SocketFd;
 typedef Fd ClientFd;
 typedef Fd CgiFd;
 typedef std::pair<time_t, Fd> FdTimeoutLimitPair;
@@ -30,28 +31,30 @@ class Server {
     ServerResult init();
 	ServerResult run();
     ServerResult echo();  // todo: implement echo for test
-    void set_timeout(int timeout_msec);
+    void set_io_timeout(int timeout_msec);
 
  private:
-	std::map<Fd, Socket *> sockets_;
+	std::map<SocketFd, Socket *> sockets_;
 	IOMultiplexer *fds_;
 
-    std::deque<Fd> socket_fds_;
-    std::deque<Fd> client_fds_;
+    std::deque<SocketFd> socket_fds_;
+    std::deque<ClientFd> client_fds_;
     std::set<FdTimeoutLimitPair> cgi_fds_;
 
-    std::map<Fd, ClientSession *> client_sessions_;
-    std::map<Fd, ClientSession *> cgi_sessions_;
+    std::map<ClientFd, Event *> client_events_;
+    std::map<CgiFd, Event *> cgi_events_;
 
     const Config &config_;
 
-	ServerResult accept_connect_fd(int socket_fd, struct sockaddr_storage *client_addr);
-    ServerResult communicate_with_client(int ready_fd);
-    ServerResult create_session(int socket_fd);
-    ServerResult process_session(int ready_fd);
+    bool echo_mode_on_;
 
-    void init_session(ClientSession *session);
-    void clear_sessions();
+
+	ServerResult accept_connect_fd(int socket_fd, struct sockaddr_storage *client_addr);
+    ServerResult create_event(int socket_fd);
+    ServerResult process_event(int ready_fd);
+
+    void init_event(Event *event);
+    void clear_event();
 
     void update_fd_type(int fd, FdType update_from, FdType update_to);
     static Result<Socket *, std::string> create_socket(const std::string &address,
@@ -59,27 +62,23 @@ class Server {
     ServerResult create_sockets(const Config &config);
     Result<IOMultiplexer *, std::string> create_io_multiplexer_fds();
 
-    void management_timeout_sessions();
-    void register_cgi_write_fd_to_event_manager(ClientSession **client);
-    void register_cgi_read_fd_to_event_manager(ClientSession **client);
+    void management_timeout_events();
+    void register_cgi_write_fd_to_event_manager(Event **client_event);
+    void register_cgi_read_fd_to_event_manager(Event **client_event);
+    void register_cgi_fds_to_event_manager(Event **client_event);
     void clear_fd_from_event_manager(int fd);
-
-    void clear_cgi_fd_from_event_manager(int fd);
+    void clear_cgi_fds_from_event_manager(const Event &cgi_event);
     void erase_from_timeout_manager(int cgi_fd);
-    std::set<FdTimeoutLimitPair>::iterator get_timeout_cgi();
 
     bool is_socket_fd(int fd) const;
     bool is_fd_type_expect(int fd, const FdType &type);
     void delete_sockets();
-    void delete_session(std::map<Fd, ClientSession *>::iterator session);
+    void delete_event(std::map<Fd, Event *>::iterator event);
     void close_client_fd(int fd);
-    void update_fd_type_read_to_write(const SessionState &session_state, int fd);
+    void update_fd_type_read_to_write(const EventPhase &event_state, int fd);
 
-    bool is_ready_to_send_response(const ClientSession &client);
-    bool is_sending_request_body_to_cgi(const ClientSession &client);
-    bool is_receiving_cgi_response(const ClientSession &client);
-    bool is_cgi_execute_completed(const ClientSession &client);
-    bool is_session_creating_response_body(const ClientSession &client);
-    bool is_session_completed(const ClientSession &client);
-    bool is_session_error_occurred(const ClientSession &client);
+    bool is_client_fd(int fd);
+    bool is_cgi_fd(int fd);
+    ServerResult handle_client_event(int client_fd);
+    ServerResult handle_cgi_event(int cgi_fd);
 };

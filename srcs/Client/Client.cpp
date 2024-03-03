@@ -25,11 +25,11 @@ Client::Client(const char *server_ip, const char *server_port)
         this->socket_ = new Socket(server_ip, server_port);
         SocketResult init_result = this->socket_->init();
         if (init_result.is_err()) {
-            throw std::runtime_error(init_result.get_err_value());
+            throw std::runtime_error(init_result.err_value());
         }
         SocketResult connect_result = this->socket_->connect();
         if (connect_result.is_err()) {
-            throw std::runtime_error(connect_result.get_err_value());
+            throw std::runtime_error(connect_result.err_value());
         }
         this->connect_fd_ = this->socket_->get_socket_fd();
     }

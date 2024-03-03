@@ -21,7 +21,7 @@ TEST(HttpRequestParser, GetLine) {
 
     result = HttpRequestFriend::get_line(data, data.begin(), &ret);
     ASSERT_TRUE(result.is_ok());
-    actual = result.get_ok_value();
+    actual = result.ok_value();
     EXPECT_EQ(expected, actual);
     ASSERT_NE(data.end(), ret);
     EXPECT_EQ('d', *ret);
@@ -34,7 +34,7 @@ TEST(HttpRequestParser, GetLine) {
 
     result = HttpRequestFriend::get_line(data, data.begin(), &ret);
     ASSERT_TRUE(result.is_ok());
-    actual = result.get_ok_value();
+    actual = result.ok_value();
     EXPECT_EQ(expected, actual);
     EXPECT_EQ(data.end(), ret);
 
@@ -46,7 +46,7 @@ TEST(HttpRequestParser, GetLine) {
 
     result = HttpRequestFriend::get_line(data, data.begin(), &ret);
     ASSERT_TRUE(result.is_ok());
-    actual = result.get_ok_value();
+    actual = result.ok_value();
     EXPECT_EQ(expected, actual);
     ASSERT_NE(data.end(), ret);
     EXPECT_EQ('e', *ret);
@@ -59,7 +59,7 @@ TEST(HttpRequestParser, GetLine) {
 
     result = HttpRequestFriend::get_line(data, data.begin(), &ret);
     ASSERT_TRUE(result.is_ok());
-    actual = result.get_ok_value();
+    actual = result.ok_value();
     EXPECT_EQ(expected, actual);
     ASSERT_NE(data.end(), ret);
     EXPECT_EQ(CR, *ret);
@@ -72,7 +72,7 @@ TEST(HttpRequestParser, GetLine) {
 
     result = HttpRequestFriend::get_line(data, data.begin(), &ret);
     ASSERT_TRUE(result.is_ok());
-    actual = result.get_ok_value();
+    actual = result.ok_value();
     EXPECT_EQ(expected, actual);
     ASSERT_NE(data.end(), ret);
     EXPECT_EQ('a', *ret);
@@ -85,7 +85,7 @@ TEST(HttpRequestParser, GetLine) {
 
     result = HttpRequestFriend::get_line(data, data.begin(), &ret);
     ASSERT_TRUE(result.is_ok());
-    actual = result.get_ok_value();
+    actual = result.ok_value();
     EXPECT_EQ(expected, actual);
     EXPECT_EQ(data.end(), ret);
 
@@ -97,7 +97,7 @@ TEST(HttpRequestParser, GetLine) {
 
     result = HttpRequestFriend::get_line(data, data.begin(), &ret);
     ASSERT_TRUE(result.is_ok());
-    actual = result.get_ok_value();
+    actual = result.ok_value();
     EXPECT_EQ(expected, actual);
     EXPECT_EQ(CR, *ret);
 
@@ -109,7 +109,7 @@ TEST(HttpRequestParser, GetLine) {
 
     result = HttpRequestFriend::get_line(data, data.begin(), &ret);
     ASSERT_TRUE(result.is_ok());
-    actual = result.get_ok_value();
+    actual = result.ok_value();
     EXPECT_EQ(expected, actual);
     EXPECT_EQ(LF, *ret);
 

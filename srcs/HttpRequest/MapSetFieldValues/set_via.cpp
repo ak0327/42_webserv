@@ -107,7 +107,7 @@ Result<int, int> parse_via_elems(const std::string &field_value,
 	if (protocol_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}
-	*received_protocol = protocol_result.get_ok_value();
+	*received_protocol = protocol_result.ok_value();
 	pos = end;
 
 	// RWS
@@ -121,7 +121,7 @@ Result<int, int> parse_via_elems(const std::string &field_value,
 	if (received_by_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}
-	*received_by = received_by_result.get_ok_value();
+	*received_by = received_by_result.ok_value();
 	pos = end;
 
 	// [ RWS comment ]
@@ -129,7 +129,7 @@ Result<int, int> parse_via_elems(const std::string &field_value,
 	if (comment_result.is_err()) {
 		return Result<int, int>::err(ERR);
 	}
-	*comment = comment_result.get_ok_value();
+	*comment = comment_result.ok_value();
 	pos = end;
 
 	*end_pos = pos;
@@ -273,7 +273,7 @@ Result<int, int> HttpRequest::set_via(const std::string &field_name,
 	if (result.is_err()) {
 		return Result<int, int>::ok(STATUS_OK);
 	}
-	via = result.get_ok_value();
+	via = result.ok_value();
 
 	this->request_header_fields_[field_name] = new MapSetFieldValues(via);
 	return Result<int, int>::ok(STATUS_OK);

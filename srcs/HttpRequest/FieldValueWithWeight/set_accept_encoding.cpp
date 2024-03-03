@@ -64,7 +64,7 @@ Result<SingleFieldValue *, int> parse_valid_codings(const std::string &field_val
 	if (result.is_err()) {
 		return Result<SingleFieldValue *, int>::err(ERR);
 	}
-	content_coding = result.get_ok_value();
+	content_coding = result.ok_value();
 	*end_pos = end;
 
 	try {
@@ -96,7 +96,7 @@ parse_and_validate_coding_with_weight_set(const std::string &field_value) {
 		if (coding_result.is_err()) {
 			return Result<std::set<FieldValueWithWeight>, int>::err(ERR);
 		}
-		codings = coding_result.get_ok_value();
+		codings = coding_result.ok_value();
 		pos = end;
 
 		HttpMessageParser::skip_ows(field_value, &pos);
@@ -106,7 +106,7 @@ parse_and_validate_coding_with_weight_set(const std::string &field_value) {
 			delete codings;
 			return Result<std::set<FieldValueWithWeight>, int>::err(ERR);
 		}
-		weight = weight_result.get_ok_value();
+		weight = weight_result.ok_value();
 		pos = end;
 
 		coding_with_weight = FieldValueWithWeight(codings, weight);
@@ -116,7 +116,7 @@ parse_and_validate_coding_with_weight_set(const std::string &field_value) {
 		if (skip_result.is_err()) {
 			return Result<std::set<FieldValueWithWeight>, int>::err(ERR);
 		}
-		pos = skip_result.get_ok_value();
+		pos = skip_result.ok_value();
 	}
 	return Result<std::set<FieldValueWithWeight>, int>::ok(coding_weight_set);
 }
@@ -141,13 +141,13 @@ Result<int, int> HttpRequest::set_accept_encoding(const std::string &field_name,
 
 	result = parse_and_validate_coding_with_weight_set(field_value);
 	if (result.is_err()) {
-		if (result.get_err_value() == STATUS_SERVER_ERROR) {
+		if (result.err_value() == STATUS_SERVER_ERROR) {
 			return Result<int, int>::err(STATUS_SERVER_ERROR);
 		}
 		return Result<int, int>::ok(OK);
 	}
 
-	codings_weight_set = result.get_ok_value();
+	codings_weight_set = result.ok_value();
 	this->request_header_fields_[field_name] = new FieldValueWithWeightSet(codings_weight_set);
 	return Result<int, int>::ok(OK);
 }

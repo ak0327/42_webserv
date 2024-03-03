@@ -5,8 +5,7 @@ CXXFLAGS	=	-std=c++98 -Wall -Wextra -Werror -MMD -MP -pedantic
 #CXXFLAGS	+=	-g -fsanitize=address,undefined -fno-omit-frame-pointer
 CXXFLAGS	+=	-D USE_SELECT
 #CXXFLAGS	+=	-D USE_POLL
-#CXXFLAGS	+=	-D DEBUG
-#CXXFLAGS	+=	-D ECHO
+CXXFLAGS	+=	-D DEBUG
 #CXXFLAGS	+=	-D LEAKS
 
 # SRCS -------------------------------------------------------------------------
@@ -27,9 +26,9 @@ SRCS		+=	$(CONFIG_DIR)/FileHandler/FileHandler.cpp \
 CONST_DIR	=	Const
 SRCS		+=	$(CONST_DIR)/Constant.cpp
 
-# ClientSession
-CLIENT_SESSION_DIR = ClientSession
-SRCS		+=	$(CLIENT_SESSION_DIR)/ClientSession.cpp
+# Event
+EVENT_DIR = Event
+SRCS		+=	$(EVENT_DIR)/Event.cpp
 
 # Error
 ERROR_DIR	=	Error
@@ -151,7 +150,7 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(CONFIG_DIR)/Token \
 				$(SRCS_DIR)/$(CONFIG_DIR)/Tokenizer \
 				$(SRCS_DIR)/$(CONFIG_DIR) \
-				$(SRCS_DIR)/$(CLIENT_SESSION_DIR) \
+				$(SRCS_DIR)/$(EVENT_DIR) \
 				$(SRCS_DIR)/$(CGI_DIR)
 
 REQUEST_INCLUDES =	$(SRCS_DIR)/$(REQUEST_DIR) \
@@ -205,16 +204,12 @@ lint	:
 	&& echo -e "\033[0;32mCPPLINT DONE\033[0m" \
 	|| echo -e "\033[0;31mCPPLINT ERROR\033[0m"
 
-.PHONY	: echo
-echo	: CXXFLAGS += -D ECHO
-echo	: re
-
 .PHONY	: run_unit_test
 run_unit_test	:
 	. test/integration/prepare_test_file.sh; prepare_test_file
 	#cmake -S . -B build
-#	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D ECHO"
-	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D ECHO -D DEBUG"
+#	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT"
+	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D DEBUG"
 	cmake --build build
 #	./build/unit_test 2>/dev/null
 	./build/unit_test  # leaks report
@@ -227,8 +222,8 @@ run_integration_test	:
 
 .PHONY	: run_server_test
 run_server_test	:
-	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D ECHO -D DEBUG"
-	#cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT  -D ECHO"
+	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D DEBUG"
+	#cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT "
 	#cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG -D USE_SELECT"
 	cmake --build build
 	#./build/unit_test --gtest_filter=Server* 2>/dev/null

@@ -10,7 +10,7 @@
 #include "webserv.hpp"
 #include "Color.hpp"
 #include "Config.hpp"
-#include "ClientSession.hpp"
+#include "Event.hpp"
 #include "Debug.hpp"
 #include "Error.hpp"
 #include "FileHandler.hpp"
@@ -70,7 +70,7 @@ StatusCode HttpResponse::is_resource_available(const Method &method) const {
                                                                               this->request_.request_target());
     if (indexed_result.is_err()) {
         // std::cout << CYAN << " get_index failure: " << indexed_result.get_err_value() << RESET << std::endl;
-        return indexed_result.get_err_value();
+        return indexed_result.err_value();
     }
 
     // std::cout << CYAN << " indexed_path: " << indexed_result.get_ok_value() << RESET << std::endl;
@@ -83,7 +83,7 @@ StatusCode HttpResponse::is_resource_available(const Method &method) const {
         return NotFound;
     }
 
-    LimitExceptDirective limit_except = limit_except_result.get_ok_value();
+    LimitExceptDirective limit_except = limit_except_result.ok_value();
     if (limit_except.limited) {
         if (is_method_limited(method, limit_except.excluded_methods)) {
             // todo: allow, deny -> StatusOk
@@ -104,7 +104,7 @@ void HttpResponse::add_allow_header() {
         DEBUG_PRINT(RED, "%s", error_msg.c_str());  // todo: log
         return;
     }
-    LimitExceptDirective limit_except = result.get_ok_value();
+    LimitExceptDirective limit_except = result.ok_value();
     std::set<Method> &excluded_methods = limit_except.excluded_methods;
     if (excluded_methods.empty()) {
         const std::string error_msg = CREATE_ERROR_INFO_STR("error: excluded method not found");
@@ -225,7 +225,7 @@ std::pair<ScriptPath, PathInfo> HttpResponse::get_script_path_and_path_info() {
     Result<std::string, int> root_result = Config::get_root(this->server_config_,
                                                             script_path);
     if (root_result.is_ok()) {
-        root = root_result.get_ok_value();
+        root = root_result.ok_value();
         if (!root.empty() && root[root.length() - 1] == '/' && script_path[0] == '/') {
             script_path = script_path.substr(1);
         }
@@ -439,9 +439,9 @@ std::string HttpResponse::create_status_line(const StatusCode &code) const {
     std::string status_line;
 
     status_line.append(this->request_.http_version());
-    status_line.append(SP);
+    status_line.append(1, SP);
     status_line.append(StringHandler::to_string(code));
-    status_line.append(SP);
+    status_line.append(1, SP);
     status_line.append(get_status_reason_phrase(code));
     return status_line;
 }
@@ -468,7 +468,7 @@ std::string HttpResponse::get_rooted_path() const {
     Result<std::string, int> root_result = Config::get_root(this->server_config_,
                                                             this->request_.request_target());
     if (root_result.is_ok()) {
-        root = root_result.get_ok_value();
+        root = root_result.ok_value();
     }
 
     std::string path = root + this->request_.request_target();
@@ -559,12 +559,8 @@ void HttpResponse::clear_cgi() {
 }
 
 
-#ifdef ECHO
-
 void HttpResponse::create_echo_msg(const std::vector<unsigned char> &recv_msg) {
     this->response_msg_ = recv_msg;
     std::string echo_message = std::string(recv_msg.begin(), recv_msg.end());
     DEBUG_PRINT(GREEN, "    create_echo_msg:[%s]", echo_message.c_str());
 }
-
-#endif

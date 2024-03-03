@@ -17,7 +17,7 @@ ConfigParser::ConfigParser(const char *file_path) {
     FileHandler file_handler(file_path, CONFIG_FILE_EXTENSION);
     Result<int, std::string> read_file_result = file_handler.result();
     if (read_file_result.is_err()) {
-        const std::string error_msg = read_file_result.get_err_value();
+        const std::string error_msg = read_file_result.err_value();
         this->result_ = Result<int, std::string>::err(error_msg);
         return;
     }
@@ -27,7 +27,7 @@ ConfigParser::ConfigParser(const char *file_path) {
     Tokenizer tokenizer(conf_data);
     Result<int, std::string> tokenize_result = tokenizer.get_result();
     if (tokenize_result.is_err()) {
-        const std::string error_msg = tokenize_result.get_err_value();
+        const std::string error_msg = tokenize_result.err_value();
         this->result_ = Result<int, std::string>::err(error_msg);
         return;
     }
@@ -36,17 +36,17 @@ ConfigParser::ConfigParser(const char *file_path) {
 
     Result<HttpConfig, std::string> parse_result = parse(tokens);
 	if (parse_result.is_err()) {
-		std::string error_msg = parse_result.get_err_value();
+		std::string error_msg = parse_result.err_value();
 		this->result_ = Result<int, std::string>::err(error_msg);
 		return;
 	}
-	HttpConfig http_config = parse_result.get_ok_value();
+	HttpConfig http_config = parse_result.ok_value();
 
     fill_unspecified_directives(&http_config);
 
     Result<int, std::string> validate_result = validate(http_config);
 	if (validate_result.is_err()) {
-		std::string error_msg = validate_result.get_err_value();
+		std::string error_msg = validate_result.err_value();
 		this->result_ = Result<int, std::string>::err(error_msg);
 		return;
 	}
@@ -82,13 +82,13 @@ Result<HttpConfig, std::string> ConfigParser::parse(const std::deque<Token> &tok
 
     Result<int, std::string> skip_result = skip_events_block(&current, end);
     if (skip_result.is_err()) {
-        const std::string error_msg = skip_result.get_err_value();
+        const std::string error_msg = skip_result.err_value();
         return Result<HttpConfig, std::string>::err(error_msg);
     }
 
     Result<int, std::string> result = parse_http_block(&current, end, &http_config);
     if (result.is_err()) {
-        const std::string error_msg = result.get_err_value();
+        const std::string error_msg = result.err_value();
         return Result<HttpConfig, std::string>::err(error_msg);
     }
 
@@ -159,13 +159,13 @@ Result<int, std::string> validate_server(const std::vector<ServerConfig> &server
 Result<int, std::string> ConfigParser::validate(const HttpConfig &http_config) {
     Result<int, std::string> listen_result = validate_listen(http_config.servers);
     if (listen_result.is_err()) {
-        const std::string error_msg = listen_result.get_err_value();
+        const std::string error_msg = listen_result.err_value();
         return Result<int, std::string>::err(error_msg);
     }
 
     Result<int, std::string> server_result = validate_server(http_config.servers);
     if (server_result.is_err()) {
-        const std::string error_msg = server_result.get_err_value();
+        const std::string error_msg = server_result.err_value();
         return Result<int, std::string>::err(error_msg);
     }
 	return Result<int, std::string>::ok(OK);
@@ -197,6 +197,9 @@ void ConfigParser::fill_unspecified_server_name(HttpConfig *http_config) {
         ++server_config;
     }
 }
+
+
+bool ConfigParser::is_err() const { return this->result_.is_err(); }
 
 
 Result<int, std::string> ConfigParser::result() const { return result_; }
@@ -316,7 +319,7 @@ Result<int, std::string> ConfigParser::parse_http_block(TokenItr *current,
         ServerConfig server_config;
         Result<int, std::string> result = parse_server_block(current, end, &server_config);
         if (result.is_err()) {
-            const std::string error_msg = result.get_err_value();
+            const std::string error_msg = result.err_value();
             return Result<int, std::string>::err(error_msg);
         }
         if (tmp == *current) {
@@ -373,7 +376,7 @@ Result<int, std::string> ConfigParser::parse_server_block(TokenItr *current,
             result = parse_default_config(current, end, server_config);
         }
         if (result.is_err()) {
-            const std::string error_msg = result.get_err_value();
+            const std::string error_msg = result.err_value();
             return Result<int, std::string>::err(error_msg);
         }
         if (tmp == *current) {
@@ -388,7 +391,7 @@ Result<int, std::string> ConfigParser::parse_server_block(TokenItr *current,
                                                               end,
                                                               &server_config->locations);
     if (location_result.is_err()) {
-        const std::string error_msg = location_result.get_err_value();
+        const std::string error_msg = location_result.err_value();
         return Result<int, std::string>::err(error_msg);
     }
     return Result<int, std::string>::ok(OK);
@@ -474,10 +477,10 @@ Result<int, std::string> ConfigParser::skip_location(TokenItr *current,
 
     Result<std::string, std::string> path_result = parse_location_path(current, end);
     if (path_result.is_err()) {
-        const std::string error_msg = path_result.get_err_value();
+        const std::string error_msg = path_result.err_value();
         return Result<int, std::string>::err(error_msg);
     }
-    std::string location_path = path_result.get_ok_value();
+    std::string location_path = path_result.ok_value();
 
     if (!consume(current, end, LEFT_PAREN)) {
         const std::string error_msg = create_syntax_err_msg(*current, end, LEFT_PAREN);
@@ -488,7 +491,7 @@ Result<int, std::string> ConfigParser::skip_location(TokenItr *current,
     LocationConfig unused;
     Result<int, std::string> result = parse_location_block(current, end, &unused);
     if (result.is_err()) {
-        const std::string error_msg = result.get_err_value();
+        const std::string error_msg = result.err_value();
         return Result<int, std::string>::err(error_msg);
     }
 
@@ -526,7 +529,7 @@ Result<int, std::string> ConfigParser::parse_location(const LocationItrMap &loca
         LocationConfig location_config(init_config);
         Result<int, std::string> result = parse_location_block(&start, end, &location_config);
         if (result.is_err()) {
-            const std::string error_msg = result.get_err_value();
+            const std::string error_msg = result.err_value();
             return Result<int, std::string>::err(error_msg);
         }
 
@@ -603,7 +606,7 @@ Result<int, std::string> ConfigParser::parse_location_block(TokenItr *current,
         }
 
         if (result.is_err()) {
-            const std::string error_msg = result.get_err_value();
+            const std::string error_msg = result.err_value();
             return Result<int, std::string>::err(error_msg);
         }
         if (tmp == *current) {
@@ -662,7 +665,7 @@ Result<int, std::string> ConfigParser::parse_default_config(TokenItr *current,
         } else { break; }
 
         if (result.is_err()) {
-            const std::string error_msg = result.get_err_value();
+            const std::string error_msg = result.err_value();
             return Result<int, std::string>::err(error_msg);
         }
     }
@@ -714,7 +717,7 @@ Result<int, std::string> ConfigParser::parse_listen_directive(TokenItr *current,
 
     result = parse_directive_params(current, end, &listen_params, LISTEN_DIRECTIVE);
     if (result.is_err()) {
-        const std::string error_msg = result.get_err_value();
+        const std::string error_msg = result.err_value();
         return Result<int, std::string>::err(error_msg);
     }
 
@@ -729,7 +732,7 @@ Result<int, std::string> ConfigParser::parse_listen_directive(TokenItr *current,
         const std::string error_msg = create_invalid_value_err_msg(*param, LISTEN_DIRECTIVE);
         return Result<int, std::string>::err(error_msg);
     }
-    AddressPortPair pair = param_result.get_ok_value();
+    AddressPortPair pair = param_result.ok_value();
     const std::string address = pair.first;
     const std::string port = pair.second;
     if (!address.empty()) {
@@ -792,7 +795,7 @@ Result<int, std::string> ConfigParser::parse_set_params(TokenItr *current,
 
     parse_result = parse_directive_params(current, end, &parsed_params, name);
     if (parse_result.is_err()) {
-        const std::string error_msg = parse_result.get_err_value();
+        const std::string error_msg = parse_result.err_value();
         return Result<int, std::string>::err(error_msg);
     }
 
@@ -855,7 +858,7 @@ Result<int, std::string> ConfigParser::parse_return_directive(TokenItr *current,
 
     result = parse_directive_params(current, end, &return_params, RETURN_DIRECTIVE);
     if (result.is_err()) {
-        const std::string error_msg = result.get_err_value();
+        const std::string error_msg = result.err_value();
         return Result<int, std::string>::err(error_msg);
     }
 
@@ -880,7 +883,7 @@ Result<int, std::string> ConfigParser::parse_return_directive(TokenItr *current,
     if (redirection->return_on) {
         return Result<int, std::string>::ok(OK);
     }
-    redirection->code = convert_result.get_ok_value();
+    redirection->code = convert_result.ok_value();
 
     ++param;
     if (param != return_params.end()) {
@@ -903,7 +906,7 @@ Result<int, std::string> ConfigParser::parse_root_directive(TokenItr *current,
     Result<int, std::string> result;
     result = parse_directive_param(current, end, root_path, ROOT_DIRECTIVE);
     if (result.is_err()) {
-        const std::string error_msg = result.get_err_value();
+        const std::string error_msg = result.err_value();
         return Result<int, std::string>::err(error_msg);
     }
     return Result<int, std::string>::ok(OK);
@@ -952,7 +955,7 @@ Result<int, std::string> ConfigParser::parse_access_rule(TokenItr *current,
         Result<int, std::string> parse_result;
         parse_result = parse_directive_param(current, end, &specifier, directive_name);
         if (parse_result.is_err()) {
-            const std::string error_msg = parse_result.get_err_value();
+            const std::string error_msg = parse_result.err_value();
 
             return Result<int, std::string>::err(error_msg);
         }
@@ -979,11 +982,11 @@ Result<int, std::string> ConfigParser::parse_limit_except_directive(TokenItr *cu
         Result<Method, std::string> result = get_method((*current)->str_);
 
         if (result.is_err()) {
-            const std::string error_msg = result.get_err_value();
+            const std::string error_msg = result.err_value();
             return Result<int, std::string>::err(error_msg);
         }
 
-        Method excluded_method = result.get_ok_value();
+        Method excluded_method = result.ok_value();
         limit_except->excluded_methods.insert(excluded_method);
 
         ++(*current);
@@ -1001,7 +1004,7 @@ Result<int, std::string> ConfigParser::parse_limit_except_directive(TokenItr *cu
     Result<int, std::string> skip_result;
     skip_result = parse_access_rule(current, end, &limit_except->rules, LIMIT_EXCEPT_DIRECTIVE);
     if (skip_result.is_err()) {
-        const std::string error_msg = skip_result.get_err_value();
+        const std::string error_msg = skip_result.err_value();
         return Result<int, std::string>::err(error_msg);
     }
 
@@ -1033,7 +1036,7 @@ Result<int, std::string> ConfigParser::parse_error_page_directive(TokenItr *curr
 
     result = parse_directive_params(current, end, &error_page_params, ERROR_PAGE_DIRECTIVE);
     if (result.is_err()) {
-        const std::string error_msg = result.get_err_value();
+        const std::string error_msg = result.err_value();
         return Result<int, std::string>::err(error_msg);
     }
 
@@ -1059,7 +1062,7 @@ Result<int, std::string> ConfigParser::parse_error_page_directive(TokenItr *curr
             const std::string error_msg = create_invalid_value_err_msg(*param, RETURN_DIRECTIVE);
             return Result<int, std::string>::err(error_msg);
         }
-        StatusCode code = convert_result.get_ok_value();
+        StatusCode code = convert_result.ok_value();
         (*error_pages)[code] = error_page;  // overwrite
     }
     return Result<int, std::string>::ok(OK);
@@ -1080,7 +1083,7 @@ Result<int, std::string> ConfigParser::parse_autoindex_directive(TokenItr *curre
     Result<int, std::string> result;
     result = parse_directive_param(current, end, &autoindex_param, AUTOINDEX_DIRECTIVE);
     if (result.is_err()) {
-        const std::string error_msg = result.get_err_value();
+        const std::string error_msg = result.err_value();
         return Result<int, std::string>::err(error_msg);
     }
 
@@ -1110,7 +1113,7 @@ Result<int, std::string> ConfigParser::parse_cgi_mode_directive(TokenItr *curren
     Result<int, std::string> result;
     result = parse_directive_param(current, end, &cgi_mode_param, CGI_MODE_DIRECTIVE);
     if (result.is_err()) {
-        const std::string error_msg = result.get_err_value();
+        const std::string error_msg = result.err_value();
         return Result<int, std::string>::err(error_msg);
     }
 
@@ -1193,7 +1196,7 @@ Result<int, std::string> ConfigParser::parse_cgi_timeout_directive(TokenItr *cur
     Result<int, std::string> param_result;
     param_result = parse_directive_param(current, end, &timeout_str, CGI_TIMEOUT_DIRECTIVE);
     if (param_result.is_err()) {
-        const std::string error_msg = param_result.get_err_value();
+        const std::string error_msg = param_result.err_value();
         return Result<int, std::string>::err(error_msg);
     }
 
@@ -1202,7 +1205,7 @@ Result<int, std::string> ConfigParser::parse_cgi_timeout_directive(TokenItr *cur
         const std::string error_msg = create_invalid_value_err_msg(timeout_str, CGI_TIMEOUT_DIRECTIVE);
         return Result<int, std::string>::err(error_msg);
     }
-    *timeout_sec = size_result.get_ok_value();
+    *timeout_sec = size_result.ok_value();
     return Result<int, std::string>::ok(OK);
 }
 
@@ -1278,7 +1281,7 @@ Result<int, std::string> ConfigParser::parse_body_size_directive(TokenItr *curre
     Result<int, std::string> param_result;
     param_result = parse_directive_param(current, end, &body_size_param, BODY_SIZE_DIRECTIVE);
     if (param_result.is_err()) {
-        const std::string error_msg = param_result.get_err_value();
+        const std::string error_msg = param_result.err_value();
         return Result<int, std::string>::err(error_msg);
     }
 
@@ -1287,7 +1290,7 @@ Result<int, std::string> ConfigParser::parse_body_size_directive(TokenItr *curre
         const std::string error_msg = create_invalid_value_err_msg(body_size_param, BODY_SIZE_DIRECTIVE);
         return Result<int, std::string>::err(error_msg);
     }
-    *max_body_size_bytes = size_result.get_ok_value();
+    *max_body_size_bytes = size_result.ok_value();
     return Result<int, std::string>::ok(OK);
 }
 

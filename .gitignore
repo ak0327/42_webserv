@@ -6,7 +6,7 @@
 
 !srcs
 !srcs/Client
-!srcs/ClientSession
+!srcs/Event
 !srcs/Config
 !srcs/Config/FileHandler
 !srcs/Config/ConfigParser

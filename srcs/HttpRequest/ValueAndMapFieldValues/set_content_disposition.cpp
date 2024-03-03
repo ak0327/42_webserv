@@ -78,7 +78,7 @@ Result<std::string, int> parse_and_validate_disposition_type(const std::string &
 	if (parse_result.is_err()) {
 		return Result<std::string, int>::err(ERR);
 	}
-	disposition_type = parse_result.get_ok_value();
+	disposition_type = parse_result.ok_value();
 	*end_pos = end;
 
 	validate_result = validate_disposition_type(disposition_type);
@@ -293,7 +293,7 @@ parse_and_validate_disposition_param(const std::string &field_value,
 	if (parse_result.is_err()) {
 		return Result<std::map<std::string, std::string> , int>::err(ERR);
 	}
-	disposition_param = parse_result.get_ok_value();
+	disposition_param = parse_result.ok_value();
 
 	validate_result = validate_disposition_param(disposition_param);
 	if (validate_result.is_err()) {

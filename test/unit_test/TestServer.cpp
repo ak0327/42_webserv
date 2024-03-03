@@ -50,14 +50,14 @@ void *run_server(void *server_info) {
 
         ServerResult init_result = server.init();
         if (init_result.is_err()) {
-            throw std::runtime_error(init_result.get_err_value());
+            throw std::runtime_error(init_result.err_value());
         }
-        server.set_timeout(1500);
+        server.set_io_timeout(1500);
 		DEBUG_SERVER_PRINT("connecting...");
 
-        ServerResult running_result = server.run();
+        ServerResult running_result = server.echo();
         if (running_result.is_err()) {
-            throw std::runtime_error(running_result.get_err_value());
+            throw std::runtime_error(running_result.err_value());
         }
 		// s->recv_msg = server.get_recv_message();
 		// vvv this func can print only 1 message vv

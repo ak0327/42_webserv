@@ -33,7 +33,7 @@ Result<int, int> HttpRequest::set_valid_http_date(const std::string &field_name,
 		return Result<int, int>::err(ERR);
 	}
 
-	date = date_result.get_ok_value();
+	date = date_result.ok_value();
 	this->request_header_fields_[field_name] = date;
 	return Result<int, int>::ok(OK);
 }

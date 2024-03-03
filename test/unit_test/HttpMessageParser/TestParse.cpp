@@ -10,7 +10,7 @@ TEST(TestHttpMessageParser, ParseUriHost) {
 	start = 0;
 	result = HttpMessageParser::parse_uri_host(str, start, &end);
 	EXPECT_TRUE(result.is_ok());
-	EXPECT_EQ("localhost", result.get_ok_value());
+	EXPECT_EQ("localhost", result.ok_value());
 	EXPECT_EQ(str.length(), end);
 
 	str = "localhost ";
@@ -18,7 +18,7 @@ TEST(TestHttpMessageParser, ParseUriHost) {
 	start = 0;
 	result = HttpMessageParser::parse_uri_host(str, start, &end);
 	EXPECT_TRUE(result.is_ok());
-	EXPECT_EQ("localhost", result.get_ok_value());
+	EXPECT_EQ("localhost", result.ok_value());
 	EXPECT_EQ(9, end);
 
 	str = "255.255.255.255:8080";
@@ -26,7 +26,7 @@ TEST(TestHttpMessageParser, ParseUriHost) {
 	start = 0;
 	result = HttpMessageParser::parse_uri_host(str, start, &end);
 	EXPECT_TRUE(result.is_ok());
-	EXPECT_EQ("255.255.255.255", result.get_ok_value());
+	EXPECT_EQ("255.255.255.255", result.ok_value());
 	EXPECT_EQ(15, end);
 
 	str = "[ABCD:EF01:2345:6789:ABCD:EF01:2345:6789]";
@@ -34,7 +34,7 @@ TEST(TestHttpMessageParser, ParseUriHost) {
 	start = 0;
 	result = HttpMessageParser::parse_uri_host(str, start, &end);
 	EXPECT_TRUE(result.is_ok());
-	EXPECT_EQ("[ABCD:EF01:2345:6789:ABCD:EF01:2345:6789]", result.get_ok_value());
+	EXPECT_EQ("[ABCD:EF01:2345:6789:ABCD:EF01:2345:6789]", result.ok_value());
 	EXPECT_EQ(str.length(), end);
 
 	str = "";
@@ -57,7 +57,7 @@ TEST(TestHttpMessageParser, ParseUriHost) {
 	start = 1;
 	result = HttpMessageParser::parse_uri_host(str, start, &end);
 	EXPECT_TRUE(result.is_ok());
-	EXPECT_EQ("localhost", result.get_ok_value());
+	EXPECT_EQ("localhost", result.ok_value());
 	EXPECT_EQ(10, end);
 
 	str = "[192.168.0.1]";
@@ -66,7 +66,7 @@ TEST(TestHttpMessageParser, ParseUriHost) {
 	start = 1;
 	result = HttpMessageParser::parse_uri_host(str, start, &end);
 	EXPECT_TRUE(result.is_ok());
-	EXPECT_EQ("192.168.0.1", result.get_ok_value());
+	EXPECT_EQ("192.168.0.1", result.ok_value());
 	EXPECT_EQ(12, end);
 
 	str = "192.168.0.11111";
@@ -87,7 +87,7 @@ TEST(TestHttpMessageParser, ParsePort) {
 	start = 0;
 	result = HttpMessageParser::parse_port(str, start, &end);
 	EXPECT_TRUE(result.is_ok());
-	EXPECT_EQ("8080", result.get_ok_value());
+	EXPECT_EQ("8080", result.ok_value());
 	EXPECT_EQ(str.length(), end);
 
 	str = "8080::: ";
@@ -96,7 +96,7 @@ TEST(TestHttpMessageParser, ParsePort) {
 	start = 0;
 	result = HttpMessageParser::parse_port(str, start, &end);
 	EXPECT_TRUE(result.is_ok());
-	EXPECT_EQ("8080", result.get_ok_value());
+	EXPECT_EQ("8080", result.ok_value());
 	EXPECT_EQ(4, end);
 
 	str = "255.255.255.255:8080";
@@ -105,7 +105,7 @@ TEST(TestHttpMessageParser, ParsePort) {
 	start = 0;
 	result = HttpMessageParser::parse_port(str, start, &end);
 	EXPECT_TRUE(result.is_ok());
-	EXPECT_EQ("255", result.get_ok_value());
+	EXPECT_EQ("255", result.ok_value());
 	EXPECT_EQ(3, end);
 
 	str = "255.255.255.255:8080";
@@ -114,7 +114,7 @@ TEST(TestHttpMessageParser, ParsePort) {
 	start = 16;
 	result = HttpMessageParser::parse_port(str, start, &end);
 	EXPECT_TRUE(result.is_ok());
-	EXPECT_EQ("8080", result.get_ok_value());
+	EXPECT_EQ("8080", result.ok_value());
 	EXPECT_EQ(str.length(), end);
 }
 
@@ -361,7 +361,7 @@ TEST(TestHttpMessageParser, ParseParameters) {
 	EXPECT_TRUE(result.is_ok());
 
 	expected = {{"a", "b"}};
-	actual = result.get_ok_value();
+	actual = result.ok_value();
 	EXPECT_EQ(expected, actual);
 	EXPECT_EQ(str.length(), end);
 	//--------------------------------------------------------------------------
@@ -374,7 +374,7 @@ TEST(TestHttpMessageParser, ParseParameters) {
 	EXPECT_TRUE(result.is_ok());
 
 	expected = {{"a", "b"}};
-	actual = result.get_ok_value();
+	actual = result.ok_value();
 	EXPECT_EQ(expected, actual);
 	EXPECT_EQ(str.length(), end);
 	//--------------------------------------------------------------------------
@@ -389,7 +389,7 @@ TEST(TestHttpMessageParser, ParseParameters) {
 	EXPECT_TRUE(result.is_ok());
 
 	expected = {{"a", "b"}};
-	actual = result.get_ok_value();
+	actual = result.ok_value();
 	EXPECT_EQ(expected, actual);
 	EXPECT_EQ(5, end);
 
@@ -405,7 +405,7 @@ TEST(TestHttpMessageParser, ParseParameters) {
 	EXPECT_TRUE(result.is_ok());
 
 	expected = {{"a", "b"}};
-	actual = result.get_ok_value();
+	actual = result.ok_value();
 	EXPECT_EQ(expected, actual);
 	EXPECT_EQ(5, end);
 	//--------------------------------------------------------------------------
@@ -420,7 +420,7 @@ TEST(TestHttpMessageParser, ParseParameters) {
 	EXPECT_TRUE(result.is_ok());
 
 	expected = {{"a", "b"}, {"c", "d"}};
-	actual = result.get_ok_value();
+	actual = result.ok_value();
 	EXPECT_EQ(expected, actual);
 	EXPECT_EQ(12, end);
 }

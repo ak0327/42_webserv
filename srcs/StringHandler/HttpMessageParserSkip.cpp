@@ -1212,7 +1212,7 @@ void skip_ipv6address(const std::string &str,
 		pos = end;
 
 	} else {
-		double_colon_pos = double_colon_result.get_ok_value();
+		double_colon_pos = double_colon_result.ok_value();
 		(void)double_colon_pos;
 		// todo
 	}

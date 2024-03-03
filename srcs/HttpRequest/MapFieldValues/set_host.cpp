@@ -67,7 +67,7 @@ parse_and_validate_host(const std::string &field_value) {
 	if (parse_result.is_err()) {
 		return Result<std::map<std::string, std::string>, int>::err(ERR);
 	}
-	host = parse_result.get_ok_value();
+	host = parse_result.ok_value();
 
 	validate_result = validate_port(host);
 	if (validate_result.is_err()) {
@@ -139,7 +139,7 @@ Result<int, int> HttpRequest::set_host(const std::string &field_name,
 	if (result.is_err()) {
 		return Result<int, int>::err(STATUS_BAD_REQUEST);
 	}
-	host = result.get_ok_value();
+	host = result.ok_value();
 
 	this->request_header_fields_[field_name] = new MapFieldValues(host);
 	return Result<int, int>::ok(STATUS_OK);
@@ -158,7 +158,7 @@ Result<int, int> HttpRequest::set_alt_used(const std::string &field_name,
 	if (result.is_err()) {
 		return Result<int, int>::ok(STATUS_OK);
 	}
-	host = result.get_ok_value();
+	host = result.ok_value();
 
 	this->request_header_fields_[field_name] = new MapFieldValues(host);
 	return Result<int, int>::ok(STATUS_OK);

@@ -24,7 +24,7 @@ Result<int, int> HttpRequest::set_cache_control(const std::string &field_name,
 													   EQUAL_SIGN,
 													   true);
 	if (result.is_ok()) {
-		cache_directive = result.get_ok_value();
+		cache_directive = result.ok_value();
 		this->request_header_fields_[field_name] = new MapFieldValues(cache_directive);
 	}
 	return Result<int, int>::ok(STATUS_OK);

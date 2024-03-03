@@ -63,7 +63,7 @@ parse_and_validate_media_range_with_weight_set(const std::string &field_value) {
 		if (media_range_result.is_err()) {
 			return Result<std::set<FieldValueWithWeight>, int>::err(ERR);
 		}
-		media_range = media_range_result.get_ok_value();
+		media_range = media_range_result.ok_value();
 		pos = end;
 
 		HttpMessageParser::skip_ows(field_value, &pos);
@@ -73,7 +73,7 @@ parse_and_validate_media_range_with_weight_set(const std::string &field_value) {
 			delete media_range;
 			return Result<std::set<FieldValueWithWeight>, int>::err(ERR);
 		}
-		weight = weight_result.get_ok_value();
+		weight = weight_result.ok_value();
 		pos = end;
 
 		media_range_with_weight = FieldValueWithWeight(media_range, weight);
@@ -83,7 +83,7 @@ parse_and_validate_media_range_with_weight_set(const std::string &field_value) {
 		if (skip_result.is_err()) {
 			return Result<std::set<FieldValueWithWeight>, int>::err(ERR);
 		}
-		pos = skip_result.get_ok_value();
+		pos = skip_result.ok_value();
 	}
 	return Result<std::set<FieldValueWithWeight>, int>::ok(media_range_weight_set);
 }
@@ -120,13 +120,13 @@ Result<int, int> HttpRequest::set_accept(const std::string &field_name,
 
 	result = parse_and_validate_media_range_with_weight_set(field_value);
 	if (result.is_err()) {
-		if (result.get_err_value() == STATUS_SERVER_ERROR) {
+		if (result.err_value() == STATUS_SERVER_ERROR) {
 			return Result<int, int>::err(STATUS_SERVER_ERROR);
 		}
 		return Result<int, int>::ok(OK);
 	}
 
-	media_range_weight_set = result.get_ok_value();
+	media_range_weight_set = result.ok_value();
 	this->request_header_fields_[field_name] = new FieldValueWithWeightSet(media_range_weight_set);
 	return Result<int, int>::ok(OK);
 }

@@ -27,7 +27,7 @@ bool HttpResponse::is_cgi_file() const {
     if (result.is_err()) {
         return false;
     }
-    bool cgi_mode = result.get_ok_value();
+    bool cgi_mode = result.ok_value();
     if (!cgi_mode) {
         return false;
     }
@@ -51,7 +51,7 @@ void HttpResponse::get_error_page_to_body() {
         return;
     }
     DEBUG_PRINT(CYAN, "  get_error_page 3");
-    std::string error_page_path = result.get_ok_value();
+    std::string error_page_path = result.ok_value();
     DEBUG_PRINT(CYAN, "  get_error_page 4 error_page_path: %s", error_page_path.c_str());
 
     get_file_content(error_page_path, &this->body_buf_);
@@ -61,17 +61,17 @@ void HttpResponse::get_error_page_to_body() {
 bool HttpResponse::is_redirect() const {
     Result<bool, int> result = Config::is_redirect(this->server_config_,
                                                    this->request_.request_target());
-    return result.is_ok() && result.get_ok_value();
+    return result.is_ok() && result.ok_value();
 }
 
 
 StatusCode HttpResponse::get_redirect_content(const ReturnDirective &redirect) {
     Result<HostPortPair, StatusCode> info_result = this->request_.server_info();
     if (info_result.is_err()) {
-        return info_result.get_err_value();
+        return info_result.err_value();
     }
 
-    HostPortPair server_info = info_result.get_ok_value();
+    HostPortPair server_info = info_result.ok_value();
     std::string location = "http://";
 
     location.append(server_info.first);
@@ -101,7 +101,7 @@ bool HttpResponse::is_method_available() const {
     allowed = Config::is_method_allowed(this->server_config_,
                                         this->request_.request_target(),
                                         this->request_.method());
-    return allowed.is_ok() && allowed.get_ok_value();
+    return allowed.is_ok() && allowed.ok_value();
 }
 
 
@@ -109,7 +109,7 @@ bool HttpResponse::is_autoindex() const {
     Result<bool, int> is_autoindex;
     is_autoindex = Config::is_autoindex_on(this->server_config_,
                                            this->request_.request_target());
-    return is_autoindex.is_ok() && is_autoindex.get_ok_value();
+    return is_autoindex.is_ok() && is_autoindex.ok_value();
 }
 
 
@@ -117,7 +117,7 @@ bool HttpResponse::is_redirect_target() const {
     Result<bool, int> is_redirect;
     is_redirect = Config::is_redirect(this->server_config_,
                                       this->request_.request_target());
-    return is_redirect.is_ok() && is_redirect.get_ok_value();
+    return is_redirect.is_ok() && is_redirect.ok_value();
 }
 
 
@@ -175,9 +175,9 @@ StatusCode HttpResponse::get_request_body() {
     Result<bool, StatusCode> is_directory = FileHandler::is_directory(rooted_path);
     if (is_directory.is_err()) {
         DEBUG_PRINT(YELLOW, "  GET 6 err: directory");
-        return is_directory.get_err_value();
+        return is_directory.err_value();
     }
-    if (is_directory.get_ok_value()) {
+    if (is_directory.ok_value()) {
         DEBUG_PRINT(YELLOW, "  GET 7");
         const std::string &directory_path = rooted_path;
         if (!StringHandler::has_trailing_slash(directory_path)) {
@@ -207,17 +207,17 @@ StatusCode HttpResponse::get_request_body() {
                                                                        this->request_.request_target());
     if (indexed.is_err()) {
         DEBUG_PRINT(YELLOW, "  GET 11 err: indexd path error");
-        return indexed.get_err_value();
+        return indexed.err_value();
     }
 
-    const std::string indexed_path = indexed.get_ok_value();
+    const std::string indexed_path = indexed.ok_value();
     DEBUG_PRINT(YELLOW, "  GET 12 indexed_path[%s]", indexed_path.c_str());
     Result<bool, StatusCode> is_file = FileHandler::is_file(indexed_path);
     if (is_file.is_err()) {
         DEBUG_PRINT(YELLOW, "  GET 13 err: is_file.err");
-        return is_file.get_err_value();
+        return is_file.err_value();
     }
-    if (!is_file.get_ok_value()) {
+    if (!is_file.ok_value()) {
         DEBUG_PRINT(YELLOW, "  GET 14 err: not file");
         return BadRequest;
     }

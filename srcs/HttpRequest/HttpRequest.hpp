@@ -33,7 +33,6 @@ class HttpRequest {
 
     RequestParsePhase parse_phase() const;
     void set_parse_phase(RequestParsePhase new_phase);
-
     void set_max_body_size(std::size_t max_body_size);
 
     Method method() const;
@@ -85,9 +84,7 @@ class HttpRequest {
 #ifdef UNIT_TEST
     friend class HttpRequestFriend;
 #endif
-#ifdef ECHO
     const std::vector<unsigned char> &get_buf() const;
-#endif
 
  private:
     RequestParsePhase phase_;

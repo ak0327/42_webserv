@@ -9,7 +9,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fsanitize=address,undefined -fno-omi
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D UNIT_TEST")
 
 # LOCAL -----
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D ECHO")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D DEBUG")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D USE_SELECT")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D USE_POLL")
@@ -43,7 +42,7 @@ include_directories(
         includes
         srcs/Const
         srcs/Client
-        srcs/ClientSession
+        srcs/Event
         srcs/Config/FileHandler
         srcs/Config/ConfigParser
         srcs/Config/Token
@@ -81,7 +80,7 @@ include_directories(
 set(webserv_srcs
         srcs/Const/Constant.cpp
         srcs/Client/Client.cpp
-        srcs/ClientSession/ClientSession.cpp
+        srcs/Event/Event.cpp
         srcs/Config/FileHandler/FileHandler.cpp
         srcs/Config/ConfigParser/ConfigParser.cpp
         srcs/Config/Token/Token.cpp
