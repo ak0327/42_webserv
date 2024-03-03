@@ -397,11 +397,11 @@ void Server::update_fd_type_read_to_write(const EventPhase &event_state, int fd)
 
 
 void Server::delete_event(std::map<Fd, Event *>::iterator event) {
-    Event *client_session = event->second;
-    int client_fd = client_session->client_fd();
+    Event *client_event = event->second;
+    int client_fd = client_event->client_fd();
 
     this->fds_->clear_fd(client_fd);
-    delete client_session;
+    delete client_event;
     this->client_events_.erase(event);
 }
 

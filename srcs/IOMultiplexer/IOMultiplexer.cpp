@@ -426,6 +426,7 @@ Result<int, std::string> Select::get_io_ready_fd() {
     this->max_fd_ = get_max_fd();
     // std::cout << CYAN << "max_fd: " << max_fd_ << RESET << std::endl;
     this->set_io_timeout(100);
+    // this->set_io_timeout(1000);
 	init_fds();
 
     Result<int, std::string> select_result = select_fds();

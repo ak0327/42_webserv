@@ -84,7 +84,6 @@ time_t Event::cgi_timeout_limit() const {
 }
 
 
-
 // -----------------------------------------------------------------------------
 
 
@@ -131,8 +130,7 @@ EventResult Event::process_client_event() {
             DEBUG_SERVER_PRINT("   Session: 3 CreatingResponse");
             ProcResult response_result = create_http_response();
             if (response_result == FatalError) {
-                // fail to new HttpRequest or HttpReqponse
-                return EventResult::err("fail to memory allocate");
+                return EventResult::err("fail to memory allocate for HttpResponse");
             }
             if (response_result == ExecutingCgi) {
                 return EventResult::ok(ExecutingCgi);
@@ -168,13 +166,13 @@ ProcResult Event::recv_http_request() {
             this->request_ = new HttpRequest();
         }
         catch (const std::exception &e) {
-            DEBUG_PRINT(RED, "error: fail to memory allocate");  // todo: logging
+            DEBUG_PRINT(RED, "error: fail to memory allocate for HttpRequest");  // todo: logging
             return FatalError;
         }
     }
 
     ssize_t recv_size = this->request_->recv_to_buf(this->client_fd_);
-    if (recv_size == 0) {
+    if (recv_size == RECV_COMPLETED) {
         return ConnectionClosed;
     }
     return 0 < recv_size ? Success : Continue;
@@ -215,8 +213,7 @@ ProcResult Event::parse_http_request() {
         // todo: Result<ProcResult, StatusCode>
         Result<ProcResult, std::string> config_result = get_host_config();
         if (config_result.is_err()) {
-            DEBUG_SERVER_PRINT("               ParsingRequest 5 error: %s",
-                               config_result.err_value().c_str());
+            DEBUG_SERVER_PRINT("               ParsingRequest 5 error: %s", config_result.err_value().c_str());
             // StatusCode error_code = config_result.get_err_value();
             // DEBUG_SERVER_PRINT("               ParsingRequest 5 error: %d", error_code);
             this->request_->set_request_status(BadRequest);
@@ -399,7 +396,6 @@ ProcResult Event::execute_each_method() {
         return FatalError;  // fail to new Request -> can't send 500
     }
     if (this->response_->is_exec_cgi()) {
-        this->set_event_phase(kExecuteCGI);
         return exec_cgi();
     } else {
         return this->response_->exec_method();  // return Success or ExecutingCgi
@@ -408,6 +404,7 @@ ProcResult Event::execute_each_method() {
 
 
 ProcResult Event::exec_cgi() {
+    this->set_event_phase(kExecuteCGI);
     EventResult result = process_file_event();
     if (result.is_err()) {
         std::cerr << result.err_value() << std::endl;  // todo: logging
@@ -424,6 +421,7 @@ EventResult Event::process_file_event() {
             break;
         }
 
+        // call from process_client_event
         case kExecuteCGI: {
             DEBUG_PRINT(YELLOW, "   CGI Executing");
             ProcResult exec_result = this->response_->exec_cgi_process();
