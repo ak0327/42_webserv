@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 #include "Constant.hpp"
+#include "Color.hpp"
+#include "Debug.hpp"
 #include "HttpMessageParser.hpp"
 #include "HttpResponse.hpp"
 #include "MediaType.hpp"
@@ -105,12 +107,19 @@ bool HttpResponse::is_urlencoded_form_data() {
 UrlEncodedFormData HttpResponse::parse_urlencoded_form_data(const std::vector<unsigned char> &request_body) {
     UrlEncodedFormData parameters;
 
+    std::vector<unsigned char> body = request_body;
+    for (std::vector<unsigned char>::iterator itr = body.begin(); itr != body.end(); ++itr) {
+        if (*itr == '+') {
+            *itr = ' ';
+        }
+    }
+
     std::vector<std::string> name_value_pairs;
     std::vector<unsigned char>::const_iterator head, tail;
-    head = request_body.begin();
-    while (head != request_body.end()) {
+    head = body.begin();
+    while (head != body.end()) {
         tail = head;
-        while (tail != request_body.end() && *tail != '&') {
+        while (tail != body.end() && *tail != '&') {
             ++tail;
         }
         std::string name_value(head, tail);
