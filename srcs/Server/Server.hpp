@@ -72,7 +72,7 @@ class Server {
     void delete_sockets();
     void delete_event(std::map<Fd, Event *>::iterator event);
     void close_client_fd(int fd);
-    void update_fd_type_read_to_write(const EventState &event_state, int fd);
+    void update_fd_type_read_to_write(const EventPhase &event_state, int fd);
 
     bool is_client_fd(int fd);
     bool is_cgi_fd(int fd);

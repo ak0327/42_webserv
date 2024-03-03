@@ -384,7 +384,7 @@ ServerResult Server::create_event(int socket_fd) {
 }
 
 
-void Server::update_fd_type_read_to_write(const EventState &event_state, int fd) {
+void Server::update_fd_type_read_to_write(const EventPhase &event_state, int fd) {
     FdType fd_type = this->fds_->get_fd_type(fd);
     if (event_state == kSendingResponse && fd_type == kReadFd) {
         DEBUG_SERVER_PRINT("read_fd read -> write");
@@ -431,7 +431,7 @@ void Server::init_event(Event *event) {
     }
     int client_fd = event->client_fd();
     update_fd_type(client_fd, kWriteFd, kReadFd);
-    event->set_event_state(kReceivingRequest);
+    event->set_event_phase(kReceivingRequest);
     event->clear_request();
     event->clear_response();
 }
@@ -564,7 +564,7 @@ ServerResult Server::handle_client_event(int client_fd) {
             return ServerResult::ok(OK);
     }
 
-    switch (client_event->event_state()) {
+    switch (client_event->event_phase()) {
         case kSendingResponse: {
             std::ostringstream oss; oss << client_event;
             DEBUG_SERVER_PRINT("process_event(client) -> sending response: %s", oss.str().c_str());
@@ -624,7 +624,7 @@ ServerResult Server::handle_cgi_event(int cgi_fd) {
             return ServerResult::ok(OK);
     }
 
-    switch (cgi_event->event_state()) {
+    switch (cgi_event->event_phase()) {
         case kReceivingCgiResponse: {
             std::ostringstream oss; oss << cgi_event;
             DEBUG_SERVER_PRINT("process_event(cgi) -> [CGI] send fin, recv start: %s", oss.str().c_str());
@@ -649,15 +649,15 @@ ServerResult Server::handle_cgi_event(int cgi_fd) {
 
 ServerResult Server::process_event(int ready_fd) {
     if (is_socket_fd(ready_fd)) {
-        DEBUG_SERVER_PRINT("  ready_fd=socket ready_fd: %d", ready_fd);
+        DEBUG_SERVER_PRINT("  ready_fd=socket ready_fd: %d -> create_event()", ready_fd);
         return create_event(ready_fd);
     }
     if (is_client_fd(ready_fd)) {
-        DEBUG_SERVER_PRINT("  ready_fd=client ready_fd: %d", ready_fd);
+        DEBUG_SERVER_PRINT("  ready_fd=client ready_fd: %d -> handle_client_event()", ready_fd);
         return handle_client_event(ready_fd);
     }
     if (is_cgi_fd(ready_fd)) {
-        DEBUG_SERVER_PRINT("  ready_fd=cgi ready_fd: %d", ready_fd);
+        DEBUG_SERVER_PRINT("  ready_fd=cgi ready_fd: %d -> handle_cgi_event()", ready_fd);
         return handle_cgi_event(ready_fd);
     }
     const std::string error_msg = CREATE_ERROR_INFO_CSTR("error: unknown fd");

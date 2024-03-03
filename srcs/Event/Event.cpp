@@ -92,7 +92,7 @@ EventResult Event::process_client_event() {
     switch (this->event_state_) {
         case kEventInit: {
             DEBUG_SERVER_PRINT("   Session: 0 SessionInit");
-            this->set_event_state(kReceivingRequest);
+            this->set_event_phase(kReceivingRequest);
         }
         // fallthrough
 
@@ -107,7 +107,7 @@ EventResult Event::process_client_event() {
             } else if (recv_result == ConnectionClosed) {
                 return EventResult::ok(ConnectionClosed);
             }
-            this->set_event_state(kParsingRequest);
+            this->set_event_phase(kParsingRequest);
         }
         // fallthrough
 
@@ -116,10 +116,10 @@ EventResult Event::process_client_event() {
             ProcResult request_result = parse_http_request();
             if (request_result == Continue) {
                 DEBUG_SERVER_PRINT("     recv continue(process_client_event)");
-                this->set_event_state(kReceivingRequest);
+                this->set_event_phase(kReceivingRequest);
                 return EventResult::ok(Continue);
             }
-            this->set_event_state(kExecutingMethod);
+            this->set_event_phase(kExecutingMethod);
         }
         // fallthrough
 
@@ -144,7 +144,7 @@ EventResult Event::process_client_event() {
             if (send_result == Continue) {
                 return EventResult::ok(Continue);
             }
-            this->set_event_state(kEventCompleted);
+            this->set_event_phase(kEventCompleted);
             return EventResult::ok(Success);
         }
 
@@ -185,7 +185,7 @@ ProcResult Event::recv_http_request() {
 ProcResult Event::parse_http_request() {
     DEBUG_SERVER_PRINT("               ParsingRequest start");
 #ifdef ECHO
-    this->set_event_state(kCreatingResponseBody);
+    this->set_event_phase(kCreatingResponseBody);
 #else
     if (this->request_->parse_phase() == ParsingRequestLine
         || this->request_->parse_phase() == ParsingRequestHeaders) {
@@ -271,14 +271,14 @@ ProcResult Event::create_http_response() {
     #else
                 this->response_->create_response_message();
     #endif
-                this->set_event_state(kSendingResponse);
+                this->set_event_phase(kSendingResponse);
                 break;
             }
 
             case kCreatingCGIBody: {
                 DEBUG_SERVER_PRINT("     3 CreatingCGIBody");
                 this->response_->interpret_cgi_output();
-                this->set_event_state(kCreatingResponseBody);
+                this->set_event_phase(kCreatingResponseBody);
                 continue;
             }
 
@@ -396,7 +396,7 @@ ProcResult Event::execute_each_method() {
         return FatalError;  // fail to new Request -> can't send 500
     }
     if (this->response_->is_exec_cgi()) {
-        this->set_event_state(kExecuteCGI);
+        this->set_event_phase(kExecuteCGI);
         return exec_cgi();
     } else {
         return this->response_->exec_method();  // return Success or ExecutingCgi
@@ -430,7 +430,7 @@ EventResult Event::process_file_event() {
                 return EventResult::err(error_msg);
             }
             DEBUG_PRINT(YELLOW, "    success -> send");
-            this->set_event_state(kSendingRequestBodyToCgi);
+            this->set_event_phase(kSendingRequestBodyToCgi);
             return EventResult::ok(ExecutingCgi);
             // todo register write fd
         }
@@ -444,12 +444,12 @@ EventResult Event::process_file_event() {
             }
             if (send_result == Success) {
                 DEBUG_PRINT(YELLOW, "    send finish");
-                this->set_event_state(kReceivingCgiResponse);
+                this->set_event_phase(kReceivingCgiResponse);
             } else {
                 // error -> response 500
                 DEBUG_PRINT(YELLOW, "    send error");
                 // this->set_session_state(kCreatingResponseBody);
-                this->set_event_state(kCreatingCGIBody);
+                this->set_event_phase(kCreatingCGIBody);
             }
             break;
         }
@@ -463,12 +463,12 @@ EventResult Event::process_file_event() {
             }
             if (recv_result == Success) {
                 DEBUG_PRINT(YELLOW, "    recv finish");
-                this->set_event_state(kCreatingCGIBody);
+                this->set_event_phase(kCreatingCGIBody);
             } else {
                 DEBUG_PRINT(YELLOW, "    recv error");
                 // error -> response 500
                 // this->set_session_state(kCreatingResponseBody);
-                this->set_event_state(kCreatingCGIBody);
+                this->set_event_phase(kCreatingCGIBody);
             }
             break;
         }
@@ -503,23 +503,23 @@ int Event::client_fd() const {
 }
 
 
-EventState Event::event_state() const {
+EventPhase Event::event_phase() const {
     return this->event_state_;
 }
 
 
-std::string Event::event_state_str(const EventState &state) {
-    return std::string(event_state_char(state));
+std::string Event::event_phase_str(const EventPhase &phase) {
+    return std::string(event_phase_char(phase));
 }
 
 
-const char *Event::event_state_char() {
-    return event_state_char(this->event_state());
+const char *Event::event_phase_char() {
+    return event_phase_char(this->event_phase());
 }
 
 
-const char *Event::event_state_char(const EventState &state) {
-    switch (state) {
+const char *Event::event_phase_char(const EventPhase &phase) {
+    switch (phase) {
         case kEventInit:                return "kEventInit";
         case kReceivingRequest:         return "kReceivingRequest";
         case kParsingRequest:           return "kParsingRequest";
@@ -541,15 +541,15 @@ const char *Event::event_state_char(const EventState &state) {
 
 
 
-void Event::set_event_state(const EventState &set_state) {
-    DEBUG_PRINT(WHITE, "set_event_state [%s]->[%s]",
-                event_state_char(this->event_state_),
-                event_state_char(set_state));
-    this->event_state_ = set_state;
+void Event::set_event_phase(const EventPhase &set_phase) {
+    DEBUG_PRINT(WHITE, "set_event_phase [%s]->[%s]",
+                event_phase_char(this->event_state_),
+                event_phase_char(set_phase));
+    this->event_state_ = set_phase;
 }
 
 
-bool Event::is_event_state_expect(const EventState &expect) const {
+bool Event::is_event_phase_expect(const EventPhase &expect) const {
     return this->event_state_ == expect;
 }
 
@@ -629,7 +629,7 @@ AddressPortPair Event::get_client_listen(const struct sockaddr_storage &client_a
 
 std::ostringstream &operator<<(std::ostringstream &out, const Event &event) {
     out << "[Event]: ";
-    out << "phase: " << Event::event_state_str(event.event_state()) << ", ";
+    out << "phase: " << Event::event_phase_str(event.event_phase()) << ", ";
     out << "client_fd: " << event.client_fd() << ", ";
     out << "cgi_read_fd: " << event.cgi_read_fd() << ", ";
     out << "cgi_write_fd: " << event.cgi_write_fd();

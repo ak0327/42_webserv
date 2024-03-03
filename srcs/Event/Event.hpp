@@ -10,7 +10,7 @@
 # include "Result.hpp"
 # include "webserv.hpp"
 
-enum EventState {  // todo: event phase
+enum EventPhase {
     kEventInit,
 
     kReceivingRequest,
@@ -49,11 +49,11 @@ class Event {
     int client_fd() const;
     int cgi_read_fd() const;
     int cgi_write_fd() const;
-    EventState event_state() const;
+    EventPhase event_phase() const;
 
-    void set_event_state(const EventState &set_state);
+    void set_event_phase(const EventPhase &set_phase);
 
-    bool is_event_state_expect(const EventState &expect) const;
+    bool is_event_phase_expect(const EventPhase &expect) const;
 
     static bool is_continue_recv(const Result<ProcResult, StatusCode> &result);
     static bool is_continue_recv(const Result<ProcResult, std::string> &result);
@@ -75,9 +75,9 @@ class Event {
     void clear_cgi();
 
     static AddressPortPair get_client_listen(const struct sockaddr_storage &client_addr);
-    const char *event_state_char();
-    static const char *event_state_char(const EventState &state);
-    static std::string event_state_str(const EventState &state);
+    const char *event_phase_char();
+    static const char *event_phase_char(const EventPhase &phase);
+    static std::string event_phase_str(const EventPhase &phase);
 
  private:
     int socket_fd_;
@@ -88,7 +88,7 @@ class Event {
     ServerConfig server_config_;
     AddressPortPair address_port_pair_;
 
-    EventState event_state_;
+    EventPhase event_state_;
 
     HttpRequest *request_;  // todo: ptr; tmp & delete for next session
     HttpResponse *response_;  // todo: ptr; tmp & delete for next session
