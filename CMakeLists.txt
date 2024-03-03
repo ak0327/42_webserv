@@ -188,6 +188,8 @@ list(APPEND webserv_srcs
 set(http_response_srcs
         srcs/HttpResponse/HttpResponse.cpp
         srcs/HttpResponse/Api/api.cpp
+        srcs/HttpResponse/Api/cookie_login.cpp
+        srcs/HttpResponse/Api/session_login.cpp
 )
 # GET
 set(get_srcs

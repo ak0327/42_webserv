@@ -154,10 +154,13 @@ class HttpResponse {
     StatusCode show_request_body();
     StatusCode get_cookie_login_page();
     StatusCode get_cookie_user_page();
+    StatusCode get_session_login_page();
+    StatusCode get_session_user_page();
     StatusCode get_urlencoded_form_content();
     UrlEncodedFormData parse_urlencoded_form_data(const std::vector<unsigned char> &request_body);
 
     bool is_logged_in_user();
+    bool is_session_active_user();
     std::string get_user_name();
 
 

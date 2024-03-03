@@ -113,6 +113,8 @@ SRCS		+=	$(STR_HANDLER)/HttpMessageParser.cpp \
 RESPONSE_DIR =	HttpResponse
 SRCS		+=	$(RESPONSE_DIR)/HttpResponse.cpp \
 				$(RESPONSE_DIR)/Api/api.cpp \
+				$(RESPONSE_DIR)/Api/cookie_login.cpp \
+				$(RESPONSE_DIR)/Api/session_login.cpp \
 				$(RESPONSE_DIR)/GET/get_directory_listing.cpp \
 				$(RESPONSE_DIR)/GET/get_file_content.cpp \
 				$(RESPONSE_DIR)/GET/get_request_body.cpp \
