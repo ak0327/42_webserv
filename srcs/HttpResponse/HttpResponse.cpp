@@ -28,6 +28,7 @@ HttpResponse::HttpResponse(const HttpRequest &request,
       server_config_(server_config),
       address_port_pair_(pair),
       cgi_handler_(),
+      status_code_(StatusOk),
       headers_(),
       body_buf_(),
       response_msg_() {

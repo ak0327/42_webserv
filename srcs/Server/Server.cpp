@@ -253,7 +253,7 @@ ServerResult Server::run() {
 	while (true) {
         DEBUG_SERVER_PRINT(" run 1 timeout management");
         management_timeout_events();
-
+        set_io_timeout();
         DEBUG_SERVER_PRINT(" run 2 get_io_ready_fd");
         ServerResult fd_ready_result = this->fds_->get_io_ready_fd();
         DEBUG_SERVER_PRINT(" run 3 ready result");
@@ -697,6 +697,10 @@ ServerResult Server::accept_connect_fd(int socket_fd,
 }
 
 
-void Server::set_io_timeout(int timeout_msec) {
-    this->fds_->set_io_timeout(timeout_msec);
+void Server::set_io_timeout() {
+    if (this->cgi_fds_.empty() && !this->echo_mode_on_) {
+        this->fds_->set_io_timeout(0);
+    } else {
+        this->fds_->set_io_timeout(100);
+    }
 }
