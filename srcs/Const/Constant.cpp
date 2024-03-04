@@ -66,6 +66,7 @@ const int IO_TIMEOUT = -1;
 const int OFFSET_NONE = 0;
 
 const std::size_t FILE_SIZE_LIMIT = 65535;
+const std::size_t CLIENT_HEADER_MAX_SIZE = 1024 * 5;  // 5kB
 
 ////////////////////////////////////////////////////////////////////////////////
 /* status */
@@ -99,6 +100,7 @@ std::map<StatusCode, std::string> init_reason_phrases() {
     reason_phrases[Conflict]                = "Conflict";
     reason_phrases[LengthRequired]          = "Length Required";
     reason_phrases[ContentTooLarge]         = "Content Too Large";
+    reason_phrases[RequestHeaderFieldsTooLarge] = "Request Header Fields Too Large";
 
     reason_phrases[InternalServerError]     = "Internal Server Error";
     reason_phrases[NotImplemented]          = "Not Implemented";

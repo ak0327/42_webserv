@@ -197,6 +197,17 @@ expect_eq_get "$(curl -is "localhost:4242/permission/rwx/r__.html")"    "200 OK"
 expect_eq_get "$(curl -is "localhost:4242/permission/rwx/rwx.html")"    "200 OK"              "html/permission/rwx/rwx.html"
 
 
+# 431
+large=`python3 -c "print('a'*10000)"`
+expect_eq_get "$(curl -isH "$large: hoge" "localhost:4242/")"     "431 Request Header Fields Too Large"     ""
+expect_eq_get "$(curl -isH "a: $large" "localhost:4242/")"        "431 Request Header Fields Too Large"     ""
+expect_eq_get "$(curl -isH "Host: $large" "localhost:4242/")"     "431 Request Header Fields Too Large"     ""
+expect_eq_get "$(curl -isH "Cookie: $large" "localhost:4242/")"   "431 Request Header Fields Too Large"     ""
+
+large=`python3 -c "print('Cookie: 0123456789\r\n'*10000)"`
+expect_eq_get "$(curl -isH "$large" "localhost:4242/")"           "431 Request Header Fields Too Large"     ""
+
+
 
 tear_down
 

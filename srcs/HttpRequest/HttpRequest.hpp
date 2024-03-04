@@ -103,7 +103,7 @@ class HttpRequest {
     std::size_t request_max_body_size_;
 
     std::string message_body_;  // todo: delete
-
+    std::size_t header_size_;
 
 	HttpRequest(const HttpRequest &other);
 	HttpRequest &operator=(const HttpRequest &rhs);

@@ -70,6 +70,7 @@ extern const int FLAG_NONE;
 extern const int OFFSET_NONE;
 
 extern const std::size_t FILE_SIZE_LIMIT;
+extern const std::size_t CLIENT_HEADER_MAX_SIZE;
 
 ////////////////////////////////////////////////////////////////////////////////
 /* status */
@@ -99,6 +100,7 @@ enum StatusCode {
     Conflict                = 409,
     LengthRequired          = 411,
     ContentTooLarge         = 413,
+    RequestHeaderFieldsTooLarge = 431,
 
     InternalServerError     = 500,
     NotImplemented          = 501,

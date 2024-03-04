@@ -112,7 +112,8 @@ HttpRequest::HttpRequest()
       request_body_(),
       field_value_parser_(),
       field_name_counter_(),
-      request_max_body_size_(0) {
+      request_max_body_size_(0),
+      header_size_(0) {
     init_field_name_parser();
     init_field_name_counter();
 }
@@ -267,10 +268,19 @@ Result<ProcResult, StatusCode> HttpRequest::parse_start_line_and_headers() {
         DEBUG_SERVER_PRINT("    parse start_line_and_headers 2");
         Result<std::string, ProcResult> line_result = pop_line_from_buf();
         if (line_result.is_err()) {
+            if (CLIENT_HEADER_MAX_SIZE < this->buf_.size()) {
+                return Result<ProcResult, StatusCode>::err(RequestHeaderFieldsTooLarge);
+            }
             DEBUG_SERVER_PRINT("    parse start_line_and_headers -> continue");
             return Result<ProcResult, StatusCode>::ok(Continue);  // no line in buf -> recv
         }
         std::string line = line_result.ok_value();
+        this->header_size_ += line.length() + 2;
+
+        if (CLIENT_HEADER_MAX_SIZE < this->header_size_) {
+            return Result<ProcResult, StatusCode>::err(RequestHeaderFieldsTooLarge);
+        }
+
         DEBUG_SERVER_PRINT("    parse start_line_and_headers 3 line[%s]", line.c_str());
 
         switch (this->phase_) {

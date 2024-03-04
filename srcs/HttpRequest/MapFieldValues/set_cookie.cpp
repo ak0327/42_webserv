@@ -81,6 +81,25 @@ Result<std::size_t, int> skip_to_next_cookie_pair(const std::string &field_value
 }
 
 
+const std::size_t MAX_COOKIES = 50;
+const std::size_t MAX_SIZE = 4096;
+
+bool is_over_limits(const std::map<std::string, std::string> &cookie_strings) {
+    if (MAX_COOKIES < cookie_strings.size()) {
+        return false;
+    }
+    std::size_t size = 0;
+    std::map<std::string, std::string>::const_iterator itr;
+    for (itr = cookie_strings.begin(); itr != cookie_strings.end(); ++itr) {
+        size += itr->first.length() + itr->second.length();
+        if (MAX_SIZE < size) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -104,14 +123,15 @@ Result<int, int> HttpRequest::set_cookie(const std::string &field_name,
 	Result<std::map<std::string, std::string>, int> result;
 
 	clear_field_values_of(field_name);
-
 	result = HttpMessageParser::parse_map_field_values(field_value,
 													   skip_cookie_name,
 													   skip_cookie_value,
 													   skip_to_next_cookie_pair);
 	if (result.is_ok()) {
 		cookie_string = result.ok_value();
-		this->request_header_fields_[field_name] = new MapFieldValues(cookie_string);
+        if (!is_over_limits(cookie_string)) {
+		    this->request_header_fields_[field_name] = new MapFieldValues(cookie_string);
+        }
 	}
 	return Result<int, int>::ok(STATUS_OK);
 }
