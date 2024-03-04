@@ -169,6 +169,7 @@ class HttpResponse {
     bool is_logged_in_user();
     Result<SessionItr, bool> is_session_active_user();
     std::string get_user_name_from_cookie();
+    std::string get_expire_from_cookie();
     Result<std::string, ProcResult> generate_new_id();
     ProcResult add_init_session_data(const std::map<std::string, std::string> &data);
 

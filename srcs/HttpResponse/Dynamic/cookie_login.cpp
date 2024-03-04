@@ -3,6 +3,7 @@
 #include <vector>
 #include "Constant.hpp"
 #include "Color.hpp"
+#include "Date.hpp"
 #include "Debug.hpp"
 #include "Dynamic.hpp"
 #include "HttpResponse.hpp"
@@ -18,10 +19,28 @@ bool HttpResponse::is_logged_in_user() {
     }
     std::map<std::string, std::string> cookies = result.ok_value();
 
-    std::map<std::string, std::string>::const_iterator user, email;
+    std::map<std::string, std::string>::const_iterator user, email, expire;
     user = cookies.find("username");
     email = cookies.find("email");
-    return user != cookies.end() && email != cookies.end();
+    if (user == cookies.end() || email == cookies.end()) {
+        return false;
+    }
+    expire = cookies.find("expires");
+    if (expire != cookies.end()) {
+        std::string now_date = get_http_date();
+        Date cookie_expire(expire->second);
+        Date now(now_date);
+
+        if (cookie_expire.is_err()) {
+            return false;
+        }
+        if (cookie_expire <= now) {
+            std::cout << RED << "expired -> cookie: " << expire->second << ", now: " << now_date << RESET << std::endl;
+            return false;
+        }
+        std::cout << RED << "not expire -> cookie: " << expire->second << ", now: " << now_date << RESET << std::endl;
+    }
+    return true;
 }
 
 
@@ -41,6 +60,22 @@ std::string HttpResponse::get_user_name_from_cookie() {
 }
 
 
+std::string HttpResponse::get_expire_from_cookie() {
+    Result<std::map<std::string, std::string>, ProcResult> result = this->request_.get_cookie();
+    if (result.is_err()) {
+        return EMPTY;
+    }
+    std::map<std::string, std::string> cookies = result.ok_value();
+
+    std::map<std::string, std::string>::const_iterator expire;
+    expire = cookies.find("expires");
+    if (expire == cookies.end()) {
+        return EMPTY;
+    }
+    return expire->second;
+}
+
+
 StatusCode HttpResponse::get_cookie_user_page() {
     std::cout << RED << " get_cookie_user_page()" << RESET << std::endl;
 
@@ -56,6 +91,7 @@ StatusCode HttpResponse::get_cookie_user_page() {
                                  "<h1>🍪 Login Page 🍪</h1>\n";
 
         const std::string welcome = "<h2>Welcome, " + get_user_name_from_cookie() + "</h2>";
+        const std::string expire = "<h3>expire at: " + get_expire_from_cookie() + "</h3>";
 
         const std::string tail = "<br><br><br>\n"
                                  "<a href=\"/\">< back to index</a>"
@@ -65,6 +101,7 @@ StatusCode HttpResponse::get_cookie_user_page() {
         std::vector<unsigned char> body;
         body.insert(body.end(), head.begin(), head.end());
         body.insert(body.end(), welcome.begin(), welcome.end());
+        body.insert(body.end(), expire.begin(), expire.end());
         body.insert(body.end(), tail.begin(), tail.end());
         this->body_buf_ = body;
 
@@ -99,6 +136,8 @@ StatusCode HttpResponse::get_cookie_login_page() {
                     cookies["email"] = *itr->second.begin();
                 }
             }
+            time_t expire_at = std::time(NULL) + ConfigInitValue::kDefaultCookieTimeoutSec;
+            cookies["expires"] = HttpResponse::get_http_date(expire_at);
 
             this->cookies_ = cookies;
             add_content_header("html");

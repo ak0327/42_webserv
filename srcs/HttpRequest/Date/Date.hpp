@@ -24,6 +24,11 @@ class Date : public FieldValueBase {
 	bool is_ok() const;
 	bool is_err() const;
 
+    bool operator==(const Date &rhs) const;
+    bool operator<(const Date &rhs) const;
+    bool operator>(const Date &rhs) const;
+    bool operator<=(const Date &rhs) const;
+
  private:
 	std::string	day_name_;
 	std::string day_;
