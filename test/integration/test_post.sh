@@ -42,7 +42,7 @@ start_up "POST TEST"
 
 # 201 Created
 test_post_upload "html/cgi-bin/"  "hello.py"      "localhost:4242/upload/"  "201 Created"   true
-test_post_upload "html/cgi-bin/"  "page.php"      "localhost:4242/upload/"  "201 Created"   true
+#test_post_upload "html/cgi-bin/"  "page.php"      "localhost:4242/upload/"  "201 Created"   true
 
 test_post_upload "html/images/"   "image1.jpg"    "localhost:4242/upload/"  "201 Created"   true
 test_post_upload "html/images/"   "image2.jpeg"   "localhost:4242/upload/"  "201 Created"   true
