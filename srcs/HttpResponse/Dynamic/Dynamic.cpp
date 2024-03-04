@@ -15,13 +15,13 @@ bool HttpResponse::is_dynamic_endpoint() {
     std::vector<std::string>::const_iterator itr;
     itr = std::find(this->dynamic_.DYNAMIC_PAGES.begin(),
                     this->dynamic_.DYNAMIC_PAGES.end(),
-                    this->request_.request_target());
+                    this->request_.target());
     return itr != this->dynamic_.DYNAMIC_PAGES.end();
 }
 
 
 StatusCode HttpResponse::response_dynamic() {
-    const std::string target = this->request_.request_target();
+    const std::string target = this->request_.target();
     if (target == this->dynamic_.FORM_DATA) {
         return show_form_data();
     }

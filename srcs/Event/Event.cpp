@@ -353,7 +353,7 @@ EventResult Event::get_host_config() {
     }
     this->server_config_ = config_result.ok_value();
 
-    const std::string request_target = this->request_->request_target();
+    const std::string request_target = this->request_->target();
 
     Result<std::size_t, int> body_size_result;
     body_size_result = Config::get_max_body_size(server_config_, request_target);

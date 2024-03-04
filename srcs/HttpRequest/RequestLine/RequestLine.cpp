@@ -33,7 +33,7 @@ std::string	RequestLine::method() const {
 	return this->method_;
 }
 
-std::string RequestLine::request_target() const {
+std::string RequestLine::target() const {
 	return this->request_target_;
 }
 

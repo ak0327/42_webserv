@@ -694,8 +694,8 @@ Method HttpRequest::method() const {
 }
 
 
-std::string HttpRequest::request_target() const {
-	return this->request_line_.request_target();
+std::string HttpRequest::target() const {
+	return this->request_line_.target();
 }
 
 

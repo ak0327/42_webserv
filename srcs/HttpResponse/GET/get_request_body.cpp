@@ -23,7 +23,7 @@
 
 bool HttpResponse::is_cgi_file() const {
     Result<bool, int> result = Config::is_cgi_mode_on(this->server_config_,
-                                                      this->request_.request_target());
+                                                      this->request_.target());
     if (result.is_err()) {
         return false;
     }
@@ -32,7 +32,7 @@ bool HttpResponse::is_cgi_file() const {
         return false;
     }
     return Config::is_cgi_extension(this->server_config_,
-                                    this->request_.request_target());
+                                    this->request_.target());
 }
 
 
@@ -41,10 +41,10 @@ void HttpResponse::get_error_page_to_body() {
 
     // get_error_page_path
     DEBUG_PRINT(CYAN, "  get_error_page 1 target: %s, request_status: %d",
-                this->request_.request_target().c_str(), this->status_code());
+                this->request_.target().c_str(), this->status_code());
     Result<std::string, int> result;
     result = Config::get_error_page_path(this->server_config_,
-                                         this->request_.request_target(),
+                                         this->request_.target(),
                                          this->status_code());
     if (result.is_err()) {
         DEBUG_PRINT(CYAN, "  get_error_page 2 -> err");
@@ -60,7 +60,7 @@ void HttpResponse::get_error_page_to_body() {
 
 bool HttpResponse::is_redirect() const {
     Result<bool, int> result = Config::is_redirect(this->server_config_,
-                                                   this->request_.request_target());
+                                                   this->request_.target());
     return result.is_ok() && result.ok_value();
 }
 
@@ -91,7 +91,7 @@ StatusCode HttpResponse::get_redirect_content(const ReturnDirective &redirect) {
 bool HttpResponse::has_valid_index_page() const {
     Result<std::string, StatusCode> indexed;
     indexed = Config::get_indexed_path(this->server_config_,
-                                       this->request_.request_target());
+                                       this->request_.target());
     return indexed.is_ok();
 }
 
@@ -99,7 +99,7 @@ bool HttpResponse::has_valid_index_page() const {
 bool HttpResponse::is_method_available() const {
     Result<bool, int> allowed;
     allowed = Config::is_method_allowed(this->server_config_,
-                                        this->request_.request_target(),
+                                        this->request_.target(),
                                         this->request_.method());
     return allowed.is_ok() && allowed.ok_value();
 }
@@ -108,7 +108,7 @@ bool HttpResponse::is_method_available() const {
 bool HttpResponse::is_autoindex() const {
     Result<bool, int> is_autoindex;
     is_autoindex = Config::is_autoindex_on(this->server_config_,
-                                           this->request_.request_target());
+                                           this->request_.target());
     return is_autoindex.is_ok() && is_autoindex.ok_value();
 }
 
@@ -116,7 +116,7 @@ bool HttpResponse::is_autoindex() const {
 bool HttpResponse::is_redirect_target() const {
     Result<bool, int> is_redirect;
     is_redirect = Config::is_redirect(this->server_config_,
-                                      this->request_.request_target());
+                                      this->request_.target());
     return is_redirect.is_ok() && is_redirect.ok_value();
 }
 
@@ -150,7 +150,7 @@ std::string HttpResponse::get_http_date() {
 //   cgi       -> error / response ; already branched out
 //   api       -> error / response
 StatusCode HttpResponse::get_request_body() {
-    DEBUG_PRINT(YELLOW, "  GET 1 taget[%s]", this->request_.request_target().c_str());
+    DEBUG_PRINT(YELLOW, "  GET 1 taget[%s]", this->request_.target().c_str());
     if (!is_method_available()) {
         DEBUG_PRINT(YELLOW, "  GET 2 err: 405");
         return MethodNotAllowed;
@@ -158,7 +158,8 @@ StatusCode HttpResponse::get_request_body() {
 
     if (is_redirect_target()) {
         // return response_redirect();
-        ReturnDirective redirect = Config::get_return(this->server_config_, this->request_.request_target());
+        ReturnDirective redirect = Config::get_return(this->server_config_,
+                                                      this->request_.target());
         DEBUG_PRINT(YELLOW, "  GET 3 -> redirect");
         return get_redirect_content(redirect);
     }
@@ -183,7 +184,8 @@ StatusCode HttpResponse::get_request_body() {
         if (!StringHandler::has_trailing_slash(directory_path)) {
             //  No -> 301
             DEBUG_PRINT(YELLOW, "  GET 8 -> redirect + /");
-            const std::string with_trailing_slash = this->request_.request_target() + "/";
+            const std::string with_trailing_slash =
+                    this->request_.target() + "/";
             return redirect_to(with_trailing_slash);
         }
         // index ?
@@ -204,7 +206,7 @@ StatusCode HttpResponse::get_request_body() {
 
     DEBUG_PRINT(YELLOW, "  GET 10");
     Result<std::string, StatusCode> indexed = Config::get_indexed_path(this->server_config_,
-                                                                       this->request_.request_target());
+                                                                       this->request_.target());
     if (indexed.is_err()) {
         DEBUG_PRINT(YELLOW, "  GET 11 err: indexd path error");
         return indexed.err_value();

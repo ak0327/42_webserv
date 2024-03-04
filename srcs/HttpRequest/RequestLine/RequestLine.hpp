@@ -12,7 +12,7 @@ class RequestLine {
 	~RequestLine();
 
 	std::string	method() const;
-    std::string request_target() const;
+    std::string target() const;
 	std::string	http_version() const;
     std::string	query() const;
     void separate_target_and_query();
