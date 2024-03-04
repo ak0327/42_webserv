@@ -34,7 +34,6 @@ typedef std::map<std::string, Session>::iterator SessionItr;
 
 class HttpResponse {
  public:
-    HttpResponse();
 	explicit HttpResponse(const HttpRequest &request,
                           const ServerConfig &server_config,
                           const AddressPortPair &pair,
@@ -64,7 +63,6 @@ class HttpResponse {
     bool is_exec_cgi();
 
     void create_echo_msg(const std::vector<unsigned char> &recv_msg);
-    std::string get_echo_msg() const;
 
 #ifdef UNIT_TEST
     friend class HttpResponseFriend;
