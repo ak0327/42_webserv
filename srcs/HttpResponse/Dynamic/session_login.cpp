@@ -115,7 +115,7 @@ StatusCode HttpResponse::get_session_user_page() {
                                  "    <title>Login page</title>\n"
                                  "</head>\n"
                                  "<body>\n"
-                                 "<h1>🍡 Login Page 🍡</h1>\n";
+                                 "<h1>🎻 Login Page 🎻</h1>\n";
 
         const std::string welcome = "<h2>Welcome, " + session_data["username"] + "</h2>";
         const std::string counter = "<h3>counter: " + session_data["counter"] + "</h3>";
