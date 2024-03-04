@@ -204,10 +204,8 @@ expect_eq_get "$(curl -isH "a: $large" "localhost:4242/")"        "431 Request H
 expect_eq_get "$(curl -isH "Host: $large" "localhost:4242/")"     "431 Request Header Fields Too Large"     ""
 expect_eq_get "$(curl -isH "Cookie: $large" "localhost:4242/")"   "431 Request Header Fields Too Large"     ""
 
-large=`python3 -c "print('Cookie: 0123456789\r\n'*10000)"`
-expect_eq_get "$(curl -isH "$large" "localhost:4242/")"           "431 Request Header Fields Too Large"     ""
-
-
+large_cmd=`python3 -c "print('Cookie: 012345=67890\r\n' * 5000)"`
+expect_eq_get "$(echo -en "GET / HTTP/1.1\r\nHost: localhost\r\n$large_cmd\r\n" | nc localhost 4242)"  "431 Request Header Fields Too Large"    ""
 
 tear_down
 
