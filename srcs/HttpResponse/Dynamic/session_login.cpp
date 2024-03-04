@@ -23,7 +23,6 @@ Result<SessionItr , bool> HttpResponse::is_session_active_user() {
     if (session_id == cookies.end()) {
         return Result<SessionItr , bool>::err(false);
     }
-    // todo: cookie expire?
 
     std::string id = session_id->second;
     DEBUG_PRINT(MAGENTA, " id: [%s]", id.c_str());
@@ -34,8 +33,7 @@ Result<SessionItr , bool> HttpResponse::is_session_active_user() {
         return Result<SessionItr , bool>::err(false);
     }
     Session session = itr->second;
-    time_t current_time = std::time(NULL);
-    if (session.expire_time() <= current_time) {
+    if (session.is_expired()) {
         this->sessions_->erase(itr);
         DEBUG_PRINT(MAGENTA, " expired");
         return Result<SessionItr , bool>::err(false);
@@ -61,14 +59,6 @@ Result<std::string, ProcResult> HttpResponse::generate_new_id() {
 }
 
 
-void HttpResponse::update_expire(const SessionItr &itr) {
-    time_t current_time = std::time(NULL);
-    time_t new_expire = current_time + 10;  // todo: tmp
-
-    itr->second.update_expire(new_expire);
-}
-
-
 void HttpResponse::update_counter(const SessionItr &itr) {
     std::map<std::string, std::string> data = itr->second.data();
 
@@ -84,7 +74,7 @@ void HttpResponse::update_counter(const SessionItr &itr) {
 ProcResult HttpResponse::update_session_data(SessionItr *itr) {
     if (!itr) { return Failure; }
 
-    update_expire(*itr);
+    (*itr)->second.update_expire(this->server_config_.session_timeout_sec);
     update_counter(*itr);
 
     std::string old_id = (*itr)->second.id();
@@ -147,8 +137,6 @@ StatusCode HttpResponse::get_session_user_page() {
         this->body_buf_ = body;
 
 
-
-
         add_content_header("html");
         std::map<std::string, std::string> new_cookies;
         new_cookies[std::string(SESSION_ID)] = session.id();
@@ -180,8 +168,7 @@ ProcResult HttpResponse::add_init_session_data(const std::map<std::string, std::
         std::string id = id_result.ok_value();
 
         if (this->sessions_->find(id) == this->sessions_->end()) {
-            time_t expire = std::time(NULL) + 10;  // todo: tmp
-            Session new_session(id, data, expire);
+            Session new_session(id, data, this->server_config_.session_timeout_sec);
             new_session.add_data("counter", "0");
             (*this->sessions_)[id] = new_session;
             DEBUG_PRINT(MAGENTA, " new_id: %s", id.c_str());

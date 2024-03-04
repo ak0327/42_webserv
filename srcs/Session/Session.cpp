@@ -13,10 +13,10 @@ Session::Session() {}
 
 Session::Session(const std::string &id,
                  const std::map<std::string, std::string> &data,
-                 time_t expire)
+                 time_t timeout_sec)
     : id_(id),
       data_(data),
-      expire_time_(expire) {}
+      expire_time_(std::time(NULL) + timeout_sec) {}
 
 
 Session::~Session() {}
@@ -54,15 +54,22 @@ std::map<std::string, std::string> Session::data() const { return this->data_; }
 time_t Session::expire_time() const { return this->expire_time_; }
 
 
+bool Session::is_expired() const {
+    time_t current_time = std::time(NULL);
+    return this->expire_time() <= current_time;
+}
+
+
 void Session::update_id(const std::string &new_id) {
     DEBUG_PRINT(MAGENTA, "session update_id [%s]->[%s]", this->id().c_str(), new_id.c_str());
     this->id_ = new_id;
 }
 
 
-void Session::update_expire(time_t new_expire) {
-    DEBUG_PRINT(MAGENTA, "session update_expire [%zu]->[%zu]", this->expire_time(), new_expire);
-    this->expire_time_ = new_expire;
+void Session::update_expire(time_t timeout_sec) {
+    time_t new_expire_time = std::time(NULL) + timeout_sec;
+    DEBUG_PRINT(MAGENTA, "session update_expire [%zu]->[%zu]", this->expire_time(), new_expire_time);
+    this->expire_time_ = new_expire_time;
 }
 
 

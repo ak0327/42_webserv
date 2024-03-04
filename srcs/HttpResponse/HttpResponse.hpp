@@ -171,7 +171,6 @@ class HttpResponse {
     ProcResult add_init_session_data(const std::map<std::string, std::string> &data);
 
     ProcResult update_session_data(SessionItr *itr);
-    void update_expire(const SessionItr &itr);
     void update_counter(const SessionItr &itr);
 
     // unused

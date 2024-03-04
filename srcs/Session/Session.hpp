@@ -8,7 +8,7 @@ class Session {
     Session();
     Session(const std::string &id,
             const std::map<std::string, std::string> &data,
-            time_t expire);
+            time_t timeout_sec);
     Session(const Session &other);
     Session &operator=(const Session &rhs);
     ~Session();
@@ -19,6 +19,7 @@ class Session {
     std::string id() const;
     std::map<std::string, std::string> data() const;
     time_t expire_time() const;
+    bool is_expired() const;
 
     void add_data(const std::string &key, const std::string &value);
     void del_data(const std::string &key);

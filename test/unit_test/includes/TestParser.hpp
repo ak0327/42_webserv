@@ -170,10 +170,12 @@ class ConfigParserTestFriend : public ::testing::Test {
         return ConfigParser::parse_cgi_mode_directive(current, end, cgi_mode);
     }
 
-    static Result<int, std::string> parse_cgi_timeout_directive(TokenItr *current,
+    static Result<int, std::string> parse_timeout_directive(TokenItr *current,
                                                                 const TokenItr &end,
-                                                                time_t *timeout_sec) {
-        return ConfigParser::parse_cgi_timeout_directive(current, end, timeout_sec);
+                                                                time_t *timeout_sec,
+                                                                const std::string &directive_name,
+                                                                bool (*validate_func)(time_t)) {
+        return ConfigParser::parse_timeout_directive(current, end, timeout_sec, directive_name, validate_func);
     }
 
 };

@@ -536,28 +536,30 @@ std::vector<std::string> init_sh_tokens() {
 ////////////////////////////////////////////////////////////////////////////////
 /* configuration */
 
-const char EVENTS_BLOCK[] = "events";
-const char HTTP_BLOCK[] = "http";
-const char SERVER_BLOCK[] = "server";
-const char LOCATION_BLOCK[] = "location";
+const char EVENTS_BLOCK[]       = "events";
+const char HTTP_BLOCK[]         = "http";
+const char SERVER_BLOCK[]       = "server";
+const char LOCATION_BLOCK[]     = "location";
 
-const char LISTEN_DIRECTIVE[] = "listen";
-const char SERVER_NAME_DIRECTIVE[] = "server_name";
-const char RETURN_DIRECTIVE[] = "return";
+const char LISTEN_DIRECTIVE[]               = "listen";
+const char SERVER_NAME_DIRECTIVE[]          = "server_name";
+const char SESSION_TIMEOUT_DIRECTIVE[]      = "session_timeout";
+const char KEEPALIVE_TIMEOUT_DIRECTIVE[]    = "keepalive_timeout";
 
-const char ROOT_DIRECTIVE[] = "root";
-const char INDEX_DIRECTIVE[] = "index";
+const char RETURN_DIRECTIVE[]       = "return";
+const char ROOT_DIRECTIVE[]         = "root";
+const char INDEX_DIRECTIVE[]        = "index";
 const char LIMIT_EXCEPT_DIRECTIVE[] = "limit_except";
-const char ERROR_PAGE_DIRECTIVE[] = "error_page";
-const char AUTOINDEX_DIRECTIVE[] = "autoindex";
-const char BODY_SIZE_DIRECTIVE[] = "client_max_body_size";
+const char ERROR_PAGE_DIRECTIVE[]   = "error_page";
+const char AUTOINDEX_DIRECTIVE[]    = "autoindex";
+const char BODY_SIZE_DIRECTIVE[]    = "client_max_body_size";
 
-const char ALLOW_DIRECTIVE[] = "allow";
-const char DENY_DIRECTIVE[] = "deny";
+const char ALLOW_DIRECTIVE[]        = "allow";
+const char DENY_DIRECTIVE[]         = "deny";
 
-const char CGI_MODE_DIRECTIVE[] = "cgi_mode";
-const char CGI_EXTENSION_DIRECTIVE[] = "cgi_extension";
-const char CGI_TIMEOUT_DIRECTIVE[] = "cgi_timeout";
+const char CGI_MODE_DIRECTIVE[]         = "cgi_mode";
+const char CGI_EXTENSION_DIRECTIVE[]    = "cgi_extension";
+const char CGI_TIMEOUT_DIRECTIVE[]      = "cgi_timeout";
 
 const char LEFT_PAREN[] = "{";
 const char RIGHT_PAREN[] = "}";
@@ -592,6 +594,8 @@ std::vector<std::string> init_directive_names() {
 	directive_names.push_back(CGI_MODE_DIRECTIVE);
 	directive_names.push_back(CGI_EXTENSION_DIRECTIVE);
 	directive_names.push_back(CGI_TIMEOUT_DIRECTIVE);
+    directive_names.push_back(SESSION_TIMEOUT_DIRECTIVE);
+    directive_names.push_back(KEEPALIVE_TIMEOUT_DIRECTIVE);
 	return directive_names;
 }
 

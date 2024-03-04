@@ -2,6 +2,7 @@
 
 # include <string>
 # include <vector>
+# include "ConfigStruct.hpp"
 
 struct Dynamic {
     const std::string FORM_DATA;
@@ -12,6 +13,9 @@ struct Dynamic {
     const std::string SESSION_LOGIN;
     const std::string SESSION_USERPAGE;
 
+    const time_t kSessionTimeoutSec;
+    const time_t kCookieTimeoutSec;
+
     std::vector<std::string> DYNAMIC_PAGES;
 
     Dynamic()
@@ -21,7 +25,9 @@ struct Dynamic {
       COOKIE_LOGIN("/dynamic/cookie-login"),
       COOKIE_USERPAGE("/dynamic/cookie-user-page"),
       SESSION_LOGIN("/dynamic/session-login"),
-      SESSION_USERPAGE("/dynamic/session-user-page") {
+      SESSION_USERPAGE("/dynamic/session-user-page"),
+      kSessionTimeoutSec(ConfigInitValue::kDefaultSessionTimeoutSec),
+      kCookieTimeoutSec(ConfigInitValue::kDefaultCookieTimeoutSec) {
         DYNAMIC_PAGES.push_back(FORM_DATA);
         DYNAMIC_PAGES.push_back(RESPONSE_BODY);
         DYNAMIC_PAGES.push_back(NOW);

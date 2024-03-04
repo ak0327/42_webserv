@@ -67,6 +67,7 @@ expect_eq_get "$(curl -is "localhost:4242/upload")"             "301 Moved Perma
 #expect_eq_get "$(curl -isL "localhost:4242/old.html")"          "200 OK"    "html/new.html"
 #expect_eq_get "$(curl -isL "localhost:4242/old/")"              "200 OK"    "html/new/index.html"
 
+sleep 1
 
 # CGI
 expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.py")"                         "200 OK"   "test/integration/cgi-result/hello.txt"

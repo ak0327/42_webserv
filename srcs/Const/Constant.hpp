@@ -362,8 +362,10 @@ extern const char LOCATION_BLOCK[];
 
 extern const char LISTEN_DIRECTIVE[];
 extern const char SERVER_NAME_DIRECTIVE[];
-extern const char RETURN_DIRECTIVE[];
+extern const char SESSION_TIMEOUT_DIRECTIVE[];
+extern const char KEEPALIVE_TIMEOUT_DIRECTIVE[];
 
+extern const char RETURN_DIRECTIVE[];
 extern const char ROOT_DIRECTIVE[];
 extern const char INDEX_DIRECTIVE[];
 extern const char LIMIT_EXCEPT_DIRECTIVE[];
