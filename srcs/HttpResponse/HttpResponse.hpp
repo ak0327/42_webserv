@@ -12,6 +12,8 @@
 # include "Dynamic.hpp"
 # include "HttpRequest.hpp"
 # include "Result.hpp"
+# include "Session.hpp"
+
 
 struct FileInfo {
 	std::string name;
@@ -34,7 +36,8 @@ class HttpResponse {
     HttpResponse();
 	explicit HttpResponse(const HttpRequest &request,
                           const ServerConfig &server_config,
-                          const AddressPortPair &pair);
+                          const AddressPortPair &pair,
+                          std::map<std::string, Session> *sessions);
 	~HttpResponse();
 
     const std::vector<unsigned char> &body_buf() const;
@@ -70,6 +73,8 @@ class HttpResponse {
     const HttpRequest &request_;
     const ServerConfig &server_config_;
     const AddressPortPair address_port_pair_;
+    std::map<std::string, Session> *sessions_;
+
     CgiHandler cgi_handler_;
     Dynamic dynamic_;
 

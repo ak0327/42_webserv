@@ -14,6 +14,7 @@
 # include "HttpRequest.hpp"
 # include "IOMultiplexer.hpp"
 # include "Result.hpp"
+# include "Session.hpp"
 # include "Socket.hpp"
 
 typedef Result<int, std::string> ServerResult;
@@ -43,6 +44,8 @@ class Server {
 
     std::map<ClientFd, Event *> client_events_;
     std::map<CgiFd, Event *> cgi_events_;
+
+    std::map<std::string, Session> sessions_;
 
     const Config &config_;
 
@@ -81,4 +84,6 @@ class Server {
     bool is_cgi_fd(int fd);
     ServerResult handle_client_event(int client_fd);
     ServerResult handle_cgi_event(int cgi_fd);
+
+
 };

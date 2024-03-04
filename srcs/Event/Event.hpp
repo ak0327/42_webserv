@@ -8,6 +8,7 @@
 # include "HttpRequest.hpp"
 # include "HttpResponse.hpp"
 # include "Result.hpp"
+# include "Session.hpp"
 # include "webserv.hpp"
 
 enum EventPhase {
@@ -43,6 +44,7 @@ class Event {
           int client_fd,
           const AddressPortPair &client_listen,
           const Config &config,
+          std::map<std::string, Session> *sessions,
           bool echo_mode_on);
 
     ~Event();
@@ -87,6 +89,7 @@ class Event {
     const Config &config_;
     ServerInfo server_info_;
     ServerConfig server_config_;
+
     AddressPortPair address_port_pair_;
 
     EventPhase event_state_;
@@ -98,7 +101,10 @@ class Event {
 
     AddressPortPair client_listen_;
 
+    std::map<std::string, Session> *sessions_;
+
     bool echo_mode_on_;
+
 
     ProcResult recv_http_request();
     ProcResult send_http_response();

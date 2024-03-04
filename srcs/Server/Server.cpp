@@ -372,7 +372,12 @@ ServerResult Server::create_event(int socket_fd) {
         std::ostringstream oss; oss << client_listen;
         DEBUG_SERVER_PRINT("%s", oss.str().c_str());
 
-        Event *new_session = new Event(socket_fd, connect_fd, client_listen, this->config_, this->echo_mode_on_);
+        Event *new_session = new Event(socket_fd,
+                                       connect_fd,
+                                       client_listen,
+                                       this->config_,
+                                       &this->sessions_,
+                                       this->echo_mode_on_);
         this->client_events_[connect_fd] = new_session;
         DEBUG_SERVER_PRINT("new_clilent: %p", new_session);
         // std::cout << CYAN << " event start" << connect_fd << RESET << std::endl;
