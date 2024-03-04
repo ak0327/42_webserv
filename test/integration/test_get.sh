@@ -58,17 +58,6 @@ expect_eq_get "$(curl -is "localhost:4242/a/b/c/")"       "200 OK"    "html/a/b/
 #expect_eq_get "$(curl -is "localhost:4242/dynamic/now")"  "200 OK"    ""
 
 
-# redirect -> todo: location
-expect_eq_get "$(curl -is "localhost:4242/old.html")"           "301 Moved Permanently"    ""
-expect_eq_get "$(curl -is "localhost:4242/old/")"               "301 Moved Permanently"    ""
-expect_eq_get "$(curl -is "localhost:4242/autoindex_files")"    "301 Moved Permanently"    ""
-expect_eq_get "$(curl -is "localhost:4242/upload")"             "301 Moved Permanently"    ""
-
-#expect_eq_get "$(curl -isL "localhost:4242/old.html")"          "200 OK"    "html/new.html"
-#expect_eq_get "$(curl -isL "localhost:4242/old/")"              "200 OK"    "html/new/index.html"
-
-sleep 1
-
 # CGI
 expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.py")"                         "200 OK"   "test/integration/cgi-result/hello.txt"
 
@@ -95,6 +84,17 @@ expect_eq_get "$(curl -is "localhost:4242/cgi-bin/infinite_loop.py")"         "5
 expect_eq_get "$(curl -is "localhost:4242/cgi-bin/infinite_print.py")"        "504 Gateway Timeout"         "html/50x.html"
 expect_eq_get "$(curl -is "localhost:4242/cgi-bin/sleep5sec.py")"             "504 Gateway Timeout"         "html/50x.html"
 expect_eq_get "$(curl -is "localhost:4242/cgi-bin/sleep10sec.py")"            "504 Gateway Timeout"         "html/50x.html"
+
+
+
+# redirect -> todo: location
+expect_eq_get "$(curl -is "localhost:4242/old.html")"           "301 Moved Permanently"    ""
+expect_eq_get "$(curl -is "localhost:4242/old/")"               "301 Moved Permanently"    ""
+expect_eq_get "$(curl -is "localhost:4242/autoindex_files")"    "301 Moved Permanently"    ""
+expect_eq_get "$(curl -is "localhost:4242/upload")"             "301 Moved Permanently"    ""
+
+#expect_eq_get "$(curl -isL "localhost:4242/old.html")"          "200 OK"    "html/new.html"
+#expect_eq_get "$(curl -isL "localhost:4242/old/")"              "200 OK"    "html/new/index.html"
 
 
 # 404 Not Found
