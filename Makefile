@@ -185,6 +185,9 @@ INCLUDES	 =	$(addprefix -I, $(INCLUDES_DIR))
 .PHONY	: all
 all		: $(NAME)
 
+.PHONY	: bonus
+all		: $(NAME)
+
 $(NAME)	: $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
