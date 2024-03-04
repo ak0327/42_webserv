@@ -86,17 +86,17 @@ const std::size_t MAX_SIZE = 4096;
 
 bool is_over_limits(const std::map<std::string, std::string> &cookie_strings) {
     if (MAX_COOKIES < cookie_strings.size()) {
-        return false;
+        return true;
     }
     std::size_t size = 0;
     std::map<std::string, std::string>::const_iterator itr;
     for (itr = cookie_strings.begin(); itr != cookie_strings.end(); ++itr) {
         size += itr->first.length() + itr->second.length();
         if (MAX_SIZE < size) {
-            return false;
+            return true;
         }
     }
-    return true;
+    return false;
 }
 
 
