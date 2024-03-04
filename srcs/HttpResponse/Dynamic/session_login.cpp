@@ -120,8 +120,7 @@ StatusCode HttpResponse::get_session_user_page() {
         const std::string welcome = "<h2>Welcome, " + session_data["username"] + "</h2>";
         const std::string counter = "<h3>counter: " + session_data["counter"] + "</h3>";
 
-        std::ostringstream oss; oss << "<h3>expire at: " << session.expire_time() << "</h3>";
-        const std::string expire = oss.str();
+        const std::string expire = "<h3>expire at: " + HttpResponse::get_http_date_jst(session.expire_time()) + "</h3>";
 
         const std::string tail = "<br><br><br>\n"
                                  "<a href=\"/\">< back to index</a>"

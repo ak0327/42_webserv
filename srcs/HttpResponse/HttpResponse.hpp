@@ -111,6 +111,8 @@ class HttpResponse {
     StatusCode redirect_to(const std::string &move_to);
     StatusCode upload_file();
     static std::string get_http_date();
+    static std::string get_http_date(time_t time);
+    static std::string get_http_date_jst(time_t time);
 
     void add_allow_header();
     void add_date_header();

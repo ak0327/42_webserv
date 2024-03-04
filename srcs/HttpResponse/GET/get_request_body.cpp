@@ -131,15 +131,28 @@ StatusCode HttpResponse::redirect_to(const std::string &move_to) {
 
 
 std::string HttpResponse::get_http_date() {
-    char date[1024];
     time_t gmt_time;
-    std::string date_string;
 
     std::time(&gmt_time);
+    return get_http_date(gmt_time);
+}
+
+
+std::string HttpResponse::get_http_date(time_t time) {
+    char date[1024];
     // IMF-fixdate "%a, %d %b %Y %H:%M:%S GMT"
-    std::strftime(date, sizeof(date), "%a, %d %b %Y %H:%M:%S GMT", std::gmtime(&gmt_time));
-    date_string = std::string(date);
-    return date_string;
+    std::strftime(date, sizeof(date), "%a, %d %b %Y %H:%M:%S GMT", std::gmtime(&time));
+    return std::string(date);
+}
+
+
+std::string HttpResponse::get_http_date_jst(time_t time) {
+    time_t UTC_TO_JST_OFFSET = 9 * 60 * 60;
+    time_t jst_time = time + UTC_TO_JST_OFFSET;
+
+    char date[1024];
+    std::strftime(date, sizeof(date), "%a, %d %b %Y %H:%M:%S JST", std::gmtime(&jst_time));
+    return std::string(date);
 }
 
 
