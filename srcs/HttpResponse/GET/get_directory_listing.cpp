@@ -134,22 +134,23 @@ StatusCode get_directory_listing_html(const std::string &directory_path_with_tra
                                       std::vector<unsigned char> *buf) {
     if (!buf) { return InternalServerError; }
 
-    std::string PARENT_DIRECTORY_CONTENT, CURRENT_DIRECTORY_CONTENT, FILE_CONTENT;
+    std::string COL_TITLE, PARENT_DIRECTORY_CONTENT, CURRENT_DIRECTORY_CONTENT, FILE_CONTENT;
     std::set<FileInfo>::const_iterator itr;
     std::string name_width = "150";
     std::string time_width = "200";
     std::string size_width = "100";
 
-    const std::string TITLE = "<html>" + std::string(CRLF);
-                              " <head><title>Index of "
+
+    const std::string TITLE = "<html>" + std::string(CRLF)
+                              + " <head><title>Index of "
                               + directory_path_with_trailing_slash  // todo: path
                               + " </title></head>" + std::string(CRLF);
-    const std::string HEADER = "  <body>" + std::string(CRLF);
-                               "   <h1>Index of "
+    const std::string HEADER = "  <body>" + std::string(CRLF)
+                               + "   <h1>Index of "
                                + directory_path_with_trailing_slash  // todo: path
                                + "</h1>" + std::string(CRLF);
-    const std::string TAIL =   "  </body>" + std::string(CRLF);
-                               "</html>" + std::string(CRLF);
+    const std::string TAIL =   "  </body>" + std::string(CRLF)
+                               + "</html>" + std::string(CRLF);
 
     const std::string TOP_HR =  "    <pre>" + std::string(CRLF);
     const std::string TAIL_HR = "    </pre>" + std::string(CRLF);
@@ -164,6 +165,14 @@ StatusCode get_directory_listing_html(const std::string &directory_path_with_tra
     const std::string COL_TIME_START = "       <td align=\"center\" width=\"" + time_width + "\"> ";
     const std::string COL_SIZE_START = "       <td align=\"center\" width=\"" + size_width + "\"> ";
     const std::string COL_END = " </td>" + std::string(CRLF);
+
+    /* col titles */
+    COL_TITLE = "";
+    COL_TITLE.append(ROW_START);
+    COL_TITLE.append(COL_NAME_START + "name" + COL_END);
+    COL_TITLE.append(COL_TIME_START + "last modified" + COL_END);
+    COL_TITLE.append(COL_SIZE_START + "size" + COL_END);
+    COL_TITLE.append(ROW_END);
 
     /* parent directory */
     PARENT_DIRECTORY_CONTENT = "";
@@ -206,6 +215,7 @@ StatusCode get_directory_listing_html(const std::string &directory_path_with_tra
     buf->insert(buf->end(), TOP_HR.begin(), TOP_HR.end());
 
     buf->insert(buf->end(), TABLE_START.begin(), TABLE_START.end());
+    buf->insert(buf->end(), COL_TITLE.begin(), COL_TITLE.end());
     buf->insert(buf->end(), PARENT_DIRECTORY_CONTENT.begin(), PARENT_DIRECTORY_CONTENT.end());
     buf->insert(buf->end(), CURRENT_DIRECTORY_CONTENT.begin(), CURRENT_DIRECTORY_CONTENT.end());
     buf->insert(buf->end(), FILE_CONTENT.begin(), FILE_CONTENT.end());
