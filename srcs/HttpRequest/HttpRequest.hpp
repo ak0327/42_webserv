@@ -76,6 +76,7 @@ class HttpRequest {
     std::string content_type() const;
     Result<MediaType, ProcResult> get_content_type() const;
     Result<std::size_t, ProcResult> get_content_length() const;
+    Result<ProcResult, StatusCode> set_content_length();
 
     static Result<int, int>
     parse_and_validate_content_disposition(const std::string &field_value,
@@ -101,6 +102,7 @@ class HttpRequest {
 	std::map<std::string, int> field_name_counter_;
 
     std::size_t request_max_body_size_;
+    std::size_t content_length_;
 
     std::string message_body_;  // todo: delete
     std::size_t header_size_;

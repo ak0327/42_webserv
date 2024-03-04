@@ -197,6 +197,16 @@ expect_eq_get "$(curl -is "localhost:4242/permission/rwx/r__.html")"    "200 OK"
 expect_eq_get "$(curl -is "localhost:4242/permission/rwx/rwx.html")"    "200 OK"              "html/permission/rwx/rwx.html"
 
 
+# 413
+expect_eq_get "$(curl -isH "Content-Length: 1100000"  "localhost:4242/")"                  "413 Content Too Large"    ""
+#large=`python3 -c "print('a'*1100000)"`
+#expect_eq_get "$(curl -is --data "$large" "Content-Length: 1100000"  "localhost:4242/")"   "413 Content Too Large"    ""
+
+expect_eq_get "$(curl -isH "Content-Length: 21"  "localhost:4242/dir_a/")"                                                "413 Content Too Large"    ""
+expect_eq_get "$(curl -isH GET --data "$(python3 -c "print('a'*21)")"   "Content-Length: 21"  "localhost:4242/dir_a/")"   "413 Content Too Large"    ""
+expect_eq_get "$(curl -isH GET --data "$(python3 -c "print('a'*100)")"  "localhost:4242/dir_a/")"                         "413 Content Too Large"    ""
+
+
 # 431
 large=`python3 -c "print('a'*10000)"`
 expect_eq_get "$(curl -isH "$large: hoge" "localhost:4242/")"     "431 Request Header Fields Too Large"     ""

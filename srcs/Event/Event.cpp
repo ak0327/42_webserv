@@ -222,6 +222,13 @@ ProcResult Event::parse_http_request() {
             this->request_->set_request_status(BadRequest);
             return Success;
         }
+
+        // Result<ProcResult, StatusCode> content_length_result = this->request_->set_content_length();
+        // if (content_length_result.is_err()) {
+        //     StatusCode error_status = content_length_result.err_value();
+        //     this->request_->set_request_status(error_status);
+        //     return Success;
+        // }
         this->request_->set_parse_phase(ParsingRequestBody);
     }
 
