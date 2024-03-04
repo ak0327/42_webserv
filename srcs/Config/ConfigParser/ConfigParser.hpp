@@ -28,6 +28,8 @@ class ConfigParser {
 	HttpConfig config() const;
 
     static bool is_valid_cgi_timeout(time_t timeout_sec);
+    static bool is_valid_session_timeout(time_t timeout_sec);
+    static bool is_valid_keepalive_timeout(time_t timeout_sec);
 
 #ifdef UNIT_TEST
 	friend class ConfigParserTestFriend;
@@ -139,9 +141,11 @@ class ConfigParser {
                                                              const TokenItr &end,
                                                              bool *cgi_mode);
 
-    static Result<int, std::string> parse_cgi_timeout_directive(TokenItr *current,
-                                                                const TokenItr &end,
-                                                                time_t *timeout_sec);
+    static Result<int, std::string> parse_timeout_directive(TokenItr *current,
+                                                            const TokenItr &end,
+                                                            time_t *timeout_sec,
+                                                            const std::string &directive_name,
+                                                            bool (*validate_func)(time_t));
 
 
     // mv to utility ?
@@ -151,7 +155,8 @@ class ConfigParser {
 	static Result<Method, std::string> get_method(const std::string &method);
 	static Result<AddressPortPair, int> parse_listen_param(const std::string &param);
 	static Result<std::size_t, int> parse_size_with_prefix(const std::string &size_str);
-    static Result<time_t, int> parse_timeout_with_prefix(const std::string &timeout_str);
+    static Result<time_t, int> parse_timeout_with_prefix(const std::string &timeout_str,
+                                                         bool (*validate_func)(time_t));
 
 	// error message
 	static std::string create_syntax_err_msg(const TokenItr &current,

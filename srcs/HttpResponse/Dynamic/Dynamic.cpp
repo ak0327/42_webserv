@@ -2,31 +2,46 @@
 #include <string>
 #include <vector>
 #include "Constant.hpp"
+#include "Color.hpp"
+#include "Debug.hpp"
+#include "Dynamic.hpp"
 #include "HttpMessageParser.hpp"
 #include "HttpResponse.hpp"
 #include "MediaType.hpp"
 #include "StringHandler.hpp"
 
 
-bool HttpResponse::is_api_endpoint() {
+bool HttpResponse::is_dynamic_endpoint() {
     std::vector<std::string>::const_iterator itr;
-    itr = std::find(API_ENDPOINTS.begin(), API_ENDPOINTS.end(), this->request_.request_target());
-    return itr != API_ENDPOINTS.end();
+    itr = std::find(this->dynamic_.DYNAMIC_PAGES.begin(),
+                    this->dynamic_.DYNAMIC_PAGES.end(),
+                    this->request_.target());
+    return itr != this->dynamic_.DYNAMIC_PAGES.end();
 }
 
 
-StatusCode HttpResponse::response_api() {
-    if (this->request_.request_target() == "/api/form-data") {
-        return show_data();
+StatusCode HttpResponse::response_dynamic() {
+    const std::string target = this->request_.target();
+    if (target == this->dynamic_.FORM_DATA) {
+        return show_form_data();
     }
-    if (this->request_.request_target() == "/api/show-body") {
-        return show_body();
+    if (target == this->dynamic_.RESPONSE_BODY) {
+        return show_request_body();
     }
-    // if (this->request_.request_target() == "/api/upload") {
-    //     return upload_file();
-    // }
-    if (this->request_.request_target() == "/api/now") {
+    if (target == this->dynamic_.NOW) {
         return get_now();
+    }
+    if (target == this->dynamic_.COOKIE_LOGIN) {
+        return get_cookie_login_page();
+    }
+    if (target == this->dynamic_.COOKIE_USERPAGE) {
+        return get_cookie_user_page();
+    }
+    if (target == this->dynamic_.SESSION_LOGIN) {
+        return get_session_login_page();
+    }
+    if (target == this->dynamic_.SESSION_USERPAGE) {
+        return get_session_user_page();
     }
     return NotFound;
 }
@@ -57,7 +72,7 @@ StatusCode HttpResponse::get_now() {
 }
 
 
-StatusCode HttpResponse::show_body() {
+StatusCode HttpResponse::show_request_body() {
     std::string head = "<!doctype html>\n"
                        "<html lang=\"ja\">\n"
                        "<head>\n"
@@ -80,12 +95,12 @@ StatusCode HttpResponse::show_body() {
 }
 
 
-StatusCode HttpResponse::show_data() {
+StatusCode HttpResponse::show_form_data() {
     if (is_urlencoded_form_data()) {
-        // DEBUG_PRINT(YELLOW, "   show_data -> urlencoded_form");
+        // DEBUG_PRINT(YELLOW, "   show_form_data -> urlencoded_form");
         return get_urlencoded_form_content();
     }
-    // DEBUG_PRINT(YELLOW, "   show_data err: 400");
+    // DEBUG_PRINT(YELLOW, "   show_form_data err: 400");
     return BadRequest;
 }
 
@@ -105,19 +120,26 @@ bool HttpResponse::is_urlencoded_form_data() {
 UrlEncodedFormData HttpResponse::parse_urlencoded_form_data(const std::vector<unsigned char> &request_body) {
     UrlEncodedFormData parameters;
 
+    std::vector<unsigned char> body = request_body;
+    for (std::vector<unsigned char>::iterator itr = body.begin(); itr != body.end(); ++itr) {
+        if (*itr == '+') {
+            *itr = ' ';
+        }
+    }
+
     std::vector<std::string> name_value_pairs;
     std::vector<unsigned char>::const_iterator head, tail;
-    head = request_body.begin();
-    while (head != request_body.end()) {
+    head = body.begin();
+    while (head != body.end()) {
         tail = head;
-        while (tail != request_body.end() && *tail != '&') {
+        while (tail != body.end() && *tail != '&') {
             ++tail;
         }
         std::string name_value(head, tail);
         name_value_pairs.push_back(name_value);
 
         head = tail;
-        if (head == request_body.end()) {
+        if (head == body.end()) {
             break;
         }
         ++head;
@@ -136,7 +158,7 @@ UrlEncodedFormData HttpResponse::parse_urlencoded_form_data(const std::vector<un
         key = StringHandler::decode(key);
         value = StringHandler::decode(value);
         parameters[key].push_back(value);
-        std::cout << "key: " << key << ", value: " << value << std::endl;
+        DEBUG_PRINT(YELLOW, "parse_urlencoded: key[%s] value[%s]", key.c_str(), value.c_str());
     }
     return parameters;
 }

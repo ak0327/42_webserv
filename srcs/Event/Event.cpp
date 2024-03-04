@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <cstdio>
 #include <iostream>
+#include <map>
 #include <utility>
 #include "Event.hpp"
 #include "Debug.hpp"
@@ -19,6 +20,7 @@ Event::Event(int socket_fd,
              int client_fd,
              const AddressPortPair &client_listen,
              const Config &config,
+             std::map<std::string, Session> *sessions,
              bool echo_mode_on = false)
     : socket_fd_(socket_fd),
       client_fd_(client_fd),
@@ -30,6 +32,7 @@ Event::Event(int socket_fd,
       response_(NULL),
       request_max_body_size_(ConfigInitValue::kDefaultBodySize),
       client_listen_(client_listen),
+      sessions_(sessions),
       echo_mode_on_(echo_mode_on) {}
 
 
@@ -219,6 +222,13 @@ ProcResult Event::parse_http_request() {
             this->request_->set_request_status(BadRequest);
             return Success;
         }
+
+        // Result<ProcResult, StatusCode> content_length_result = this->request_->set_content_length();
+        // if (content_length_result.is_err()) {
+        //     StatusCode error_status = content_length_result.err_value();
+        //     this->request_->set_request_status(error_status);
+        //     return Success;
+        // }
         this->request_->set_parse_phase(ParsingRequestBody);
     }
 
@@ -353,7 +363,7 @@ EventResult Event::get_host_config() {
     }
     this->server_config_ = config_result.ok_value();
 
-    const std::string request_target = this->request_->request_target();
+    const std::string request_target = this->request_->target();
 
     Result<std::size_t, int> body_size_result;
     body_size_result = Config::get_max_body_size(server_config_, request_target);
@@ -374,7 +384,7 @@ ProcResult Event::execute_each_method() {
     if (this->echo_mode_on_) {
         try {
             HttpRequest request; ServerConfig config; AddressPortPair pair;
-            this->response_ = new HttpResponse(request, config, pair);
+            this->response_ = new HttpResponse(request, config, pair, NULL);
         }
         catch (const std::exception &e) {
             const std::string error_msg = CREATE_ERROR_INFO_STR("Failed to allocate memory");
@@ -387,7 +397,8 @@ ProcResult Event::execute_each_method() {
     try {
         this->response_ = new HttpResponse(*this->request_,
                                            this->server_config_,
-                                           this->address_port_pair_);
+                                           this->address_port_pair_,
+                                           this->sessions_);
         // std::cout << CYAN << "     response_message[" << this->http_response_->get_response_message() << "]" << RESET << std::endl;
     }
     catch (const std::exception &e) {

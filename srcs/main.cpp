@@ -32,6 +32,8 @@ const char *get_config_file_path(int argc, char **argv) {
 
 
 int main(int argc, char **argv) {
+    std::srand(static_cast<unsigned int>(std::time(NULL)));
+
     const char *config_file_path = get_config_file_path(argc, argv);
     if (!config_file_path) {
         std::cerr << "Usage: ./webserv  [path_to_configuration_file.conf]" << std::endl;

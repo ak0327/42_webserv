@@ -12,7 +12,7 @@ TEST(TestRequestLine, RequestLineOK1) {
 
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("GET", request.method());
-	EXPECT_EQ("/index.html", request.request_target());
+	EXPECT_EQ("/index.html", request.target());
 	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_ok());
 }
@@ -24,7 +24,7 @@ TEST(TestRequestLine, RequestLineOK2) {
 
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("POST", request.method());
-	EXPECT_EQ("/index.html", request.request_target());
+	EXPECT_EQ("/index.html", request.target());
 	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_ok());
 }
@@ -36,7 +36,7 @@ TEST(TestRequestLine, RequestLineOK3) {
 
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("DELETE", request.method());
-	EXPECT_EQ("/index.html", request.request_target());
+	EXPECT_EQ("/index.html", request.target());
 	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_ok());
 }
@@ -48,7 +48,7 @@ TEST(TestRequestLine, RequestLineOK4) {
 
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("GET", request.method());
-	EXPECT_EQ("/index.html", request.request_target());
+	EXPECT_EQ("/index.html", request.target());
 	EXPECT_EQ("HTTP/1.1", request.http_version());
     EXPECT_EQ("hoge?", request.query());
 	EXPECT_TRUE(result.is_ok());
@@ -61,7 +61,7 @@ TEST(TestRequestLine, RequestLineOK5) {
 
     result = request.parse_and_validate(request_line);
     EXPECT_EQ("GET", request.method());
-    EXPECT_EQ("/path", request.request_target());
+    EXPECT_EQ("/path", request.target());
     EXPECT_EQ("HTTP/1.1", request.http_version());
     EXPECT_EQ("key1=value1&key2=value2", request.query());
     EXPECT_TRUE(result.is_ok());
@@ -77,7 +77,7 @@ TEST(TestRequestLine, RequestLineNG1) {
 
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("GET", request.method());
-	EXPECT_EQ("/index.html", request.request_target());
+	EXPECT_EQ("/index.html", request.target());
 	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_err());
 }
@@ -89,7 +89,7 @@ TEST(TestRequestLine, RequestLineNG2) {
 
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("GET", request.method());
-	EXPECT_EQ("/index.html", request.request_target());
+	EXPECT_EQ("/index.html", request.target());
 	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_err());
 }
@@ -101,7 +101,7 @@ TEST(TestRequestLine, RequestLineNG3) {
 
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("GET", request.method());
-	EXPECT_EQ("/index.html", request.request_target());
+	EXPECT_EQ("/index.html", request.target());
 	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_err());
 }
@@ -113,7 +113,7 @@ TEST(TestRequestLine, RequestLineNG4) {
 
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("", request.method());
-	EXPECT_EQ("", request.request_target());
+	EXPECT_EQ("", request.target());
 	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_err());
 }
@@ -125,7 +125,7 @@ TEST(TestRequestLine, RequestLineNG5) {
 
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("", request.method());
-	EXPECT_EQ("", request.request_target());
+	EXPECT_EQ("", request.target());
 	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_err());
 }
@@ -137,7 +137,7 @@ TEST(TestRequestLine, RequestLineNG6) {
 
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("", request.method());
-	EXPECT_EQ("", request.request_target());
+	EXPECT_EQ("", request.target());
 	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_err());
 }
@@ -149,7 +149,7 @@ TEST(TestRequestLine, RequestLineNG7) {
 
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("get", request.method());
-	EXPECT_EQ("/index.html", request.request_target());
+	EXPECT_EQ("/index.html", request.target());
 	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_err());
 }
@@ -161,7 +161,7 @@ TEST(TestRequestLine, RequestLineNG8) {
 
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("delete", request.method());
-	EXPECT_EQ("/index.html", request.request_target());
+	EXPECT_EQ("/index.html", request.target());
 	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_err());
 }
@@ -173,7 +173,7 @@ TEST(TestRequestLine, RequestLineNG9) {
 
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("GET", request.method());
-	EXPECT_EQ("/index.html", request.request_target());
+	EXPECT_EQ("/index.html", request.target());
 	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_err());
 }
@@ -185,7 +185,7 @@ TEST(TestRequestLine, RequestLineNG10) {
 
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("GET", request.method());
-	EXPECT_EQ("/index.html", request.request_target());
+	EXPECT_EQ("/index.html", request.target());
 	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_err());
 }
@@ -197,7 +197,7 @@ TEST(TestRequestLine, RequestLineNG11) {
 
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("GET", request.method());
-	EXPECT_EQ("/index.html", request.request_target());
+	EXPECT_EQ("/index.html", request.target());
 	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_err());
 }
@@ -209,7 +209,7 @@ TEST(TestRequestLine, RequestLineNG12) {
 
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("GET", request.method());
-	EXPECT_EQ("\n/index.html", request.request_target());
+	EXPECT_EQ("\n/index.html", request.target());
 	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_err());
 }
@@ -221,7 +221,7 @@ TEST(TestRequestLine, RequestLineNG13) {
 
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("GET", request.method());
-	EXPECT_EQ("", request.request_target());
+	EXPECT_EQ("", request.target());
 	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_err());
 }
@@ -233,7 +233,7 @@ TEST(TestRequestLine, RequestLineNG14) {
 
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("HEAD", request.method());
-	EXPECT_EQ("/index.html", request.request_target());
+	EXPECT_EQ("/index.html", request.target());
 	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_err());
 }
@@ -245,7 +245,7 @@ TEST(TestRequestLine, RequestLineNG15) {
 
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("OPTIONS", request.method());
-	EXPECT_EQ("/index.html", request.request_target());
+	EXPECT_EQ("/index.html", request.target());
 	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_err());
 }
@@ -257,7 +257,7 @@ TEST(TestRequestLine, RequestLineNG16) {
 
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("PUT", request.method());
-	EXPECT_EQ("/index.html", request.request_target());
+	EXPECT_EQ("/index.html", request.target());
 	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_err());
 }
@@ -269,7 +269,7 @@ TEST(TestRequestLine, RequestLineNG17) {
 
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("TRACE", request.method());
-	EXPECT_EQ("/index.html", request.request_target());
+	EXPECT_EQ("/index.html", request.target());
 	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_err());
 }
@@ -281,7 +281,7 @@ TEST(TestRequestLine, RequestLineNG18) {
 
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("CONNECT", request.method());
-	EXPECT_EQ("/index.html", request.request_target());
+	EXPECT_EQ("/index.html", request.target());
 	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_err());
 }
@@ -293,7 +293,7 @@ TEST(TestRequestLine, RequestLineNG19) {
 
 	result = request.parse_and_validate(request_line);
 	EXPECT_EQ("GET", request.method());
-	EXPECT_EQ("'/index.html'", request.request_target());
+	EXPECT_EQ("'/index.html'", request.target());
 	EXPECT_EQ("HTTP/1.1", request.http_version());
 	EXPECT_TRUE(result.is_err());
 }
@@ -305,7 +305,7 @@ TEST(TestRequestLine, RequestLineNG20) {
 
     result = request.parse_and_validate(request_line);
     EXPECT_EQ("GET", request.method());
-    EXPECT_EQ("/", request.request_target());
+    EXPECT_EQ("/", request.target());
     EXPECT_EQ("HTTP/1.1", request.http_version());
     EXPECT_TRUE(result.is_err());
 }
@@ -317,7 +317,7 @@ TEST(TestRequestLine, RequestLineNG21) {
 
     result = request.parse_and_validate(request_line);
     EXPECT_EQ("GET", request.method());
-    EXPECT_EQ(".", request.request_target());
+    EXPECT_EQ(".", request.target());
     EXPECT_EQ("HTTP/1.1", request.http_version());
     EXPECT_TRUE(result.is_err());
 }
@@ -329,7 +329,7 @@ TEST(TestRequestLine, RequestLineNG22) {
 
     result = request.parse_and_validate(request_line);
     EXPECT_EQ("GET", request.method());
-    EXPECT_EQ("-", request.request_target());
+    EXPECT_EQ("-", request.target());
     EXPECT_EQ("HTTP/1.1", request.http_version());
     EXPECT_TRUE(result.is_err());
 }
@@ -341,7 +341,7 @@ TEST(TestRequestLine, RequestLineNG23) {
 
     result = request.parse_and_validate(request_line);
     EXPECT_EQ("GET", request.method());
-    EXPECT_EQ("/index.html", request.request_target());
+    EXPECT_EQ("/index.html", request.target());
     EXPECT_EQ("HTTP/1.1", request.http_version());
     EXPECT_TRUE(result.is_err());  // update
 }
@@ -353,7 +353,7 @@ TEST(TestRequestLine, RequestLineNG24) {
 
     result = request.parse_and_validate(request_line);
     EXPECT_EQ("GET", request.method());
-    EXPECT_EQ("/index.html", request.request_target());
+    EXPECT_EQ("/index.html", request.target());
     EXPECT_EQ("HTTP/1.1", request.http_version());
     EXPECT_TRUE(result.is_err());  // update
 }

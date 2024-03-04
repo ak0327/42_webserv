@@ -307,11 +307,11 @@ StatusCode HttpResponse::post_target() {
         return MethodNotAllowed;
     }
 
-    // api?
-    //  Yes -> api
-    if (is_api_endpoint()) {
-        // DEBUG_PRINT(YELLOW, "  POST 3 -> api");
-        return response_api();
+    // dynamic?
+    //  Yes -> dynamic
+    if (is_dynamic_endpoint()) {
+        // DEBUG_PRINT(YELLOW, "  POST 3 -> dynamic");
+        return response_dynamic();
     }
 
     std::string boundary;

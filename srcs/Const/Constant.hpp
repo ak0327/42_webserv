@@ -70,6 +70,7 @@ extern const int FLAG_NONE;
 extern const int OFFSET_NONE;
 
 extern const std::size_t FILE_SIZE_LIMIT;
+extern const std::size_t CLIENT_HEADER_MAX_SIZE;
 
 ////////////////////////////////////////////////////////////////////////////////
 /* status */
@@ -86,6 +87,7 @@ enum StatusCode {
 
     MultipleChoices         = 300,
     MovedPermanently        = 301,
+    Found                   = 302,
     SeeOther                = 303,
 
     BadRequest              = 400,
@@ -98,6 +100,7 @@ enum StatusCode {
     Conflict                = 409,
     LengthRequired          = 411,
     ContentTooLarge         = 413,
+    RequestHeaderFieldsTooLarge = 431,
 
     InternalServerError     = 500,
     NotImplemented          = 501,
@@ -361,8 +364,10 @@ extern const char LOCATION_BLOCK[];
 
 extern const char LISTEN_DIRECTIVE[];
 extern const char SERVER_NAME_DIRECTIVE[];
-extern const char RETURN_DIRECTIVE[];
+extern const char SESSION_TIMEOUT_DIRECTIVE[];
+extern const char KEEPALIVE_TIMEOUT_DIRECTIVE[];
 
+extern const char RETURN_DIRECTIVE[];
 extern const char ROOT_DIRECTIVE[];
 extern const char INDEX_DIRECTIVE[];
 extern const char LIMIT_EXCEPT_DIRECTIVE[];
@@ -397,12 +402,7 @@ extern const MimeTypeMap MIME_TYPES;
 MimeTypeMap init_mime_types();
 
 ////////////////////////////////////////////////////////////////////////////////
-/* API endpoint */
-
-extern const std::vector<std::string> API_ENDPOINTS;
-std::vector<std::string> init_endpoints();
-
-////////////////////////////////////////////////////////////////////////////////
 /* server information */
 
 extern const char SERVER_SEMANTIC_VERSION[];
+extern const char SESSION_ID[];

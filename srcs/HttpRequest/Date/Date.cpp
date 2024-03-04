@@ -542,3 +542,43 @@ std::string Date::get_gmt() const { return this->gmt_; }
 date_format Date::get_format() const { return this->format_; }
 bool Date::is_ok() const { return this->result_.is_ok(); }
 bool Date::is_err() const { return this->result_.is_err(); }
+
+
+bool Date::operator==(const Date &rhs) const {
+    return year_ == rhs.year_
+           && month_ == rhs.month_
+           && day_ == rhs.day_
+           && hour_ == rhs.hour_
+           && minute_ == rhs.minute_
+           && second_ == rhs.second_;
+}
+
+
+bool Date::operator<(const Date &rhs) const {
+    if (year_ != rhs.year_) {
+        return year_ < rhs.year_;
+    }
+    if (month_ != rhs.month_) {
+        return month_ < rhs.month_;
+    }
+    if (day_ != rhs.day_) {
+        return day_ < rhs.day_;
+    }
+    if (hour_ != rhs.hour_) {
+        return hour_ < rhs.hour_;
+    }
+    if (minute_ != rhs.minute_) {
+        return minute_ < rhs.minute_;
+    }
+    return second_ < rhs.second_;
+}
+
+
+bool Date::operator>(const Date &rhs) const {
+    return rhs < *this;
+}
+
+
+bool Date::operator<=(const Date &rhs) const {
+    return !(rhs < *this);
+}

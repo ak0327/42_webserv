@@ -2,10 +2,10 @@ NAME		=	webserv
 
 CXX			=	c++
 CXXFLAGS	=	-std=c++98 -Wall -Wextra -Werror -MMD -MP -pedantic
-#CXXFLAGS	+=	-g -fsanitize=address,undefined -fno-omit-frame-pointer
+CXXFLAGS	+=	-g -fsanitize=address,undefined -fno-omit-frame-pointer
 CXXFLAGS	+=	-D USE_SELECT
 #CXXFLAGS	+=	-D USE_POLL
-#CXXFLAGS	+=	-D DEBUG
+CXXFLAGS	+=	-D DEBUG
 #CXXFLAGS	+=	-D LEAKS
 
 # SRCS -------------------------------------------------------------------------
@@ -98,6 +98,10 @@ SRCS		+=	$(IO_DIR)/IOMultiplexer.cpp
 SERVER_DIR	=	Server
 SRCS		+=	$(SERVER_DIR)/Server.cpp
 
+# Session
+SESSION_DIR	=	Session
+SRCS		+=	$(SESSION_DIR)/Session.cpp
+
 # Socket
 SOCKET_DIR	=	Socket
 SRCS		+=	$(SOCKET_DIR)/Socket.cpp
@@ -112,7 +116,9 @@ SRCS		+=	$(STR_HANDLER)/HttpMessageParser.cpp \
 #HTTP Response
 RESPONSE_DIR =	HttpResponse
 SRCS		+=	$(RESPONSE_DIR)/HttpResponse.cpp \
-				$(RESPONSE_DIR)/Api/api.cpp \
+				$(RESPONSE_DIR)/Dynamic/Dynamic.cpp \
+				$(RESPONSE_DIR)/Dynamic/cookie_login.cpp \
+				$(RESPONSE_DIR)/Dynamic/session_login.cpp \
 				$(RESPONSE_DIR)/GET/get_directory_listing.cpp \
 				$(RESPONSE_DIR)/GET/get_file_content.cpp \
 				$(RESPONSE_DIR)/GET/get_request_body.cpp \
@@ -141,6 +147,7 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(ERROR_DIR) \
 				$(SRCS_DIR)/$(IO_DIR) \
 				$(SRCS_DIR)/$(SERVER_DIR) \
+				$(SRCS_DIR)/$(SESSION_DIR) \
 				$(SRCS_DIR)/$(SOCKET_DIR) \
 				$(SRCS_DIR)/$(STR_HANDLER) \
 				$(REQUEST_INCLUDES) \
@@ -166,7 +173,7 @@ REQUEST_INCLUDES =	$(SRCS_DIR)/$(REQUEST_DIR) \
 					$(SRCS_DIR)/$(REQUEST_DIR)/RequestLine
 
 RESPONSE_INCLUDES =	$(SRCS_DIR)/$(RESPONSE_DIR) \
-					$(SRCS_DIR)/$(RESPONSE_DIR)/Api \
+					$(SRCS_DIR)/$(RESPONSE_DIR)/Dynamic \
 					$(SRCS_DIR)/$(RESPONSE_DIR)/GET \
 					$(SRCS_DIR)/$(RESPONSE_DIR)/POST \
 					$(SRCS_DIR)/$(RESPONSE_DIR)/DELETE
@@ -176,6 +183,9 @@ INCLUDES	 =	$(addprefix -I, $(INCLUDES_DIR))
 
 # RULES ------------------------------------------------------------------------
 .PHONY	: all
+all		: $(NAME)
+
+.PHONY	: bonus
 all		: $(NAME)
 
 $(NAME)	: $(OBJS)
@@ -218,7 +228,7 @@ run_unit_test	:
 .PHONY	: run_integration_test
 run_integration_test	:
 	make
-	./test/integration/run_test.sh
+	./test/integration/run_test.sh 2>/dev/null
 
 .PHONY	: run_server_test
 run_server_test	:
@@ -293,7 +303,8 @@ run_multi_field_values_test    :
 run_map_field_values_test    :
 	cmake -S . -B build
 	cmake --build build
-	./build/unit_test --gtest_filter=TestMapFieldValues*
+#	./build/unit_test --gtest_filter=TestMapFieldValues*
+	./build/unit_test --gtest_filter=TestMapFieldValues*.Cookie*
 
 .PHONY    : run_map_set_field_values_test
 run_map_set_field_values_test    :

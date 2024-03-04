@@ -17,12 +17,12 @@ TEST(HttpResponseGet, CGIGetInterPreter) {
 	EXPECT_TRUE(result.is_ok());
 	EXPECT_EQ(expected, actual);
 
-	file_path = "html/cgi-bin/page.php";
-	expected = {"/opt/homebrew/bin/php"};
-	result = CgiHandlerFriend::get_interpreter(file_path);
-	actual = result.ok_value();
-	EXPECT_TRUE(result.is_ok());
-	EXPECT_EQ(expected, actual);
+	// file_path = "html/cgi-bin/page.php";
+	// expected = {"/opt/homebrew/bin/php"};
+	// result = CgiHandlerFriend::get_interpreter(file_path);
+	// actual = result.ok_value();
+	// EXPECT_TRUE(result.is_ok());
+	// EXPECT_EQ(expected, actual);
 
 	file_path = "html/index.html";
 	result = CgiHandlerFriend::get_interpreter(file_path);

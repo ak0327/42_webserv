@@ -26,54 +26,54 @@ namespace {
 const int MAX_SESSION = 128;
 
 
-void stop_by_signal(int sig) {
-    switch (sig) {
-        case SIGINT:
-            std::cout << "[Server] Running stop" << std::endl;
-            std::exit(EXIT_SUCCESS);
-
-        case SIGTERM:
-            std::cout << "[Server] Running stop by SIGTERM" << std::endl;
-            std::exit(EXIT_SUCCESS);
-
-        case SIGABRT:
-            std::cout << "[Error] Server abort" << std::endl;
-            std::exit(EXIT_FAILURE);
-
-        case SIGPIPE:
-            std::cout << "Received SIGPIPE" << std::endl;
-            break;
-            std::exit(EXIT_FAILURE);
-
-        default:
-            std::cout << "Received unknown signal: " << sig << std::endl;
-    }
-}
-
-
-ServerResult set_signal() {
-    return ServerResult::ok(OK);
-
-    // todo
-	errno = 0;
-	if (signal(SIGABRT, stop_by_signal) == SIG_ERR) {
-		const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
-		return ServerResult::err(error_msg);
-	}
-	if (signal(SIGINT, stop_by_signal) == SIG_ERR) {
-		const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
-		return ServerResult::err(error_msg);
-	}
-	if (signal(SIGTERM, stop_by_signal) == SIG_ERR) {
-		const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
-		return ServerResult::err(error_msg);
-	}
-    if (signal(SIGPIPE, stop_by_signal) == SIG_ERR) {
-        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
-        return ServerResult::err(error_msg);
-    }
-	return ServerResult::ok(OK);
-}
+// void stop_by_signal(int sig) {
+//     switch (sig) {
+//         case SIGINT:
+//             std::cout << "[Server] Running stop" << std::endl;
+//             std::exit(EXIT_SUCCESS);
+//
+//         case SIGTERM:
+//             std::cout << "[Server] Running stop by SIGTERM" << std::endl;
+//             std::exit(EXIT_SUCCESS);
+//
+//         case SIGABRT:
+//             std::cout << "[Error] Server abort" << std::endl;
+//             std::exit(EXIT_FAILURE);
+//
+//         case SIGPIPE:
+//             std::cout << RED << "Received SIGPIPE" << RESET << std::endl;
+//             break;
+//             std::exit(EXIT_FAILURE);
+//
+//         default:
+//             std::cout << "Received unknown signal: " << sig << std::endl;
+//     }
+// }
+//
+//
+// ServerResult set_signal() {
+//     // return ServerResult::ok(OK);
+//
+//     // todo
+// 	errno = 0;
+// 	if (signal(SIGABRT, stop_by_signal) == SIG_ERR) {
+// 		const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+// 		return ServerResult::err(error_msg);
+// 	}
+// 	if (signal(SIGINT, stop_by_signal) == SIG_ERR) {
+// 		const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+// 		return ServerResult::err(error_msg);
+// 	}
+// 	if (signal(SIGTERM, stop_by_signal) == SIG_ERR) {
+// 		const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+// 		return ServerResult::err(error_msg);
+// 	}
+//     if (signal(SIGPIPE, stop_by_signal) == SIG_ERR) {
+//         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+//         return ServerResult::err(error_msg);
+//     }
+// 	return ServerResult::ok(OK);
+// }
 
 
 }  // namespace
@@ -104,12 +104,12 @@ ServerResult Server::init() {
         return ServerResult::err(oss.str());
     }
 
-    ServerResult signal_result = set_signal();
-    if (signal_result.is_err()) {
-        std::ostringstream oss;
-        oss << RED << "[Server Error] Initialization error: signal: " << signal_result.err_value() << RESET;
-        return ServerResult::err(oss.str());
-    }
+    // ServerResult signal_result = set_signal();
+    // if (signal_result.is_err()) {
+    //     std::ostringstream oss;
+    //     oss << RED << "[Server Error] Initialization error: signal: " << signal_result.err_value() << RESET;
+    //     return ServerResult::err(oss.str());
+    // }
 
     Result<IOMultiplexer *, std::string> fds_result = create_io_multiplexer_fds();
     if (fds_result.is_err()) {
@@ -253,7 +253,7 @@ ServerResult Server::run() {
 	while (true) {
         DEBUG_SERVER_PRINT(" run 1 timeout management");
         management_timeout_events();
-
+        set_io_timeout();
         DEBUG_SERVER_PRINT(" run 2 get_io_ready_fd");
         ServerResult fd_ready_result = this->fds_->get_io_ready_fd();
         DEBUG_SERVER_PRINT(" run 3 ready result");
@@ -372,7 +372,12 @@ ServerResult Server::create_event(int socket_fd) {
         std::ostringstream oss; oss << client_listen;
         DEBUG_SERVER_PRINT("%s", oss.str().c_str());
 
-        Event *new_session = new Event(socket_fd, connect_fd, client_listen, this->config_, this->echo_mode_on_);
+        Event *new_session = new Event(socket_fd,
+                                       connect_fd,
+                                       client_listen,
+                                       this->config_,
+                                       &this->sessions_,
+                                       this->echo_mode_on_);
         this->client_events_[connect_fd] = new_session;
         DEBUG_SERVER_PRINT("new_clilent: %p", new_session);
         // std::cout << CYAN << " event start" << connect_fd << RESET << std::endl;
@@ -549,7 +554,8 @@ ServerResult Server::handle_client_event(int client_fd) {
             std::ostringstream oss; oss << client_event;
             DEBUG_SERVER_PRINT("process_event(client) -> executing_cgi: %s", oss.str().c_str());
 
-            register_cgi_fds_to_event_manager(&client_event);
+            register_cgi_write_fd_to_event_manager(&client_event);
+            // register_cgi_fds_to_event_manager(&client_event);
             this->fds_->clear_fd(client_fd);
             return ServerResult::ok(OK);
         }
@@ -630,6 +636,7 @@ ServerResult Server::handle_cgi_event(int cgi_fd) {
             std::ostringstream oss; oss << cgi_event;
             DEBUG_SERVER_PRINT("process_event(cgi) -> [CGI] send fin, recv start: %s", oss.str().c_str());
             clear_fd_from_event_manager(cgi_event->cgi_write_fd());
+            register_cgi_read_fd_to_event_manager(&cgi_event);
             break;
         }
         case kCreatingCGIBody: {
@@ -668,10 +675,11 @@ ServerResult Server::process_event(int ready_fd) {
 
 ServerResult Server::accept_connect_fd(int socket_fd,
                                        struct sockaddr_storage *client_addr) {
-    if (MAX_SESSION <= this->client_fds_.size()) {
-        std::cerr << "[Server Error] exceed max connection" << std::endl;
-        return ServerResult::ok(OK);  // todo: continue, ok?
-    }
+    (void)MAX_SESSION;
+    // if (MAX_SESSION <= this->client_fds_.size()) {
+    //     std::cerr << "[Server Error] exceed max connection" << std::endl;
+    //     return ServerResult::ok(OK);  // todo: continue, ok?
+    // }
 
     SocketResult accept_result = Socket::accept(socket_fd, client_addr);
     if (accept_result.is_err()) {
@@ -697,6 +705,10 @@ ServerResult Server::accept_connect_fd(int socket_fd,
 }
 
 
-void Server::set_io_timeout(int timeout_msec) {
-    this->fds_->set_io_timeout(timeout_msec);
+void Server::set_io_timeout() {
+    if (this->cgi_fds_.empty() && !this->echo_mode_on_) {
+        this->fds_->set_io_timeout(0);
+    } else {
+        this->fds_->set_io_timeout(100);
+    }
 }

@@ -14,6 +14,7 @@
 # include "HttpRequest.hpp"
 # include "IOMultiplexer.hpp"
 # include "Result.hpp"
+# include "Session.hpp"
 # include "Socket.hpp"
 
 typedef Result<int, std::string> ServerResult;
@@ -31,7 +32,7 @@ class Server {
     ServerResult init();
 	ServerResult run();
     ServerResult echo();  // todo: implement echo for test
-    void set_io_timeout(int timeout_msec);
+    void set_io_timeout();
 
  private:
 	std::map<SocketFd, Socket *> sockets_;
@@ -43,6 +44,8 @@ class Server {
 
     std::map<ClientFd, Event *> client_events_;
     std::map<CgiFd, Event *> cgi_events_;
+
+    std::map<std::string, Session> sessions_;
 
     const Config &config_;
 

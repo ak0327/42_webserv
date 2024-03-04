@@ -112,7 +112,8 @@ HttpRequest::HttpRequest()
       request_body_(),
       field_value_parser_(),
       field_name_counter_(),
-      request_max_body_size_(0) {
+      request_max_body_size_(0),
+      header_size_(0) {
     init_field_name_parser();
     init_field_name_counter();
 }
@@ -267,10 +268,19 @@ Result<ProcResult, StatusCode> HttpRequest::parse_start_line_and_headers() {
         DEBUG_SERVER_PRINT("    parse start_line_and_headers 2");
         Result<std::string, ProcResult> line_result = pop_line_from_buf();
         if (line_result.is_err()) {
+            if (CLIENT_HEADER_MAX_SIZE < this->buf_.size()) {
+                return Result<ProcResult, StatusCode>::err(RequestHeaderFieldsTooLarge);
+            }
             DEBUG_SERVER_PRINT("    parse start_line_and_headers -> continue");
             return Result<ProcResult, StatusCode>::ok(Continue);  // no line in buf -> recv
         }
         std::string line = line_result.ok_value();
+        this->header_size_ += line.length() + 2;
+
+        if (CLIENT_HEADER_MAX_SIZE < this->header_size_) {
+            return Result<ProcResult, StatusCode>::err(RequestHeaderFieldsTooLarge);
+        }
+
         DEBUG_SERVER_PRINT("    parse start_line_and_headers 3 line[%s]", line.c_str());
 
         switch (this->phase_) {
@@ -311,9 +321,7 @@ Result<ProcResult, StatusCode> HttpRequest::parse_start_line_and_headers() {
 }
 
 
-Result<ProcResult, StatusCode> HttpRequest::parse_body() {
-    DEBUG_SERVER_PRINT("    ParseBody");
-
+Result<ProcResult, StatusCode> HttpRequest::set_content_length() {
     Result<std::size_t, ProcResult> result = get_content_length();
     if (result.is_err()) {
         DEBUG_SERVER_PRINT("      ParseBody content-length not defined");
@@ -335,17 +343,47 @@ Result<ProcResult, StatusCode> HttpRequest::parse_body() {
         this->buf_.clear();
         return Result<ProcResult, StatusCode>::err(ContentTooLarge);
     }
+    this->content_length_ = content_length;
+    return Result<ProcResult, StatusCode>::ok(Success);
+}
+
+
+Result<ProcResult, StatusCode> HttpRequest::parse_body() {
+    DEBUG_SERVER_PRINT("    ParseBody");
+    Result<std::size_t, ProcResult> result = get_content_length();
+    if (result.is_err()) {
+        DEBUG_SERVER_PRINT("      ParseBody content-length not defined");
+        if (this->buf_.empty()) {
+            DEBUG_SERVER_PRINT("      ParseBody  recv body = 0 -> ok");
+            return Result<ProcResult, StatusCode>::ok(Success);
+        } else {
+            DEBUG_SERVER_PRINT("      ParseBody  recv body != 0 -> err");
+            this->buf_.clear();
+            return Result<ProcResult, StatusCode>::err(BadRequest);
+        }
+    }
+
+    std::size_t content_length = result.ok_value();
+    DEBUG_SERVER_PRINT("      ParseBody content-length: %zu", content_length);
+
+    if (this->request_max_body_size_ < content_length) {
+        DEBUG_SERVER_PRINT("      ParseBody max_body_size: %zu < content-length: %zu", this->request_max_body_size_, content_length);
+        this->buf_.clear();
+        return Result<ProcResult, StatusCode>::err(ContentTooLarge);
+    }
+    this->content_length_ = content_length;
+    // return Result<ProcResult, StatusCode>::ok(Success);
 
     this->request_body_.insert(this->request_body_.end(), this->buf_.begin(), this->buf_.end());
     this->buf_.clear();
     DEBUG_SERVER_PRINT("      ParseBody move buf -> request_body: size: %zu", this->request_body_.size());
 
-    if (content_length < this->request_body_.size()) {
+    if (this->content_length_ < this->request_body_.size()) {
         DEBUG_SERVER_PRINT("      ParseBody  content_length < body.size() -> LengthRequired");
         this->request_body_.clear();
         return Result<ProcResult, StatusCode>::err(LengthRequired);
     }
-    if (this->request_body_.size() < content_length) {
+    if (this->request_body_.size() < this->content_length_) {
         DEBUG_SERVER_PRINT("      ParseBody  body.size() < content-length -> recv continue");
         return Result<ProcResult, StatusCode>::ok(Continue);
     }
@@ -694,8 +732,8 @@ Method HttpRequest::method() const {
 }
 
 
-std::string HttpRequest::request_target() const {
-	return this->request_line_.request_target();
+std::string HttpRequest::target() const {
+	return this->request_line_.target();
 }
 
 
@@ -771,6 +809,21 @@ Result<std::map<std::string, std::string>, ProcResult> HttpRequest::get_host() c
 
     std::map<std::string, std::string> host = map_field_values->get_value_map();
     return Result<std::map<std::string, std::string>, ProcResult>::ok(host);
+}
+
+
+Result<std::map<std::string, std::string>, ProcResult> HttpRequest::get_cookie() const {
+    FieldValueBase *field_values = get_field_values(COOKIE);
+    if (!field_values) {
+        return Result<std::map<std::string, std::string>, ProcResult>::err(Failure);
+    }
+    MapFieldValues *map_field_values = dynamic_cast<MapFieldValues *>(field_values);
+    if (!map_field_values) {
+        return Result<std::map<std::string, std::string>, ProcResult>::err(Failure);
+    }
+
+    std::map<std::string, std::string> cookie = map_field_values->get_value_map();
+    return Result<std::map<std::string, std::string>, ProcResult>::ok(cookie);
 }
 
 

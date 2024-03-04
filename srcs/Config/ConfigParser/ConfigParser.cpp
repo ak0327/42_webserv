@@ -370,6 +370,18 @@ Result<int, std::string> ConfigParser::parse_server_block(TokenItr *current,
             result = parse_listen_directive(current, end, &server_config->listens);
         } else if (consume(current, end, SERVER_NAME_DIRECTIVE)) {
             result = parse_set_params(current, end, &server_config->server_names, SERVER_NAME_DIRECTIVE);
+        } else if (consume(current, end, SESSION_TIMEOUT_DIRECTIVE)) {
+            result = parse_timeout_directive(current,
+                                             end,
+                                             &server_config->session_timeout_sec,
+                                             SESSION_TIMEOUT_DIRECTIVE,
+                                             is_valid_session_timeout);
+        } else if (consume(current, end, KEEPALIVE_TIMEOUT_DIRECTIVE)) {
+            result = parse_timeout_directive(current,
+                                             end,
+                                             &server_config->keepalive_timeout_sec,
+                                             KEEPALIVE_TIMEOUT_DIRECTIVE,
+                                             is_valid_keepalive_timeout);
         } else if (expect(current, end, LOCATION_BLOCK)) {
             result = skip_location(current, end, &location_iterators);
         } else {
@@ -599,7 +611,7 @@ Result<int, std::string> ConfigParser::parse_location_block(TokenItr *current,
             result = parse_set_params(current, end, &location_config->cgi.extension, CGI_EXTENSION_DIRECTIVE);
 
         } else if (consume(current, end, CGI_TIMEOUT_DIRECTIVE)) {
-            result = parse_cgi_timeout_directive(current, end, &location_config->cgi.timeout_sec);
+            result = parse_timeout_directive(current, end, &location_config->cgi.timeout_sec, CGI_TIMEOUT_DIRECTIVE, is_valid_cgi_timeout);
 
         } else {
             result = parse_default_config(current, end, location_config);
@@ -839,8 +851,20 @@ bool ConfigParser::is_valid_return_code(int return_code) {
 
 
 bool ConfigParser::is_valid_cgi_timeout(time_t timeout_sec) {
-    return ConfigInitValue::kCgiTimeoutMinSec <= timeout_sec
-           && timeout_sec <= ConfigInitValue::kCgiTImeoutMaxSec;
+    return ConfigInitValue::kMinCgiTimeoutSec <= timeout_sec
+           && timeout_sec <= ConfigInitValue::kMaxCgiTImeoutSec;
+}
+
+
+bool ConfigParser::is_valid_session_timeout(time_t timeout_sec) {
+    return ConfigInitValue::kMinSessionTimeoutSec <= timeout_sec
+           && timeout_sec <= ConfigInitValue::kMaxSessionTimeoutSec;
+}
+
+
+bool ConfigParser::is_valid_keepalive_timeout(time_t timeout_sec) {
+    return ConfigInitValue::kMinKeepaliveTimeoutSec <= timeout_sec
+           && timeout_sec <= ConfigInitValue::kMaxKeepaliveTimeoutSec;
 }
 
 
@@ -1129,7 +1153,8 @@ Result<int, std::string> ConfigParser::parse_cgi_mode_directive(TokenItr *curren
 }
 
 
-Result<time_t, int> ConfigParser::parse_timeout_with_prefix(const std::string &timeout_str) {
+Result<time_t, int> ConfigParser::parse_timeout_with_prefix(const std::string &timeout_str,
+                                                            bool (*validate_func)(time_t)) {
     if (timeout_str.empty()) {
         return Result<time_t, int>::err(ERR);
     }
@@ -1175,18 +1200,20 @@ Result<time_t, int> ConfigParser::parse_timeout_with_prefix(const std::string &t
     if (pos != timeout_str.length()) {
         return Result<time_t, int>::err(ERR);
     }
-    if (!is_valid_cgi_timeout(timeout_sec)) {
+    if (!validate_func(timeout_sec)) {
         return Result<time_t, int>::err(ERR);
     }
     return Result<time_t, int>::ok(timeout_sec);
 }
 
 
-// "cgi_timeout"  timeout(s) | timeout_with_prefix(s,m)  ";"
+// "XXX_timeout"  timeout(s) | timeout_with_prefix(s,m)  ";"
 //                ^current                       ^return
-Result<int, std::string> ConfigParser::parse_cgi_timeout_directive(TokenItr *current,
-                                                                   const TokenItr &end,
-                                                                   time_t *timeout_sec) {
+Result<int, std::string> ConfigParser::parse_timeout_directive(TokenItr *current,
+                                                               const TokenItr &end,
+                                                               time_t *timeout_sec,
+                                                               const std::string &directive_name,
+                                                               bool (*validate_func)(time_t)) {
     std::string timeout_str;
 
     if (!current || !timeout_sec) {
@@ -1194,15 +1221,15 @@ Result<int, std::string> ConfigParser::parse_cgi_timeout_directive(TokenItr *cur
     }
 
     Result<int, std::string> param_result;
-    param_result = parse_directive_param(current, end, &timeout_str, CGI_TIMEOUT_DIRECTIVE);
+    param_result = parse_directive_param(current, end, &timeout_str, directive_name);
     if (param_result.is_err()) {
         const std::string error_msg = param_result.err_value();
         return Result<int, std::string>::err(error_msg);
     }
 
-    Result<time_t, int> size_result = parse_timeout_with_prefix(timeout_str);
+    Result<time_t, int> size_result = parse_timeout_with_prefix(timeout_str, validate_func);
     if (size_result.is_err()) {
-        const std::string error_msg = create_invalid_value_err_msg(timeout_str, CGI_TIMEOUT_DIRECTIVE);
+        const std::string error_msg = create_invalid_value_err_msg(timeout_str, directive_name);
         return Result<int, std::string>::err(error_msg);
     }
     *timeout_sec = size_result.ok_value();

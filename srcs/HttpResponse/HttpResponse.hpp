@@ -9,8 +9,10 @@
 # include "webserv.hpp"
 # include "CgiHandler.hpp"
 # include "ConfigStruct.hpp"
+# include "Dynamic.hpp"
 # include "HttpRequest.hpp"
 # include "Result.hpp"
+# include "Session.hpp"
 
 
 struct FileInfo {
@@ -28,13 +30,14 @@ struct FormData {
 typedef std::string ScriptPath;
 typedef std::string PathInfo;
 typedef std::map<std::string, std::vector<std::string> > UrlEncodedFormData;
+typedef std::map<std::string, Session>::iterator SessionItr;
 
 class HttpResponse {
  public:
-    HttpResponse();
 	explicit HttpResponse(const HttpRequest &request,
                           const ServerConfig &server_config,
-                          const AddressPortPair &pair);
+                          const AddressPortPair &pair,
+                          std::map<std::string, Session> *sessions);
 	~HttpResponse();
 
     const std::vector<unsigned char> &body_buf() const;
@@ -60,7 +63,6 @@ class HttpResponse {
     bool is_exec_cgi();
 
     void create_echo_msg(const std::vector<unsigned char> &recv_msg);
-    std::string get_echo_msg() const;
 
 #ifdef UNIT_TEST
     friend class HttpResponseFriend;
@@ -70,13 +72,17 @@ class HttpResponse {
     const HttpRequest &request_;
     const ServerConfig &server_config_;
     const AddressPortPair address_port_pair_;
+    std::map<std::string, Session> *sessions_;
+
     CgiHandler cgi_handler_;
+    Dynamic dynamic_;
 
     StatusCode status_code_;
 
 	/* response message */
 	std::string status_line_;
 	std::map<std::string, std::string> headers_;
+    std::map<std::string, std::string> cookies_;
 	std::vector<unsigned char> body_buf_;
     std::vector<unsigned char> response_msg_;
 
@@ -105,11 +111,14 @@ class HttpResponse {
     StatusCode redirect_to(const std::string &move_to);
     StatusCode upload_file();
     static std::string get_http_date();
+    static std::string get_http_date(time_t time);
+    static std::string get_http_date_jst(time_t time);
 
     void add_allow_header();
     void add_date_header();
     void add_server_header();
     void add_standard_headers();
+    void add_cookie_headers();
     void add_content_header(const std::string &extension);
     void add_content_header_by_media_type(const std::string &media_type);
 
@@ -144,15 +153,28 @@ class HttpResponse {
 
 
     // API
-    bool is_api_endpoint();
+    bool is_dynamic_endpoint();
     bool is_urlencoded_form_data();
-    StatusCode response_api();
+    StatusCode response_dynamic();
     StatusCode get_now();
-    StatusCode show_data();
-    StatusCode show_body();
+    StatusCode show_form_data();
+    StatusCode show_request_body();
+    StatusCode get_cookie_login_page();
+    StatusCode get_cookie_user_page();
+    StatusCode get_session_login_page();
+    StatusCode get_session_user_page();
     StatusCode get_urlencoded_form_content();
     UrlEncodedFormData parse_urlencoded_form_data(const std::vector<unsigned char> &request_body);
 
+    bool is_logged_in_user();
+    Result<SessionItr, bool> is_session_active_user();
+    std::string get_user_name_from_cookie();
+    std::string get_expire_from_cookie();
+    Result<std::string, ProcResult> generate_new_id();
+    ProcResult add_init_session_data(const std::map<std::string, std::string> &data);
+
+    ProcResult update_session_data(SessionItr *itr);
+    void update_counter(const SessionItr &itr);
 
     // unused
     HttpResponse(const HttpResponse &other);

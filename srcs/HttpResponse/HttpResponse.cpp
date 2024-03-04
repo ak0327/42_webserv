@@ -23,18 +23,22 @@
 
 HttpResponse::HttpResponse(const HttpRequest &request,
                            const ServerConfig &server_config,
-                           const AddressPortPair &pair)
+                           const AddressPortPair &pair,
+                           std::map<std::string, Session> *sessions)
     : request_(request),
       server_config_(server_config),
       address_port_pair_(pair),
+      sessions_(sessions),
       cgi_handler_(),
+      dynamic_(),
+      status_code_(StatusOk),
       headers_(),
       body_buf_(),
       response_msg_() {
     StatusCode request_status = this->request_.request_status();
     this->set_status_code(request_status);
 
-    time_t cgi_timeout = Config::get_cgi_timeout(server_config, request.request_target());
+    time_t cgi_timeout = Config::get_cgi_timeout(server_config, request.target());
     this->cgi_handler_.set_timeout_duration_sec(cgi_timeout);
 
     this->body_buf_ = this->request_.body();
@@ -47,7 +51,7 @@ HttpResponse::~HttpResponse() {}
 bool HttpResponse::is_response_error_page() const {
     Result<std::string, int> result;
     result = Config::get_error_page(this->server_config_,
-                                    this->request_.request_target(),
+                                    this->request_.target(),
                                     this->status_code());
     return result.is_ok();
 }
@@ -67,7 +71,7 @@ bool is_method_limited(const Method &method, const std::set<Method> &excluded_me
 StatusCode HttpResponse::is_resource_available(const Method &method) const {
     // std::cout << CYAN << "is_resource_available target: " << this->request_.request_target() << RESET << std::endl;
     Result<std::string, StatusCode> indexed_result = Config::get_indexed_path(this->server_config_,
-                                                                              this->request_.request_target());
+                                                                              this->request_.target());
     if (indexed_result.is_err()) {
         // std::cout << CYAN << " get_index failure: " << indexed_result.get_err_value() << RESET << std::endl;
         return indexed_result.err_value();
@@ -77,7 +81,7 @@ StatusCode HttpResponse::is_resource_available(const Method &method) const {
 
     Result<LimitExceptDirective, int> limit_except_result;
     limit_except_result = Config::limit_except(this->server_config_,
-                                               this->request_.request_target());
+                                               this->request_.target());
     if (limit_except_result.is_err()) {
         // std::cout << CYAN << " not found" << RESET << std::endl;
         return NotFound;
@@ -98,7 +102,7 @@ StatusCode HttpResponse::is_resource_available(const Method &method) const {
 
 void HttpResponse::add_allow_header() {
     Result<LimitExceptDirective, int> result = Config::limit_except(this->server_config_,
-                                                                    this->request_.request_target());
+                                                                    this->request_.target());
     if (result.is_err()) {
         const std::string error_msg = CREATE_ERROR_INFO_STR("error: location not found");
         DEBUG_PRINT(RED, "%s", error_msg.c_str());  // todo: log
@@ -198,7 +202,7 @@ bool HttpResponse::is_exec_cgi() {
   https://tex2e.github.io/rfc-translater/html/rfc3875.html#4-1-5--PATHINFO
  */
 std::pair<ScriptPath, PathInfo> HttpResponse::get_script_path_and_path_info() {
-    std::string target = this->request_.request_target();
+    std::string target = this->request_.target();
     std::string script_path, path_info;
 
     DEBUG_PRINT(MAGENTA, "get script_path and path_info");
@@ -392,6 +396,20 @@ void HttpResponse::add_standard_headers() {
     add_date_header();
 }
 
+void HttpResponse::add_cookie_headers() {
+    if (this->cookies_.empty()) {
+        return;
+    }
+
+    std::map<std::string, std::string>::iterator cookie;
+    for (cookie = this->cookies_.begin(); cookie != this->cookies_.end(); ++cookie) {
+        std::ostringstream oss;
+        oss << "Set-Cookie: " << cookie->first << "=" << cookie->second << CRLF;
+        const std::string cookie_header = oss.str();
+        this->response_msg_.insert(this->response_msg_.end(), cookie_header.begin(), cookie_header.end());
+    }
+}
+
 
 /*
  HTTP-message = start-line CRLF
@@ -416,6 +434,7 @@ void HttpResponse::create_response_message() {
 
     this->response_msg_.insert(this->response_msg_.end(), status_line.begin(), status_line.end());
     this->response_msg_.insert(this->response_msg_.end(), field_lines.begin(), field_lines.end());
+    add_cookie_headers();
     this->response_msg_.insert(this->response_msg_.end(), empty.begin(), empty.end());
     this->response_msg_.insert(this->response_msg_.end(), this->body_buf_.begin(), this->body_buf_.end());
 
@@ -466,12 +485,12 @@ std::string HttpResponse::create_field_lines() const {
 std::string HttpResponse::get_rooted_path() const {
     std::string root;
     Result<std::string, int> root_result = Config::get_root(this->server_config_,
-                                                            this->request_.request_target());
+                                                            this->request_.target());
     if (root_result.is_ok()) {
         root = root_result.ok_value();
     }
 
-    std::string path = root + this->request_.request_target();
+    std::string path = root + this->request_.target();
     return path;
 }
 

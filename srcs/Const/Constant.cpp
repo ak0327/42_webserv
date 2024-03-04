@@ -66,6 +66,7 @@ const int IO_TIMEOUT = -1;
 const int OFFSET_NONE = 0;
 
 const std::size_t FILE_SIZE_LIMIT = 65535;
+const std::size_t CLIENT_HEADER_MAX_SIZE = 1024 * 5;  // 5kB
 
 ////////////////////////////////////////////////////////////////////////////////
 /* status */
@@ -99,6 +100,7 @@ std::map<StatusCode, std::string> init_reason_phrases() {
     reason_phrases[Conflict]                = "Conflict";
     reason_phrases[LengthRequired]          = "Length Required";
     reason_phrases[ContentTooLarge]         = "Content Too Large";
+    reason_phrases[RequestHeaderFieldsTooLarge] = "Request Header Fields Too Large";
 
     reason_phrases[InternalServerError]     = "Internal Server Error";
     reason_phrases[NotImplemented]          = "Not Implemented";
@@ -536,28 +538,30 @@ std::vector<std::string> init_sh_tokens() {
 ////////////////////////////////////////////////////////////////////////////////
 /* configuration */
 
-const char EVENTS_BLOCK[] = "events";
-const char HTTP_BLOCK[] = "http";
-const char SERVER_BLOCK[] = "server";
-const char LOCATION_BLOCK[] = "location";
+const char EVENTS_BLOCK[]       = "events";
+const char HTTP_BLOCK[]         = "http";
+const char SERVER_BLOCK[]       = "server";
+const char LOCATION_BLOCK[]     = "location";
 
-const char LISTEN_DIRECTIVE[] = "listen";
-const char SERVER_NAME_DIRECTIVE[] = "server_name";
-const char RETURN_DIRECTIVE[] = "return";
+const char LISTEN_DIRECTIVE[]               = "listen";
+const char SERVER_NAME_DIRECTIVE[]          = "server_name";
+const char SESSION_TIMEOUT_DIRECTIVE[]      = "session_timeout";
+const char KEEPALIVE_TIMEOUT_DIRECTIVE[]    = "keepalive_timeout";
 
-const char ROOT_DIRECTIVE[] = "root";
-const char INDEX_DIRECTIVE[] = "index";
+const char RETURN_DIRECTIVE[]       = "return";
+const char ROOT_DIRECTIVE[]         = "root";
+const char INDEX_DIRECTIVE[]        = "index";
 const char LIMIT_EXCEPT_DIRECTIVE[] = "limit_except";
-const char ERROR_PAGE_DIRECTIVE[] = "error_page";
-const char AUTOINDEX_DIRECTIVE[] = "autoindex";
-const char BODY_SIZE_DIRECTIVE[] = "client_max_body_size";
+const char ERROR_PAGE_DIRECTIVE[]   = "error_page";
+const char AUTOINDEX_DIRECTIVE[]    = "autoindex";
+const char BODY_SIZE_DIRECTIVE[]    = "client_max_body_size";
 
-const char ALLOW_DIRECTIVE[] = "allow";
-const char DENY_DIRECTIVE[] = "deny";
+const char ALLOW_DIRECTIVE[]        = "allow";
+const char DENY_DIRECTIVE[]         = "deny";
 
-const char CGI_MODE_DIRECTIVE[] = "cgi_mode";
-const char CGI_EXTENSION_DIRECTIVE[] = "cgi_extension";
-const char CGI_TIMEOUT_DIRECTIVE[] = "cgi_timeout";
+const char CGI_MODE_DIRECTIVE[]         = "cgi_mode";
+const char CGI_EXTENSION_DIRECTIVE[]    = "cgi_extension";
+const char CGI_TIMEOUT_DIRECTIVE[]      = "cgi_timeout";
 
 const char LEFT_PAREN[] = "{";
 const char RIGHT_PAREN[] = "}";
@@ -592,6 +596,8 @@ std::vector<std::string> init_directive_names() {
 	directive_names.push_back(CGI_MODE_DIRECTIVE);
 	directive_names.push_back(CGI_EXTENSION_DIRECTIVE);
 	directive_names.push_back(CGI_TIMEOUT_DIRECTIVE);
+    directive_names.push_back(SESSION_TIMEOUT_DIRECTIVE);
+    directive_names.push_back(KEEPALIVE_TIMEOUT_DIRECTIVE);
 	return directive_names;
 }
 
@@ -621,21 +627,7 @@ MimeTypeMap init_mime_types() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/* API endpoint */
-
-const std::vector<std::string> API_ENDPOINTS = init_endpoints();
-
-std::vector<std::string> init_endpoints() {
-    std::vector<std::string> endpoints;
-    // endpoints.push_back("");
-
-    endpoints.push_back("/api/form-data");
-    endpoints.push_back("/api/show-response");
-    endpoints.push_back("/api/now");
-    return endpoints;
-}
-
-////////////////////////////////////////////////////////////////////////////////
 /* server information */
 
 const char SERVER_SEMANTIC_VERSION[] = "webserv/1.0.0";
+const char SESSION_ID[] = "WebservSessionId";

@@ -13,9 +13,20 @@ const std::size_t KB = 1024;
 const std::size_t MB = KB * KB;
 const std::size_t GB = KB * KB * KB;
 const std::size_t kDefaultBodySize = 1 * MB;
+
 const time_t kDefaultCgiTimeoutSec = 5;
-const time_t kCgiTimeoutMinSec = 1;
-const time_t kCgiTImeoutMaxSec = 3600;
+const time_t kMinCgiTimeoutSec = 1;
+const time_t kMaxCgiTImeoutSec = 3600;
+
+const time_t kDefaultSessionTimeoutSec = 60;
+const time_t kMinSessionTimeoutSec = 1;
+const time_t kMaxSessionTimeoutSec = 3600;
+
+const time_t kDefaultCookieTimeoutSec = 60;
+
+const time_t kDefaultKeepaliveTimeoutSec = 75;
+const time_t kMinKeepaliveTimeoutSec = 1;
+const time_t kMaxKeepaliveTimeoutSec = 3600;
 
 const char kDefaultRoot[] = "html";
 const char kDefaultIndex[] = "index.html";
@@ -184,10 +195,15 @@ struct ServerConfig : public DefaultConfig  {
     std::set<std::string> server_names;
     std::map<LocationPath, LocationConfig> locations;
 
+    time_t session_timeout_sec;
+    time_t keepalive_timeout_sec;
+
     ServerConfig()
         : listens(),
           server_names(),
-          locations() {}
+          locations(),
+          session_timeout_sec(ConfigInitValue::kDefaultSessionTimeoutSec),
+          keepalive_timeout_sec(ConfigInitValue::kDefaultKeepaliveTimeoutSec) {}
 };
 
 struct HttpConfig {

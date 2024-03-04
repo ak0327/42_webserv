@@ -52,10 +52,11 @@ include_directories(
         srcs/Error
         srcs/IOMultiplexer
         srcs/Server
+        srcs/Session
         srcs/Socket
         srcs/StringHandler
         srcs/HttpResponse
-        srcs/HttpResponse/Api
+        srcs/HttpResponse/Dynamic
         srcs/HttpResponse/CgiHandler
         srcs/HttpResponse/GET
         srcs/HttpResponse/POST
@@ -90,6 +91,7 @@ set(webserv_srcs
         srcs/Error/Error.cpp
         srcs/IOMultiplexer/IOMultiplexer.cpp
         srcs/Server/Server.cpp
+        srcs/Session/Session.cpp
         srcs/Socket/Socket.cpp
         srcs/StringHandler/StringHandler.cpp
         srcs/StringHandler/HttpMessageParser.cpp
@@ -187,7 +189,9 @@ list(APPEND webserv_srcs
 # response_srcs ----------------------------------------------------------------
 set(http_response_srcs
         srcs/HttpResponse/HttpResponse.cpp
-        srcs/HttpResponse/Api/api.cpp
+        srcs/HttpResponse/Dynamic/Dynamic.cpp
+        srcs/HttpResponse/Dynamic/cookie_login.cpp
+        srcs/HttpResponse/Dynamic/session_login.cpp
 )
 # GET
 set(get_srcs
