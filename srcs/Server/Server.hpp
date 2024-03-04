@@ -84,6 +84,4 @@ class Server {
     bool is_cgi_fd(int fd);
     ServerResult handle_client_event(int client_fd);
     ServerResult handle_cgi_event(int cgi_fd);
-
-
 };

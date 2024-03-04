@@ -401,3 +401,4 @@ MimeTypeMap init_mime_types();
 /* server information */
 
 extern const char SERVER_SEMANTIC_VERSION[];
+extern const char SESSION_ID[];

@@ -30,6 +30,7 @@ struct FormData {
 typedef std::string ScriptPath;
 typedef std::string PathInfo;
 typedef std::map<std::string, std::vector<std::string> > UrlEncodedFormData;
+typedef std::map<std::string, Session>::iterator SessionItr;
 
 class HttpResponse {
  public:
@@ -166,9 +167,14 @@ class HttpResponse {
     UrlEncodedFormData parse_urlencoded_form_data(const std::vector<unsigned char> &request_body);
 
     bool is_logged_in_user();
-    bool is_session_active_user();
-    std::string get_user_name();
+    Result<SessionItr, bool> is_session_active_user();
+    std::string get_user_name_from_cookie();
+    Result<std::string, ProcResult> generate_new_id();
+    ProcResult add_init_session_data(const std::map<std::string, std::string> &data);
 
+    ProcResult update_session_data(SessionItr *itr);
+    void update_expire(const SessionItr &itr);
+    void update_counter(const SessionItr &itr);
 
     // unused
     HttpResponse(const HttpResponse &other);

@@ -675,10 +675,11 @@ ServerResult Server::process_event(int ready_fd) {
 
 ServerResult Server::accept_connect_fd(int socket_fd,
                                        struct sockaddr_storage *client_addr) {
-    if (MAX_SESSION <= this->client_fds_.size()) {
-        std::cerr << "[Server Error] exceed max connection" << std::endl;
-        return ServerResult::ok(OK);  // todo: continue, ok?
-    }
+    (void)MAX_SESSION;
+    // if (MAX_SESSION <= this->client_fds_.size()) {
+    //     std::cerr << "[Server Error] exceed max connection" << std::endl;
+    //     return ServerResult::ok(OK);  // todo: continue, ok?
+    // }
 
     SocketResult accept_result = Socket::accept(socket_fd, client_addr);
     if (accept_result.is_err()) {

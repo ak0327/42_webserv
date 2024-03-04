@@ -16,6 +16,7 @@ const std::size_t kDefaultBodySize = 1 * MB;
 const time_t kDefaultCgiTimeoutSec = 5;
 const time_t kCgiTimeoutMinSec = 1;
 const time_t kCgiTImeoutMaxSec = 3600;
+const time_t kDefaultSessionExpireSec = 3600;
 
 const char kDefaultRoot[] = "html";
 const char kDefaultIndex[] = "index.html";
@@ -151,13 +152,15 @@ struct DefaultConfig {
     std::map<StatusCode, std::string> error_pages;
     bool autoindex;
     std::size_t max_body_size_bytes;
+    time_t session_expire_sec;
 
     DefaultConfig()
         : root_path(ConfigInitValue::kDefaultRoot),
           index_pages(),
           error_pages(),
           autoindex(ConfigInitValue::kDefaultAutoindex),
-          max_body_size_bytes(1 * ConfigInitValue::MB) {
+          max_body_size_bytes(1 * ConfigInitValue::MB),
+          session_expire_sec(ConfigInitValue::kDefaultSessionExpireSec) {
         index_pages.insert(ConfigInitValue::kDefaultIndex);
     }
 };

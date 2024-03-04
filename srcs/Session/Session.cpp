@@ -4,9 +4,20 @@
 #include <iomanip>
 #include <cstdlib>
 #include <ctime>
+#include "Color.hpp"
+#include "Debug.hpp"
 #include "Session.hpp"
 
 Session::Session() {}
+
+
+Session::Session(const std::string &id,
+                 const std::map<std::string, std::string> &data,
+                 time_t expire)
+    : id_(id),
+      data_(data),
+      expire_time_(expire) {}
+
 
 Session::~Session() {}
 
@@ -20,6 +31,7 @@ Session &Session::operator=(const Session &rhs) {
     if (this == &rhs) {
         return *this;
     }
+    this->id_ = rhs.id_;
     this->data_ = rhs.data_;
     this->expire_time_ = rhs.expire_time_;
     return *this;
@@ -27,8 +39,7 @@ Session &Session::operator=(const Session &rhs) {
 
 
 std::string Session::generate_hash() {
-    std::srand(static_cast<unsigned int>(std::time(NULL)));
-    std::stringstream ss;
+    std::ostringstream ss;
     for (int i = 0; i < 32; ++i) {
         ss << std::hex << std::rand() % 16;
     }
@@ -36,8 +47,23 @@ std::string Session::generate_hash() {
 }
 
 
-std::map<std::string, std::string> Session::data() const { return this->data_; }
 std::size_t Session::is_empty() const { return this->data_.empty(); }
+
+std::string Session::id() const { return this->id_; }
+std::map<std::string, std::string> Session::data() const { return this->data_; }
+time_t Session::expire_time() const { return this->expire_time_; }
+
+
+void Session::update_id(const std::string &new_id) {
+    DEBUG_PRINT(MAGENTA, "session update_id [%s]->[%s]", this->id().c_str(), new_id.c_str());
+    this->id_ = new_id;
+}
+
+
+void Session::update_expire(time_t new_expire) {
+    DEBUG_PRINT(MAGENTA, "session update_expire [%zu]->[%zu]", this->expire_time(), new_expire);
+    this->expire_time_ = new_expire;
+}
 
 
 void Session::overwrite_data(const std::map<std::string, std::string> &new_data) {

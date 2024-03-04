@@ -624,3 +624,4 @@ MimeTypeMap init_mime_types() {
 /* server information */
 
 const char SERVER_SEMANTIC_VERSION[] = "webserv/1.0.0";
+const char SESSION_ID[] = "WebservSessionId";

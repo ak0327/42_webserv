@@ -10,8 +10,10 @@
 
 
 bool HttpResponse::is_logged_in_user() {
+    std::cout << RED << "is_logged_in_user" << RESET << std::endl;
     Result<std::map<std::string, std::string>, ProcResult> result = this->request_.get_cookie();
     if (result.is_err()) {
+        std::cout << RED << " get_cookie failue" << RESET << std::endl;
         return false;
     }
     std::map<std::string, std::string> cookies = result.ok_value();
@@ -23,7 +25,7 @@ bool HttpResponse::is_logged_in_user() {
 }
 
 
-std::string HttpResponse::get_user_name() {
+std::string HttpResponse::get_user_name_from_cookie() {
     Result<std::map<std::string, std::string>, ProcResult> result = this->request_.get_cookie();
     if (result.is_err()) {
         return EMPTY;
@@ -40,7 +42,10 @@ std::string HttpResponse::get_user_name() {
 
 
 StatusCode HttpResponse::get_cookie_user_page() {
+    std::cout << RED << " get_cookie_user_page()" << RESET << std::endl;
+
     if (is_logged_in_user()) {
+        std::cout << RED << " logged_in_user" << RESET << std::endl;
         const std::string head = "<!doctype html>\n"
                                  "<html lang=\"ja\">\n"
                                  "<head>\n"
@@ -50,7 +55,7 @@ StatusCode HttpResponse::get_cookie_user_page() {
                                  "<body>\n"
                                  "<h1>🍪 Login Page 🍪</h1>\n";
 
-        const std::string welcome = "<h2>Welcome, " + get_user_name() + "</h2>";
+        const std::string welcome = "<h2>Welcome, " + get_user_name_from_cookie() + "</h2>";
 
         const std::string tail = "<br><br><br>\n"
                                  "<a href=\"/\">< back to index</a>"
@@ -66,10 +71,12 @@ StatusCode HttpResponse::get_cookie_user_page() {
         add_content_header("html");
         return StatusOk;
     } else {
+        std::cout << RED << " inactive user" << RESET << std::endl;
+
         ReturnDirective redirect_to_login;
         redirect_to_login.return_on = true;
         redirect_to_login.code = Found;
-        redirect_to_login.text = this->dynamic_.SESSION_LOGIN;
+        redirect_to_login.text = "/login_cookie.html";
         return get_redirect_content(redirect_to_login);
     }
 }
