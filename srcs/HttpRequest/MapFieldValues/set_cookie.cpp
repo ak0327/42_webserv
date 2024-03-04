@@ -14,6 +14,10 @@ namespace {
                 ; and backslash
  */
 bool is_cookie_octet(char c) {
+    if (c == ',' || c == ' ') {  // update for `expires`
+        return true;
+    }
+
 	return (c == 0x21
 			|| (0x23 <= c && c <= 0x2B)
 			|| (0x2D <= c && c <= 0x3A)
