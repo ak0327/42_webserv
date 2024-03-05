@@ -615,7 +615,8 @@ bool Event::is_keepalive() const {
     if (!this->request_ || this->request_->is_client_connection_close()) {
         return false;
     }
-    return this->config_.keepalive_timeout() != 0;
+    const int KEEPALIVE_TIMEOUT_INFINITY = 0;
+    return this->config_.keepalive_timeout() != KEEPALIVE_TIMEOUT_INFINITY;
 }
 
 
