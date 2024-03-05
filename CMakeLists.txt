@@ -82,6 +82,8 @@ set(webserv_srcs
         srcs/Const/Constant.cpp
         srcs/Client/Client.cpp
         srcs/Event/Event.cpp
+        srcs/Event/process_client_event.cpp
+        srcs/Event/process_file_event.cpp
         srcs/Config/FileHandler/FileHandler.cpp
         srcs/Config/ConfigParser/ConfigParser.cpp
         srcs/Config/Token/Token.cpp

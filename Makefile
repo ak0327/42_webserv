@@ -28,7 +28,9 @@ SRCS		+=	$(CONST_DIR)/Constant.cpp
 
 # Event
 EVENT_DIR = Event
-SRCS		+=	$(EVENT_DIR)/Event.cpp
+SRCS		+=	$(EVENT_DIR)/Event.cpp \
+				$(EVENT_DIR)/process_client_event.cpp \
+				$(EVENT_DIR)/process_file_event.cpp
 
 # Error
 ERROR_DIR	=	Error
