@@ -196,18 +196,19 @@ struct ServerConfig : public DefaultConfig  {
     std::map<LocationPath, LocationConfig> locations;
 
     time_t session_timeout_sec;
-    time_t keepalive_timeout_sec;
 
     ServerConfig()
         : listens(),
           server_names(),
           locations(),
-          session_timeout_sec(ConfigInitValue::kDefaultSessionTimeoutSec),
-          keepalive_timeout_sec(ConfigInitValue::kDefaultKeepaliveTimeoutSec) {}
+          session_timeout_sec(ConfigInitValue::kDefaultSessionTimeoutSec) {}
 };
 
 struct HttpConfig {
     std::vector<ServerConfig> servers;
+    time_t keepalive_timeout_sec;
 
-    HttpConfig() : servers() {}
+    HttpConfig()
+        : servers(),
+          keepalive_timeout_sec(ConfigInitValue::kDefaultKeepaliveTimeoutSec) {}
 };

@@ -267,11 +267,11 @@ ServerResult Server::run() {
 		int ready_fd = fd_ready_result.ok_value();
         DEBUG_SERVER_PRINT(" run 4 ready_fd: %d", ready_fd);
 		if (ready_fd == IO_TIMEOUT) {
-            // std::cerr << "[Server INFO] timeout" << std::endl;
             if (this->echo_mode_on_) {
                 DEBUG_SERVER_PRINT("  timeout -> break");
                 break;
-            } else {
+            }
+            else {
                 DEBUG_SERVER_PRINT("  timeout -> continue");
                 continue;
             }

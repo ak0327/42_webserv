@@ -178,4 +178,10 @@ class ConfigParserTestFriend : public ::testing::Test {
         return ConfigParser::parse_timeout_directive(current, end, timeout_sec, directive_name, validate_func);
     }
 
+    static Result<int, std::string> parse_http_block(TokenItr *current,
+                                                     const TokenItr &end,
+                                                     HttpConfig *http_config) {
+        return ConfigParser::parse_http_block(current, end, http_config);
+    }
+
 };
