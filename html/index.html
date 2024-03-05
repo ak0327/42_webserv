@@ -72,6 +72,22 @@
     <li><a href="/cgi-bin/infinite_print.py">infinite_print.py -> 504</a>
     <li><a href="/cgi-bin/sleep10sec.py">sleep10sec.py -> 504</a>
 </ul>
+<ul>
+    <div class="container">
+        <button onclick="copyCommand('get1')">copy</button>
+        <input type="text" id="get1" value="curl -i webserv.com:4242/">
+    </div>
+    <div class="container">
+        <button onclick="copyCommand('get2')">copy</button>
+        <input type="text" id="get2" value="curl -i localhost:4343/">
+    </div>
+    <div class="container">
+        <button onclick="copyCommand('get_x')">copy</button>
+        <input type="text" id="get_x" value="siege -b http://localhost:4242 --time=30S">
+    </div>
+</ul>
+
+
 
 <br>
 
@@ -89,6 +105,10 @@
     <div class="container">
         <button onclick="copyCommand('post2')">copy</button>
         <input type="text" id="post2" value="curl -i -F &quot;file_name=@html/images/image1.jpg&quot; localhost:4242/upload/">
+    </div>
+    <div class="container">
+        <button onclick="copyCommand('post3')">copy</button>
+        <input type="text" id="post3" value="curl -i -X POST -H &quot;Content-Type: plain/text&quot; --data &quot;BODY IS HERE write something shorter or longer than body limit&quot;">
     </div>
 </ul>
 
