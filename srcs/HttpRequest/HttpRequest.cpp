@@ -167,7 +167,6 @@ bool is_telnet_closed(const unsigned char* buffer, std::size_t size) {
 }
 
 
-
 ssize_t HttpRequest::recv_to_buf(int fd) {
     ssize_t recv_size = Socket::recv_to_buf(fd, &this->buf_);
 

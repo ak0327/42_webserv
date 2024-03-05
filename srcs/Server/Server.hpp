@@ -57,7 +57,7 @@ class Server {
     ServerResult create_event(int socket_fd);
     ServerResult process_event(int ready_fd);
 
-    void idoling_event(Event *event);
+    void idling_event(Event *event);
     void clear_event();
 
     void update_fd_type(int fd, FdType update_from, FdType update_to);
@@ -73,6 +73,13 @@ class Server {
     void clear_fd_from_event_manager(int fd);
     void clear_cgi_fds_from_event_manager(const Event &cgi_event);
     void erase_from_timeout_manager(int cgi_fd);
+
+    void management_cgi_executing_timeout(time_t current_time);
+    void management_client_keepalive_timeout(time_t current_time);
+
+    bool is_idling_client(int fd);
+    void clear_from_keepalive_clients(int client_fd);
+    static std::set<FdTimeoutLimitPair>::iterator find_timeout_fd_pair(int fd, const std::set<FdTimeoutLimitPair> &pair);
 
     bool is_socket_fd(int fd) const;
     bool is_fd_type_expect(int fd, const FdType &type);

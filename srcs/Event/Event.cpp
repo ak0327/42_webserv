@@ -108,6 +108,8 @@ EventResult Event::process_client_event() {
                 return EventResult::err(error_msg);
             } else if (recv_result == Failure || recv_result == ConnectionClosed) {
                 return EventResult::ok(ConnectionClosed);
+            } else if (recv_result == Idling) {
+                return EventResult::ok(Idling);
             } else if (recv_result == Continue) {
                 return EventResult::ok(Continue);
             }
@@ -179,6 +181,9 @@ ProcResult Event::recv_http_request() {
 
     ssize_t recv_size = this->request_->recv_to_buf(this->client_fd_);
     if (recv_size == RECV_COMPLETED) {
+        if (this->request_->is_buf_empty()) {
+            return Idling;
+        }
         return ConnectionClosed;
     }
     if (recv_size == RECV_ERROR) {

@@ -151,6 +151,9 @@ Result<int, std::string> Config::set_default_servers() {
 Result<int, std::string> Config::result() const { return this->result_; }
 
 
+time_t Config::keepalive_timeout() const { return this->http_config_.keepalive_timeout_sec; }
+
+
 std::map<ServerInfo, const ServerConfig *> Config::get_server_configs() const {
     return this->server_configs_;
 }
