@@ -119,6 +119,7 @@ SRCS		+=	$(STR_HANDLER)/HttpMessageParser.cpp \
 #HTTP Response
 RESPONSE_DIR =	HttpResponse
 SRCS		+=	$(RESPONSE_DIR)/HttpResponse.cpp \
+				$(RESPONSE_DIR)/create_response_message.cpp \
 				$(RESPONSE_DIR)/Dynamic/Dynamic.cpp \
 				$(RESPONSE_DIR)/Dynamic/cookie_login.cpp \
 				$(RESPONSE_DIR)/Dynamic/session_login.cpp \

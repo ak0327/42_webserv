@@ -191,6 +191,7 @@ list(APPEND webserv_srcs
 
 # response_srcs ----------------------------------------------------------------
 set(http_response_srcs
+        srcs/HttpResponse/create_response_message.cpp
         srcs/HttpResponse/HttpResponse.cpp
         srcs/HttpResponse/Dynamic/Dynamic.cpp
         srcs/HttpResponse/Dynamic/cookie_login.cpp
