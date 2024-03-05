@@ -4,6 +4,34 @@
     <meta charset="UTF-8">
     <title>Test Server</title>
     <link rel="stylesheet" href="index.css">
+
+    <style>
+        .container {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        button {
+            margin-right: 10px;
+        }
+
+        input[type="text"] {
+            width: 90%;
+            box-sizing: border-box;
+        }
+    </style>
+    <script>
+        function copyCommand(commandId) {
+            var commandText = document.getElementById(commandId);
+            commandText.select();
+
+            document.execCommand("copy");
+            alert("copy: " + commandText.value);
+        }
+    </script>
+
 </head>
 <body>
 <h1>Webserv index page</h1>
@@ -52,6 +80,38 @@
     <li><a href="/form_text.html">POST form</a>
     <li><a href="/form_upload.html">UPLOAD form</a>
     <li><a href="/upload">Upload list</a>
+</ul>
+<ul>
+    <div class="container">
+        <button onclick="copyCommand('post1')">copy</button>
+        <input type="text" id="post1" value="curl -i -F &quot;file_name=@html/cgi-bin/hello.py&quot; localhost:4242/upload/">
+    </div>
+    <div class="container">
+        <button onclick="copyCommand('post2')">copy</button>
+        <input type="text" id="post2" value="curl -i -F &quot;file_name=@html/images/image1.jpg&quot; localhost:4242/upload/">
+    </div>
+</ul>
+
+<br>
+
+<h3>DELETE</h3>
+<ul>
+    <div class="container">
+        <button onclick="copyCommand('delete1')">copy</button>
+        <input type="text" id="delete1" value="curl -i -X DELETE localhost:4242/upload/hello.py">
+    </div>
+
+
+    <div class="container">
+        <button onclick="copyCommand('delete2')">copy</button>
+        <input type="text" id="delete2" value="curl -i -X DELETE localhost:4242/index.html">
+    </div>
+
+    <div class="container">
+        <button onclick="copyCommand('delete3')">copy</button>
+        <input type="text" id="delete3" value="curl -i -X DELETE localhost:4242/nothing.html">
+    </div>
+
 </ul>
 
 <br>
