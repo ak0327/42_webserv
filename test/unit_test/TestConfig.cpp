@@ -307,6 +307,14 @@ TEST(TestConfig, ConfigGetterOK1) {
     expect_eq_getter(server_config, location_path, expected_error, expected_cgi_extension, Config::get_cgi_extension, __LINE__);
     EXPECT_EQ(expected_cgi_timeout, Config::get_cgi_timeout(server_config, location_path));
 
+    AddressPortPair client_listen("127.0.0.1", "8080");
+    EXPECT_TRUE(Config::is_method_allowed(server_config, "/", client_listen, kGET));
+    EXPECT_TRUE(Config::is_method_allowed(server_config, "/", client_listen, kPOST));
+    EXPECT_TRUE(Config::is_method_allowed(server_config, "/", client_listen, kDELETE));
+    EXPECT_TRUE(Config::is_method_allowed(server_config, "/index.html", client_listen, kGET));
+    EXPECT_TRUE(Config::is_method_allowed(server_config, "/index.html", client_listen, kPOST));
+    EXPECT_TRUE(Config::is_method_allowed(server_config, "/index.html", client_listen, kDELETE));
+
 
 
     location_path = "/old.html";
@@ -429,6 +437,12 @@ TEST(TestConfig, ConfigGetterOK1) {
     expect_eq_getter(server_config, location_path, expected_error, expected_cgi_mode, Config::is_cgi_mode_on, __LINE__);
     expect_eq_getter(server_config, location_path, expected_error, expected_cgi_extension, Config::get_cgi_extension, __LINE__);
     EXPECT_EQ(expected_cgi_timeout, Config::get_cgi_timeout(server_config, location_path));
+
+    client_listen = AddressPortPair("127.0.0.1", "8080");
+    EXPECT_FALSE(Config::is_method_allowed(server_config, "/post", client_listen, kGET));
+    EXPECT_TRUE(Config::is_method_allowed(server_config, "/post", client_listen, kPOST));
+    EXPECT_TRUE(Config::is_method_allowed(server_config, "/post", client_listen, kDELETE));
+
 
 
     location_path = "/50x.html";
