@@ -36,7 +36,8 @@ class HttpResponse {
  public:
 	explicit HttpResponse(const HttpRequest &request,
                           const ServerConfig &server_config,
-                          const AddressPortPair &pair,
+                          const AddressPortPair &server_listen,
+                          const AddressPortPair &client_listen,
                           std::map<std::string, Session> *sessions,
                           time_t keepalive_timeout);
 	~HttpResponse();
@@ -72,7 +73,8 @@ class HttpResponse {
  private:
     const HttpRequest &request_;
     const ServerConfig &server_config_;
-    const AddressPortPair address_port_pair_;
+    const AddressPortPair server_listen_;
+    const AddressPortPair client_listen_;
     std::map<std::string, Session> *sessions_;
 
     CgiHandler cgi_handler_;

@@ -23,7 +23,7 @@
 
 namespace {
 
-const int MAX_SESSION = 128;
+const int MAX_SESSION = 2;
 
 
 // void stop_by_signal(int sig) {
@@ -394,6 +394,9 @@ ServerResult Server::create_event(int socket_fd) {
     if (accept_result.is_err()) {
         const std::string error_msg = accept_result.err_value();
         return ServerResult::err(error_msg);
+    }
+    if (accept_result.ok_value() == ERR) {  // exceed max connection
+        return ServerResult::ok(OK);
     }
     int connect_fd = accept_result.ok_value();
     Result<int, std::string> non_block = Socket::set_fd_to_nonblock(connect_fd);
@@ -774,7 +777,7 @@ ServerResult Server::accept_connect_fd(int socket_fd,
     (void)MAX_SESSION;
     // if (MAX_SESSION <= this->client_fds_.size()) {
     //     std::cerr << "[Server Error] exceed max connection" << std::endl;
-    //     return ServerResult::ok(OK);  // todo: continue, ok?
+    //     return ServerResult::ok(ERR);  // todo: continue, ok?
     // }
 
     SocketResult accept_result = Socket::accept(socket_fd, client_addr);

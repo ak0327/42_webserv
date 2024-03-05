@@ -347,7 +347,7 @@ Result<ServerConfig, std::string> Event::get_server_config() const {
     // DEBUG_PRINT(YELLOW, " host: %s, port:%s", host_port_pair.first.c_str(), host_port_pair.second.c_str());
 
     Result<ServerConfig, std::string> config_result;
-    config_result = config_.get_server_config(this->address_port_pair_, host_port_pair);
+    config_result = config_.get_server_config(this->server_listen_, host_port_pair);
     if (config_result.is_err()) {
         // DEBUG_PRINT(YELLOW, "get_server_config err");
         const std::string error_msg = config_result.err_value();
@@ -365,7 +365,7 @@ EventResult Event::get_host_config() {
         const std::string error_msg = address_result.err_value();
         return EventResult::err(error_msg);
     }
-    this->address_port_pair_ = address_result.ok_value();
+    this->server_listen_ = address_result.ok_value();
 
     Result<ServerConfig, std::string> config_result = Event::get_server_config();
     if (config_result.is_err()) {
@@ -395,7 +395,7 @@ ProcResult Event::execute_each_method() {
     if (this->echo_mode_on_) {
         try {
             HttpRequest request; ServerConfig config; AddressPortPair pair;
-            this->response_ = new HttpResponse(request, config, pair, NULL, 0);
+            this->response_ = new HttpResponse(request, config, pair, pair, NULL, 0);
         }
         catch (const std::exception &e) {
             const std::string error_msg = CREATE_ERROR_INFO_STR("Failed to allocate memory");
@@ -408,7 +408,8 @@ ProcResult Event::execute_each_method() {
     try {
         this->response_ = new HttpResponse(*this->request_,
                                            this->server_config_,
-                                           this->address_port_pair_,
+                                           this->server_listen_,
+                                           this->client_listen_,
                                            this->sessions_,
                                            this->config_.keepalive_timeout());
         // std::cout << CYAN << "     response_message[" << this->http_response_->get_response_message() << "]" << RESET << std::endl;

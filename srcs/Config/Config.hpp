@@ -75,6 +75,12 @@ class Config {
     static Result<bool, int> is_method_allowed(const ServerConfig &server_config,
                                                const std::string &target_path,
                                                const Method &method);
+
+    static bool is_method_allowed(const ServerConfig &server_config,
+                                  const std::string &target_path,
+                                  const AddressPortPair &client_listen,
+                                  const Method &method);
+
     Result<bool, int> is_method_allowed(const ServerInfo &server_info,
                                         const std::string &target_path,
                                         const Method &method) const;

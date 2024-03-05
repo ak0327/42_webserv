@@ -15,7 +15,7 @@ void expect_eq_target(const ServerConfig &server_config,
                       std::size_t line) {
     AddressPortPair pair;
     HttpRequest request(request_msg);
-    HttpResponse response(request, server_config, pair, NULL, 0);
+    HttpResponse response(request, server_config, pair, pair, NULL, 0);
 
     std::string actual_path = HttpResponseFriend::get_rooted_path(response);
     EXPECT_EQ(expected_path, actual_path) << "  at L" << line;

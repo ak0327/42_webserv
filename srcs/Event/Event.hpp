@@ -92,7 +92,7 @@ class Event {
     ServerInfo server_info_;
     ServerConfig server_config_;
 
-    AddressPortPair address_port_pair_;
+    AddressPortPair server_listen_;
 
     EventPhase event_state_;
 

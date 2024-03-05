@@ -23,12 +23,14 @@
 
 HttpResponse::HttpResponse(const HttpRequest &request,
                            const ServerConfig &server_config,
-                           const AddressPortPair &pair,
+                           const AddressPortPair &server_listen,
+                           const AddressPortPair &client_listen,
                            std::map<std::string, Session> *sessions,
                            time_t keepalive_timeout)
     : request_(request),
       server_config_(server_config),
-      address_port_pair_(pair),
+      server_listen_(server_listen),
+      client_listen_(client_listen),
       sessions_(sessions),
       cgi_handler_(),
       dynamic_(),
