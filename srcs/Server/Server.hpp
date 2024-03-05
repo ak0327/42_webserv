@@ -80,6 +80,7 @@ class Server {
     bool is_idling_client(int fd);
     void clear_from_keepalive_clients(int client_fd);
     static std::set<FdTimeoutLimitPair>::iterator find_timeout_fd_pair(int fd, const std::set<FdTimeoutLimitPair> &pair);
+    static AddressPortPair get_client_listen(const struct sockaddr_storage &client_addr);
 
     bool is_socket_fd(int fd) const;
     bool is_fd_type_expect(int fd, const FdType &type);

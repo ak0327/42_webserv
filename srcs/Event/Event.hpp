@@ -79,7 +79,6 @@ class Event {
     void kill_cgi_process();
     void clear_cgi();
 
-    static AddressPortPair get_client_listen(const struct sockaddr_storage &client_addr);
     const char *event_phase_char();
     static const char *event_phase_char(const EventPhase &phase);
     static std::string event_phase_str(const EventPhase &phase);

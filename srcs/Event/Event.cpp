@@ -1,4 +1,3 @@
-#include <arpa/inet.h>
 #include <errno.h>
 #include <stdint.h>
 #include <sys/socket.h>
@@ -201,49 +200,6 @@ bool Event::is_keepalive() const {
     return this->config_.keepalive_timeout() != KEEPALIVE_TIMEOUT_INFINITY;
 }
 
-
-AddressPortPair Event::get_client_listen(const struct sockaddr_storage &client_addr) {
-    char ip[INET6_ADDRSTRLEN];
-    std::string address, port;
-    std::ostringstream port_stream;
-    struct sockaddr_in *addr_in;
-    struct sockaddr_in6 *addr_in6;
-
-    switch (client_addr.ss_family) {
-        case AF_INET: {
-            addr_in = (struct sockaddr_in *)&client_addr;
-            inet_ntop(AF_INET, &addr_in->sin_addr, ip, sizeof(ip));
-            address = ip;
-            port_stream << ntohs(addr_in->sin_port);
-            break;
-        }
-
-        case AF_INET6: {
-            addr_in6 = (struct sockaddr_in6 *)&client_addr;
-            if (IN6_IS_ADDR_V4MAPPED(&addr_in6->sin6_addr)) {
-                inet_ntop(AF_INET, &addr_in6->sin6_addr.s6_addr[12], ip, INET_ADDRSTRLEN);
-                address = ip;
-            } else {
-                inet_ntop(AF_INET6, &addr_in6->sin6_addr, ip, sizeof(ip));
-                address = ip;
-            }
-            port_stream << ntohs(addr_in6->sin6_port);
-            break;
-        }
-
-        default: {
-            address = "unknown address";
-            port = "unknown port";
-        }
-    }
-
-    if (port.empty()) {
-        port = port_stream.str();
-    }
-    AddressPortPair pair(address, port);
-    DEBUG_SERVER_PRINT("address: %s, port: %s", address.c_str(), port.c_str());
-    return pair;
-}
 
 std::ostringstream &operator<<(std::ostringstream &out, const Event &event) {
     out << "[Event]: ";
