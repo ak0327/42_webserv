@@ -608,6 +608,9 @@ bool Event::is_connection_closed(const Result<ProcResult, std::string> &result) 
 
 
 bool Event::is_keepalive() const {
+    if (this->echo_mode_on_) {
+        return false;
+    }
     if (!this->request_ || this->request_->is_client_connection_close()) {
         return false;
     }

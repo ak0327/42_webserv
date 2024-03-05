@@ -222,7 +222,7 @@ run_unit_test	:
 	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D DEBUG"
 	cmake --build build
 #	./build/unit_test 2>/dev/null
-	./build/unit_test  # leaks report
+	./build/unit_test test/integration/integration_test.conf # leaks report
 	. test/integration/prepare_test_file.sh; clear_test_file
 
 .PHONY	: run_integration_test
@@ -238,12 +238,12 @@ run_server_test	:
 	cmake --build build
 	#./build/unit_test --gtest_filter=Server* 2>/dev/null
 	#./build/unit_test --gtest_filter=*.ConnectClientCase1
-	./build/unit_test --gtest_filter=Server*
+	#./build/unit_test --gtest_filter=Server*
 	#./build/unit_test --gtest_filter=ServerUnitTest.TestMultiServer
 	#./build/unit_test --gtest_filter=ServerUnitTest.ConnectClientCase*
 	#./build/unit_test --gtest_filter=ServerUnitTest.ConnectClientCase1
 	#./build/unit_test --gtest_filter=ServerUnitTest.ConnectClientCase2
-#	./build/unit_test --gtest_filter=ServerUnitTest.ConnectMultiClient
+	./build/unit_test --gtest_filter=ServerUnitTest.ConnectMultiClient
 
 .PHONY	: run_socket_test
 run_socket_test	:
