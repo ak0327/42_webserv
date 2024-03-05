@@ -99,7 +99,8 @@ SRCS		+=	$(IO_DIR)/IOMultiplexer.cpp
 
 # Server
 SERVER_DIR	=	Server
-SRCS		+=	$(SERVER_DIR)/Server.cpp
+SRCS		+=	$(SERVER_DIR)/Server.cpp \
+				$(SERVER_DIR)/timeout_manager.cpp
 
 # Session
 SESSION_DIR	=	Session
