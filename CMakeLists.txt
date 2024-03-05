@@ -94,6 +94,7 @@ set(webserv_srcs
         srcs/Error/Error.cpp
         srcs/IOMultiplexer/IOMultiplexer.cpp
         srcs/Server/Server.cpp
+        srcs/Server/process_event.cpp
         srcs/Server/timeout_manager.cpp
         srcs/Session/Session.cpp
         srcs/Socket/Socket.cpp

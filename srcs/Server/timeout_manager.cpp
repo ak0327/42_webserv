@@ -155,3 +155,23 @@ void Server::set_io_timeout() {
     const int kTimeoutInfinity = 0;
     this->fds_->set_io_timeout(kTimeoutInfinity);
 }
+
+
+void Server::idling_event(Event *event) {
+    // select        -> polling; idoling event
+    // epoll, kqueus -> event driven; init event
+    if (!event) {
+        return;
+    }
+    int client_fd = event->client_fd();
+    update_fd_type(client_fd, kWriteFd, kReadFd);
+    event->set_event_phase(kReceivingRequest);
+    event->clear_request();
+    event->clear_response();
+
+    time_t timeout_limit = std::time(NULL) + this->config_.keepalive_timeout();
+    this->keepalive_clients_.insert(FdTimeoutLimitPair(timeout_limit, client_fd));
+
+    DEBUG_SERVER_PRINT("init event: client_fd %d, timeout: %zu", client_fd, timeout_limit);
+    DEBUG_SERVER_PRINT("------------------------------------------------------------------------------------------------");
+}
