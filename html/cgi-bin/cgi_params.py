@@ -4,7 +4,7 @@ import os
 
 
 def header():
-    print("Content-Type: text/plain")
+    print("Content-type: text/html")
     print()
 
 
@@ -12,7 +12,6 @@ def main():
     path_info = os.environ.get('PATH_INFO', '')
     query_string = os.environ.get('QUERY_STRING', '')
 
-    print("Content-type: text/html\n")
     print("<html><body>")
 
     print("<h1>PATH_INFO and QUERY_STRING</h1>")
