@@ -43,6 +43,7 @@ class Server {
     std::set<FdTimeoutLimitPair> cgi_fds_;
 
     std::map<ClientFd, Event *> client_events_;
+    std::set<FdTimeoutLimitPair> keepalive_clients_;
     std::map<CgiFd, Event *> cgi_events_;
 
     std::map<std::string, Session> sessions_;
@@ -56,7 +57,7 @@ class Server {
     ServerResult create_event(int socket_fd);
     ServerResult process_event(int ready_fd);
 
-    void init_event(Event *event);
+    void idoling_event(Event *event);
     void clear_event();
 
     void update_fd_type(int fd, FdType update_from, FdType update_to);

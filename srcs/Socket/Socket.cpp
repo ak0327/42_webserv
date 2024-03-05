@@ -169,10 +169,11 @@ ssize_t Socket::recv_to_buf(int fd, std::vector<unsigned char> *buf) {
     ssize_t recv_size = Socket::recv(fd, &recv_buf[0], BUFSIZ);
 
     DEBUG_SERVER_PRINT(" recv_size: %zd", recv_size);
-    std::string debug_recv_msg(recv_buf.begin(), recv_buf.begin() + recv_size);
-    DEBUG_SERVER_PRINT(" recv_msg[%s]", debug_recv_msg.c_str());
 
     if (0 < recv_size) {
+        std::string debug_recv_msg(recv_buf.begin(), recv_buf.begin() + recv_size);
+        DEBUG_SERVER_PRINT(" recv_msg[%s]", debug_recv_msg.c_str());
+
         buf->insert(buf->end(), recv_buf.begin(), recv_buf.begin() + recv_size);
     }
     DEBUG_SERVER_PRINT("recv end");
@@ -202,6 +203,7 @@ ProcResult Socket::send_buf(int fd, std::vector<unsigned char> *buf) {
     if (!buf) { return FatalError; }
 
     ssize_t send_size = Socket::send(fd, buf->data(), buf->size());
+    DEBUG_SERVER_PRINT(" send size: %zd", send_size);
     if (send_size == SEND_ERROR) {
         return Failure;
     }

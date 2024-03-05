@@ -104,12 +104,12 @@ EventResult Event::process_client_event() {
             DEBUG_SERVER_PRINT("   Session: 1 Recv");
             ProcResult recv_result = recv_http_request();
             if (recv_result == FatalError) {
-                const std::string error_msg = CREATE_ERROR_INFO_STR("fatal error");
+                const std::string error_msg = CREATE_ERROR_INFO_STR("error: fail to allocate memory for HttpRequest");
                 return EventResult::err(error_msg);
+            } else if (recv_result == Failure || recv_result == ConnectionClosed) {
+                return EventResult::ok(ConnectionClosed);
             } else if (recv_result == Continue) {
                 return EventResult::ok(Continue);
-            } else if (recv_result == ConnectionClosed) {
-                return EventResult::ok(ConnectionClosed);
             }
             this->set_event_phase(kParsingRequest);
         }
@@ -133,7 +133,8 @@ EventResult Event::process_client_event() {
             DEBUG_SERVER_PRINT("   Session: 3 CreatingResponse");
             ProcResult response_result = create_http_response();
             if (response_result == FatalError) {
-                return EventResult::err("fail to memory allocate for HttpResponse");
+                const std::string error_msg = CREATE_ERROR_INFO_STR("error: fail to allocate memory for HttpResponse");
+                return EventResult::err(error_msg);
             }
             if (response_result == ExecutingCgi) {
                 return EventResult::ok(ExecutingCgi);
@@ -144,6 +145,9 @@ EventResult Event::process_client_event() {
         case kSendingResponse: {
             DEBUG_SERVER_PRINT("   Session: 4 SendingResponse");
             ProcResult send_result = this->response_->send_http_response(this->client_fd_);
+            if (send_result == Failure) {
+                return EventResult::ok(ConnectionClosed);
+            }
             if (send_result == Continue) {
                 return EventResult::ok(Continue);
             }
@@ -169,7 +173,6 @@ ProcResult Event::recv_http_request() {
             this->request_ = new HttpRequest();
         }
         catch (const std::exception &e) {
-            DEBUG_PRINT(RED, "error: fail to memory allocate for HttpRequest");  // todo: logging
             return FatalError;
         }
     }
@@ -178,8 +181,8 @@ ProcResult Event::recv_http_request() {
     if (recv_size == RECV_COMPLETED) {
         return ConnectionClosed;
     }
-    if (recv_size == RECV_CLOSED || recv_size == RECV_ERROR) {
-        return ConnectionClosed;
+    if (recv_size == RECV_ERROR) {
+        return Failure;
     }
     return 0 < recv_size ? Success : Continue;
 }

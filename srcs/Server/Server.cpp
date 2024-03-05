@@ -54,7 +54,6 @@ const int MAX_SESSION = 128;
 // ServerResult set_signal() {
 //     // return ServerResult::ok(OK);
 //
-//     // todo
 // 	errno = 0;
 // 	if (signal(SIGABRT, stop_by_signal) == SIG_ERR) {
 // 		const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
@@ -251,9 +250,12 @@ Result<IOMultiplexer *, std::string> Server::create_io_multiplexer_fds() {
 
 ServerResult Server::run() {
 	while (true) {
+        // char *p = new char[100]; (void)p;
+
         DEBUG_SERVER_PRINT(" run 1 timeout management");
         management_timeout_events();
         set_io_timeout();
+
         DEBUG_SERVER_PRINT(" run 2 get_io_ready_fd");
         ServerResult fd_ready_result = this->fds_->get_io_ready_fd();
         DEBUG_SERVER_PRINT(" run 3 ready result");
@@ -411,6 +413,22 @@ void Server::delete_event(std::map<Fd, Event *>::iterator event) {
 }
 
 
+void Server::idoling_event(Event *event) {
+    // select        -> polling; idoling event
+    // epoll, kqueus -> event driven; init event
+    if (!event) {
+        return;
+    }
+    int client_fd = event->client_fd();
+    update_fd_type(client_fd, kWriteFd, kReadFd);
+    event->set_event_phase(kReceivingRequest);
+    event->clear_request();
+    event->clear_response();
+    DEBUG_SERVER_PRINT("init event: client_fd %d", client_fd);
+    DEBUG_SERVER_PRINT("------------------------------------------------------------------------------------------------");
+}
+
+
 bool is_cgi_fd(int result_value) {
     return result_value != OK;  // result_value is cgi_fd
 }
@@ -428,18 +446,6 @@ void Server::update_fd_type(int fd,
     } else if (update_to == kWriteFd) {
         this->fds_->register_write_fd(fd);
     }
-}
-
-
-void Server::init_event(Event *event) {
-    if (!event) {
-        return;
-    }
-    int client_fd = event->client_fd();
-    update_fd_type(client_fd, kWriteFd, kReadFd);
-    event->set_event_phase(kReceivingRequest);
-    event->clear_request();
-    event->clear_response();
 }
 
 
@@ -581,8 +587,8 @@ ServerResult Server::handle_client_event(int client_fd) {
         case kEventCompleted: {
             std::ostringstream oss; oss << client_event;
             DEBUG_SERVER_PRINT("process_event(client) -> event completed: %s", oss.str().c_str());
-            delete_event(event);  // todo -> init_session & keep-alive
-            // init_session(client);
+            // delete_event(event);
+            idoling_event(client_event);
             break;
         }
         default:
@@ -706,9 +712,24 @@ ServerResult Server::accept_connect_fd(int socket_fd,
 
 
 void Server::set_io_timeout() {
-    if (this->cgi_fds_.empty() && !this->echo_mode_on_) {
-        this->fds_->set_io_timeout(0);
-    } else {
-        this->fds_->set_io_timeout(100);
+    const int kEchoModeTimeoutMs = 100;
+    if (this->echo_mode_on_) {
+        this->fds_->set_io_timeout(kEchoModeTimeoutMs);
+        return;
     }
+
+    const int kCgiManagemtntTimeout = 100;
+    if (!this->cgi_fds_.empty()) {
+        this->fds_->set_io_timeout(kCgiManagemtntTimeout);
+        return;
+    }
+
+    const int kKeepAliveManagementTimeoutMs = 1000;
+    if (!this->keepalive_clients_.empty()) {
+        this->fds_->set_io_timeout(kKeepAliveManagementTimeoutMs);
+        return;
+    }
+
+    const int kTimeoutInfinity = 0;
+    this->fds_->set_io_timeout(kTimeoutInfinity);
 }
