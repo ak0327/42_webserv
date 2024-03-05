@@ -20,6 +20,7 @@ extern const int REMOVE_SUCCESS;
 extern const ssize_t RECV_COMPLETED;
 extern const ssize_t RECV_CONTINUE;
 extern const ssize_t RECV_ERROR;
+extern const ssize_t RECV_CLOSED;
 
 extern const ssize_t SEND_COMPLETED;
 extern const ssize_t SEND_CONTINUE;

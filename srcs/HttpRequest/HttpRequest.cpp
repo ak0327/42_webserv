@@ -151,8 +151,31 @@ void HttpRequest::clear_field_values_of(const std::string &field_name) {
 ////////////////////////////////////////////////////////////////////////////////
 
 
+// detect telnet send ^C
+bool is_telnet_closed(const unsigned char* buffer, std::size_t size) {
+    const unsigned char IAC = 255;
+    const unsigned char IP = 244;
+
+    for (std::size_t i = 0; i < size; ++i) {
+        if (buffer[i] == IAC && i + 1 < size) {
+            if (buffer[i + 1] == IP) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+
+
 ssize_t HttpRequest::recv_to_buf(int fd) {
-    return Socket::recv_to_buf(fd, &this->buf_);
+    ssize_t recv_size = Socket::recv_to_buf(fd, &this->buf_);
+
+    if (is_telnet_closed(this->buf_.data(), this->buf_.size())) {
+        DEBUG_PRINT(RED, "^C detected");
+        return RECV_CLOSED;
+    }
+    return recv_size;
 }
 
 

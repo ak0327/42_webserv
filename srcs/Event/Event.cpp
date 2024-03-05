@@ -178,6 +178,9 @@ ProcResult Event::recv_http_request() {
     if (recv_size == RECV_COMPLETED) {
         return ConnectionClosed;
     }
+    if (recv_size == RECV_CLOSED || recv_size == RECV_ERROR) {
+        return ConnectionClosed;
+    }
     return 0 < recv_size ? Success : Continue;
 }
 
