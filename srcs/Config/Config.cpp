@@ -673,7 +673,7 @@ bool Config::is_method_allowed(const ServerConfig &server_config,
     LimitExceptDirective directive = result.ok_value();
     if (!directive.limited) {
         DEBUG_PRINT(CYAN, "method allowed 4");
-        return false;
+        return true;
     }
     DEBUG_PRINT(CYAN, "method allowed 5");
     bool is_method_allowed = (directive.excluded_methods.find(method) != directive.excluded_methods.end());
