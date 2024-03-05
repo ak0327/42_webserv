@@ -23,7 +23,7 @@ TEST(HttpResponsePOST, IsUrlEncodedForm) {
 
     ServerConfig config;
     AddressPortPair pair;
-    HttpResponse response1(request1, config, pair, NULL);
+    HttpResponse response1(request1, config, pair, NULL, 0);
 
     bool result = HttpResponseFriend::is_urlencoded_form_data(response1);
     EXPECT_TRUE(result);
@@ -38,7 +38,7 @@ TEST(HttpResponsePOST, IsUrlEncodedForm) {
     has_field_name = request2.is_valid_field_name_registered(field_name);
     ASSERT_TRUE(has_field_name);
 
-    HttpResponse response2(request2, config, pair, NULL);
+    HttpResponse response2(request2, config, pair, NULL, 0);
 
     result = HttpResponseFriend::is_urlencoded_form_data(response2);
     EXPECT_FALSE(result);
@@ -59,7 +59,7 @@ TEST(HttpResponsePOST, IsMultipartForm) {
 
     ServerConfig config;
     AddressPortPair pair;
-    HttpResponse response1(request1, config, pair, NULL);
+    HttpResponse response1(request1, config, pair, NULL, 0);
 
     std::string expected, actual;
     expected = "----WebKitFormBoundaryOzc5oS6JxLwBcmay";
@@ -77,7 +77,7 @@ TEST(HttpResponsePOST, IsMultipartForm) {
     has_field_name = request2.is_valid_field_name_registered(field_name);
     ASSERT_TRUE(has_field_name);
 
-    HttpResponse response2(request2, config, pair, NULL);
+    HttpResponse response2(request2, config, pair, NULL, 0);
 
     result = HttpResponseFriend::is_multipart_form_data(response2, &actual);
     EXPECT_FALSE(result);
@@ -92,7 +92,7 @@ TEST(HttpResponsePOST, IsMultipartForm) {
     has_field_name = request3.is_valid_field_name_registered(field_name);
     ASSERT_TRUE(has_field_name);
 
-    HttpResponse response3(request3, config, pair, NULL);
+    HttpResponse response3(request3, config, pair, NULL, 0);
 
     result = HttpResponseFriend::is_multipart_form_data(response3, &actual);
     EXPECT_FALSE(result);

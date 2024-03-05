@@ -3111,7 +3111,7 @@ TEST(TestParser, ParseKeepaliveTimeoutDirective) {
 
     cnt = 0;
     tokens = {};
-    tokens.push_back(Token("0", kTokenKindDirectiveParam, ++cnt));  // ng
+    tokens.push_back(Token("-0", kTokenKindDirectiveParam, ++cnt));  // ng
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();

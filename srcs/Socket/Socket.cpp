@@ -130,6 +130,19 @@ Result<int, std::string> Socket::accept(int socket_fd,
 }
 
 
+SocketResult Socket::set_fd_to_keepalive(int fd) {
+    const int val = 1;
+    const socklen_t	opt_len = sizeof(val);
+
+    errno = 0;
+    if (setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, &val, opt_len) == SETSOCKOPT_ERROR) {
+        std::string err_info = CREATE_ERROR_INFO_ERRNO(errno);
+        return Result<int, std::string>::err("setsocketopt: " + err_info);
+    }
+    return Result<int, std::string>::ok(OK);
+}
+
+
 SocketResult Socket::set_fd_to_nonblock() {
     return set_fd_to_nonblock(this->socket_fd_);
 }

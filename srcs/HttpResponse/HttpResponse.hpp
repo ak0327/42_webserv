@@ -37,7 +37,8 @@ class HttpResponse {
 	explicit HttpResponse(const HttpRequest &request,
                           const ServerConfig &server_config,
                           const AddressPortPair &pair,
-                          std::map<std::string, Session> *sessions);
+                          std::map<std::string, Session> *sessions,
+                          time_t keepalive_timeout);
 	~HttpResponse();
 
     const std::vector<unsigned char> &body_buf() const;
@@ -86,6 +87,8 @@ class HttpResponse {
 	std::vector<unsigned char> body_buf_;
     std::vector<unsigned char> response_msg_;
 
+    time_t keepalive_timeout_sec_;
+
     void set_status_code(const StatusCode &set_status);
 
     StatusCode status_code() const;
@@ -117,6 +120,7 @@ class HttpResponse {
     void add_allow_header();
     void add_date_header();
     void add_server_header();
+    void add_keepalive_header();
     void add_standard_headers();
     void add_cookie_headers();
     void add_content_header(const std::string &extension);

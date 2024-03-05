@@ -251,7 +251,7 @@ Result<IOMultiplexer *, std::string> Server::create_io_multiplexer_fds() {
 ServerResult Server::run() {
 	while (true) {
         // char *p = new char[100]; (void)p;
-
+        // sleep(1);
         DEBUG_SERVER_PRINT(" run 1 timeout management");
         management_timeout_events();
         set_io_timeout();
@@ -333,7 +333,6 @@ void Server::management_cgi_executing_timeout(time_t current_time) {
         client->kill_cgi_process();
         DEBUG_PRINT(RED, " cgi killed by signal read:%d, write:%d", client->cgi_read_fd(), client->cgi_write_fd());
     }
-
     // todo: erase cgi from timeout?
 }
 
@@ -619,7 +618,7 @@ ServerResult Server::handle_client_event(int client_fd) {
             // register_cgi_fds_to_event_manager(&client_event);
             this->fds_->clear_fd(client_fd);
             return ServerResult::ok(OK);
-        };;
+        }
         case Idling: {
             return ServerResult::ok(OK);
         }
@@ -645,8 +644,13 @@ ServerResult Server::handle_client_event(int client_fd) {
         case kEventCompleted: {
             std::ostringstream oss; oss << client_event;
             DEBUG_SERVER_PRINT("process_event(client) -> event completed: %s", oss.str().c_str());
-            // delete_event(event);
-            idling_event(client_event);
+            if (client_event->is_keepalive()) {
+                DEBUG_SERVER_PRINT(" -> idling event %zu time", this->config_.keepalive_timeout());
+                idling_event(client_event);
+            } else {
+                DEBUG_SERVER_PRINT(" -> delete event");
+                delete_event(event);
+            }
             break;
         }
         default:

@@ -25,7 +25,7 @@ const time_t kMaxSessionTimeoutSec = 3600;
 const time_t kDefaultCookieTimeoutSec = 60;
 
 const time_t kDefaultKeepaliveTimeoutSec = 75;
-const time_t kMinKeepaliveTimeoutSec = 1;
+const time_t kMinKeepaliveTimeoutSec = 0;
 const time_t kMaxKeepaliveTimeoutSec = 3600;
 
 const char kDefaultRoot[] = "html";

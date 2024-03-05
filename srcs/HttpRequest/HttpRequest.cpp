@@ -896,6 +896,21 @@ std::string HttpRequest::content_type() const {
 }
 
 
+bool HttpRequest::is_client_connection_close() const {
+    FieldValueBase *field_values = get_field_values(CONNECTION);
+    if (!field_values) {
+        return false;
+    }
+    SingleFieldValue *single_field_value = dynamic_cast<SingleFieldValue *>(field_values);
+    if (!single_field_value) {
+        return false;
+    }
+
+    std::string connection = single_field_value->get_value();
+    return connection == "close";
+}
+
+
 const std::vector<unsigned char> &HttpRequest::get_buf() const {
     return this->buf_;
 }

@@ -395,7 +395,7 @@ ProcResult Event::execute_each_method() {
     if (this->echo_mode_on_) {
         try {
             HttpRequest request; ServerConfig config; AddressPortPair pair;
-            this->response_ = new HttpResponse(request, config, pair, NULL);
+            this->response_ = new HttpResponse(request, config, pair, NULL, 0);
         }
         catch (const std::exception &e) {
             const std::string error_msg = CREATE_ERROR_INFO_STR("Failed to allocate memory");
@@ -409,7 +409,8 @@ ProcResult Event::execute_each_method() {
         this->response_ = new HttpResponse(*this->request_,
                                            this->server_config_,
                                            this->address_port_pair_,
-                                           this->sessions_);
+                                           this->sessions_,
+                                           this->config_.keepalive_timeout());
         // std::cout << CYAN << "     response_message[" << this->http_response_->get_response_message() << "]" << RESET << std::endl;
     }
     catch (const std::exception &e) {
@@ -603,6 +604,14 @@ bool Event::is_executing_cgi(const Result<ProcResult, std::string> &result) {
 
 bool Event::is_connection_closed(const Result<ProcResult, std::string> &result) {
     return result.is_ok() && result.ok_value() == ConnectionClosed;
+}
+
+
+bool Event::is_keepalive() const {
+    if (!this->request_ || this->request_->is_client_connection_close()) {
+        return false;
+    }
+    return this->config_.keepalive_timeout() != 0;
 }
 
 

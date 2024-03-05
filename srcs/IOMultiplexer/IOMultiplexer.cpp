@@ -265,6 +265,7 @@ const int SELECT_TIMEOUT = 0;
 Select::Select()
     : read_fds_(),
       write_fds_(),
+      queue_(),
       read_fd_set_(),
       write_fd_set_(),
       max_fd_(0) {
@@ -278,14 +279,15 @@ Select::Select()
 
 
 Select::~Select() {
-	for (std::size_t i = 0; i < this->read_fds_.size(); ++i) {
-        FD_CLR(this->read_fds_[i], &this->read_fd_set_);
-	}
-    for (std::size_t i = 0; i < this->write_fds_.size(); ++i) {
-        FD_CLR(this->write_fds_[i], &this->write_fd_set_);
+    for (std::set<int>::iterator fd = this->read_fds_.begin(); fd != this->read_fds_.end(); ++fd) {
+        FD_CLR(*fd, &this->read_fd_set_);
+    }
+    for (std::set<int>::iterator fd = this->write_fds_.begin(); fd != this->write_fds_.end(); ++fd) {
+        FD_CLR(*fd, &this->write_fd_set_);
     }
     this->read_fds_.clear();
     this->write_fds_.clear();
+    this->queue_.clear();
 }
 
 
@@ -293,29 +295,14 @@ void Select::init_fds() {
     FD_ZERO(&this->read_fd_set_);
     FD_ZERO(&this->write_fd_set_);
 
-    // std::cout << CYAN << "init_fds:" << RESET << std::endl;
-
-    // std::cout << CYAN << "set read_fds [";
-    for (std::size_t i = 0; i < this->read_fds_.size(); ++i) {
-        if (this->read_fds_[i] == INIT_FD) {
-            continue;
-        }
-        FD_SET(this->read_fds_[i], &this->read_fd_set_);
-        // std::cout << this->read_fds_[i];
-        // if (i + 1 < this->read_fds_.size()) { std::cout << ", "; }
+    for (std::set<int>::iterator fd = this->read_fds_.begin(); fd != this->read_fds_.end(); ++fd) {
+        if (*fd == INIT_FD) { continue; }
+        FD_SET(*fd, &this->read_fd_set_);
     }
-    // std::cout << "]" << RESET << std::endl;
-
-    // std::cout << CYAN << "set write_fds [";
-    for (std::size_t i = 0; i < this->write_fds_.size(); ++i) {
-        if (this->write_fds_[i] == INIT_FD) {
-            continue;
-        }
-        FD_SET(this->write_fds_[i], &this->write_fd_set_);
-        // std::cout << this->read_fds_[i];
-        // if (i + 1 < this->read_fds_.size()) { std::cout << ", "; }
+    for (std::set<int>::iterator fd = this->write_fds_.begin(); fd != this->write_fds_.end(); ++fd) {
+        if (*fd == INIT_FD) { continue; }
+        FD_SET(*fd, &this->write_fd_set_);
     }
-    // std::cout << "]" << RESET << std::endl;
 }
 
 
@@ -327,25 +314,23 @@ bool is_setting_no_timeout(struct timeval timeout) {
 
 
 Result<int, std::string> Select::select_fds() {
-    // debug
-    std::ostringstream oss;
-    oss << " read_fds [";
-    for (std::size_t i = 0; i < this->read_fds_.size(); ++i) {
-        oss << this->read_fds_[i];
-        if (i + 1 < this->read_fds_.size()) {
-            oss << ", ";
-        }
+    std::ostringstream oss_read_fds;
+    oss_read_fds << "read_fds: [";
+    for (std::set<int>::iterator fd = this->read_fds_.begin(); fd != this->read_fds_.end(); ++fd) {
+        if (*fd == INIT_FD) { continue; }
+        oss_read_fds << *fd << " ";
     }
-    oss << "]" << std::endl;
-    oss << " write_fds [";
-    for (std::size_t i = 0; i < this->write_fds_.size(); ++i) {
-        oss << this->write_fds_[i];
-        if (i + 1 < this->write_fds_.size()) {
-            oss << ", ";
-        }
+    oss_read_fds << "]";
+    std::ostringstream oss_write_fds;
+    oss_write_fds << "write_fds: [";
+    for (std::set<int>::iterator fd = this->write_fds_.begin(); fd != this->write_fds_.end(); ++fd) {
+        if (*fd == INIT_FD) { continue; }
+        oss_write_fds << *fd << " ";
     }
-    oss << "]" << std::endl;
-    DEBUG_PRINT(CYAN, "select_fds:\n%s", oss.str().c_str());
+    oss_write_fds << "]";
+    DEBUG_PRINT(CYAN, "select check fds:");
+    DEBUG_PRINT(CYAN, " %s", oss_read_fds.str().c_str());
+    DEBUG_PRINT(CYAN, " %s", oss_write_fds.str().c_str());
 
     init_fds();
     this->max_fd_ = get_max_fd();
@@ -356,7 +341,7 @@ Result<int, std::string> Select::select_fds() {
         DEBUG_PRINT(CYAN, "select: timeout NULL");
         select_ret = select(this->max_fd_ + 1, &this->read_fd_set_, &this->write_fd_set_, NULL, NULL);
     } else {
-        DEBUG_PRINT(CYAN, "select: timeout %d sec", this->timeout_.tv_sec + this->timeout_.tv_usec / 1000000);
+        DEBUG_PRINT(CYAN, "select: timeout %.2f sec", this->timeout_.tv_sec + this->timeout_.tv_usec / 1000000.f);
         select_ret = select(this->max_fd_ + 1, &this->read_fd_set_, &this->write_fd_set_, NULL, &this->timeout_);
     }
     // int select_ret = select(this->max_fd_ + 1, &this->fd_set_, NULL, NULL, NULL);
@@ -367,43 +352,49 @@ Result<int, std::string> Select::select_fds() {
 }
 
 
-int Select::get_ready_fd() const {
-    int ready_fd = INIT_FD;
-
+int Select::get_ready_fd() {
     std::ostringstream oss_read_fds;
-    oss_read_fds << "ready read_fds: ";
-
-    for (std::size_t i = 0; i < this->read_fds_.size(); ++i) {
-        if (this->read_fds_[i] == INIT_FD) {
-            continue;
-        }
-        if (!FD_ISSET(this->read_fds_[i], &this->read_fd_set_)) {
-            continue;
-        }
-        if (ready_fd == INIT_FD) {
-            ready_fd = this->read_fds_[i];
-        }
-        oss_read_fds << this->read_fds_[i] << " ";
-        // return this->fds_[i];
+    oss_read_fds << "ready read_fds: [";
+    for (std::set<int>::iterator fd = this->read_fds_.begin(); fd != this->read_fds_.end(); ++fd) {
+        if (*fd == INIT_FD) { continue; }
+        if (!FD_ISSET(*fd, &this->read_fd_set_)) { continue; }
+        oss_read_fds << *fd << " ";
     }
-
+    oss_read_fds << "]";
     std::ostringstream oss_write_fds;
-    oss_write_fds << "ready write_fds: ";
-    for (std::size_t i = 0; i < this->write_fds_.size(); ++i) {
-        if (this->write_fds_[i] == INIT_FD) {
-            continue;
-        }
-        if (!FD_ISSET(this->write_fds_[i], &this->write_fd_set_)) {
-            continue;
-        }
-        if (ready_fd == INIT_FD) {
-            ready_fd = this->write_fds_[i];
-        }
-        oss_write_fds << this->write_fds_[i] << " ";
-        // return this->fds_[i];
+    oss_write_fds << "ready write_fds: [";
+    for (std::set<int>::iterator fd = this->write_fds_.begin(); fd != this->write_fds_.end(); ++fd) {
+        if (*fd == INIT_FD) { continue; }
+        if (!FD_ISSET(*fd, &this->write_fd_set_)) { continue; }
+        oss_write_fds << *fd << " ";
     }
-    DEBUG_SERVER_PRINT("%s", oss_read_fds.str().c_str());
-    DEBUG_SERVER_PRINT("%s", oss_write_fds.str().c_str());
+    oss_write_fds << "]";
+    std::ostringstream oss_queue;
+    oss_queue << "queue: [";
+    for (std::deque<int>::iterator fd = this->queue_.begin(); fd != this->queue_.end(); ++fd) {
+        oss_queue << *fd << " ";
+    }
+    oss_queue << "]";
+    DEBUG_PRINT(YELLOW, "%s", oss_read_fds.str().c_str());
+    DEBUG_PRINT(YELLOW, "%s", oss_write_fds.str().c_str());
+    DEBUG_PRINT(YELLOW, "%s", oss_queue.str().c_str());
+
+
+    int ready_fd = INIT_FD;
+    for (std::deque<int>::iterator fd = this->queue_.begin(); fd != this->queue_.end(); ++fd) {
+        if (FD_ISSET(*fd, &this->read_fd_set_)) {
+            ready_fd = *fd;
+            this->queue_.erase(fd);
+            this->queue_.push_back(ready_fd);
+            break;
+        }
+        if (FD_ISSET(*fd, &this->write_fd_set_)) {
+            ready_fd = *fd;
+            this->queue_.erase(fd);
+            this->queue_.push_back(ready_fd);
+            break;
+        }
+    }
     return ready_fd;
 }
 
@@ -424,7 +415,6 @@ int Select::get_max_fd() const {
 
 Result<int, std::string> Select::get_io_ready_fd() {
     this->max_fd_ = get_max_fd();
-    // std::cout << CYAN << "max_fd: " << max_fd_ << RESET << std::endl;
 	init_fds();
 
     Result<int, std::string> select_result = select_fds();
@@ -437,13 +427,23 @@ Result<int, std::string> Select::get_io_ready_fd() {
 	}
 
 	int ready_fd = get_ready_fd();
-    // std::cout << CYAN << " select: ready_fd: " << ready_fd << RESET << std::endl;
+    DEBUG_SERVER_PRINT(" -> ready_fd: %d", ready_fd);
     return Result<int, std::string>::ok(ready_fd);
 }
 
 
+void clear_queue(int fd, std::deque<int> *queue) {
+    for (std::deque<int>::iterator itr = queue->begin(); itr != queue->end(); ++itr) {
+        if (*itr == fd) {
+            queue->erase(itr);
+            return;
+        }
+    }
+}
+
+
 Result<int, std::string> Select::clear_fd(int clear_fd) {
-	std::deque<int>::iterator fd;
+	std::set<int>::iterator fd;
     // std::cout << CYAN << "clear_fd: " << clear_fd << RESET << std::endl;
 
     fd  = std::find(this->read_fds_.begin(), this->read_fds_.end(), clear_fd);
@@ -451,6 +451,8 @@ Result<int, std::string> Select::clear_fd(int clear_fd) {
         FD_CLR(*fd, &this->read_fd_set_);
         this->read_fds_.erase(fd);
         // std::cout << CYAN << "read_fd erase: " << *fd << RESET << std::endl;
+
+        clear_queue(clear_fd, &this->queue_);
         return Result<int, std::string>::ok(OK);
 	}
 
@@ -459,6 +461,8 @@ Result<int, std::string> Select::clear_fd(int clear_fd) {
         FD_CLR(*fd, &this->write_fd_set_);
         this->write_fds_.erase(fd);
         // std::cout << CYAN << "write_fd erase: " << *fd << RESET << std::endl;
+
+        clear_queue(clear_fd, &this->queue_);
         return Result<int, std::string>::ok(OK);
     }
 
@@ -475,9 +479,11 @@ Result<int, std::string> Select::register_read_fd(int read_fd) {
         return Result<int, std::string>::ok(OK);
     }
 
-    this->read_fds_.push_back(read_fd);
+    this->read_fds_.insert(read_fd);
     FD_SET(read_fd, &this->read_fd_set_);
     this->max_fd_ = std::max(this->max_fd_, read_fd);
+
+    this->queue_.push_back(read_fd);
     return Result<int, std::string>::ok(OK);
 }
 
@@ -490,15 +496,17 @@ Result<int, std::string> Select::register_write_fd(int write_fd) {
         return Result<int, std::string>::ok(OK);
     }
 
-    this->write_fds_.push_back(write_fd);
+    this->write_fds_.insert(write_fd);
     FD_SET(write_fd, &this->write_fd_set_);
     this->max_fd_ = std::max(this->max_fd_, write_fd);
+
+    this->queue_.push_back(write_fd);
     return Result<int, std::string>::ok(OK);
 }
 
 
 FdType Select::get_fd_type(int fd) {
-    std::deque<int>::const_iterator itr;
+    std::set<int>::const_iterator itr;
 
     itr = std::find(this->read_fds_.begin(), this->read_fds_.end(), fd);
     if (itr != this->read_fds_.end()) {
