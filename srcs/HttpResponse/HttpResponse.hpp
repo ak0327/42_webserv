@@ -36,8 +36,10 @@ class HttpResponse {
  public:
 	explicit HttpResponse(const HttpRequest &request,
                           const ServerConfig &server_config,
-                          const AddressPortPair &pair,
-                          std::map<std::string, Session> *sessions);
+                          const AddressPortPair &server_listen,
+                          const AddressPortPair &client_listen,
+                          std::map<std::string, Session> *sessions,
+                          time_t keepalive_timeout);
 	~HttpResponse();
 
     const std::vector<unsigned char> &body_buf() const;
@@ -71,7 +73,8 @@ class HttpResponse {
  private:
     const HttpRequest &request_;
     const ServerConfig &server_config_;
-    const AddressPortPair address_port_pair_;
+    const AddressPortPair server_listen_;
+    const AddressPortPair client_listen_;
     std::map<std::string, Session> *sessions_;
 
     CgiHandler cgi_handler_;
@@ -85,6 +88,8 @@ class HttpResponse {
     std::map<std::string, std::string> cookies_;
 	std::vector<unsigned char> body_buf_;
     std::vector<unsigned char> response_msg_;
+
+    time_t keepalive_timeout_sec_;
 
     void set_status_code(const StatusCode &set_status);
 
@@ -117,6 +122,7 @@ class HttpResponse {
     void add_allow_header();
     void add_date_header();
     void add_server_header();
+    void add_keepalive_header();
     void add_standard_headers();
     void add_cookie_headers();
     void add_content_header(const std::string &extension);

@@ -123,6 +123,7 @@ StatusCode HttpResponse::get_session_user_page() {
         const std::string expire = "<h3>expire at: " + HttpResponse::get_http_date_jst(session.expire_time()) + "</h3>";
 
         const std::string tail = "<br><br><br>\n"
+                                 "<a href=\"" + this->dynamic_.SESSION_LOGIN + "\">< back to login</a><br>"
                                  "<a href=\"/\">< back to index</a>"
                                  "</body>\n"
                                  "</html>\n";

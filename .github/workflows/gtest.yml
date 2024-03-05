@@ -3,7 +3,7 @@ on: [push]
 jobs:
   Linux_select:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v3
 
@@ -19,7 +19,7 @@ jobs:
 
       - name: run all unit tests on Linux
         run: |
-          ./build/unit_test 2>/dev/null
+          ./build/unit_test test/integration/integration_test.conf 2>/dev/null
           . test/integration/prepare_test_file.sh; clear_test_file
 
       - uses: sarisia/actions-status-discord@v1
@@ -32,7 +32,7 @@ jobs:
 
   macOS_select:
     runs-on: macos-latest
-    timeout-minutes: 30
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v3
 
@@ -48,7 +48,7 @@ jobs:
 
       - name: run all unit tests on macOS
         run: |
-          ./build/unit_test 2>/dev/null
+          ./build/unit_test test/integration/integration_test.conf 2>/dev/null
           . test/integration/prepare_test_file.sh; clear_test_file
 
       - uses: sarisia/actions-status-discord@v1

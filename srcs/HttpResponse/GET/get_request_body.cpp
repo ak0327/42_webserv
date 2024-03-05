@@ -79,7 +79,7 @@ StatusCode HttpResponse::get_redirect_content(const ReturnDirective &redirect) {
     if (!server_info.second.empty()) {
         location.append(server_info.second);
     } else {
-        location.append(this->address_port_pair_.first);
+        location.append(this->server_listen_.first);
     }
     location.append(redirect.text);
 
@@ -97,11 +97,15 @@ bool HttpResponse::has_valid_index_page() const {
 
 
 bool HttpResponse::is_method_available() const {
-    Result<bool, int> allowed;
-    allowed = Config::is_method_allowed(this->server_config_,
-                                        this->request_.target(),
-                                        this->request_.method());
-    return allowed.is_ok() && allowed.ok_value();
+    // Result<bool, int> allowed;
+    // allowed = Config::is_method_allowed(this->server_config_,
+    //                                     this->request_.target(),
+    //                                     this->request_.method());
+    // return allowed.is_ok() && allowed.ok_value();
+    return Config::is_method_allowed(this->server_config_,
+                                    this->request_.target(),
+                                    this->client_listen_,
+                                    this->request_.method());
 }
 
 

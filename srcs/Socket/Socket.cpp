@@ -130,6 +130,19 @@ Result<int, std::string> Socket::accept(int socket_fd,
 }
 
 
+SocketResult Socket::set_fd_to_keepalive(int fd) {
+    const int val = 1;
+    const socklen_t	opt_len = sizeof(val);
+
+    errno = 0;
+    if (setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, &val, opt_len) == SETSOCKOPT_ERROR) {
+        std::string err_info = CREATE_ERROR_INFO_ERRNO(errno);
+        return Result<int, std::string>::err("setsocketopt: " + err_info);
+    }
+    return Result<int, std::string>::ok(OK);
+}
+
+
 SocketResult Socket::set_fd_to_nonblock() {
     return set_fd_to_nonblock(this->socket_fd_);
 }
@@ -149,20 +162,12 @@ int Socket::get_socket_fd() const { return this->socket_fd_; }
 
 
 ssize_t Socket::recv(int fd, void *buf, std::size_t bufsize) {
-    ssize_t recv_size;
-
     errno = 0;
-    recv_size = ::recv(fd, buf, bufsize, FLAG_NONE);
+    ssize_t recv_size = ::recv(fd, buf, bufsize, FLAG_NONE);
     int tmp_errno = errno;
-    DEBUG_SERVER_PRINT("recv_size: %zd", recv_size);
-    if (recv_size == RECV_COMPLETED) {
-        return RECV_COMPLETED;
-    }
-    if (recv_size == RECV_CONTINUE) {
+    if (recv_size == RECV_ERROR) {
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(tmp_errno);
-        DEBUG_SERVER_PRINT("%s", error_msg.c_str());
-        // return Result<std::size_t, std::string>::err(error_info);
-        return RECV_CONTINUE;
+        DEBUG_SERVER_PRINT("recv: recv_size: %zd, error: %s", recv_size, error_msg.c_str());
     }
     return recv_size;
 }
@@ -172,16 +177,16 @@ ssize_t Socket::recv_to_buf(int fd, std::vector<unsigned char> *buf) {
     if (!buf) { return 0; }
 
     std::vector<unsigned char> recv_buf(BUFSIZ);
-    ssize_t recv_size;
 
     DEBUG_SERVER_PRINT("recv start");
-    recv_size = Socket::recv(fd, &recv_buf[0], BUFSIZ);
+    ssize_t recv_size = Socket::recv(fd, &recv_buf[0], BUFSIZ);
 
     DEBUG_SERVER_PRINT(" recv_size: %zd", recv_size);
-    std::string debug_recv_msg(recv_buf.begin(), recv_buf.begin() + recv_size);
-    DEBUG_SERVER_PRINT(" recv_msg[%s]", debug_recv_msg.c_str());
 
     if (0 < recv_size) {
+        std::string debug_recv_msg(recv_buf.begin(), recv_buf.begin() + recv_size);
+        DEBUG_SERVER_PRINT(" recv_msg[%s]", debug_recv_msg.c_str());
+
         buf->insert(buf->end(), recv_buf.begin(), recv_buf.begin() + recv_size);
     }
     DEBUG_SERVER_PRINT("recv end");
@@ -211,6 +216,7 @@ ProcResult Socket::send_buf(int fd, std::vector<unsigned char> *buf) {
     if (!buf) { return FatalError; }
 
     ssize_t send_size = Socket::send(fd, buf->data(), buf->size());
+    DEBUG_SERVER_PRINT(" send size: %zd", send_size);
     if (send_size == SEND_ERROR) {
         return Failure;
     }

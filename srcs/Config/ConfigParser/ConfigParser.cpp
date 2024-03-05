@@ -308,16 +308,30 @@ Result<int, std::string> ConfigParser::parse_http_block(TokenItr *current,
     }
 
     while (*current != end) {
-        if (!expect(current, end, SERVER_BLOCK)) {
-            break;
-        }
         if (expect(current, end, RIGHT_PAREN)) {
             break;
         }
+        // if (!expect(current, end, SERVER_BLOCK)) {
+        //     break;
+        // }
+        // if (expect(current, end, RIGHT_PAREN)) {
+        //     break;
+        // }
 
         TokenItr tmp = *current;
         ServerConfig server_config;
-        Result<int, std::string> result = parse_server_block(current, end, &server_config);
+        Result<int, std::string> result;
+        if (expect(current, end, SERVER_BLOCK)) {
+            result = parse_server_block(current, end, &server_config);
+            http_config->servers.push_back(server_config);
+        } else if (consume(current, end, KEEPALIVE_TIMEOUT_DIRECTIVE)) {
+            result = parse_timeout_directive(current,
+                                             end,
+                                             &http_config->keepalive_timeout_sec,
+                                             KEEPALIVE_TIMEOUT_DIRECTIVE,
+                                             is_valid_keepalive_timeout);
+        }
+
         if (result.is_err()) {
             const std::string error_msg = result.err_value();
             return Result<int, std::string>::err(error_msg);
@@ -326,8 +340,6 @@ Result<int, std::string> ConfigParser::parse_http_block(TokenItr *current,
             const std::string error_msg = create_syntax_err_msg(*current, end);
             return Result<int, std::string>::err(error_msg);
         }
-
-        http_config->servers.push_back(server_config);
     }
 
     if (!consume(current, end, RIGHT_PAREN)) {
@@ -376,17 +388,12 @@ Result<int, std::string> ConfigParser::parse_server_block(TokenItr *current,
                                              &server_config->session_timeout_sec,
                                              SESSION_TIMEOUT_DIRECTIVE,
                                              is_valid_session_timeout);
-        } else if (consume(current, end, KEEPALIVE_TIMEOUT_DIRECTIVE)) {
-            result = parse_timeout_directive(current,
-                                             end,
-                                             &server_config->keepalive_timeout_sec,
-                                             KEEPALIVE_TIMEOUT_DIRECTIVE,
-                                             is_valid_keepalive_timeout);
         } else if (expect(current, end, LOCATION_BLOCK)) {
             result = skip_location(current, end, &location_iterators);
         } else {
             result = parse_default_config(current, end, server_config);
         }
+
         if (result.is_err()) {
             const std::string error_msg = result.err_value();
             return Result<int, std::string>::err(error_msg);

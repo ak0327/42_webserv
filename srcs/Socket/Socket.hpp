@@ -21,6 +21,7 @@ class Socket {
 	SocketResult listen();
     SocketResult connect();
     SocketResult set_fd_to_nonblock();
+    static SocketResult set_fd_to_keepalive(int fd);
 	static SocketResult set_fd_to_nonblock(int fd);
     static SocketResult accept(int socket_fd, struct sockaddr_storage *client_addr);
 

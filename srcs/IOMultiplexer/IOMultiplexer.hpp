@@ -14,6 +14,7 @@
 #  include <sys/time.h>
 # else
 #  include <sys/select.h>
+#  include <set>
 # endif
 
 enum FdType {
@@ -90,8 +91,9 @@ class Select : public IOMultiplexer {
     FdType get_fd_type(int fd);
 
  private:
-    std::deque<int> read_fds_;
-    std::deque<int> write_fds_;
+    std::set<int> read_fds_;
+    std::set<int> write_fds_;
+    std::deque<int> queue_;
     fd_set read_fd_set_;
     fd_set write_fd_set_;
     int max_fd_;
@@ -99,7 +101,7 @@ class Select : public IOMultiplexer {
 
     void init_fds();
     int get_max_fd() const;
-    int get_ready_fd() const;
+    int get_ready_fd();
     Result<int, std::string> select_fds();
 };
 

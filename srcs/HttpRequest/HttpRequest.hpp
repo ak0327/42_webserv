@@ -77,6 +77,7 @@ class HttpRequest {
     Result<MediaType, ProcResult> get_content_type() const;
     Result<std::size_t, ProcResult> get_content_length() const;
     Result<ProcResult, StatusCode> set_content_length();
+    bool is_client_connection_close() const;
 
     static Result<int, int>
     parse_and_validate_content_disposition(const std::string &field_value,

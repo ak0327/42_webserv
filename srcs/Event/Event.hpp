@@ -58,6 +58,7 @@ class Event {
     void set_event_phase(const EventPhase &set_phase);
 
     bool is_event_phase_expect(const EventPhase &expect) const;
+    bool is_keepalive() const;
 
     static bool is_continue_recv(const Result<ProcResult, StatusCode> &result);
     static bool is_continue_recv(const Result<ProcResult, std::string> &result);
@@ -91,7 +92,7 @@ class Event {
     ServerInfo server_info_;
     ServerConfig server_config_;
 
-    AddressPortPair address_port_pair_;
+    AddressPortPair server_listen_;
 
     EventPhase event_state_;
 

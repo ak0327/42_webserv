@@ -25,7 +25,7 @@ const time_t kMaxSessionTimeoutSec = 3600;
 const time_t kDefaultCookieTimeoutSec = 60;
 
 const time_t kDefaultKeepaliveTimeoutSec = 75;
-const time_t kMinKeepaliveTimeoutSec = 1;
+const time_t kMinKeepaliveTimeoutSec = 0;
 const time_t kMaxKeepaliveTimeoutSec = 3600;
 
 const char kDefaultRoot[] = "html";
@@ -124,7 +124,7 @@ struct ListenDirective {
 struct LimitExceptDirective {
     bool limited;
     std::set<Method> excluded_methods;
-    std::vector<AccessRule> rules;  // allow, deny <- not support in webserv
+    std::vector<AccessRule> rules;
 
     LimitExceptDirective()
         : limited(false),
@@ -196,18 +196,19 @@ struct ServerConfig : public DefaultConfig  {
     std::map<LocationPath, LocationConfig> locations;
 
     time_t session_timeout_sec;
-    time_t keepalive_timeout_sec;
 
     ServerConfig()
         : listens(),
           server_names(),
           locations(),
-          session_timeout_sec(ConfigInitValue::kDefaultSessionTimeoutSec),
-          keepalive_timeout_sec(ConfigInitValue::kDefaultKeepaliveTimeoutSec) {}
+          session_timeout_sec(ConfigInitValue::kDefaultSessionTimeoutSec) {}
 };
 
 struct HttpConfig {
     std::vector<ServerConfig> servers;
+    time_t keepalive_timeout_sec;
 
-    HttpConfig() : servers() {}
+    HttpConfig()
+        : servers(),
+          keepalive_timeout_sec(ConfigInitValue::kDefaultKeepaliveTimeoutSec) {}
 };

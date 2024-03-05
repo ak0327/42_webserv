@@ -187,6 +187,8 @@ TEST(TestParser, ParseOK) {
 
     location_config = LocationConfig(server_config);
     location_config.limit_except.excluded_methods = {kPOST, kDELETE};
+    location_config.limit_except.rules.push_back(AccessRule(kALLOW, "127.0.0.1"));
+    location_config.limit_except.rules.push_back(AccessRule(kALLOW, "127.0.0.2"));
     location_config.limit_except.rules.push_back(AccessRule(kDENY, "all"));
     location_config.limit_except.limited = true;
     location_config.max_body_size_bytes = 20 * ConfigInitValue::MB;
@@ -199,6 +201,19 @@ TEST(TestParser, ParseOK) {
 
     expected.servers.push_back(server_config);
 
+
+    AddressPortPair client_a("127.0.0.0", "8080");
+    AddressPortPair client_b("127.0.0.1", "8080");
+    AddressPortPair client_c("127.0.0.2", "8080");
+    EXPECT_FALSE(Config::is_method_allowed(server_config, "/post", client_a, kGET));  // false
+    EXPECT_TRUE(Config::is_method_allowed(server_config, "/post", client_a, kPOST));
+    EXPECT_TRUE(Config::is_method_allowed(server_config, "/post", client_a, kDELETE));
+    EXPECT_TRUE(Config::is_method_allowed(server_config, "/post", client_b, kGET));
+    EXPECT_TRUE(Config::is_method_allowed(server_config, "/post", client_b, kPOST));
+    EXPECT_TRUE(Config::is_method_allowed(server_config, "/post", client_b, kDELETE));
+    EXPECT_TRUE(Config::is_method_allowed(server_config, "/post", client_c, kGET));
+    EXPECT_TRUE(Config::is_method_allowed(server_config, "/post", client_c, kPOST));
+    EXPECT_TRUE(Config::is_method_allowed(server_config, "/post", client_c, kDELETE));
 
 
     server_config = {};

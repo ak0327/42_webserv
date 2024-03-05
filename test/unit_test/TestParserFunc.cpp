@@ -147,7 +147,6 @@ void expect_eq_server_config(const ServerConfig &expected,
 
     // timeout
     EXPECT_EQ(expected.session_timeout_sec, actual.session_timeout_sec) << "  at L:" << line << std::endl;
-    EXPECT_EQ(expected.keepalive_timeout_sec, actual.keepalive_timeout_sec) << "  at L:" << line << std::endl;
 
 
     // default_config
@@ -168,6 +167,8 @@ void expect_eq_http_config(const HttpConfig &expected,
 
         expect_eq_server_config(expected_server, actual_server, line);
     }
+
+    EXPECT_EQ(expected.keepalive_timeout_sec, actual.keepalive_timeout_sec) << "  at L:" << line << std::endl;
 }
 
 
@@ -3110,7 +3111,7 @@ TEST(TestParser, ParseKeepaliveTimeoutDirective) {
 
     cnt = 0;
     tokens = {};
-    tokens.push_back(Token("0", kTokenKindDirectiveParam, ++cnt));  // ng
+    tokens.push_back(Token("-0", kTokenKindDirectiveParam, ++cnt));  // ng
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
@@ -4023,11 +4024,6 @@ TEST(TestParser, ParseServer) {
     tokens.push_back(Token("60s",           kTokenKindDirectiveParam, ++cnt));
     tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
 
-    tokens.push_back(Token("keepalive_timeout",kTokenKindDirectiveName, ++cnt));
-    tokens.push_back(Token("70s",           kTokenKindDirectiveParam, ++cnt));
-    tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
-
-
     tokens.push_back(Token("}",             kTokenKindBraces, ++cnt));
     tokens.push_back(Token("}",             kTokenKindBraces, ++cnt));  // out of responsibility
 
@@ -4038,7 +4034,6 @@ TEST(TestParser, ParseServer) {
     expected.listens.push_back(ListenDirective(ConfigInitValue::kDefaultAddress, "8181", true));
     expected.server_names.insert("localhost");
     expected.session_timeout_sec = 60;
-    expected.keepalive_timeout_sec = 70;
 
     actual = {};
     result = ConfigParserTestFriend::parse_server_block(&current, tokens.end(), &actual);
@@ -4144,16 +4139,8 @@ TEST(TestParser, ParseServer) {
     tokens.push_back(Token("60s",           kTokenKindDirectiveParam, ++cnt));
     tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
 
-    tokens.push_back(Token("keepalive_timeout",kTokenKindDirectiveName, ++cnt));
-    tokens.push_back(Token("70s",           kTokenKindDirectiveParam, ++cnt));
-    tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
-
     tokens.push_back(Token("session_timeout",kTokenKindDirectiveName, ++cnt));
     tokens.push_back(Token("1s",           kTokenKindDirectiveParam, ++cnt));
-    tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
-
-    tokens.push_back(Token("keepalive_timeout",kTokenKindDirectiveName, ++cnt));
-    tokens.push_back(Token("3600s",           kTokenKindDirectiveParam, ++cnt));
     tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
 
     tokens.push_back(Token("}",             kTokenKindBraces, ++cnt));
@@ -4172,7 +4159,6 @@ TEST(TestParser, ParseServer) {
         {HTTPVersionNotSupported, "server505"},
     };
     expected.session_timeout_sec = 1;
-    expected.keepalive_timeout_sec = 3600;
 
 
     location_config = LocationConfig(expected);
@@ -4400,6 +4386,315 @@ TEST(TestParser, ParseServer) {
 
     actual = {};
     result = ConfigParserTestFriend::parse_server_block(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+}
+
+
+// "http"  "{"  directive_name ... "}"
+//              ^current
+TEST(TestParser, ParseHttp) {
+    std::deque<Token> tokens;
+    HttpConfig expected, actual;
+    ServerConfig server_config;
+    LocationConfig location_config;
+    ListenDirective listen;
+    TokenItr current;
+    Result<int, std::string> result;
+    int cnt;
+
+    cnt = 0;
+    tokens = {};
+
+    tokens.push_back(Token("http",        kTokenKindBlockName, ++cnt));
+    tokens.push_back(Token("{",             kTokenKindBraces, ++cnt));
+    tokens.push_back(Token("}",             kTokenKindBraces, ++cnt));
+
+    current = tokens.begin();
+
+    actual = {};
+    result = ConfigParserTestFriend::parse_http_block(&current, tokens.end(), &actual);
+
+    ASSERT_TRUE(result.is_ok());
+    expect_eq_http_config(expected, actual, __LINE__);
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+
+    tokens.push_back(Token("http",          kTokenKindBlockName, ++cnt));
+    tokens.push_back(Token("{",             kTokenKindBraces, ++cnt));
+
+    tokens.push_back(Token("keepalive_timeout",kTokenKindDirectiveName, ++cnt));
+    tokens.push_back(Token("120s",          kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
+
+    tokens.push_back(Token("}",             kTokenKindBraces, ++cnt));
+
+    current = tokens.begin();
+
+    expected = {};
+    expected.keepalive_timeout_sec = 120;
+
+    actual = {};
+    result = ConfigParserTestFriend::parse_http_block(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_ok());
+    expect_eq_http_config(expected, actual, __LINE__);
+
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+
+    tokens.push_back(Token("http",              kTokenKindBlockName, ++cnt));
+    tokens.push_back(Token("{",                 kTokenKindBraces, ++cnt));
+
+    tokens.push_back(Token("keepalive_timeout",         kTokenKindDirectiveName, ++cnt));
+    tokens.push_back(Token("120s",                      kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";",                         kTokenKindSemicolin, ++cnt));
+
+    tokens.push_back(Token("keepalive_timeout", kTokenKindDirectiveName, ++cnt));
+    tokens.push_back(Token("5s",                kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";",                 kTokenKindSemicolin, ++cnt));
+
+
+    tokens.push_back(Token("}",             kTokenKindBraces, ++cnt));
+
+    current = tokens.begin();
+
+    expected = {};
+    expected.keepalive_timeout_sec = 5;
+
+    actual = {};
+    result = ConfigParserTestFriend::parse_http_block(&current, tokens.end(), &actual);
+
+    ASSERT_TRUE(result.is_ok());
+    expect_eq_http_config(expected, actual, __LINE__);
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+
+    tokens.push_back(Token("http",              kTokenKindBlockName, ++cnt));
+    tokens.push_back(Token("{",                 kTokenKindBraces, ++cnt));
+
+    tokens.push_back(Token("keepalive_timeout",         kTokenKindDirectiveName, ++cnt));
+    tokens.push_back(Token("120s",                      kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";",                         kTokenKindSemicolin, ++cnt));
+
+
+    tokens.push_back(Token("server",    kTokenKindBlockName, ++cnt));
+    tokens.push_back(Token("{",         kTokenKindBraces, ++cnt));
+
+    tokens.push_back(Token("location",  kTokenKindBlockName, ++cnt));
+    tokens.push_back(Token("/path",     kTokenKindBlockParam, ++cnt));
+    tokens.push_back(Token("{",         kTokenKindBraces, ++cnt));
+
+    tokens.push_back(Token("root",      kTokenKindDirectiveName, ++cnt));
+    tokens.push_back(Token("html",      kTokenKindDirectiveParam, ++cnt));  // default
+    tokens.push_back(Token(";",         kTokenKindSemicolin, ++cnt));
+
+    tokens.push_back(Token("}",         kTokenKindBraces, ++cnt));
+
+    tokens.push_back(Token("root",      kTokenKindDirectiveName, ++cnt));
+    tokens.push_back(Token("hoge",      kTokenKindDirectiveParam, ++cnt));  // change
+    tokens.push_back(Token(";",         kTokenKindSemicolin, ++cnt));
+
+    tokens.push_back(Token("}",         kTokenKindBraces, ++cnt));
+
+
+    tokens.push_back(Token("keepalive_timeout", kTokenKindDirectiveName, ++cnt));
+    tokens.push_back(Token("5s",                kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";",                 kTokenKindSemicolin, ++cnt));
+
+
+    tokens.push_back(Token("}",             kTokenKindBraces, ++cnt));
+
+    current = tokens.begin();
+
+    expected = {};
+    expected.keepalive_timeout_sec = 5;
+
+    server_config = {};
+    server_config.root_path = "hoge";
+    location_config = LocationConfig(server_config);
+    location_config.root_path = "html";
+    server_config.locations["/path"] = location_config;
+    expected.servers.push_back(server_config);
+
+
+    actual = {};
+    result = ConfigParserTestFriend::parse_http_block(&current, tokens.end(), &actual);
+
+    ASSERT_TRUE(result.is_ok());
+    expect_eq_http_config(expected, actual, __LINE__);
+
+    ////////////////////////////////////////////////////////////////////////////
+
+    cnt = 0;
+    tokens = {};
+
+    tokens.push_back(Token("http",        kTokenKindBlockName, ++cnt));
+    tokens.push_back(Token("}",             kTokenKindBraces, ++cnt));  // ng
+    tokens.push_back(Token("{",             kTokenKindBraces, ++cnt));
+    tokens.push_back(Token("}",             kTokenKindBraces, ++cnt));
+
+    current = tokens.begin();
+
+    actual = {};
+    result = ConfigParserTestFriend::parse_http_block(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+
+    tokens.push_back(Token("http",        kTokenKindBlockName, ++cnt));
+    tokens.push_back(Token("}",             kTokenKindBraces, ++cnt));  // ng
+
+    current = tokens.begin();
+
+    actual = {};
+    result = ConfigParserTestFriend::parse_http_block(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+
+    tokens.push_back(Token("http",        kTokenKindBlockName, ++cnt));
+
+    tokens.push_back(Token("keepalive_timeout",         kTokenKindDirectiveName, ++cnt));  // ng
+    tokens.push_back(Token("120s",                      kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";",                         kTokenKindSemicolin, ++cnt));
+
+    tokens.push_back(Token("}",             kTokenKindBraces, ++cnt));
+
+    current = tokens.begin();
+
+    actual = {};
+    result = ConfigParserTestFriend::parse_http_block(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+
+    tokens.push_back(Token("http",        kTokenKindBlockName, ++cnt));
+    tokens.push_back(Token("{",             kTokenKindBraces, ++cnt));
+
+    tokens.push_back(Token("keepalive_timeout",         kTokenKindDirectiveName, ++cnt));
+    tokens.push_back(Token("120s",                      kTokenKindDirectiveParam, ++cnt));  // no ;
+
+    tokens.push_back(Token("}",             kTokenKindBraces, ++cnt));
+
+    current = tokens.begin();
+
+    actual = {};
+    result = ConfigParserTestFriend::parse_http_block(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+
+    tokens.push_back(Token("http",        kTokenKindBlockName, ++cnt));
+    tokens.push_back(Token("{",             kTokenKindBraces, ++cnt));
+
+    tokens.push_back(Token("keepalive_timeout",         kTokenKindDirectiveName, ++cnt));
+    tokens.push_back(Token("120s",                      kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";",                         kTokenKindSemicolin, ++cnt));
+    tokens.push_back(Token(";",                         kTokenKindSemicolin, ++cnt));  // ng
+
+    tokens.push_back(Token("}",             kTokenKindBraces, ++cnt));
+
+    current = tokens.begin();
+
+    actual = {};
+    result = ConfigParserTestFriend::parse_http_block(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+
+    tokens.push_back(Token("http",        kTokenKindBlockName, ++cnt));
+    tokens.push_back(Token("{",             kTokenKindBraces, ++cnt));
+
+    tokens.push_back(Token(";",                         kTokenKindSemicolin, ++cnt));  // ng
+
+    tokens.push_back(Token("keepalive_timeout",         kTokenKindDirectiveName, ++cnt));
+    tokens.push_back(Token("120s",                      kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";",                         kTokenKindSemicolin, ++cnt));
+
+    tokens.push_back(Token("}",             kTokenKindBraces, ++cnt));
+
+    current = tokens.begin();
+
+    actual = {};
+    result = ConfigParserTestFriend::parse_http_block(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+
+    tokens.push_back(Token("http",        kTokenKindBlockName, ++cnt));
+    tokens.push_back(Token("{",             kTokenKindBraces, ++cnt));
+
+    tokens.push_back(Token("keepalive_timeout",         kTokenKindDirectiveName, ++cnt));
+    tokens.push_back(Token("120s",                      kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";",                         kTokenKindSemicolin, ++cnt));
+
+    tokens.push_back(Token("{",             kTokenKindBraces, ++cnt));  // ng
+    tokens.push_back(Token("}",             kTokenKindBraces, ++cnt));
+
+    tokens.push_back(Token("}",             kTokenKindBraces, ++cnt));
+
+    current = tokens.begin();
+
+    actual = {};
+    result = ConfigParserTestFriend::parse_http_block(&current, tokens.end(), &actual);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+
+    tokens.push_back(Token("http",        kTokenKindBlockName, ++cnt));
+    current = tokens.begin();
+
+    actual = {};
+    result = ConfigParserTestFriend::parse_http_block(&current, tokens.end(), &actual);
 
     print_error_msg(result, __LINE__);
     ASSERT_TRUE(result.is_err());

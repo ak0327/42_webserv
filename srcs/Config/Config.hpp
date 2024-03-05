@@ -24,6 +24,7 @@ class Config {
 
     // getter
     Result<int, std::string> result() const;
+    time_t keepalive_timeout() const;
     std::map<ServerInfo, const ServerConfig *> get_server_configs() const;
     Result<ServerConfig, int> get_server_config(const ServerInfo &server_info) const;
     Result<ServerConfig, std::string> get_server_config(const AddressPortPair &address_port_pair,
@@ -74,6 +75,12 @@ class Config {
     static Result<bool, int> is_method_allowed(const ServerConfig &server_config,
                                                const std::string &target_path,
                                                const Method &method);
+
+    static bool is_method_allowed(const ServerConfig &server_config,
+                                  const std::string &target_path,
+                                  const AddressPortPair &client_listen,
+                                  const Method &method);
+
     Result<bool, int> is_method_allowed(const ServerInfo &server_info,
                                         const std::string &target_path,
                                         const Method &method) const;

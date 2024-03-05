@@ -104,12 +104,14 @@ EventResult Event::process_client_event() {
             DEBUG_SERVER_PRINT("   Session: 1 Recv");
             ProcResult recv_result = recv_http_request();
             if (recv_result == FatalError) {
-                const std::string error_msg = CREATE_ERROR_INFO_STR("fatal error");
+                const std::string error_msg = CREATE_ERROR_INFO_STR("error: fail to allocate memory for HttpRequest");
                 return EventResult::err(error_msg);
+            } else if (recv_result == Failure || recv_result == ConnectionClosed) {
+                return EventResult::ok(ConnectionClosed);
+            } else if (recv_result == Idling) {
+                return EventResult::ok(Idling);
             } else if (recv_result == Continue) {
                 return EventResult::ok(Continue);
-            } else if (recv_result == ConnectionClosed) {
-                return EventResult::ok(ConnectionClosed);
             }
             this->set_event_phase(kParsingRequest);
         }
@@ -133,7 +135,8 @@ EventResult Event::process_client_event() {
             DEBUG_SERVER_PRINT("   Session: 3 CreatingResponse");
             ProcResult response_result = create_http_response();
             if (response_result == FatalError) {
-                return EventResult::err("fail to memory allocate for HttpResponse");
+                const std::string error_msg = CREATE_ERROR_INFO_STR("error: fail to allocate memory for HttpResponse");
+                return EventResult::err(error_msg);
             }
             if (response_result == ExecutingCgi) {
                 return EventResult::ok(ExecutingCgi);
@@ -144,6 +147,9 @@ EventResult Event::process_client_event() {
         case kSendingResponse: {
             DEBUG_SERVER_PRINT("   Session: 4 SendingResponse");
             ProcResult send_result = this->response_->send_http_response(this->client_fd_);
+            if (send_result == Failure) {
+                return EventResult::ok(ConnectionClosed);
+            }
             if (send_result == Continue) {
                 return EventResult::ok(Continue);
             }
@@ -169,14 +175,19 @@ ProcResult Event::recv_http_request() {
             this->request_ = new HttpRequest();
         }
         catch (const std::exception &e) {
-            DEBUG_PRINT(RED, "error: fail to memory allocate for HttpRequest");  // todo: logging
             return FatalError;
         }
     }
 
     ssize_t recv_size = this->request_->recv_to_buf(this->client_fd_);
     if (recv_size == RECV_COMPLETED) {
+        if (this->request_->is_buf_empty()) {
+            return Idling;
+        }
         return ConnectionClosed;
+    }
+    if (recv_size == RECV_ERROR) {
+        return Failure;
     }
     return 0 < recv_size ? Success : Continue;
 }
@@ -336,7 +347,7 @@ Result<ServerConfig, std::string> Event::get_server_config() const {
     // DEBUG_PRINT(YELLOW, " host: %s, port:%s", host_port_pair.first.c_str(), host_port_pair.second.c_str());
 
     Result<ServerConfig, std::string> config_result;
-    config_result = config_.get_server_config(this->address_port_pair_, host_port_pair);
+    config_result = config_.get_server_config(this->server_listen_, host_port_pair);
     if (config_result.is_err()) {
         // DEBUG_PRINT(YELLOW, "get_server_config err");
         const std::string error_msg = config_result.err_value();
@@ -354,7 +365,7 @@ EventResult Event::get_host_config() {
         const std::string error_msg = address_result.err_value();
         return EventResult::err(error_msg);
     }
-    this->address_port_pair_ = address_result.ok_value();
+    this->server_listen_ = address_result.ok_value();
 
     Result<ServerConfig, std::string> config_result = Event::get_server_config();
     if (config_result.is_err()) {
@@ -384,7 +395,7 @@ ProcResult Event::execute_each_method() {
     if (this->echo_mode_on_) {
         try {
             HttpRequest request; ServerConfig config; AddressPortPair pair;
-            this->response_ = new HttpResponse(request, config, pair, NULL);
+            this->response_ = new HttpResponse(request, config, pair, pair, NULL, 0);
         }
         catch (const std::exception &e) {
             const std::string error_msg = CREATE_ERROR_INFO_STR("Failed to allocate memory");
@@ -397,8 +408,10 @@ ProcResult Event::execute_each_method() {
     try {
         this->response_ = new HttpResponse(*this->request_,
                                            this->server_config_,
-                                           this->address_port_pair_,
-                                           this->sessions_);
+                                           this->server_listen_,
+                                           this->client_listen_,
+                                           this->sessions_,
+                                           this->config_.keepalive_timeout());
         // std::cout << CYAN << "     response_message[" << this->http_response_->get_response_message() << "]" << RESET << std::endl;
     }
     catch (const std::exception &e) {
@@ -592,6 +605,18 @@ bool Event::is_executing_cgi(const Result<ProcResult, std::string> &result) {
 
 bool Event::is_connection_closed(const Result<ProcResult, std::string> &result) {
     return result.is_ok() && result.ok_value() == ConnectionClosed;
+}
+
+
+bool Event::is_keepalive() const {
+    if (this->echo_mode_on_) {
+        return false;
+    }
+    if (!this->request_ || this->request_->is_client_connection_close()) {
+        return false;
+    }
+    const int KEEPALIVE_TIMEOUT_INFINITY = 0;
+    return this->config_.keepalive_timeout() != KEEPALIVE_TIMEOUT_INFINITY;
 }
 
 

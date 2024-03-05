@@ -23,18 +23,22 @@
 
 HttpResponse::HttpResponse(const HttpRequest &request,
                            const ServerConfig &server_config,
-                           const AddressPortPair &pair,
-                           std::map<std::string, Session> *sessions)
+                           const AddressPortPair &server_listen,
+                           const AddressPortPair &client_listen,
+                           std::map<std::string, Session> *sessions,
+                           time_t keepalive_timeout)
     : request_(request),
       server_config_(server_config),
-      address_port_pair_(pair),
+      server_listen_(server_listen),
+      client_listen_(client_listen),
       sessions_(sessions),
       cgi_handler_(),
       dynamic_(),
       status_code_(StatusOk),
       headers_(),
       body_buf_(),
-      response_msg_() {
+      response_msg_(),
+      keepalive_timeout_sec_(keepalive_timeout) {
     StatusCode request_status = this->request_.request_status();
     this->set_status_code(request_status);
 
@@ -391,9 +395,22 @@ void HttpResponse::add_server_header() {
 }
 
 
+void HttpResponse::add_keepalive_header() {
+    if (this->request_.is_client_connection_close() || this->keepalive_timeout_sec_ == 0) {
+        this->headers_["Connection"] = "close";
+    } else {
+        this->headers_["Connection"] = "keep-alive";
+        std::ostringstream field_value;
+        field_value << "time=" << this->keepalive_timeout_sec_;
+        this->headers_["Keep-Alive"] = field_value.str();
+    }
+}
+
+
 void HttpResponse::add_standard_headers() {
     add_server_header();
     add_date_header();
+    add_keepalive_header();
 }
 
 void HttpResponse::add_cookie_headers() {

@@ -94,6 +94,7 @@ StatusCode HttpResponse::get_cookie_user_page() {
         const std::string expire = "<h3>expire at: " + get_expire_from_cookie() + "</h3>";
 
         const std::string tail = "<br><br><br>\n"
+                                 "<a href=\"" + this->dynamic_.COOKIE_LOGIN +"\">< back to login</a><br>"
                                  "<a href=\"/\">< back to index</a>"
                                  "</body>\n"
                                  "</html>\n";
