@@ -89,6 +89,7 @@ set(webserv_srcs
         srcs/Config/Token/Token.cpp
         srcs/Config/Tokenizer/Tokenizer.cpp
         srcs/Config/Config.cpp
+        srcs/Config/config_getter.cpp
         srcs/Debug/Debug.cpp
         srcs/Error/Error.cpp
         srcs/IOMultiplexer/IOMultiplexer.cpp

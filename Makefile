@@ -20,7 +20,8 @@ SRCS		+=	$(CONFIG_DIR)/FileHandler/FileHandler.cpp \
 				$(CONFIG_DIR)/ConfigParser/ConfigParser.cpp \
 				$(CONFIG_DIR)/Token/Token.cpp \
 				$(CONFIG_DIR)/Tokenizer/Tokenizer.cpp \
-				$(CONFIG_DIR)/Config.cpp
+				$(CONFIG_DIR)/Config.cpp \
+				$(CONFIG_DIR)/config_getter.cpp
 
 # Const
 CONST_DIR	=	Const
