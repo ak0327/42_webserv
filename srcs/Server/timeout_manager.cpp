@@ -73,11 +73,11 @@ void Server::management_cgi_executing_timeout(time_t current_time) {
 
         int cgi_fd = cgi->second;
         Event *client = this->cgi_events_[cgi_fd];
-        DEBUG_PRINT(RED, " timeout(%zu sec) cgi %d -> kill, client: %p", current_time - timeout_limit, cgi_fd, client);
+        DEBUG_PRINT(RED, " timeout(%zu sec) cgi %d -> kill, client: %p", timeout_limit - current_time, cgi_fd, client);
         client->kill_cgi_process();
         DEBUG_PRINT(RED, " cgi killed by signal read:%d, write:%d", client->cgi_read_fd(), client->cgi_write_fd());
     }
-    // todo: erase cgi from timeout?
+    // not erase timeout cgi from cgi_fd; erased after recv cgi result
 }
 
 
@@ -88,7 +88,7 @@ void Server::management_active_client_timeout(time_t current_time) {
         DEBUG_PRINT(GREEN, " [management] active_client: fd: %d, time limit: %zu, current: %zu -> %s",
                            itr->second, timeout_limit, current_time, (timeout_limit <= current_time ? "timeout" : "ok"));
         if (current_time < timeout_limit) {
-            DEBUG_PRINT(GREEN, " itr %d: time remaining(%zu sec)", itr->second, current_time - timeout_limit);
+            DEBUG_PRINT(GREEN, " itr %d: time remaining(%zu sec)", itr->second, timeout_limit - current_time);
             break;  // sorted
         }
 
@@ -115,7 +115,7 @@ void Server::management_active_client_timeout(time_t current_time) {
         // client_event->set_to_timeout();
         delete_event(timeout_event);  // client can not recv 408 -> delete
 
-        DEBUG_PRINT(RED, " [management] client %d: time remaining(%zu sec) -> deleted", client_fd, current_time - timeout_limit);
+        DEBUG_PRINT(RED, " [management] client %d: time remaining(%zu sec) -> deleted", client_fd, timeout_limit - current_time);
     }
 }
 
@@ -127,7 +127,7 @@ void Server::management_idling_client_timeout(time_t current_time) {
         DEBUG_SERVER_PRINT(" idling_client: fd: %d, time limit: %zu, current: %zu -> %s",
                            client->second, timeout_limit, current_time, (timeout_limit <= current_time ? "limited" : "ok"));
         if (current_time < timeout_limit) {
-            DEBUG_PRINT(GREEN, " client %d: time remaining(%zu sec)", client->second, current_time - timeout_limit);
+            DEBUG_PRINT(GREEN, " client %d: time remaining(%zu sec)", client->second, timeout_limit - current_time);
             break;  // sorted
         }
 
@@ -146,7 +146,7 @@ void Server::management_idling_client_timeout(time_t current_time) {
         this->idling_client_time_manager_.erase(current);
 
         delete_event(timeout_event);
-        DEBUG_PRINT(RED, " client %d: time remaining(%zu sec) -> deleted", client_fd, current_time - timeout_limit);
+        DEBUG_PRINT(RED, " client %d: time remaining(%zu sec) -> deleted", client_fd, timeout_limit - current_time);
     }
 }
 

@@ -59,6 +59,7 @@ void Event::clear_response() {
 
 void Event::close_client_fd() {
     if (this->client_fd_ != INIT_FD) {
+        shutdown(this->client_fd_, SHUT_RDWR);
         close(this->client_fd_);
         this->client_fd_ = INIT_FD;
     }

@@ -75,7 +75,7 @@ ServerResult Server::create_event(int socket_fd) {
     Result<int, std::string> non_block = Socket::set_fd_to_nonblock(connect_fd);
     if (non_block.is_err()) {
         const std::string error_msg = CREATE_ERROR_INFO_STR(non_block.err_value());
-        return Result<int, std::string>::err(error_msg);
+        return ServerResult::err(error_msg);
     }
 
     // std::cout << CYAN << " accept fd: " << connect_fd << RESET << std::endl;
@@ -99,6 +99,9 @@ ServerResult Server::create_event(int socket_fd) {
         this->client_events_[connect_fd] = new_session;
         DEBUG_SERVER_PRINT("new_clilent: %p", new_session);
         // std::cout << CYAN << " event start" << connect_fd << RESET << std::endl;
+
+        handle_active_client_timeout(new_session);
+
         return ServerResult::ok(OK);
     }
     catch (const std::exception &e) {
@@ -197,8 +200,6 @@ ServerResult Server::handle_client_event(int client_fd) {
     }
 
     Event *client_event = event->second;
-
-    handle_active_client_timeout(client_event);
 
     DEBUG_SERVER_PRINT("process_event -> process_client_event");
     EventResult event_result = client_event->process_client_event();
