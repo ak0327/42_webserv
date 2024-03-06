@@ -90,6 +90,7 @@ set(webserv_srcs
         srcs/Config/ConfigParser/server_block.cpp
         srcs/Config/ConfigParser/location_block.cpp
         srcs/Config/ConfigParser/parse_timeout.cpp
+        srcs/Config/ConfigParser/error_msg.cpp
         srcs/Config/Token/Token.cpp
         srcs/Config/Tokenizer/Tokenizer.cpp
         srcs/Config/Config.cpp

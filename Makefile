@@ -22,6 +22,7 @@ SRCS		+=	$(CONFIG_DIR)/FileHandler/FileHandler.cpp \
 				$(CONFIG_DIR)/ConfigParser/server_block.cpp \
 				$(CONFIG_DIR)/ConfigParser/location_block.cpp \
 				$(CONFIG_DIR)/ConfigParser/parse_timeout.cpp \
+				$(CONFIG_DIR)/ConfigParser/error_msg.cpp \
 				$(CONFIG_DIR)/Token/Token.cpp \
 				$(CONFIG_DIR)/Tokenizer/Tokenizer.cpp \
 				$(CONFIG_DIR)/Config.cpp \
