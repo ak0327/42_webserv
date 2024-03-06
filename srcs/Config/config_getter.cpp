@@ -19,6 +19,11 @@ std::map<ServerInfo, const ServerConfig *> Config::get_server_configs() const {
 }
 
 
+std::map<AddressPortPair, const ServerConfig *> Config::get_default_servers() const {
+    return this->default_servers_;
+}
+
+
 Result<ServerConfig, int> Config::get_server_config(const ServerInfo &server_info) const {
     std::map<ServerInfo, const ServerConfig *>::const_iterator server_config;
     server_config = this->server_configs_.find(server_info);

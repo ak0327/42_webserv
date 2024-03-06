@@ -102,29 +102,37 @@
 
     <li> curl command
         <ul>
-            <li> server name: 127.0.0.1, port: 4242 (static server) (<a href="http://127.0.0.1:4242/">link ver</a>)
+            <li> server name: webserv (localhost:4242)
+            <div class="container">
+                <button onclick="copyCommand('server_name_webserv')">copy</button>
+                <input type="text"
+                       id="server_name_webserv"
+                       value="curl -i -H &quot;Host: webserv&quot; localhost:4242">
+            </div>
+
+            <li> server name: static_server (localhost:4242)
+            <div class="container">
+                <button onclick="copyCommand('server_name_static')">copy</button>
+                <input type="text"
+                       id="server_name_static"
+                       value="curl -i -H &quot;Host: webserv&quot; localhost:4242">
+            </div>
+
+            <li> default server-1: localhost:4040 and nothing_server_name -> old_server or new_server
+            <div class="container">
+                <button onclick="copyCommand('default_server_1')">copy</button>
+                <input type="text"
+                       id="default_server_1"
+                       value="curl -i -H &quot;Host: nothing_server_name&quot; localhost:4040">
+            </div>
+
+            <li> default server-2: localhost:3939 and nothing_server_name -> server_a or server_b
                 <div class="container">
-                    <button onclick="copyCommand('server_127_0_0_1')">copy</button>
+                    <button onclick="copyCommand('default_server_2')">copy</button>
                     <input type="text"
-                           id="server_127_0_0_1"
-                           value="curl -i 127.0.0.1:4242/">
+                           id="default_server_2"
+                           value="curl -i -H &quot;Host: nothing_server_name&quot; localhost:3939">
                 </div>
-
-            <li> server name: localhost, port: 4242 (<a href="http://localhost:4242/">link ver</a>)
-            <div class="container">
-                <button onclick="copyCommand('server_localhost')">copy</button>
-                <input type="text"
-                       id="server_localhost"
-                       value="curl -i localhost:4242/">
-            </div>
-
-            <li> server name: localhost, port: 4343 (CGI server) (<a href="http://localhost:4343/">link ver</a>)
-            <div class="container">
-                <button onclick="copyCommand('port4343')">copy</button>
-                <input type="text"
-                       id="port4343"
-                       value="curl -i localhost:4343/">
-            </div>
 
             <li> GET method ignores request body
             <div class="container">

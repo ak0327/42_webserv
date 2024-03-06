@@ -169,13 +169,22 @@ Result<Socket *, std::string> Server::create_socket(const std::string &address,
 
 
 ServerResult Server::create_sockets(const Config &config) {
-    const std::map<ServerInfo, const ServerConfig *> &server_configs = config.get_server_configs();
+    // const std::map<ServerInfo, const ServerConfig *> &server_configs = config.get_server_configs();
+    // DEBUG_PRINT(GRAY_BACK, "conf server:");
+    // std::map<ServerInfo, const ServerConfig *>::const_iterator itr;
+    // for (itr = server_configs.begin(); itr != server_configs.end(); ++itr) {
+    //     ServerInfo s = itr->first;
+    //     DEBUG_PRINT(GRAY_BACK, " name: %s, ip: %s, port: %s", s.server_name.c_str(), s.address.c_str(), s.port.c_str());
+    // }
+    const std::map<AddressPortPair, const ServerConfig *> &default_servers = config.get_default_servers();
 
-    std::map<ServerInfo, const ServerConfig *>::const_iterator servers;
-    for (servers = server_configs.begin(); servers != server_configs.end(); ++servers) {
-        ServerInfo server = servers->first;
+    DEBUG_PRINT(GRAY_BACK, "create sockets:");
+    std::map<AddressPortPair, const ServerConfig *>::const_iterator servers;
+    for (servers = default_servers.begin(); servers != default_servers.end(); ++servers) {
+        AddressPortPair server = servers->first;
         try {
-            Result<Socket *, std::string> socket_result = create_socket(server.address, server.port);
+            DEBUG_PRINT(GRAY_BACK, " ip: %s, port: %s", server.first.c_str(), server.second.c_str());
+            Result<Socket *, std::string> socket_result = create_socket(server.first, server.second);
             if (socket_result.is_err()) {
                 const std::string error_msg = socket_result.err_value();
                 return ServerResult::err(error_msg);

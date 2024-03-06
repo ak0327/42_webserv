@@ -29,6 +29,8 @@ class Config {
     time_t send_timeout() const;
 
     std::map<ServerInfo, const ServerConfig *> get_server_configs() const;
+    std::map<AddressPortPair, const ServerConfig *> get_default_servers() const;
+
     Result<ServerConfig, int> get_server_config(const ServerInfo &server_info) const;
     Result<ServerConfig, std::string> get_server_config(const AddressPortPair &address_port_pair,
                                                         const HostPortPair &host_port_pair) const;
