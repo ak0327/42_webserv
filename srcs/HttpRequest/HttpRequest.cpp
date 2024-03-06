@@ -180,7 +180,7 @@ ssize_t HttpRequest::recv_to_buf(int fd) {
 
     if (is_telnet_closed()) {
         DEBUG_PRINT(RED, "^C detected");
-        return RECV_CLOSED;
+        return RECV_EOF;
     }
     return recv_size;
 }

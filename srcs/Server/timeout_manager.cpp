@@ -209,14 +209,16 @@ void Server::idling_event(Event *event) {
     }
     int client_fd = event->client_fd();
     update_fd_type(client_fd, kWriteFd, kReadFd);
-    event->set_event_phase(kReceivingRequest);
+    event->set_event_phase(kEventInit);
     event->clear_request();
     event->clear_response();
 
     time_t timeout_limit = std::time(NULL) + this->config_.keepalive_timeout();
     this->idling_client_time_manager_.insert(FdTimeoutLimitPair(timeout_limit, client_fd));
 
-    DEBUG_SERVER_PRINT("init event: client_fd %d, timeout: %zu", client_fd, timeout_limit);
+    clear_from_active_client_manager(client_fd);
+
+    DEBUG_SERVER_PRINT("init event add: client_fd %d, timeout: %zu", client_fd, timeout_limit);
     DEBUG_SERVER_PRINT("------------------------------------------------------------------------------------------------");
 }
 
