@@ -30,8 +30,6 @@ Result<int, std::string> ConfigParser::parse_server_block(TokenItr *current,
 
     std::map<LocationPath, TokenItr> location_iterators;
     int session_timeout_cnt = 0;
-    int recv_timeout_cnt = 0;
-    int send_timeout_cnt = 0;
 
     while (*current != end) {
         if (consume(current, end, RIGHT_PAREN)) {
@@ -54,28 +52,6 @@ Result<int, std::string> ConfigParser::parse_server_block(TokenItr *current,
                                              &server_config->session_timeout_sec,
                                              SESSION_TIMEOUT_DIRECTIVE,
                                              is_valid_session_timeout);
-
-        } else if (consume(current, end, RECV_TIMEOUT_DIRECTIVE)) {
-            if (ConfigParser::is_duplicated(&recv_timeout_cnt)) {
-                const std::string error_msg = create_duplicated_directive_err_msg(*current, end, RECV_TIMEOUT_DIRECTIVE);
-                return Result<int, std::string>::err(error_msg);
-            }
-            result = parse_timeout_directive(current,
-                                             end,
-                                             &server_config->recv_timeout_sec,
-                                             RECV_TIMEOUT_DIRECTIVE,
-                                             is_valid_recv_timeout);
-
-        } else if (consume(current, end, SEND_TIMEOUT_DIRECTIVE)) {
-            if (ConfigParser::is_duplicated(&send_timeout_cnt)) {
-                const std::string error_msg = create_duplicated_directive_err_msg(*current, end, SEND_TIMEOUT_DIRECTIVE);
-                return Result<int, std::string>::err(error_msg);
-            }
-            result = parse_timeout_directive(current,
-                                             end,
-                                             &server_config->send_timeout_sec,
-                                             SEND_TIMEOUT_DIRECTIVE,
-                                             is_valid_send_timeout);
 
         } else if (expect(current, end, LOCATION_BLOCK)) {
             result = skip_location(current, end, &location_iterators);

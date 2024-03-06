@@ -205,23 +205,23 @@ struct ServerConfig : public DefaultConfig  {
     std::map<LocationPath, LocationConfig> locations;
 
     time_t session_timeout_sec;
-    time_t recv_timeout_sec;
-    time_t send_timeout_sec;
 
     ServerConfig()
         : listens(),
           server_names(),
           locations(),
-          session_timeout_sec(ConfigInitValue::kDefaultSessionTimeoutSec),
-          recv_timeout_sec(ConfigInitValue::kDefaultRecvTimeoutSec),
-          send_timeout_sec(ConfigInitValue::kDefaultSendTimeoutSec) {}
+          session_timeout_sec(ConfigInitValue::kDefaultSessionTimeoutSec) {}
 };
 
 struct HttpConfig {
     std::vector<ServerConfig> servers;
+    time_t recv_timeout_sec;
+    time_t send_timeout_sec;
     time_t keepalive_timeout_sec;
 
     HttpConfig()
         : servers(),
+          recv_timeout_sec(ConfigInitValue::kDefaultRecvTimeoutSec),
+          send_timeout_sec(ConfigInitValue::kDefaultSendTimeoutSec),
           keepalive_timeout_sec(ConfigInitValue::kDefaultKeepaliveTimeoutSec) {}
 };

@@ -28,6 +28,10 @@ Result<int, std::string> ConfigParser::parse_http_block(TokenItr *current,
         return Result<int, std::string>::err(error_msg);
     }
 
+    int recv_timeout_cnt = 0;
+    int send_timeout_cnt = 0;
+    int keepalive_timeout_cnt = 0;
+
     while (*current != end) {
         if (expect(current, end, RIGHT_PAREN)) {
             break;
@@ -46,11 +50,38 @@ Result<int, std::string> ConfigParser::parse_http_block(TokenItr *current,
             result = parse_server_block(current, end, &server_config);
             http_config->servers.push_back(server_config);
         } else if (consume(current, end, KEEPALIVE_TIMEOUT_DIRECTIVE)) {
+            if (ConfigParser::is_duplicated(&keepalive_timeout_cnt)) {
+                const std::string error_msg = create_duplicated_directive_err_msg(*current, end, KEEPALIVE_TIMEOUT_DIRECTIVE);
+                return Result<int, std::string>::err(error_msg);
+            }
             result = parse_timeout_directive(current,
                                              end,
                                              &http_config->keepalive_timeout_sec,
                                              KEEPALIVE_TIMEOUT_DIRECTIVE,
                                              is_valid_keepalive_timeout);
+
+        } else if (consume(current, end, RECV_TIMEOUT_DIRECTIVE)) {
+            if (ConfigParser::is_duplicated(&recv_timeout_cnt)) {
+                const std::string error_msg = create_duplicated_directive_err_msg(*current, end, RECV_TIMEOUT_DIRECTIVE);
+                return Result<int, std::string>::err(error_msg);
+            }
+            result = parse_timeout_directive(current,
+                                             end,
+                                             &http_config->recv_timeout_sec,
+                                             RECV_TIMEOUT_DIRECTIVE,
+                                             is_valid_recv_timeout);
+
+        } else if (consume(current, end, SEND_TIMEOUT_DIRECTIVE)) {
+            if (ConfigParser::is_duplicated(&send_timeout_cnt)) {
+                const std::string error_msg = create_duplicated_directive_err_msg(*current, end, SEND_TIMEOUT_DIRECTIVE);
+                return Result<int, std::string>::err(error_msg);
+            }
+            result = parse_timeout_directive(current,
+                                             end,
+                                             &http_config->send_timeout_sec,
+                                             SEND_TIMEOUT_DIRECTIVE,
+                                             is_valid_send_timeout);
+
         }
 
         if (result.is_err()) {

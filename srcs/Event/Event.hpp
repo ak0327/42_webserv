@@ -72,9 +72,6 @@ class Event {
     ProcResult exec_cgi();
 
     time_t cgi_timeout_limit() const;
-    time_t client_header_timeout() const;
-    time_t client_body_timeout() const;
-    time_t send_timeout() const;
 
     void close_client_fd();
     void clear_request();

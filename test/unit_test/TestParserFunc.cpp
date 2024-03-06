@@ -147,8 +147,6 @@ void expect_eq_server_config(const ServerConfig &expected,
 
     // timeout
     EXPECT_EQ(expected.session_timeout_sec, actual.session_timeout_sec) << "  at L:" << line << std::endl;
-    EXPECT_EQ(expected.recv_timeout_sec, actual.recv_timeout_sec) << "  at L:" << line;
-    EXPECT_EQ(expected.send_timeout_sec, actual.send_timeout_sec) << "  at L:" << line;
 
     // default_config
     DefaultConfig expected_default_config = static_cast<const DefaultConfig &>(expected);
@@ -4451,14 +4449,6 @@ TEST(TestParser, ParseServer) {
     tokens.push_back(Token("1s",           kTokenKindDirectiveParam, ++cnt));
     tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
 
-    tokens.push_back(Token("recv_timeout",kTokenKindDirectiveName, ++cnt));
-    tokens.push_back(Token("5s",           kTokenKindDirectiveParam, ++cnt));
-    tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
-
-    tokens.push_back(Token("send_timeout",kTokenKindDirectiveName, ++cnt));
-    tokens.push_back(Token("120s",           kTokenKindDirectiveParam, ++cnt));
-    tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
-
     tokens.push_back(Token("}",             kTokenKindBraces, ++cnt));
 
     current = tokens.begin();
@@ -4475,8 +4465,6 @@ TEST(TestParser, ParseServer) {
         {HTTPVersionNotSupported, "server505"},
     };
     expected.session_timeout_sec = 1;
-    expected.recv_timeout_sec = 5;
-    expected.send_timeout_sec = 120;
 
 
     location_config = LocationConfig(expected);
@@ -4772,14 +4760,17 @@ TEST(TestParser, ParseHttp) {
     tokens.push_back(Token("http",              kTokenKindBlockName, ++cnt));
     tokens.push_back(Token("{",                 kTokenKindBraces, ++cnt));
 
-    tokens.push_back(Token("keepalive_timeout",         kTokenKindDirectiveName, ++cnt));
-    tokens.push_back(Token("120s",                      kTokenKindDirectiveParam, ++cnt));
-    tokens.push_back(Token(";",                         kTokenKindSemicolin, ++cnt));
-
     tokens.push_back(Token("keepalive_timeout", kTokenKindDirectiveName, ++cnt));
     tokens.push_back(Token("5s",                kTokenKindDirectiveParam, ++cnt));
     tokens.push_back(Token(";",                 kTokenKindSemicolin, ++cnt));
 
+    tokens.push_back(Token("recv_timeout",kTokenKindDirectiveName, ++cnt));
+    tokens.push_back(Token("5s",           kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
+
+    tokens.push_back(Token("send_timeout",kTokenKindDirectiveName, ++cnt));
+    tokens.push_back(Token("120s",           kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
 
     tokens.push_back(Token("}",             kTokenKindBraces, ++cnt));
 
@@ -4787,6 +4778,8 @@ TEST(TestParser, ParseHttp) {
 
     expected = {};
     expected.keepalive_timeout_sec = 5;
+    expected.recv_timeout_sec = 5;
+    expected.send_timeout_sec = 120;
 
     actual = {};
     result = ConfigParserTestFriend::parse_http_block(&current, tokens.end(), &actual);

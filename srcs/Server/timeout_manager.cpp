@@ -115,8 +115,8 @@ void Server::management_active_client_timeout(time_t current_time) {
         this->active_client_time_manager_.erase(current);
         DEBUG_PRINT(RED, " client %d: time remaining(%zu sec) -> deleted", client_fd, current_time - timeout_limit);
     }
-
 }
+
 
 void Server::management_idling_client_timeout(time_t current_time) {
     std::set<FdTimeoutLimitPair>::iterator client = this->idling_client_time_manager_.begin();
@@ -250,11 +250,11 @@ void Server::handle_active_client_timeout(Event *client_event) {
                 DEBUG_PRINT(GREEN, " already managed, recv continue fd: %d", client_fd);
                 break;
             }
-            time_t send_timeout = client_event->send_timeout();
-            time_t timeout_limit = std::time(NULL) + send_timeout;
+            time_t recv_timeout = client_event->recv_timeout();
+            time_t timeout_limit = std::time(NULL) + recv_timeout;
             FdTimeoutLimitPair pair(client_event->client_fd(), timeout_limit);
             this->active_client_time_manager_.insert(pair);
-            DEBUG_PRINT(GREEN, " set_timeout [send_timeout] fd: %d, limit: %zu", client_fd, timeout_limit);
+            DEBUG_PRINT(GREEN, " set_timeout [recv_timeout] fd: %d, limit: %zu", client_fd, timeout_limit);
             break;
         }
 
