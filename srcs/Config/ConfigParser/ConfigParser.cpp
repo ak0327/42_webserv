@@ -114,7 +114,7 @@ Result<int, std::string> validate_listen(const std::vector<ServerConfig> &server
             AddressPortPair pair = std::make_pair(listen->address, listen->port);
             if (address_port_pairs.find(pair) != address_port_pairs.end()) {
                 std::ostringstream oss;
-                oss << "duplicate listen \"" << listen->address << ":" << listen->port << "\"";
+                oss << "Error: duplicate listen \"" << listen->address << ":" << listen->port << "\"";
                 return Result<int, std::string>::err(oss.str());
             }
             address_port_pairs.insert(pair);

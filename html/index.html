@@ -134,6 +134,14 @@
                            value="curl -i -H &quot;Host: nothing_server_name&quot; localhost:3939">
                 </div>
 
+            <li> use different host: resolve access to example.com -> 127.0.0.1:4343
+                <div class="container">
+                    <button onclick="copyCommand('different_host')">copy</button>
+                    <input type="text"
+                           id="different_host"
+                           value="curl -i --resolve example.com:4343:127.0.0.1 http://example.com:4343/">
+                </div>
+
             <li> GET method ignores request body
             <div class="container">
                 <button onclick="copyCommand('ignore_body')">copy</button>

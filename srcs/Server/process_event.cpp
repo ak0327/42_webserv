@@ -25,15 +25,15 @@
 
 ServerResult Server::process_event(int ready_fd) {
     if (is_socket_fd(ready_fd)) {
-        DEBUG_SERVER_PRINT("  ready_fd=socket ready_fd: %d -> create_event()", ready_fd);
+        // DEBUG_SERVER_PRINT("  ready_fd=socket ready_fd: %d -> create_event()", ready_fd);
         return create_event(ready_fd);
     }
     if (is_client_fd(ready_fd)) {
-        DEBUG_SERVER_PRINT("  ready_fd=client ready_fd: %d -> handle_client_event()", ready_fd);
+        // DEBUG_SERVER_PRINT("  ready_fd=client ready_fd: %d -> handle_client_event()", ready_fd);
         return handle_client_event(ready_fd);
     }
     if (is_cgi_fd(ready_fd)) {
-        DEBUG_SERVER_PRINT("  ready_fd=cgi ready_fd: %d -> handle_cgi_event()", ready_fd);
+        // DEBUG_SERVER_PRINT("  ready_fd=cgi ready_fd: %d -> handle_cgi_event()", ready_fd);
         return handle_cgi_event(ready_fd);
     }
     const std::string error_msg = CREATE_ERROR_INFO_CSTR("error: unknown fd");
@@ -88,7 +88,7 @@ ServerResult Server::create_event(int socket_fd) {
         AddressPortPair client_listen = Server::get_client_listen(client_addr);
 
         std::ostringstream oss; oss << client_listen;
-        DEBUG_SERVER_PRINT("%s", oss.str().c_str());
+        DEBUG_PRINT(GRAY_BACK, "connect_client: %s", oss.str().c_str());
 
         Event *new_session = new Event(socket_fd,
                                        connect_fd,
@@ -206,7 +206,7 @@ ServerResult Server::handle_client_event(int client_fd) {
         handle_active_client_timeout(client_event);
     }
 
-    DEBUG_SERVER_PRINT("process_event -> process_client_event");
+    // DEBUG_SERVER_PRINT("process_event -> process_client_event");
     EventResult event_result = client_event->process_client_event();
     if (event_result.is_err()) {
         // fatal error occurred -> server shut down
@@ -224,12 +224,12 @@ ServerResult Server::handle_client_event(int client_fd) {
             // Receiving -> set client_header_timeout / client_body_timeout
 
             std::ostringstream oss; oss << client_event;
-            DEBUG_SERVER_PRINT("process_event(client) -> recv continue: %s", oss.str().c_str());
+            // DEBUG_SERVER_PRINT("process_event(client) -> recv continue: %s", oss.str().c_str());
             return ServerResult::ok(OK);
         }
         case ExecutingCgi: {
             std::ostringstream oss; oss << client_event;
-            DEBUG_SERVER_PRINT("process_event(client) -> executing_cgi: %s", oss.str().c_str());
+            // DEBUG_SERVER_PRINT("process_event(client) -> executing_cgi: %s", oss.str().c_str());
 
             register_cgi_write_fd_to_event_manager(&client_event);
             // register_cgi_fds_to_event_manager(&client_event);
@@ -245,16 +245,16 @@ ServerResult Server::handle_client_event(int client_fd) {
             return ServerResult::ok(OK);
         }
         default:
-            std::ostringstream oss; oss << client_event;
-            DEBUG_SERVER_PRINT("process_event(client) -> error occurred, delete event: %s", oss.str().c_str());
+            // std::ostringstream oss; oss << client_event;
+            // DEBUG_SERVER_PRINT("process_event(client) -> error occurred, delete event: %s", oss.str().c_str());
             delete_event(event);
             return ServerResult::ok(OK);
     }
 
     switch (client_event->event_phase()) {
         case kSendingResponse: {
-            std::ostringstream oss; oss << client_event;
-            DEBUG_SERVER_PRINT("process_event(client) -> sending response: %s", oss.str().c_str());
+            // std::ostringstream oss; oss << client_event;
+            // DEBUG_SERVER_PRINT("process_event(client) -> sending response: %s", oss.str().c_str());
             update_fd_type(client_fd, kReadFd, kWriteFd);
             break;
         }
