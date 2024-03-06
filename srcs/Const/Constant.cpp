@@ -101,6 +101,7 @@ std::map<StatusCode, std::string> init_reason_phrases() {
     reason_phrases[Conflict]                = "Conflict";
     reason_phrases[LengthRequired]          = "Length Required";
     reason_phrases[ContentTooLarge]         = "Content Too Large";
+    reason_phrases[URITooLong]              = "URI Too Long";
     reason_phrases[RequestHeaderFieldsTooLarge] = "Request Header Fields Too Large";
 
     reason_phrases[InternalServerError]     = "Internal Server Error";

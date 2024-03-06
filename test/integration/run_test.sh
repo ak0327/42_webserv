@@ -6,22 +6,39 @@ RESET="\033[0m"
 
 SUCCESS=0
 
-./test/integration/test_get.sh
-get_result=$?
-
-./test/integration/test_post.sh
-post_result=$?
-#post_result=0
-
-./test/integration/test_delete.sh
-delete_result=$?
-#delete_result=0
-
-if [ $get_result -eq $SUCCESS ] && [ $post_result -eq $SUCCESS ] && [ $delete_result -eq $SUCCESS ]; then
-  echo -e "${GREEN}All tests passed successfully${RESET}"
+get_test="./test/integration/test_get.sh"
+$get_test
+if [ $? -eq $SUCCESS ]; then
+  echo -en "[${GREEN}OK${RESET}]"
 else
-  echo -e "${RED}Some tests failed${RESET}"
-  [ $get_result -ne $SUCCESS ] && echo -e "  ${RED}GET failed${RESET}"
-  [ $post_result -ne $SUCCESS ] && echo -e "  ${RED}POST failed${RESET}"
-  [ $delete_result -ne $SUCCESS ] && echo -e "  ${RED}DELETE failed${RESET}"
+  echo -en "[${GREEN}NG${RESET}]"
 fi
+echo "$get_test"
+
+
+post_test="./test/integration/test_post.sh"
+$post_test
+if [ $? -eq $SUCCESS ]; then
+  echo -en "[${GREEN}OK${RESET}]"
+else
+  echo -en "[${GREEN}NG${RESET}]"
+fi
+echo "$post_test"
+
+delete_test="./test/integration/test_delete.sh"
+$delete_test
+if [ $? -eq $SUCCESS ]; then
+  echo -en "[${GREEN}OK${RESET}]"
+else
+  echo -en "[${GREEN}NG${RESET}]"
+fi
+echo "$delete_test"
+
+cgi_test="./test/integration/test_cgi.sh"
+$cgi_test
+if [ $? -eq $SUCCESS ]; then
+  echo -en "[${GREEN}OK${RESET}]"
+else
+  echo -en "[${GREEN}NG${RESET}]"
+fi
+echo "$cgi_test"

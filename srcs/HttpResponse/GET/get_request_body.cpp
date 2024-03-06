@@ -36,8 +36,6 @@ bool HttpResponse::is_cgi_file() const {
 }
 
 
-
-
 bool HttpResponse::is_redirect() const {
     Result<bool, int> result = Config::is_redirect(this->server_config_,
                                                    this->request_.target());

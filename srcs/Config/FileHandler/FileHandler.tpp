@@ -18,11 +18,21 @@ Result<bool, StatusCode> FileHandler::is_type(const std::string &path,
 
     // std::cout << GREEN << "  stat 1" << RESET << std::endl;
     if (stat_result == STAT_ERROR) {
-        if (err_no == ENOENT) {
-            // std::cout << GREEN << "  stat 2 noent -> NotFound" << RESET << std::endl;
+        if (err_no == ENOMEM || err_no == EOVERFLOW || err_no == EBADF || err_no == EINVAL) {
+            return Result<bool, StatusCode>::err(InternalServerError);
+        }
+        if (err_no == ENAMETOOLONG) {
+            return Result<bool, StatusCode>::err(URITooLong);
+        }
+        if (err_no == ENOENT || err_no == ENOTDIR) {
+            // std::cout << GREEN << "  stat 2 noent or notdir -> NotFound" << RESET << std::endl;
             return Result<bool, StatusCode>::err(NotFound);
         }
-        // std::cout << GREEN << "  stat 3 Forbidden" << RESET << std::endl;
+        // if (err_no == EACCES) {
+        //     std::cout << GREEN << "  stat 2 eaccess -> Forbidden" << RESET << std::endl;
+        //     return Result<bool, StatusCode>::err(Forbidden);
+        // }
+        // std::cout << GREEN << "  stat 3 Forbidden, err_no: " << err_no << RESET << std::endl;
         return Result<bool, StatusCode>::err(Forbidden);
     }
 

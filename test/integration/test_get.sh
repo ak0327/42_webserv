@@ -57,32 +57,26 @@ expect_eq_get "$(curl -is "localhost:4242/new.html")"     "200 OK"    "html/new.
 expect_eq_get "$(curl -is "localhost:4242/a/b/c/")"       "200 OK"    "html/a/b/c/file_c.html"
 
 
-# CGI
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.py")"                         "200 OK"   "test/integration/cgi-result/hello.txt"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.py")"                         "200 OK"          "html/cgi-bin/hello.py"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.py?query")"                   "200 OK"          "html/cgi-bin/hello.py"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/post_simple.py")"                   "200 OK"          "html/cgi-bin/post_simple.py"
+expect_eq_get "$(curl -is -X GET --data "request body ignored" localhost:4242/cgi-bin/post_simple.py)"  "200 OK"   "html/cgi-bin/post_simple.py"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello_400.py")"                     "200 OK"          "html/cgi-bin/hello_400.py"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello_404.py")"                     "200 OK"          "html/cgi-bin/hello_404.py"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/error_no_shebang.py")"              "200 OK"          "html/cgi-bin/error_no_shebang.py"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/error_wrong_shebang.py")"           "200 OK"          "html/cgi-bin/error_wrong_shebang.py"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/exit1.py")"                         "200 OK"          "html/cgi-bin/exit1.py"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello_invalid_header.py")"          "200 OK"          "html/cgi-bin/hello_invalid_header.py"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello_500.py")"                     "200 OK"          "html/cgi-bin/hello_500.py"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/infinite_loop.py")"                 "200 OK"          "html/cgi-bin/infinite_loop.py"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/infinite_print.py")"                "200 OK"          "html/cgi-bin/infinite_print.py"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/sleep5sec.py")"                     "200 OK"          "html/cgi-bin/sleep5sec.py"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/sleep10sec.py")"                    "200 OK"          "html/cgi-bin/sleep10sec.py"
 
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.py?query")"                   "200 OK"   "test/integration/cgi-result/hello.txt"
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.py/path/info")"               "200 OK"   "test/integration/cgi-result/hello.txt"
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/post_simple.py")"                   "200 OK"   "test/integration/cgi-result/post_simple_get.txt"
-expect_eq_get "$(curl -is -X GET --data "request body ignored" localhost:4242/cgi-bin/post_simple.py)"  "200 OK"   "test/integration/cgi-result/post_simple_get.txt"
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.sh")"                         "200 OK"   "test/integration/cgi-result/hello.txt"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.py/path/info")"               "404 Not Found"   "html/404.html"
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/nothing.py")"                       "404 Not Found"   "html/404.html"
 
-
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello_400.py")"             "400 Bad Request"             ""
-
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello_404.py")"             "404 Not Found"               "html/404.html"
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/nothing.py")"               "404 Not Found"               "html/404.html"
-
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/error_no_shebang.py")"      "500 Internal Server Error"   "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/error_wrong_shebang.py")"   "500 Internal Server Error"   "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/exit1.py")"                 "500 Internal Server Error"   "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello_invalid_header.py")"  "500 Internal Server Error"   "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello_500.py")"             "500 Internal Server Error"   "html/50x.html"
-
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/infinite_loop.py")"         "504 Gateway Timeout"         "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/infinite_print.py")"        "504 Gateway Timeout"         "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/sleep5sec.py")"             "504 Gateway Timeout"         "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/sleep10sec.py")"            "504 Gateway Timeout"         "html/50x.html"
-
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.sh")"                         "406 Not Acceptable"   ""
 
 
 # redirect -> todo: location

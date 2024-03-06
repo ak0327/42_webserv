@@ -101,6 +101,7 @@ enum StatusCode {
     Conflict                = 409,
     LengthRequired          = 411,
     ContentTooLarge         = 413,
+    URITooLong              = 414,
     RequestHeaderFieldsTooLarge = 431,
 
     InternalServerError     = 500,
