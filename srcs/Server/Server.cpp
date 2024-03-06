@@ -318,9 +318,10 @@ void Server::delete_event(std::map<Fd, Event *>::iterator event) {
     delete client_event;
     this->client_events_.erase(event);
 
-    std::set<FdTimeoutLimitPair>::iterator itr = find_timeout_fd_pair(client_fd, this->keepalive_clients_);
-    if (itr != this->keepalive_clients_.end()) {
-        this->keepalive_clients_.erase(itr);
+    std::set<FdTimeoutLimitPair>::iterator itr = find_fd_in_timeout_pair(
+            client_fd, this->idling_client_time_manager_);
+    if (itr != this->idling_client_time_manager_.end()) {
+        this->idling_client_time_manager_.erase(itr);
     }
 }
 

@@ -550,8 +550,7 @@ const char SERVER_NAME_DIRECTIVE[]          = "server_name";
 
 const char SESSION_TIMEOUT_DIRECTIVE[]          = "session_timeout";
 const char KEEPALIVE_TIMEOUT_DIRECTIVE[]        = "keepalive_timeout";
-const char CLIENT_HEADER_TIMEOUT_DIRECTIVE[]    = "client_header_timeout";
-const char CLIENT_BODY_TIMEOUT_DIRECTIVE[]      = "client_body_timeout";
+const char RECV_TIMEOUT_DIRECTIVE[]             = "recv_timeout";
 const char SEND_TIMEOUT_DIRECTIVE[]             = "send_timeout";
 
 const char RETURN_DIRECTIVE[]       = "return";
@@ -604,8 +603,7 @@ std::vector<std::string> init_directive_names() {
 	directive_names.push_back(CGI_TIMEOUT_DIRECTIVE);
     directive_names.push_back(SESSION_TIMEOUT_DIRECTIVE);
     directive_names.push_back(KEEPALIVE_TIMEOUT_DIRECTIVE);
-    directive_names.push_back(CLIENT_HEADER_TIMEOUT_DIRECTIVE);
-    directive_names.push_back(CLIENT_BODY_TIMEOUT_DIRECTIVE);
+    directive_names.push_back(RECV_TIMEOUT_DIRECTIVE);
     directive_names.push_back(SEND_TIMEOUT_DIRECTIVE);
 	return directive_names;
 }

@@ -28,13 +28,9 @@ const time_t kDefaultKeepaliveTimeoutSec = 75;
 const time_t kMinKeepaliveTimeoutSec = 0;
 const time_t kMaxKeepaliveTimeoutSec = 3600;
 
-const time_t kDefaultHeaderTimeoutSec = 60;
-const time_t kMinHeaderTimeoutSec = 1;
-const time_t kMaxHeaderTimeoutSec = 120;
-
-const time_t kDefaultBodyTimeoutSec = 60;
-const time_t kMinBodyTimeoutSec = 1;
-const time_t kMaxBodyTimeoutSec = 120;
+const time_t kDefaultRecvTimeoutSec = 60;
+const time_t kMinRecvTimeoutSec = 1;
+const time_t kMaxRecvTimeoutSec = 120;
 
 const time_t kDefaultSendTimeoutSec = 60;
 const time_t kMinSendTimeoutSec = 1;
@@ -209,8 +205,7 @@ struct ServerConfig : public DefaultConfig  {
     std::map<LocationPath, LocationConfig> locations;
 
     time_t session_timeout_sec;
-    time_t client_header_timeout_sec;
-    time_t client_body_timeout_sec;
+    time_t recv_timeout_sec;
     time_t send_timeout_sec;
 
     ServerConfig()
@@ -218,8 +213,7 @@ struct ServerConfig : public DefaultConfig  {
           server_names(),
           locations(),
           session_timeout_sec(ConfigInitValue::kDefaultSessionTimeoutSec),
-          client_header_timeout_sec(ConfigInitValue::kDefaultHeaderTimeoutSec),
-          client_body_timeout_sec(ConfigInitValue::kDefaultBodyTimeoutSec),
+          recv_timeout_sec(ConfigInitValue::kDefaultRecvTimeoutSec),
           send_timeout_sec(ConfigInitValue::kDefaultSendTimeoutSec) {}
 };
 

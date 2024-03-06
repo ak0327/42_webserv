@@ -197,6 +197,8 @@ ServerResult Server::handle_client_event(int client_fd) {
     }
 
     Event *client_event = event->second;
+
+    // header_timeout
     DEBUG_SERVER_PRINT("process_event -> process_client_event");
     EventResult event_result = client_event->process_client_event();
 
@@ -210,11 +212,14 @@ ServerResult Server::handle_client_event(int client_fd) {
         clear_from_keepalive_clients(client_fd);
     }
 
+    handle_active_client_timeout(client_event);
     switch (event_result.ok_value()) {
         case Success: {
             break;
         }
         case Continue: {
+            // Receiving -> set client_header_timeout / client_body_timeout
+
             std::ostringstream oss; oss << client_event;
             DEBUG_SERVER_PRINT("process_event(client) -> recv continue: %s", oss.str().c_str());
             return ServerResult::ok(OK);
@@ -232,7 +237,7 @@ ServerResult Server::handle_client_event(int client_fd) {
             return ServerResult::ok(OK);
         }
         case ConnectionClosed: {
-            delete_event(event);
+            delete_event(event);  // todo: delete timeout
             DEBUG_PRINT(RED, "connection closed");
             return ServerResult::ok(OK);
         }

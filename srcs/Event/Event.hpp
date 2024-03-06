@@ -72,6 +72,9 @@ class Event {
     ProcResult exec_cgi();
 
     time_t cgi_timeout_limit() const;
+    time_t client_header_timeout() const;
+    time_t client_body_timeout() const;
+    time_t send_timeout() const;
 
     void close_client_fd();
     void clear_request();
@@ -82,6 +85,8 @@ class Event {
     const char *event_phase_char();
     static const char *event_phase_char(const EventPhase &phase);
     static std::string event_phase_str(const EventPhase &phase);
+
+    // void set_to_timeout();
 
  private:
     int socket_fd_;
@@ -118,6 +123,7 @@ class Event {
     Result<ServerConfig, std::string> get_server_config() const;
     EventResult get_host_config();
     EventResult recv_cgi_result();
+    ProcResult create_response_obj();
 
     Event(const Event &other);
     Event &operator=(const Event &rhs);

@@ -369,8 +369,7 @@ extern const char SERVER_NAME_DIRECTIVE[];
 
 extern const char SESSION_TIMEOUT_DIRECTIVE[];
 extern const char KEEPALIVE_TIMEOUT_DIRECTIVE[];
-extern const char CLIENT_HEADER_TIMEOUT_DIRECTIVE[];
-extern const char CLIENT_BODY_TIMEOUT_DIRECTIVE[];
+extern const char RECV_TIMEOUT_DIRECTIVE[];
 extern const char SEND_TIMEOUT_DIRECTIVE[];
 
 extern const char RETURN_DIRECTIVE[];

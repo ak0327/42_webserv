@@ -28,7 +28,8 @@ void Server::management_timeout_events() {
     DEBUG_PRINT(GREEN, "management_timeout current: %zu", current_time);
 
     management_cgi_executing_timeout(current_time);
-    management_client_keepalive_timeout(current_time);
+    management_active_client_timeout(current_time);
+    management_idling_client_timeout(current_time);
 }
 
 
@@ -80,11 +81,48 @@ void Server::management_cgi_executing_timeout(time_t current_time) {
 }
 
 
-void Server::management_client_keepalive_timeout(time_t current_time) {
-    std::set<FdTimeoutLimitPair>::iterator client = this->keepalive_clients_.begin();
-    while (client != this->keepalive_clients_.end()) {
+void Server::management_active_client_timeout(time_t current_time) {
+    std::set<FdTimeoutLimitPair>::iterator itr = this->active_client_time_manager_.begin();
+    while (itr != this->active_client_time_manager_.end()) {
+        time_t timeout_limit = itr->first;
+        DEBUG_SERVER_PRINT(" active_client: fd: %d, time limit: %zu, current: %zu -> %s",
+                           itr->second, timeout_limit, current_time, (timeout_limit <= current_time ? "limited" : "ok"));
+        if (current_time < timeout_limit) {
+            DEBUG_PRINT(GREEN, " itr %d: time remaining(%zu sec)", itr->second, current_time - timeout_limit);
+            break;  // sorted
+        }
+
+        int client_fd = itr->second;
+        std::map<ClientFd, Event *>::iterator timeout_event = this->client_events_.find(client_fd);
+        if (timeout_event == this->client_events_.end())  {
+            const std::string error_msg = CREATE_ERROR_INFO_STR("error: fd not found in client_events");
+            DEBUG_PRINT(RED, "%s", error_msg.c_str());
+            ++itr;
+            continue;
+        }
+        Event *client_event = timeout_event->second;
+        if (!client_event) {
+            const std::string error_msg = CREATE_ERROR_INFO_STR("error: client_event null");
+            DEBUG_PRINT(RED, "%s, fd: %d", error_msg.c_str(), client_fd);
+            continue;
+        }
+
+        // client_event->set_to_timeout();
+        delete_event(timeout_event);  // client can not recv 408 -> delete
+        std::set<FdTimeoutLimitPair>::iterator current = itr;
+        ++itr;
+
+        this->active_client_time_manager_.erase(current);
+        DEBUG_PRINT(RED, " client %d: time remaining(%zu sec) -> deleted", client_fd, current_time - timeout_limit);
+    }
+
+}
+
+void Server::management_idling_client_timeout(time_t current_time) {
+    std::set<FdTimeoutLimitPair>::iterator client = this->idling_client_time_manager_.begin();
+    while (client != this->idling_client_time_manager_.end()) {
         time_t timeout_limit = client->first;
-        DEBUG_SERVER_PRINT(" client_fd: %d, time limit: %zu, current: %zu -> %s",
+        DEBUG_SERVER_PRINT(" idling_client: fd: %d, time limit: %zu, current: %zu -> %s",
                            client->second, timeout_limit, current_time, (timeout_limit <= current_time ? "limited" : "ok"));
         if (current_time < timeout_limit) {
             DEBUG_PRINT(GREEN, " client %d: time remaining(%zu sec)", client->second, current_time - timeout_limit);
@@ -92,7 +130,7 @@ void Server::management_client_keepalive_timeout(time_t current_time) {
         }
 
         int client_fd = client->second;
-        std::map<Fd, Event *>::iterator timeout_event = this->client_events_.find(client_fd);
+        std::map<ClientFd, Event *>::iterator timeout_event = this->client_events_.find(client_fd);
         if (timeout_event == this->client_events_.end())  {
             const std::string error_msg = CREATE_ERROR_INFO_STR("error: fd not found in client_events");
             DEBUG_PRINT(RED, "%s", error_msg.c_str());
@@ -103,7 +141,7 @@ void Server::management_client_keepalive_timeout(time_t current_time) {
         std::set<FdTimeoutLimitPair>::iterator current = client;
         ++client;
 
-        this->keepalive_clients_.erase(current);
+        this->idling_client_time_manager_.erase(current);
 
         delete_event(timeout_event);
         DEBUG_PRINT(RED, " client %d: time remaining(%zu sec) -> deleted", client_fd, current_time - timeout_limit);
@@ -111,7 +149,7 @@ void Server::management_client_keepalive_timeout(time_t current_time) {
 }
 
 
-std::set<FdTimeoutLimitPair>::iterator Server::find_timeout_fd_pair(int fd, const std::set<FdTimeoutLimitPair> &pair) {
+std::set<FdTimeoutLimitPair>::iterator Server::find_fd_in_timeout_pair(int fd, const std::set<FdTimeoutLimitPair> &pair) {
     std::set<FdTimeoutLimitPair>::iterator itr;
     for (itr = pair.begin(); itr != pair.end(); ++itr) {
         if (itr->second == fd) {
@@ -123,19 +161,21 @@ std::set<FdTimeoutLimitPair>::iterator Server::find_timeout_fd_pair(int fd, cons
 
 
 bool Server::is_idling_client(int fd) {
-    std::set<FdTimeoutLimitPair>::iterator client = find_timeout_fd_pair(fd, this->keepalive_clients_);
-    return client != this->keepalive_clients_.end();
+    std::set<FdTimeoutLimitPair>::iterator client = find_fd_in_timeout_pair(fd,
+                                                                            this->idling_client_time_manager_);
+    return client != this->idling_client_time_manager_.end();
 }
 
 
 void Server::clear_from_keepalive_clients(int fd) {
-    std::set<FdTimeoutLimitPair>::iterator client = find_timeout_fd_pair(fd, this->keepalive_clients_);
-    if (client == this->keepalive_clients_.end()) {
+    std::set<FdTimeoutLimitPair>::iterator client = find_fd_in_timeout_pair(fd,
+                                                                            this->idling_client_time_manager_);
+    if (client == this->idling_client_time_manager_.end()) {
         return;
     }
 
     DEBUG_SERVER_PRINT("idling -> active: client_fd %d", fd);
-    this->keepalive_clients_.erase(client);
+    this->idling_client_time_manager_.erase(client);
 }
 
 
@@ -147,7 +187,9 @@ void Server::set_io_timeout() {
     }
 
     const int kManagemtntTimeoutMs = 500;
-    if (!this->cgi_fds_.empty() || !this->keepalive_clients_.empty()) {
+    if (!this->cgi_fds_.empty()
+        || !this->active_client_time_manager_.empty()
+        || !this->idling_client_time_manager_.empty()) {
         this->fds_->set_io_timeout(kManagemtntTimeoutMs);
         return;
     }
@@ -170,8 +212,118 @@ void Server::idling_event(Event *event) {
     event->clear_response();
 
     time_t timeout_limit = std::time(NULL) + this->config_.keepalive_timeout();
-    this->keepalive_clients_.insert(FdTimeoutLimitPair(timeout_limit, client_fd));
+    this->idling_client_time_manager_.insert(FdTimeoutLimitPair(timeout_limit, client_fd));
 
     DEBUG_SERVER_PRINT("init event: client_fd %d, timeout: %zu", client_fd, timeout_limit);
     DEBUG_SERVER_PRINT("------------------------------------------------------------------------------------------------");
 }
+
+
+bool Server::is_already_managed(int fd) {
+    std::set<FdTimeoutLimitPair>::iterator itr;
+    itr = find_fd_in_timeout_pair(fd, this->active_client_time_manager_);
+    return itr != this->active_client_time_manager_.end();
+}
+
+void Server::clear_from_active_client_manager(int fd) {
+    std::set<FdTimeoutLimitPair>::iterator client = find_fd_in_timeout_pair(fd, this->active_client_time_manager_);
+    if (client == this->active_client_time_manager_.end()) {
+        return;
+    }
+
+    DEBUG_SERVER_PRINT("clear from active_client_manager: fd %d", fd);
+    this->active_client_time_manager_.erase(client);
+}
+
+
+// timeout:
+
+// send_timeout: return from CreateResponse ->
+void Server::handle_active_client_timeout(Event *client_event) {
+    if (!client_event) { return; }
+    DEBUG_PRINT(GREEN, "handle_active_client_timeout");
+
+    int client_fd = client_event->client_fd();
+    switch (client_event->event_phase()) {
+        case kReceivingRequest: {
+            if (is_already_managed(client_fd)) {
+                DEBUG_PRINT(GREEN, " already managed, recv continue fd: %d", client_fd);
+                break;
+            }
+            time_t send_timeout = client_event->send_timeout();
+            time_t timeout_limit = std::time(NULL) + send_timeout;
+            FdTimeoutLimitPair pair(client_event->client_fd(), timeout_limit);
+            this->active_client_time_manager_.insert(pair);
+            DEBUG_PRINT(GREEN, " set_timeout [send_timeout] fd: %d, limit: %zu", client_fd, timeout_limit);
+            break;
+        }
+
+        case kExecutingMethod:
+        case kCreatingResponseBody:
+        case kCreatingCGIBody:
+            // clear timeout for sending response
+            if (is_already_managed(client_fd)) {
+                DEBUG_PRINT(GREEN, " clear timeout fd: %d", client_fd);
+                clear_from_active_client_manager(client_fd);
+                break;
+            }
+            DEBUG_PRINT(GREEN, " error? : fd not exist time manager, fd: %d", client_fd);
+            break;
+
+        case kSendingResponse: {
+            // not registrate -> setting timeout
+            if (is_already_managed(client_fd)) {
+                DEBUG_PRINT(GREEN, " already managed, send continue fd: %d", client_fd);
+                break;
+            }
+            time_t send_timeout = client_event->send_timeout();
+            time_t timeout_limit = std::time(NULL) + send_timeout;
+            FdTimeoutLimitPair pair(client_event->client_fd(), timeout_limit);
+            this->active_client_time_manager_.insert(pair);
+            DEBUG_PRINT(GREEN, " set_timeout [send_timeout] fd: %d, limit: %zu", client_fd, timeout_limit);
+            break;
+        }
+
+        case kEventCompleted:
+            // clear timeout
+
+        default:
+            break;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//

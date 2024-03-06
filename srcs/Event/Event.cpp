@@ -84,6 +84,18 @@ time_t Event::cgi_timeout_limit() const {
     return this->response_ ? this->response_->cgi_timeout_limit() : 0;
 }
 
+time_t Event::client_header_timeout() const {
+    return this->server_config_.client_header_timeout_sec;
+}
+
+time_t Event::client_body_timeout() const {
+    return this->server_config_.client_body_timeout_sec;
+}
+
+time_t Event::send_timeout() const {
+    return this->server_config_.send_timeout_sec;
+}
+
 
 // -----------------------------------------------------------------------------
 

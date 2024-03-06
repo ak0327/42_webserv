@@ -95,6 +95,24 @@ EventResult Event::process_client_event() {
 
 // -----------------------------------------------------------------------------
 
+// void Event::set_to_timeout() {
+//     switch (this->event_phase()) {
+//         case kReceivingRequest:
+//             this->request_->set_request_status(RequestTimeout);
+//             this->set_event_phase(kCreatingResponseBody);  // can't send?
+//             break;
+//
+//         case kSendingResponse:
+//             this->set_event_phase(kEventError);
+//             break;
+//
+//         default:
+//             break;
+//     }
+// }
+
+// -----------------------------------------------------------------------------
+
 
 ProcResult Event::recv_http_request() {
     if (!this->request_) {
@@ -191,9 +209,38 @@ ProcResult Event::parse_http_request() {
 
 // -----------------------------------------------------------------------------
 
+ProcResult Event::create_response_obj() {
+    if (this->response_) { return Success; }
+
+    try {
+        if (this->echo_mode_on_) {
+            HttpRequest request; ServerConfig config; AddressPortPair pair;
+            this->response_ = new HttpResponse(request, config, pair, pair, NULL, 0);
+        } else {
+            this->response_ = new HttpResponse(*this->request_,
+                                               this->server_config_,
+                                               this->server_listen_,
+                                               this->client_listen_,
+                                               this->sessions_,
+                                               this->config_.keepalive_timeout());
+            // std::cout << CYAN << "     response_message[" << this->http_response_->get_response_message() << "]" << RESET << std::endl;
+        }
+    }
+    catch (const std::exception &e) {
+        const std::string error_msg = CREATE_ERROR_INFO_STR("Failed to allocate memory");
+        std::cerr << error_msg << std::endl;
+        return FatalError;  // fail to new Request -> can't send 500
+    }
+    return Success;
+}
+
 
 // status changes in each func
 ProcResult Event::create_http_response() {
+    if (create_response_obj() == FatalError) {
+        return FatalError;
+    }
+
     DEBUG_SERVER_PRINT("    CreatingResponse status: %d", this->request_->request_status());
     while (true) {
         switch (this->event_state_) {
@@ -319,33 +366,6 @@ EventResult Event::get_host_config() {
 
 
 ProcResult Event::execute_each_method() {
-    if (this->echo_mode_on_) {
-        try {
-            HttpRequest request; ServerConfig config; AddressPortPair pair;
-            this->response_ = new HttpResponse(request, config, pair, pair, NULL, 0);
-        }
-        catch (const std::exception &e) {
-            const std::string error_msg = CREATE_ERROR_INFO_STR("Failed to allocate memory");
-            std::cerr << error_msg << std::endl;
-            return FatalError;
-        }
-        return Success;
-    }
-
-    try {
-        this->response_ = new HttpResponse(*this->request_,
-                                           this->server_config_,
-                                           this->server_listen_,
-                                           this->client_listen_,
-                                           this->sessions_,
-                                           this->config_.keepalive_timeout());
-        // std::cout << CYAN << "     response_message[" << this->http_response_->get_response_message() << "]" << RESET << std::endl;
-    }
-    catch (const std::exception &e) {
-        const std::string error_msg = CREATE_ERROR_INFO_STR("Failed to allocate memory");
-        std::cerr << error_msg << std::endl;
-        return FatalError;  // fail to new Request -> can't send 500
-    }
     if (this->response_->is_exec_cgi()) {
         return exec_cgi();
     } else {
@@ -359,7 +379,7 @@ ProcResult Event::exec_cgi() {
     EventResult result = process_file_event();
     if (result.is_err()) {
         std::cerr << result.err_value() << std::endl;  // todo: logging
-        return Failure;  // todo: 500
+        return Failure;
     }
     return ExecutingCgi;
 }

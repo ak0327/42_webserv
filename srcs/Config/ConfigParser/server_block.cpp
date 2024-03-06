@@ -30,8 +30,7 @@ Result<int, std::string> ConfigParser::parse_server_block(TokenItr *current,
 
     std::map<LocationPath, TokenItr> location_iterators;
     int session_timeout_cnt = 0;
-    int header_timeout_cnt = 0;
-    int body_timeout_cnt = 0;
+    int recv_timeout_cnt = 0;
     int send_timeout_cnt = 0;
 
     while (*current != end) {
@@ -56,27 +55,16 @@ Result<int, std::string> ConfigParser::parse_server_block(TokenItr *current,
                                              SESSION_TIMEOUT_DIRECTIVE,
                                              is_valid_session_timeout);
 
-        } else if (consume(current, end, CLIENT_HEADER_TIMEOUT_DIRECTIVE)) {
-            if (ConfigParser::is_duplicated(&header_timeout_cnt)) {
-                const std::string error_msg = create_duplicated_directive_err_msg(*current, end, CLIENT_HEADER_TIMEOUT_DIRECTIVE);
+        } else if (consume(current, end, RECV_TIMEOUT_DIRECTIVE)) {
+            if (ConfigParser::is_duplicated(&recv_timeout_cnt)) {
+                const std::string error_msg = create_duplicated_directive_err_msg(*current, end, RECV_TIMEOUT_DIRECTIVE);
                 return Result<int, std::string>::err(error_msg);
             }
             result = parse_timeout_directive(current,
                                              end,
-                                             &server_config->client_header_timeout_sec,
-                                             CLIENT_HEADER_TIMEOUT_DIRECTIVE,
-                                             is_valid_client_header_timeout);
-
-        } else if (consume(current, end, CLIENT_BODY_TIMEOUT_DIRECTIVE)) {
-            if (ConfigParser::is_duplicated(&body_timeout_cnt)) {
-                const std::string error_msg = create_duplicated_directive_err_msg(*current, end, CLIENT_BODY_TIMEOUT_DIRECTIVE);
-                return Result<int, std::string>::err(error_msg);
-            }
-            result = parse_timeout_directive(current,
-                                             end,
-                                             &server_config->client_body_timeout_sec,
-                                             CLIENT_BODY_TIMEOUT_DIRECTIVE,
-                                             is_valid_client_body_timeout);
+                                             &server_config->recv_timeout_sec,
+                                             RECV_TIMEOUT_DIRECTIVE,
+                                             is_valid_recv_timeout);
 
         } else if (consume(current, end, SEND_TIMEOUT_DIRECTIVE)) {
             if (ConfigParser::is_duplicated(&send_timeout_cnt)) {
@@ -87,7 +75,7 @@ Result<int, std::string> ConfigParser::parse_server_block(TokenItr *current,
                                              end,
                                              &server_config->send_timeout_sec,
                                              SEND_TIMEOUT_DIRECTIVE,
-                                             is_valid_client_body_timeout);
+                                             is_valid_send_timeout);
 
         } else if (expect(current, end, LOCATION_BLOCK)) {
             result = skip_location(current, end, &location_iterators);

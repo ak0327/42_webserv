@@ -111,15 +111,9 @@ bool ConfigParser::is_valid_keepalive_timeout(time_t timeout_sec) {
 }
 
 
-bool ConfigParser::is_valid_client_header_timeout(time_t timeout_sec) {
-    return ConfigInitValue::kMinHeaderTimeoutSec <= timeout_sec
-           && timeout_sec <= ConfigInitValue::kMaxHeaderTimeoutSec;
-}
-
-
-bool ConfigParser::is_valid_client_body_timeout(time_t timeout_sec) {
-    return ConfigInitValue::kMinBodyTimeoutSec <= timeout_sec
-           && timeout_sec <= ConfigInitValue::kMaxBodyTimeoutSec;
+bool ConfigParser::is_valid_recv_timeout(time_t timeout_sec) {
+    return ConfigInitValue::kMinRecvTimeoutSec <= timeout_sec
+           && timeout_sec <= ConfigInitValue::kMaxRecvTimeoutSec;
 }
 
 
