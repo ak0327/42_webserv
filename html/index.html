@@ -129,13 +129,13 @@
             <li> Content larger than Content-Length
             <div class="container">
                 <button onclick="copyCommand('large_content')">copy</button>
-                <input type="text" id="large_content" value="curl -i -X GET -H &quot;Content-Length: 1&quot; --data &quot;request body ignored&quot; localhost:4242/cgi-bin/post_simple.py">
+                <input type="text" id="large_content" value="curl -i -X GET -H &quot;Content-Length: 1&quot; --data &quot;larger than 1&quot; localhost:4242/cgi-bin/post_simple.py">
             </div>
 
             <li> Content less than Content-Length
                 <div class="container">
                     <button onclick="copyCommand('small_content')">copy</button>
-                    <input type="text" id="small_content" value="curl -i -X GET -H &quot;Content-Length: 100&quot; --data &quot;request body ignored&quot; localhost:4242/cgi-bin/post_simple.py">
+                    <input type="text" id="small_content" value="curl -i -X GET -H &quot;Content-Length: 100&quot; --data &quot;less than 100&quot; localhost:4242/cgi-bin/post_simple.py">
                 </div>
 
             <li> Content-Length too large by Length

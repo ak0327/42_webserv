@@ -4795,10 +4795,6 @@ TEST(TestParser, ParseHttp) {
     tokens.push_back(Token("http",              kTokenKindBlockName, ++cnt));
     tokens.push_back(Token("{",                 kTokenKindBraces, ++cnt));
 
-    tokens.push_back(Token("keepalive_timeout",         kTokenKindDirectiveName, ++cnt));
-    tokens.push_back(Token("120s",                      kTokenKindDirectiveParam, ++cnt));
-    tokens.push_back(Token(";",                         kTokenKindSemicolin, ++cnt));
-
 
     tokens.push_back(Token("server",    kTokenKindBlockName, ++cnt));
     tokens.push_back(Token("{",         kTokenKindBraces, ++cnt));

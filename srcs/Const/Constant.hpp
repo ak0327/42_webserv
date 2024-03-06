@@ -1,6 +1,7 @@
 #pragma once
 
 # include <sys/types.h>
+# include <iterator>
 # include <string>
 # include <map>
 # include <vector>

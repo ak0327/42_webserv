@@ -65,6 +65,9 @@ expect_eq_get "$(curl -is "localhost:4343/cgi-bin/sleep5sec.py")"             "5
 expect_eq_get "$(curl -is "localhost:4343/cgi-bin/sleep10sec.py")"            "504 Gateway Timeout"         "html/50x.html"
 
 
+expect_eq_get "$(curl -is -X POST --data "test text" localhost:4343/cgi-bin/post_simple.py)"  "200 OK"   "test/integration/cgi-result/post_simple_small.txt"
+
+
 tear_down
 
 ################################################################################

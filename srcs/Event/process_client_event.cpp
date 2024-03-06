@@ -213,9 +213,11 @@ ProcResult Event::create_response_obj() {
     if (this->response_) { return Success; }
 
     try {
+        // unit test
         if (this->echo_mode_on_) {
             HttpRequest request; ServerConfig config; AddressPortPair pair;
             this->response_ = new HttpResponse(request, config, pair, pair, NULL, 0);
+            this->set_event_phase(kCreatingResponseBody);
         } else {
             this->response_ = new HttpResponse(*this->request_,
                                                this->server_config_,
