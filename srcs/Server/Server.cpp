@@ -268,38 +268,38 @@ ServerResult Server::run() {
         // char *p = new char[100]; (void)p;
         // sleep(1);
         // usleep(500000);
-        DEBUG_SERVER_PRINT(" run 1 timeout management");
+        // DEBUG_SERVER_PRINT(" run 1 timeout management");
         management_timeout_events();
         set_io_timeout();
 
-        DEBUG_SERVER_PRINT(" run 2 get_io_ready_fd");
+        // DEBUG_SERVER_PRINT(" run 2 get_io_ready_fd");
         ServerResult fd_ready_result = this->fds_->get_io_ready_fd();
-        DEBUG_SERVER_PRINT(" run 3 ready result");
+        // DEBUG_SERVER_PRINT(" run 3 ready result");
 		if (fd_ready_result.is_err()) {
-            DEBUG_SERVER_PRINT(" run : error 1");
+            // DEBUG_SERVER_PRINT(" run : error 1");
             const std::string error_msg = fd_ready_result.err_value();
             return ServerResult::err(error_msg);
 		}
 		int ready_fd = fd_ready_result.ok_value();
-        DEBUG_SERVER_PRINT(" run 4 ready_fd: %d", ready_fd);
+        // DEBUG_SERVER_PRINT(" run 4 ready_fd: %d", ready_fd);
 		if (ready_fd == IO_TIMEOUT) {
             if (this->echo_mode_on_) {
-                DEBUG_SERVER_PRINT("  timeout -> break");
+                // DEBUG_SERVER_PRINT("  timeout -> break");
                 break;
             } else {
-                DEBUG_SERVER_PRINT("  timeout -> continue");
+                // DEBUG_SERVER_PRINT("  timeout -> continue");
                 continue;
             }
 		}
-        DEBUG_SERVER_PRINT(" run 5 communicate");
+        // DEBUG_SERVER_PRINT(" run 5 communicate");
 
         ServerResult event_result = process_event(ready_fd);
 		if (event_result.is_err()) {
             const std::string error_msg = event_result.err_value();
-            DEBUG_SERVER_PRINT(" run : error 2");
+            // DEBUG_SERVER_PRINT(" run : error 2");
             return ServerResult::err(error_msg);
 		}
-        DEBUG_SERVER_PRINT(" run 6 next loop");
+        // DEBUG_SERVER_PRINT(" run 6 next loop");
     }
     return ServerResult::ok(OK);
 }
@@ -317,7 +317,7 @@ ServerResult Server::echo() {
 void Server::update_fd_type_read_to_write(const EventPhase &event_state, int fd) {
     FdType fd_type = this->fds_->get_fd_type(fd);
     if (event_state == kSendingResponse && fd_type == kReadFd) {
-        DEBUG_SERVER_PRINT("read_fd read -> write");
+        // DEBUG_SERVER_PRINT("read_fd read -> write");
         this->fds_->clear_fd(fd);
         this->fds_->register_write_fd(fd);
         // std::cout << RED << "update write fd: " << fd << RESET << std::endl;

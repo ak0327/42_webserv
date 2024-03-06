@@ -97,7 +97,7 @@ ServerResult Server::create_event(int socket_fd) {
                                        &this->sessions_,
                                        this->echo_mode_on_);
         this->client_events_[connect_fd] = new_session;
-        DEBUG_SERVER_PRINT("new_clilent: %p", new_session);
+        // DEBUG_SERVER_PRINT("new_clilent: %p", new_session);
         // std::cout << CYAN << " event start" << connect_fd << RESET << std::endl;
 
         handle_active_client_timeout(new_session);
@@ -127,7 +127,7 @@ ServerResult Server::accept_connect_fd(int socket_fd,
         return ServerResult::err(error_msg);
     }
     int connect_fd = accept_result.ok_value();
-    DEBUG_SERVER_PRINT("  accepted connect read_fd: %d", connect_fd);
+    // DEBUG_SERVER_PRINT("  accepted connect read_fd: %d", connect_fd);
 
     ServerResult fd_register_result = this->fds_->register_read_fd(connect_fd);
     if (fd_register_result.is_err()) {
@@ -240,8 +240,8 @@ ServerResult Server::handle_client_event(int client_fd) {
             return ServerResult::ok(OK);
         }
         case ConnectionClosed: {
-            delete_event(event);  // todo: delete timeout
-            DEBUG_PRINT(RED, "connection closed");
+            delete_event(event);
+            // DEBUG_SERVER_PRINT( "connection closed");
             return ServerResult::ok(OK);
         }
         default:
@@ -260,12 +260,12 @@ ServerResult Server::handle_client_event(int client_fd) {
         }
         case kEventCompleted: {
             std::ostringstream oss; oss << client_event;
-            DEBUG_SERVER_PRINT("process_event(client) -> event completed: %s", oss.str().c_str());
+            DEBUG_SERVER_PRINT("client event completed: %s", oss.str().c_str());
             if (client_event->is_keepalive()) {
-                DEBUG_PRINT(GRAY_BACK, " -> idling event %zu sec", this->config_.keepalive_timeout());
+                DEBUG_PRINT(GRAY_BACK, " -> keep-alive %zu sec", this->config_.keepalive_timeout());
                 idling_event(client_event);
             } else {
-                DEBUG_SERVER_PRINT(" -> delete event");
+                DEBUG_SERVER_PRINT(" -> close connection");
                 delete_event(event);
             }
             break;

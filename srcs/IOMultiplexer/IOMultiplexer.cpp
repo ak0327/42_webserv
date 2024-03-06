@@ -427,7 +427,7 @@ Result<int, std::string> Select::get_io_ready_fd() {
 	}
 
 	int ready_fd = get_ready_fd();
-    DEBUG_SERVER_PRINT(" -> ready_fd: %d", ready_fd);
+    DEBUG_SERVER_PRINT(" get_ready_fd -> ready_fd: %d", ready_fd);
     return Result<int, std::string>::ok(ready_fd);
 }
 

@@ -35,7 +35,7 @@ ProcResult Event::create_request_obj() {
 
 // status code update in this func if error occurred
 EventResult Event::process_client_event() {
-    DEBUG_SERVER_PRINT("  client_event start");
+    // DEBUG_SERVER_PRINT("  client_event start");
     if (create_request_obj() == FatalError) {
         const std::string error_msg = CREATE_ERROR_INFO_STR("error: fail to allocate memory for HttpRequest");
         return EventResult::err(error_msg);
@@ -43,13 +43,13 @@ EventResult Event::process_client_event() {
 
     switch (this->event_state_) {
         case kEventInit: {
-            DEBUG_SERVER_PRINT("   Session: 0 SessionInit");
+            DEBUG_SERVER_PRINT("[client event] Phase: 0 EventInit");
             this->set_event_phase(kReceivingRequest);
         }
         // fallthrough
 
         case kReceivingRequest: {
-            DEBUG_SERVER_PRINT("   Session: 1 Recv");
+            DEBUG_SERVER_PRINT("[client event] Phase: 1 ReceivingRequest");
 
             ssize_t recv_size = this->request_->recv_to_buf(this->client_fd_);
             if (recv_size == RECV_EOF) {  // 0  -> fd closed
@@ -62,7 +62,7 @@ EventResult Event::process_client_event() {
         // fallthrough
 
         case kParsingRequest: {
-            DEBUG_SERVER_PRINT("   Session: 2 ParsingRequest");
+            DEBUG_SERVER_PRINT("[client event] Phase: 2 ParsingRequest");
             ProcResult request_result = parse_http_request();
             if (request_result == Continue) {
                 DEBUG_SERVER_PRINT("     recv continue(process_client_event)");
@@ -76,7 +76,7 @@ EventResult Event::process_client_event() {
         case kExecutingMethod:
         case kCreatingResponseBody:
         case kCreatingCGIBody: {
-            DEBUG_SERVER_PRINT("   Session: 3 CreatingResponse");
+            DEBUG_SERVER_PRINT("[client event] Phase: 3 CreatingResponse");
             ProcResult response_result = create_http_response();
             if (response_result == FatalError) {
                 const std::string error_msg = CREATE_ERROR_INFO_STR("error: fail to allocate memory for HttpResponse");
@@ -89,7 +89,7 @@ EventResult Event::process_client_event() {
         }
 
         case kSendingResponse: {
-            DEBUG_SERVER_PRINT("   Session: 4 SendingResponse");
+            DEBUG_SERVER_PRINT("[client event] Phase: 4 SendingResponse");
             ProcResult send_result = this->response_->send_http_response(this->client_fd_);
             if (send_result == Failure) {
                 return EventResult::ok(ConnectionClosed);
@@ -113,7 +113,7 @@ EventResult Event::process_client_event() {
 
 // status update this func
 ProcResult Event::parse_http_request() {
-    DEBUG_SERVER_PRINT("               ParsingRequest start");
+    // DEBUG_SERVER_PRINT("               ParsingRequest start");
     if (this->echo_mode_on_) {
         this->set_event_phase(kCreatingResponseBody);
         return Success;
@@ -121,16 +121,16 @@ ProcResult Event::parse_http_request() {
 
     if (this->request_->parse_phase() == ParsingRequestLine
         || this->request_->parse_phase() == ParsingRequestHeaders) {
-        DEBUG_SERVER_PRINT("               ParsingRequest 1");
+        // DEBUG_SERVER_PRINT("               ParsingRequest 1");
         Result<ProcResult, StatusCode> parse_result = this->request_->parse_start_line_and_headers();
         if (parse_result.is_err()) {
             StatusCode error_code = parse_result.err_value();
-            DEBUG_SERVER_PRINT("               ParsingRequest 2 error: %d", error_code);
+            DEBUG_SERVER_PRINT(" ParsingRequest: error: %d", error_code);
             this->request_->set_request_status(error_code);
             return Success;
         }
         if (is_continue_recv(parse_result)) {
-            DEBUG_SERVER_PRINT("               ParsingRequest 3 -> continue");
+            DEBUG_SERVER_PRINT(" ParsingRequest -> continue");
             return Continue;
         }
 
@@ -139,11 +139,11 @@ ProcResult Event::parse_http_request() {
             return Success;
         }
 
-        DEBUG_SERVER_PRINT("               ParsingRequest 4");
+        // DEBUG_SERVER_PRINT("   ParsingRequest 4");
         // todo: Result<ProcResult, StatusCode>
         Result<ProcResult, std::string> config_result = get_host_config();
         if (config_result.is_err()) {
-            DEBUG_SERVER_PRINT("               ParsingRequest 5 error: %s", config_result.err_value().c_str());
+            DEBUG_SERVER_PRINT(" ParsingRequest: error: %s", config_result.err_value().c_str());
             // StatusCode error_code = config_result.get_err_value();
             // DEBUG_SERVER_PRINT("               ParsingRequest 5 error: %d", error_code);
             this->request_->set_request_status(BadRequest);
@@ -160,19 +160,19 @@ ProcResult Event::parse_http_request() {
     }
 
     if (this->request_->parse_phase() == ParsingRequestBody) {
-        DEBUG_SERVER_PRINT("               ParsingRequest 6 body");
+        // DEBUG_SERVER_PRINT("               ParsingRequest 6 body");
         Result<ProcResult, StatusCode> parse_result = this->request_->parse_body();
         if (parse_result.is_err()) {
             StatusCode error_code = parse_result.err_value();
-            DEBUG_SERVER_PRINT("               ParsingRequest 7 body error: %d", error_code);
+            DEBUG_SERVER_PRINT("  ParsingRequest: body error: %d", error_code);
             this->request_->set_request_status(error_code);
             return Success;
         }
         if (is_continue_recv(parse_result)) {
-            DEBUG_SERVER_PRINT("               ParsingRequest 8 -> continue");
+            DEBUG_SERVER_PRINT(" ParsingRequest -> continue");
             return Continue;
         }
-        DEBUG_SERVER_PRINT("               ParsingRequest 9");
+        DEBUG_SERVER_PRINT(" ParsingRequest complete");
     }
     return Success;
 }
@@ -214,26 +214,26 @@ ProcResult Event::create_http_response() {
         return FatalError;
     }
 
-    DEBUG_SERVER_PRINT("    CreatingResponse status: %d", this->request_->request_status());
+    DEBUG_SERVER_PRINT(" CreatingResponse status: %d", this->request_->request_status());
     while (true) {
         switch (this->event_state_) {
             case kExecutingMethod: {
-                DEBUG_SERVER_PRINT("     1 ExecutingMethod");
+                DEBUG_SERVER_PRINT(" [CreatingResponse] ExecutingMethod");
                 ProcResult method_result = execute_each_method();  // todo: rename
                 if (method_result == FatalError) {
-                    DEBUG_SERVER_PRINT("      ExecutingMethod 1 err");
+                    DEBUG_SERVER_PRINT(" ExecutingMethod: err");
                     return FatalError;  // fail to new Request -> can't send 500
                 }
                 if (method_result == ExecutingCgi) {
-                    DEBUG_SERVER_PRINT("      ExecutingMethod 2 cgi -> send body to cgi");
+                    DEBUG_SERVER_PRINT(" -> ExecutingCGI: send body to cgi proc");
                     return ExecutingCgi;
                 }
-                DEBUG_SERVER_PRINT("      ExecutingMethod 3 create body");
+                DEBUG_SERVER_PRINT(" -> create body");
             }
                 // fallthrough
 
             case kCreatingResponseBody: {
-                DEBUG_SERVER_PRINT("     2 CreatingResponseBody");
+                DEBUG_SERVER_PRINT("[CreatingResponse] CreatingResponseBody");
                 if (this->echo_mode_on_) {
                     this->response_->create_echo_msg(this->request_->get_buf());
                 } else {
@@ -245,7 +245,7 @@ ProcResult Event::create_http_response() {
             }
 
             case kCreatingCGIBody: {
-                DEBUG_SERVER_PRINT("     3 CreatingCGIBody");
+                DEBUG_SERVER_PRINT(" [CreatingResponse] CreatingCGIBody");
                 this->response_->interpret_cgi_output();
                 this->set_event_phase(kCreatingResponseBody);
                 continue;
