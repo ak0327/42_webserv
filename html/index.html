@@ -21,16 +21,19 @@
             width: 90%;
             box-sizing: border-box;
         }
-    </style>
-    <script>
-        function copyCommand(commandId) {
-            var commandText = document.getElementById(commandId);
-            commandText.select();
-
-            document.execCommand("copy");
-            alert("copy: " + commandText.value);
+        #popup {
+            display: none;
+            position: fixed;
+            left: 50%;
+            bottom: 20px;
+            transform: translateX(-50%);
+            padding: 10px;
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            z-index: 1000;
         }
-    </script>
+    </style>
 
 </head>
 <body>
@@ -82,6 +85,22 @@
         <input type="text" id="get2" value="curl -i localhost:4343/">
     </div>
     <div class="container">
+        <button onclick="copyCommand('get3')">copy</button>
+        <input type="text" id="get3" value="curl -i -X GET --data &quot;request body ignored&quot; localhost:4242/cgi-bin/post_simple.py">
+    </div>
+
+    <div class="container">
+        <button onclick="copyCommand('get4')">copy</button>
+        <input type="text" id="get4" value="curl -i -H &quot;Content-Length: 2147483647&quot; localhost:4242/cgi-bin/post_simple.py">
+    </div>
+
+    <div class="container">
+        <button onclick="copyCommand('get5')">copy</button>
+        <input type="text" id="get5" value="curl -i -X GET -H &quot;Content-Length: 1&quot; --data &quot;request body ignored&quot; localhost:4242/cgi-bin/post_simple.py">
+    </div>
+
+
+    <div class="container">
         <button onclick="copyCommand('get_x')">copy</button>
         <input type="text" id="get_x" value="siege -b http://localhost:4242 --time=30S">
     </div>
@@ -108,7 +127,13 @@
     </div>
     <div class="container">
         <button onclick="copyCommand('post3')">copy</button>
-        <input type="text" id="post3" value="curl -i -X POST -H &quot;Content-Type: plain/text&quot; --data &quot;BODY IS HERE write something shorter or longer than body limit&quot;">
+        <input type="text" id="post3" value="curl -i -X POST --data &quot;request body is recognized&quot; localhost:4242/cgi-bin/post_simple.py">
+    </div>
+
+
+    <div class="container">
+        <button onclick="copyCommand('postx')">copy</button>
+        <input type="text" id="postx" value="curl -i -X POST -H &quot;Content-Type: plain/text&quot; --data &quot;BODY IS HERE write something shorter or longer than body limit&quot;">
     </div>
 </ul>
 
@@ -144,6 +169,31 @@
 </ul>
 
 <br>
+
+
+<div id="popup">copy</div>
+<script>
+    async function copyCommand(commandId) {
+        const commandText = document.getElementById(commandId);
+        try {
+            await navigator.clipboard.writeText(commandText.value);
+            showPopup("copy to clipboard: " + commandText.value);
+        } catch (err) {
+            console.error('copy failure: ', err);
+            showPopup("copy failure");
+        }
+    }
+
+    function showPopup(message) {
+        const popup = document.getElementById('popup');
+        popup.textContent = message;
+        popup.style.display = 'block';
+
+        setTimeout(() => {
+            popup.style.display = 'none';
+        }, 3000);
+    }
+</script>
 
 </body>
 </html>

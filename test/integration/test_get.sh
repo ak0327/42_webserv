@@ -195,14 +195,18 @@ expect_eq_get "$(curl -is "localhost:4242/permission/rwx/r__.html")"    "200 OK"
 expect_eq_get "$(curl -is "localhost:4242/permission/rwx/rwx.html")"    "200 OK"              "html/permission/rwx/rwx.html"
 
 
+
+expect_eq_get "$(echo -en "GET / HTTP/1.1\r\nHost: localhost\r\n\r\nlength required" | nc localhost 4242)"                    "411 Length Required"     ""
+
 # 413
-expect_eq_get "$(curl -isH "Content-Length: 1100000"  "localhost:4242/")"                  "413 Content Too Large"    ""
+expect_eq_get "$(curl -isH "Content-Length: 1100000"  "localhost:4242/")"                                                     "413 Content Too Large"    ""
 #large=`python3 -c "print('a'*1100000)"`
 #expect_eq_get "$(curl -is --data "$large" "Content-Length: 1100000"  "localhost:4242/")"   "413 Content Too Large"    ""  # python down
 
-expect_eq_get "$(curl -isH "Content-Length: 21"  "localhost:4242/dir_a/")"                                                "413 Content Too Large"    ""
-expect_eq_get "$(curl -isH GET --data "$(python3 -c "print('a'*21)")"   "Content-Length: 21"  "localhost:4242/dir_a/")"   "413 Content Too Large"    ""
-expect_eq_get "$(curl -isH GET --data "$(python3 -c "print('a'*100)")"  "localhost:4242/dir_a/")"                         "413 Content Too Large"    ""
+expect_eq_get "$(curl -is -H "Content-Length: 21"  "localhost:4242/dir_a/")"                                                  "413 Content Too Large"    ""
+expect_eq_get "$(curl -i -X GET -H "Content-Length: 1" --data "ignored"  "localhost:4242/cgi-bin/post_simple.py")"            "413 Content Too Large"    ""
+expect_eq_get "$(curl -is -H "Content-Length: 21"  -X GET --data "$(python3 -c "print('a'*21)")"  "localhost:4242/dir_a/")"   "413 Content Too Large"    ""
+expect_eq_get "$(curl -is -X GET --data "$(python3 -c "print('a'*100)")"  "localhost:4242/dir_a/")"                           "413 Content Too Large"    ""
 
 
 # 431

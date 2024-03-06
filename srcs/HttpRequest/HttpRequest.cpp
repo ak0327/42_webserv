@@ -389,7 +389,7 @@ Result<ProcResult, StatusCode> HttpRequest::parse_body() {
         } else {
             DEBUG_SERVER_PRINT("      ParseBody  recv body != 0 -> err");
             this->buf_.clear();
-            return Result<ProcResult, StatusCode>::err(BadRequest);
+            return Result<ProcResult, StatusCode>::err(LengthRequired);
         }
     }
 
@@ -411,7 +411,7 @@ Result<ProcResult, StatusCode> HttpRequest::parse_body() {
     if (this->content_length_ < this->request_body_.size()) {
         DEBUG_SERVER_PRINT("      ParseBody  content_length < body.size() -> LengthRequired");
         this->request_body_.clear();
-        return Result<ProcResult, StatusCode>::err(LengthRequired);
+        return Result<ProcResult, StatusCode>::err(ContentTooLarge);
     }
     if (this->request_body_.size() < this->content_length_) {
         DEBUG_SERVER_PRINT("      ParseBody  body.size() < content-length -> recv continue");
