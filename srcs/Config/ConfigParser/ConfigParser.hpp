@@ -55,6 +55,9 @@ class ConfigParser {
     static bool expect(TokenItr *current, const TokenItr &end, TokenKind expected_kind);
     static void skip_comments(TokenItr *current, const TokenItr &end);
 
+    static bool is_duplicated(int *cnt);
+    static void clear_initial_value(std::set<std::string> *params, int *cnt);
+
 	// parse block
     static Result<int, std::string> parse_http_block(TokenItr *current,
                                                      const TokenItr &end,

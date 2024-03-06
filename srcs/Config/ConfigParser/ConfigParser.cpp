@@ -289,290 +289,18 @@ Result<int, std::string> ConfigParser::skip_events_block(TokenItr *current,
 }
 
 
-
-// "server"  "{"  directive_name ... "}"
-// ^current                               ^return
-Result<int, std::string> ConfigParser::parse_server_block(TokenItr *current,
-                                                          const TokenItr &end,
-                                                          ServerConfig *server_config) {
-    if (!current || !server_config) {
-        return Result<int, std::string>::err("fatal error");
-    }
-
-    if (!consume(current, end, SERVER_BLOCK)) {
-        const std::string error_msg = create_syntax_err_msg(*current, end, SERVER_BLOCK);
-        return Result<int, std::string>::err(error_msg);
-    }
-    if (!consume(current, end, LEFT_PAREN)) {
-        const std::string error_msg = create_syntax_err_msg(*current, end, LEFT_PAREN);
-        return Result<int, std::string>::err(error_msg);
-    }
-
-    std::map<LocationPath, TokenItr> location_iterators;
-
-    while (*current != end) {
-        if (consume(current, end, RIGHT_PAREN)) {
-            break;
-        }
-
-        TokenItr tmp = *current;
-        Result<int, std::string> result;
-        if (consume(current, end, LISTEN_DIRECTIVE)) {
-            result = parse_listen_directive(current, end, &server_config->listens);
-        } else if (consume(current, end, SERVER_NAME_DIRECTIVE)) {
-            result = parse_set_params(current, end, &server_config->server_names, SERVER_NAME_DIRECTIVE);
-        } else if (consume(current, end, SESSION_TIMEOUT_DIRECTIVE)) {
-            result = parse_timeout_directive(current,
-                                             end,
-                                             &server_config->session_timeout_sec,
-                                             SESSION_TIMEOUT_DIRECTIVE,
-                                             is_valid_session_timeout);
-        } else if (expect(current, end, LOCATION_BLOCK)) {
-            result = skip_location(current, end, &location_iterators);
-        } else {
-            result = parse_default_config(current, end, server_config);
-        }
-
-        if (result.is_err()) {
-            const std::string error_msg = result.err_value();
-            return Result<int, std::string>::err(error_msg);
-        }
-        if (tmp == *current) {
-            const std::string error_msg = create_syntax_err_msg(*current, end);
-            return Result<int, std::string>::err(error_msg);
-        }
-    }
-
-    LocationConfig init_config(*server_config);
-    Result<int, std::string> location_result = parse_location(location_iterators,
-                                                              init_config,
-                                                              end,
-                                                              &server_config->locations);
-    if (location_result.is_err()) {
-        const std::string error_msg = location_result.err_value();
-        return Result<int, std::string>::err(error_msg);
-    }
-    return Result<int, std::string>::ok(OK);
-}
-
-
-
-
-// ok: path
-// ng: =path, ^~path
-bool is_start_with_matching_operator(const std::string &str) {
-    if (str.empty()) {
-        return false;
-    }
-    return (str[0] == '='
-            || (2 <= str.length() && str[0] == '^' && str[1] == '~'));
-}
-
-bool is_matching_operator(const std::string &str) {
-    return str == "=" || str == "^~";
-}
-
-Result<std::string, std::string> ConfigParser::parse_location_path(TokenItr *current,
-                                                                   const TokenItr &end) {
-    if (!current) {
-        return Result<std::string, std::string>::err("fatal error");
-    }
-
-    if (*current == end) {
-        const std::string error_msg = create_syntax_err_msg(*current, end, LOCATION_BLOCK);
-        return Result<std::string, std::string>::err(error_msg);
-    }
-
-    std::string prefix = (*current)->str_;
-    ++(*current);
-
-    std::string suffix;
-    if (expect(current, end, kTokenKindBlockParam)) {
-        suffix = (*current)->str_;
-        ++(*current);
-    }
-
-    // std::cout << CYAN << "prefix:" << prefix << ", suffix:" << suffix << RESET << std::endl;
-    if (suffix.empty()) {
-        if (is_start_with_matching_operator(prefix)) {
-            const std::string error_msg = create_invalid_value_err_msg(prefix, LOCATION_BLOCK);
-            return Result<std::string, std::string>::err(error_msg);
-        }
-    } else {
-        if (!is_matching_operator(prefix)) {
-            const std::string error_msg = create_invalid_value_err_msg(prefix, LOCATION_BLOCK);
-            return Result<std::string, std::string>::err(error_msg);
-        }
-        if (is_start_with_matching_operator(suffix)) {
-            const std::string error_msg = create_invalid_value_err_msg(suffix, LOCATION_BLOCK);
-            return Result<std::string, std::string>::err(error_msg);
-        }
-    }
-    std::string path = prefix + suffix;
-
-    if (!expect(current, end, LEFT_PAREN)) {
-        const std::string error_msg = create_syntax_err_msg(*current, end, LOCATION_BLOCK);
-        return Result<std::string, std::string>::err(error_msg);
-    }
-    return Result<std::string, std::string>::ok(path);
-}
-
-
-// "location" [ = | ^~ ]  path  "{"  directive_name ...  ... "}"
-//  ^current                         ^                        ^return
-//                                   location_start
-Result<int, std::string> ConfigParser::skip_location(TokenItr *current,
-                                                     const TokenItr &end,
-                                                     LocationItrMap *location_iterators) {
-    if (!current || !location_iterators) {
-        return Result<int, std::string>::err("fatal error");
-    }
-
-    if (!consume(current, end, LOCATION_BLOCK)) {
-        const std::string error_msg = create_syntax_err_msg(*current, end, "location_path");
-        return Result<int, std::string>::err(error_msg);
-    }
-
-    Result<std::string, std::string> path_result = parse_location_path(current, end);
-    if (path_result.is_err()) {
-        const std::string error_msg = path_result.err_value();
-        return Result<int, std::string>::err(error_msg);
-    }
-    std::string location_path = path_result.ok_value();
-
-    if (!consume(current, end, LEFT_PAREN)) {
-        const std::string error_msg = create_syntax_err_msg(*current, end, LEFT_PAREN);
-        return Result<int, std::string>::err(error_msg);
-    }
-
-    TokenItr location_start = *current;
-    LocationConfig unused;
-    Result<int, std::string> result = parse_location_block(current, end, &unused);
-    if (result.is_err()) {
-        const std::string error_msg = result.err_value();
-        return Result<int, std::string>::err(error_msg);
-    }
-
-    if (expect(current, end, LOCATION_BLOCK)) {
-        const std::string error_msg = create_recursive_location_err_msg(*current, end, location_path);
-        return Result<int, std::string>::err(error_msg);
-    }
-    if (location_iterators->find(location_path) != location_iterators->end()) {
-        const std::string error_msg = create_duplicated_location_err_msg(*current, end, location_path);
-        return Result<int, std::string>::err(error_msg);
-    }
-    (*location_iterators)[location_path] = location_start;
-
-    if (!consume(current, end, RIGHT_PAREN)) {
-        const std::string error_msg = create_syntax_err_msg(*current, end, RIGHT_PAREN);
-        return Result<int, std::string>::err(error_msg);
-    }
-    return Result<int, std::string>::ok(OK);
-}
-
-
-// "location" [ = | ^~ ]  path  "{"  directive_name ...   "}"
-//                                   ^start                      ^end
-Result<int, std::string> ConfigParser::parse_location(const LocationItrMap &location_iterators,
-                                                      const LocationConfig &init_config,
-                                                      const TokenItr &end,
-                                                      std::map<std::string, LocationConfig> *locations) {
-    if (!locations) {
-        return Result<int, std::string>::err("fatal error");
-    }
-    for (LocationItrMap::const_iterator i = location_iterators.begin(); i != location_iterators.end(); ++i) {
-        const std::string location_path = i->first;
-        TokenItr start = i->second;
-
-        LocationConfig location_config(init_config);
-        Result<int, std::string> result = parse_location_block(&start, end, &location_config);
-        if (result.is_err()) {
-            const std::string error_msg = result.err_value();
-            return Result<int, std::string>::err(error_msg);
-        }
-
-        if (locations->find(location_path) != locations->end()) {
-            const std::string error_msg = create_duplicated_location_err_msg(start, end, location_path);
-            return Result<int, std::string>::err(error_msg);
-        }
-        (*locations)[location_path] = location_config;
-
-        if (!consume(&start, end, RIGHT_PAREN)) {
-            const std::string error_msg = create_duplicated_location_err_msg(start, end, location_path);
-            return Result<int, std::string>::err(error_msg);
-        }
-    }
-    return Result<int, std::string>::ok(OK);
-}
-
-
-bool is_duplicated(int *cnt) {
+bool ConfigParser::is_duplicated(int *cnt) {
     ++(*cnt);
     return *cnt != 1;
 }
 
-void clear_initial_value(std::set<std::string> *params, int *cnt) {
+
+void ConfigParser::clear_initial_value(std::set<std::string> *params, int *cnt) {
     ++(*cnt);
 
     if (*cnt == 1) {
         params->clear();
     }
-}
-
-
-// "location"  path  "{"  directive_name ...  "}"
-//                        ^current             ^return
-Result<int, std::string> ConfigParser::parse_location_block(TokenItr *current,
-                                                            const TokenItr &end,
-                                                            LocationConfig *location_config) {
-    Result<int, std::string> result;
-    int limit_except_cnt = 0;
-
-    if (!current || !location_config) {
-        return Result<int, std::string>::err("fatal error");
-    }
-
-    while (*current != end) {
-        if (expect(current, end, LOCATION_BLOCK)) {
-            break;
-        }
-        if (expect(current, end, RIGHT_PAREN)) {
-            break;
-        }
-
-        TokenItr tmp = *current;
-        if (consume(current, end, RETURN_DIRECTIVE)) {
-            result = parse_return_directive(current, end, &location_config->redirection);
-
-        } else if (consume(current, end, LIMIT_EXCEPT_DIRECTIVE)) {
-            if (is_duplicated(&limit_except_cnt)) {
-                const std::string error_msg = create_duplicated_directive_err_msg(*current, end, LIMIT_EXCEPT_DIRECTIVE);
-                return Result<int, std::string>::err(error_msg);
-            }
-            result = parse_limit_except_directive(current, end, &location_config->limit_except);
-
-        } else if (consume(current, end, CGI_MODE_DIRECTIVE)) {
-            result = parse_cgi_mode_directive(current, end, &location_config->cgi.is_cgi_mode);
-        } else if (consume(current, end, CGI_EXTENSION_DIRECTIVE)) {
-            result = parse_set_params(current, end, &location_config->cgi.extension, CGI_EXTENSION_DIRECTIVE);
-
-        } else if (consume(current, end, CGI_TIMEOUT_DIRECTIVE)) {
-            result = parse_timeout_directive(current, end, &location_config->cgi.timeout_sec, CGI_TIMEOUT_DIRECTIVE, is_valid_cgi_timeout);
-
-        } else {
-            result = parse_default_config(current, end, location_config);
-        }
-
-        if (result.is_err()) {
-            const std::string error_msg = result.err_value();
-            return Result<int, std::string>::err(error_msg);
-        }
-        if (tmp == *current) {
-            const std::string error_msg = create_syntax_err_msg(*current, end);
-            return Result<int, std::string>::err(error_msg);
-        }
-    }
-    return Result<int, std::string>::ok(OK);
 }
 
 
@@ -595,35 +323,35 @@ Result<int, std::string> ConfigParser::parse_default_config(TokenItr *current,
     while (*current != end) {
         Result<int, std::string> result;
         if (consume(current, end, ROOT_DIRECTIVE)){
-            if (is_duplicated(&root_cnt)) {
+            if (ConfigParser::is_duplicated(&root_cnt)) {
                 const std::string error_msg = create_duplicated_directive_err_msg(*current, end, ROOT_DIRECTIVE);
                 return Result<int, std::string>::err(error_msg);
             }
             result = parse_root_directive(current, end, &default_config->root_path);
 
         } else if (consume(current, end, INDEX_DIRECTIVE)) {
-            clear_initial_value(&default_config->index_pages, &index_cnt);
+            ConfigParser::clear_initial_value(&default_config->index_pages, &index_cnt);
             result = parse_set_params(current, end, &default_config->index_pages, INDEX_DIRECTIVE);
 
         } else if (consume(current, end, ERROR_PAGE_DIRECTIVE)) {
             result = parse_error_page_directive(current, end, &default_config->error_pages);
 
         } else if (consume(current, end, AUTOINDEX_DIRECTIVE)) {
-            if (is_duplicated(&autoindex_cnt)) {
+            if (ConfigParser::is_duplicated(&autoindex_cnt)) {
                 const std::string error_msg = create_duplicated_directive_err_msg(*current, end, AUTOINDEX_DIRECTIVE);
                 return Result<int, std::string>::err(error_msg);
             }
             result = parse_autoindex_directive(current, end, &default_config->autoindex);
 
         } else if (consume(current, end, BODY_SIZE_DIRECTIVE)) {
-            if (is_duplicated(&max_body_size_cnt)) {
+            if (ConfigParser::is_duplicated(&max_body_size_cnt)) {
                 const std::string error_msg = create_duplicated_directive_err_msg(*current, end, BODY_SIZE_DIRECTIVE);
                 return Result<int, std::string>::err(error_msg);
             }
             result = parse_body_size_directive(current, end, &default_config->max_body_size_bytes);
 
         } else if (consume(current, end, CLIENT_HEADER_TIMEOUT_DIRECTIVE)) {
-            if (is_duplicated(&header_timeout_cnt)) {
+            if (ConfigParser::is_duplicated(&header_timeout_cnt)) {
                 const std::string error_msg = create_duplicated_directive_err_msg(*current, end, CLIENT_HEADER_TIMEOUT_DIRECTIVE);
                 return Result<int, std::string>::err(error_msg);
             }
@@ -634,7 +362,7 @@ Result<int, std::string> ConfigParser::parse_default_config(TokenItr *current,
                                              is_valid_client_header_timeout);
 
         } else if (consume(current, end, CLIENT_BODY_TIMEOUT_DIRECTIVE)) {
-            if (is_duplicated(&body_timeout_cnt)) {
+            if (ConfigParser::is_duplicated(&body_timeout_cnt)) {
                 const std::string error_msg = create_duplicated_directive_err_msg(*current, end, CLIENT_BODY_TIMEOUT_DIRECTIVE);
                 return Result<int, std::string>::err(error_msg);
             }
@@ -683,58 +411,6 @@ Result<AddressPortPair, int> ConfigParser::parse_listen_param(const std::string 
     return Result<std::pair<std::string, std::string>, int>::ok(pair);
 }
 
-
-// "listen" ( address[:port] / port ) [default_server]  ";"
-//          ^current                                         ^return
-Result<int, std::string> ConfigParser::parse_listen_directive(TokenItr *current,
-                                                              const TokenItr &end,
-                                                              std::vector<ListenDirective> *listen_directives) {
-    std::vector<std::string> listen_params;
-    ListenDirective listen_directive;
-    Result<int, std::string> result;
-
-    if (!current || !listen_directives) {
-        return Result<int, std::string>::err("fatal error");
-    }
-
-    result = parse_directive_params(current, end, &listen_params, LISTEN_DIRECTIVE);
-    if (result.is_err()) {
-        const std::string error_msg = result.err_value();
-        return Result<int, std::string>::err(error_msg);
-    }
-
-    if (listen_params.empty() || 2 < listen_params.size()) {
-        const std::string error_msg = create_invalid_num_of_arg_err_msg(*current, end, LISTEN_DIRECTIVE);
-        return Result<int, std::string>::err(error_msg);
-    }
-
-    std::vector<std::string>::const_iterator param = listen_params.begin();
-    Result<AddressPortPair, int> param_result = parse_listen_param(*param);
-    if (param_result.is_err()) {
-        const std::string error_msg = create_invalid_value_err_msg(*param, LISTEN_DIRECTIVE);
-        return Result<int, std::string>::err(error_msg);
-    }
-    AddressPortPair pair = param_result.ok_value();
-    const std::string address = pair.first;
-    const std::string port = pair.second;
-    if (!address.empty()) {
-        listen_directive.address = address;
-    }
-    if (!port.empty()) {
-        listen_directive.port = port;
-    }
-
-    ++param;
-    if (param != listen_params.end()) {
-        if (*param != "default_server") {
-            const std::string error_msg = create_invalid_value_err_msg(*current, end, LISTEN_DIRECTIVE);
-            return Result<int, std::string>::err(error_msg);
-        }
-        listen_directive.is_default_server = true;
-    }
-    listen_directives->push_back(listen_directive);
-    return Result<int, std::string>::ok(OK);
-}
 
 
 // directive_name  directive_param ... ";"
