@@ -267,6 +267,7 @@ ServerResult Server::run() {
 	while (true) {
         // char *p = new char[100]; (void)p;
         // sleep(1);
+        // usleep(500000);
         DEBUG_SERVER_PRINT(" run 1 timeout management");
         management_timeout_events();
         set_io_timeout();

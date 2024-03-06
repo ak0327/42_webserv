@@ -261,7 +261,7 @@ ServerResult Server::handle_client_event(int client_fd) {
             std::ostringstream oss; oss << client_event;
             DEBUG_SERVER_PRINT("process_event(client) -> event completed: %s", oss.str().c_str());
             if (client_event->is_keepalive()) {
-                DEBUG_SERVER_PRINT(" -> idling event %zu time", this->config_.keepalive_timeout());
+                DEBUG_PRINT(GRAY_BACK, " -> idling event %zu sec", this->config_.keepalive_timeout());
                 idling_event(client_event);
             } else {
                 DEBUG_SERVER_PRINT(" -> delete event");

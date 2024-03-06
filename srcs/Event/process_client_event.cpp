@@ -17,32 +17,49 @@
 #include "StringHandler.hpp"
 
 
+// HttpRequest must memory allocate
+// Using `new` in HttpRequest and copy ptr to HttpResponse
+ProcResult Event::create_request_obj() {
+    if (this->request_) {
+        return Success;
+    }
+
+    try {
+        this->request_ = new HttpRequest();
+        return Success;
+    }
+    catch (const std::exception &e) {
+        return FatalError;
+    }
+}
+
 // status code update in this func if error occurred
 EventResult Event::process_client_event() {
     DEBUG_SERVER_PRINT("  client_event start");
+    if (create_request_obj() == FatalError) {
+        const std::string error_msg = CREATE_ERROR_INFO_STR("error: fail to allocate memory for HttpRequest");
+        return EventResult::err(error_msg);
+    }
+
     switch (this->event_state_) {
         case kEventInit: {
             DEBUG_SERVER_PRINT("   Session: 0 SessionInit");
             this->set_event_phase(kReceivingRequest);
         }
-            // fallthrough
+        // fallthrough
 
         case kReceivingRequest: {
             DEBUG_SERVER_PRINT("   Session: 1 Recv");
-            ProcResult recv_result = recv_http_request();
-            if (recv_result == FatalError) {
-                const std::string error_msg = CREATE_ERROR_INFO_STR("error: fail to allocate memory for HttpRequest");
-                return EventResult::err(error_msg);
-            } else if (recv_result == Failure || recv_result == ConnectionClosed) {
+
+            ssize_t recv_size = this->request_->recv_to_buf(this->client_fd_);
+            if (recv_size == RECV_EOF) {  // 0  -> fd closed
                 return EventResult::ok(ConnectionClosed);
-            } else if (recv_result == Idling) {
-                return EventResult::ok(Idling);
-            } else if (recv_result == Continue) {
+            } else if (recv_size == RECV_CONTINUE) {    // -1 -> continue until timeout
                 return EventResult::ok(Continue);
             }
             this->set_event_phase(kParsingRequest);
         }
-            // fallthrough
+        // fallthrough
 
         case kParsingRequest: {
             DEBUG_SERVER_PRINT("   Session: 2 ParsingRequest");
@@ -54,7 +71,7 @@ EventResult Event::process_client_event() {
             }
             this->set_event_phase(kExecutingMethod);
         }
-            // fallthrough
+        // fallthrough
 
         case kExecutingMethod:
         case kCreatingResponseBody:
@@ -91,52 +108,6 @@ EventResult Event::process_client_event() {
     DEBUG_SERVER_PRINT("  client_event end");
     return EventResult::ok(Success);
 }
-
-
-// -----------------------------------------------------------------------------
-
-// void Event::set_to_timeout() {
-//     switch (this->event_phase()) {
-//         case kReceivingRequest:
-//             this->request_->set_request_status(RequestTimeout);
-//             this->set_event_phase(kCreatingResponseBody);  // can't send?
-//             break;
-//
-//         case kSendingResponse:
-//             this->set_event_phase(kEventError);
-//             break;
-//
-//         default:
-//             break;
-//     }
-// }
-
-// -----------------------------------------------------------------------------
-
-
-ProcResult Event::recv_http_request() {
-    if (!this->request_) {
-        try {
-            this->request_ = new HttpRequest();
-        }
-        catch (const std::exception &e) {
-            return FatalError;
-        }
-    }
-
-    ssize_t recv_size = this->request_->recv_to_buf(this->client_fd_);
-    if (recv_size == RECV_COMPLETED) {
-        if (this->request_->is_buf_empty()) {
-            return Idling;
-        }
-        return ConnectionClosed;
-    }
-    if (recv_size == RECV_ERROR) {
-        return Failure;
-    }
-    return 0 < recv_size ? Success : Continue;
-}
-
 
 // -----------------------------------------------------------------------------
 

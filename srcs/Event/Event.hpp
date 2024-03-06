@@ -121,6 +121,7 @@ class Event {
     EventResult get_host_config();
     EventResult recv_cgi_result();
     ProcResult create_response_obj();
+    ProcResult create_request_obj();
 
     Event(const Event &other);
     Event &operator=(const Event &rhs);

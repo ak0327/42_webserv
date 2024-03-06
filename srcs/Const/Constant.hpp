@@ -18,7 +18,7 @@ extern const int PROCESS_TIMEOUT;
 extern const int GETADDRINFO_SUCCESS;
 extern const int REMOVE_SUCCESS;
 
-extern const ssize_t RECV_COMPLETED;
+extern const ssize_t RECV_EOF;
 extern const ssize_t RECV_CONTINUE;
 extern const ssize_t RECV_ERROR;
 extern const ssize_t RECV_CLOSED;
