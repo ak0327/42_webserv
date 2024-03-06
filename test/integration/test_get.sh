@@ -53,9 +53,8 @@ expect_eq_get "$(curl -is "localhost:4242/404.html")"     "200 OK"    "html/404.
 expect_eq_get "$(curl -is "localhost:4242/50x.html")"     "200 OK"    "html/50x.html"
 expect_eq_get "$(curl -is "localhost:4242/new.html")"     "200 OK"    "html/new.html"
 
-#expect_eq_get "$(curl -is "localhost:4242/images/image1.jpg")"   "200 OK"   "html/images/image1.jpg"  // diff?
+#expect_eq_get "$(curl -is "localhost:4242/images/image1.jpg")"   "200 OK"   "html/images/image1.jpg"  // can't validate diff as string -> diff file
 expect_eq_get "$(curl -is "localhost:4242/a/b/c/")"       "200 OK"    "html/a/b/c/file_c.html"
-#expect_eq_get "$(curl -is "localhost:4242/dynamic/now")"  "200 OK"    ""
 
 
 # CGI
@@ -63,9 +62,8 @@ expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.py")"                   
 
 expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.py?query")"                   "200 OK"   "test/integration/cgi-result/hello.txt"
 expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.py/path/info")"               "200 OK"   "test/integration/cgi-result/hello.txt"
-# path... #expect_eq_get "$(curl -is "localhost:4242/cgi-bin/page.php")"               "200 OK"   "test/integration/cgi-result/page.txt"
 expect_eq_get "$(curl -is "localhost:4242/cgi-bin/post_simple.py")"                   "200 OK"   "test/integration/cgi-result/post_simple_get.txt"
-expect_eq_get "$(curl -is -X GET --data "test text" localhost:4242/cgi-bin/post_simple.py)"  "200 OK"   "test/integration/cgi-result/post_simple_get.txt"
+expect_eq_get "$(curl -is -X GET --data "request body ignored" localhost:4242/cgi-bin/post_simple.py)"  "200 OK"   "test/integration/cgi-result/post_simple_get.txt"
 expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.sh")"                         "200 OK"   "test/integration/cgi-result/hello.txt"
 
 
@@ -200,7 +198,7 @@ expect_eq_get "$(curl -is "localhost:4242/permission/rwx/rwx.html")"    "200 OK"
 # 413
 expect_eq_get "$(curl -isH "Content-Length: 1100000"  "localhost:4242/")"                  "413 Content Too Large"    ""
 #large=`python3 -c "print('a'*1100000)"`
-#expect_eq_get "$(curl -is --data "$large" "Content-Length: 1100000"  "localhost:4242/")"   "413 Content Too Large"    ""
+#expect_eq_get "$(curl -is --data "$large" "Content-Length: 1100000"  "localhost:4242/")"   "413 Content Too Large"    ""  # python down
 
 expect_eq_get "$(curl -isH "Content-Length: 21"  "localhost:4242/dir_a/")"                                                "413 Content Too Large"    ""
 expect_eq_get "$(curl -isH GET --data "$(python3 -c "print('a'*21)")"   "Content-Length: 21"  "localhost:4242/dir_a/")"   "413 Content Too Large"    ""
