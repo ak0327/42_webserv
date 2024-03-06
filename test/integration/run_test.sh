@@ -12,18 +12,18 @@ get_test_result=$?
 
 
 post_test="./test/integration/test_post.sh"
-post_test_result=$?
 $post_test
+post_test_result=$?
 
 
 delete_test="./test/integration/test_delete.sh"
-delete_test_result=$?
 $delete_test
+delete_test_result=$?
 
 
 cgi_test="./test/integration/test_cgi.sh"
-cgi_test_result=$?
 $cgi_test
+cgi_test_result=$?
 
 
 
