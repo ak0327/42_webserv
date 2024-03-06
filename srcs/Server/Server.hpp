@@ -43,6 +43,7 @@ class Server {
     std::set<FdTimeoutLimitPair> cgi_fds_;
 
     std::map<ClientFd, Event *> client_events_;
+    std::set<FdTimeoutLimitPair> _clients_;
     std::set<FdTimeoutLimitPair> keepalive_clients_;
     std::map<CgiFd, Event *> cgi_events_;
 

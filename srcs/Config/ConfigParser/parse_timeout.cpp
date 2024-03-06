@@ -121,3 +121,9 @@ bool ConfigParser::is_valid_client_body_timeout(time_t timeout_sec) {
     return ConfigInitValue::kMinBodyTimeoutSec <= timeout_sec
            && timeout_sec <= ConfigInitValue::kMaxBodyTimeoutSec;
 }
+
+
+bool ConfigParser::is_valid_send_timeout(time_t timeout_sec) {
+    return ConfigInitValue::kMinSendTimeoutSec <= timeout_sec
+           && timeout_sec <= ConfigInitValue::kMaxSendTimeoutSec;
+}

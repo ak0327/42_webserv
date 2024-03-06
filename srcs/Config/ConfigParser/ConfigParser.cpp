@@ -313,8 +313,6 @@ Result<int, std::string> ConfigParser::parse_default_config(TokenItr *current,
     int index_cnt = 0;
     int autoindex_cnt = 0;
     int max_body_size_cnt = 0;
-    int header_timeout_cnt = 0;
-    int body_timeout_cnt = 0;
 
     if (!current || !default_config) {
         return Result<int, std::string>::err("fatal error");
@@ -349,28 +347,6 @@ Result<int, std::string> ConfigParser::parse_default_config(TokenItr *current,
                 return Result<int, std::string>::err(error_msg);
             }
             result = parse_body_size_directive(current, end, &default_config->max_body_size_bytes);
-
-        } else if (consume(current, end, CLIENT_HEADER_TIMEOUT_DIRECTIVE)) {
-            if (ConfigParser::is_duplicated(&header_timeout_cnt)) {
-                const std::string error_msg = create_duplicated_directive_err_msg(*current, end, CLIENT_HEADER_TIMEOUT_DIRECTIVE);
-                return Result<int, std::string>::err(error_msg);
-            }
-            result = parse_timeout_directive(current,
-                                             end,
-                                             &default_config->client_header_timeout_sec,
-                                             CLIENT_HEADER_TIMEOUT_DIRECTIVE,
-                                             is_valid_client_header_timeout);
-
-        } else if (consume(current, end, CLIENT_BODY_TIMEOUT_DIRECTIVE)) {
-            if (ConfigParser::is_duplicated(&body_timeout_cnt)) {
-                const std::string error_msg = create_duplicated_directive_err_msg(*current, end, CLIENT_BODY_TIMEOUT_DIRECTIVE);
-                return Result<int, std::string>::err(error_msg);
-            }
-            result = parse_timeout_directive(current,
-                                             end,
-                                             &default_config->client_body_timeout_sec,
-                                             CLIENT_BODY_TIMEOUT_DIRECTIVE,
-                                             is_valid_client_body_timeout);
 
         } else { break; }
 

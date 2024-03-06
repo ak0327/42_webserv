@@ -28,13 +28,17 @@ const time_t kDefaultKeepaliveTimeoutSec = 75;
 const time_t kMinKeepaliveTimeoutSec = 0;
 const time_t kMaxKeepaliveTimeoutSec = 3600;
 
-const time_t kDefaultHeaderTimeoutSec = 10;
+const time_t kDefaultHeaderTimeoutSec = 60;
 const time_t kMinHeaderTimeoutSec = 1;
-const time_t kMaxHeaderTimeoutSec = 60;
+const time_t kMaxHeaderTimeoutSec = 120;
 
-const time_t kDefaultBodyTimeoutSec = 30;
+const time_t kDefaultBodyTimeoutSec = 60;
 const time_t kMinBodyTimeoutSec = 1;
 const time_t kMaxBodyTimeoutSec = 120;
+
+const time_t kDefaultSendTimeoutSec = 60;
+const time_t kMinSendTimeoutSec = 1;
+const time_t kMaxSendTimeoutSec = 120;
 
 
 const char kDefaultRoot[] = "html";
@@ -171,17 +175,13 @@ struct DefaultConfig {
     std::map<StatusCode, std::string> error_pages;
     bool autoindex;
     std::size_t max_body_size_bytes;
-    time_t client_header_timeout_sec;
-    time_t client_body_timeout_sec;
 
     DefaultConfig()
         : root_path(ConfigInitValue::kDefaultRoot),
           index_pages(),
           error_pages(),
           autoindex(ConfigInitValue::kDefaultAutoindex),
-          max_body_size_bytes(1 * ConfigInitValue::MB),
-          client_header_timeout_sec(ConfigInitValue::kDefaultHeaderTimeoutSec),
-          client_body_timeout_sec(ConfigInitValue::kDefaultBodyTimeoutSec) {
+          max_body_size_bytes(1 * ConfigInitValue::MB){
         index_pages.insert(ConfigInitValue::kDefaultIndex);
     }
 };
@@ -209,12 +209,18 @@ struct ServerConfig : public DefaultConfig  {
     std::map<LocationPath, LocationConfig> locations;
 
     time_t session_timeout_sec;
+    time_t client_header_timeout_sec;
+    time_t client_body_timeout_sec;
+    time_t send_timeout_sec;
 
     ServerConfig()
         : listens(),
           server_names(),
           locations(),
-          session_timeout_sec(ConfigInitValue::kDefaultSessionTimeoutSec) {}
+          session_timeout_sec(ConfigInitValue::kDefaultSessionTimeoutSec),
+          client_header_timeout_sec(ConfigInitValue::kDefaultHeaderTimeoutSec),
+          client_body_timeout_sec(ConfigInitValue::kDefaultBodyTimeoutSec),
+          send_timeout_sec(ConfigInitValue::kDefaultSendTimeoutSec) {}
 };
 
 struct HttpConfig {

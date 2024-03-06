@@ -81,10 +81,6 @@ void expect_eq_default_config(const DefaultConfig &expected,
 
     // max_body_size
     EXPECT_EQ(expected.max_body_size_bytes, actual.max_body_size_bytes) << "  at L:" << line;
-
-    // timeout
-    EXPECT_EQ(expected.client_header_timeout_sec, actual.client_header_timeout_sec) << "  at L:" << line;
-    EXPECT_EQ(expected.client_body_timeout_sec, actual.client_body_timeout_sec) << "  at L:" << line;
 }
 
 
@@ -151,7 +147,9 @@ void expect_eq_server_config(const ServerConfig &expected,
 
     // timeout
     EXPECT_EQ(expected.session_timeout_sec, actual.session_timeout_sec) << "  at L:" << line << std::endl;
-
+    EXPECT_EQ(expected.client_header_timeout_sec, actual.client_header_timeout_sec) << "  at L:" << line;
+    EXPECT_EQ(expected.client_body_timeout_sec, actual.client_body_timeout_sec) << "  at L:" << line;
+    EXPECT_EQ(expected.send_timeout_sec, actual.send_timeout_sec) << "  at L:" << line;
 
     // default_config
     DefaultConfig expected_default_config = static_cast<const DefaultConfig &>(expected);
@@ -3437,7 +3435,7 @@ TEST(TestParser, ParseClientHeaderTimeoutDirective) {
 
     cnt = 0;
     tokens = {};
-    tokens.push_back(Token("61", kTokenKindDirectiveParam, ++cnt));  // ng
+    tokens.push_back(Token("121", kTokenKindDirectiveParam, ++cnt));  // ng
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
@@ -3450,7 +3448,7 @@ TEST(TestParser, ParseClientHeaderTimeoutDirective) {
 
     cnt = 0;
     tokens = {};
-    tokens.push_back(Token("2m", kTokenKindDirectiveParam, ++cnt));  // ng
+    tokens.push_back(Token("3m", kTokenKindDirectiveParam, ++cnt));  // ng
     tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
 
     current = tokens.begin();
@@ -4620,15 +4618,6 @@ TEST(TestParser, ParseServer) {
     tokens.push_back(Token("60s",           kTokenKindDirectiveParam, ++cnt));
     tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
 
-
-    tokens.push_back(Token("client_header_timeout",kTokenKindDirectiveName, ++cnt));
-    tokens.push_back(Token("5s",           kTokenKindDirectiveParam, ++cnt));
-    tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
-
-    tokens.push_back(Token("client_body_timeout",kTokenKindDirectiveName, ++cnt));
-    tokens.push_back(Token("1s",           kTokenKindDirectiveParam, ++cnt));
-    tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
-
     tokens.push_back(Token("}",             kTokenKindBraces, ++cnt));
     tokens.push_back(Token("}",             kTokenKindBraces, ++cnt));  // out of responsibility
 
@@ -4639,8 +4628,6 @@ TEST(TestParser, ParseServer) {
     expected.listens.push_back(ListenDirective(ConfigInitValue::kDefaultAddress, "8181", true));
     expected.server_names.insert("localhost");
     expected.session_timeout_sec = 60;
-    expected.client_header_timeout_sec = 5;
-    expected.client_body_timeout_sec = 1;
 
     actual = {};
     result = ConfigParserTestFriend::parse_server_block(&current, tokens.end(), &actual);
@@ -4743,11 +4730,19 @@ TEST(TestParser, ParseServer) {
 
 
     tokens.push_back(Token("session_timeout",kTokenKindDirectiveName, ++cnt));
-    tokens.push_back(Token("60s",           kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token("1s",           kTokenKindDirectiveParam, ++cnt));
     tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
 
-    tokens.push_back(Token("session_timeout",kTokenKindDirectiveName, ++cnt));
+    tokens.push_back(Token("client_header_timeout",kTokenKindDirectiveName, ++cnt));
+    tokens.push_back(Token("5s",           kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
+
+    tokens.push_back(Token("client_body_timeout",kTokenKindDirectiveName, ++cnt));
     tokens.push_back(Token("1s",           kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
+
+    tokens.push_back(Token("send_timeout",kTokenKindDirectiveName, ++cnt));
+    tokens.push_back(Token("120s",           kTokenKindDirectiveParam, ++cnt));
     tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
 
     tokens.push_back(Token("}",             kTokenKindBraces, ++cnt));
@@ -4766,6 +4761,9 @@ TEST(TestParser, ParseServer) {
         {HTTPVersionNotSupported, "server505"},
     };
     expected.session_timeout_sec = 1;
+    expected.client_header_timeout_sec = 5;
+    expected.client_body_timeout_sec = 1;
+    expected.send_timeout_sec = 120;
 
 
     location_config = LocationConfig(expected);

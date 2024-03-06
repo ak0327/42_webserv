@@ -32,6 +32,7 @@ class ConfigParser {
     static bool is_valid_keepalive_timeout(time_t timeout_sec);
     static bool is_valid_client_header_timeout(time_t timeout_sec);
     static bool is_valid_client_body_timeout(time_t timeout_sec);
+    static bool is_valid_send_timeout(time_t timeout_sec);
 
 #ifdef UNIT_TEST
 	friend class ConfigParserTestFriend;

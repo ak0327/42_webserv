@@ -366,8 +366,12 @@ extern const char LOCATION_BLOCK[];
 
 extern const char LISTEN_DIRECTIVE[];
 extern const char SERVER_NAME_DIRECTIVE[];
+
 extern const char SESSION_TIMEOUT_DIRECTIVE[];
 extern const char KEEPALIVE_TIMEOUT_DIRECTIVE[];
+extern const char CLIENT_HEADER_TIMEOUT_DIRECTIVE[];
+extern const char CLIENT_BODY_TIMEOUT_DIRECTIVE[];
+extern const char SEND_TIMEOUT_DIRECTIVE[];
 
 extern const char RETURN_DIRECTIVE[];
 extern const char ROOT_DIRECTIVE[];
@@ -383,9 +387,6 @@ extern const char DENY_DIRECTIVE[];
 extern const char CGI_MODE_DIRECTIVE[];
 extern const char CGI_EXTENSION_DIRECTIVE[];
 extern const char CGI_TIMEOUT_DIRECTIVE[];
-
-extern const char CLIENT_HEADER_TIMEOUT_DIRECTIVE[];
-extern const char CLIENT_BODY_TIMEOUT_DIRECTIVE[];
 
 extern const char LEFT_PAREN[];
 extern const char RIGHT_PAREN[];
