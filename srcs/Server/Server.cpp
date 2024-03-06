@@ -24,55 +24,56 @@
 
 namespace {
 
+void detect_received_signal(int sig) {
+    switch (sig) {
+        case SIGINT:
+            std::cout << RED << "Received SIGINT" << RESET << std::endl;
+            // std::cout << "[Server] Running stop" << std::endl;
+            std::exit(EXIT_SUCCESS);
+
+        case SIGTERM:
+            std::cout << RED << "Received SIGTERM" << RESET << std::endl;
+            // std::cout << "[Server] Running stop by SIGTERM" << std::endl;
+            std::exit(EXIT_SUCCESS);
+
+        case SIGABRT:
+            std::cout << RED << "Received SIGABORT" << RESET << std::endl;
+            // std::cout << "[Error] Server abort" << std::endl;
+            std::exit(EXIT_FAILURE);
+
+        case SIGPIPE:
+            std::cout << RED << "Received SIGPIPE" << RESET << std::endl;
+            break;
+            std::exit(EXIT_FAILURE);
+
+        default:
+            std::cout << "Received unknown signal: " << sig << std::endl;
+    }
+}
 
 
-// void stop_by_signal(int sig) {
-//     switch (sig) {
-//         case SIGINT:
-//             std::cout << "[Server] Running stop" << std::endl;
-//             std::exit(EXIT_SUCCESS);
-//
-//         case SIGTERM:
-//             std::cout << "[Server] Running stop by SIGTERM" << std::endl;
-//             std::exit(EXIT_SUCCESS);
-//
-//         case SIGABRT:
-//             std::cout << "[Error] Server abort" << std::endl;
-//             std::exit(EXIT_FAILURE);
-//
-//         case SIGPIPE:
-//             std::cout << RED << "Received SIGPIPE" << RESET << std::endl;
-//             break;
-//             std::exit(EXIT_FAILURE);
-//
-//         default:
-//             std::cout << "Received unknown signal: " << sig << std::endl;
-//     }
-// }
-//
-//
-// ServerResult set_signal() {
-//     // return ServerResult::ok(OK);
-//
-// 	errno = 0;
-// 	if (signal(SIGABRT, stop_by_signal) == SIG_ERR) {
-// 		const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
-// 		return ServerResult::err(error_msg);
-// 	}
-// 	if (signal(SIGINT, stop_by_signal) == SIG_ERR) {
-// 		const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
-// 		return ServerResult::err(error_msg);
-// 	}
-// 	if (signal(SIGTERM, stop_by_signal) == SIG_ERR) {
-// 		const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
-// 		return ServerResult::err(error_msg);
-// 	}
-//     if (signal(SIGPIPE, stop_by_signal) == SIG_ERR) {
-//         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
-//         return ServerResult::err(error_msg);
-//     }
-// 	return ServerResult::ok(OK);
-// }
+ServerResult set_signal() {
+    // return ServerResult::ok(OK);
+
+	errno = 0;
+	if (signal(SIGABRT, detect_received_signal) == SIG_ERR) {
+		const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+		return ServerResult::err(error_msg);
+	}
+	if (signal(SIGINT, detect_received_signal) == SIG_ERR) {
+		const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+		return ServerResult::err(error_msg);
+	}
+	if (signal(SIGTERM, detect_received_signal) == SIG_ERR) {
+		const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+		return ServerResult::err(error_msg);
+	}
+    if (signal(SIGPIPE, detect_received_signal) == SIG_ERR) {
+        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+        return ServerResult::err(error_msg);
+    }
+	return ServerResult::ok(OK);
+}
 
 
 }  // namespace
@@ -103,12 +104,12 @@ ServerResult Server::init() {
         return ServerResult::err(oss.str());
     }
 
-    // ServerResult signal_result = set_signal();
-    // if (signal_result.is_err()) {
-    //     std::ostringstream oss;
-    //     oss << RED << "[Server Error] Initialization error: signal: " << signal_result.err_value() << RESET;
-    //     return ServerResult::err(oss.str());
-    // }
+    ServerResult signal_result = set_signal();
+    if (signal_result.is_err()) {
+        std::ostringstream oss;
+        oss << RED << "[Server Error] Initialization error: signal: " << signal_result.err_value() << RESET;
+        return ServerResult::err(oss.str());
+    }
 
     Result<IOMultiplexer *, std::string> fds_result = create_io_multiplexer_fds();
     if (fds_result.is_err()) {
@@ -251,7 +252,7 @@ Result<IOMultiplexer *, std::string> Server::create_io_multiplexer_fds() {
 ServerResult Server::run() {
 	while (true) {
         // char *p = new char[100]; (void)p;
-        // sleep(1);
+        sleep(1);
         DEBUG_SERVER_PRINT(" run 1 timeout management");
         management_timeout_events();
         set_io_timeout();

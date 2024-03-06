@@ -384,6 +384,9 @@ extern const char CGI_MODE_DIRECTIVE[];
 extern const char CGI_EXTENSION_DIRECTIVE[];
 extern const char CGI_TIMEOUT_DIRECTIVE[];
 
+extern const char CLIENT_HEADER_TIMEOUT_DIRECTIVE[];
+extern const char CLIENT_BODY_TIMEOUT_DIRECTIVE[];
+
 extern const char LEFT_PAREN[];
 extern const char RIGHT_PAREN[];
 
