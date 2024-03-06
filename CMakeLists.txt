@@ -86,6 +86,7 @@ set(webserv_srcs
         srcs/Event/process_file_event.cpp
         srcs/Config/FileHandler/FileHandler.cpp
         srcs/Config/ConfigParser/ConfigParser.cpp
+        srcs/Config/ConfigParser/parse_timeout.cpp
         srcs/Config/Token/Token.cpp
         srcs/Config/Tokenizer/Tokenizer.cpp
         srcs/Config/Config.cpp

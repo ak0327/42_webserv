@@ -18,6 +18,7 @@ SRCS		=	main.cpp
 CONFIG_DIR	=	Config
 SRCS		+=	$(CONFIG_DIR)/FileHandler/FileHandler.cpp \
 				$(CONFIG_DIR)/ConfigParser/ConfigParser.cpp \
+				$(CONFIG_DIR)/ConfigParser/parse_timeout.cpp \
 				$(CONFIG_DIR)/Token/Token.cpp \
 				$(CONFIG_DIR)/Tokenizer/Tokenizer.cpp \
 				$(CONFIG_DIR)/Config.cpp \
