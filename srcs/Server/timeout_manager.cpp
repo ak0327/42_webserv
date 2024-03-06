@@ -82,13 +82,21 @@ void Server::management_cgi_executing_timeout(time_t current_time) {
 
 
 void Server::management_active_client_timeout(time_t current_time) {
+    DEBUG_PRINT(GREEN, " [management] active_clients:");
+    for (std::set<FdTimeoutLimitPair>::iterator itr = this->active_client_time_manager_.begin();
+        itr != this->active_client_time_manager_.end(); ++itr) {
+        time_t timeout_limit = itr->first;
+        DEBUG_PRINT(GREEN, " fd: %d, time limit: %zu, current: %zu -> %s",
+                    itr->second, timeout_limit, current_time, (timeout_limit <= current_time ? "timeout" : "ok"));
+    }
+
     std::set<FdTimeoutLimitPair>::iterator itr = this->active_client_time_manager_.begin();
     while (itr != this->active_client_time_manager_.end()) {
         time_t timeout_limit = itr->first;
         DEBUG_PRINT(GREEN, " [management] active_client: fd: %d, time limit: %zu, current: %zu -> %s",
                            itr->second, timeout_limit, current_time, (timeout_limit <= current_time ? "timeout" : "ok"));
         if (current_time < timeout_limit) {
-            DEBUG_PRINT(GREEN, " itr %d: time remaining(%zu sec)", itr->second, timeout_limit - current_time);
+            DEBUG_PRINT(GRAY_BACK, " active_client: fd %d: time remaining(%zu sec)", itr->second, timeout_limit - current_time);
             break;  // sorted
         }
 
@@ -127,7 +135,7 @@ void Server::management_idling_client_timeout(time_t current_time) {
         DEBUG_SERVER_PRINT(" idling_client: fd: %d, time limit: %zu, current: %zu -> %s",
                            client->second, timeout_limit, current_time, (timeout_limit <= current_time ? "limited" : "ok"));
         if (current_time < timeout_limit) {
-            DEBUG_PRINT(GREEN, " client %d: time remaining(%zu sec)", client->second, timeout_limit - current_time);
+            DEBUG_PRINT(GRAY_BACK, " idling_client fd %d: time remaining(%zu sec)", client->second, timeout_limit - current_time);
             break;  // sorted
         }
 

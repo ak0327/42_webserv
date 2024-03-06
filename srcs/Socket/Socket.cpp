@@ -183,7 +183,7 @@ ssize_t Socket::recv_to_buf(int fd, std::vector<unsigned char> *buf) {
     ssize_t recv_size = Socket::recv(fd, &recv_buf[0], BUFSIZ);
 
     // DEBUG_SERVER_PRINT(" recv_size: %zd", recv_size);
-    DEBUG_PRINT(RED, " recv_size: %zd", recv_size);
+    DEBUG_SERVER_PRINT(" recv_size: %zd", recv_size);
 
     if (0 < recv_size) {
         std::string debug_recv_msg(recv_buf.begin(), recv_buf.begin() + recv_size);
