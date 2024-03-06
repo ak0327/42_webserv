@@ -152,3 +152,5 @@ Result<int, std::string> Config::result() const { return this->result_; }
 
 
 time_t Config::keepalive_timeout() const { return this->http_config_.keepalive_timeout_sec; }
+time_t Config::recv_timeout() const { return this->http_config_.recv_timeout_sec; }
+time_t Config::send_timeout() const { return this->http_config_.send_timeout_sec; }

@@ -198,7 +198,8 @@ ServerResult Server::handle_client_event(int client_fd) {
 
     Event *client_event = event->second;
 
-    // header_timeout
+    handle_active_client_timeout(client_event);
+
     DEBUG_SERVER_PRINT("process_event -> process_client_event");
     EventResult event_result = client_event->process_client_event();
 

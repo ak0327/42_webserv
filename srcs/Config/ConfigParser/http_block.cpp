@@ -81,7 +81,6 @@ Result<int, std::string> ConfigParser::parse_http_block(TokenItr *current,
                                              &http_config->send_timeout_sec,
                                              SEND_TIMEOUT_DIRECTIVE,
                                              is_valid_send_timeout);
-
         }
 
         if (result.is_err()) {

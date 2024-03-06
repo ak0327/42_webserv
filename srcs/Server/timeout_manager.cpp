@@ -66,7 +66,7 @@ void Server::management_cgi_executing_timeout(time_t current_time) {
     for (cgi = this->cgi_fds_.begin(); cgi != this->cgi_fds_.end(); ++cgi) {
         time_t timeout_limit = cgi->first;
         DEBUG_SERVER_PRINT(" cgi_fd: %d, time limit: %zu, current: %zu -> %s",
-                           cgi->second, timeout_limit, current_time, (timeout_limit <= current_time ? "limited" : "ok"));
+                           cgi->second, timeout_limit, current_time, (timeout_limit <= current_time ? "tiemout" : "ok"));
         if (current_time < timeout_limit) {
             break;  // sorted
         }
@@ -85,8 +85,8 @@ void Server::management_active_client_timeout(time_t current_time) {
     std::set<FdTimeoutLimitPair>::iterator itr = this->active_client_time_manager_.begin();
     while (itr != this->active_client_time_manager_.end()) {
         time_t timeout_limit = itr->first;
-        DEBUG_SERVER_PRINT(" active_client: fd: %d, time limit: %zu, current: %zu -> %s",
-                           itr->second, timeout_limit, current_time, (timeout_limit <= current_time ? "limited" : "ok"));
+        DEBUG_PRINT(GREEN, " [management] active_client: fd: %d, time limit: %zu, current: %zu -> %s",
+                           itr->second, timeout_limit, current_time, (timeout_limit <= current_time ? "timeout" : "ok"));
         if (current_time < timeout_limit) {
             DEBUG_PRINT(GREEN, " itr %d: time remaining(%zu sec)", itr->second, current_time - timeout_limit);
             break;  // sorted
@@ -107,13 +107,15 @@ void Server::management_active_client_timeout(time_t current_time) {
             continue;
         }
 
-        // client_event->set_to_timeout();
-        delete_event(timeout_event);  // client can not recv 408 -> delete
         std::set<FdTimeoutLimitPair>::iterator current = itr;
         ++itr;
 
         this->active_client_time_manager_.erase(current);
-        DEBUG_PRINT(RED, " client %d: time remaining(%zu sec) -> deleted", client_fd, current_time - timeout_limit);
+
+        // client_event->set_to_timeout();
+        delete_event(timeout_event);  // client can not recv 408 -> delete
+
+        DEBUG_PRINT(RED, " [management] client %d: time remaining(%zu sec) -> deleted", client_fd, current_time - timeout_limit);
     }
 }
 
@@ -241,46 +243,55 @@ void Server::clear_from_active_client_manager(int fd) {
 // send_timeout: return from CreateResponse ->
 void Server::handle_active_client_timeout(Event *client_event) {
     if (!client_event) { return; }
-    DEBUG_PRINT(GREEN, "handle_active_client_timeout");
+    DEBUG_PRINT(RED, "handle_active_client_timeout");
 
     int client_fd = client_event->client_fd();
     switch (client_event->event_phase()) {
-        case kReceivingRequest: {
-            if (is_already_managed(client_fd)) {
-                DEBUG_PRINT(GREEN, " already managed, recv continue fd: %d", client_fd);
-                break;
-            }
-            time_t recv_timeout = client_event->recv_timeout();
+        case kEventInit: {
+            time_t recv_timeout = this->config_.recv_timeout();
             time_t timeout_limit = std::time(NULL) + recv_timeout;
-            FdTimeoutLimitPair pair(client_event->client_fd(), timeout_limit);
+            FdTimeoutLimitPair pair(timeout_limit, client_fd);
             this->active_client_time_manager_.insert(pair);
-            DEBUG_PRINT(GREEN, " set_timeout [recv_timeout] fd: %d, limit: %zu", client_fd, timeout_limit);
+            DEBUG_PRINT(RED, " EventInit: set_timeout [recv_timeout] fd: %d, limit: %zu", client_fd, timeout_limit);
             break;
         }
+        // recv timeout already registered when kEventInit
+        // case kReceivingRequest: {
+        //     if (is_already_managed(client_fd)) {
+        //         DEBUG_PRINT(RED, " ReceivingRequest: already managed, recv continue fd: %d", client_fd);
+        //         break;
+        //     }
+        //     time_t recv_timeout = this->config_.recv_timeout();
+        //     time_t timeout_limit = std::time(NULL) + recv_timeout;
+        //     FdTimeoutLimitPair pair( timeout_limit, client_fd);
+        //     this->active_client_time_manager_.insert(pair);
+        //     DEBUG_PRINT(RED, " ReceivingRequest: set_timeout [recv_timeout] fd: %d, limit: %zu", client_fd, timeout_limit);
+        //     break;
+        // }
 
         case kExecutingMethod:
         case kCreatingResponseBody:
         case kCreatingCGIBody:
             // clear timeout for sending response
             if (is_already_managed(client_fd)) {
-                DEBUG_PRINT(GREEN, " clear timeout fd: %d", client_fd);
+                DEBUG_PRINT(RED, " CreatingBody: clear timeout fd: %d", client_fd);
                 clear_from_active_client_manager(client_fd);
                 break;
             }
-            DEBUG_PRINT(GREEN, " error? : fd not exist time manager, fd: %d", client_fd);
+            DEBUG_PRINT(RED, " CreatingBody: error? : fd not exist time manager, fd: %d", client_fd);
             break;
 
         case kSendingResponse: {
             // not registrate -> setting timeout
             if (is_already_managed(client_fd)) {
-                DEBUG_PRINT(GREEN, " already managed, send continue fd: %d", client_fd);
+                DEBUG_PRINT(RED, " SendingResponse: already managed, send continue fd: %d", client_fd);
                 break;
             }
-            time_t send_timeout = client_event->send_timeout();
+            time_t send_timeout = this->config_.send_timeout();
             time_t timeout_limit = std::time(NULL) + send_timeout;
-            FdTimeoutLimitPair pair(client_event->client_fd(), timeout_limit);
+            FdTimeoutLimitPair pair(timeout_limit, client_fd);
             this->active_client_time_manager_.insert(pair);
-            DEBUG_PRINT(GREEN, " set_timeout [send_timeout] fd: %d, limit: %zu", client_fd, timeout_limit);
+            DEBUG_PRINT(RED, " SendingResponse: set_timeout [send_timeout] fd: %d, limit: %zu", client_fd, timeout_limit);
             break;
         }
 

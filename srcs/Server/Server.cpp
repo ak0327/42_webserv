@@ -84,7 +84,12 @@ Server::Server(const Config &config)
 	: sockets_(),
       fds_(NULL),
       config_(config),
-      echo_mode_on_(false) {}
+      echo_mode_on_(false) {
+    DEBUG_PRINT(WHITE, "timeout:");
+    DEBUG_PRINT(WHITE, " recv      : %zu", config.recv_timeout());
+    DEBUG_PRINT(WHITE, " send      : %zu", config.send_timeout());
+    DEBUG_PRINT(WHITE, " keep-alive: %zu", config.keepalive_timeout());
+}
 
 
 Server::~Server() {
@@ -252,7 +257,7 @@ Result<IOMultiplexer *, std::string> Server::create_io_multiplexer_fds() {
 ServerResult Server::run() {
 	while (true) {
         // char *p = new char[100]; (void)p;
-        sleep(1);
+        // sleep(1);
         DEBUG_SERVER_PRINT(" run 1 timeout management");
         management_timeout_events();
         set_io_timeout();
@@ -318,10 +323,15 @@ void Server::delete_event(std::map<Fd, Event *>::iterator event) {
     delete client_event;
     this->client_events_.erase(event);
 
-    std::set<FdTimeoutLimitPair>::iterator itr = find_fd_in_timeout_pair(
-            client_fd, this->idling_client_time_manager_);
+    std::set<FdTimeoutLimitPair>::iterator itr;
+    itr = find_fd_in_timeout_pair(client_fd, this->idling_client_time_manager_);
     if (itr != this->idling_client_time_manager_.end()) {
         this->idling_client_time_manager_.erase(itr);
+    }
+
+    itr = find_fd_in_timeout_pair(client_fd, this->active_client_time_manager_);
+    if (itr != this->active_client_time_manager_.end()) {
+        this->active_client_time_manager_.erase(itr);
     }
 }
 
