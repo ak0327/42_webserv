@@ -4,6 +4,37 @@
     <meta charset="UTF-8">
     <title>Test Server</title>
     <link rel="stylesheet" href="index.css">
+
+    <style>
+        .container {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        button {
+            margin-right: 10px;
+        }
+
+        input[type="text"] {
+            width: 90%;
+            box-sizing: border-box;
+        }
+        #popup {
+            display: none;
+            position: fixed;
+            left: 50%;
+            bottom: 20px;
+            transform: translateX(-50%);
+            padding: 10px;
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+    </style>
+
 </head>
 <body>
 <h1>Webserv index page</h1>
@@ -13,36 +44,149 @@
 
 <h3>GET</h3>
 <ul>
-    <li><a href="/dir_a/">/dir_a/</a>
-    <li><a href="/dir_a/index.html">/dir_a/index.html</a>
-    <li><a href="/a/b/">/a/b/ -> /a/b/file_b.html</a>
-    <li><a href="/a/b/c/">/a/b/c/ -> /a/b/c/index.html</a>
-    <li><a href="/delete_only/">/delete_only/ allow 127.0.0.1 -> ok?</a>
-    <hr>
-    <li><a href="/nothing.html">/nothing.html -> 404</a>
-    <li><a href="/a/b/c/nothing.html">/a/b/c/nothing.html -> 404</a>
-    <li><a href="/a/b/c/404.html">/a/b/c/404.html</a>
-    <hr>
-    <li><a href="/autoindex_files/">directory list</a>
-    <li><a href="/autoindex_files">301 -> directory list</a>
-    <hr>
-    <li><a href="/old.html">redirect to new.html</a>
-    <li><a href="/old/">redirect to html/new/</a>
-    <li><a href="./../../../../../../././">link to "./../../../../../../././"</a>
-    <li><a href="/%E3%83%86%E3%82%B9%E3%83%88.html">テスト.html</a>
-    <li><a href="/dynamic/now">now time</a>
-    <hr>
-    <li><a href="/cgi-bin/hello.py">hello.py</a>
-    <li><a href="/cgi-bin/page.py">page.py</a>
-    <li><a href="/cgi-bin/hello_400.py">hello_400.py -> 400</a>
-    <li><a href="/cgi-bin/hello_404.py">hello_404.py -> 404</a>
-    <li><a href="/cgi-bin/hello_500.py">hello_500.py -> 500</a>
-    <li><a href="/cgi-bin/exit1.py">exit1.py -> 500</a>
-    <li><a href="/cgi-bin/error_no_shebang.py">error_no_shebang.py -> 500</a>
-    <li><a href="/cgi-bin/infinite_loop.py">infinite_loop.py -> 504</a>
-    <li><a href="/cgi-bin/infinite_print.py">infinite_print.py -> 504</a>
-    <li><a href="/cgi-bin/sleep10sec.py">sleep10sec.py -> 504</a>
+    <li> simple GET
+    <ul>
+        <li><a href="/dir_a/">/dir_a/</a>
+        <li><a href="/dir_a/index.html">/dir_a/index.html</a>
+        <li><a href="/a/b/">/a/b/ -> /a/b/file_b.html</a>
+        <li><a href="/a/b/c/">/a/b/c/ -> /a/b/c/index.html</a>
+        <li><a href="/delete_only/">/delete_only/ allow 127.0.0.1 -> ok?</a>
+    </ul>
+    <br>
+
+    <li> error page
+        <ul>
+            <li><a href="/nothing.html">/nothing.html -> 404</a>
+            <li><a href="/a/b/c/nothing.html">/a/b/c/nothing.html -> 404</a>
+            <li><a href="/a/b/c/404.html">/a/b/c/404.html</a>
+        </ul>
+    <br>
+
+    <li> Directory listing
+        <ul>
+            <li><a href="/autoindex_files/">/autoindex_files/</a>
+        </ul>
+    <br>
+
+    <li> Redirect
+        <ul>
+            <li><a href="/old.html">/old.html redirect to new.html</a>
+            <li><a href="/old/">/old/ redirect to html/new/</a>
+            <li><a href="/autoindex_files">/autoindex_files redirect to directory list</a>
+        </ul>
+        <br>
+
+    <li> other link
+        <ul>
+            <li><a href="./../../../../../../././">link to "./../../../../../../././"</a>
+            <li><a href="/%E3%83%86%E3%82%B9%E3%83%88.html">percent encoded URL to テスト.html</a>
+            <li><a href="/dynamic/now">now time</a>
+        </ul>
+    <br>
+
+    <li> CGI (execute on CGI server localhost:4343)
+        <ul>
+            <li><a href="http://localhost:4343/cgi-bin/hello.py">hello.py</a>
+            <li><a href="http://localhost:4343/cgi-bin/page.py">page.py</a>
+            <li><a href="http://localhost:4343/cgi-bin/cgi_params.py/path/info?query/string">cgi_params.py</a>
+            <li><a href="http://localhost:4343/cgi-bin/hello_400.py">hello_400.py -> 400</a>
+            <li><a href="http://localhost:4343/cgi-bin/hello_404.py">hello_404.py -> 404</a>
+            <li><a href="http://localhost:4343/cgi-bin/hello_500.py">hello_500.py -> 500</a>
+            <li><a href="http://localhost:4343/cgi-bin/exit1.py">exit1.py -> 500</a>
+            <li><a href="http://localhost:4343/cgi-bin/error_no_shebang.py">error_no_shebang.py -> 500</a>
+            <li><a href="http://localhost:4343/cgi-bin/infinite_loop.py">infinite_loop.py -> 504</a>
+            <li><a href="http://localhost:4343/cgi-bin/infinite_print.py">infinite_print.py -> 504</a>
+            <li><a href="http://localhost:4343/cgi-bin/sleep10sec.py">sleep10sec.py -> 504</a>
+        </ul>
+    <br>
+
+    <li> curl command
+        <ul>
+            <li> server name: webserv (localhost:4242)
+            <div class="container">
+                <button onclick="copyCommand('server_name_webserv')">copy</button>
+                <input type="text"
+                       id="server_name_webserv"
+                       value="curl -i -H &quot;Host: webserv&quot; localhost:4242">
+            </div>
+
+            <li> server name: static_server (localhost:4242)
+            <div class="container">
+                <button onclick="copyCommand('server_name_static')">copy</button>
+                <input type="text"
+                       id="server_name_static"
+                       value="curl -i -H &quot;Host: webserv&quot; localhost:4242">
+            </div>
+
+            <li> default server-1: localhost:4040 and nothing_server_name -> old_server or new_server
+            <div class="container">
+                <button onclick="copyCommand('default_server_1')">copy</button>
+                <input type="text"
+                       id="default_server_1"
+                       value="curl -i -H &quot;Host: nothing_server_name&quot; localhost:4040">
+            </div>
+
+            <li> default server-2: localhost:3939 and nothing_server_name -> server_a or server_b
+                <div class="container">
+                    <button onclick="copyCommand('default_server_2')">copy</button>
+                    <input type="text"
+                           id="default_server_2"
+                           value="curl -i -H &quot;Host: nothing_server_name&quot; localhost:3939">
+                </div>
+
+            <li> use different host: resolve access to example.com -> 127.0.0.1:4343
+                <div class="container">
+                    <button onclick="copyCommand('different_host')">copy</button>
+                    <input type="text"
+                           id="different_host"
+                           value="curl -i --resolve example.com:4343:127.0.0.1 http://example.com:4343/">
+                </div>
+
+            <li> GET method ignores request body
+            <div class="container">
+                <button onclick="copyCommand('ignore_body')">copy</button>
+                <input type="text"
+                       id="ignore_body"
+                       value="curl -i -X GET --data &quot;request body ignored&quot; localhost:4343/cgi-bin/post_simple.py">
+            </div>
+
+            <li> Content larger than Content-Length
+            <div class="container">
+                <button onclick="copyCommand('large_content')">copy</button>
+                <input type="text"
+                       id="large_content"
+                       value="curl -i -X GET -H &quot;Content-Length: 1&quot; --data &quot;larger than 1&quot; localhost:4242/cgi-bin/post_simple.py">
+            </div>
+
+            <li> Content less than Content-Length -> connection closed by host
+                <div class="container">
+                    <button onclick="copyCommand('small_content')">copy</button>
+                    <input type="text"
+                           id="small_content"
+                           value="curl -i -X GET -H &quot;Content-Length: 100&quot; --data &quot;less than 100&quot; localhost:4242/cgi-bin/post_simple.py">
+                </div>
+
+            <li> Content-Length too large by Length
+            <div class="container">
+                <button onclick="copyCommand('content_length_large')">copy</button>
+                <input type="text"
+                       id="content_length_large"
+                       value="curl -i -H &quot;Content-Length: 2147483647&quot; localhost:4242/cgi-bin/post_simple.py">
+            </div>
+
+        </ul>
+    <br>
+
+    <li> Siege test
+        <div class="container">
+            <button onclick="copyCommand('get_x')">copy</button>
+            <input type="text"
+                   id="get_x"
+                   value="siege --benchmark --concurrent=128 --time=30s http://localhost:4242">
+        </div>
+
 </ul>
+
 
 <br>
 
@@ -51,18 +195,110 @@
     <li><a href="/form_text.html">POST form</a>
     <li><a href="/form_upload.html">UPLOAD form</a>
     <li><a href="/upload">Upload list</a>
+    <br>
+
+    <li> curl command
+        <ul>
+            <li> upload hello.py
+                <div class="container">
+                    <button onclick="copyCommand('post_hello')">copy</button>
+                    <input type="text"
+                           id="post_hello"
+                           value="curl -i -F &quot;file_name=@html/cgi-bin/hello.py&quot; localhost:4242/upload/">
+                </div>
+                <div class="container">
+                    <button onclick="copyCommand('diff_hello')">copy</button>
+                    <input type="text"
+                           id="diff_hello"
+                           value="diff html/cgi-bin/hello.py html/upload/hello.py">
+                </div>
+
+            <li> upload image
+                <div class="container">
+                    <button onclick="copyCommand('post2')">copy</button>
+                    <input type="text"
+                           id="post2"
+                           value="curl -i -F &quot;file_name=@html/images/image1.jpg&quot; localhost:4242/upload/">
+                </div>
+                <div class="container">
+                    <button onclick="copyCommand('diff_image')">copy</button>
+                    <input type="text"
+                           id="diff_image"
+                           value="diff html/images/image1.jpg html/upload/image1.jpg">
+                </div>
+
+            <li> post request body
+                <div class="container">
+                    <button onclick="copyCommand('post_body')">copy</button>
+                    <input type="text"
+                           id="post_body"
+                           value="curl -i -X POST --data &quot;request body is recognized&quot; localhost:4242/cgi-bin/post_simple.py">
+                </div>
+        </ul>
+</ul>
+<br>
+
+<h3>DELETE</h3>
+<ul>
+    <div class="container">
+        <button onclick="copyCommand('delete1')">copy</button>
+        <input type="text"
+               id="delete1"
+               value="curl -i -X DELETE localhost:4242/upload/hello.py">
+    </div>
+
+
+    <div class="container">
+        <button onclick="copyCommand('delete2')">copy</button>
+        <input type="text"
+               id="delete2"
+               value="curl -i -X DELETE localhost:4242/index.html">
+    </div>
+
+    <div class="container">
+        <button onclick="copyCommand('delete3')">copy</button>
+        <input type="text"
+               id="delete3"
+               value="curl -i -X DELETE localhost:4242/nothing.html">
+    </div>
+
 </ul>
 
 <br>
 
 <h3>Bonus</h3>
 <ul>
-    <li><a href="/cgi-bin/hello.sh">hello.sh</a>
+    <li><a href="http://localhost:4343/cgi-bin/hello.sh">hello.sh</a>
     <li><a href="/dynamic/cookie-login">Login (cookie)</a>
     <li><a href="/dynamic/session-login">Login (session)</a>
 </ul>
 
 <br>
+
+
+<div id="popup">copy</div>
+<script>
+    async function copyCommand(commandId) {
+        const commandText = document.getElementById(commandId);
+        try {
+            await navigator.clipboard.writeText(commandText.value);
+            showPopup("copy to clipboard: " + commandText.value);
+        } catch (err) {
+            console.error('copy failure: ', err);
+            showPopup("copy failure");
+        }
+    }
+
+    function showPopup(message) {
+        const popup = document.getElementById('popup');
+        popup.textContent = message;
+        popup.style.display = 'block';
+
+        setTimeout(() => {
+            popup.style.display = 'none';
+        }, 3000);
+    }
+</script>
 
 </body>
 </html>

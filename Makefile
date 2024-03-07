@@ -18,9 +18,15 @@ SRCS		=	main.cpp
 CONFIG_DIR	=	Config
 SRCS		+=	$(CONFIG_DIR)/FileHandler/FileHandler.cpp \
 				$(CONFIG_DIR)/ConfigParser/ConfigParser.cpp \
+				$(CONFIG_DIR)/ConfigParser/http_block.cpp \
+				$(CONFIG_DIR)/ConfigParser/server_block.cpp \
+				$(CONFIG_DIR)/ConfigParser/location_block.cpp \
+				$(CONFIG_DIR)/ConfigParser/parse_timeout.cpp \
+				$(CONFIG_DIR)/ConfigParser/error_msg.cpp \
 				$(CONFIG_DIR)/Token/Token.cpp \
 				$(CONFIG_DIR)/Tokenizer/Tokenizer.cpp \
-				$(CONFIG_DIR)/Config.cpp
+				$(CONFIG_DIR)/Config.cpp \
+				$(CONFIG_DIR)/config_getter.cpp
 
 # Const
 CONST_DIR	=	Const
@@ -28,7 +34,9 @@ SRCS		+=	$(CONST_DIR)/Constant.cpp
 
 # Event
 EVENT_DIR = Event
-SRCS		+=	$(EVENT_DIR)/Event.cpp
+SRCS		+=	$(EVENT_DIR)/Event.cpp \
+				$(EVENT_DIR)/process_client_event.cpp \
+				$(EVENT_DIR)/process_file_event.cpp
 
 # Error
 ERROR_DIR	=	Error
@@ -96,7 +104,9 @@ SRCS		+=	$(IO_DIR)/IOMultiplexer.cpp
 
 # Server
 SERVER_DIR	=	Server
-SRCS		+=	$(SERVER_DIR)/Server.cpp
+SRCS		+=	$(SERVER_DIR)/Server.cpp \
+				$(SERVER_DIR)/process_event.cpp \
+				$(SERVER_DIR)/timeout_manager.cpp
 
 # Session
 SESSION_DIR	=	Session
@@ -116,6 +126,7 @@ SRCS		+=	$(STR_HANDLER)/HttpMessageParser.cpp \
 #HTTP Response
 RESPONSE_DIR =	HttpResponse
 SRCS		+=	$(RESPONSE_DIR)/HttpResponse.cpp \
+				$(RESPONSE_DIR)/create_response_message.cpp \
 				$(RESPONSE_DIR)/Dynamic/Dynamic.cpp \
 				$(RESPONSE_DIR)/Dynamic/cookie_login.cpp \
 				$(RESPONSE_DIR)/Dynamic/session_login.cpp \

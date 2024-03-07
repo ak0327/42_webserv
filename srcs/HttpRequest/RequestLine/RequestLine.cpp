@@ -10,7 +10,7 @@
 #include "StringHandler.hpp"
 
 /* constructor, destructor */
-RequestLine::RequestLine(){}
+RequestLine::RequestLine() {}
 
 RequestLine::RequestLine(const RequestLine &other) {
 	*this = other;

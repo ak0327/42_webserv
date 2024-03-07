@@ -175,12 +175,14 @@ ssize_t Socket::recv(int fd, void *buf, std::size_t bufsize) {
 
 ssize_t Socket::recv_to_buf(int fd, std::vector<unsigned char> *buf) {
     if (!buf) { return 0; }
-
+    // std::size_t bufsize = BUFSIZ;
+    // std::size_t bufsize = 85;
     std::vector<unsigned char> recv_buf(BUFSIZ);
 
     DEBUG_SERVER_PRINT("recv start");
     ssize_t recv_size = Socket::recv(fd, &recv_buf[0], BUFSIZ);
 
+    // DEBUG_SERVER_PRINT(" recv_size: %zd", recv_size);
     DEBUG_SERVER_PRINT(" recv_size: %zd", recv_size);
 
     if (0 < recv_size) {
@@ -189,7 +191,7 @@ ssize_t Socket::recv_to_buf(int fd, std::vector<unsigned char> *buf) {
 
         buf->insert(buf->end(), recv_buf.begin(), recv_buf.begin() + recv_size);
     }
-    DEBUG_SERVER_PRINT("recv end");
+    DEBUG_SERVER_PRINT("recv end, bufsize:%zu", buf->size());
     return recv_size;
 }
 
@@ -198,14 +200,11 @@ ssize_t Socket::send(int fd, void *buf, std::size_t bufsize) {
     errno = 0;
     ssize_t send_size = ::send(fd, buf, bufsize, MSG_NOSIGNAL);  // disable SIGPIPE
     int tmp_errno = errno;
-    if (send_size == SEND_COMPLETED) {
-        return SEND_COMPLETED;
-    }
-    if (send_size == SEND_ERROR) {
+    if (send_size == SEND_CONTINUE) {
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(tmp_errno);
         DEBUG_SERVER_PRINT("%s", error_msg.c_str());
         // return Result<std::size_t, std::string>::err(error_info);
-        return SEND_ERROR;
+        return SEND_CONTINUE;
     }
     return send_size;
 }
@@ -217,8 +216,8 @@ ProcResult Socket::send_buf(int fd, std::vector<unsigned char> *buf) {
 
     ssize_t send_size = Socket::send(fd, buf->data(), buf->size());
     DEBUG_SERVER_PRINT(" send size: %zd", send_size);
-    if (send_size == SEND_ERROR) {
-        return Failure;
+    if (send_size == SEND_CONTINUE) {
+        return Continue;
     }
     if (0 < send_size) {
         DEBUG_SERVER_PRINT(" erase buf");

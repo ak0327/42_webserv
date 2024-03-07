@@ -13,12 +13,10 @@ const int PROCESS_TIMEOUT = 256;
 const int GETADDRINFO_SUCCESS = 0;
 const int REMOVE_SUCCESS = 0;
 
-const ssize_t RECV_COMPLETED = 0;
+const ssize_t RECV_EOF = 0;
 const ssize_t RECV_CONTINUE = -1;
 const ssize_t RECV_ERROR = -1;
-const ssize_t RECV_CLOSED = -1;
 
-const ssize_t SEND_COMPLETED = 0;
 const ssize_t SEND_CONTINUE = -1;
 const ssize_t SEND_ERROR = -1;
 
@@ -101,6 +99,7 @@ std::map<StatusCode, std::string> init_reason_phrases() {
     reason_phrases[Conflict]                = "Conflict";
     reason_phrases[LengthRequired]          = "Length Required";
     reason_phrases[ContentTooLarge]         = "Content Too Large";
+    reason_phrases[URITooLong]              = "URI Too Long";
     reason_phrases[RequestHeaderFieldsTooLarge] = "Request Header Fields Too Large";
 
     reason_phrases[InternalServerError]     = "Internal Server Error";
@@ -546,8 +545,11 @@ const char LOCATION_BLOCK[]     = "location";
 
 const char LISTEN_DIRECTIVE[]               = "listen";
 const char SERVER_NAME_DIRECTIVE[]          = "server_name";
-const char SESSION_TIMEOUT_DIRECTIVE[]      = "session_timeout";
-const char KEEPALIVE_TIMEOUT_DIRECTIVE[]    = "keepalive_timeout";
+
+const char SESSION_TIMEOUT_DIRECTIVE[]          = "session_timeout";
+const char KEEPALIVE_TIMEOUT_DIRECTIVE[]        = "keepalive_timeout";
+const char RECV_TIMEOUT_DIRECTIVE[]             = "recv_timeout";
+const char SEND_TIMEOUT_DIRECTIVE[]             = "send_timeout";
 
 const char RETURN_DIRECTIVE[]       = "return";
 const char ROOT_DIRECTIVE[]         = "root";
@@ -599,6 +601,8 @@ std::vector<std::string> init_directive_names() {
 	directive_names.push_back(CGI_TIMEOUT_DIRECTIVE);
     directive_names.push_back(SESSION_TIMEOUT_DIRECTIVE);
     directive_names.push_back(KEEPALIVE_TIMEOUT_DIRECTIVE);
+    directive_names.push_back(RECV_TIMEOUT_DIRECTIVE);
+    directive_names.push_back(SEND_TIMEOUT_DIRECTIVE);
 	return directive_names;
 }
 

@@ -658,9 +658,9 @@ time_t CgiHandler::timeout_duration_sec() const { return this->timeout_duration_
 const std::vector<unsigned char> &CgiHandler::cgi_body() const { return this->recv_buf_; }
 
 void CgiHandler::set_timeout_duration_sec(time_t timeout_sec) {
-    DEBUG_PRINT(RED, "set_timeout_duration");
+    DEBUG_PRINT(WHITE, "set_timeout_duration");
     if (ConfigParser::is_valid_cgi_timeout(timeout_sec)) {
-        DEBUG_PRINT(RED, " cgi set_timeout_duration [%zu]->[%zu]sec", this->timeout_duration_sec_, timeout_sec);
+        DEBUG_PRINT(WHITE, " cgi set_timeout_duration [%zu]->[%zu]sec", this->timeout_duration_sec_, timeout_sec);
         this->timeout_duration_sec_ = timeout_sec;
     }
 }

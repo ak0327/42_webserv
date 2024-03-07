@@ -28,6 +28,15 @@ const time_t kDefaultKeepaliveTimeoutSec = 75;
 const time_t kMinKeepaliveTimeoutSec = 0;
 const time_t kMaxKeepaliveTimeoutSec = 3600;
 
+const time_t kDefaultRecvTimeoutSec = 60;
+const time_t kMinRecvTimeoutSec = 1;
+const time_t kMaxRecvTimeoutSec = 120;
+
+const time_t kDefaultSendTimeoutSec = 60;
+const time_t kMinSendTimeoutSec = 1;
+const time_t kMaxSendTimeoutSec = 120;
+
+
 const char kDefaultRoot[] = "html";
 const char kDefaultIndex[] = "index.html";
 const char kDefaultAddress[] = "*";
@@ -168,7 +177,7 @@ struct DefaultConfig {
           index_pages(),
           error_pages(),
           autoindex(ConfigInitValue::kDefaultAutoindex),
-          max_body_size_bytes(1 * ConfigInitValue::MB) {
+          max_body_size_bytes(1 * ConfigInitValue::MB){
         index_pages.insert(ConfigInitValue::kDefaultIndex);
     }
 };
@@ -206,9 +215,13 @@ struct ServerConfig : public DefaultConfig  {
 
 struct HttpConfig {
     std::vector<ServerConfig> servers;
+    time_t recv_timeout_sec;
+    time_t send_timeout_sec;
     time_t keepalive_timeout_sec;
 
     HttpConfig()
         : servers(),
+          recv_timeout_sec(ConfigInitValue::kDefaultRecvTimeoutSec),
+          send_timeout_sec(ConfigInitValue::kDefaultSendTimeoutSec),
           keepalive_timeout_sec(ConfigInitValue::kDefaultKeepaliveTimeoutSec) {}
 };

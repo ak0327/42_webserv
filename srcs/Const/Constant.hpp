@@ -1,6 +1,7 @@
 #pragma once
 
 # include <sys/types.h>
+# include <iterator>
 # include <string>
 # include <map>
 # include <vector>
@@ -17,7 +18,7 @@ extern const int PROCESS_TIMEOUT;
 extern const int GETADDRINFO_SUCCESS;
 extern const int REMOVE_SUCCESS;
 
-extern const ssize_t RECV_COMPLETED;
+extern const ssize_t RECV_EOF;
 extern const ssize_t RECV_CONTINUE;
 extern const ssize_t RECV_ERROR;
 extern const ssize_t RECV_CLOSED;
@@ -101,6 +102,7 @@ enum StatusCode {
     Conflict                = 409,
     LengthRequired          = 411,
     ContentTooLarge         = 413,
+    URITooLong              = 414,
     RequestHeaderFieldsTooLarge = 431,
 
     InternalServerError     = 500,
@@ -365,8 +367,11 @@ extern const char LOCATION_BLOCK[];
 
 extern const char LISTEN_DIRECTIVE[];
 extern const char SERVER_NAME_DIRECTIVE[];
+
 extern const char SESSION_TIMEOUT_DIRECTIVE[];
 extern const char KEEPALIVE_TIMEOUT_DIRECTIVE[];
+extern const char RECV_TIMEOUT_DIRECTIVE[];
+extern const char SEND_TIMEOUT_DIRECTIVE[];
 
 extern const char RETURN_DIRECTIVE[];
 extern const char ROOT_DIRECTIVE[];

@@ -47,6 +47,7 @@ class HttpRequest {
     bool is_buf_empty() const;
 
     ssize_t recv_to_buf(int fd);
+    bool is_telnet_closed();
 
     static bool is_crlf_in_buf(const unsigned char buf[], std::size_t size);
     static void trim(std::vector<unsigned char> *buf, std::vector<unsigned char>::const_iterator start);

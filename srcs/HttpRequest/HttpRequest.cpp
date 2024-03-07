@@ -152,7 +152,7 @@ void HttpRequest::clear_field_values_of(const std::string &field_name) {
 
 
 // detect telnet send ^C
-bool is_telnet_closed(const unsigned char* buffer, std::size_t size) {
+bool is_telnet_send_ctrl_c(const unsigned char* buffer, std::size_t size) {
     const unsigned char IAC = 255;
     const unsigned char IP = 244;
 
@@ -167,12 +167,20 @@ bool is_telnet_closed(const unsigned char* buffer, std::size_t size) {
 }
 
 
+bool HttpRequest::is_telnet_closed() {
+    if (parse_phase() == ParsingRequestBody && content_type() == "multipart/form-data") {
+        return false;
+    }
+    return is_telnet_send_ctrl_c(this->buf_.data(), this->buf_.size());
+}
+
+
 ssize_t HttpRequest::recv_to_buf(int fd) {
     ssize_t recv_size = Socket::recv_to_buf(fd, &this->buf_);
 
-    if (is_telnet_closed(this->buf_.data(), this->buf_.size())) {
+    if (is_telnet_closed()) {
         DEBUG_PRINT(RED, "^C detected");
-        return RECV_CLOSED;
+        return RECV_EOF;
     }
     return recv_size;
 }
@@ -381,7 +389,7 @@ Result<ProcResult, StatusCode> HttpRequest::parse_body() {
         } else {
             DEBUG_SERVER_PRINT("      ParseBody  recv body != 0 -> err");
             this->buf_.clear();
-            return Result<ProcResult, StatusCode>::err(BadRequest);
+            return Result<ProcResult, StatusCode>::err(LengthRequired);
         }
     }
 
@@ -403,7 +411,7 @@ Result<ProcResult, StatusCode> HttpRequest::parse_body() {
     if (this->content_length_ < this->request_body_.size()) {
         DEBUG_SERVER_PRINT("      ParseBody  content_length < body.size() -> LengthRequired");
         this->request_body_.clear();
-        return Result<ProcResult, StatusCode>::err(LengthRequired);
+        return Result<ProcResult, StatusCode>::err(ContentTooLarge);
     }
     if (this->request_body_.size() < this->content_length_) {
         DEBUG_SERVER_PRINT("      ParseBody  body.size() < content-length -> recv continue");

@@ -30,6 +30,8 @@ class ConfigParser {
     static bool is_valid_cgi_timeout(time_t timeout_sec);
     static bool is_valid_session_timeout(time_t timeout_sec);
     static bool is_valid_keepalive_timeout(time_t timeout_sec);
+    static bool is_valid_recv_timeout(time_t timeout_sec);
+    static bool is_valid_send_timeout(time_t timeout_sec);
 
 #ifdef UNIT_TEST
 	friend class ConfigParserTestFriend;
@@ -52,6 +54,9 @@ class ConfigParser {
     static bool expect(TokenItr *current, const TokenItr &end, const std::string &expected_str);
     static bool expect(TokenItr *current, const TokenItr &end, TokenKind expected_kind);
     static void skip_comments(TokenItr *current, const TokenItr &end);
+
+    static bool is_duplicated(int *cnt);
+    static void clear_initial_value(std::set<std::string> *params, int *cnt);
 
 	// parse block
     static Result<int, std::string> parse_http_block(TokenItr *current,

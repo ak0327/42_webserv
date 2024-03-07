@@ -79,10 +79,11 @@ class Event {
     void kill_cgi_process();
     void clear_cgi();
 
-    static AddressPortPair get_client_listen(const struct sockaddr_storage &client_addr);
     const char *event_phase_char();
     static const char *event_phase_char(const EventPhase &phase);
     static std::string event_phase_str(const EventPhase &phase);
+
+    // void set_to_timeout();
 
  private:
     int socket_fd_;
@@ -119,6 +120,8 @@ class Event {
     Result<ServerConfig, std::string> get_server_config() const;
     EventResult get_host_config();
     EventResult recv_cgi_result();
+    ProcResult create_response_obj();
+    ProcResult create_request_obj();
 
     Event(const Event &other);
     Event &operator=(const Event &rhs);

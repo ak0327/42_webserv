@@ -31,7 +31,7 @@ class Server {
 
     ServerResult init();
 	ServerResult run();
-    ServerResult echo();  // todo: implement echo for test
+    ServerResult echo();
     void set_io_timeout();
 
  private:
@@ -43,7 +43,9 @@ class Server {
     std::set<FdTimeoutLimitPair> cgi_fds_;
 
     std::map<ClientFd, Event *> client_events_;
-    std::set<FdTimeoutLimitPair> keepalive_clients_;
+    std::set<FdTimeoutLimitPair> active_client_time_manager_;
+    std::set<FdTimeoutLimitPair> idling_client_time_manager_;  // keepalive
+
     std::map<CgiFd, Event *> cgi_events_;
 
     std::map<std::string, Session> sessions_;
@@ -75,11 +77,13 @@ class Server {
     void erase_from_timeout_manager(int cgi_fd);
 
     void management_cgi_executing_timeout(time_t current_time);
-    void management_client_keepalive_timeout(time_t current_time);
+    void management_active_client_timeout(time_t current_time);
+    void management_idling_client_timeout(time_t current_time);
 
     bool is_idling_client(int fd);
     void clear_from_keepalive_clients(int client_fd);
-    static std::set<FdTimeoutLimitPair>::iterator find_timeout_fd_pair(int fd, const std::set<FdTimeoutLimitPair> &pair);
+    static std::set<FdTimeoutLimitPair>::iterator find_fd_in_timeout_pair(int fd, const std::set<FdTimeoutLimitPair> &pair);
+    static AddressPortPair get_client_listen(const struct sockaddr_storage &client_addr);
 
     bool is_socket_fd(int fd) const;
     bool is_fd_type_expect(int fd, const FdType &type);
@@ -92,4 +96,8 @@ class Server {
     bool is_cgi_fd(int fd);
     ServerResult handle_client_event(int client_fd);
     ServerResult handle_cgi_event(int cgi_fd);
+
+    bool is_already_managed(int fd);
+    void handle_active_client_timeout(Event *client_event);
+    void clear_from_active_client_manager(int fd);
 };

@@ -169,6 +169,8 @@ std::string to_string(std::size_t num) {
 
 
 std::string to_lower(const std::string &str) {
+    if (str.empty()) { return str; }
+
 	std::string lower_str;
 	char c;
 
@@ -181,6 +183,8 @@ std::string to_lower(const std::string &str) {
 }
 
 std::string to_upper(const std::string &str) {
+    if (str.empty()) { return str; }
+
     std::string upper_str;
     char c;
 

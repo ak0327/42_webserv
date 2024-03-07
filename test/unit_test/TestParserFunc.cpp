@@ -148,7 +148,6 @@ void expect_eq_server_config(const ServerConfig &expected,
     // timeout
     EXPECT_EQ(expected.session_timeout_sec, actual.session_timeout_sec) << "  at L:" << line << std::endl;
 
-
     // default_config
     DefaultConfig expected_default_config = static_cast<const DefaultConfig &>(expected);
     DefaultConfig actual_default_config = static_cast<const DefaultConfig &>(actual);
@@ -3254,6 +3253,317 @@ TEST(TestParser, ParseKeepaliveTimeoutDirective) {
 }
 
 
+TEST(TestParser, ParseRecvTimeoutDirective) {
+    const std::string test_directive = "test_recv_timeout";
+    time_t expected, actual;
+    Result<int, std::string> result;
+    TokenItr current;
+    std::deque<Token> tokens;
+    int cnt;
+
+    expected = 1;
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("1", kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_timeout_directive(&current, tokens.end(), &actual, test_directive, ConfigParser::is_valid_recv_timeout);
+
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_EQ(expected, actual);
+
+    // -------------------------------------------------------------------------
+
+    expected = 1;
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("1s", kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_timeout_directive(&current, tokens.end(), &actual, test_directive, ConfigParser::is_valid_recv_timeout);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_EQ(expected, actual);
+
+    // -------------------------------------------------------------------------
+
+    expected = 60;
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("60s", kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_timeout_directive(&current, tokens.end(), &actual, test_directive, ConfigParser::is_valid_recv_timeout);
+
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_EQ(expected, actual);
+
+    // -------------------------------------------------------------------------
+
+    expected = 60;
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("60S", kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_timeout_directive(&current, tokens.end(), &actual, test_directive, ConfigParser::is_valid_recv_timeout);
+
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_EQ(expected, actual);
+
+    // -------------------------------------------------------------------------
+
+    expected = 120;
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("120s", kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_timeout_directive(&current, tokens.end(), &actual, test_directive, ConfigParser::is_valid_recv_timeout);
+
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_EQ(expected, actual);
+
+    // -------------------------------------------------------------------------
+
+    expected = 60;
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("1m", kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_timeout_directive(&current, tokens.end(), &actual, test_directive, ConfigParser::is_valid_recv_timeout);
+
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_EQ(expected, actual);
+
+    // -------------------------------------------------------------------------
+
+    expected = 120;
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("2m", kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_timeout_directive(&current, tokens.end(), &actual, test_directive, ConfigParser::is_valid_recv_timeout);
+
+    ASSERT_TRUE(result.is_ok());
+    EXPECT_EQ(expected, actual);
+
+    // -------------------------------------------------------------------------
+
+
+    ////////////////////////////////////////////////////////////////////////////
+
+
+    cnt = 0;
+    tokens = {};  // ng
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_timeout_directive(&current, tokens.end(), &actual, test_directive, ConfigParser::is_valid_recv_timeout);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));  // ng
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_timeout_directive(&current, tokens.end(), &actual, test_directive, ConfigParser::is_valid_recv_timeout);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("0", kTokenKindDirectiveParam, ++cnt));  // ng
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_timeout_directive(&current, tokens.end(), &actual, test_directive, ConfigParser::is_valid_recv_timeout);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("1.0", kTokenKindDirectiveParam, ++cnt));  // ng
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_timeout_directive(&current, tokens.end(), &actual, test_directive, ConfigParser::is_valid_recv_timeout);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("1.0m", kTokenKindDirectiveParam, ++cnt));  // ng
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_timeout_directive(&current, tokens.end(), &actual, test_directive, ConfigParser::is_valid_recv_timeout);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("1", kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token("2", kTokenKindDirectiveParam, ++cnt));  // ng
+    tokens.push_back(Token("3", kTokenKindDirectiveParam, ++cnt));  // ng
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_timeout_directive(&current, tokens.end(), &actual, test_directive, ConfigParser::is_valid_recv_timeout);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("60sec", kTokenKindDirectiveParam, ++cnt));  // ng
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_timeout_directive(&current, tokens.end(), &actual, test_directive, ConfigParser::is_valid_recv_timeout);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("121", kTokenKindDirectiveParam, ++cnt));  // ng
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_timeout_directive(&current, tokens.end(), &actual, test_directive, ConfigParser::is_valid_recv_timeout);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("4m", kTokenKindDirectiveParam, ++cnt));  // ng
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_timeout_directive(&current, tokens.end(), &actual, test_directive, ConfigParser::is_valid_recv_timeout);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("1h", kTokenKindDirectiveParam, ++cnt));  // ng
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_timeout_directive(&current, tokens.end(), &actual, test_directive, ConfigParser::is_valid_recv_timeout);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("+1s", kTokenKindDirectiveParam, ++cnt));  // ng
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_timeout_directive(&current, tokens.end(), &actual, test_directive, ConfigParser::is_valid_recv_timeout);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("a", kTokenKindDirectiveParam, ++cnt));  // ng
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_timeout_directive(&current, tokens.end(), &actual, test_directive, ConfigParser::is_valid_recv_timeout);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("2147483647", kTokenKindDirectiveParam, ++cnt));  // > long_max
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_timeout_directive(&current, tokens.end(), &actual, test_directive, ConfigParser::is_valid_recv_timeout);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("8796093022208", kTokenKindDirectiveParam, ++cnt));  // > long_max
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_timeout_directive(&current, tokens.end(), &actual, test_directive, ConfigParser::is_valid_recv_timeout);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+
+    // -------------------------------------------------------------------------
+
+    cnt = 0;
+    tokens = {};
+    tokens.push_back(Token("8589934592", kTokenKindDirectiveParam, ++cnt));  // > long_max
+    tokens.push_back(Token(";", kTokenKindSemicolin, ++cnt));
+
+    current = tokens.begin();
+    result = ConfigParserTestFriend::parse_timeout_directive(&current, tokens.end(), &actual, test_directive, ConfigParser::is_valid_recv_timeout);
+
+    print_error_msg(result, __LINE__);
+    ASSERT_TRUE(result.is_err());
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -4136,10 +4446,6 @@ TEST(TestParser, ParseServer) {
 
 
     tokens.push_back(Token("session_timeout",kTokenKindDirectiveName, ++cnt));
-    tokens.push_back(Token("60s",           kTokenKindDirectiveParam, ++cnt));
-    tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
-
-    tokens.push_back(Token("session_timeout",kTokenKindDirectiveName, ++cnt));
     tokens.push_back(Token("1s",           kTokenKindDirectiveParam, ++cnt));
     tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
 
@@ -4454,14 +4760,17 @@ TEST(TestParser, ParseHttp) {
     tokens.push_back(Token("http",              kTokenKindBlockName, ++cnt));
     tokens.push_back(Token("{",                 kTokenKindBraces, ++cnt));
 
-    tokens.push_back(Token("keepalive_timeout",         kTokenKindDirectiveName, ++cnt));
-    tokens.push_back(Token("120s",                      kTokenKindDirectiveParam, ++cnt));
-    tokens.push_back(Token(";",                         kTokenKindSemicolin, ++cnt));
-
     tokens.push_back(Token("keepalive_timeout", kTokenKindDirectiveName, ++cnt));
     tokens.push_back(Token("5s",                kTokenKindDirectiveParam, ++cnt));
     tokens.push_back(Token(";",                 kTokenKindSemicolin, ++cnt));
 
+    tokens.push_back(Token("recv_timeout",kTokenKindDirectiveName, ++cnt));
+    tokens.push_back(Token("5s",           kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
+
+    tokens.push_back(Token("send_timeout",kTokenKindDirectiveName, ++cnt));
+    tokens.push_back(Token("120s",           kTokenKindDirectiveParam, ++cnt));
+    tokens.push_back(Token(";",             kTokenKindSemicolin, ++cnt));
 
     tokens.push_back(Token("}",             kTokenKindBraces, ++cnt));
 
@@ -4469,6 +4778,8 @@ TEST(TestParser, ParseHttp) {
 
     expected = {};
     expected.keepalive_timeout_sec = 5;
+    expected.recv_timeout_sec = 5;
+    expected.send_timeout_sec = 120;
 
     actual = {};
     result = ConfigParserTestFriend::parse_http_block(&current, tokens.end(), &actual);
@@ -4483,10 +4794,6 @@ TEST(TestParser, ParseHttp) {
 
     tokens.push_back(Token("http",              kTokenKindBlockName, ++cnt));
     tokens.push_back(Token("{",                 kTokenKindBraces, ++cnt));
-
-    tokens.push_back(Token("keepalive_timeout",         kTokenKindDirectiveName, ++cnt));
-    tokens.push_back(Token("120s",                      kTokenKindDirectiveParam, ++cnt));
-    tokens.push_back(Token(";",                         kTokenKindSemicolin, ++cnt));
 
 
     tokens.push_back(Token("server",    kTokenKindBlockName, ++cnt));

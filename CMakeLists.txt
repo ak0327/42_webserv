@@ -82,15 +82,25 @@ set(webserv_srcs
         srcs/Const/Constant.cpp
         srcs/Client/Client.cpp
         srcs/Event/Event.cpp
+        srcs/Event/process_client_event.cpp
+        srcs/Event/process_file_event.cpp
         srcs/Config/FileHandler/FileHandler.cpp
         srcs/Config/ConfigParser/ConfigParser.cpp
+        srcs/Config/ConfigParser/http_block.cpp
+        srcs/Config/ConfigParser/server_block.cpp
+        srcs/Config/ConfigParser/location_block.cpp
+        srcs/Config/ConfigParser/parse_timeout.cpp
+        srcs/Config/ConfigParser/error_msg.cpp
         srcs/Config/Token/Token.cpp
         srcs/Config/Tokenizer/Tokenizer.cpp
         srcs/Config/Config.cpp
+        srcs/Config/config_getter.cpp
         srcs/Debug/Debug.cpp
         srcs/Error/Error.cpp
         srcs/IOMultiplexer/IOMultiplexer.cpp
         srcs/Server/Server.cpp
+        srcs/Server/process_event.cpp
+        srcs/Server/timeout_manager.cpp
         srcs/Session/Session.cpp
         srcs/Socket/Socket.cpp
         srcs/StringHandler/StringHandler.cpp
@@ -188,6 +198,7 @@ list(APPEND webserv_srcs
 
 # response_srcs ----------------------------------------------------------------
 set(http_response_srcs
+        srcs/HttpResponse/create_response_message.cpp
         srcs/HttpResponse/HttpResponse.cpp
         srcs/HttpResponse/Dynamic/Dynamic.cpp
         srcs/HttpResponse/Dynamic/cookie_login.cpp
