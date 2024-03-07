@@ -627,13 +627,12 @@ bool is_valid_request_target(const std::string &request_target) {
   HTTP-name   = %x48.54.54.50 ; "HTTP", case-sensitive
  */
 bool is_valid_http_version(const std::string &http_version) {
-    return http_version == std::string(HTTP_1_1);
-	// std::vector<std::string>::const_iterator itr;
-	// if (http_version.empty()) {
-	// 	return false;
-	// }
-	// itr = std::find(HTTP_VERSIONS.begin(), HTTP_VERSIONS.end(), http_version);
-	// return itr != HTTP_VERSIONS.end();
+	std::vector<std::string>::const_iterator itr;
+	if (http_version.empty()) {
+		return false;
+	}
+	itr = std::find(HTTP_VERSIONS.begin(), HTTP_VERSIONS.end(), http_version);
+	return itr != HTTP_VERSIONS.end();
 }
 
 bool is_valid_field_name(const std::string &field_name) {

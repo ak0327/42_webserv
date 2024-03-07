@@ -171,9 +171,19 @@ enum Method {
     kGET, kPOST, kDELETE, kErrorMethod
 };
 
+// support
 extern const char GET_METHOD[];
 extern const char POST_METHOD[];
 extern const char DELETE_METHOD[];
+
+// not support
+extern const char HEAD_METHOD[];
+extern const char PUT_METHOD[];
+extern const char CONNECT_METHOD[];
+extern const char OPTIONS_METHOD[];
+extern const char TRACE_METHOD[];
+extern const char PATCH_METHOD[];
+
 
 extern const std::vector<std::string> METHODS;
 
@@ -182,6 +192,7 @@ std::vector<std::string> init_methods();
 ////////////////////////////////////////////////////////////////////////////////
 /* http version */
 
+extern const char HTTP_1_0[];
 extern const char HTTP_1_1[];
 extern const char HTTP_2_0[];
 extern const char HTTP_3_0[];

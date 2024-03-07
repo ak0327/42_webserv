@@ -15,7 +15,7 @@ start_up() {
 
     prepare_test_file
 
-    ./webserv $CONF_PATH &
+    ./webserv $CONF_PATH 2>/dev/null &
 
     sleep 1
 }

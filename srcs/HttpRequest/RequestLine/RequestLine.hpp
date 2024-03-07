@@ -22,6 +22,8 @@ class RequestLine {
  private:
 	Result<ProcResult, StatusCode> parse(const std::string &line);
 	Result<ProcResult, StatusCode> validate() const;
+    Result<ProcResult, StatusCode> validate_request_method() const;
+    Result<ProcResult, StatusCode> validate_request_http_version() const;
     void update_target_path();
 
 	std::string method_;

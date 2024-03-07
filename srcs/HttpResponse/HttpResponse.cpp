@@ -157,7 +157,7 @@ ProcResult HttpResponse::exec_method() {
 
         default:
             DEBUG_PRINT(YELLOW, " exec_method 5 - method err");
-            status = BadRequest;
+            status = MethodNotAllowed;
     }
 
     this->set_status_code(status);

@@ -318,8 +318,8 @@ Result<ProcResult, StatusCode> HttpRequest::parse_start_line_and_headers() {
                 DEBUG_SERVER_PRINT("    parse RequestLine");
                 result = this->request_line_.parse_and_validate(line);
                 if (result.is_err()) {
-                    DEBUG_SERVER_PRINT("     parse RequestLine err");
                     error_status_code = result.err_value();
+                    DEBUG_SERVER_PRINT("     parse RequestLine err: %d", error_status_code);
                     return Result<ProcResult, StatusCode>::err(error_status_code);  // todo: code
                 }
                 DEBUG_SERVER_PRINT("     parse RequestLine -> Header");

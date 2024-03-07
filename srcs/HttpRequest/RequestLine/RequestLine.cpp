@@ -3,6 +3,7 @@
 #include <vector>
 #include "webserv.hpp"
 #include "Constant.hpp"
+#include "Debug.hpp"
 #include "RequestLine.hpp"
 #include "Result.hpp"
 #include "Color.hpp"
@@ -48,19 +49,25 @@ std::string	RequestLine::query() const {
 /* parse and validate */
 Result<ProcResult, StatusCode> RequestLine::parse_and_validate(const std::string &line) {
 	Result<ProcResult, StatusCode> parse_result, validate_result;
+    DEBUG_PRINT(YELLOW, "[request line] parse");
 
 	parse_result = this->parse(line);
 	if (parse_result.is_err()) {
         this->http_version_ = std::string(HTTP_1_1);  // needed for response
+        DEBUG_PRINT(YELLOW, "[request line] parse error -> 400");
 		return Result<ProcResult, StatusCode>::err(BadRequest);
 	}
 
+    DEBUG_PRINT(YELLOW, "[request line] validate");
     validate_result = this->validate();
 	if (validate_result.is_err()) {
         this->http_version_ = std::string(HTTP_1_1);  // needed for response
-        return Result<ProcResult, StatusCode>::err(BadRequest);
+        StatusCode error_status = validate_result.err_value();
+        DEBUG_PRINT(YELLOW, "[request line] validate error -> %d", error_status);
+        return Result<ProcResult, StatusCode>::err(error_status);
 	}
 
+    DEBUG_PRINT(YELLOW, "[request line] ok");
     update_target_path();
     separate_target_and_query();
 	return Result<ProcResult, StatusCode>::ok(Success);
@@ -137,17 +144,48 @@ Result<ProcResult, StatusCode> RequestLine::parse(const std::string &line) {
  https://triple-underscore.github.io/http1-ja.html#p.request-line
  */
 Result<ProcResult, StatusCode> RequestLine::validate() const {
-	if (!HttpMessageParser::is_valid_method(this->method_)) {
-		return Result<ProcResult, StatusCode>::err(BadRequest);
-	}
+    Result<ProcResult, StatusCode> method_result = validate_request_method();
+    if (method_result.is_err()) {
+        return Result<ProcResult, StatusCode>::err(method_result.err_value());
+    }
+
 	if (!HttpMessageParser::is_valid_request_target(this->request_target_)) {
 		return Result<ProcResult, StatusCode>::err(BadRequest);
 	}
-	if (!HttpMessageParser::is_valid_http_version(this->http_version_)) {
-		return Result<ProcResult, StatusCode>::err(BadRequest);
+
+    Result<ProcResult, StatusCode> version_result = validate_request_http_version();
+    if (version_result.is_err()) {
+		return Result<ProcResult, StatusCode>::err(version_result.err_value());
 	}
 	return Result<ProcResult, StatusCode>::ok(Success);
 }
+
+
+Result<ProcResult, StatusCode> RequestLine::validate_request_method() const {
+    if (!HttpMessageParser::is_valid_method(this->method())) {
+        return Result<ProcResult, StatusCode>::err(BadRequest);
+    }
+
+    // if (this->method() != std::string(GET_METHOD)
+    //     && this->method() != std::string(POST_METHOD)
+    //     && this->method() != std::string(DELETE_METHOD)) {
+    //     return Result<ProcResult, StatusCode>::err(MethodNotAllowed);
+    // }
+    return Result<ProcResult, StatusCode>::ok(Success);
+}
+
+
+Result<ProcResult, StatusCode> RequestLine::validate_request_http_version() const {
+    if (!HttpMessageParser::is_valid_http_version(this->http_version())) {
+        return Result<ProcResult, StatusCode>::err(BadRequest);
+    }
+
+    if (this->http_version() != std::string(HTTP_1_1)) {
+        return Result<ProcResult, StatusCode>::err(HTTPVersionNotSupported);
+    }
+    return Result<ProcResult, StatusCode>::ok(Success);
+}
+
 
 void RequestLine::update_target_path() {
     std::string decoded = StringHandler::decode(this->request_target_);

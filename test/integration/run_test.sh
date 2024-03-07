@@ -25,6 +25,11 @@ cgi_test="./test/integration/test_cgi.sh"
 $cgi_test
 cgi_test_result=$?
 
+err_test="./test/integration/test_err.sh"
+$err_test
+err_test_result=$?
+
+
 
 
 if [ $get_test_result -eq $SUCCESS ]; then
@@ -57,3 +62,11 @@ else
   echo -en "[${RED}NG${RESET}] "
 fi
 echo "$cgi_test"
+
+
+if [ $err_test_result -eq $SUCCESS ]; then
+  echo -en "[${GREEN}OK${RESET}] "
+else
+  echo -en "[${RED}NG${RESET}] "
+fi
+echo "$err_test"
