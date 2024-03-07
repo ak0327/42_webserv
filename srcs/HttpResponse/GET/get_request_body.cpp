@@ -17,6 +17,7 @@
 #include "Error.hpp"
 #include "FileHandler.hpp"
 #include "HttpResponse.hpp"
+#include "HttpMessageParser.hpp"
 #include "StringHandler.hpp"
 #include "Result.hpp"
 
@@ -44,24 +45,33 @@ bool HttpResponse::is_redirect() const {
 
 
 StatusCode HttpResponse::get_redirect_content(const ReturnDirective &redirect) {
+    DEBUG_PRINT(RED, "redirect.text: %s (L:%d)", redirect.text.c_str(), __LINE__);
     Result<HostPortPair, StatusCode> info_result = this->request_.server_info();
     if (info_result.is_err()) {
         return info_result.err_value();
     }
 
-    HostPortPair server_info = info_result.ok_value();
-    std::string location = "http://";
-
-    location.append(server_info.first);
-    location.append(":");
-    if (!server_info.second.empty()) {
-        location.append(server_info.second);
+    std::string redirect_path;
+    if (HttpMessageParser::is_absolute_uri(redirect.text)) {
+        DEBUG_PRINT(RED, "external redirect", __LINE__);
+        // external redirect
+        redirect_path = redirect.text;
     } else {
-        location.append(this->server_listen_.first);
-    }
-    location.append(redirect.text);
+        DEBUG_PRINT(RED, "local redirect", __LINE__);
+        // local redirect
+        HostPortPair server_info = info_result.ok_value();
+        redirect_path = "http://";
 
-    this->headers_[LOCATION] = location;
+        redirect_path.append(server_info.first);
+        redirect_path.append(":");
+        if (!server_info.second.empty()) {
+            redirect_path.append(server_info.second);
+        } else {
+            redirect_path.append(this->server_listen_.first);
+        }
+        redirect_path.append(redirect.text);
+    }
+    this->headers_[LOCATION] = redirect_path;
     return redirect.code;
 }
 
