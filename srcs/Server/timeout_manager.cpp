@@ -219,7 +219,8 @@ void Server::idling_event(Event *event) {
     time_t timeout_limit = std::time(NULL) + this->config_.keepalive_timeout();
     this->idling_client_time_manager_.insert(FdTimeoutLimitPair(timeout_limit, client_fd));
 
-    DEBUG_SERVER_PRINT("[idling_event] add fd %d to idling -> timeout: %zu, remain %zu sec", client_fd, timeout_limit, this->config_.keepalive_timeout());
+    DEBUG_SERVER_PRINT("[idling_event] add fd %d to idling -> timeout: %zu, remain %zu sec",
+                       client_fd, timeout_limit, this->config_.keepalive_timeout());
     DEBUG_SERVER_PRINT("------------------------------------------------------------------------------------------------");
 }
 

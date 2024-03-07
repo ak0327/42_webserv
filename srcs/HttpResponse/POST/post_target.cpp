@@ -101,7 +101,8 @@ ProcResult HttpResponse::parse_until_binary(const std::string &boundary,
         std::string name, value;
         split_result = HttpRequest::split_field_line(line, &name, &value);
         if (split_result.is_err()) {
-            // std::cout << WHITE << "   parser1: 4                std::cout << WHITE << \"   parser1: 7\" << RESET << std::endl;" << RESET << std::endl;
+            // std::cout << WHITE << "   parser1: 4                std::cout <<
+            // WHITE << \"   parser1: 7\" << RESET << std::endl;" << RESET << std::endl;
             return Failure;
         }
         // std::cout << WHITE << "   parser1: 5" << RESET << std::endl;

@@ -326,7 +326,6 @@ void Server::update_fd_type_read_to_write(const EventPhase &event_state, int fd)
 
 
 void Server::delete_event(std::map<Fd, Event *>::iterator event) {
-
     Event *client_event = event->second;
     int client_fd = client_event->client_fd();
     DEBUG_SERVER_PRINT("[delete event] fd: %d (L:%d)", client_fd, __LINE__);
