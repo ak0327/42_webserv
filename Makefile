@@ -314,8 +314,8 @@ run_multi_field_values_test    :
 run_map_field_values_test    :
 	cmake -S . -B build
 	cmake --build build
-#	./build/unit_test --gtest_filter=TestMapFieldValues*
-	./build/unit_test --gtest_filter=TestMapFieldValues*.Cookie*
+	./build/unit_test --gtest_filter=TestMapFieldValues*
+	#./build/unit_test --gtest_filter=TestMapFieldValues*.Cookie*
 
 .PHONY    : run_map_set_field_values_test
 run_map_set_field_values_test    :

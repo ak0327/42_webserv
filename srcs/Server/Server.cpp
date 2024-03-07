@@ -361,6 +361,7 @@ void Server::update_fd_type(int fd,
         return;
     }
     this->fds_->clear_fd(fd);
+
     if (update_to == kReadFd) {
         this->fds_->register_read_fd(fd);
     } else if (update_to == kWriteFd) {

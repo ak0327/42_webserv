@@ -253,8 +253,8 @@ ServerResult Server::handle_client_event(int client_fd) {
 
     switch (client_event->event_phase()) {
         case kSendingResponse: {
-            // std::ostringstream oss; oss << client_event;
-            // DEBUG_SERVER_PRINT("process_event(client) -> sending response: %s", oss.str().c_str());
+            std::ostringstream oss; oss << client_event;
+            DEBUG_SERVER_PRINT("process_event(client) -> sending response: %s", oss.str().c_str());
             update_fd_type(client_fd, kReadFd, kWriteFd);
             break;
         }

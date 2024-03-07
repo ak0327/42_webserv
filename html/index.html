@@ -118,7 +118,7 @@
                        value="curl -i -H &quot;Host: webserv&quot; localhost:4242">
             </div>
 
-            <li> default server-1: localhost:4040 and nothing_server_name -> old_server or new_server
+            <li> default server-1: localhost:4040 and nothing_server_name -> old_server or new_server✨
             <div class="container">
                 <button onclick="copyCommand('default_server_1')">copy</button>
                 <input type="text"
@@ -126,7 +126,7 @@
                        value="curl -i -H &quot;Host: nothing_server_name&quot; localhost:4040">
             </div>
 
-            <li> default server-2: localhost:3939 and nothing_server_name -> server_a or server_b
+            <li> default server-2: localhost:3939 and nothing_server_name -> server_a🅰 or server_b
                 <div class="container">
                     <button onclick="copyCommand('default_server_2')">copy</button>
                     <input type="text"
@@ -155,7 +155,7 @@
                 <button onclick="copyCommand('large_content')">copy</button>
                 <input type="text"
                        id="large_content"
-                       value="curl -i -X GET -H &quot;Content-Length: 1&quot; --data &quot;larger than 1&quot; localhost:4242/cgi-bin/post_simple.py">
+                       value="curl -i -X GET -H &quot;Content-Length: 1&quot; --data &quot;larger than 1&quot; localhost:4343/cgi-bin/post_simple.py">
             </div>
 
             <li> Content less than Content-Length -> connection closed by host
@@ -163,7 +163,7 @@
                     <button onclick="copyCommand('small_content')">copy</button>
                     <input type="text"
                            id="small_content"
-                           value="curl -i -X GET -H &quot;Content-Length: 100&quot; --data &quot;less than 100&quot; localhost:4242/cgi-bin/post_simple.py">
+                           value="curl -i -X GET -H &quot;Content-Length: 100&quot; --data &quot;less than 100&quot; localhost:4343/cgi-bin/post_simple.py">
                 </div>
 
             <li> Content-Length too large by Length
@@ -171,7 +171,7 @@
                 <button onclick="copyCommand('content_length_large')">copy</button>
                 <input type="text"
                        id="content_length_large"
-                       value="curl -i -H &quot;Content-Length: 2147483647&quot; localhost:4242/cgi-bin/post_simple.py">
+                       value="curl -i -H &quot;Content-Length: 2147483647&quot; localhost:4343/cgi-bin/post_simple.py">
             </div>
 
         </ul>
@@ -179,9 +179,15 @@
 
     <li> Siege test
         <div class="container">
-            <button onclick="copyCommand('get_x')">copy</button>
+            <button onclick="copyCommand('brew_install')">copy</button>
             <input type="text"
-                   id="get_x"
+                   id="brew_install"
+                   value="brew install siege">
+        </div>
+        <div class="container">
+            <button onclick="copyCommand('siege_command')">copy</button>
+            <input type="text"
+                   id="siege_command"
                    value="siege --benchmark --concurrent=128 --time=30s http://localhost:4242">
         </div>
 
@@ -232,7 +238,7 @@
                     <button onclick="copyCommand('post_body')">copy</button>
                     <input type="text"
                            id="post_body"
-                           value="curl -i -X POST --data &quot;request body is recognized&quot; localhost:4242/cgi-bin/post_simple.py">
+                           value="curl -i -X POST --data &quot;request body is recognized&quot; localhost:4343/cgi-bin/post_simple.py">
                 </div>
         </ul>
 </ul>

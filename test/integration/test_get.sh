@@ -242,6 +242,7 @@ expect_eq_get "$(curl -is -H "Host: d:2121"        "localhost:4242/")"         "
 expect_eq_get "$(curl -is -H "Host: hoge:2121"     "localhost:4242/")"         "400 Bad Request"  ""
 expect_eq_get "$(curl -is -H "Host: hoge:2121"     "localhost:4242/nothing")"  "400 Bad Request"  ""
 expect_eq_get "$(curl -is -H "Host: huga:2121"     "localhost:4242/nothing")"  "400 Bad Request"  ""
+expect_eq_get "$(curl -is -H "Host: huga:huga:ng"  "localhost:4242")"          "400 Bad Request"  ""
 
 
 tear_down

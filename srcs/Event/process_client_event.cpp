@@ -82,11 +82,15 @@ EventResult Event::process_client_event() {
             ProcResult response_result = create_http_response();
             if (response_result == FatalError) {
                 const std::string error_msg = CREATE_ERROR_INFO_STR("error: fail to allocate memory for HttpResponse");
+                DEBUG_SERVER_PRINT(" -> fatal error (L:%d)", __LINE__);
                 return EventResult::err(error_msg);
             }
             if (response_result == ExecutingCgi) {
+                DEBUG_SERVER_PRINT(" -> executing cgi (L:%d)", __LINE__);
                 return EventResult::ok(ExecutingCgi);
             }
+            DEBUG_SERVER_PRINT(" -> next send (L:%d)", __LINE__);
+            // phase set in create_http_response()
             break;
         }
 
