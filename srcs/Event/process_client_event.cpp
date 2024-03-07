@@ -297,7 +297,7 @@ Result<ServerConfig, std::string> Event::get_server_config() const {
         return Result<ServerConfig, std::string>::err(error_msg);
     }
     HostPortPair host_port_pair = get_request_host.ok_value();
-    // DEBUG_PRINT(YELLOW, " host: %s, port:%s", host_port_pair.first.c_str(), host_port_pair.second.c_str());
+    DEBUG_PRINT(YELLOW, " host: %s, port:%s", host_port_pair.first.c_str(), host_port_pair.second.c_str());
 
     Result<ServerConfig, std::string> config_result;
     config_result = config_.get_server_config(this->server_listen_, host_port_pair);

@@ -43,6 +43,7 @@ class ConfigParser {
 
 	static Result<HttpConfig, std::string> parse(const std::deque<Token> &tokens);
 	static Result<int, std::string> validate(const HttpConfig &http_config);
+    void server_names_to_lower(HttpConfig *http_config);
     void fill_unspecified_directives(HttpConfig *http_config);
 	void fill_unspecified_listen(HttpConfig *http_config);
 	void fill_unspecified_server_name(HttpConfig *http_config);

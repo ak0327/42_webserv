@@ -165,7 +165,6 @@ class Config {
     void set_default_server_to_first_listen();
     void set_server_configs();
 
-
     static Result<LocationConfig, int> get_location_config(const ServerConfig &server_config,
                                                            const std::string &location_path);
 };

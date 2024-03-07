@@ -42,6 +42,7 @@ ConfigParser::ConfigParser(const char *file_path) {
 	}
 	HttpConfig http_config = parse_result.ok_value();
 
+    server_names_to_lower(&http_config);
     fill_unspecified_directives(&http_config);
 
     Result<int, std::string> validate_result = validate(http_config);
@@ -176,6 +177,23 @@ void ConfigParser::fill_unspecified_directives(HttpConfig *http_config) {
     fill_unspecified_listen(http_config);
     fill_unspecified_server_name(http_config);
 }
+
+
+void ConfigParser::server_names_to_lower(HttpConfig *http_config) {
+    std::vector<ServerConfig>::iterator serv_config = http_config->servers.begin();
+    for (serv_config = http_config->servers.begin(); serv_config != http_config->servers.end(); ++serv_config) {
+        std::set<std::string> lower_case_server_names;
+
+        std::set<std::string>::iterator server_name;
+        for (server_name = serv_config->server_names.begin(); server_name != serv_config->server_names.end(); ++server_name) {
+            std::string lower_case_name = StringHandler::to_lower(*server_name);
+            lower_case_server_names.insert(lower_case_name);
+            // std::cout << "server_name: " << lower_case_name << std::endl;
+        }
+        serv_config->server_names = lower_case_server_names;
+    }
+}
+
 
 void ConfigParser::fill_unspecified_listen(HttpConfig *http_config) {
     std::vector<ServerConfig>::iterator server_config = http_config->servers.begin();
@@ -388,7 +406,6 @@ Result<AddressPortPair, int> ConfigParser::parse_listen_param(const std::string 
 }
 
 
-
 // directive_name  directive_param ... ";"
 //                 ^current                ^return
 Result<int, std::string> ConfigParser::parse_directive_params(TokenItr *current,
@@ -424,7 +441,6 @@ Result<int, std::string> ConfigParser::parse_set_params(TokenItr *current,
                                                         std::set<std::string> *params,
                                                         const std::string &name) {
     std::vector<std::string> parsed_params;
-
     Result<int, std::string> parse_result;
 
     parse_result = parse_directive_params(current, end, &parsed_params, name);
