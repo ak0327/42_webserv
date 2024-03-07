@@ -210,7 +210,7 @@ ProcResult HttpResponse::recv_to_cgi_buf() {
         return Continue;
     }
     if (result == Failure) {
-        StatusCode error_code = InternalServerError;
+        StatusCode error_code = BadGateway;
         this->set_status_code(error_code);
     }
     if (result == Timeout) {

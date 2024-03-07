@@ -39,6 +39,8 @@ class HttpRequest {
 	std::string target() const;
 	std::string	http_version() const;
     std::string query_string() const;
+    StatusCode request_line_status() const;
+
     const std::vector<unsigned char> body() const;
     StatusCode request_status() const;
     void set_request_status(const StatusCode &set_code);
@@ -63,6 +65,7 @@ class HttpRequest {
                                                            std::string *ret_field_name,
                                                            std::string *ret_field_value);
     ProcResult validate_request_headers();
+    bool is_support_media_type() const;
 
 	bool is_field_name_supported_parsing(const std::string &field_name);
 	bool is_valid_field_name_registered(const std::string &field_name);

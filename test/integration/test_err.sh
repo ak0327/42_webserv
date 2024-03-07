@@ -38,57 +38,7 @@ start_up "ERROR TEST"
 
 ################################################################################
 
-# not supported method
-expect_eq_get "$(curl -is -X  HEAD "localhost:4242")"                   "405 Method Not Allowed"    ""
-expect_eq_get "$(curl -is -X  HEAD "localhost:4242/nothing")"           "405 Method Not Allowed"    ""
-expect_eq_get "$(curl -is -X  HEAD "localhost:4242/nothing.html")"      "405 Method Not Allowed"    ""
-
-expect_eq_get "$(curl -is -X  PUT "localhost:4242")"                    "405 Method Not Allowed"    ""
-expect_eq_get "$(curl -is -X  PUT "localhost:4242/nothing")"            "405 Method Not Allowed"    ""
-expect_eq_get "$(curl -is -X  PUT "localhost:4242/nothing.html")"       "405 Method Not Allowed"    ""
-
-expect_eq_get "$(curl -is -X  CONNECT "localhost:4242")"                "405 Method Not Allowed"    ""
-expect_eq_get "$(curl -is -X  CONNECT "localhost:4242/nothing")"        "405 Method Not Allowed"    ""
-expect_eq_get "$(curl -is -X  CONNECT "localhost:4242/nothing.html")"   "405 Method Not Allowed"    ""
-
-expect_eq_get "$(curl -is -X  OPTIONS "localhost:4242")"                "405 Method Not Allowed"    ""
-expect_eq_get "$(curl -is -X  OPTIONS "localhost:4242/nothing")"        "405 Method Not Allowed"    ""
-expect_eq_get "$(curl -is -X  OPTIONS "localhost:4242/nothing.html")"   "405 Method Not Allowed"    ""
-
-expect_eq_get "$(curl -is -X  TRACE "localhost:4242")"                  "405 Method Not Allowed"    ""
-expect_eq_get "$(curl -is -X  TRACE "localhost:4242/nothing")"          "405 Method Not Allowed"    ""
-expect_eq_get "$(curl -is -X  TRACE "localhost:4242/nothing.html")"     "405 Method Not Allowed"    ""
-
-expect_eq_get "$(curl -is -X  PATCH "localhost:4242")"                  "405 Method Not Allowed"    ""
-expect_eq_get "$(curl -is -X  PATCH "localhost:4242/nothing")"          "405 Method Not Allowed"    ""
-expect_eq_get "$(curl -is -X  PATCH "localhost:4242/nothing.html")"     "405 Method Not Allowed"    ""
-
-
-# invalid method
-expect_eq_get "$(curl -is -X  nothing "localhost:4242")"                "400 Bad Request"           ""
-expect_eq_get "$(curl -is -X  nothing "localhost:4242/nothing")"        "400 Bad Request"           ""
-expect_eq_get "$(curl -is -X  nothing "localhost:4242/nothing.html")"   "400 Bad Request"           ""
-
-expect_eq_get "$(curl -is -X  "" "localhost:4242")"                     "400 Bad Request"           ""
-expect_eq_get "$(curl -is -X  "" "localhost:4242/nothing")"             "400 Bad Request"           ""
-expect_eq_get "$(curl -is -X  "" "localhost:4242/nothing.html")"        "400 Bad Request"           ""
-
-
-# not suppored http-version
-expect_eq_get "$(echo -en "GET / HTTP/1.0\r\nHost: host\r\n\r\n"              | nc localhost 4242)"   "505 HTTP Version Not Supported"    ""
-expect_eq_get "$(echo -en "GET /nothing HTTP/1.0\r\nHost: host\r\n\r\n"       | nc localhost 4242)"   "505 HTTP Version Not Supported"    ""
-expect_eq_get "$(echo -en "GET /nothing.html HTTP/1.0\r\nHost: host\r\n\r\n"  | nc localhost 4242)"   "505 HTTP Version Not Supported"    ""
-
-expect_eq_get "$(echo -en "GET / HTTP/2.0\r\nHost: host\r\n\r\n"              | nc localhost 4242)"   "505 HTTP Version Not Supported"    ""
-expect_eq_get "$(echo -en "GET /nothing HTTP/2.0\r\nHost: host\r\n\r\n"       | nc localhost 4242)"   "505 HTTP Version Not Supported"    ""
-expect_eq_get "$(echo -en "GET /nothing.html HTTP/2.0\r\nHost: host\r\n\r\n"  | nc localhost 4242)"   "505 HTTP Version Not Supported"    ""
-
-expect_eq_get "$(echo -en "GET / HTTP/3.0\r\nHost: host\r\n\r\n"              | nc localhost 4242)"   "505 HTTP Version Not Supported"    ""
-expect_eq_get "$(echo -en "GET /nothing HTTP/3.0\r\nHost: host\r\n\r\n"       | nc localhost 4242)"   "505 HTTP Version Not Supported"    ""
-expect_eq_get "$(echo -en "GET /nothing.html HTTP/3.0\r\nHost: host\r\n\r\n"  | nc localhost 4242)"   "505 HTTP Version Not Supported"    ""
-
-
-# invalid http-version
+## invalid http-version: 400
 expect_eq_get "$(echo -en "GET / HTTP/4.0\r\nHost: host\r\n\r\n" | nc localhost 4242)"            "400 Bad Request"    ""
 expect_eq_get "$(echo -en "GET / HTTP/1.9\r\nHost: host\r\n\r\n" | nc localhost 4242)"            "400 Bad Request"    ""
 expect_eq_get "$(echo -en "GET / HTTP/1\r\nHost: host\r\n\r\n" | nc localhost 4242)"              "400 Bad Request"    ""
@@ -101,7 +51,107 @@ expect_eq_get "$(echo -en "GET / http1.1\r\nHost: host\r\n\r\n" | nc localhost 4
 expect_eq_get "$(echo -en "GET / HTTP/1.1 HTTP/1.1\r\nHost: host\r\n\r\n" | nc localhost 4242)"   "400 Bad Request"    ""
 
 
+# 411 Length Required
+expect_eq_get "$(echo -en "GET / HTTP/1.1\r\nHost: localhost\r\n\r\nlength required" | nc localhost 4242)"                    "411 Length Required"     ""
 
+
+# 413 payload too large
+expect_eq_get "$(curl -isH "Content-Length: 1100000"  "localhost:4242/")"                                                     "413 Payload Too Large"    ""
+large=`python3 -c "print('a'*110000)"`
+expect_eq_get "$(curl -is -H "Content-Length: 1100" --data "$large" "Content-Length: 1100000"  "localhost:4242/")"            "413 Payload Too Large"    ""
+
+expect_eq_get "$(curl -is -H "Content-Length: 21"  "localhost:4242/dir_a/")"                                                  "413 Payload Too Large"    ""
+expect_eq_get "$(curl -i -X GET -H "Content-Length: 1" --data "ignored"  "localhost:4242/cgi-bin/post_simple.py")"            "413 Payload Too Large"    ""
+expect_eq_get "$(curl -is -H "Content-Length: 21"  -X GET --data "$(python3 -c "print('a'*21)")"  "localhost:4242/dir_a/")"   "413 Payload Too Large"    ""
+expect_eq_get "$(curl -is -X GET --data "$(python3 -c "print('a'*100)")"  "localhost:4242/dir_a/")"                           "413 Payload Too Large"    ""
+
+
+# 414 URI Too Long
+long_url=`python3 -c "print('a' * 1024)"`
+expect_eq_get "$(curl -is "localhost:4242/$long_url")"   "414 URI Too Long"    ""
+
+long_url=`python3 -c "print('a' * 10000)"`
+expect_eq_get "$(curl -is "localhost:4242/$long_url")"   "400 Bad Request"    ""
+
+long_url=`python3 -c "print('a' * 100000)"`
+expect_eq_get "$(curl -is "localhost:4242/$long_url")"   "400 Bad Request"    ""
+
+
+# 415 Unsupported Media Type
+expect_eq_get "$(curl -is "localhost:4242/ng_type.ng")"                           "415 Unsupported Media Type"    ""
+expect_eq_get "$(curl -is -H "Content-Type: text/xml"   "localhost:4242/new/")"   "415 Unsupported Media Type"    ""
+expect_eq_get "$(curl -is -H "Content-Type: audio/mpeg" "localhost:4242/new/")"   "415 Unsupported Media Type"    ""
+expect_eq_get "$(curl -is -H "Content-Type: hoge/text"  "localhost:4242/new/")"   "415 Unsupported Media Type"    ""
+expect_eq_get "$(curl -is -H "Content-Type: x/y"        "localhost:4242/new/")"   "415 Unsupported Media Type"    ""
+
+expect_eq_get "$(curl -is "localhost:4242/ng_type.nothing")"                      "404 Not Found"                 "html/404.html"
+
+
+# 431 Request Header Fields Too Large
+large=`python3 -c "print('a'*10000)"`
+expect_eq_get "$(curl -isH "$large: hoge" "localhost:4242/")"     "431 Request Header Fields Too Large"     ""
+expect_eq_get "$(curl -isH "a: $large" "localhost:4242/")"        "431 Request Header Fields Too Large"     ""
+expect_eq_get "$(curl -isH "Host: $large" "localhost:4242/")"     "431 Request Header Fields Too Large"     ""
+expect_eq_get "$(curl -isH "Cookie: $large" "localhost:4242/")"   "431 Request Header Fields Too Large"     ""
+
+large_cmd=`python3 -c "print('Cookie: 012345=67890\r\n' * 5000)"`
+expect_eq_get "$(echo -en "GET / HTTP/1.1\r\nHost: localhost\r\n$large_cmd\r\n" | nc localhost 4242)"  "431 Request Header Fields Too Large"    ""
+
+
+# 501
+
+## not supported method: 501
+expect_eq_get "$(curl -is -X  HEAD "localhost:4242")"                   "501 Not Implemented"    ""
+expect_eq_get "$(curl -is -X  HEAD "localhost:4242/nothing")"           "501 Not Implemented"    ""
+expect_eq_get "$(curl -is -X  HEAD "localhost:4242/nothing.html")"      "501 Not Implemented"    ""
+
+expect_eq_get "$(curl -is -X  PUT "localhost:4242")"                    "501 Not Implemented"    ""
+expect_eq_get "$(curl -is -X  PUT "localhost:4242/nothing")"            "501 Not Implemented"    ""
+expect_eq_get "$(curl -is -X  PUT "localhost:4242/nothing.html")"       "501 Not Implemented"    ""
+
+expect_eq_get "$(curl -is -X  CONNECT "localhost:4242")"                "501 Not Implemented"    ""
+expect_eq_get "$(curl -is -X  CONNECT "localhost:4242/nothing")"        "501 Not Implemented"    ""
+expect_eq_get "$(curl -is -X  CONNECT "localhost:4242/nothing.html")"   "501 Not Implemented"    ""
+
+expect_eq_get "$(curl -is -X  OPTIONS "localhost:4242")"                "501 Not Implemented"    ""
+expect_eq_get "$(curl -is -X  OPTIONS "localhost:4242/nothing")"        "501 Not Implemented"    ""
+expect_eq_get "$(curl -is -X  OPTIONS "localhost:4242/nothing.html")"   "501 Not Implemented"    ""
+
+expect_eq_get "$(curl -is -X  TRACE "localhost:4242")"                  "501 Not Implemented"    ""
+expect_eq_get "$(curl -is -X  TRACE "localhost:4242/nothing")"          "501 Not Implemented"    ""
+expect_eq_get "$(curl -is -X  TRACE "localhost:4242/nothing.html")"     "501 Not Implemented"    ""
+
+expect_eq_get "$(curl -is -X  PATCH "localhost:4242")"                  "501 Not Implemented"    ""
+expect_eq_get "$(curl -is -X  PATCH "localhost:4242/nothing")"          "501 Not Implemented"    ""
+expect_eq_get "$(curl -is -X  PATCH "localhost:4242/nothing.html")"     "501 Not Implemented"    ""
+
+## invalid method: 400
+expect_eq_get "$(curl -is -X  nothing "localhost:4242")"                "400 Bad Request"           ""
+expect_eq_get "$(curl -is -X  nothing "localhost:4242/nothing")"        "400 Bad Request"           ""
+expect_eq_get "$(curl -is -X  nothing "localhost:4242/nothing.html")"   "400 Bad Request"           ""
+
+expect_eq_get "$(curl -is -X  "" "localhost:4242")"                     "400 Bad Request"           ""
+expect_eq_get "$(curl -is -X  "" "localhost:4242/nothing")"             "400 Bad Request"           ""
+expect_eq_get "$(curl -is -X  "" "localhost:4242/nothing.html")"        "400 Bad Request"           ""
+
+
+# 502
+## >> test_gci.sh
+
+
+# 505
+## not suppored http-version: 505
+expect_eq_get "$(echo -en "GET / HTTP/1.0\r\nHost: host\r\n\r\n"              | nc localhost 4242)"   "505 HTTP Version Not Supported"    ""
+expect_eq_get "$(echo -en "GET /nothing HTTP/1.0\r\nHost: host\r\n\r\n"       | nc localhost 4242)"   "505 HTTP Version Not Supported"    ""
+expect_eq_get "$(echo -en "GET /nothing.html HTTP/1.0\r\nHost: host\r\n\r\n"  | nc localhost 4242)"   "505 HTTP Version Not Supported"    ""
+
+expect_eq_get "$(echo -en "GET / HTTP/2.0\r\nHost: host\r\n\r\n"              | nc localhost 4242)"   "505 HTTP Version Not Supported"    ""
+expect_eq_get "$(echo -en "GET /nothing HTTP/2.0\r\nHost: host\r\n\r\n"       | nc localhost 4242)"   "505 HTTP Version Not Supported"    ""
+expect_eq_get "$(echo -en "GET /nothing.html HTTP/2.0\r\nHost: host\r\n\r\n"  | nc localhost 4242)"   "505 HTTP Version Not Supported"    ""
+
+expect_eq_get "$(echo -en "GET / HTTP/3.0\r\nHost: host\r\n\r\n"              | nc localhost 4242)"   "505 HTTP Version Not Supported"    ""
+expect_eq_get "$(echo -en "GET /nothing HTTP/3.0\r\nHost: host\r\n\r\n"       | nc localhost 4242)"   "505 HTTP Version Not Supported"    ""
+expect_eq_get "$(echo -en "GET /nothing.html HTTP/3.0\r\nHost: host\r\n\r\n"  | nc localhost 4242)"   "505 HTTP Version Not Supported"    ""
 
 
 tear_down

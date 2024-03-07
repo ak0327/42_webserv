@@ -514,7 +514,7 @@ void HttpResponse::interpret_cgi_output() {
         return;
     }
     if (!is_supported_by_media_type(this->cgi_handler_.content_type())) {
-        this->set_status_code(NotAcceptable);
+        this->set_status_code(UnsupportedMediaType);
         return;
     }
 

@@ -109,14 +109,36 @@ void HttpResponse::add_server_header() {
 }
 
 
+bool HttpResponse::is_request_too_large() const {
+    return this->status_code() == PayloadTooLarge
+            || this->status_code() == RequestHeaderFieldsTooLarge
+            || this->request_.request_line_status() == StatusInit;  // too long error
+}
+
+
+bool HttpResponse::is_keepalive() const {
+    if (this->request_.is_client_connection_close()) {
+        return false;
+    }
+    const int KEEPALIVE_TIMEOUT_INFINITY = 0;
+    if (this->keepalive_timeout_sec_ == KEEPALIVE_TIMEOUT_INFINITY) {
+        return false;
+    }
+    if (is_request_too_large()) {
+        return false;
+    }
+    return true;
+}
+
+
 void HttpResponse::add_keepalive_header() {
-    if (this->request_.is_client_connection_close() || this->keepalive_timeout_sec_ == 0) {
-        this->headers_["Connection"] = "close";
-    } else {
+    if (is_keepalive()) {
         this->headers_["Connection"] = "keep-alive";
         std::ostringstream field_value;
         field_value << "time=" << this->keepalive_timeout_sec_;
         this->headers_["Keep-Alive"] = field_value.str();
+    } else {
+        this->headers_["Connection"] = "close";
     }
 }
 
@@ -194,7 +216,7 @@ std::string get_status_reason_phrase(const StatusCode &code) {
 std::string HttpResponse::create_status_line(const StatusCode &code) const {
     std::string status_line;
 
-    status_line.append(this->request_.http_version());
+    status_line.append(std::string(HTTP_1_1));
     status_line.append(1, SP);
     status_line.append(StringHandler::to_string(code));
     status_line.append(1, SP);

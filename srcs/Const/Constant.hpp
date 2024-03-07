@@ -101,8 +101,9 @@ enum StatusCode {
     RequestTimeout          = 408,
     Conflict                = 409,
     LengthRequired          = 411,
-    ContentTooLarge         = 413,
+    PayloadTooLarge         = 413,
     URITooLong              = 414,
+    UnsupportedMediaType    = 415,
     RequestHeaderFieldsTooLarge = 431,
 
     InternalServerError     = 500,
@@ -110,7 +111,9 @@ enum StatusCode {
     BadGateway              = 502,
     ServiceUnavailable      = 503,
     GatewayTimeout          = 504,
-    HTTPVersionNotSupported = 505
+    HTTPVersionNotSupported = 505,
+
+    StatusInit
 };
 
 extern const std::map<StatusCode, std::string> STATUS_REASON_PHRASES;

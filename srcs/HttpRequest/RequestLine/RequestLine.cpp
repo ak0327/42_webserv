@@ -11,7 +11,7 @@
 #include "StringHandler.hpp"
 
 /* constructor, destructor */
-RequestLine::RequestLine() {}
+RequestLine::RequestLine() : request_line_status_(StatusInit) {}
 
 RequestLine::RequestLine(const RequestLine &other) {
 	*this = other;
@@ -26,6 +26,8 @@ RequestLine &RequestLine::operator=(const RequestLine &rhs) {
     method_ = rhs.method_;
     request_target_ = rhs.request_target_;
     http_version_ = rhs.http_version_;
+    query_ = rhs.query_;
+    request_line_status_ = rhs.request_line_status_;
 	return *this;
 }
 
@@ -53,23 +55,24 @@ Result<ProcResult, StatusCode> RequestLine::parse_and_validate(const std::string
 
 	parse_result = this->parse(line);
 	if (parse_result.is_err()) {
-        this->http_version_ = std::string(HTTP_1_1);  // needed for response
         DEBUG_PRINT(YELLOW, "[request line] parse error -> 400");
+        this->request_line_status_ = BadRequest;
 		return Result<ProcResult, StatusCode>::err(BadRequest);
 	}
 
     DEBUG_PRINT(YELLOW, "[request line] validate");
     validate_result = this->validate();
 	if (validate_result.is_err()) {
-        this->http_version_ = std::string(HTTP_1_1);  // needed for response
         StatusCode error_status = validate_result.err_value();
         DEBUG_PRINT(YELLOW, "[request line] validate error -> %d", error_status);
+        this->request_line_status_ = error_status;
         return Result<ProcResult, StatusCode>::err(error_status);
 	}
 
     DEBUG_PRINT(YELLOW, "[request line] ok");
     update_target_path();
     separate_target_and_query();
+    this->request_line_status_ = StatusOk;
 	return Result<ProcResult, StatusCode>::ok(Success);
 }
 
@@ -152,6 +155,9 @@ Result<ProcResult, StatusCode> RequestLine::validate() const {
 	if (!HttpMessageParser::is_valid_request_target(this->request_target_)) {
 		return Result<ProcResult, StatusCode>::err(BadRequest);
 	}
+    if (PATH_MAX < this->request_target_.length()) {
+        return Result<ProcResult, StatusCode>::err(URITooLong);
+    }
 
     Result<ProcResult, StatusCode> version_result = validate_request_http_version();
     if (version_result.is_err()) {
@@ -166,11 +172,11 @@ Result<ProcResult, StatusCode> RequestLine::validate_request_method() const {
         return Result<ProcResult, StatusCode>::err(BadRequest);
     }
 
-    // if (this->method() != std::string(GET_METHOD)
-    //     && this->method() != std::string(POST_METHOD)
-    //     && this->method() != std::string(DELETE_METHOD)) {
-    //     return Result<ProcResult, StatusCode>::err(MethodNotAllowed);
-    // }
+    if (this->method() != std::string(GET_METHOD)
+        && this->method() != std::string(POST_METHOD)
+        && this->method() != std::string(DELETE_METHOD)) {
+        return Result<ProcResult, StatusCode>::err(NotImplemented);
+    }
     return Result<ProcResult, StatusCode>::ok(Success);
 }
 
@@ -205,3 +211,5 @@ void RequestLine::separate_target_and_query() {
     this->request_target_ = target.substr(0, pos);
     this->query_ = target.substr(pos + 1);
 }
+
+StatusCode RequestLine::request_line_status() const { return this->request_line_status_; }

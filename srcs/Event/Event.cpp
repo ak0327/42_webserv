@@ -193,9 +193,10 @@ bool Event::is_keepalive() const {
     if (this->echo_mode_on_) {
         return false;
     }
-    if (!this->request_ || this->request_->is_client_connection_close()) {
+    if (!(this->response_ && this->response_->is_keepalive())) {
         return false;
     }
+    // response may be null?
     const int KEEPALIVE_TIMEOUT_INFINITY = 0;
     return this->config_.keepalive_timeout() != KEEPALIVE_TIMEOUT_INFINITY;
 }

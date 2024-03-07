@@ -56,7 +56,7 @@ StatusCode HttpResponse::get_file_content(const std::string &file_path,
 
     if (!is_support_content_type(file_path)) {
         DEBUG_PRINT(RED, "   not support content: %s", file_path.c_str());
-		return NotAcceptable;
+		return UnsupportedMediaType;
 	}
 
     file.seekg(0, std::ios::end);

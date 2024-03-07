@@ -53,11 +53,15 @@ expect_eq_get "$(curl -is "localhost:4343/cgi-bin/hello_400.py")"             "4
 expect_eq_get "$(curl -is "localhost:4343/cgi-bin/hello_404.py")"             "404 Not Found"               "html/404.html"
 expect_eq_get "$(curl -is "localhost:4343/cgi-bin/nothing.py")"               "404 Not Found"               "html/404.html"
 
-expect_eq_get "$(curl -is "localhost:4343/cgi-bin/error_no_shebang.py")"      "500 Internal Server Error"   "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4343/cgi-bin/error_wrong_shebang.py")"   "500 Internal Server Error"   "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4343/cgi-bin/exit1.py")"                 "500 Internal Server Error"   "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4343/cgi-bin/hello_invalid_header.py")"  "500 Internal Server Error"   "html/50x.html"
+
 expect_eq_get "$(curl -is "localhost:4343/cgi-bin/hello_500.py")"             "500 Internal Server Error"   "html/50x.html"
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/hello_invalid_header.py")"  "500 Internal Server Error"   "html/50x.html"
+
+
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/error_no_shebang.py")"      "502 Bad Gateway"             "html/50x.html"
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/error_wrong_shebang.py")"   "502 Bad Gateway"             "html/50x.html"
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/exit1.py")"                 "502 Bad Gateway"             "html/50x.html"
+
 
 expect_eq_get "$(curl -is "localhost:4343/cgi-bin/infinite_loop.py")"         "504 Gateway Timeout"         "html/50x.html"
 expect_eq_get "$(curl -is "localhost:4343/cgi-bin/infinite_print.py")"        "504 Gateway Timeout"         "html/50x.html"

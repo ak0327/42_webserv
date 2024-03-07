@@ -98,8 +98,9 @@ std::map<StatusCode, std::string> init_reason_phrases() {
     reason_phrases[RequestTimeout]          = "Request Timeout";
     reason_phrases[Conflict]                = "Conflict";
     reason_phrases[LengthRequired]          = "Length Required";
-    reason_phrases[ContentTooLarge]         = "Content Too Large";
+    reason_phrases[PayloadTooLarge]         = "Payload Too Large";
     reason_phrases[URITooLong]              = "URI Too Long";
+    reason_phrases[UnsupportedMediaType]    = "Unsupported Media Type";
     reason_phrases[RequestHeaderFieldsTooLarge] = "Request Header Fields Too Large";
 
     reason_phrases[InternalServerError]     = "Internal Server Error";
@@ -644,7 +645,11 @@ MimeTypeMap init_mime_types() {
     mime_types["png"]   = "image/png";
     mime_types["ico"]   = "image/x-ico";
 
-    mime_types["json"]  = "application/json";  // todo
+    mime_types["json"]  = "application/json";
+
+    // tmp: form -> define other structure
+    mime_types["form-urlencoded"] = "application/x-www-form-urlencoded";
+    mime_types["form-data"] = "multipart/form-data";
 
     return mime_types;
 }
