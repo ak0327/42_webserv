@@ -25,7 +25,7 @@
 
 void Server::management_timeout_events() {
     time_t current_time = std::time(NULL);
-    DEBUG_PRINT(GREEN, "management_timeout current: %zu", current_time);
+    DEBUG_PRINT(GREEN, "[management_timeout_event] current time: %zu", current_time);
 
     management_cgi_executing_timeout(current_time);
     management_active_client_timeout(current_time);

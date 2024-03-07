@@ -33,7 +33,7 @@ void HttpResponse::create_response_message() {
         this->body_buf_.clear();
     }
     if (is_response_error_page()) {
-        DEBUG_PRINT(YELLOW, " exec_method 2 -> error_page", this->status_code());
+        // DEBUG_PRINT(YELLOW, " exec_method 2 -> error_page", this->status_code());
         get_error_page_to_body();
     }
     add_standard_headers();
@@ -49,7 +49,7 @@ void HttpResponse::create_response_message() {
     this->response_msg_.insert(this->response_msg_.end(), this->body_buf_.begin(), this->body_buf_.end());
 
     std::string msg(this->response_msg_.begin(), this->response_msg_.end());
-    DEBUG_SERVER_PRINT("response_message2:[%s]", msg.c_str());
+    DEBUG_SERVER_PRINT("response_message:[%s]", msg.c_str());
 }
 
 
@@ -74,20 +74,19 @@ void HttpResponse::get_error_page_to_body() {
     this->body_buf_.clear();
 
     // get_error_page_path
-    DEBUG_PRINT(CYAN, "  get_error_page 1 target: %s, request_status: %d",
-                this->request_.target().c_str(), this->status_code());
+    // DEBUG_PRINT(CYAN, "  get_error_page 1 target: %s, request_status: %d",
+    //             this->request_.target().c_str(), this->status_code());
     Result<std::string, int> result;
     result = Config::get_error_page_path(this->server_config_,
                                          this->request_.target(),
                                          this->status_code());
     if (result.is_err()) {
-        DEBUG_PRINT(CYAN, "  get_error_page 2 -> err");
+        // DEBUG_PRINT(CYAN, "  get_error_page 2 -> err");
         return;
     }
-    DEBUG_PRINT(CYAN, "  get_error_page 3");
+    // DEBUG_PRINT(CYAN, "  get_error_page 3");
     std::string error_page_path = result.ok_value();
-    DEBUG_PRINT(CYAN, "  get_error_page 4 error_page_path: %s", error_page_path.c_str());
-
+    // DEBUG_PRINT(CYAN, "  get_error_page 4 error_page_path: %s", error_page_path.c_str());
     get_file_content(error_page_path, &this->body_buf_);
 }
 
