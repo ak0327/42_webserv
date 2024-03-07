@@ -167,7 +167,7 @@ ssize_t Socket::recv(int fd, void *buf, std::size_t bufsize) {
     int tmp_errno = errno;
     if (recv_size == RECV_ERROR) {
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(tmp_errno);
-        DEBUG_SERVER_PRINT("recv: recv_size: %zd, error: %s", recv_size, error_msg.c_str());
+        DEBUG_PRINT(RED, "recv: recv_size: %zd, error: %s", recv_size, error_msg.c_str());
     }
     return recv_size;
 }
@@ -182,8 +182,7 @@ ssize_t Socket::recv_to_buf(int fd, std::vector<unsigned char> *buf) {
     DEBUG_SERVER_PRINT("recv start");
     ssize_t recv_size = Socket::recv(fd, &recv_buf[0], BUFSIZ);
 
-    // DEBUG_SERVER_PRINT(" recv_size: %zd", recv_size);
-    DEBUG_SERVER_PRINT(" recv_size: %zd", recv_size);
+    DEBUG_PRINT(RED, " recv_size: %zd", recv_size);
 
     if (0 < recv_size) {
         std::string debug_recv_msg(recv_buf.begin(), recv_buf.begin() + recv_size);

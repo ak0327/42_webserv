@@ -127,6 +127,7 @@ class HttpResponse {
     void add_cookie_headers();
     void add_content_header(const std::string &extension);
     void add_content_header_by_media_type(const std::string &media_type);
+    void add_content_length();
 
     // GET
     StatusCode get_request_body();

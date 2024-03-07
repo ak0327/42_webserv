@@ -55,7 +55,7 @@ void HttpResponse::create_response_message() {
 
 bool HttpResponse::is_status_error() const {
     int code_num = static_cast<int>(this->status_code());
-    DEBUG_PRINT(MAGENTA, "is_status_error: %d %s"
+    DEBUG_PRINT(MAGENTA, "status: %d -> is_status_error: %s"
             , code_num, (400 <= code_num && code_num <= 599 ? " true" : " false"));
     return 400 <= code_num && code_num <= 599;
 }
@@ -96,6 +96,7 @@ void HttpResponse::add_standard_headers() {
     add_server_header();
     add_date_header();
     add_keepalive_header();
+    add_content_length();
 }
 
 
@@ -171,6 +172,11 @@ void HttpResponse::add_content_header_by_media_type(const std::string &media_typ
     } else {
         this->headers_["Content-Type"] = media_type;
     }
+    // this->headers_["Content-Length"] = StringHandler::to_string(this->body_buf_.size());
+}
+
+
+void HttpResponse::add_content_length() {
     this->headers_["Content-Length"] = StringHandler::to_string(this->body_buf_.size());
 }
 

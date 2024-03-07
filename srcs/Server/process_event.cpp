@@ -240,8 +240,8 @@ ServerResult Server::handle_client_event(int client_fd) {
             return ServerResult::ok(OK);
         }
         case ConnectionClosed: {
+            DEBUG_SERVER_PRINT( "[handle_client_event] connection closed (L:%d)", __LINE__);
             delete_event(event);
-            // DEBUG_SERVER_PRINT( "connection closed");
             return ServerResult::ok(OK);
         }
         default:

@@ -326,8 +326,10 @@ void Server::update_fd_type_read_to_write(const EventPhase &event_state, int fd)
 
 
 void Server::delete_event(std::map<Fd, Event *>::iterator event) {
+
     Event *client_event = event->second;
     int client_fd = client_event->client_fd();
+    DEBUG_SERVER_PRINT("[delete event] fd: %d (L:%d)", client_fd, __LINE__);
 
     this->fds_->clear_fd(client_fd);
     delete client_event;
@@ -336,11 +338,13 @@ void Server::delete_event(std::map<Fd, Event *>::iterator event) {
     std::set<FdTimeoutLimitPair>::iterator itr;
     itr = find_fd_in_timeout_pair(client_fd, this->idling_client_time_manager_);
     if (itr != this->idling_client_time_manager_.end()) {
+        DEBUG_SERVER_PRINT("[delete event] clear: idling_client_timeout_manager (L:%d)", __LINE__);
         this->idling_client_time_manager_.erase(itr);
     }
 
     itr = find_fd_in_timeout_pair(client_fd, this->active_client_time_manager_);
     if (itr != this->active_client_time_manager_.end()) {
+        DEBUG_SERVER_PRINT("[delete event] clear: active_client_timeout_manager (L:%d)", __LINE__);
         this->active_client_time_manager_.erase(itr);
     }
 }

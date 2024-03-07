@@ -189,7 +189,7 @@ void Server::set_io_timeout() {
         return;
     }
 
-    const int kManagemtntTimeoutMs = 500;
+    const int kManagemtntTimeoutMs = 1000;
     if (!this->cgi_fds_.empty()
         || !this->active_client_time_manager_.empty()
         || !this->idling_client_time_manager_.empty()) {
@@ -214,12 +214,12 @@ void Server::idling_event(Event *event) {
     event->clear_request();
     event->clear_response();
 
+    clear_from_active_client_manager(client_fd);
+
     time_t timeout_limit = std::time(NULL) + this->config_.keepalive_timeout();
     this->idling_client_time_manager_.insert(FdTimeoutLimitPair(timeout_limit, client_fd));
 
-    clear_from_active_client_manager(client_fd);
-
-    DEBUG_SERVER_PRINT("init event add: client_fd %d, timeout: %zu", client_fd, timeout_limit);
+    DEBUG_SERVER_PRINT("[idling_event] add fd %d to idling -> timeout: %zu, remain %zu sec", client_fd, timeout_limit, this->config_.keepalive_timeout());
     DEBUG_SERVER_PRINT("------------------------------------------------------------------------------------------------");
 }
 
@@ -236,7 +236,7 @@ void Server::clear_from_active_client_manager(int fd) {
         return;
     }
 
-    DEBUG_SERVER_PRINT("clear from active_client_manager: fd %d", fd);
+    DEBUG_SERVER_PRINT("[clear from active_client_manager] clear fd %d (%d)", fd, __LINE__);
     this->active_client_time_manager_.erase(client);
 }
 
