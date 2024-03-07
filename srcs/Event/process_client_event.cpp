@@ -68,12 +68,12 @@ EventResult Event::process_client_event() {
             ProcResult request_result = parse_http_request();
             if (request_result == Continue) {
                 DEBUG_SERVER_PRINT("     recv continue(process_client_event) (L:%d)", __LINE__);
-                this->set_event_phase(kReceivingRequest);
+                this->set_event_phase(kReceivingRequest);  // recv continue
                 return EventResult::ok(Continue);
             }
-            this->set_event_phase(kExecutingMethod);
+            this->set_event_phase(kExecutingMethod);  // reset recv timeout
+            break;
         }
-        // fallthrough
 
         case kExecutingMethod:
         case kCreatingResponseBody:

@@ -247,7 +247,7 @@ void Server::clear_from_active_client_manager(int fd) {
 // send_timeout: return from CreateResponse ->
 void Server::handle_active_client_timeout(Event *client_event) {
     if (!client_event) { return; }
-    // DEBUG_PRINT(WHITE, "handle_active_client_timeout");
+    DEBUG_PRINT(WHITE, "[handle_active_client_timeout] (%d)", __LINE__);
 
     int client_fd = client_event->client_fd();
     switch (client_event->event_phase()) {
@@ -276,6 +276,7 @@ void Server::handle_active_client_timeout(Event *client_event) {
         case kExecutingMethod:
         case kCreatingResponseBody:
         case kCreatingCGIBody:
+        case kExecuteCGI:
             // clear timeout for sending response
             if (is_already_managed(client_fd)) {
                 DEBUG_PRINT(WHITE, " [active client timeout] CreatingBody: clear timeout fd: %d", client_fd);

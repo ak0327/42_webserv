@@ -101,6 +101,99 @@ expect_eq_get() {
 }
 
 
+expect_eq_curl() {
+    local target=$1
+    local expected_status=$2
+    local expected_file=$3
+
+    local call_line=${BASH_LINENO[0]}
+    local response_file="${TEST_DIR}response.txt"
+
+    echo "----------------------------------------------------------------"
+    ((test_cnt++))
+    echo "TEST No.${test_cnt} (L${call_line})"
+
+    if [ -n "$expected_file" ] && [ ! -f "$expected_file" ]; then
+        echo -e " ${YELLOW}Test No.${test_cnt} skipped: Expected file '$expected_file' not found${RESET}"
+        ((skip_cnt++))
+        skip_cases+=("No.${test_cnt} (L${call_line})")
+        return
+    fi
+
+    curl -is "$target" > "$response_file" 2> /dev/null
+
+    local actual_start_line
+    actual_start_line=$(head -n 1 ${response_file} | tr -d '\r')
+
+    local expected_start_line
+    expected_start_line="HTTP/1.1 ${expected_status}"
+#
+    echo -n " Start-Line  : "
+    if [ "$expected_start_line" == "$actual_start_line" ]; then
+        echo -e "${GREEN}OK${RESET}"
+    else
+        ((ng_cnt++))
+        result="Expected: \"$expected_start_line\", Actual: \"$actual_start_line\""
+        ng_cases+=("No.${test_cnt} (L${call_line}): Start-Line NG: [$result]")
+        echo -e "${RED}NG -> $result${RESET}"
+    fi
+
+
+    local body_file="${expected_file}_test.txt"
+
+    awk 'BEGIN{RS="\r\n"; FS="\n"; header=1} /^$/{header=0; next} !header' "$response_file" | perl -pe 'chomp if eof' > "$body_file"
+
+#    echo "Response file:"
+#    cat "$response_file" | wc -lc
+#    echo "Body file:"
+#    cat "$body_file" | wc -lc
+
+
+    echo -n " Request-Body: "
+    if [ -z "$expected_file" ]; then
+        diff_output=$(diff -u <(echo -n "") "$body_file")
+    else
+        diff_output=$(diff -u "$expected_file" "$body_file")
+    fi
+
+    if [ -z "$diff_output" ]; then
+        echo -e "${GREEN}OK${RESET}"
+    else
+        echo -e "${RED}NG${RESET}"
+        ((ng_cnt++))
+#        ng_cases+=("No.${test_cnt} (L${call_line}): Request-Body NG [$diff_output]")
+        ng_cases+=("No.${test_cnt} (L${call_line}): Request-Body NG")
+    fi
+
+
+#    local body_start_line=$(awk '/^\r$/{print NR + 1; exit}' ${response_file})
+#    if [ -z "$body_start_line" ]; then
+#        body_start_line=$(awk '/^$/{print NR + 1; exit}' ${response_file})
+#    fi
+#
+#
+#    echo -n " Request-Body: "
+#    if [ -z "$expected_file" ]; then
+#        diff_output=$(diff -u <(echo -n "") <(tail -n +${body_start_line} "${response_file}"))
+#    else
+#        diff_output=$(diff -u "${expected_file}" <(tail -n +${body_start_line} "${response_file}"))
+#    fi
+#
+#    if [ -z "$diff_output" ]; then
+#        echo -e "${GREEN}OK${RESET}"
+#    else
+#        echo -e "${RED}NG${RESET}"
+#        echo "${diff_output}"
+#        ((ng_cnt++))
+#        ng_cases+=("No.${test_cnt} (L${call_line}): Request-Body NG: [${diff_output}]")
+#    fi
+
+#    rm -f ${body_file}
+#    rm -f ${response_file}
+}
+
+
+
 test_post_upload() {
     local file_dir=$1
     local file_name=$2

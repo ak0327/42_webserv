@@ -252,6 +252,9 @@ ServerResult Server::handle_client_event(int client_fd) {
     }
 
     switch (client_event->event_phase()) {
+        case kExecutingMethod: {
+            return handle_client_event(client_fd);
+        }
         case kSendingResponse: {
             std::ostringstream oss; oss << client_event;
             DEBUG_SERVER_PRINT("process_event(client) -> sending response: %s", oss.str().c_str());
