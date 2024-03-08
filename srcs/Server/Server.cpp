@@ -266,7 +266,9 @@ ServerResult Server::run() {
         ServerResult fd_ready_result = this->fds_->get_io_ready_fd();
 		if (fd_ready_result.is_err()) {
             const std::string error_msg = fd_ready_result.err_value();
-            return ServerResult::err(error_msg);
+            std::cerr << "error: " << error_msg << std::endl;
+            continue;
+            // return ServerResult::err(error_msg);
 		}
 		int ready_fd = fd_ready_result.ok_value();
 		if (ready_fd == IO_TIMEOUT) {
@@ -280,7 +282,8 @@ ServerResult Server::run() {
         ServerResult event_result = process_event(ready_fd);
 		if (event_result.is_err()) {
             const std::string error_msg = event_result.err_value();
-            return ServerResult::err(error_msg);
+            std::cerr << "error: " << error_msg << std::endl;
+            // return ServerResult::err(error_msg);
 		}
     }
     return ServerResult::ok(OK);
