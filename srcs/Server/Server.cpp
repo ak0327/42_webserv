@@ -69,10 +69,10 @@ ServerResult set_signal() {
 	// 	const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
 	// 	return ServerResult::err(error_msg);
 	// }
-    // if (signal(SIGPIPE, detect_received_signal) == SIG_ERR) {
-    //     const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
-    //     return ServerResult::err(error_msg);
-    // }
+    if (signal(SIGPIPE, SIG_IGN) == SIG_ERR) {
+        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+        return ServerResult::err(error_msg);
+    }
 	return ServerResult::ok(OK);
 }
 

@@ -197,7 +197,7 @@ ssize_t Socket::recv_to_buf(int fd, std::vector<unsigned char> *buf) {
 
 ssize_t Socket::send(int fd, void *buf, std::size_t bufsize) {
     errno = 0;
-    ssize_t send_size = ::send(fd, buf, bufsize, MSG_NOSIGNAL);  // disable SIGPIPE
+    ssize_t send_size = ::send(fd, buf, bufsize, FLAG_NONE);
     int tmp_errno = errno;
     if (send_size == SEND_CONTINUE) {
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(tmp_errno);
