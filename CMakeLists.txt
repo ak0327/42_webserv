@@ -81,7 +81,7 @@ set(webserv_srcs
         srcs/Client/Client.cpp
         srcs/Event/Event.cpp
         srcs/Event/process_client_event.cpp
-        srcs/Event/process_file_event.cpp
+        srcs/Event/process_cgi_event.cpp
         srcs/Config/FileHandler/FileHandler.cpp
         srcs/Config/ConfigParser/ConfigParser.cpp
         srcs/Config/ConfigParser/http_block.cpp

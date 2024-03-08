@@ -334,7 +334,7 @@ ProcResult Event::execute_each_method() {
 
 ProcResult Event::exec_cgi() {
     this->set_event_phase(kExecuteCGI);
-    return process_file_event();
+    return process_cgi_event();
 }
 
 

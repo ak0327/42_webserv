@@ -320,7 +320,7 @@ ServerResult Server::handle_cgi_event(int cgi_fd) {
     }
 
     Event *cgi_event = event->second;
-    ProcResult event_result = cgi_event->process_file_event();
+    ProcResult event_result = cgi_event->process_cgi_event();
     switch (event_result) {
         case Success: {
             break;

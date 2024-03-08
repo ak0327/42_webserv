@@ -14,7 +14,7 @@
 #include "StringHandler.hpp"
 
 
-ProcResult Event::process_file_event() {
+ProcResult Event::process_cgi_event() {
     switch (this->event_state_) {
         case kReadingFile: {
             // unused
