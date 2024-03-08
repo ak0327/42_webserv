@@ -68,6 +68,8 @@ class HttpResponse {
     bool is_status_error() const;
     bool is_keepalive() const;
 
+    void set_status_to_cgi_timeout();
+
 #ifdef UNIT_TEST
     friend class HttpResponseFriend;
 #endif

@@ -82,8 +82,10 @@ std::ostream &operator<<(std::ostream &out, const AddressPortPair &pair) {
 }
 
 
-std::ostringstream &operator<<(std::ostringstream &out, const std::map<AddressPortPair, const ServerConfig *> &default_servers) {
-    for (std::map<AddressPortPair, const ServerConfig *>::const_iterator itr = default_servers.begin(); itr != default_servers.end(); ++itr) {
+std::ostringstream &operator<<(std::ostringstream &out,
+                               const std::map<AddressPortPair, const ServerConfig *> &default_servers) {
+    std::map<AddressPortPair, const ServerConfig *>::const_iterator itr;
+    for (itr = default_servers.begin(); itr != default_servers.end(); ++itr) {
         out << itr->first << std::endl;
     }
     return out;

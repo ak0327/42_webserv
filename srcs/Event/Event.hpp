@@ -76,8 +76,9 @@ class Event {
     void close_client_fd();
     void clear_request();
     void clear_response();
-    void kill_cgi_process();
-    void clear_cgi();
+    void process_cgi_timeout();
+    // void kill_cgi_process();
+    // void clear_cgi();
 
     const char *event_phase_char();
     static const char *event_phase_char(const EventPhase &phase);

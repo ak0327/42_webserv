@@ -309,16 +309,15 @@ ServerResult Server::handle_cgi_event(int cgi_fd) {
             return ServerResult::ok(OK);
         }
         case ConnectionClosed: {
-            delete_event(event);
-            DEBUG_PRINT(RED, "connection closed");
+            // delete_event(event);
+            DEBUG_PRINT(RED, "[come here?] connection closed");
             return ServerResult::ok(OK);
         }
         default:
-            // todo: cgi error route
             std::ostringstream oss; oss << cgi_event;
-            DEBUG_SERVER_PRINT("process_event(cgi) -> error occurred, delete event: %s", oss.str().c_str());
+            DEBUG_SERVER_PRINT("[come here?] process_event(cgi) -> error occurred, delete event: %s", oss.str().c_str());
 
-            delete_event(event);
+            // delete_event(event);
             return ServerResult::ok(OK);
     }
 
@@ -339,7 +338,6 @@ ServerResult Server::handle_cgi_event(int cgi_fd) {
             return process_event(cgi_event->client_fd());
         }
         default:
-            // todo
             break;
     }
     return ServerResult::ok(OK);

@@ -236,6 +236,11 @@ StatusCode HttpResponse::status_code() const {
 }
 
 
+void HttpResponse::set_status_to_cgi_timeout() {
+    set_status_code(GatewayTimeout);
+}
+
+
 void HttpResponse::set_status_code(const StatusCode &set_status) {
     DEBUG_PRINT(GRAY, "response set_status [%d]->[%d]", this->status_code(), set_status);
     this->status_code_ = set_status;

@@ -61,8 +61,9 @@ expect_eq_get "$(curl -is "localhost:4343/cgi-bin/exit1.py")"                   
 
 expect_eq_get "$(curl -is "localhost:4343/cgi-bin/infinite_loop.py")"           "504 Gateway Timeout"         "html/50x.html"
 expect_eq_get "$(curl -is "localhost:4343/cgi-bin/infinite_print.py")"          "504 Gateway Timeout"         "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4343/cgi-bin/sleep5sec.py")"               "504 Gateway Timeout"         "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4343/cgi-bin/sleep10sec.py")"              "504 Gateway Timeout"         "html/50x.html"
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/sleep.py?5")"                 "504 Gateway Timeout"         "html/50x.html"
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/sleep.py?10")"                "504 Gateway Timeout"         "html/50x.html"
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/sleep.py?30")"                "504 Gateway Timeout"         "html/50x.html"
 
 expect_eq_get "$(curl -is -X POST --data "test text" localhost:4343/cgi-bin/post_simple.py)"    "200 OK"   "test/integration/cgi-result/post_simple_small.txt"
 

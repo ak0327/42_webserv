@@ -40,13 +40,14 @@ class Server {
 
     std::deque<SocketFd> socket_fds_;
     std::deque<ClientFd> client_fds_;
-    std::set<FdTimeoutLimitPair> cgi_fds_;
 
     std::map<ClientFd, Event *> client_events_;
+    std::map<CgiFd, Event *> cgi_events_;  // Event*: client_event
+
+    std::set<FdTimeoutLimitPair> cgi_time_manager_;
     std::set<FdTimeoutLimitPair> active_client_time_manager_;
     std::set<FdTimeoutLimitPair> idling_client_time_manager_;  // keepalive
 
-    std::map<CgiFd, Event *> cgi_events_;
 
     std::map<std::string, Session> sessions_;
 

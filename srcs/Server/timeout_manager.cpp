@@ -35,10 +35,10 @@ void Server::management_timeout_events() {
 
 void Server::erase_from_timeout_manager(int cgi_fd) {
     std::set<FdTimeoutLimitPair>::iterator itr;
-    for (itr = this->cgi_fds_.begin(); itr != this->cgi_fds_.end(); ++itr) {
+    for (itr = this->cgi_time_manager_.begin(); itr != this->cgi_time_manager_.end(); ++itr) {
         int fd = itr->second;
         if (cgi_fd == fd) {
-            this->cgi_fds_.erase(itr);
+            this->cgi_time_manager_.erase(itr);
             return;
         }
     }
@@ -47,36 +47,49 @@ void Server::erase_from_timeout_manager(int cgi_fd) {
 
 void Server::management_cgi_executing_timeout(time_t current_time) {
     std::ostringstream cgi_sessions;
-    cgi_sessions << " cgi_sessions:[";
+    cgi_sessions << " [management_cgi_timeout] cgi_sessions:[" << std::endl;
     for (std::map<CgiFd, Event *>::iterator itr = cgi_events_.begin(); itr != cgi_events_.end(); ++itr) {
-        cgi_sessions << "fd:" << itr->first << ", client:" << itr->second << " ";
+        cgi_sessions << " fd:" << itr->first << ", client:" << itr->second << "(fd: " << itr->second->client_fd() << ")" << std::endl;
     }
     cgi_sessions << "]";
     DEBUG_PRINT(GREEN, "%s", cgi_sessions.str().c_str());
 
-    std::ostringstream cgi_fds;
-    cgi_fds << " cgi_fds:[";
-    for (std::set<FdTimeoutLimitPair>::iterator itr = this->cgi_fds_.begin(); itr != this->cgi_fds_.end(); ++itr) {
-        cgi_fds << itr->second << " ";
-    }
-    cgi_fds << "]";
-    DEBUG_PRINT(GREEN, "%s", cgi_fds.str().c_str());
+    // std::ostringstream cgi_fds;
+    // cgi_fds << " cgi_time_manager:[";
+    // for (std::set<FdTimeoutLimitPair>::iterator itr = this->cgi_time_manager_.begin(); itr != this->cgi_time_manager_.end(); ++itr) {
+    //     cgi_fds << itr->second << " ";
+    // }
+    // cgi_fds << "]";
+    // DEBUG_PRINT(GREEN, "%s", cgi_fds.str().c_str());
 
-    std::set<FdTimeoutLimitPair>::const_iterator cgi;
-    for (cgi = this->cgi_fds_.begin(); cgi != this->cgi_fds_.end(); ++cgi) {
+    std::set<FdTimeoutLimitPair>::const_iterator cgi = this->cgi_time_manager_.begin();
+    while (cgi != this->cgi_time_manager_.end()) {
         time_t timeout_limit = cgi->first;
-        DEBUG_PRINT(GRAY_BACK, " cgi_fd: %d, time limit: %zu, current: %zu -> remain %zu sec",
+        DEBUG_PRINT(GRAY_BACK, " [management_cgi_timeout] cgi_fd: %d, time limit: %zu, current: %zu -> remain %zu sec",
                     cgi->second, timeout_limit, current_time, (timeout_limit <= current_time ? 0 : timeout_limit - current_time));
         if (current_time < timeout_limit) {
             break;  // sorted
         }
 
         int cgi_fd = cgi->second;
-        Event *client = this->cgi_events_[cgi_fd];
-        client->kill_cgi_process();
-        DEBUG_PRINT(RED, " cgi killed by signal read:%d, write:%d", client->cgi_read_fd(), client->cgi_write_fd());
+        std::map<CgiFd, Event *>::iterator i = this->cgi_events_.find(cgi_fd);
+        if (i == this->cgi_events_.end()) {
+            DEBUG_PRINT(RED, " [management_cgi_timeout] error: cgi_fd %d not found in cgi_events", cgi_fd);
+            continue;
+        }
+        Event *client = i->second;
+        client->process_cgi_timeout();  // kill process, close fds, client_phase, status, add_to_event?
+        DEBUG_PRINT(RED, " [management_cgi_timeout] cgi killed by signal read:%d, write:%d", client->cgi_read_fd(), client->cgi_write_fd());
+
+        this->cgi_events_.erase(cgi_fd);
+        this->fds_->clear_fd(cgi_fd);
+
+        this->fds_->register_write_fd(client->client_fd());
+
+        std::set<FdTimeoutLimitPair>::const_iterator current = cgi; ++cgi;
+        this->cgi_time_manager_.erase(current);
+        // client->kill_cgi_process();
     }
-    // not erase timeout cgi from cgi_fd; erased after recv cgi result
 }
 
 
@@ -190,7 +203,7 @@ void Server::set_io_timeout() {
     }
 
     const int kManagemtntTimeoutMs = 1000;
-    if (!this->cgi_fds_.empty()
+    if (!this->cgi_time_manager_.empty()
         || !this->active_client_time_manager_.empty()
         || !this->idling_client_time_manager_.empty()) {
         this->fds_->set_io_timeout(kManagemtntTimeoutMs);

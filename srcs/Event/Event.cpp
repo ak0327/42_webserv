@@ -65,19 +65,32 @@ void Event::close_client_fd() {
 }
 
 
-void Event::kill_cgi_process() {
+void Event::process_cgi_timeout() {
+    DEBUG_PRINT(RED, "[process cgi timeout]");
     if (this->response_) {
-        this->response_->kill_cgi_process();
-    }
-}
-
-
-// todo: unused??
-void Event::clear_cgi() {
-    if (this->response_) {
+        DEBUG_PRINT(RED, " clear cgi");
         this->response_->clear_cgi();
+        this->response_->set_status_to_cgi_timeout();
+        this->response_->create_response_message();
     }
+    DEBUG_PRINT(RED, " set event");
+    this->set_event_phase(kSendingResponse);
 }
+
+
+// void Event::kill_cgi_process() {
+//     if (this->response_) {
+//         this->response_->kill_cgi_process();
+//     }
+// }
+
+
+// // todo: unused??
+// void Event::clear_cgi() {
+//     if (this->response_) {
+//         this->response_->clear_cgi();
+//     }
+// }
 
 
 time_t Event::cgi_timeout_limit() const {

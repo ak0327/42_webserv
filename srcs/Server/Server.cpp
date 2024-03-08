@@ -43,8 +43,8 @@ void detect_received_signal(int sig) {
 
         case SIGPIPE:
             std::cout << RED << "Received SIGPIPE" << RESET << std::endl;
-            break;
             std::exit(EXIT_FAILURE);
+            break;
 
         default:
             std::cout << "Received unknown signal: " << sig << std::endl;
@@ -398,7 +398,7 @@ void Server::register_cgi_write_fd_to_event_manager(Event **client_event) {
         this->fds_->register_write_fd(write_fd);
         this->cgi_events_[write_fd] = *client_event;
         DEBUG_SERVER_PRINT("        timeout: %zu, clilent: %p", timeout_limit, *client_event);
-        this->cgi_fds_.insert(FdTimeoutLimitPair(timeout_limit, write_fd));
+        this->cgi_time_manager_.insert(FdTimeoutLimitPair(timeout_limit, write_fd));
     }
 }
 
@@ -414,7 +414,7 @@ void Server::register_cgi_read_fd_to_event_manager(Event **client_event) {
         this->fds_->register_read_fd(read_fd);
         this->cgi_events_[read_fd] = *client_event;
         DEBUG_SERVER_PRINT("        timeout: %zu, clilent: %p", timeout_limit, *client_event);
-        this->cgi_fds_.insert(FdTimeoutLimitPair(timeout_limit, read_fd));
+        this->cgi_time_manager_.insert(FdTimeoutLimitPair(timeout_limit, read_fd));
     }
 }
 
