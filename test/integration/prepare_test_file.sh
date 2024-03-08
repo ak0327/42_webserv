@@ -63,7 +63,7 @@ create_big_size_files() {
   echo `python3 -c "print('01234567' * 128 * 1024 * 10)"` > "$workdir/10MB.txt"
   echo `python3 -c "print('01234567' * 128 * 1024 * 19)"` > "$workdir/19MB.txt"
   echo `python3 -c "print('01234567' * 128 * 1024 * 20)"` > "$workdir/20MB.txt"
-#  echo -n `python3 -c "print('a' * 1024 * 1024 * 100)"` > "$workdir/100MB.txt"
+#  echo `python3 -c "print('a' * 1024 * 1024 * 100)"` > "$workdir/100MB.txt"
 
   ls -l "$workdir"
   echo -e "${GRAY}created${RESET}"
