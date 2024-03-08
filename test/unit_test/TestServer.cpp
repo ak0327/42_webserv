@@ -1,6 +1,7 @@
 #include <netdb.h>
 #include <pthread.h>
 #include <exception>
+#include <cstdio>
 #include <string>
 #include <vector>
 #include <map>
@@ -87,7 +88,7 @@ void *run_client(void *client_info) {
 		Client client = Client(c->server_ip, c->server_port);
 		DEBUG_PRINT(YELLOW, "client no:%d connecting...", c->no);
 		client.send_msg(msg);
-        client.recv_msg();
+        client.recv_msg(BUFSIZ);
 		c->recv_msg = client.get_recv_message();
 		DEBUG_PRINT(YELLOW, "client no:%d connected. recv:[%s]", c->no, c->recv_msg.c_str());
     }

@@ -14,7 +14,7 @@ class Client {
 
 	std::string get_recv_message() const;
     void send_msg(const std::string &send_msg) const;
-    void recv_msg();
+    void recv_msg(std::size_t bufsize);
 
  private:
 	// struct sockaddr_in addr_;
