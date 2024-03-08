@@ -1,5 +1,6 @@
 #pragma once
 
+# include <sys/wait.h>
 # include <ctime>
 # include <string>
 # include <vector>
