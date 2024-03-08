@@ -3,8 +3,6 @@ NAME		=	webserv
 CXX			=	c++
 CXXFLAGS	=	-std=c++98 -Wall -Wextra -Werror -MMD -MP -pedantic
 #CXXFLAGS	+=	-g -fsanitize=address,undefined -fno-omit-frame-pointer
-CXXFLAGS	+=	-D USE_SELECT
-#CXXFLAGS	+=	-D USE_POLL
 CXXFLAGS	+=	-D DEBUG
 
 # SRCS -------------------------------------------------------------------------
@@ -240,8 +238,7 @@ lint	:
 run_unit_test	:
 	. test/integration/prepare_test_file.sh; prepare_test_file
 	#cmake -S . -B build
-#	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT"
-	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D DEBUG"
+	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
 	cmake --build build
 #	./build/unit_test 2>/dev/null
 	./build/unit_test test/integration/integration_test.conf # leaks report
@@ -254,8 +251,7 @@ run_integration_test	:
 
 .PHONY	: run_server_test
 run_server_test	:
-	cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT -D DEBUG"
-	#cmake -S . -B build -DCUSTOM_FLAGS="-D USE_SELECT "
+	cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG"
 	#cmake -S . -B build -DCUSTOM_FLAGS="-D DEBUG -D USE_SELECT"
 	cmake --build build
 	#./build/unit_test --gtest_filter=Server* 2>/dev/null
