@@ -293,28 +293,29 @@ StatusCode HttpResponse::upload_file() {
 //   cgi       -> error / response
 //   api       -> error / response
 StatusCode HttpResponse::post_target() {
-    // DEBUG_PRINT(YELLOW, "  POST 1 target[%s]", this->request_.request_target().c_str());
+    DEBUG_PRINT(YELLOW, "  POST 1 target[%s]", this->request_.target().c_str());
 
     if (!is_method_available()) {
-        // DEBUG_PRINT(YELLOW, "  POST 2 err: 405");
+        DEBUG_PRINT(YELLOW, "  POST 2 err: 405");
         return MethodNotAllowed;
     }
 
     // dynamic?
     //  Yes -> dynamic
     if (is_dynamic_endpoint()) {
-        // DEBUG_PRINT(YELLOW, "  POST 3 -> dynamic");
+        DEBUG_PRINT(YELLOW, "  POST 3 -> dynamic");
         return response_dynamic();
     }
 
     std::string boundary;
     if (is_multipart_form_data(&boundary)) {
-        // DEBUG_PRINT(YELLOW, "    upload_file -> multipart_form");
+        DEBUG_PRINT(YELLOW, "    upload_file -> multipart_form");
         return upload_multipart_form_data(boundary);
     }
-    // DEBUG_PRINT(YELLOW, "    upload_file err: 400");
 
-    // std::cout << WHITE << "post 4" << RESET << std::endl;
-    // DEBUG_PRINT(YELLOW, "  POST 4s err: 400");
+    DEBUG_PRINT(YELLOW, "    upload_file err: 400");
+
+    std::cout << WHITE << "post 4" << RESET << std::endl;
+    DEBUG_PRINT(YELLOW, "  POST 4s err: 400");
     return BadRequest;
 }
