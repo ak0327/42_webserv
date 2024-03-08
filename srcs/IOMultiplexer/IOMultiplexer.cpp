@@ -374,7 +374,7 @@ int Select::get_ready_fd() {
     for (std::deque<int>::iterator fd = this->queue_.begin(); fd != this->queue_.end(); ++fd) {
         oss_queue << *fd << " ";
     }
-    oss_queue << "]";
+    oss_queue << "], size:" << this->queue_.size();
     DEBUG_PRINT(YELLOW, "%s", oss_read_fds.str().c_str());
     DEBUG_PRINT(YELLOW, "%s", oss_write_fds.str().c_str());
     DEBUG_PRINT(YELLOW, "%s", oss_queue.str().c_str());

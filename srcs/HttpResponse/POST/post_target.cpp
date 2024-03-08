@@ -299,6 +299,9 @@ StatusCode HttpResponse::post_target() {
         DEBUG_PRINT(YELLOW, "  POST 2 err: 405");
         return MethodNotAllowed;
     }
+    if (!this->request_.is_support_media_type()) {
+        return UnsupportedMediaType;
+    }
 
     // dynamic?
     //  Yes -> dynamic

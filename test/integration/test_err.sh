@@ -78,11 +78,15 @@ expect_eq_get "$(curl -is "localhost:4242/$long_url")"   "400 Bad Request"    ""
 
 
 # 415 Unsupported Media Type
-expect_eq_get "$(curl -is "localhost:4242/ng_type.ng")"                           "415 Unsupported Media Type"    ""
-expect_eq_get "$(curl -is -H "Content-Type: text/xml"   "localhost:4242/new/")"   "415 Unsupported Media Type"    ""
-expect_eq_get "$(curl -is -H "Content-Type: audio/mpeg" "localhost:4242/new/")"   "415 Unsupported Media Type"    ""
-expect_eq_get "$(curl -is -H "Content-Type: hoge/text"  "localhost:4242/new/")"   "415 Unsupported Media Type"    ""
-expect_eq_get "$(curl -is -H "Content-Type: x/y"        "localhost:4242/new/")"   "415 Unsupported Media Type"    ""
+expect_eq_get "$(curl -is "localhost:4242/ng_type.ng")"                                       "415 Unsupported Media Type"    ""
+expect_eq_get "$(curl -is -X GET  -H "Content-Type: text/xml"   "localhost:4242/new/")"       "200 OK"                        "html/new/index.html"
+expect_eq_get "$(curl -is -X GET  -H "Content-Type: audio/mpeg" "localhost:4242/new/")"       "200 OK"                        "html/new/index.html"
+expect_eq_get "$(curl -is -X GET  -H "Content-Type: hoge/text"  "localhost:4242/new/")"       "200 OK"                        "html/new/index.html"
+expect_eq_get "$(curl -is -X GET  -H "Content-Type: x/y"        "localhost:4242/new/")"       "200 OK"                        "html/new/index.html"
+expect_eq_get "$(curl -is -X POST -H "Content-Type: text/xml"   "localhost:4242/post_only/")" "415 Unsupported Media Type"    ""
+expect_eq_get "$(curl -is -X POST -H "Content-Type: audio/mpeg" "localhost:4242/post_only/")" "415 Unsupported Media Type"    ""
+expect_eq_get "$(curl -is -X POST -H "Content-Type: hoge/text"  "localhost:4242/post_only/")" "415 Unsupported Media Type"    ""
+expect_eq_get "$(curl -is -X POST -H "Content-Type: x/y"        "localhost:4242/post_only/")" "415 Unsupported Media Type"    ""
 
 expect_eq_get "$(curl -is "localhost:4242/ng_type.nothing")"                      "404 Not Found"                 "html/404.html"
 

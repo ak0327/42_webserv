@@ -477,10 +477,10 @@ ProcResult HttpRequest::validate_request_headers() {
         this->set_request_status(BadRequest);
         return Failure;
     }
-    if (!is_support_media_type()) {
-        this->set_request_status(UnsupportedMediaType);
-        return Failure;
-    }
+    // if (!is_support_media_type()) {
+    //     this->set_request_status(UnsupportedMediaType);
+    //     return Failure;
+    // }
     return Success;
 }
 

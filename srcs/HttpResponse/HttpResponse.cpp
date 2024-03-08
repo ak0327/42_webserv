@@ -96,35 +96,6 @@ StatusCode HttpResponse::is_resource_available(const Method &method) const {
 }
 
 
-void HttpResponse::add_allow_header() {
-    Result<LimitExceptDirective, int> result = Config::limit_except(this->server_config_,
-                                                                    this->request_.target());
-    if (result.is_err()) {
-        const std::string error_msg = CREATE_ERROR_INFO_STR("error: location not found");
-        DEBUG_PRINT(RED, "%s", error_msg.c_str());  // todo: log
-        return;
-    }
-    LimitExceptDirective limit_except = result.ok_value();
-    std::set<Method> &excluded_methods = limit_except.excluded_methods;
-    if (excluded_methods.empty()) {
-        const std::string error_msg = CREATE_ERROR_INFO_STR("error: excluded method not found");
-        DEBUG_PRINT(RED, "%s", error_msg.c_str());  // todo: log
-        return;
-    }
-
-    std::string allowed_method;
-    std::set<Method>::const_iterator method;
-    for (method = excluded_methods.begin(); method != excluded_methods.end(); ++method) {
-        if (!allowed_method.empty()) {
-            allowed_method.append(", ");
-        }
-        std::string method_str = HttpMessageParser::convert_to_str(*method);
-        allowed_method.append(method_str);
-    }
-    this->headers_["Allow"] = allowed_method;
-}
-
-
 void HttpResponse::process_method_not_allowed() {
     add_allow_header();
     this->set_status_code(MethodNotAllowed);

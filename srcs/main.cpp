@@ -64,14 +64,3 @@ int main(int argc, char **argv) {
     }
 	return EXIT_SUCCESS;
 }
-
-
-#ifdef LEAKS
-
-__attribute__((destructor))
-static void	destructor(void)
-{
-	system("leaks -q webserv");
-}
-
-#endif

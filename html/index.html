@@ -57,9 +57,9 @@
 
     <li> error page
         <ul>
-            <li><a href="/nothing.html">/nothing.html -> 404</a>
-            <li><a href="/a/b/c/nothing.html">/a/b/c/nothing.html -> 404</a>
-            <li><a href="/a/b/c/404.html">/a/b/c/404.html</a>
+            <li><a href="/nothing.html">/nothing.html -> /404.html</a>
+            <li><a href="/a/b/c/nothing.html">/a/b/c/nothing.html -> /404.html</a>
+            <li><a href="/a/b/c/nothing.html">/a/b/c/nothing.html -> /a/b/c/404.html</a>
         </ul>
     <br>
 
@@ -98,6 +98,7 @@
             <li><a href="http://localhost:4343/cgi-bin/error_no_shebang.py">error_no_shebang.py -> 500</a>
             <li><a href="http://localhost:4343/cgi-bin/infinite_loop.py">infinite_loop.py -> 504</a>
             <li><a href="http://localhost:4343/cgi-bin/infinite_print.py">infinite_print.py -> 504</a>
+            <li><a href="http://localhost:4343/cgi-bin/sleep.py?1">sleep 1sec -> ok</a>
             <li><a href="http://localhost:4343/cgi-bin/sleep.py?10">sleep 10sec -> 504</a>
         </ul>
     <br>

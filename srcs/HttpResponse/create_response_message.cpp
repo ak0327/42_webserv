@@ -96,6 +96,7 @@ void HttpResponse::add_standard_headers() {
     add_date_header();
     add_keepalive_header();
     add_content_length();
+    add_allow_header();
 }
 
 
@@ -136,6 +137,7 @@ void HttpResponse::add_keepalive_header() {
         this->headers_["Connection"] = "keep-alive";
         std::ostringstream field_value;
         field_value << "time=" << this->keepalive_timeout_sec_;
+        field_value << ", max=" << MAX_CONNECTION;
         this->headers_["Keep-Alive"] = field_value.str();
     } else {
         this->headers_["Connection"] = "close";
@@ -195,6 +197,40 @@ void HttpResponse::add_content_header_by_media_type(const std::string &media_typ
     }
     // this->headers_["Content-Length"] = StringHandler::to_string(this->body_buf_.size());
 }
+
+
+void HttpResponse::add_allow_header() {
+    if (this->status_code() != MethodNotAllowed) {
+        return;
+    }
+
+    Result<LimitExceptDirective, int> result = Config::limit_except(this->server_config_,
+                                                                    this->request_.target());
+    if (result.is_err()) {
+        const std::string error_msg = CREATE_ERROR_INFO_STR("error: location not found");
+        DEBUG_PRINT(RED, "%s", error_msg.c_str());  // todo: log
+        return;
+    }
+    LimitExceptDirective limit_except = result.ok_value();
+    std::set<Method> &excluded_methods = limit_except.excluded_methods;
+    if (excluded_methods.empty()) {
+        const std::string error_msg = CREATE_ERROR_INFO_STR("error: excluded method not found");
+        DEBUG_PRINT(RED, "%s", error_msg.c_str());  // todo: log
+        return;
+    }
+
+    std::string allowed_method;
+    std::set<Method>::const_iterator method;
+    for (method = excluded_methods.begin(); method != excluded_methods.end(); ++method) {
+        if (!allowed_method.empty()) {
+            allowed_method.append(", ");
+        }
+        std::string method_str = HttpMessageParser::convert_to_str(*method);
+        allowed_method.append(method_str);
+    }
+    this->headers_["Allow"] = allowed_method;
+}
+
 
 
 void HttpResponse::add_content_length() {
