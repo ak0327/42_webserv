@@ -202,11 +202,11 @@ void Server::set_io_timeout() {
         return;
     }
 
-    const int kManagemtntTimeoutMs = 1000;
+    const int kManagementTimeoutMs = 1000;
     if (!this->cgi_time_manager_.empty()
         || !this->active_client_time_manager_.empty()
         || !this->idling_client_time_manager_.empty()) {
-        this->fds_->set_io_timeout(kManagemtntTimeoutMs);
+        this->fds_->set_io_timeout(kManagementTimeoutMs);
         return;
     }
 
