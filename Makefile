@@ -205,9 +205,6 @@ RESPONSE_INCLUDES =	$(SRCS_DIR)/$(RESPONSE_DIR) \
 .PHONY	: all
 all		: $(NAME)
 
-.PHONY	: bonus
-all		: $(NAME)
-
 $(NAME)	: $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
@@ -227,6 +224,9 @@ fclean	: clean
 
 .PHONY	: re
 re		: fclean all
+
+.PHONY	: bonus
+bonus   : all
 
 .PHONY	: lint
 lint	:
