@@ -18,6 +18,7 @@
 
 !*.html
 !*.txt
+!ng_type.ng
 
 # test file
 html/permission

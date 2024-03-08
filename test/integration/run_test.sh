@@ -70,3 +70,11 @@ else
   echo -en "[${RED}NG${RESET}] "
 fi
 echo "$err_test"
+
+
+total_result=$((get_test_result + post_test_result + delete_test_result + cgi_test_result + err_test_result))
+if [ $total_result -ne 0 ]; then
+    exit 1
+fi
+
+exit 0

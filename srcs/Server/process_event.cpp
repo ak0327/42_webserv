@@ -340,7 +340,8 @@ ServerResult Server::handle_cgi_event(int cgi_fd) {
         case kReceivingCgiResponse: {
             std::ostringstream oss; oss << cgi_event;
             DEBUG_SERVER_PRINT("process_event(cgi) -> [CGI] send fin, recv start: %s", oss.str().c_str());
-            clear_fd_from_event_manager(cgi_event->cgi_write_fd());
+            int write_fd = cgi_fd;
+            clear_fd_from_event_manager(write_fd);
             register_cgi_read_fd_to_event_manager(&cgi_event);
             break;
         }
@@ -348,7 +349,10 @@ ServerResult Server::handle_cgi_event(int cgi_fd) {
             std::ostringstream oss; oss << cgi_event;
             DEBUG_SERVER_PRINT("process_event(cgi) -> [CGI] recv fin, create body: %s", oss.str().c_str());
 
-            clear_cgi_fds_from_event_manager(*cgi_event);
+            int write_fd = cgi_fd;
+            clear_fd_from_event_manager(write_fd);
+            clear_fd_from_event_manager(cgi_event->cgi_read_fd());
+            // clear_cgi_fds_from_event_manager(*cgi_event);
             this->fds_->register_write_fd(cgi_event->client_fd());
             return process_event(cgi_event->client_fd());
         }

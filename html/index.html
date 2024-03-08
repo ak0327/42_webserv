@@ -236,6 +236,35 @@
                            value="diff html/images/image1.jpg html/upload/image1.jpg">
                 </div>
 
+            <li> upload within limits; 19MB
+                <div class="container">
+                    <button onclick="copyCommand('prepare')">copy</button>
+                    <input type="text"
+                           id="prepare"
+                           value="chmod +x test/integration/prepare_test_file.sh; . test/integration/prepare_test_file.sh; create_big_size_files">
+                </div>
+                <div class="container">
+                    <button onclick="copyCommand('post_within_limits')">copy</button>
+                    <input type="text"
+                           id="post_within_limits"
+                           value="curl -i -F &quot;file_name=@html/big_size/19MB.txt&quot; localhost:4242/upload/">
+                </div>
+                <div class="container">
+                    <button onclick="copyCommand('diff_within_limits')">copy</button>
+                    <input type="text"
+                           id="diff_within_limits"
+                           value="diff html/big_size/19MB.txt html/upload/19MB.txt">
+                </div>
+
+            <li> upload over limits; 20MB
+                <div class="container">
+                    <button onclick="copyCommand('post_over_limits')">copy</button>
+                    <input type="text"
+                           id="post_over_limits"
+                           value="curl -i -F &quot;file_name=@html/big_size/20MB.txt&quot; localhost:4242/upload/">
+                </div>
+
+
             <li> post request body
                 <div class="container">
                     <button onclick="copyCommand('post_body')">copy</button>

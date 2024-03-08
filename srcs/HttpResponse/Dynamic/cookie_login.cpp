@@ -11,10 +11,10 @@
 
 
 bool HttpResponse::is_logged_in_user() {
-    std::cout << RED << "is_logged_in_user" << RESET << std::endl;
+    // std::cout << RED << "is_logged_in_user" << RESET << std::endl;
     Result<std::map<std::string, std::string>, ProcResult> result = this->request_.get_cookie();
     if (result.is_err()) {
-        std::cout << RED << " get_cookie failue" << RESET << std::endl;
+        // std::cout << RED << " get_cookie failue" << RESET << std::endl;
         return false;
     }
     std::map<std::string, std::string> cookies = result.ok_value();
@@ -35,10 +35,10 @@ bool HttpResponse::is_logged_in_user() {
             return false;
         }
         if (cookie_expire <= now) {
-            std::cout << RED << "expired -> cookie: " << expire->second << ", now: " << now_date << RESET << std::endl;
+            // std::cout << RED << "expired -> cookie: " << expire->second << ", now: " << now_date << RESET << std::endl;
             return false;
         }
-        std::cout << RED << "not expire -> cookie: " << expire->second << ", now: " << now_date << RESET << std::endl;
+        // std::cout << RED << "not expire -> cookie: " << expire->second << ", now: " << now_date << RESET << std::endl;
     }
     return true;
 }
@@ -77,10 +77,10 @@ std::string HttpResponse::get_expire_from_cookie() {
 
 
 StatusCode HttpResponse::get_cookie_user_page() {
-    std::cout << RED << " get_cookie_user_page()" << RESET << std::endl;
+    // std::cout << RED << " get_cookie_user_page()" << RESET << std::endl;
 
     if (is_logged_in_user()) {
-        std::cout << RED << " logged_in_user" << RESET << std::endl;
+        // std::cout << RED << " logged_in_user" << RESET << std::endl;
         const std::string head = "<!doctype html>\n"
                                  "<html lang=\"ja\">\n"
                                  "<head>\n"
@@ -109,7 +109,7 @@ StatusCode HttpResponse::get_cookie_user_page() {
         add_content_header("html");
         return StatusOk;
     } else {
-        std::cout << RED << " inactive user" << RESET << std::endl;
+        // std::cout << RED << " inactive user" << RESET << std::endl;
 
         ReturnDirective redirect_to_login;
         redirect_to_login.return_on = true;
