@@ -5005,6 +5005,4 @@ TEST(TestParser, ParseHttp) {
 
     print_error_msg(result, __LINE__);
     ASSERT_TRUE(result.is_err());
-
-
 }

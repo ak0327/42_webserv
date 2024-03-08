@@ -56,7 +56,7 @@ void Client::send_msg(const std::string &send_msg) const {
     DEBUG_CLIENT_PRINT("client msg[%s], size:[%zu]", send_msg.c_str(), send_msg.size());
 
     errno = 0;
-    send_size = send(this->connect_fd_, send_msg.c_str(), send_msg.size(), FLAG_NONE);
+    send_size = send(this->connect_fd_, send_msg.c_str(), send_msg.size(), MSG_NOSIGNAL);
     if (send_size == SEND_ERROR) {
         std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
         std::string err_str = "[Client Error] send: " + error_msg;
@@ -65,16 +65,16 @@ void Client::send_msg(const std::string &send_msg) const {
     DEBUG_CLIENT_PRINT("client send end");
 }
 
-void Client::recv_msg() {
+void Client::recv_msg(std::size_t bufsize = BUFSIZ) {
     ssize_t		recv_size;
-    char		buf[BUFSIZ + 1];
+    char* buf = new char[bufsize + 1];
     std::string	recv_msg;
+    std::size_t total_size = 0;
 
     DEBUG_CLIENT_PRINT("client recv start");
     while (true) {
         errno = 0;
-
-        recv_size = recv(this->connect_fd_, buf, BUFSIZ, FLAG_NONE);
+        recv_size = recv(this->connect_fd_, buf, bufsize, FLAG_NONE);
         DEBUG_CLIENT_PRINT(" client recv_size:%zu", recv_size);
         if (recv_size == 0) {
         	break;
@@ -82,21 +82,25 @@ void Client::recv_msg() {
         if (recv_size == RECV_ERROR) {
             std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
             std::string err_str = "[Client Error] recv: " + error_msg;
+            delete[] buf;
             throw std::runtime_error(RED + err_str + RESET);
         }
         buf[recv_size] = '\0';
-        DEBUG_CLIENT_PRINT(" client: recv[%s]", std::string(buf, recv_size).c_str());
+        total_size += recv_size;
+        DEBUG_CLIENT_PRINT(" client: recv[%s], total:%zu",
+                           std::string(buf, recv_size).c_str(), total_size);
 
         recv_msg += buf;
 
-        if (recv_size < BUFSIZ) {
+        if (static_cast<std::size_t>(recv_size) < bufsize) {
             break;
         }
+        sleep(1);
     }
     DEBUG_CLIENT_PRINT(" client: recv_message[%s]", recv_msg.c_str());
     this->recv_message_ = recv_msg;
-
     DEBUG_CLIENT_PRINT("client recv end");
+    delete[] buf;
 }
 
 std::string Client::get_recv_message() const { return this->recv_message_; }

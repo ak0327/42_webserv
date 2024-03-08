@@ -50,6 +50,9 @@ class Event {
 
     ~Event();
 
+    ProcResult init_request_obj();
+    ProcResult set_to_max_connection_event();
+
     int client_fd() const;
     int cgi_read_fd() const;
     int cgi_write_fd() const;
@@ -76,8 +79,9 @@ class Event {
     void close_client_fd();
     void clear_request();
     void clear_response();
-    void kill_cgi_process();
-    void clear_cgi();
+    void process_cgi_timeout();
+    // void kill_cgi_process();
+    // void clear_cgi();
 
     const char *event_phase_char();
     static const char *event_phase_char(const EventPhase &phase);
@@ -106,6 +110,7 @@ class Event {
 
     std::map<std::string, Session> *sessions_;
 
+    bool exceed_max_conn_;
     bool echo_mode_on_;
 
 

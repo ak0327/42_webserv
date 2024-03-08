@@ -96,11 +96,26 @@ ServerResult Server::create_event(int socket_fd) {
                                        this->config_,
                                        &this->sessions_,
                                        this->echo_mode_on_);
-        this->client_events_[connect_fd] = new_session;
+        if (new_session->init_request_obj() == Failure) {
+            delete new_session;
+            throw std::runtime_error("HttpRequest");
+        }
+
+        if (MAX_CONNECTION <= this->client_events_.size()) {
+            DEBUG_PRINT(GRAY_BACK, "exceed max_connaction: events: %zu", this->client_events_.size());
+            if (new_session->set_to_max_connection_event() == Failure) {
+                delete new_session;
+                DEBUG_PRINT(RED, "error: create response failure");
+                return ServerResult::ok(OK);
+            }
+            update_fd_type(connect_fd, kReadFd, kWriteFd);
+        }
+
         // DEBUG_SERVER_PRINT("new_clilent: %p", new_session);
         // std::cout << CYAN << " event start" << connect_fd << RESET << std::endl;
-
         handle_active_client_timeout(new_session);
+
+        this->client_events_[connect_fd] = new_session;
 
         return ServerResult::ok(OK);
     }
@@ -240,8 +255,8 @@ ServerResult Server::handle_client_event(int client_fd) {
             return ServerResult::ok(OK);
         }
         case ConnectionClosed: {
+            DEBUG_SERVER_PRINT("[handle_client_event] connection closed (L:%d)", __LINE__);
             delete_event(event);
-            // DEBUG_SERVER_PRINT( "connection closed");
             return ServerResult::ok(OK);
         }
         default:
@@ -252,9 +267,12 @@ ServerResult Server::handle_client_event(int client_fd) {
     }
 
     switch (client_event->event_phase()) {
+        case kExecutingMethod: {
+            return handle_client_event(client_fd);
+        }
         case kSendingResponse: {
-            // std::ostringstream oss; oss << client_event;
-            // DEBUG_SERVER_PRINT("process_event(client) -> sending response: %s", oss.str().c_str());
+            std::ostringstream oss; oss << client_event;
+            DEBUG_SERVER_PRINT("process_event(client) -> sending response: %s", oss.str().c_str());
             update_fd_type(client_fd, kReadFd, kWriteFd);
             break;
         }
@@ -306,16 +324,15 @@ ServerResult Server::handle_cgi_event(int cgi_fd) {
             return ServerResult::ok(OK);
         }
         case ConnectionClosed: {
-            delete_event(event);
-            DEBUG_PRINT(RED, "connection closed");
+            // delete_event(event);
+            DEBUG_PRINT(RED, "[come here?] connection closed");
             return ServerResult::ok(OK);
         }
         default:
-            // todo: cgi error route
             std::ostringstream oss; oss << cgi_event;
-            DEBUG_SERVER_PRINT("process_event(cgi) -> error occurred, delete event: %s", oss.str().c_str());
+            DEBUG_SERVER_PRINT("[come here?] process_event(cgi) -> error occurred, delete event: %s", oss.str().c_str());
 
-            delete_event(event);
+            // delete_event(event);
             return ServerResult::ok(OK);
     }
 
@@ -336,7 +353,6 @@ ServerResult Server::handle_cgi_event(int cgi_fd) {
             return process_event(cgi_event->client_fd());
         }
         default:
-            // todo
             break;
     }
     return ServerResult::ok(OK);

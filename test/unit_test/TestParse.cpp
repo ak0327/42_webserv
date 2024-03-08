@@ -304,7 +304,7 @@ TEST(TestParser, ParseLocationBlockOK) {
 
         ConfigParser parser(itr->c_str());
         Result<int, std::string> result = parser.result();
-        // print_error_msg(result, __LINE__);
+        print_error_msg(result, __LINE__);
         EXPECT_TRUE(result.is_ok());
     }
 }

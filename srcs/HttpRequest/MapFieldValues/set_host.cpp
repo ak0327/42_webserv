@@ -5,6 +5,7 @@
 #include "HttpMessageParser.hpp"
 #include "MapFieldValues.hpp"
 #include "Result.hpp"
+#include "StringHandler.hpp"
 
 namespace {
 
@@ -29,7 +30,8 @@ Result<std::map<std::string, std::string>, int> parse_host(const std::string &fi
 	if (parse_result.is_err()) {
 		return Result<std::map<std::string, std::string>, int>::err(ERR);
 	}
-	host[std::string(URI_HOST)] = uri_host;
+    std::string lower_host = StringHandler::to_lower(uri_host);
+	host[std::string(URI_HOST)] = lower_host;
 	if (!port.empty()) {
 		host[std::string(PORT)] = port;
 	}

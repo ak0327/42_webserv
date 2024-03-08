@@ -27,27 +27,28 @@ namespace {
 void detect_received_signal(int sig) {
     switch (sig) {
         case SIGINT:
-            std::cout << RED << "Received SIGINT" << RESET << std::endl;
+            std::cout << "server stop" << std::endl;
+            // std::cout << RED << "Received SIGINT" << RESET << std::endl;
             // std::cout << "[Server] Running stop" << std::endl;
             std::exit(EXIT_SUCCESS);
 
-        case SIGTERM:
-            std::cout << RED << "Received SIGTERM" << RESET << std::endl;
-            // std::cout << "[Server] Running stop by SIGTERM" << std::endl;
-            std::exit(EXIT_SUCCESS);
+        // case SIGTERM:
+        //     std::cout << RED << "Received SIGTERM" << RESET << std::endl;
+        //     // std::cout << "[Server] Running stop by SIGTERM" << std::endl;
+        //     std::exit(EXIT_SUCCESS);
+        //
+        // case SIGABRT:
+        //     std::cout << RED << "Received SIGABORT" << RESET << std::endl;
+        //     // std::cout << "[Error] Server abort" << std::endl;
+        //     std::exit(EXIT_FAILURE);
 
-        case SIGABRT:
-            std::cout << RED << "Received SIGABORT" << RESET << std::endl;
-            // std::cout << "[Error] Server abort" << std::endl;
-            std::exit(EXIT_FAILURE);
-
-        case SIGPIPE:
-            std::cout << RED << "Received SIGPIPE" << RESET << std::endl;
-            break;
-            std::exit(EXIT_FAILURE);
+        // case SIGPIPE:
+        //     std::cout << RED << "Received SIGPIPE" << RESET << std::endl;
+            // std::exit(EXIT_FAILURE);
+            // break;
 
         default:
-            std::cout << "Received unknown signal: " << sig << std::endl;
+            std::cout << "Received signal: " << sig << std::endl;
     }
 }
 
@@ -60,18 +61,18 @@ ServerResult set_signal() {
 		const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
 		return ServerResult::err(error_msg);
 	}
-	if (signal(SIGINT, detect_received_signal) == SIG_ERR) {
-		const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
-		return ServerResult::err(error_msg);
-	}
-	if (signal(SIGTERM, detect_received_signal) == SIG_ERR) {
-		const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
-		return ServerResult::err(error_msg);
-	}
-    if (signal(SIGPIPE, detect_received_signal) == SIG_ERR) {
-        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
-        return ServerResult::err(error_msg);
-    }
+	// if (signal(SIGINT, detect_received_signal) == SIG_ERR) {
+	// 	const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+	// 	return ServerResult::err(error_msg);
+	// }
+	// if (signal(SIGTERM, detect_received_signal) == SIG_ERR) {
+	// 	const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+	// 	return ServerResult::err(error_msg);
+	// }
+    // if (signal(SIGPIPE, detect_received_signal) == SIG_ERR) {
+    //     const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+    //     return ServerResult::err(error_msg);
+    // }
 	return ServerResult::ok(OK);
 }
 
@@ -79,6 +80,7 @@ ServerResult set_signal() {
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
+
 
 Server::Server(const Config &config)
 	: sockets_(),
@@ -93,12 +95,14 @@ Server::Server(const Config &config)
 
 
 Server::~Server() {
-    clear_event();
+    clear_events();
     delete_sockets();
     delete this->fds_;
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////
+
 
 ServerResult Server::init() {
     ServerResult socket_result = create_sockets(this->config_);
@@ -130,7 +134,6 @@ ServerResult Server::init() {
 Result<Socket *, std::string> Server::create_socket(const std::string &address,
                                                     const std::string &port) {
     Socket *socket = NULL;
-
     try {
         socket = new Socket(address, port);
 
@@ -265,41 +268,28 @@ Result<IOMultiplexer *, std::string> Server::create_io_multiplexer_fds() {
 
 ServerResult Server::run() {
 	while (true) {
-        // char *p = new char[100]; (void)p;
-        // sleep(1);
-        // usleep(500000);
-        // DEBUG_SERVER_PRINT(" run 1 timeout management");
         management_timeout_events();
         set_io_timeout();
 
-        // DEBUG_SERVER_PRINT(" run 2 get_io_ready_fd");
         ServerResult fd_ready_result = this->fds_->get_io_ready_fd();
-        // DEBUG_SERVER_PRINT(" run 3 ready result");
 		if (fd_ready_result.is_err()) {
-            // DEBUG_SERVER_PRINT(" run : error 1");
             const std::string error_msg = fd_ready_result.err_value();
             return ServerResult::err(error_msg);
 		}
 		int ready_fd = fd_ready_result.ok_value();
-        // DEBUG_SERVER_PRINT(" run 4 ready_fd: %d", ready_fd);
 		if (ready_fd == IO_TIMEOUT) {
             if (this->echo_mode_on_) {
-                // DEBUG_SERVER_PRINT("  timeout -> break");
                 break;
             } else {
-                // DEBUG_SERVER_PRINT("  timeout -> continue");
                 continue;
             }
 		}
-        // DEBUG_SERVER_PRINT(" run 5 communicate");
 
         ServerResult event_result = process_event(ready_fd);
 		if (event_result.is_err()) {
             const std::string error_msg = event_result.err_value();
-            // DEBUG_SERVER_PRINT(" run : error 2");
             return ServerResult::err(error_msg);
 		}
-        // DEBUG_SERVER_PRINT(" run 6 next loop");
     }
     return ServerResult::ok(OK);
 }
@@ -328,6 +318,7 @@ void Server::update_fd_type_read_to_write(const EventPhase &event_state, int fd)
 void Server::delete_event(std::map<Fd, Event *>::iterator event) {
     Event *client_event = event->second;
     int client_fd = client_event->client_fd();
+    DEBUG_SERVER_PRINT("[delete event] fd: %d (L:%d)", client_fd, __LINE__);
 
     this->fds_->clear_fd(client_fd);
     delete client_event;
@@ -336,11 +327,13 @@ void Server::delete_event(std::map<Fd, Event *>::iterator event) {
     std::set<FdTimeoutLimitPair>::iterator itr;
     itr = find_fd_in_timeout_pair(client_fd, this->idling_client_time_manager_);
     if (itr != this->idling_client_time_manager_.end()) {
+        DEBUG_SERVER_PRINT("[delete event] clear: idling_client_timeout_manager (L:%d)", __LINE__);
         this->idling_client_time_manager_.erase(itr);
     }
 
     itr = find_fd_in_timeout_pair(client_fd, this->active_client_time_manager_);
     if (itr != this->active_client_time_manager_.end()) {
+        DEBUG_SERVER_PRINT("[delete event] clear: active_client_timeout_manager (L:%d)", __LINE__);
         this->active_client_time_manager_.erase(itr);
     }
 }
@@ -358,6 +351,7 @@ void Server::update_fd_type(int fd,
         return;
     }
     this->fds_->clear_fd(fd);
+
     if (update_to == kReadFd) {
         this->fds_->register_read_fd(fd);
     } else if (update_to == kWriteFd) {
@@ -366,7 +360,7 @@ void Server::update_fd_type(int fd,
 }
 
 
-void Server::clear_event() {
+void Server::clear_events() {
     std::map<ClientFd, Event *>::iterator event;
     for (event = this->client_events_.begin(); event != client_events_.end(); ++event) {
         delete event->second;
@@ -394,7 +388,7 @@ void Server::register_cgi_write_fd_to_event_manager(Event **client_event) {
         this->fds_->register_write_fd(write_fd);
         this->cgi_events_[write_fd] = *client_event;
         DEBUG_SERVER_PRINT("        timeout: %zu, clilent: %p", timeout_limit, *client_event);
-        this->cgi_fds_.insert(FdTimeoutLimitPair(timeout_limit, write_fd));
+        this->cgi_time_manager_.insert(FdTimeoutLimitPair(timeout_limit, write_fd));
     }
 }
 
@@ -410,7 +404,7 @@ void Server::register_cgi_read_fd_to_event_manager(Event **client_event) {
         this->fds_->register_read_fd(read_fd);
         this->cgi_events_[read_fd] = *client_event;
         DEBUG_SERVER_PRINT("        timeout: %zu, clilent: %p", timeout_limit, *client_event);
-        this->cgi_fds_.insert(FdTimeoutLimitPair(timeout_limit, read_fd));
+        this->cgi_time_manager_.insert(FdTimeoutLimitPair(timeout_limit, read_fd));
     }
 }
 

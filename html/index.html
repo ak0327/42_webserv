@@ -50,15 +50,16 @@
         <li><a href="/dir_a/index.html">/dir_a/index.html</a>
         <li><a href="/a/b/">/a/b/ -> /a/b/file_b.html</a>
         <li><a href="/a/b/c/">/a/b/c/ -> /a/b/c/index.html</a>
+        <li><a href="/post_only/">/post_only/</a>
         <li><a href="/delete_only/">/delete_only/ allow 127.0.0.1 -> ok?</a>
     </ul>
     <br>
 
-    <li> error page
+    <li> error page (404)
         <ul>
-            <li><a href="/nothing.html">/nothing.html -> 404</a>
-            <li><a href="/a/b/c/nothing.html">/a/b/c/nothing.html -> 404</a>
-            <li><a href="/a/b/c/404.html">/a/b/c/404.html</a>
+            <li><a href="/nothing.html">/nothing.html -> /404.html</a>
+            <li><a href="/a/b/c/nothing.html">/a/b/c/nothing.html -> /404.html</a>
+            <li><a href="/a/b/c/nothing.html">/a/b/c/nothing.html -> /a/b/c/404.html</a>
         </ul>
     <br>
 
@@ -73,6 +74,7 @@
             <li><a href="/old.html">/old.html redirect to new.html</a>
             <li><a href="/old/">/old/ redirect to html/new/</a>
             <li><a href="/autoindex_files">/autoindex_files redirect to directory list</a>
+            <li><a href="/google.html">redirect to google.com</a>
         </ul>
         <br>
 
@@ -96,7 +98,8 @@
             <li><a href="http://localhost:4343/cgi-bin/error_no_shebang.py">error_no_shebang.py -> 500</a>
             <li><a href="http://localhost:4343/cgi-bin/infinite_loop.py">infinite_loop.py -> 504</a>
             <li><a href="http://localhost:4343/cgi-bin/infinite_print.py">infinite_print.py -> 504</a>
-            <li><a href="http://localhost:4343/cgi-bin/sleep10sec.py">sleep10sec.py -> 504</a>
+            <li><a href="http://localhost:4343/cgi-bin/sleep.py?1">sleep 1sec -> ok</a>
+            <li><a href="http://localhost:4343/cgi-bin/sleep.py?10">sleep 10sec -> 504</a>
         </ul>
     <br>
 
@@ -118,7 +121,7 @@
                        value="curl -i -H &quot;Host: webserv&quot; localhost:4242">
             </div>
 
-            <li> default server-1: localhost:4040 and nothing_server_name -> old_server or new_server
+            <li> default server-1: localhost:4040 and nothing_server_name -> old_server or new_server✨
             <div class="container">
                 <button onclick="copyCommand('default_server_1')">copy</button>
                 <input type="text"
@@ -126,7 +129,7 @@
                        value="curl -i -H &quot;Host: nothing_server_name&quot; localhost:4040">
             </div>
 
-            <li> default server-2: localhost:3939 and nothing_server_name -> server_a or server_b
+            <li> default server-2: localhost:3939 and nothing_server_name -> server_a 🅰 or server_b
                 <div class="container">
                     <button onclick="copyCommand('default_server_2')">copy</button>
                     <input type="text"
@@ -155,7 +158,7 @@
                 <button onclick="copyCommand('large_content')">copy</button>
                 <input type="text"
                        id="large_content"
-                       value="curl -i -X GET -H &quot;Content-Length: 1&quot; --data &quot;larger than 1&quot; localhost:4242/cgi-bin/post_simple.py">
+                       value="curl -i -X GET -H &quot;Content-Length: 1&quot; --data &quot;larger than 1&quot; localhost:4343/cgi-bin/post_simple.py">
             </div>
 
             <li> Content less than Content-Length -> connection closed by host
@@ -163,7 +166,7 @@
                     <button onclick="copyCommand('small_content')">copy</button>
                     <input type="text"
                            id="small_content"
-                           value="curl -i -X GET -H &quot;Content-Length: 100&quot; --data &quot;less than 100&quot; localhost:4242/cgi-bin/post_simple.py">
+                           value="curl -i -X GET -H &quot;Content-Length: 100&quot; --data &quot;less than 100&quot; localhost:4343/cgi-bin/post_simple.py">
                 </div>
 
             <li> Content-Length too large by Length
@@ -171,7 +174,7 @@
                 <button onclick="copyCommand('content_length_large')">copy</button>
                 <input type="text"
                        id="content_length_large"
-                       value="curl -i -H &quot;Content-Length: 2147483647&quot; localhost:4242/cgi-bin/post_simple.py">
+                       value="curl -i -H &quot;Content-Length: 2147483647&quot; localhost:4343/cgi-bin/post_simple.py">
             </div>
 
         </ul>
@@ -179,9 +182,15 @@
 
     <li> Siege test
         <div class="container">
-            <button onclick="copyCommand('get_x')">copy</button>
+            <button onclick="copyCommand('brew_install')">copy</button>
             <input type="text"
-                   id="get_x"
+                   id="brew_install"
+                   value="brew install siege">
+        </div>
+        <div class="container">
+            <button onclick="copyCommand('siege_command')">copy</button>
+            <input type="text"
+                   id="siege_command"
                    value="siege --benchmark --concurrent=128 --time=30s http://localhost:4242">
         </div>
 
@@ -232,7 +241,7 @@
                     <button onclick="copyCommand('post_body')">copy</button>
                     <input type="text"
                            id="post_body"
-                           value="curl -i -X POST --data &quot;request body is recognized&quot; localhost:4242/cgi-bin/post_simple.py">
+                           value="curl -i -X POST --data &quot;request body is recognized&quot; localhost:4343/cgi-bin/post_simple.py">
                 </div>
         </ul>
 </ul>
@@ -268,7 +277,8 @@
 
 <h3>Bonus</h3>
 <ul>
-    <li><a href="http://localhost:4343/cgi-bin/hello.sh">hello.sh</a>
+    <li><a href="http://localhost:4343/cgi-bin/hello.sh">CGI(hello.sh)</a>
+    <li><a href="http://localhost:4343/cgi-bin/hello.pl">CGI(hello.pl)</a>
     <li><a href="/dynamic/cookie-login">Login (cookie)</a>
     <li><a href="/dynamic/session-login">Login (session)</a>
 </ul>

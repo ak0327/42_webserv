@@ -299,6 +299,9 @@ Result<ProcResult, StatusCode> HttpRequest::parse_start_line_and_headers() {
         Result<std::string, ProcResult> line_result = pop_line_from_buf();
         if (line_result.is_err()) {
             if (CLIENT_HEADER_MAX_SIZE < this->buf_.size()) {
+                if (this->phase_ == ParsingRequestLine) {
+                    return Result<ProcResult, StatusCode>::err(BadRequest);
+                }
                 return Result<ProcResult, StatusCode>::err(RequestHeaderFieldsTooLarge);
             }
             DEBUG_SERVER_PRINT("    parse start_line_and_headers -> continue");
@@ -308,6 +311,9 @@ Result<ProcResult, StatusCode> HttpRequest::parse_start_line_and_headers() {
         this->header_size_ += line.length() + 2;
 
         if (CLIENT_HEADER_MAX_SIZE < this->header_size_) {
+            if (this->phase_ == ParsingRequestLine) {
+                return Result<ProcResult, StatusCode>::err(BadRequest);
+            }
             return Result<ProcResult, StatusCode>::err(RequestHeaderFieldsTooLarge);
         }
 
@@ -318,8 +324,8 @@ Result<ProcResult, StatusCode> HttpRequest::parse_start_line_and_headers() {
                 DEBUG_SERVER_PRINT("    parse RequestLine");
                 result = this->request_line_.parse_and_validate(line);
                 if (result.is_err()) {
-                    DEBUG_SERVER_PRINT("     parse RequestLine err");
                     error_status_code = result.err_value();
+                    DEBUG_SERVER_PRINT("     parse RequestLine err: %d", error_status_code);
                     return Result<ProcResult, StatusCode>::err(error_status_code);  // todo: code
                 }
                 DEBUG_SERVER_PRINT("     parse RequestLine -> Header");
@@ -371,7 +377,7 @@ Result<ProcResult, StatusCode> HttpRequest::set_content_length() {
     if (this->request_max_body_size_ < content_length) {
         DEBUG_SERVER_PRINT("      ParseBody max_body_size: %zu < content-length: %zu", this->request_max_body_size_, content_length);
         this->buf_.clear();
-        return Result<ProcResult, StatusCode>::err(ContentTooLarge);
+        return Result<ProcResult, StatusCode>::err(PayloadTooLarge);
     }
     this->content_length_ = content_length;
     return Result<ProcResult, StatusCode>::ok(Success);
@@ -399,7 +405,7 @@ Result<ProcResult, StatusCode> HttpRequest::parse_body() {
     if (this->request_max_body_size_ < content_length) {
         DEBUG_SERVER_PRINT("      ParseBody max_body_size: %zu < content-length: %zu", this->request_max_body_size_, content_length);
         this->buf_.clear();
-        return Result<ProcResult, StatusCode>::err(ContentTooLarge);
+        return Result<ProcResult, StatusCode>::err(PayloadTooLarge);
     }
     this->content_length_ = content_length;
     // return Result<ProcResult, StatusCode>::ok(Success);
@@ -411,7 +417,7 @@ Result<ProcResult, StatusCode> HttpRequest::parse_body() {
     if (this->content_length_ < this->request_body_.size()) {
         DEBUG_SERVER_PRINT("      ParseBody  content_length < body.size() -> LengthRequired");
         this->request_body_.clear();
-        return Result<ProcResult, StatusCode>::err(ContentTooLarge);
+        return Result<ProcResult, StatusCode>::err(PayloadTooLarge);
     }
     if (this->request_body_.size() < this->content_length_) {
         DEBUG_SERVER_PRINT("      ParseBody  body.size() < content-length -> recv continue");
@@ -438,12 +444,43 @@ Result<HostPortPair, StatusCode> HttpRequest::server_info() const {
 ////////////////////////////////////////////////////////////////////////////////
 
 
+bool HttpRequest::is_support_media_type() const {
+    DEBUG_PRINT(RED, "is_support_media_type");
+
+    Result<MediaType, ProcResult> result = get_content_type();
+    if (result.is_err()) {
+        DEBUG_PRINT(RED, " no content-type -> ok");
+        return true;  // no content-header
+    }
+
+    MediaType content_type = result.ok_value();
+    std::string media_type = content_type.type();
+    if (!content_type.subtype().empty()) {
+        media_type.append("/");
+        media_type.append(content_type.subtype());
+    }
+    DEBUG_PRINT(RED, " type:%s", media_type.c_str());
+    for (MimeTypeMap::const_iterator itr = MIME_TYPES.begin(); itr != MIME_TYPES.end(); ++itr) {
+        if (itr->second == media_type) {
+            DEBUG_PRINT(RED, " support type[%s] -> ok", itr->second.c_str());
+            return true;
+        }
+    }
+    DEBUG_PRINT(RED, " -> not support");
+    return false;
+}
+
+
 ProcResult HttpRequest::validate_request_headers() {
     // todo: validate field_names, such as 'must' header,...
     if (!is_valid_field_name_registered(std::string(HOST))) {
         this->set_request_status(BadRequest);
         return Failure;
     }
+    // if (!is_support_media_type()) {
+    //     this->set_request_status(UnsupportedMediaType);
+    //     return Failure;
+    // }
     return Success;
 }
 
@@ -774,6 +811,11 @@ std::string HttpRequest::http_version() const {
 
 std::string HttpRequest::query_string() const {
     return this->request_line_.query();
+}
+
+
+StatusCode HttpRequest::request_line_status() const {
+    return this->request_line_.request_line_status();
 }
 
 

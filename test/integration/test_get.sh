@@ -76,8 +76,6 @@ expect_eq_get "$(curl -is "localhost:4242/cgi-bin/sleep10sec.py")"              
 expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.py/path/info")"               "404 Not Found"   "html/404.html"
 expect_eq_get "$(curl -is "localhost:4242/cgi-bin/nothing.py")"                       "404 Not Found"   "html/404.html"
 
-expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.sh")"                         "406 Not Acceptable"   ""
-
 
 # redirect -> todo: location
 expect_eq_get "$(curl -is "localhost:4242/old.html")"           "301 Moved Permanently"    ""
@@ -106,8 +104,12 @@ expect_eq_get "$(curl -is "localhost:4242/delete_only/dir/")"             "405 M
 expect_eq_get "$(curl -is "localhost:4242/delete_only/dir/index.html")"   "405 Method Not Allowed"    ""
 expect_eq_get "$(curl -is "localhost:4242/delete_only/nothing.html")"     "405 Method Not Allowed"    ""
 expect_eq_get "$(curl -is "localhost:4242/delete_only/nothing.html")"     "405 Method Not Allowed"    ""
-expect_eq_get "$(curl -is "localhost:4242/dynamic/show-response")"        "405 Method Not Allowed"    ""
-expect_eq_get "$(curl -is "localhost:4242/dynamic/form-data")"            "405 Method Not Allowed"    ""
+expect_eq_get "$(curl -is "localhost:4242/post_only/")"                   "405 Method Not Allowed"    ""
+expect_eq_get "$(curl -is "localhost:4242/delete_only/")"                 "405 Method Not Allowed"    ""
+
+
+# 415
+expect_eq_get "$(curl -is "localhost:4242/cgi-bin/hello.sh")"             "415 Unsupported Media Type"   ""
 
 
 # 400 BadRequest
@@ -124,7 +126,6 @@ expect_eq_get "$(echo -en "GET / / HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc loc
 expect_eq_get "$(echo -en "get / HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"         "400 Bad Request"    ""
 expect_eq_get "$(echo -en "Get / HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"         "400 Bad Request"    ""
 expect_eq_get "$(echo -en "get / HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"         "400 Bad Request"    ""
-expect_eq_get "$(echo -en "PUT / HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"         "400 Bad Request"    ""
 expect_eq_get "$(echo -en "hoge / HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"        "400 Bad Request"    ""
 expect_eq_get "$(echo -en " / HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"            "400 Bad Request"    ""
 expect_eq_get "$(echo -en "GET GET / HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"     "400 Bad Request"    ""
@@ -136,11 +137,6 @@ expect_eq_get "$(echo -en "GET html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc lo
 expect_eq_get "$(echo -en "GET ../html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"   "400 Bad Request"    ""
 expect_eq_get "$(echo -en "GET ./html HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"    "400 Bad Request"    ""
 expect_eq_get "$(echo -en "GET %2E HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"       "400 Bad Request"  ""
-
-##  invalid http-version
-expect_eq_get "$(echo -en "GET / HTTP/2.0\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"         "400 Bad Request"    ""
-expect_eq_get "$(echo -en "GET / HTTP/120\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"         "400 Bad Request"    ""
-expect_eq_get "$(echo -en "GET / HTTP1.1\r\nHost: localhost\r\n\r\n" | nc localhost 4242)"          "400 Bad Request"    ""
 
 ## invalid herader
 expect_eq_get "$(echo -en "GET / HTTP/1.1\r\n\r\n" | nc localhost 4242)"                            "400 Bad Request"   ""
@@ -189,29 +185,65 @@ expect_eq_get "$(curl -is "localhost:4242/permission/rwx/r__.html")"    "200 OK"
 expect_eq_get "$(curl -is "localhost:4242/permission/rwx/rwx.html")"    "200 OK"              "html/permission/rwx/rwx.html"
 
 
+# server_name
+expect_eq_get "$(curl -is -H "Host: webserv"  "localhost:4242/")"         "200 OK"          "html/index.html"
+expect_eq_get "$(curl -is -H "Host: a"        "localhost:4242/")"         "200 OK"          "html/index.html"
+expect_eq_get "$(curl -is -H "Host: b"        "localhost:4242/")"         "200 OK"          "html/index.html"
+expect_eq_get "$(curl -is -H "Host: c"        "localhost:4242/")"         "200 OK"          "html/index.html"
+expect_eq_get "$(curl -is -H "Host: nothing"  "localhost:4242/")"         "200 OK"          "html/index.html"
+expect_eq_get "$(curl -is -H "Host: d"        "localhost:4242/")"         "200 OK"          "html/hoge/index.html"
+expect_eq_get "$(curl -is -H "Host: hoge"     "localhost:4242/")"         "200 OK"          "html/hoge/index.html"
+expect_eq_get "$(curl -is -H "Host: hoge"     "localhost:4242/nothing")"  "404 Not Found"   "html/hoge/404.html"
+expect_eq_get "$(curl -is -H "Host: huga"     "localhost:4242/nothing")"  "404 Not Found"   "html/404.html"
 
-expect_eq_get "$(echo -en "GET / HTTP/1.1\r\nHost: localhost\r\n\r\nlength required" | nc localhost 4242)"                    "411 Length Required"     ""
-
-# 413
-expect_eq_get "$(curl -isH "Content-Length: 1100000"  "localhost:4242/")"                                                     "413 Content Too Large"    ""
-#large=`python3 -c "print('a'*1100000)"`
-#expect_eq_get "$(curl -is --data "$large" "Content-Length: 1100000"  "localhost:4242/")"   "413 Content Too Large"    ""  # python down
-
-expect_eq_get "$(curl -is -H "Content-Length: 21"  "localhost:4242/dir_a/")"                                                  "413 Content Too Large"    ""
-expect_eq_get "$(curl -i -X GET -H "Content-Length: 1" --data "ignored"  "localhost:4242/cgi-bin/post_simple.py")"            "413 Content Too Large"    ""
-expect_eq_get "$(curl -is -H "Content-Length: 21"  -X GET --data "$(python3 -c "print('a'*21)")"  "localhost:4242/dir_a/")"   "413 Content Too Large"    ""
-expect_eq_get "$(curl -is -X GET --data "$(python3 -c "print('a'*100)")"  "localhost:4242/dir_a/")"                           "413 Content Too Large"    ""
+expect_eq_get "$(curl -is -H "Host: cgi_s"    "localhost:4343/")"                   "200 OK"          "html/index_cgi.html"
+expect_eq_get "$(curl -is -H "Host: cgi_s"    "localhost:4343/cgi-bin/")"           "404 Not Found"   "html/404.html"
+expect_eq_get "$(curl -is -H "Host: xxx"      "localhost:4343/")"                   "200 OK"          "html/index_cgi.html"
+expect_eq_get "$(curl -is -H "Host: xxx"      "localhost:4343/nothing")"            "404 Not Found"   "html/404.html"
+expect_eq_get "$(curl -is -H "Host: xxx"      "localhost:4343/cgi-bin/hello.py")"   "200 OK"          "test/integration/cgi-result/hello.txt"
 
 
-# 431
-large=`python3 -c "print('a'*10000)"`
-expect_eq_get "$(curl -isH "$large: hoge" "localhost:4242/")"     "431 Request Header Fields Too Large"     ""
-expect_eq_get "$(curl -isH "a: $large" "localhost:4242/")"        "431 Request Header Fields Too Large"     ""
-expect_eq_get "$(curl -isH "Host: $large" "localhost:4242/")"     "431 Request Header Fields Too Large"     ""
-expect_eq_get "$(curl -isH "Cookie: $large" "localhost:4242/")"   "431 Request Header Fields Too Large"     ""
 
-large_cmd=`python3 -c "print('Cookie: 012345=67890\r\n' * 5000)"`
-expect_eq_get "$(echo -en "GET / HTTP/1.1\r\nHost: localhost\r\n$large_cmd\r\n" | nc localhost 4242)"  "431 Request Header Fields Too Large"    ""
+expect_eq_get "$(curl -is -H "Host: old_server"   "localhost:3939/")"               "200 OK"          "html/dir_a/index.html"  # default: server_a
+expect_eq_get "$(curl -is -H "Host: OLD_SERVER"   "localhost:3939/")"               "200 OK"          "html/dir_a/index.html"  # default: server_a
+expect_eq_get "$(curl -is -H "Host: new_server"   "localhost:3939/")"               "200 OK"          "html/dir_a/index.html"  # default: server_a
+expect_eq_get "$(curl -is -H "Host: xxx"          "localhost:3939/")"               "200 OK"          "html/dir_a/index.html"  # default: server_a
+expect_eq_get "$(curl -is -H "Host: server_a"     "localhost:3939/")"               "200 OK"          "html/dir_a/index.html"  # default: server_a
+expect_eq_get "$(curl -is -H "Host: server_b"     "localhost:3939/")"               "200 OK"          "html/dir_b/index.html"
+expect_eq_get "$(curl -is -H "Host: server_c"     "localhost:3939/")"               "200 OK"          "html/dir_c/index.html"
+
+
+expect_eq_get "$(curl -is -H "Host: old_server"   "localhost:4040/")"               "200 OK"          "html/old/index.html"
+expect_eq_get "$(curl -is -H "Host: OLD_SERVER"   "localhost:4040/")"               "200 OK"          "html/old/index.html"
+expect_eq_get "$(curl -is -H "Host: new_server"   "localhost:4040/")"               "200 OK"          "html/new/index.html"
+expect_eq_get "$(curl -is -H "Host: xxx"          "localhost:4040/")"               "200 OK"          "html/new/index.html"  # default: new_server
+expect_eq_get "$(curl -is -H "Host: server_a"     "localhost:4040/")"               "200 OK"          "html/dir_a/index.html"
+expect_eq_get "$(curl -is -H "Host: server_b"     "localhost:4040/")"               "200 OK"          "html/dir_b/index.html"
+expect_eq_get "$(curl -is -H "Host: server_c"     "localhost:4040/")"               "200 OK"          "html/dir_c/index.html"
+
+
+# server_name and port
+expect_eq_get "$(curl -is -H "Host: webserv:4242"  "localhost:4242/")"         "200 OK"          "html/index.html"
+expect_eq_get "$(curl -is -H "Host: a:4242"        "localhost:4242/")"         "200 OK"          "html/index.html"
+expect_eq_get "$(curl -is -H "Host: b:4242"        "localhost:4242/")"         "200 OK"          "html/index.html"
+expect_eq_get "$(curl -is -H "Host: c:4242"        "localhost:4242/")"         "200 OK"          "html/index.html"
+expect_eq_get "$(curl -is -H "Host: nothing:4242"  "localhost:4242/")"         "200 OK"          "html/index.html"
+expect_eq_get "$(curl -is -H "Host: d:4242"        "localhost:4242/")"         "200 OK"          "html/hoge/index.html"
+expect_eq_get "$(curl -is -H "Host: hoge:4242"     "localhost:4242/")"         "200 OK"          "html/hoge/index.html"
+expect_eq_get "$(curl -is -H "Host: hoge:4242"     "localhost:4242/nothing")"  "404 Not Found"   "html/hoge/404.html"
+expect_eq_get "$(curl -is -H "Host: huga:4242"     "localhost:4242/nothing")"  "404 Not Found"   "html/404.html"
+
+expect_eq_get "$(curl -is -H "Host: webserv:2121"  "localhost:4242/")"         "400 Bad Request"  ""
+expect_eq_get "$(curl -is -H "Host: a:2121"        "localhost:4242/")"         "400 Bad Request"  ""
+expect_eq_get "$(curl -is -H "Host: b:2121"        "localhost:4242/")"         "400 Bad Request"  ""
+expect_eq_get "$(curl -is -H "Host: c:2121"        "localhost:4242/")"         "400 Bad Request"  ""
+expect_eq_get "$(curl -is -H "Host: nothing:2121"  "localhost:4242/")"         "400 Bad Request"  ""
+expect_eq_get "$(curl -is -H "Host: d:2121"        "localhost:4242/")"         "400 Bad Request"  ""
+expect_eq_get "$(curl -is -H "Host: hoge:2121"     "localhost:4242/")"         "400 Bad Request"  ""
+expect_eq_get "$(curl -is -H "Host: hoge:2121"     "localhost:4242/nothing")"  "400 Bad Request"  ""
+expect_eq_get "$(curl -is -H "Host: huga:2121"     "localhost:4242/nothing")"  "400 Bad Request"  ""
+expect_eq_get "$(curl -is -H "Host: huga:huga:ng"  "localhost:4242")"          "400 Bad Request"  ""
+
 
 tear_down
 

@@ -6,7 +6,6 @@ CXXFLAGS	=	-std=c++98 -Wall -Wextra -Werror -MMD -MP -pedantic
 CXXFLAGS	+=	-D USE_SELECT
 #CXXFLAGS	+=	-D USE_POLL
 CXXFLAGS	+=	-D DEBUG
-#CXXFLAGS	+=	-D LEAKS
 
 # SRCS -------------------------------------------------------------------------
 SRCS_DIR	=	srcs
@@ -141,6 +140,19 @@ CGI_DIR 	= $(RESPONSE_DIR)/CgiHandler
 SRCS		+=	$(CGI_DIR)/CgiHandler.cpp
 
 
+# CLIENT -----------------------------------------------------------------------
+#CLIENT_DIR	=	Client
+#CLIENT_SRC	=	$(CLIENT_DIR)/Client.cpp \
+#				$(CLIENT_DIR)/client_main.cpp
+#CLIENT_OBJ	=	$(CLIENT_SRC:%.cpp=%.o)
+#CLIENT_OBJS	=	$(addprefix $(OBJS_DIR)/, $(CLIENT_OBJ)) \
+#				$(filter-out $(OBJS_DIR)/main.o, $(OBJS))
+
+
+INCLUDES	 =	$(addprefix -I, $(INCLUDES_DIR))
+
+
+
 # OBJS -------------------------------------------------------------------------
 OBJS_DIR	=	objs
 OBJS		=	$(SRCS:%.cpp=$(OBJS_DIR)/%.o)
@@ -169,7 +181,8 @@ INCLUDES_DIR =	includes \
 				$(SRCS_DIR)/$(CONFIG_DIR)/Tokenizer \
 				$(SRCS_DIR)/$(CONFIG_DIR) \
 				$(SRCS_DIR)/$(EVENT_DIR) \
-				$(SRCS_DIR)/$(CGI_DIR)
+				$(SRCS_DIR)/$(CGI_DIR) \
+				$(SRCS_DIR)/$(CLIENT_DIR)
 
 REQUEST_INCLUDES =	$(SRCS_DIR)/$(REQUEST_DIR) \
 					$(SRCS_DIR)/$(DATE_DIR) \
@@ -188,8 +201,6 @@ RESPONSE_INCLUDES =	$(SRCS_DIR)/$(RESPONSE_DIR) \
 					$(SRCS_DIR)/$(RESPONSE_DIR)/GET \
 					$(SRCS_DIR)/$(RESPONSE_DIR)/POST \
 					$(SRCS_DIR)/$(RESPONSE_DIR)/DELETE
-
-INCLUDES	 =	$(addprefix -I, $(INCLUDES_DIR))
 
 
 # RULES ------------------------------------------------------------------------
@@ -314,8 +325,8 @@ run_multi_field_values_test    :
 run_map_field_values_test    :
 	cmake -S . -B build
 	cmake --build build
-#	./build/unit_test --gtest_filter=TestMapFieldValues*
-	./build/unit_test --gtest_filter=TestMapFieldValues*.Cookie*
+	./build/unit_test --gtest_filter=TestMapFieldValues*
+	#./build/unit_test --gtest_filter=TestMapFieldValues*.Cookie*
 
 .PHONY    : run_map_set_field_values_test
 run_map_set_field_values_test    :
@@ -369,8 +380,9 @@ run_parse_test    :
 	#cmake -S . -B build
 	cmake --build build
 	./build/unit_test --gtest_filter=TestParser*
-	#./build/unit_test --gtest_filter=TestParser:TestParse
+#	./build/unit_test --gtest_filter=TestParser:TestParse
 	#./build/unit_test --gtest_filter=TestParser.ParseServer
+#	./build/unit_test --gtest_filter=TestParser.ParseHttp
 
 .PHONY    : run_config_test
 run_config_test    :
@@ -396,6 +408,12 @@ run_post_test    :
 	cmake --build build
 	./build/unit_test --gtest_filter=HttpResponsePOST*
 	@. test/integration/prepare_test_file.sh; clear_test_files
+
+
+#.PHONY	: client
+#client	: $(CLIENT_OBJS)
+#	$(CXX) $(CXXFLAGS) -o $@ $^
+
 
 # include DEPS -----------------------------------------------------------------
 -include $(DEPS)

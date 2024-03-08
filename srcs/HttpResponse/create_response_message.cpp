@@ -33,7 +33,7 @@ void HttpResponse::create_response_message() {
         this->body_buf_.clear();
     }
     if (is_response_error_page()) {
-        DEBUG_PRINT(YELLOW, " exec_method 2 -> error_page", this->status_code());
+        // DEBUG_PRINT(YELLOW, " exec_method 2 -> error_page", this->status_code());
         get_error_page_to_body();
     }
     add_standard_headers();
@@ -49,13 +49,13 @@ void HttpResponse::create_response_message() {
     this->response_msg_.insert(this->response_msg_.end(), this->body_buf_.begin(), this->body_buf_.end());
 
     std::string msg(this->response_msg_.begin(), this->response_msg_.end());
-    DEBUG_SERVER_PRINT("response_message2:[%s]", msg.c_str());
+    DEBUG_SERVER_PRINT("response_message:[%s]", msg.c_str());
 }
 
 
 bool HttpResponse::is_status_error() const {
     int code_num = static_cast<int>(this->status_code());
-    DEBUG_PRINT(MAGENTA, "is_status_error: %d %s"
+    DEBUG_PRINT(MAGENTA, "status: %d -> is_status_error: %s"
             , code_num, (400 <= code_num && code_num <= 599 ? " true" : " false"));
     return 400 <= code_num && code_num <= 599;
 }
@@ -74,20 +74,19 @@ void HttpResponse::get_error_page_to_body() {
     this->body_buf_.clear();
 
     // get_error_page_path
-    DEBUG_PRINT(CYAN, "  get_error_page 1 target: %s, request_status: %d",
-                this->request_.target().c_str(), this->status_code());
+    // DEBUG_PRINT(CYAN, "  get_error_page 1 target: %s, request_status: %d",
+    //             this->request_.target().c_str(), this->status_code());
     Result<std::string, int> result;
     result = Config::get_error_page_path(this->server_config_,
                                          this->request_.target(),
                                          this->status_code());
     if (result.is_err()) {
-        DEBUG_PRINT(CYAN, "  get_error_page 2 -> err");
+        // DEBUG_PRINT(CYAN, "  get_error_page 2 -> err");
         return;
     }
-    DEBUG_PRINT(CYAN, "  get_error_page 3");
+    // DEBUG_PRINT(CYAN, "  get_error_page 3");
     std::string error_page_path = result.ok_value();
-    DEBUG_PRINT(CYAN, "  get_error_page 4 error_page_path: %s", error_page_path.c_str());
-
+    // DEBUG_PRINT(CYAN, "  get_error_page 4 error_page_path: %s", error_page_path.c_str());
     get_file_content(error_page_path, &this->body_buf_);
 }
 
@@ -96,6 +95,8 @@ void HttpResponse::add_standard_headers() {
     add_server_header();
     add_date_header();
     add_keepalive_header();
+    add_content_length();
+    add_allow_header();
 }
 
 
@@ -109,14 +110,37 @@ void HttpResponse::add_server_header() {
 }
 
 
+bool HttpResponse::is_request_too_large() const {
+    return this->status_code() == PayloadTooLarge
+            || this->status_code() == RequestHeaderFieldsTooLarge
+            || this->request_.request_line_status() == StatusInit;  // too long error
+}
+
+
+bool HttpResponse::is_keepalive() const {
+    if (this->request_.is_client_connection_close()) {
+        return false;
+    }
+    const int KEEPALIVE_TIMEOUT_INFINITY = 0;
+    if (this->keepalive_timeout_sec_ == KEEPALIVE_TIMEOUT_INFINITY) {
+        return false;
+    }
+    if (is_request_too_large()) {
+        return false;
+    }
+    return true;
+}
+
+
 void HttpResponse::add_keepalive_header() {
-    if (this->request_.is_client_connection_close() || this->keepalive_timeout_sec_ == 0) {
-        this->headers_["Connection"] = "close";
-    } else {
+    if (is_keepalive()) {
         this->headers_["Connection"] = "keep-alive";
         std::ostringstream field_value;
         field_value << "time=" << this->keepalive_timeout_sec_;
+        field_value << ", max=" << MAX_CONNECTION;
         this->headers_["Keep-Alive"] = field_value.str();
+    } else {
+        this->headers_["Connection"] = "close";
     }
 }
 
@@ -171,6 +195,45 @@ void HttpResponse::add_content_header_by_media_type(const std::string &media_typ
     } else {
         this->headers_["Content-Type"] = media_type;
     }
+    // this->headers_["Content-Length"] = StringHandler::to_string(this->body_buf_.size());
+}
+
+
+void HttpResponse::add_allow_header() {
+    if (this->status_code() != MethodNotAllowed) {
+        return;
+    }
+
+    Result<LimitExceptDirective, int> result = Config::limit_except(this->server_config_,
+                                                                    this->request_.target());
+    if (result.is_err()) {
+        const std::string error_msg = CREATE_ERROR_INFO_STR("error: location not found");
+        DEBUG_PRINT(RED, "%s", error_msg.c_str());  // todo: log
+        return;
+    }
+    LimitExceptDirective limit_except = result.ok_value();
+    std::set<Method> &excluded_methods = limit_except.excluded_methods;
+    if (excluded_methods.empty()) {
+        const std::string error_msg = CREATE_ERROR_INFO_STR("error: excluded method not found");
+        DEBUG_PRINT(RED, "%s", error_msg.c_str());  // todo: log
+        return;
+    }
+
+    std::string allowed_method;
+    std::set<Method>::const_iterator method;
+    for (method = excluded_methods.begin(); method != excluded_methods.end(); ++method) {
+        if (!allowed_method.empty()) {
+            allowed_method.append(", ");
+        }
+        std::string method_str = HttpMessageParser::convert_to_str(*method);
+        allowed_method.append(method_str);
+    }
+    this->headers_["Allow"] = allowed_method;
+}
+
+
+
+void HttpResponse::add_content_length() {
     this->headers_["Content-Length"] = StringHandler::to_string(this->body_buf_.size());
 }
 
@@ -189,7 +252,7 @@ std::string get_status_reason_phrase(const StatusCode &code) {
 std::string HttpResponse::create_status_line(const StatusCode &code) const {
     std::string status_line;
 
-    status_line.append(this->request_.http_version());
+    status_line.append(std::string(HTTP_1_1));
     status_line.append(1, SP);
     status_line.append(StringHandler::to_string(code));
     status_line.append(1, SP);

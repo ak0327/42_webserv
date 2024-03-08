@@ -25,7 +25,7 @@
 
 void Server::management_timeout_events() {
     time_t current_time = std::time(NULL);
-    DEBUG_PRINT(GREEN, "management_timeout current: %zu", current_time);
+    DEBUG_PRINT(GREEN, "[management_timeout_event] current time: %zu", current_time);
 
     management_cgi_executing_timeout(current_time);
     management_active_client_timeout(current_time);
@@ -35,10 +35,10 @@ void Server::management_timeout_events() {
 
 void Server::erase_from_timeout_manager(int cgi_fd) {
     std::set<FdTimeoutLimitPair>::iterator itr;
-    for (itr = this->cgi_fds_.begin(); itr != this->cgi_fds_.end(); ++itr) {
+    for (itr = this->cgi_time_manager_.begin(); itr != this->cgi_time_manager_.end(); ++itr) {
         int fd = itr->second;
         if (cgi_fd == fd) {
-            this->cgi_fds_.erase(itr);
+            this->cgi_time_manager_.erase(itr);
             return;
         }
     }
@@ -47,37 +47,49 @@ void Server::erase_from_timeout_manager(int cgi_fd) {
 
 void Server::management_cgi_executing_timeout(time_t current_time) {
     std::ostringstream cgi_sessions;
-    cgi_sessions << "cgi_sessions:[";
+    cgi_sessions << " [management_cgi_timeout] cgi_sessions:[" << std::endl;
     for (std::map<CgiFd, Event *>::iterator itr = cgi_events_.begin(); itr != cgi_events_.end(); ++itr) {
-        cgi_sessions << "fd:" << itr->first << ", client:" << itr->second << " ";
+        cgi_sessions << " fd:" << itr->first << ", client:" << itr->second << "(fd: " << itr->second->client_fd() << ")" << std::endl;
     }
     cgi_sessions << "]";
     DEBUG_PRINT(GREEN, "%s", cgi_sessions.str().c_str());
 
-    std::ostringstream cgi_fds;
-    cgi_fds << "cgi_fds:[";
-    for (std::set<FdTimeoutLimitPair>::iterator itr = this->cgi_fds_.begin(); itr != this->cgi_fds_.end(); ++itr) {
-        cgi_fds << itr->second << " ";
-    }
-    cgi_fds << "]";
-    DEBUG_PRINT(GREEN, "%s", cgi_fds.str().c_str());
+    // std::ostringstream cgi_fds;
+    // cgi_fds << " cgi_time_manager:[";
+    // for (std::set<FdTimeoutLimitPair>::iterator itr = this->cgi_time_manager_.begin(); itr != this->cgi_time_manager_.end(); ++itr) {
+    //     cgi_fds << itr->second << " ";
+    // }
+    // cgi_fds << "]";
+    // DEBUG_PRINT(GREEN, "%s", cgi_fds.str().c_str());
 
-    std::set<FdTimeoutLimitPair>::const_iterator cgi;
-    for (cgi = this->cgi_fds_.begin(); cgi != this->cgi_fds_.end(); ++cgi) {
+    std::set<FdTimeoutLimitPair>::const_iterator cgi = this->cgi_time_manager_.begin();
+    while (cgi != this->cgi_time_manager_.end()) {
         time_t timeout_limit = cgi->first;
-        DEBUG_SERVER_PRINT(" cgi_fd: %d, time limit: %zu, current: %zu -> %s",
-                           cgi->second, timeout_limit, current_time, (timeout_limit <= current_time ? "tiemout" : "ok"));
+        DEBUG_PRINT(GRAY_BACK, " [management_cgi_timeout] cgi_fd: %d, time limit: %zu, current: %zu -> remain %zu sec",
+                    cgi->second, timeout_limit, current_time, (timeout_limit <= current_time ? 0 : timeout_limit - current_time));
         if (current_time < timeout_limit) {
             break;  // sorted
         }
 
         int cgi_fd = cgi->second;
-        Event *client = this->cgi_events_[cgi_fd];
-        DEBUG_PRINT(RED, " timeout(%zu sec) cgi %d -> kill, client: %p", timeout_limit - current_time, cgi_fd, client);
-        client->kill_cgi_process();
-        DEBUG_PRINT(RED, " cgi killed by signal read:%d, write:%d", client->cgi_read_fd(), client->cgi_write_fd());
+        std::map<CgiFd, Event *>::iterator i = this->cgi_events_.find(cgi_fd);
+        if (i == this->cgi_events_.end()) {
+            DEBUG_PRINT(RED, " [management_cgi_timeout] error: cgi_fd %d not found in cgi_events", cgi_fd);
+            continue;
+        }
+        Event *client = i->second;
+        client->process_cgi_timeout();  // kill process, close fds, client_phase, status, add_to_event?
+        DEBUG_PRINT(RED, " [management_cgi_timeout] cgi killed by signal read:%d, write:%d", client->cgi_read_fd(), client->cgi_write_fd());
+
+        this->cgi_events_.erase(cgi_fd);
+        this->fds_->clear_fd(cgi_fd);
+
+        this->fds_->register_write_fd(client->client_fd());
+
+        std::set<FdTimeoutLimitPair>::const_iterator current = cgi; ++cgi;
+        this->cgi_time_manager_.erase(current);
+        // client->kill_cgi_process();
     }
-    // not erase timeout cgi from cgi_fd; erased after recv cgi result
 }
 
 
@@ -92,10 +104,9 @@ void Server::management_active_client_timeout(time_t current_time) {
     std::set<FdTimeoutLimitPair>::iterator itr = this->active_client_time_manager_.begin();
     while (itr != this->active_client_time_manager_.end()) {
         time_t timeout_limit = itr->first;
-        DEBUG_PRINT(GREEN, " [management] active_client: fd: %d, time limit: %zu, current: %zu -> %s",
-                           itr->second, timeout_limit, current_time, (timeout_limit <= current_time ? "timeout" : "ok"));
+        DEBUG_PRINT(GRAY_BACK, " [management] active_client: fd: %d, time limit: %zu, current: %zu -> remain %zu sed",
+                           itr->second, timeout_limit, current_time, (timeout_limit <= current_time ? 0 : timeout_limit - current_time));
         if (current_time < timeout_limit) {
-            DEBUG_PRINT(GRAY_BACK, " active_client: fd %d: time remaining(%zu sec)", itr->second, timeout_limit - current_time);
             break;  // sorted
         }
 
@@ -121,8 +132,6 @@ void Server::management_active_client_timeout(time_t current_time) {
 
         // client_event->set_to_timeout();
         delete_event(timeout_event);  // client can not recv 408 -> delete
-
-        DEBUG_PRINT(RED, " [management] client %d: time remaining(%zu sec) -> deleted", client_fd, timeout_limit - current_time);
     }
 }
 
@@ -131,10 +140,9 @@ void Server::management_idling_client_timeout(time_t current_time) {
     std::set<FdTimeoutLimitPair>::iterator client = this->idling_client_time_manager_.begin();
     while (client != this->idling_client_time_manager_.end()) {
         time_t timeout_limit = client->first;
-        DEBUG_SERVER_PRINT(" idling_client: fd: %d, time limit: %zu, current: %zu -> %s",
-                           client->second, timeout_limit, current_time, (timeout_limit <= current_time ? "limited" : "ok"));
+        DEBUG_PRINT(GRAY_BACK, " idling_client: fd: %d, time limit: %zu, current: %zu -> remain %zu sec",
+                    client->second, timeout_limit, current_time, (timeout_limit <= current_time ? 0 : timeout_limit - current_time));
         if (current_time < timeout_limit) {
-            DEBUG_PRINT(GRAY_BACK, " idling_client fd %d: time remaining(%zu sec)", client->second, timeout_limit - current_time);
             break;  // sorted
         }
 
@@ -153,7 +161,6 @@ void Server::management_idling_client_timeout(time_t current_time) {
         this->idling_client_time_manager_.erase(current);
 
         delete_event(timeout_event);
-        DEBUG_PRINT(RED, " client %d: time remaining(%zu sec) -> deleted", client_fd, timeout_limit - current_time);
     }
 }
 
@@ -195,11 +202,11 @@ void Server::set_io_timeout() {
         return;
     }
 
-    const int kManagemtntTimeoutMs = 500;
-    if (!this->cgi_fds_.empty()
+    const int kManagementTimeoutMs = 1000;
+    if (!this->cgi_time_manager_.empty()
         || !this->active_client_time_manager_.empty()
         || !this->idling_client_time_manager_.empty()) {
-        this->fds_->set_io_timeout(kManagemtntTimeoutMs);
+        this->fds_->set_io_timeout(kManagementTimeoutMs);
         return;
     }
 
@@ -220,12 +227,18 @@ void Server::idling_event(Event *event) {
     event->clear_request();
     event->clear_response();
 
+    clear_from_active_client_manager(client_fd);
+
+    if (event->init_request_obj() == Failure) {
+        DEBUG_SERVER_PRINT("[idling_event] error: Request memory allocate failed");
+        return;
+    }
+
     time_t timeout_limit = std::time(NULL) + this->config_.keepalive_timeout();
     this->idling_client_time_manager_.insert(FdTimeoutLimitPair(timeout_limit, client_fd));
 
-    clear_from_active_client_manager(client_fd);
-
-    DEBUG_SERVER_PRINT("init event add: client_fd %d, timeout: %zu", client_fd, timeout_limit);
+    DEBUG_SERVER_PRINT("[idling_event] add fd %d to idling -> timeout: %zu, remain %zu sec",
+                       client_fd, timeout_limit, this->config_.keepalive_timeout());
     DEBUG_SERVER_PRINT("------------------------------------------------------------------------------------------------");
 }
 
@@ -242,7 +255,7 @@ void Server::clear_from_active_client_manager(int fd) {
         return;
     }
 
-    DEBUG_SERVER_PRINT("clear from active_client_manager: fd %d", fd);
+    DEBUG_SERVER_PRINT("[clear from active_client_manager] clear fd %d (%d)", fd, __LINE__);
     this->active_client_time_manager_.erase(client);
 }
 
@@ -252,7 +265,7 @@ void Server::clear_from_active_client_manager(int fd) {
 // send_timeout: return from CreateResponse ->
 void Server::handle_active_client_timeout(Event *client_event) {
     if (!client_event) { return; }
-    // DEBUG_PRINT(WHITE, "handle_active_client_timeout");
+    DEBUG_PRINT(WHITE, "[handle_active_client_timeout] (%d)", __LINE__);
 
     int client_fd = client_event->client_fd();
     switch (client_event->event_phase()) {
@@ -281,6 +294,7 @@ void Server::handle_active_client_timeout(Event *client_event) {
         case kExecutingMethod:
         case kCreatingResponseBody:
         case kCreatingCGIBody:
+        case kExecuteCGI:
             // clear timeout for sending response
             if (is_already_managed(client_fd)) {
                 DEBUG_PRINT(WHITE, " [active client timeout] CreatingBody: clear timeout fd: %d", client_fd);

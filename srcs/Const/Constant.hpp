@@ -74,6 +74,8 @@ extern const int OFFSET_NONE;
 extern const std::size_t FILE_SIZE_LIMIT;
 extern const std::size_t CLIENT_HEADER_MAX_SIZE;
 
+extern const std::size_t MAX_CONNECTION;
+
 ////////////////////////////////////////////////////////////////////////////////
 /* status */
 
@@ -101,8 +103,9 @@ enum StatusCode {
     RequestTimeout          = 408,
     Conflict                = 409,
     LengthRequired          = 411,
-    ContentTooLarge         = 413,
+    PayloadTooLarge         = 413,
     URITooLong              = 414,
+    UnsupportedMediaType    = 415,
     RequestHeaderFieldsTooLarge = 431,
 
     InternalServerError     = 500,
@@ -110,7 +113,9 @@ enum StatusCode {
     BadGateway              = 502,
     ServiceUnavailable      = 503,
     GatewayTimeout          = 504,
-    HTTPVersionNotSupported = 505
+    HTTPVersionNotSupported = 505,
+
+    StatusInit
 };
 
 extern const std::map<StatusCode, std::string> STATUS_REASON_PHRASES;
@@ -171,9 +176,19 @@ enum Method {
     kGET, kPOST, kDELETE, kErrorMethod
 };
 
+// support
 extern const char GET_METHOD[];
 extern const char POST_METHOD[];
 extern const char DELETE_METHOD[];
+
+// not support
+extern const char HEAD_METHOD[];
+extern const char PUT_METHOD[];
+extern const char CONNECT_METHOD[];
+extern const char OPTIONS_METHOD[];
+extern const char TRACE_METHOD[];
+extern const char PATCH_METHOD[];
+
 
 extern const std::vector<std::string> METHODS;
 
@@ -182,6 +197,7 @@ std::vector<std::string> init_methods();
 ////////////////////////////////////////////////////////////////////////////////
 /* http version */
 
+extern const char HTTP_1_0[];
 extern const char HTTP_1_1[];
 extern const char HTTP_2_0[];
 extern const char HTTP_3_0[];

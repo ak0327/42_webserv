@@ -41,6 +41,19 @@ Event::~Event() {
 }
 
 
+// HttpRequest must memory allocate
+// Using `new` in HttpRequest and copy ptr to HttpResponse
+ProcResult Event::init_request_obj() {
+    try {
+        this->request_ = new HttpRequest();
+        return Success;
+    }
+    catch (const std::exception &e) {
+        return FatalError;
+    }
+}
+
+
 void Event::clear_request() {
     if (this->request_) {
         delete this->request_;
@@ -59,26 +72,48 @@ void Event::clear_response() {
 
 void Event::close_client_fd() {
     if (this->client_fd_ != INIT_FD) {
-        shutdown(this->client_fd_, SHUT_RDWR);
         close(this->client_fd_);
         this->client_fd_ = INIT_FD;
     }
 }
 
 
-void Event::kill_cgi_process() {
+void Event::process_cgi_timeout() {
+    DEBUG_PRINT(RED, "[process cgi timeout]");
     if (this->response_) {
-        this->response_->kill_cgi_process();
-    }
-}
-
-
-// todo: unused??
-void Event::clear_cgi() {
-    if (this->response_) {
+        DEBUG_PRINT(RED, " clear cgi");
         this->response_->clear_cgi();
+        this->response_->set_status_to_cgi_timeout();
+        this->response_->create_response_message();
     }
+    DEBUG_PRINT(RED, " set event");
+    this->set_event_phase(kSendingResponse);
 }
+
+
+ProcResult Event::set_to_max_connection_event() {
+    this->request_->set_request_status(ServiceUnavailable);
+    if (create_response_obj() == FatalError) {
+        return Failure;
+    }
+    this->response_->create_response_message();
+    this->set_event_phase(kSendingResponse);
+    return Success;
+}
+
+// void Event::kill_cgi_process() {
+//     if (this->response_) {
+//         this->response_->kill_cgi_process();
+//     }
+// }
+
+
+// // todo: unused??
+// void Event::clear_cgi() {
+//     if (this->response_) {
+//         this->response_->clear_cgi();
+//     }
+// }
 
 
 time_t Event::cgi_timeout_limit() const {
@@ -194,9 +229,10 @@ bool Event::is_keepalive() const {
     if (this->echo_mode_on_) {
         return false;
     }
-    if (!this->request_ || this->request_->is_client_connection_close()) {
+    if (!(this->response_ && this->response_->is_keepalive())) {
         return false;
     }
+    // response may be null?
     const int KEEPALIVE_TIMEOUT_INFINITY = 0;
     return this->config_.keepalive_timeout() != KEEPALIVE_TIMEOUT_INFINITY;
 }

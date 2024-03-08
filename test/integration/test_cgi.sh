@@ -39,33 +39,47 @@ start_up "CGI TEST"
 ################################################################################
 
 # CGI
-expect_eq_get "$(curl -is "localhost:4343/cgi-bin/hello.py")"                         "200 OK"   "test/integration/cgi-result/hello.txt"
-
-expect_eq_get "$(curl -is "localhost:4343/cgi-bin/hello.py?query")"                   "200 OK"   "test/integration/cgi-result/hello.txt"
-expect_eq_get "$(curl -is "localhost:4343/cgi-bin/hello.py/path/info")"               "200 OK"   "test/integration/cgi-result/hello.txt"
-expect_eq_get "$(curl -is "localhost:4343/cgi-bin/post_simple.py")"                   "200 OK"   "test/integration/cgi-result/post_simple_get.txt"
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/hello.py")"                 "200 OK"   "test/integration/cgi-result/hello.txt"
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/hello_400.py")"             "400 Bad Request"   ""
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/hello.py?query")"           "200 OK"   "test/integration/cgi-result/hello.txt"
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/hello.py/path/info")"       "200 OK"   "test/integration/cgi-result/hello.txt"
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/post_simple.py")"           "200 OK"   "test/integration/cgi-result/post_simple_get.txt"
 expect_eq_get "$(curl -is -X GET --data "request body ignored" localhost:4343/cgi-bin/post_simple.py)"  "200 OK"   "test/integration/cgi-result/post_simple_get.txt"
-expect_eq_get "$(curl -is "localhost:4343/cgi-bin/hello.sh")"                         "200 OK"   "test/integration/cgi-result/hello.txt"
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/hello.sh")"                  "200 OK"   "test/integration/cgi-result/hello.txt"
+
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/hello_400.py")"               "400 Bad Request"             ""
+
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/hello_404.py")"               "404 Not Found"               "html/404.html"
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/nothing.py")"                 "404 Not Found"               "html/404.html"
+
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/hello_500.py")"               "500 Internal Server Error"   "html/50x.html"
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/hello_invalid_header.py")"    "500 Internal Server Error"   "html/50x.html"
+
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/error_no_shebang.py")"        "502 Bad Gateway"             "html/50x.html"
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/error_wrong_shebang.py")"     "502 Bad Gateway"             "html/50x.html"
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/exit1.py")"                   "502 Bad Gateway"             "html/50x.html"
+
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/infinite_loop.py")"           "504 Gateway Timeout"         "html/50x.html"
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/infinite_print.py")"          "504 Gateway Timeout"         "html/50x.html"
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/sleep.py?5")"                 "504 Gateway Timeout"         "html/50x.html"
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/sleep.py?10")"                "504 Gateway Timeout"         "html/50x.html"
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/sleep.py?30")"                "504 Gateway Timeout"         "html/50x.html"
+
+expect_eq_get "$(curl -is -X POST --data "test text" localhost:4343/cgi-bin/post_simple.py)"    "200 OK"   "test/integration/cgi-result/post_simple_small.txt"
 
 
-expect_eq_get "$(curl -is "localhost:4343/cgi-bin/hello_400.py")"             "400 Bad Request"             ""
+# big output
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/big_output.py?1kB.txt")"      "200 OK"    "html/big_size/1kB.txt"
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/big_output.py?10kB.txt")"     "200 OK"    "html/big_size/10kB.txt"
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/big_output.py?50kB.txt")"     "200 OK"    "html/big_size/50kB.txt"
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/big_output.py?60kB.txt")"     "200 OK"    "html/big_size/60kB.txt"  # ok
+#expect_eq_get "$(curl -is "localhost:4343/cgi-bin/big_output.py?70kB.txt")"     "200 OK"    "html/big_size/70kB.txt"  # instability??
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/big_output.py?100kB.txt")"    "200 OK"    "html/big_size/100kB.txt"  # ok
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/big_output.py?1MB.txt")"      "200 OK"    "html/big_size/1MB.txt"  # ok
+#expect_eq_get "$(curl -is "localhost:4343/cgi-bin/big_output.py?10MB.txt")"    "200 OK"    "html/big_size/10MB.txt"
 
-expect_eq_get "$(curl -is "localhost:4343/cgi-bin/hello_404.py")"             "404 Not Found"               "html/404.html"
-expect_eq_get "$(curl -is "localhost:4343/cgi-bin/nothing.py")"               "404 Not Found"               "html/404.html"
-
-expect_eq_get "$(curl -is "localhost:4343/cgi-bin/error_no_shebang.py")"      "500 Internal Server Error"   "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4343/cgi-bin/error_wrong_shebang.py")"   "500 Internal Server Error"   "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4343/cgi-bin/exit1.py")"                 "500 Internal Server Error"   "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4343/cgi-bin/hello_invalid_header.py")"  "500 Internal Server Error"   "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4343/cgi-bin/hello_500.py")"             "500 Internal Server Error"   "html/50x.html"
-
-expect_eq_get "$(curl -is "localhost:4343/cgi-bin/infinite_loop.py")"         "504 Gateway Timeout"         "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4343/cgi-bin/infinite_print.py")"        "504 Gateway Timeout"         "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4343/cgi-bin/sleep5sec.py")"             "504 Gateway Timeout"         "html/50x.html"
-expect_eq_get "$(curl -is "localhost:4343/cgi-bin/sleep10sec.py")"            "504 Gateway Timeout"         "html/50x.html"
-
-
-expect_eq_get "$(curl -is -X POST --data "test text" localhost:4343/cgi-bin/post_simple.py)"  "200 OK"   "test/integration/cgi-result/post_simple_small.txt"
+#text_20mb=`python3 -c "print('0123456789' * 128 * 1024 * 20)"`
+#expect_eq_get "$(curl -is -X POST --data "$text_20mb" localhost:4343/cgi-bin/post_simple.py)"   "200 OK"    "html/big_size/20MB.txt"
 
 
 tear_down

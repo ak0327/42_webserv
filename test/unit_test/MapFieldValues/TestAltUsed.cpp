@@ -105,7 +105,7 @@ TEST(TestMapFieldValues, AltUsedOK4) {
 		FieldValueBase *field_values = request.get_field_values(field_name);
 		MapFieldValues *multi_field_values = dynamic_cast<MapFieldValues *>(field_values);
 		std::map<std::string, std::string> actual_map = multi_field_values->get_value_map();
-		std::map<std::string, std::string> expected_map = {{std::string(URI_HOST), "[ABCD:EF01:2345:6789:ABCD:EF01:2345:6789]"},
+		std::map<std::string, std::string> expected_map = {{std::string(URI_HOST), "[abcd:ef01:2345:6789:abcd:ef01:2345:6789]"},
 														   {std::string(PORT), "8080"}};
 
 		EXPECT_EQ(expected_map, actual_map);

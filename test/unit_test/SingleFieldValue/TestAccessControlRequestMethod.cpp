@@ -115,7 +115,7 @@ TEST(TestSingleFieldValue, AccessControlRequestMethod6) {
 	const std::string field_name = std::string(ACCESS_CONTROL_REQUEST_METHOD);
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
-	EXPECT_FALSE(has_field_name);
+	EXPECT_TRUE(has_field_name);
 
 	EXPECT_EQ(STATUS_OK, request.request_status());
 }
@@ -130,7 +130,7 @@ TEST(TestSingleFieldValue, AccessControlRequestMethod7) {
 	const std::string field_name = std::string(ACCESS_CONTROL_REQUEST_METHOD);
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
-	EXPECT_FALSE(has_field_name);
+	EXPECT_TRUE(has_field_name);
 
 	EXPECT_EQ(STATUS_OK, request.request_status());
 }
@@ -145,7 +145,7 @@ TEST(TestSingleFieldValue, AccessControlRequestMethod8) {
 	const std::string field_name = std::string(ACCESS_CONTROL_REQUEST_METHOD);
 
 	has_field_name = request.is_valid_field_name_registered(field_name);
-	EXPECT_FALSE(has_field_name);
+	EXPECT_TRUE(has_field_name);
 
 	EXPECT_EQ(STATUS_OK, request.request_status());
 }

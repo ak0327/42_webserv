@@ -67,6 +67,8 @@ const int OFFSET_NONE = 0;
 const std::size_t FILE_SIZE_LIMIT = 65535;
 const std::size_t CLIENT_HEADER_MAX_SIZE = 1024 * 5;  // 5kB
 
+const std::size_t MAX_CONNECTION = 128;
+
 ////////////////////////////////////////////////////////////////////////////////
 /* status */
 
@@ -98,8 +100,9 @@ std::map<StatusCode, std::string> init_reason_phrases() {
     reason_phrases[RequestTimeout]          = "Request Timeout";
     reason_phrases[Conflict]                = "Conflict";
     reason_phrases[LengthRequired]          = "Length Required";
-    reason_phrases[ContentTooLarge]         = "Content Too Large";
+    reason_phrases[PayloadTooLarge]         = "Payload Too Large";
     reason_phrases[URITooLong]              = "URI Too Long";
+    reason_phrases[UnsupportedMediaType]    = "Unsupported Media Type";
     reason_phrases[RequestHeaderFieldsTooLarge] = "Request Header Fields Too Large";
 
     reason_phrases[InternalServerError]     = "Internal Server Error";
@@ -161,9 +164,18 @@ const char CRLF[] = "\r\n";
 ////////////////////////////////////////////////////////////////////////////////
 /* method */
 
-const char GET_METHOD[] = "GET";
-const char POST_METHOD[] = "POST";
-const char DELETE_METHOD[] = "DELETE";
+// support
+const char GET_METHOD[]     = "GET";
+const char POST_METHOD[]    = "POST";
+const char DELETE_METHOD[]  = "DELETE";
+
+// not support
+const char HEAD_METHOD[]    = "HEAD";
+const char PUT_METHOD[]     = "PUT";
+const char CONNECT_METHOD[] = "CONNECT";
+const char OPTIONS_METHOD[] = "OPTIONS";
+const char TRACE_METHOD[]   = "TRACE";
+const char PATCH_METHOD[]   = "PATCH";
 
 const std::vector<std::string> METHODS = init_methods();
 
@@ -173,12 +185,20 @@ std::vector<std::string> init_methods() {
 	methods.push_back(std::string(GET_METHOD));
 	methods.push_back(std::string(POST_METHOD));
 	methods.push_back(std::string(DELETE_METHOD));
+
+    methods.push_back(std::string(HEAD_METHOD));
+    methods.push_back(std::string(PUT_METHOD));
+    methods.push_back(std::string(CONNECT_METHOD));
+    methods.push_back(std::string(OPTIONS_METHOD));
+    methods.push_back(std::string(TRACE_METHOD));
+    methods.push_back(std::string(PATCH_METHOD));
 	return methods;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 /* http version */
 
+const char HTTP_1_0[] = "HTTP/1.0";
 const char HTTP_1_1[] = "HTTP/1.1";
 const char HTTP_2_0[] = "HTTP/2.0";
 const char HTTP_3_0[] = "HTTP/3.0";
@@ -188,6 +208,7 @@ const std::vector<std::string> HTTP_VERSIONS = init_http_versions();
 std::vector<std::string> init_http_versions() {
 	std::vector<std::string> http_versions;
 
+    http_versions.push_back(std::string(HTTP_1_0));
 	http_versions.push_back(std::string(HTTP_1_1));
 	http_versions.push_back(std::string(HTTP_2_0));
 	http_versions.push_back(std::string(HTTP_3_0));
@@ -619,6 +640,7 @@ MimeTypeMap init_mime_types() {
     mime_types["css"]   = "text/css";
     mime_types["txt"]   = "text/plain";
     mime_types["py"]    = "text/x-python";
+    // mime_types["sh"]    = "text/x-shell";
 
     mime_types["gif"]   = "image/gif";
     mime_types["jpeg"]  = "image/jpeg";
@@ -626,7 +648,11 @@ MimeTypeMap init_mime_types() {
     mime_types["png"]   = "image/png";
     mime_types["ico"]   = "image/x-ico";
 
-    mime_types["json"]  = "application/json";  // todo
+    mime_types["json"]  = "application/json";
+
+    // tmp: form -> define other structure
+    mime_types["form-urlencoded"] = "application/x-www-form-urlencoded";
+    mime_types["form-data"] = "multipart/form-data";
 
     return mime_types;
 }

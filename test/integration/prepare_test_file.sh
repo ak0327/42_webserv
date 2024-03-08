@@ -53,11 +53,16 @@ create_big_size_files() {
 
   mkdir "$workdir"
 
-  echo -n `python3 -c "print('01234567' * 128)"` > "$workdir/1kB.txt"
-  echo -n `python3 -c "print('01234567' * 128 * 1024)"` > "$workdir/1MB.txt"
-  echo -n `python3 -c "print('01234567' * 128 * 1024 * 10)"` > "$workdir/10MB.txt"
-  echo -n `python3 -c "print('01234567' * 128 * 1024 * 19)"` > "$workdir/19MB.txt"
-  echo -n `python3 -c "print('01234567' * 128 * 1024 * 20)"` > "$workdir/20MB.txt"
+  echo `python3 -c "print('01234567' * 128)"` > "$workdir/1kB.txt"
+  echo `python3 -c "print('01234567' * 128 * 10)"` > "$workdir/10kB.txt"
+  echo `python3 -c "print('01234567' * 128 * 50)"` > "$workdir/50kB.txt"
+  echo `python3 -c "print('01234567' * 128 * 60)"` > "$workdir/60kB.txt"
+  echo `python3 -c "print('01234567' * 128 * 70)"` > "$workdir/70kB.txt"
+  echo `python3 -c "print('01234567' * 128 * 100)"` > "$workdir/100kB.txt"
+  echo `python3 -c "print('01234567' * 128 * 1024)"` > "$workdir/1MB.txt"
+  echo `python3 -c "print('01234567' * 128 * 1024 * 10)"` > "$workdir/10MB.txt"
+  echo `python3 -c "print('01234567' * 128 * 1024 * 19)"` > "$workdir/19MB.txt"
+  echo `python3 -c "print('01234567' * 128 * 1024 * 20)"` > "$workdir/20MB.txt"
 #  echo -n `python3 -c "print('a' * 1024 * 1024 * 100)"` > "$workdir/100MB.txt"
 
   ls -l "$workdir"

@@ -59,17 +59,24 @@ void CgiHandler::kill_cgi_process() {
         return;
     }
 
-    // int process_status;
-    // if (!is_processing(&process_status)) {
-    //     return;
-    // }
     DEBUG_PRINT(RED, "kill pid: %d at %zu", pid(), std::time(NULL));
-    errno = 0;
-    if (kill(pid(), SIGKILL) == KILL_ERROR) {
-        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
-        std::cerr << error_msg << std::endl;  // todo: log
+    int status = -1;
+    if (!is_processing(&status)) {
+        DEBUG_PRINT(RED, "child status: %d", status);
+        return;
     }
-    // set_cgi_pid(INIT_PID);
+    if (this->pid() == -1) {
+        return;
+    }
+    errno = 0;
+    if (kill(this->pid(), SIGKILL) == KILL_ERROR) {
+        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+        DEBUG_PRINT(RED, "kill: %s", error_msg.c_str());
+    }
+    if (is_processing(&status, FLAG_NONE)) {
+        DEBUG_PRINT(RED, "kill failure ??");
+    }
+    DEBUG_PRINT(RED, "kill -> child still running");
 }
 
 
@@ -246,7 +253,8 @@ ProcResult CgiHandler::recv_cgi_output() {
     DEBUG_PRINT(YELLOW, "     recv_to_cgi_buf at %zu", std::time(NULL));
     ssize_t recv_size = Socket::recv_to_buf(this->read_fd(), &this->recv_buf_);
     DEBUG_PRINT(YELLOW, "      recv_size: %zd", recv_size);
-    DEBUG_PRINT(YELLOW, "      recv_buf :[%s]", std::string(this->recv_buf_.begin(), this->recv_buf_.end()).c_str());
+    // DEBUG_PRINT(YELLOW, "      recv_buf :[%s]", std::string(this->recv_buf_.begin(), this->recv_buf_.end()).c_str());
+    DEBUG_PRINT(GRAY_BACK, "      buf_size: %zd", this->recv_buf_.size());
 
     int process_exit_status;
     if (is_processing(&process_exit_status)) {
@@ -593,21 +601,28 @@ bool CgiHandler::is_processing() const {
 }
 
 
-bool CgiHandler::is_processing(int *status) {
-    DEBUG_PRINT(YELLOW, "    is_cgi_processing 1 pid: %d at %zu", pid(), std::time(NULL));
+bool CgiHandler::is_processing(int *status, int flag) {
+    DEBUG_PRINT(YELLOW, "  [is_cgi_processing]: 1 pid: %d at %zu", pid(), std::time(NULL));
     int child_status;
     errno = 0;
-    pid_t wait_result = waitpid(pid(), &child_status, WNOHANG);
+    pid_t wait_result = waitpid(this->pid(), &child_status, flag);
     int tmp_err = errno;
-    DEBUG_PRINT(YELLOW, "    is_cgi_processing 3");
-    DEBUG_PRINT(YELLOW, "     wait_result: %d, errno: %d (ECHILD: %d)", wait_result, tmp_err, ECHILD);
-    if (wait_result == PROCESSING || (wait_result == WAIT_ERROR && tmp_err != ECHILD)) {
-        DEBUG_PRINT(YELLOW, "    is_cgi_processing 5 -> continue");
+    DEBUG_PRINT(YELLOW, "  [is_cgi_processing]: 3");
+    DEBUG_PRINT(YELLOW, "   wait_result: %d, errno: %d (ECHILD: %d)", wait_result, tmp_err, ECHILD);
+    if (wait_result == PROCESSING) {
+        DEBUG_PRINT(YELLOW, "  waitpid=0 -> continue");
         return true;
     }
+    // if (wait_result == WAIT_ERROR && tmp_err != ECHILD) {
+    //     DEBUG_PRINT(YELLOW, "  waitpid=-1&&errno != ECHILD-> continue");
+    //     return true;
+    // }
+    DEBUG_PRINT(YELLOW, "  [is_cgi_processing]: 6");
 
-    DEBUG_PRINT(YELLOW, "    is_cgi_processing 6");
-    if (0 < wait_result && status) {
+    if (!status) {
+        return false;
+    }
+    if (0 < wait_result) {
         if (WIFSIGNALED(child_status)) {
             int term_sig = WTERMSIG(child_status);
             if (term_sig == SIGKILL) {
@@ -618,10 +633,10 @@ bool CgiHandler::is_processing(int *status) {
             DEBUG_PRINT(YELLOW, "    Child terminated by signal: %d, status: %d", term_sig, *status);
         } else {
             *status = WEXITSTATUS(child_status);
-            DEBUG_PRINT(YELLOW, "    is_cgi_processing 7 status: %d", *status);
+            DEBUG_PRINT(YELLOW, "  [is_cgi_processing]: 7 status: %d", *status);
         }
     }
-    DEBUG_PRINT(YELLOW, "    is_cgi_processing 8 pid set to init -> next");
+    DEBUG_PRINT(YELLOW, "  [is_cgi_processing]: 8 pid set to init -> next");
     set_cgi_pid(INIT_PID);
     return false;
 }
