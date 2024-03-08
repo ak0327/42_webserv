@@ -59,31 +59,24 @@ void CgiHandler::kill_cgi_process() {
         return;
     }
 
-    // int process_status;
-    // if (!is_processing(&process_status)) {
-    //     return;
-    // }
     DEBUG_PRINT(RED, "kill pid: %d at %zu", pid(), std::time(NULL));
-    while (true) {
-        if (this->pid() == -1) {
-            break;
-        }
-        errno = 0;
-        if (kill(this->pid(), SIGKILL) == KILL_ERROR) {
-            const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
-            // std::cerr << error_msg << std::endl;  // todo: log
-            DEBUG_PRINT(RED, "kill: %s", error_msg.c_str());
-        }
-        int status = -1;
-        bool processing = is_processing(&status);
+    int status = -1;
+    if (!is_processing(&status)) {
         DEBUG_PRINT(RED, "child status: %d", status);
-        if (!processing) {
-            break;
-            DEBUG_PRINT(RED, "kill -> child still running");
-        }
+        return;
     }
-    DEBUG_PRINT(RED, "process killed");
-    // set_cgi_pid(INIT_PID);
+    if (this->pid() == -1) {
+        return;
+    }
+    errno = 0;
+    if (kill(this->pid(), SIGKILL) == KILL_ERROR) {
+        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+        DEBUG_PRINT(RED, "kill: %s", error_msg.c_str());
+    }
+    if (is_processing(&status, FLAG_NONE)) {
+        DEBUG_PRINT(RED, "kill failure ??");
+    }
+    DEBUG_PRINT(RED, "kill -> child still running");
 }
 
 
@@ -608,11 +601,11 @@ bool CgiHandler::is_processing() const {
 }
 
 
-bool CgiHandler::is_processing(int *status) {
+bool CgiHandler::is_processing(int *status, int flag) {
     DEBUG_PRINT(YELLOW, "  [is_cgi_processing]: 1 pid: %d at %zu", pid(), std::time(NULL));
     int child_status;
     errno = 0;
-    pid_t wait_result = waitpid(this->pid(), &child_status, WNOHANG);
+    pid_t wait_result = waitpid(this->pid(), &child_status, flag);
     int tmp_err = errno;
     DEBUG_PRINT(YELLOW, "  [is_cgi_processing]: 3");
     DEBUG_PRINT(YELLOW, "   wait_result: %d, errno: %d (ECHILD: %d)", wait_result, tmp_err, ECHILD);

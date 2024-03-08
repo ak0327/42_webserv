@@ -72,10 +72,10 @@ expect_eq_get "$(curl -is -X POST --data "test text" localhost:4343/cgi-bin/post
 expect_eq_get "$(curl -is "localhost:4343/cgi-bin/big_output.py?1kB.txt")"      "200 OK"    "html/big_size/1kB.txt"
 expect_eq_get "$(curl -is "localhost:4343/cgi-bin/big_output.py?10kB.txt")"     "200 OK"    "html/big_size/10kB.txt"
 expect_eq_get "$(curl -is "localhost:4343/cgi-bin/big_output.py?50kB.txt")"     "200 OK"    "html/big_size/50kB.txt"
-expect_eq_get "$(curl -is "localhost:4343/cgi-bin/big_output.py?60kB.txt")"     "200 OK"    "html/big_size/60kB.txt"
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/big_output.py?60kB.txt")"     "200 OK"    "html/big_size/60kB.txt"  # ok
 #expect_eq_get "$(curl -is "localhost:4343/cgi-bin/big_output.py?70kB.txt")"     "200 OK"    "html/big_size/70kB.txt"  # instability??
-expect_eq_get "$(curl -is "localhost:4343/cgi-bin/big_output.py?100kB.txt")"    "200 OK"    "html/big_size/100kB.txt"
-expect_eq_get "$(curl -is "localhost:4343/cgi-bin/big_output.py?1MB.txt")"      "200 OK"    "html/big_size/1MB.txt"
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/big_output.py?100kB.txt")"    "200 OK"    "html/big_size/100kB.txt"  # ok
+expect_eq_get "$(curl -is "localhost:4343/cgi-bin/big_output.py?1MB.txt")"      "200 OK"    "html/big_size/1MB.txt"  # ok
 #expect_eq_get "$(curl -is "localhost:4343/cgi-bin/big_output.py?10MB.txt")"    "200 OK"    "html/big_size/10MB.txt"
 
 #text_20mb=`python3 -c "print('0123456789' * 128 * 1024 * 20)"`

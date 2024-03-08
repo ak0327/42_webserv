@@ -45,7 +45,7 @@ class CgiHandler {
     const std::vector<unsigned char> &cgi_body() const;
     void clear_recv_buf();
 
-    bool is_processing(int *status);
+    bool is_processing(int *status, int flag = WNOHANG);
     bool is_processing() const;
     bool is_process_timeout() const;
 
