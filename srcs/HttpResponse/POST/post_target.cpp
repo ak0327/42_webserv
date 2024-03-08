@@ -229,7 +229,7 @@ StatusCode HttpResponse::upload_multipart_form_data(const std::string &boundary)
     if (upload_result == StatusOk) {
         // upload_result = SeeOther;
         upload_result = Created;
-        this->headers_["Location"] = "/upload/" + form_data.file_name;
+        this->headers_["Location"] = this->request_.target() + form_data.file_name;
 
         std::string jump_to_upload = "<!doctype html>\n"
                                      "<html lang=\"ja\">\n"
@@ -238,7 +238,7 @@ StatusCode HttpResponse::upload_multipart_form_data(const std::string &boundary)
                                      "    <title>POST params</title>\n"
                                      "</head>\n"
                                      "<body>\n"
-                                     "<a href=\"/upload/\">jump to upload</a>"
+                                     "<a href=\"" + this->request_.target() + "\">jump to upload</a>"
                                      "</body>\n"
                                      "</html>\n";
         this->body_buf_.assign(jump_to_upload.begin(), jump_to_upload.end());
