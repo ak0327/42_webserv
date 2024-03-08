@@ -160,7 +160,8 @@ ProcResult HttpResponse::send_request_body_to_cgi() {
     if (result == Continue) {
         return Continue;
     }
-    shutdown(this->cgi_write_fd(), SHUT_WR);
+    this->cgi_handler_.close_write_fd();
+    // shutdown(this->cgi_write_fd(), SHUT_WR);
     DEBUG_PRINT(YELLOW, "shutdown cgi write_fd");
     if (result == Failure) {
         StatusCode error_code = InternalServerError;
