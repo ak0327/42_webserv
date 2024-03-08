@@ -26,8 +26,10 @@ EventResult Event::process_file_event() {
             DEBUG_PRINT(YELLOW, "   CGI Executing");
             ProcResult exec_result = this->response_->exec_cgi_process();
             if (exec_result == Failure) {
-                const std::string error_msg = CREATE_ERROR_INFO_STR("cgi exec error");
-                return EventResult::err(error_msg);
+                // const std::string error_msg = CREATE_ERROR_INFO_STR("cgi exec error");
+                // return EventResult::err(error_msg);
+                this->set_event_phase(kCreatingCGIBody);
+                return EventResult::ok(Failure);
             }
             DEBUG_PRINT(YELLOW, "    success -> send");
             this->set_event_phase(kSendingRequestBodyToCgi);

@@ -215,7 +215,7 @@ ProcResult Event::create_http_response() {
                 }
                 DEBUG_SERVER_PRINT(" -> create body (L:%d)", __LINE__);
             }
-                // fallthrough
+            // fallthrough
 
             case kCreatingResponseBody: {
                 DEBUG_SERVER_PRINT("[CreatingResponse] CreatingResponseBody (L:%d)", __LINE__);
@@ -335,11 +335,11 @@ ProcResult Event::execute_each_method() {
 ProcResult Event::exec_cgi() {
     this->set_event_phase(kExecuteCGI);
     EventResult result = process_file_event();
-    if (result.is_err()) {
+    if (result.is_err()) {  // not come here?
         std::cerr << result.err_value() << std::endl;  // todo: logging
         return Failure;
     }
-    return ExecutingCgi;
+    return result.ok_value();  // Failure or ExecutingCgi
 }
 
 
