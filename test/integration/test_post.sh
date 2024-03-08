@@ -55,7 +55,7 @@ test_post_upload "html/big_size/" "10MB.txt"      "localhost:4242/upload/"  "201
 test_post_upload "html/big_size/" "19MB.txt"      "localhost:4242/upload/"  "201 Created"   true
 
 
-test_post_upload "html/big_size/" "20MB.txt"      "localhost:4242/upload/"  "413 Content Too Large"   false
+test_post_upload "html/big_size/" "20MB.txt"      "localhost:4242/upload/"  "413 Payload Too Large"   false
 #test_post_upload "html/"          "hoge"          "localhost:4242/upload/"  "400 Bad Request"         false # curl error
 #test_post_upload "html/"          "nothing.html"  "localhost:4242/upload/"  "404 Not Found"           false # curl error
 
@@ -97,9 +97,9 @@ test_post_upload "html/permission/rwx/"   "r__.html"  "localhost:4242/upload/"  
 test_post_upload "html/permission/rwx/"   "rwx.html"  "localhost:4242/upload/"  "201 Created"     true
 
 
-expect_eq_get "$(curl -is -H "Content-Length: 21" -X POST "localhost:4242/dir_a/")"                                         "413 Content Too Large"    ""
-expect_eq_get "$(curl -is -H "Content-Length: 21" -X POST "localhost:4242/dir_a/" --data "$(python3 -c "print('a'*21)")")"  "413 Content Too Large"    ""
-expect_eq_get "$(curl -is -X POST "localhost:4242/dir_a/" --data "$(python3 -c "print('a'*100)")")"                         "413 Content Too Large"    ""
+expect_eq_get "$(curl -is -H "Content-Length: 21" -X POST "localhost:4242/dir_a/")"                                         "413 Payload Too Large"    ""
+expect_eq_get "$(curl -is -H "Content-Length: 21" -X POST "localhost:4242/dir_a/" --data "$(python3 -c "print('a'*21)")")"  "413 Payload Too Large"    ""
+expect_eq_get "$(curl -is -X POST "localhost:4242/dir_a/" --data "$(python3 -c "print('a'*100)")")"                         "413 Payload Too Large"    ""
 
 
 
