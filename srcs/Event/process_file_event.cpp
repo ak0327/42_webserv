@@ -14,7 +14,7 @@
 #include "StringHandler.hpp"
 
 
-EventResult Event::process_file_event() {
+ProcResult Event::process_file_event() {
     switch (this->event_state_) {
         case kReadingFile: {
             // unused
@@ -26,15 +26,12 @@ EventResult Event::process_file_event() {
             DEBUG_PRINT(YELLOW, "   CGI Executing");
             ProcResult exec_result = this->response_->exec_cgi_process();
             if (exec_result == Failure) {
-                // const std::string error_msg = CREATE_ERROR_INFO_STR("cgi exec error");
-                // return EventResult::err(error_msg);
                 this->set_event_phase(kCreatingCGIBody);
-                return EventResult::ok(Failure);
+                return Failure;
             }
             DEBUG_PRINT(YELLOW, "    success -> send");
             this->set_event_phase(kSendingRequestBodyToCgi);
-            return EventResult::ok(ExecutingCgi);
-            // todo register write fd
+            return ExecutingCgi;
         }
 
         case kSendingRequestBodyToCgi: {
@@ -42,7 +39,7 @@ EventResult Event::process_file_event() {
             ProcResult send_result = this->response_->send_request_body_to_cgi();
             if (send_result == Continue) {
                 DEBUG_PRINT(YELLOW, "    send continue");
-                return EventResult::ok(Continue);
+                return Continue;
             }
             if (send_result == Success) {
                 DEBUG_PRINT(YELLOW, "    send finish");
@@ -61,7 +58,7 @@ EventResult Event::process_file_event() {
             ProcResult recv_result = this->response_->recv_to_cgi_buf();
             if (recv_result == Continue) {
                 DEBUG_PRINT(YELLOW, "    recv continue");
-                return EventResult::ok(Continue);
+                return Continue;
             }
             if (recv_result == Success) {
                 DEBUG_PRINT(YELLOW, "    recv finish");
@@ -76,9 +73,9 @@ EventResult Event::process_file_event() {
         }
 
         default: {
-            const std::string error_msg = CREATE_ERROR_INFO_STR("error: unknown session in file event");
-            return EventResult::err(error_msg);
+            // const std::string error_msg = CREATE_ERROR_INFO_STR("error: unknown session in file event");
+            return Failure;
         }
     }
-    return EventResult::ok(Success);
+    return Success;
 }

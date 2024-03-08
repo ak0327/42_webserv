@@ -334,12 +334,7 @@ ProcResult Event::execute_each_method() {
 
 ProcResult Event::exec_cgi() {
     this->set_event_phase(kExecuteCGI);
-    EventResult result = process_file_event();
-    if (result.is_err()) {  // not come here?
-        std::cerr << result.err_value() << std::endl;  // todo: logging
-        return Failure;
-    }
-    return result.ok_value();  // Failure or ExecutingCgi
+    return process_file_event();
 }
 
 

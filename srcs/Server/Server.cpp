@@ -54,8 +54,6 @@ void detect_received_signal(int sig) {
 
 
 ServerResult set_signal() {
-    // return ServerResult::ok(OK);
-
 	errno = 0;
 	if (signal(SIGABRT, detect_received_signal) == SIG_ERR) {
 		const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
@@ -266,7 +264,7 @@ ServerResult Server::run() {
         ServerResult fd_ready_result = this->fds_->get_io_ready_fd();
 		if (fd_ready_result.is_err()) {
             const std::string error_msg = fd_ready_result.err_value();
-            std::cerr << "error: " << error_msg << std::endl;
+            DEBUG_SERVER_PRINT("error: %s", error_msg.c_str());
             continue;
             // return ServerResult::err(error_msg);
 		}
@@ -282,7 +280,7 @@ ServerResult Server::run() {
         ServerResult event_result = process_event(ready_fd);
 		if (event_result.is_err()) {
             const std::string error_msg = event_result.err_value();
-            std::cerr << "error: " << error_msg << std::endl;
+            DEBUG_SERVER_PRINT("error: %s", error_msg.c_str());
             // return ServerResult::err(error_msg);
 		}
     }

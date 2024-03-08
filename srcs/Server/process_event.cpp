@@ -74,15 +74,31 @@ ServerResult Server::create_event(int socket_fd) {
     int connect_fd = accept_result.ok_value();
     Result<int, std::string> non_block = Socket::set_fd_to_nonblock(connect_fd);
     if (non_block.is_err()) {
+        if (close(connect_fd) == CLOSE_ERROR) {
+            std::string err_info = CREATE_ERROR_INFO_ERRNO(errno);
+            std::cerr << "[Server Error] close: "<< err_info << std::endl;
+        }
         const std::string error_msg = CREATE_ERROR_INFO_STR(non_block.err_value());
         return ServerResult::err(error_msg);
     }
 
-    // std::cout << CYAN << " accept fd: " << connect_fd << RESET << std::endl;
+    ServerResult fd_register_result = this->fds_->register_read_fd(connect_fd);
+    if (fd_register_result.is_err()) {
+        std::string error_msg = CREATE_ERROR_INFO_STR(fd_register_result.err_value());
+        errno = 0;
+        if (close(connect_fd) == CLOSE_ERROR) {
+            std::string err_info = CREATE_ERROR_INFO_ERRNO(errno);
+            std::cerr << "[Server Error] close: "<< err_info << std::endl;
+        }
+        return ServerResult::err(error_msg);
+    }
+    this->client_fds_.push_back(connect_fd);
 
+    // std::cout << CYAN << " accept fd: " << connect_fd << RESET << std::endl;
     if (this->client_events_.find(connect_fd) != this->client_events_.end()) {
         return ServerResult::err("error: read_fd duplicated");  // ?
     }
+
     try {
         // std::cout << CYAN << " new_session created" << RESET << std::endl;
         AddressPortPair client_listen = Server::get_client_listen(client_addr);
@@ -104,7 +120,7 @@ ServerResult Server::create_event(int socket_fd) {
         if (MAX_CONNECTION <= this->client_events_.size()) {
             DEBUG_PRINT(GRAY_BACK, "exceed max_connaction: events: %zu", this->client_events_.size());
             if (new_session->set_to_max_connection_event() == Failure) {
-                delete new_session;
+                delete new_session;  // client fd closed
                 DEBUG_PRINT(RED, "error: create response failure");
                 return ServerResult::ok(OK);
             }
@@ -114,7 +130,6 @@ ServerResult Server::create_event(int socket_fd) {
         // DEBUG_SERVER_PRINT("new_clilent: %p", new_session);
         // std::cout << CYAN << " event start" << connect_fd << RESET << std::endl;
         handle_active_client_timeout(new_session);
-
         this->client_events_[connect_fd] = new_session;
 
         return ServerResult::ok(OK);
@@ -144,18 +159,17 @@ ServerResult Server::accept_connect_fd(int socket_fd,
     int connect_fd = accept_result.ok_value();
     // DEBUG_SERVER_PRINT("  accepted connect read_fd: %d", connect_fd);
 
-    ServerResult fd_register_result = this->fds_->register_read_fd(connect_fd);
-    if (fd_register_result.is_err()) {
-        std::string err_info = CREATE_ERROR_INFO_STR(
-                fd_register_result.err_value());
-        std::cerr << "[Server Error]" << err_info << std::endl;
-        errno = 0;
-        if (close(connect_fd) == CLOSE_ERROR) {
-            err_info = CREATE_ERROR_INFO_ERRNO(errno);
-            std::cerr << "[Server Error] close: "<< err_info << std::endl;
-        }
-    }
-    this->client_fds_.push_back(connect_fd);
+    // ServerResult fd_register_result = this->fds_->register_read_fd(connect_fd);
+    // if (fd_register_result.is_err()) {
+    //     std::string err_info = CREATE_ERROR_INFO_STR(fd_register_result.err_value());
+    //     std::cerr << "[Server Error]" << err_info << std::endl;
+    //     errno = 0;
+    //     if (close(connect_fd) == CLOSE_ERROR) {
+    //         err_info = CREATE_ERROR_INFO_ERRNO(errno);
+    //         std::cerr << "[Server Error] close: "<< err_info << std::endl;
+    //     }
+    // }
+    // this->client_fds_.push_back(connect_fd);
     return ServerResult::ok(connect_fd);
 }
 
@@ -210,7 +224,7 @@ AddressPortPair Server::get_client_listen(const struct sockaddr_storage &client_
 ServerResult Server::handle_client_event(int client_fd) {
     std::map<Fd, Event *>::iterator event = this->client_events_.find(client_fd);
     if (event == this->client_events_.end())  {
-        const std::string error_msg = CREATE_ERROR_INFO_STR("error: fd is not client");
+        const std::string error_msg = CREATE_ERROR_INFO_STR("error: fd is not client");  // not come here?
         return ServerResult::err(error_msg);
     }
 
@@ -223,12 +237,11 @@ ServerResult Server::handle_client_event(int client_fd) {
 
     // DEBUG_SERVER_PRINT("process_event -> process_client_event");
     EventResult event_result = client_event->process_client_event();
-    if (event_result.is_err()) {
-        // fatal error occurred -> server shut down
+    if (event_result.is_err()) {  // fatal error
+        delete_event(event);
         const std::string error_msg = event_result.err_value();
         return ServerResult::err(error_msg);
     }
-
 
     handle_active_client_timeout(client_event);
     switch (event_result.ok_value()) {
@@ -289,7 +302,6 @@ ServerResult Server::handle_client_event(int client_fd) {
             break;
         }
         default:
-            // todo
             break;
     }
 
@@ -302,19 +314,14 @@ ServerResult Server::handle_client_event(int client_fd) {
 
 ServerResult Server::handle_cgi_event(int cgi_fd) {
     std::map<Fd, Event *>::iterator event = this->cgi_events_.find(cgi_fd);
-    if (event == this->client_events_.end())  {
+    if (event == this->client_events_.end())  {  // not come here
         const std::string error_msg = CREATE_ERROR_INFO_STR("error: fd is not cgi");
         return ServerResult::err(error_msg);
     }
 
     Event *cgi_event = event->second;
-    EventResult event_result = cgi_event->process_file_event();
-
-    if (event_result.is_err()) {
-        const std::string error_msg = event_result.err_value();
-        return ServerResult::err(error_msg);
-    }
-    switch (event_result.ok_value()) {
+    ProcResult event_result = cgi_event->process_file_event();
+    switch (event_result) {
         case Success: {
             break;
         }

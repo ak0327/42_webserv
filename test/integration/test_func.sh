@@ -48,11 +48,11 @@ expect_eq_get() {
 
     local call_line=${BASH_LINENO[0]}
 
-    local filesize=$(stat -c "%s" "$path")
-
-    local is_big_file=0
+    filesize=$(cat "$expected_file" | wc -c)
     if [ "$filesize" -ge $(( 1024 * 80 )) ]; then
         is_big_file=1
+    else
+        is_big_file=0
     fi
 
     echo "----------------------------------------------------------------"
@@ -101,12 +101,9 @@ expect_eq_get() {
         echo -e "${GREEN}OK${RESET}"
     else
         echo -e "${RED}NG${RESET}"
-
-        if [ -z $is_big_file ]; then
-            echo "${diff_output}"
-        fi
         ((ng_cnt++))
-        if [ -z $is_big_file ]; then
+        if [ "$is_big_file" -eq 0 ]; then
+            echo "${diff_output}"
             ng_cases+=("No.${test_cnt} (L${call_line}): Request-Body NG: [${response}]")
         else
             ng_cases+=("No.${test_cnt} (L${call_line}): Request-Body NG: [...]")
