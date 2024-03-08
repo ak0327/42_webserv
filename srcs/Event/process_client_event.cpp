@@ -17,30 +17,8 @@
 #include "StringHandler.hpp"
 
 
-// HttpRequest must memory allocate
-// Using `new` in HttpRequest and copy ptr to HttpResponse
-ProcResult Event::create_request_obj() {
-    if (this->request_) {
-        return Success;
-    }
-
-    try {
-        this->request_ = new HttpRequest();
-        return Success;
-    }
-    catch (const std::exception &e) {
-        return FatalError;
-    }
-}
-
 // status code update in this func if error occurred
 EventResult Event::process_client_event() {
-    // DEBUG_SERVER_PRINT("  client_event start (L:%d)", __LINE__);
-    if (create_request_obj() == FatalError) {
-        const std::string error_msg = CREATE_ERROR_INFO_STR("error: fail to allocate memory for HttpRequest");
-        return EventResult::err(error_msg);
-    }
-
     switch (this->event_state_) {
         case kEventInit: {
             DEBUG_SERVER_PRINT("[process_client_event] Phase: 0 EventInit (L:%d)", __LINE__);
@@ -50,7 +28,7 @@ EventResult Event::process_client_event() {
 
         case kReceivingRequest: {
             DEBUG_SERVER_PRINT("[process_client_event] Phase: 1 ReceivingRequest (L:%d)", __LINE__);
-
+            DEBUG_SERVER_PRINT(" this->request:%p (L:%d)", this->request_, __LINE__);
             ssize_t recv_size = this->request_->recv_to_buf(this->client_fd_);
             if (recv_size == RECV_EOF) {  // 0  -> fd closed
                 DEBUG_SERVER_PRINT(" recv EOF -> connection close (L:%d)", __LINE__);
@@ -78,13 +56,14 @@ EventResult Event::process_client_event() {
         case kExecutingMethod:
         case kCreatingResponseBody:
         case kCreatingCGIBody: {
-            DEBUG_SERVER_PRINT("[process_client_event] Phase: 3 CreatingResponse (L:%d)", __LINE__);
-            ProcResult response_result = create_http_response();
-            if (response_result == FatalError) {
+            if (create_response_obj() == FatalError) {
                 const std::string error_msg = CREATE_ERROR_INFO_STR("error: fail to allocate memory for HttpResponse");
                 DEBUG_SERVER_PRINT(" -> fatal error (L:%d)", __LINE__);
                 return EventResult::err(error_msg);
             }
+
+            DEBUG_SERVER_PRINT("[process_client_event] Phase: 3 CreatingResponse (L:%d)", __LINE__);
+            ProcResult response_result = create_http_response();
             if (response_result == ExecutingCgi) {
                 DEBUG_SERVER_PRINT(" -> executing cgi (L:%d)", __LINE__);
                 return EventResult::ok(ExecutingCgi);
@@ -220,20 +199,16 @@ ProcResult Event::create_response_obj() {
 
 // status changes in each func
 ProcResult Event::create_http_response() {
-    if (create_response_obj() == FatalError) {
-        return FatalError;
-    }
-
     DEBUG_SERVER_PRINT(" CreatingResponse status: %d", this->request_->request_status());
     while (true) {
         switch (this->event_state_) {
             case kExecutingMethod: {
                 DEBUG_SERVER_PRINT(" [CreatingResponse] ExecutingMethod (L:%d)", __LINE__);
                 ProcResult method_result = execute_each_method();  // todo: rename
-                if (method_result == FatalError) {
-                    DEBUG_SERVER_PRINT(" ExecutingMethod: err (L:%d)", __LINE__);
-                    return FatalError;  // fail to new Request -> can't send 500
-                }
+                // if (method_result == FatalError) {
+                //     DEBUG_SERVER_PRINT(" ExecutingMethod: err (L:%d)", __LINE__);
+                //     return FatalError;  // fail to new Request -> can't send 500
+                // }
                 if (method_result == ExecutingCgi) {
                     DEBUG_SERVER_PRINT(" -> ExecutingCGI: send body to cgi proc (L:%d)", __LINE__);
                     return ExecutingCgi;

@@ -74,6 +74,8 @@ extern const int OFFSET_NONE;
 extern const std::size_t FILE_SIZE_LIMIT;
 extern const std::size_t CLIENT_HEADER_MAX_SIZE;
 
+extern const std::size_t MAX_CONNECTION;
+
 ////////////////////////////////////////////////////////////////////////////////
 /* status */
 

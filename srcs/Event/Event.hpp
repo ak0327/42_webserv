@@ -50,6 +50,9 @@ class Event {
 
     ~Event();
 
+    ProcResult init_request_obj();
+    ProcResult set_to_max_connection_event();
+
     int client_fd() const;
     int cgi_read_fd() const;
     int cgi_write_fd() const;
@@ -107,6 +110,7 @@ class Event {
 
     std::map<std::string, Session> *sessions_;
 
+    bool exceed_max_conn_;
     bool echo_mode_on_;
 
 

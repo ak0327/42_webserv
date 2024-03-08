@@ -229,6 +229,11 @@ void Server::idling_event(Event *event) {
 
     clear_from_active_client_manager(client_fd);
 
+    if (event->init_request_obj() == Failure) {
+        DEBUG_SERVER_PRINT("[idling_event] error: Request memory allocate failed");
+        return;
+    }
+
     time_t timeout_limit = std::time(NULL) + this->config_.keepalive_timeout();
     this->idling_client_time_manager_.insert(FdTimeoutLimitPair(timeout_limit, client_fd));
 

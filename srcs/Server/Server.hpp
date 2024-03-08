@@ -61,7 +61,7 @@ class Server {
     ServerResult process_event(int ready_fd);
 
     void idling_event(Event *event);
-    void clear_event();
+    void clear_events();
 
     void update_fd_type(int fd, FdType update_from, FdType update_to);
     static Result<Socket *, std::string> create_socket(const std::string &address,

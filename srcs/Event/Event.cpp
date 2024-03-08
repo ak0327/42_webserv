@@ -41,6 +41,19 @@ Event::~Event() {
 }
 
 
+// HttpRequest must memory allocate
+// Using `new` in HttpRequest and copy ptr to HttpResponse
+ProcResult Event::init_request_obj() {
+    try {
+        this->request_ = new HttpRequest();
+        return Success;
+    }
+    catch (const std::exception &e) {
+        return FatalError;
+    }
+}
+
+
 void Event::clear_request() {
     if (this->request_) {
         delete this->request_;
@@ -77,6 +90,16 @@ void Event::process_cgi_timeout() {
     this->set_event_phase(kSendingResponse);
 }
 
+
+ProcResult Event::set_to_max_connection_event() {
+    this->request_->set_request_status(ServiceUnavailable);
+    if (create_response_obj() == FatalError) {
+        return Failure;
+    }
+    this->response_->create_response_message();
+    this->set_event_phase(kSendingResponse);
+    return Success;
+}
 
 // void Event::kill_cgi_process() {
 //     if (this->response_) {

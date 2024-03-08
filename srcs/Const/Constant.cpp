@@ -67,6 +67,8 @@ const int OFFSET_NONE = 0;
 const std::size_t FILE_SIZE_LIMIT = 65535;
 const std::size_t CLIENT_HEADER_MAX_SIZE = 1024 * 5;  // 5kB
 
+const std::size_t MAX_CONNECTION = 1024;
+
 ////////////////////////////////////////////////////////////////////////////////
 /* status */
 

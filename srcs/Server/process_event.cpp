@@ -96,11 +96,26 @@ ServerResult Server::create_event(int socket_fd) {
                                        this->config_,
                                        &this->sessions_,
                                        this->echo_mode_on_);
-        this->client_events_[connect_fd] = new_session;
+        if (new_session->init_request_obj() == Failure) {
+            delete new_session;
+            throw std::runtime_error("HttpRequest");
+        }
+
+        if (MAX_CONNECTION <= this->client_events_.size()) {
+            DEBUG_PRINT(GRAY_BACK, "exceed max_connaction: events: %zu", this->client_events_.size());
+            if (new_session->set_to_max_connection_event() == Failure) {
+                delete new_session;
+                DEBUG_PRINT(RED, "error: create response failure");
+                return ServerResult::ok(OK);
+            }
+            update_fd_type(connect_fd, kReadFd, kWriteFd);
+        }
+
         // DEBUG_SERVER_PRINT("new_clilent: %p", new_session);
         // std::cout << CYAN << " event start" << connect_fd << RESET << std::endl;
-
         handle_active_client_timeout(new_session);
+
+        this->client_events_[connect_fd] = new_session;
 
         return ServerResult::ok(OK);
     }
