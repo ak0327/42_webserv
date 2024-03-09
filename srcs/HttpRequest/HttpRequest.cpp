@@ -136,6 +136,7 @@ HttpRequest::~HttpRequest() {
 	itr = this->request_header_fields_.begin();
 	while (itr != this->request_header_fields_.end()) {
 		delete itr->second;
+        itr->second = NULL;
 		++itr;
 	}
 }

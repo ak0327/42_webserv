@@ -46,6 +46,8 @@ siege_test() {
 
     pkill webserv
 
+    sleep 1
+
     defunct_before=$(ps aux | grep defunct | grep -v grep | wc -l)
 
     ./webserv $CONF_PATH 2>/dev/null &
@@ -122,12 +124,12 @@ echo "================================================================"
 
 
 siege_test 8 5s "http://localhost:4343/"
-siege_test 8 5s "http://localhost:4343/"
 siege_test 8 5s "http://localhost:4343/nothing.html"
 siege_test 8 3s "http://localhost:4343/cgi-bin/hello.py"
 siege_test 8 3s "http://localhost:4343/cgi-bin/wrong_path.py"
 
 
+siege_test 128 30s "http://localhost:4343/"
 siege_test 128 30s "http://localhost:4343/cgi-bin/hello.py"
 siege_test 128 30s "http://localhost:4343/cgi-bin/nothing.html"
 siege_test 128 30s "http://localhost:4343/cgi-bin/infinite_loop.py"
@@ -138,6 +140,7 @@ siege_test 128 30s "http://localhost:4343/cgi-bin/sleep?60"
 siege_test 128 30s "http://localhost:4343/cgi-bin/wrong_path.py"
 
 
+siege_test 255 60s "http://localhost:4343/"
 siege_test 255 60s "http://localhost:4343/cgi-bin/hello.py"
 siege_test 255 60s "http://localhost:4343/cgi-bin/nothing.html"
 siege_test 255 60s "http://localhost:4343/cgi-bin/infinite_loop.py"
