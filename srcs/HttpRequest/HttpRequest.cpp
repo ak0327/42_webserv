@@ -478,6 +478,7 @@ ProcResult HttpRequest::validate_request_headers() {
         this->set_request_status(BadRequest);
         return Failure;
     }
+    // move http response
     // if (!is_support_media_type()) {
     //     this->set_request_status(UnsupportedMediaType);
     //     return Failure;
@@ -633,7 +634,7 @@ Result<ProcResult, StatusCode> HttpRequest::parse_and_validate_field_line(const 
     increment_field_name_counter(field_name);  // used for duplicate checking in parse_func
     Result<int, int> parse_result = (this->*parse_func)(field_name, field_value);
     if (parse_result.is_err()) {
-        return Result<ProcResult, StatusCode>::err(BadRequest);  // todo: parse error -> status
+        return Result<ProcResult, StatusCode>::err(BadRequest);
     }
     return Result<ProcResult, StatusCode>::ok(Success);
 }

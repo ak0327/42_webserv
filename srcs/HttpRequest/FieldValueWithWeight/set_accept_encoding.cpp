@@ -139,15 +139,19 @@ Result<int, int> HttpRequest::set_accept_encoding(const std::string &field_name,
 
 	clear_field_values_of(field_name);
 
-	result = parse_and_validate_coding_with_weight_set(field_value);
-	if (result.is_err()) {
-		if (result.err_value() == STATUS_SERVER_ERROR) {
-			return Result<int, int>::err(STATUS_SERVER_ERROR);
-		}
-		return Result<int, int>::ok(OK);
-	}
+    try {
+        result = parse_and_validate_coding_with_weight_set(field_value);
+        if (result.is_err()) {
+            if (result.err_value() == STATUS_SERVER_ERROR) {
+                return Result<int, int>::err(STATUS_SERVER_ERROR);
+            }
+            return Result<int, int>::ok(OK);
+        }
 
-	codings_weight_set = result.ok_value();
-	this->request_header_fields_[field_name] = new FieldValueWithWeightSet(codings_weight_set);
-	return Result<int, int>::ok(OK);
+        codings_weight_set = result.ok_value();
+        this->request_header_fields_[field_name] = new FieldValueWithWeightSet(codings_weight_set);
+        return Result<int, int>::ok(OK);
+    } catch (const std::bad_alloc &e) {
+        return Result<int, int>::ok(STATUS_SERVER_ERROR);
+    }
 }
