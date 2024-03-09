@@ -1301,6 +1301,84 @@ TEST(TestHttpMessageParser, IsPartialURI) {
 	EXPECT_FALSE(HttpMessageParser::is_partial_uri("//"));
 }
 
+TEST(TestHttpMessageParser, IsURIRef) {
+    // "//" authority path-abempty [ "?" query ] [ "#" fragment ]
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("//localhost"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("//aaa@localhost:8080"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("//aaa@localhost:8080/"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("//aaa@localhost:8080/abc"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("//aaa@localhost:8080?get"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("//aaa@localhost:8080?get/abc"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("//aaa@localhost:8080?get/abc???"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("//aaa@localhost:8080?"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("//aaa@local"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("//localhost#hoge"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("//aaa@localhost:8080#hoge"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("//aaa@localhost:8080/#hoge"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("//aaa@localhost:8080/abc#hoge"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("//aaa@localhost:8080?get#hoge"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("//aaa@localhost:8080?get/abc#hoge"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("//aaa@localhost:8080?get/abc???#hoge"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("//aaa@localhost:8080?#hoge"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("//aaa@local#hoge"));
+
+    // path-absolute [ "?" query ]  [ "#" fragment ]
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("/"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("/?"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("/bbb"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("/bbb/ccc/"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("/bbb/?a"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("/bbb/?"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("/bbb/?/"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("/bbb/???"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("/?*"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("/#hoge"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("/?#hoge"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("/bbb#hoge"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("/bbb/ccc/#hoge"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("/bbb/?a#hoge"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("/bbb/?#hoge"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("/bbb/?/#hoge"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("/bbb/???#hoge"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("/?*#hoge"));
+
+    // path-noscheme [ "?" query ] [ "#" fragment ]
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("abc"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("abc/"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("abc/aa"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("abc?"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("abc/?bb"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("abc?/bb"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("abc#hoge"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("abc/#hoge"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("abc/aa#hoge"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("abc?#hoge"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("abc/?bb#hoge"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("abc?/bb#hoge"));
+
+    // path-empty [ "?" query ] [ "#" fragment ]
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref(""));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("?"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("???"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("?/"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("?/?/??"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("?*"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("#hoge"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("?#hoge"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("???#hoge"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("?/#hoge"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("?/?/??#hoge"));
+    EXPECT_TRUE(HttpMessageParser::is_uri_ref("?*#hoge"));
+
+    EXPECT_FALSE(HttpMessageParser::is_uri_ref("^"));
+    EXPECT_FALSE(HttpMessageParser::is_uri_ref("^***"));
+    EXPECT_FALSE(HttpMessageParser::is_uri_ref(":"));
+    EXPECT_FALSE(HttpMessageParser::is_uri_ref(" "));
+    EXPECT_FALSE(HttpMessageParser::is_uri_ref("\n"));
+    EXPECT_FALSE(HttpMessageParser::is_uri_ref("//"));
+}
+
+
 TEST(TestHttpMessageParser, IsUserInfo) {
 	EXPECT_TRUE(HttpMessageParser::is_userinfo(""));
 	EXPECT_TRUE(HttpMessageParser::is_userinfo("a"));

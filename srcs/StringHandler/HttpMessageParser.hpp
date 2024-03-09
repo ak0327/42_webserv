@@ -60,6 +60,7 @@ bool is_opaque_tag(const std::string &str);
 bool is_entity_tag(const std::string &str);
 bool is_absolute_uri(const std::string &str);
 bool is_partial_uri(const std::string &str);
+bool is_uri_ref(const std::string &str);
 bool is_irregular(const std::string &str);
 bool is_regular(const std::string &str);
 bool is_base_64_value_non_empty(const std::string &str);
@@ -122,6 +123,11 @@ bool is_valid_parameters(const std::map<std::string, std::string> &parameters);
 bool is_parameter_weight(const std::string &parameter_name,
 						 const std::string &parameter_value);
 bool is_parameter_weight(const std::string &parameter_name);
+
+bool is_successful_status(StatusCode code);
+bool is_redirection_status(StatusCode code);
+bool is_status_client_error(StatusCode code);
+bool is_status_server_error(StatusCode code);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -226,6 +232,10 @@ void skip_ls32(const std::string &str,
 void skip_absolute_uri(const std::string &str,
 					   std::size_t start_pos,
 					   std::size_t *end_pos);
+
+void skip_uri_ref(const std::string &str,
+                  std::size_t start_pos,
+                  std::size_t *end_pos);
 
 void skip_partial_uri(const std::string &str,
 					  std::size_t start_pos,
@@ -487,5 +497,9 @@ Method get_method(const std::string &method);
 Result<StatusCode, ProcResult> convert_to_enum(int code);
 std::string convert_to_str(const Method &method);
 std::string escape_html(const std::string &html);
+
+ProcResult split_status_code_and_reason_phrase(const std::string &field_value,
+                                               int *status_code,
+                                               std::string *reason_phrase);
 
 }  // namespace HttpMessageParser

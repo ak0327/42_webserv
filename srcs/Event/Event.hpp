@@ -71,7 +71,7 @@ class Event {
     static bool is_connection_closed(const Result<ProcResult, std::string> &result);
 
     EventResult process_client_event();
-    ProcResult process_file_event();
+    ProcResult process_cgi_event();
     ProcResult exec_cgi();
 
     time_t cgi_timeout_limit() const;

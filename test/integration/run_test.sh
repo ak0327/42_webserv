@@ -8,72 +8,86 @@ SUCCESS=0
 
 get_test="./test/integration/test_get.sh"
 $get_test
-get_test_result=$?
+get_res=$?
 
 
 post_test="./test/integration/test_post.sh"
 $post_test
-post_test_result=$?
+post_res=$?
 
 
 delete_test="./test/integration/test_delete.sh"
 $delete_test
-delete_test_result=$?
+delete_res=$?
 
 
 cgi_test="./test/integration/test_cgi.sh"
 $cgi_test
-cgi_test_result=$?
+cgi_res=$?
+
 
 err_test="./test/integration/test_err.sh"
 $err_test
-err_test_result=$?
+err_res=$?
+
+
+siege_test="./test/integration/test_siege.sh"
+$siege_test
+siege_res=$?
 
 
 
 
-if [ $get_test_result -eq $SUCCESS ]; then
-  echo -en "[${GREEN}OK${RESET}] "
+if [ $get_res -eq $SUCCESS ]; then
+  echo -en " [${GREEN}OK${RESET}] "
 else
-  echo -en "[${RED}NG${RESET}] "
+  echo -en " [${RED}NG${RESET}] "
 fi
 echo "$get_test"
 
 
-if [ $post_test_result -eq $SUCCESS ]; then
-  echo -en "[${GREEN}OK${RESET}] "
+if [ $post_res -eq $SUCCESS ]; then
+  echo -en " [${GREEN}OK${RESET}] "
 else
-  echo -en "[${RED}NG${RESET}] "
+  echo -en " [${RED}NG${RESET}] "
 fi
 echo "$post_test"
 
 
-if [ $delete_test_result -eq $SUCCESS ]; then
-  echo -en "[${GREEN}OK${RESET}] "
+if [ $delete_res -eq $SUCCESS ]; then
+  echo -en " [${GREEN}OK${RESET}] "
 else
-  echo -en "[${RED}NG${RESET}] "
+  echo -en " [${RED}NG${RESET}] "
 fi
 echo "$delete_test"
 
 
-if [ $cgi_test_result -eq $SUCCESS ]; then
-  echo -en "[${GREEN}OK${RESET}] "
+if [ $cgi_res -eq $SUCCESS ]; then
+  echo -en " [${GREEN}OK${RESET}] "
 else
-  echo -en "[${RED}NG${RESET}] "
+  echo -en " [${RED}NG${RESET}] "
 fi
 echo "$cgi_test"
 
 
-if [ $err_test_result -eq $SUCCESS ]; then
-  echo -en "[${GREEN}OK${RESET}] "
+if [ $err_res -eq $SUCCESS ]; then
+  echo -en " [${GREEN}OK${RESET}] "
 else
-  echo -en "[${RED}NG${RESET}] "
+  echo -en " [${RED}NG${RESET}] "
 fi
 echo "$err_test"
 
 
-total_result=$((get_test_result + post_test_result + delete_test_result + cgi_test_result + err_test_result))
-if [ $total_result -ne 0 ]; then
+if [ $siege_res -eq $SUCCESS ]; then
+  echo -en " [${GREEN}OK${RESET}] "
+else
+  echo -en " [${RED}NG${RESET}] "
+fi
+echo "$siege_test"
+
+
+total_res=$((get_res + post_res + delete_res + cgi_res + err_res + siege_res))
+if [ $total_res -ne 0 ]; then
     exit 1
 fi
 

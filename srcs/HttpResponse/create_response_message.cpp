@@ -54,10 +54,15 @@ void HttpResponse::create_response_message() {
 
 
 bool HttpResponse::is_status_error() const {
-    int code_num = static_cast<int>(this->status_code());
-    DEBUG_PRINT(MAGENTA, "status: %d -> is_status_error: %s"
-            , code_num, (400 <= code_num && code_num <= 599 ? " true" : " false"));
-    return 400 <= code_num && code_num <= 599;
+    if (HttpMessageParser::is_status_client_error(this->status_code())) {
+        DEBUG_PRINT(MAGENTA, "is_status_error: %d: client error");
+        return true;
+    }
+    if (HttpMessageParser::is_status_server_error(this->status_code())) {
+        DEBUG_PRINT(MAGENTA, "is_status_error: %d: server error");
+        return true;
+    }
+    return false;
 }
 
 

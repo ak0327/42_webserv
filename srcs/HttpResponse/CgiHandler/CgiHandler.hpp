@@ -58,6 +58,7 @@ class CgiHandler {
     StatusCode parse_document_response();
 
     std::string content_type();
+    std::string location();
 
 #ifdef UNIT_TEST
     friend class CgiHandlerFriend;
@@ -75,6 +76,7 @@ class CgiHandler {
 
     MediaType media_type_;
     StatusCode cgi_status_;
+    std::string location_;
 
     std::size_t send_size_;
     std::vector<unsigned char> recv_buf_;
@@ -106,9 +108,9 @@ class CgiHandler {
     Result<std::string, ProcResult> pop_line_from_buf();
 
     static Result<std::vector<std::string>, ProcResult> get_interpreter(const std::string &file_path);
+    static void close_socket_pairs(int fds[2]);
 
     void strcpy(char *dst, const char *src);
-
 
     CgiHandler(const CgiHandler &other);
     CgiHandler &operator=(const CgiHandler &other);

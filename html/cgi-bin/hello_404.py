@@ -3,7 +3,7 @@
 
 def header():
     print('Content-Type: text/html')
-    print('Status: 404')
+    print('Status: 404 Not Found')
     print()
 
 

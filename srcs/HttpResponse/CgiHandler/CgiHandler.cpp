@@ -290,9 +290,36 @@ std::string CgiHandler::content_type() {
 }
 
 
+std::string CgiHandler::location() { return this->location_; }
+
+
+Result<StatusCode, ProcResult> parse_status_line(const std::string &field_value) {
+    int code;
+    std::string reason_prase;
+    ProcResult parse_result = HttpMessageParser::split_status_code_and_reason_phrase(field_value,
+                                                                                     &code,
+                                                                                     &reason_prase);
+    if (parse_result == Failure) {
+        return Result<StatusCode, ProcResult>::err(Failure);
+    }
+
+    Result<StatusCode, ProcResult> convert_result = HttpMessageParser::convert_to_enum(code);
+    if (convert_result.is_err()) {
+        return Result<StatusCode, ProcResult>::err(Failure);
+    }
+    return Result<StatusCode, ProcResult>::ok(convert_result.ok_value());
+}
+
+
+/*
+ Location = URI-reference
+ https://datatracker.ietf.org/doc/html/rfc7231#section-7.1.2
+ */
 StatusCode CgiHandler::parse_document_response() {
     StatusCode cgi_status = StatusOk;
+    int content_count = 0;
     int status_count = 0;
+    int location_count = 0;
     while (true) {
         Result<std::string, ProcResult> line_result = pop_line_from_buf();
         if (line_result.is_err()) {
@@ -309,8 +336,15 @@ StatusCode CgiHandler::parse_document_response() {
         if (split.is_err()) {
             return InternalServerError;
         }
+        if (field_value.empty()) {
+            return InternalServerError;
+        }
         field_name = StringHandler::to_lower(field_name);
         if (field_name == std::string(CONTENT_TYPE)) {
+            ++content_count;
+            if (1 < content_count) {
+                return InternalServerError;
+            }
             if (this->media_type_.is_ok()) {
                 return InternalServerError;
             }
@@ -318,24 +352,33 @@ StatusCode CgiHandler::parse_document_response() {
             if (this->media_type_.is_err()) {
                 return InternalServerError;
             }
+        } else if (field_name == std::string(LOCATION)) {
+            ++location_count;
+            if (1 < location_count) {
+                return InternalServerError;
+            }
+            if (HttpMessageParser::is_uri_ref(field_value)) {
+                this->location_ = field_value;
+            } else {
+                return InternalServerError;
+            }
         } else if (field_name == "status") {
             ++status_count;
             if (1 < status_count) {
                 return InternalServerError;
             }
-            bool succeed;
-            int code = HttpMessageParser::to_integer_num(field_value, &succeed);
-            if (!succeed) {
+            Result<StatusCode, ProcResult> status_result = parse_status_line(field_value);
+            if (status_result.is_err()) {
                 return InternalServerError;
             }
-            Result<StatusCode, ProcResult> convert_result = HttpMessageParser::convert_to_enum(code);
-            if (convert_result.is_err()) {
-                return InternalServerError;
-            }
-            cgi_status = convert_result.ok_value();
+            cgi_status = status_result.ok_value();
         }
     }
     if (this->media_type_.is_err()) {
+        return InternalServerError;
+    }
+    if (HttpMessageParser::is_redirection_status(this->cgi_status_)
+        && location_count != 1) {
         return InternalServerError;
     }
     return cgi_status;
@@ -465,6 +508,8 @@ int CgiHandler::exec_script_in_child(int from_parant[2],
                                      const std::string &file_path) {
     DEBUG_PRINT(CYAN, "    cgi(child) 1");
     if (handle_child_fd(from_parant, to_parent) == Failure) {
+        close_socket_pairs(from_parant);
+        close_socket_pairs(to_parent);
         DEBUG_PRINT(CYAN, "    cgi(child) 2 error");
         return EXIT_FAILURE;
     }
@@ -474,11 +519,15 @@ int CgiHandler::exec_script_in_child(int from_parant[2],
     char **argv = create_argv(file_path);
     if (!argv) {
         DEBUG_PRINT(CYAN, "    cgi(child) 3");
+        close_socket_pairs(from_parant);
+        close_socket_pairs(to_parent);
         return EXIT_FAILURE;
     }
     char **envp = create_envp(this->params_);
     if (!envp) {
         delete_char_double_ptr(argv);
+        close_socket_pairs(from_parant);
+        close_socket_pairs(to_parent);
         DEBUG_PRINT(CYAN, "    cgi(child) 4");
         return EXIT_FAILURE;
     }
@@ -495,6 +544,8 @@ int CgiHandler::exec_script_in_child(int from_parant[2],
     DEBUG_PRINT(CYAN, "    cgi(child) 7 error");
     delete_char_double_ptr(envp);
     delete_char_double_ptr(argv);
+    close_socket_pairs(from_parant);
+    close_socket_pairs(to_parent);
     return EXIT_FAILURE;
 }
 
@@ -503,6 +554,7 @@ ProcResult CgiHandler::handle_parent_fd(int to_child[2], int from_child[2]) {
     errno = 0;
     if (close(to_child[READ]) == CLOSE_ERROR) {
         close(to_child[WRITE]);
+        to_child[WRITE] = INIT_FD;
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
         std::cerr << error_msg << std::endl;  // todo: logging
         return Failure;
@@ -510,6 +562,7 @@ ProcResult CgiHandler::handle_parent_fd(int to_child[2], int from_child[2]) {
     errno = 0;
     if (close(from_child[WRITE]) == CLOSE_ERROR) {
         close(from_child[READ]);
+        from_child[WRITE] = INIT_FD;
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
         std::cerr << error_msg << std::endl;  // todo: logging
         return Failure;
@@ -560,11 +613,30 @@ ProcResult CgiHandler::create_socket_pair(int to_child[2], int from_child[2]) {
 }
 
 
+void CgiHandler::close_socket_pairs(int fds[2]) {
+    if (fds[READ] != INIT_FD) {
+        close(fds[READ]);
+        fds[READ] = INIT_FD;
+    }
+    if (fds[WRITE] != INIT_FD) {
+        close(fds[WRITE]);
+        fds[WRITE] = INIT_FD;
+    }
+}
+
+
 ProcResult CgiHandler::exec_script(const std::string &file_path) {
     int to_child[2], from_child[2];
 
+    to_child[READ] = INIT_FD;
+    to_child[WRITE] = INIT_FD;
+    from_child[READ] = INIT_FD;
+    from_child[WRITE] = INIT_FD;
+
     DEBUG_PRINT(CYAN, "   exec_script 1");
     if (create_socket_pair(to_child, from_child) == Failure) {
+        close_socket_pairs(to_child);
+        close_socket_pairs(from_child);
         return Failure;
     }
     DEBUG_PRINT(CYAN, "   exec_script 2");
@@ -574,6 +646,8 @@ ProcResult CgiHandler::exec_script(const std::string &file_path) {
     if (pid == FORK_ERROR) {
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
         std::cerr << error_msg << std::endl;  // todo: tmp
+        close_socket_pairs(to_child);
+        close_socket_pairs(from_child);
         return Failure;  // todo: tmp
     }
 
@@ -583,8 +657,9 @@ ProcResult CgiHandler::exec_script(const std::string &file_path) {
         std::exit(exec_script_in_child(to_child, from_child, file_path));
     } else {
         DEBUG_PRINT(CYAN, "   exec_script 4 parent(pid: %d)", pid);
-        ProcResult setting_result = handle_parent_fd(to_child, from_child);
-        if (setting_result == Failure) {
+        if (handle_parent_fd(to_child, from_child) == Failure) {
+            close_socket_pairs(to_child);
+            close_socket_pairs(from_child);
             return Failure;
         }
         set_cgi_pid(pid);

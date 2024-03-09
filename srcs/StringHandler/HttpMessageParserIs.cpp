@@ -837,6 +837,16 @@ bool is_partial_uri(const std::string &str) {
 	return str[end] == '\0';
 }
 
+// URI-reference
+// relative-ref  = relative-part [ "?" query ] [ "#" fragment ]
+bool is_uri_ref(const std::string &str) {
+    std::size_t end;
+
+    skip_uri_ref(str, 0, &end);
+    return str[end] == '\0';
+}
+
+
 bool is_ipv6address(const std::string &str) {
 	std::size_t end;
 
@@ -1031,6 +1041,29 @@ bool is_atom(const std::string &str) {
 	}
 	skip_atom(str, 0, &end);
 	return str[end] == '\0';
+}
+
+bool is_successful_status(StatusCode code) {
+    int code_num = static_cast<int>(code);
+    return 200 <= code_num && code_num <= 299;
+}
+
+
+bool is_redirection_status(StatusCode code) {
+    int code_num = static_cast<int>(code);
+    return 300 <= code_num && code_num <= 399;
+}
+
+
+bool is_status_client_error(StatusCode code) {
+    int code_num = static_cast<int>(code);
+    return 400 <= code_num && code_num <= 499;
+}
+
+
+bool is_status_server_error(StatusCode code) {
+    int code_num = static_cast<int>(code);
+    return 500 <= code_num && code_num <= 599;
 }
 
 

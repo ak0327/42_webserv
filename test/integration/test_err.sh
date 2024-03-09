@@ -32,6 +32,9 @@ defunct_count=0
 defunct_generated=$FALSE
 process_abort=$FALSE
 
+fd_before=0
+fd_after=0
+
 ################################################################################
 
 start_up "ERROR TEST"
@@ -190,6 +193,15 @@ if [ $skip_cnt -gt 0 ]; then
         echo -n "     "
         echo -e "${YELLOW}$case${RESET}"
     done
+fi
+
+
+echo -n "  Fd             : "
+if [ $fd_before -eq $fd_after ]; then
+    echo -e "-"
+else
+    echo -e "${RED}fd: $fd_before -> $fd_after${RESET}"
+    exit_status=$FAILURE
 fi
 
 

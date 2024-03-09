@@ -14,16 +14,16 @@
 #include "StringHandler.hpp"
 
 
-ProcResult Event::process_file_event() {
+ProcResult Event::process_cgi_event() {
     switch (this->event_state_) {
-        case kReadingFile: {
+        // case kReadingFile: {
             // unused
-            break;
-        }
+            // break;
+        // }
 
-            // call from process_client_event
+        // call from process_client_event
         case kExecuteCGI: {
-            DEBUG_PRINT(YELLOW, "   CGI Executing");
+            DEBUG_PRINT(YELLOW, "[process_cgi_event] CGI Executing");
             ProcResult exec_result = this->response_->exec_cgi_process();
             if (exec_result == Failure) {
                 this->set_event_phase(kCreatingCGIBody);
@@ -35,7 +35,7 @@ ProcResult Event::process_file_event() {
         }
 
         case kSendingRequestBodyToCgi: {
-            DEBUG_PRINT(YELLOW, "   CGI Send");
+            DEBUG_PRINT(YELLOW, "[process_cgi_event] CGI Send");
             ProcResult send_result = this->response_->send_request_body_to_cgi();
             if (send_result == Continue) {
                 DEBUG_PRINT(YELLOW, "    send continue");
@@ -54,7 +54,7 @@ ProcResult Event::process_file_event() {
         }
 
         case kReceivingCgiResponse: {
-            DEBUG_PRINT(YELLOW, "   CGI Recv");
+            DEBUG_PRINT(YELLOW, "[process_cgi_event] CGI Recv");
             ProcResult recv_result = this->response_->recv_to_cgi_buf();
             if (recv_result == Continue) {
                 DEBUG_PRINT(YELLOW, "    recv continue");

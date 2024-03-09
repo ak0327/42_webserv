@@ -33,6 +33,9 @@ defunct_count=0
 defunct_generated=$FALSE
 process_abort=$FALSE
 
+fd_before=0
+fd_after=0
+
 ################################################################################
 
 start_up "DELETE TEST"
@@ -98,6 +101,15 @@ if [ $defunct_generated -eq $FALSE ]; then
     echo -e "-"
 else
     echo -e "${RED}$defunct_count defunct process${RESET}"
+    exit_status=$FAILURE
+fi
+
+
+echo -n "  Fd             : "
+if [ $fd_before -eq $fd_after ]; then
+    echo -e "-"
+else
+    echo -e "${RED}fd: $fd_before -> $fd_after${RESET}"
     exit_status=$FAILURE
 fi
 

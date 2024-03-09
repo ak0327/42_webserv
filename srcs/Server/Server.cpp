@@ -55,14 +55,14 @@ void detect_received_signal(int sig) {
 
 ServerResult set_signal() {
 	errno = 0;
-	if (signal(SIGABRT, detect_received_signal) == SIG_ERR) {
-		const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
-		return ServerResult::err(error_msg);
-	}
-	// if (signal(SIGINT, detect_received_signal) == SIG_ERR) {
+	// if (signal(SIGABRT, detect_received_signal) == SIG_ERR) {
 	// 	const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
 	// 	return ServerResult::err(error_msg);
 	// }
+	if (signal(SIGINT, detect_received_signal) == SIG_ERR) {
+		const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+		return ServerResult::err(error_msg);
+	}
 	// if (signal(SIGTERM, detect_received_signal) == SIG_ERR) {
 	// 	const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
 	// 	return ServerResult::err(error_msg);

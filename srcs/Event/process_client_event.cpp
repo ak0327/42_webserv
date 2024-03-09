@@ -13,6 +13,7 @@
 #include "Error.hpp"
 #include "FileHandler.hpp"
 #include "HttpResponse.hpp"
+#include "HttpMessageParser.hpp"
 #include "Socket.hpp"
 #include "StringHandler.hpp"
 
@@ -233,7 +234,7 @@ ProcResult Event::create_http_response() {
                 DEBUG_SERVER_PRINT(" [CreatingResponse] CreatingCGIBody (L:%d)", __LINE__);
                 this->response_->interpret_cgi_output();
                 this->set_event_phase(kCreatingResponseBody);
-                continue;
+                continue;  // -> kCreatingResponseBody
             }
 
             default:
@@ -334,7 +335,7 @@ ProcResult Event::execute_each_method() {
 
 ProcResult Event::exec_cgi() {
     this->set_event_phase(kExecuteCGI);
-    return process_file_event();
+    return process_cgi_event();
 }
 
 
@@ -455,9 +456,6 @@ ProcResult HttpResponse::exec_cgi_process() {
  https://tex2e.github.io/rfc-translater/html/rfc3875.html#6-3-1--Content-Type
 
  Status         = "Status:" status-code SP reason-phrase NL
- status-code    = "200" | "302" | "400" | "501" | extension-code
- extension-code = 3digit
- reason-phrase  = *TEXT
  https://tex2e.github.io/rfc-translater/html/rfc3875.html#6-3-3--Status
 
  other-field     = protocol-field | extension-field
@@ -477,7 +475,8 @@ ProcResult HttpResponse::exec_cgi_process() {
                                           ^^^^^^
  */
 void HttpResponse::interpret_cgi_output() {
-    if (this->status_code() != StatusOk) {  // todo: cgi_status ??
+    // exec failure -> 500/502/504 already set
+    if (HttpMessageParser::is_status_server_error(this->status_code())) {
         return;
     }
 
@@ -487,11 +486,18 @@ void HttpResponse::interpret_cgi_output() {
     if (is_status_error()) {
         return;
     }
+    if (HttpMessageParser::is_redirection_status(this->status_code())) {
+        ReturnDirective redirect;
+        redirect.return_on = true;
+        redirect.code = this->status_code();
+        redirect.text = this->cgi_handler_.location();
+        get_redirect_content(redirect);
+        return;
+    }
     if (!is_supported_by_media_type(this->cgi_handler_.content_type())) {
         this->set_status_code(UnsupportedMediaType);
         return;
     }
-
     this->body_buf_ = this->cgi_handler_.cgi_body();
     add_content_header_by_media_type(this->cgi_handler_.content_type());
 }

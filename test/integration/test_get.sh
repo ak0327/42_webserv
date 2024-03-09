@@ -32,6 +32,9 @@ defunct_count=0
 defunct_generated=$FALSE
 process_abort=$FALSE
 
+fd_before=0
+fd_after=0
+
 ################################################################################
 
 start_up "GET TEST"
@@ -266,7 +269,7 @@ echo "  Failed Tests   : $ng_cnt"
 if [ $ng_cnt -gt 0 ]; then
     for case in "${ng_cases[@]}"; do
         echo -n "     "
-        echo -e "${RED}$case${RESET}"
+        echo -e "${RED}${case}${RESET}"
     done
 fi
 
@@ -275,7 +278,7 @@ echo "  Skipped Tests  : $skip_cnt"
 if [ $skip_cnt -gt 0 ]; then
     for case in "${skip_cases[@]}"; do
         echo -n "     "
-        echo -e "${YELLOW}$case${RESET}"
+        echo -e "${YELLOW}${case}${RESET}"
     done
 fi
 
@@ -287,6 +290,16 @@ else
     echo -e "${RED}$defunct_count defunct process${RESET}"
     exit_status=$FAILURE
 fi
+
+
+echo -n "  Fd             : "
+if [ $fd_before -eq $fd_after ]; then
+    echo -e "-"
+else
+    echo -e "${RED}fd: $fd_before -> $fd_after${RESET}"
+    exit_status=$FAILURE
+fi
+
 
 echo -n "  Process Aborted: "
 if [ $process_abort -eq $FALSE ]; then

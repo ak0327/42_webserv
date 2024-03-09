@@ -2,13 +2,14 @@
 
 
 def header():
+    print('Status: 302 Found')
     print('Content-Type: text/html')
-    print('Status: 400 Bad Request')
+    print('Location: /')
     print()
 
 
 def main():
-    print('hello 400')
+    print('redirect to index')
 
 
 if __name__ == "__main__":

@@ -980,6 +980,51 @@ void skip_absolute_uri(const std::string &str,
 	*end_pos = pos;
 }
 
+
+/*
+ Location = URI-reference
+ https://datatracker.ietf.org/doc/html/rfc7231#section-7.1.2
+
+ relative-ref  = relative-part [ "?" query ] [ "#" fragment ]
+ relative-part = "//" authority path-abempty
+                / path-absolute
+                / path-noscheme
+                / path-empty
+ https://datatracker.ietf.org/doc/html/rfc3986#section-4.2
+ */
+void skip_uri_ref(const std::string &str,
+                       std::size_t start_pos,
+                       std::size_t *end_pos) {
+    std::size_t pos, end;
+    if (!end_pos) {
+        return;
+    }
+
+    pos = start_pos;
+    *end_pos = start_pos;
+    if (str.empty() || str.length() <= start_pos) {
+        return;
+    }
+
+    skip_relative_part(str, pos, &end);
+    pos = end;  // if (pos == end) -> path-empty
+
+    // [ ? query ]
+    if (str[pos] == '?') {
+        skip_query(str, pos + 1, &end);
+        pos = end;
+    }
+
+    // [ # fragment ]
+    if (str[pos] == '#') {
+        skip_fragment(str, pos + 1, &end);
+        pos = end;
+    }
+
+    *end_pos = end;
+}
+
+
 /*
  partial-URI = relative-part [ "?" query ]
  https://datatracker.ietf.org/doc/html/rfc3986#section-3.3

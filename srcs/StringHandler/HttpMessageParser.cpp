@@ -49,6 +49,36 @@ double get_fractional_part(const std::string &str_after_decimal_point,
 
 namespace HttpMessageParser {
 
+/*
+ Status         = "Status:" status-code SP reason-phrase NL
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ field_value
+ status-code    = "200" | "302" | "400" | "501" | extension-code
+ extension-code = 3digit
+ reason-phrase  = *TEXT
+*/
+ProcResult split_status_code_and_reason_phrase(const std::string &field_value,
+                                               int *status_code,
+                                               std::string *reason_phrase) {
+    if (!status_code || !reason_phrase) { return Failure; }
+
+    if (field_value.empty() || !isdigit(field_value[0])) {
+        return Failure;
+    }
+
+    std::size_t	pos = 0;
+    bool is_overflow;
+    int num = StringHandler::stoi(field_value, &pos, &is_overflow);
+    if (is_overflow || pos != 3) {
+        return Failure;
+    }
+    if (pos == field_value.length() || pos + 1 == field_value.length()) {
+        return Failure;
+    }
+    *status_code = num;
+    *reason_phrase = field_value.substr(pos + 1);
+    return Success;
+}
+
 
 // DIGIT = %x30-39; 10 進数字（ 0-9 ）
 // sign, space is not allowed for Request message
