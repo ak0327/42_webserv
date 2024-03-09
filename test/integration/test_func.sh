@@ -69,7 +69,7 @@ expect_eq_get() {
         is_big_file=0
     else
         filesize=$(cat "$expected_file" | wc -c)
-        if [ "$filesize" -ge $(( 1024 * 80 )) ]; then
+        if [ "$filesize" -ge $(( 1024 * 10 )) ]; then
             is_big_file=1
         else
             is_big_file=0
