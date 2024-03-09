@@ -202,11 +202,15 @@ void Server::set_io_timeout() {
         return;
     }
 
-    const int kManagementTimeoutMs = 1000;
-    if (!this->cgi_time_manager_.empty()
-        || !this->active_client_time_manager_.empty()
-        || !this->idling_client_time_manager_.empty()) {
+    const int kManagementTimeoutMs = 200;
+    if (!this->cgi_time_manager_.empty() || !this->active_client_time_manager_.empty()) {
         this->fds_->set_io_timeout(kManagementTimeoutMs);
+        return;
+    }
+
+    const int kIdlingTimeoutMs = 1000;
+    if (!this->idling_client_time_manager_.empty()) {
+        this->fds_->set_io_timeout(kIdlingTimeoutMs);
         return;
     }
 
@@ -325,39 +329,3 @@ void Server::handle_active_client_timeout(Event *client_event) {
             break;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//

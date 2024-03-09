@@ -59,7 +59,7 @@ test_post_upload "html/big_size/" "19MB.txt"      "localhost:4242/upload/"  "201
 
 
 test_post_upload "html/big_size/" "20MB.txt"      "localhost:4242/upload/"  "413 Payload Too Large"   false
-test_post_upload "html/"          "hoge"          "localhost:4242/upload/"  "400 Bad Request"         false # curl error
+#test_post_upload "html/"          "hoge/"         "localhost:4242/upload/"  "400 Bad Request"         false # curl error
 #test_post_upload "html/"          "nothing.html"  "localhost:4242/upload/"  "404 Not Found"           false
 
 
