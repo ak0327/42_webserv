@@ -66,10 +66,6 @@ class HttpResponse {
 
     void create_echo_msg(const std::vector<unsigned char> &recv_msg);
     bool is_status_error() const;
-    static bool is_successful_status(StatusCode code);
-    static bool is_redirection_status(StatusCode code);
-    static bool is_status_client_error(StatusCode code);
-    static bool is_status_server_error(StatusCode code);
     bool is_keepalive() const;
 
     void set_status_to_cgi_timeout();

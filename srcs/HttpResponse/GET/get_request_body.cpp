@@ -46,11 +46,6 @@ bool HttpResponse::is_redirect() const {
 
 StatusCode HttpResponse::get_redirect_content(const ReturnDirective &redirect) {
     DEBUG_PRINT(RED, "redirect.text: %s (L:%d)", redirect.text.c_str(), __LINE__);
-    Result<HostPortPair, StatusCode> info_result = this->request_.server_info();
-    if (info_result.is_err()) {
-        return info_result.err_value();
-    }
-
     std::string redirect_path;
     if (HttpMessageParser::is_absolute_uri(redirect.text)) {
         DEBUG_PRINT(RED, "external redirect", __LINE__);
@@ -58,6 +53,10 @@ StatusCode HttpResponse::get_redirect_content(const ReturnDirective &redirect) {
         redirect_path = redirect.text;
     } else {
         DEBUG_PRINT(RED, "local redirect", __LINE__);
+        Result<HostPortPair, StatusCode> info_result = this->request_.server_info();
+        if (info_result.is_err()) {
+            return info_result.err_value();
+        }
         // local redirect
         HostPortPair server_info = info_result.ok_value();
         redirect_path = "http://";

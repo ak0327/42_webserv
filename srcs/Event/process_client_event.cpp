@@ -13,6 +13,7 @@
 #include "Error.hpp"
 #include "FileHandler.hpp"
 #include "HttpResponse.hpp"
+#include "HttpMessageParser.hpp"
 #include "Socket.hpp"
 #include "StringHandler.hpp"
 
@@ -473,9 +474,9 @@ ProcResult HttpResponse::exec_cgi_process() {
  The newline (NL) sequence is LF; servers should also accept CR LF as a newline.
                                           ^^^^^^
  */
-// todo: where?? status <- .cgi_status
 void HttpResponse::interpret_cgi_output() {
-    if (is_status_server_error(this->status_code())) {  // server error
+    // exec failure -> 500/502/504 already set
+    if (HttpMessageParser::is_status_server_error(this->status_code())) {
         return;
     }
 
@@ -485,11 +486,18 @@ void HttpResponse::interpret_cgi_output() {
     if (is_status_error()) {
         return;
     }
+    if (HttpMessageParser::is_redirection_status(this->status_code())) {
+        ReturnDirective redirect;
+        redirect.return_on = true;
+        redirect.code = this->status_code();
+        redirect.text = this->cgi_handler_.location();
+        get_redirect_content(redirect);
+        return;
+    }
     if (!is_supported_by_media_type(this->cgi_handler_.content_type())) {
         this->set_status_code(UnsupportedMediaType);
         return;
     }
-
     this->body_buf_ = this->cgi_handler_.cgi_body();
     add_content_header_by_media_type(this->cgi_handler_.content_type());
 }

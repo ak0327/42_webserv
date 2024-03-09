@@ -124,6 +124,11 @@ bool is_parameter_weight(const std::string &parameter_name,
 						 const std::string &parameter_value);
 bool is_parameter_weight(const std::string &parameter_name);
 
+bool is_successful_status(StatusCode code);
+bool is_redirection_status(StatusCode code);
+bool is_status_client_error(StatusCode code);
+bool is_status_server_error(StatusCode code);
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void skip_ows(const std::string &str, std::size_t *pos);

@@ -58,6 +58,7 @@ class CgiHandler {
     StatusCode parse_document_response();
 
     std::string content_type();
+    std::string location();
 
 #ifdef UNIT_TEST
     friend class CgiHandlerFriend;
@@ -75,6 +76,7 @@ class CgiHandler {
 
     MediaType media_type_;
     StatusCode cgi_status_;
+    std::string location_;
 
     std::size_t send_size_;
     std::vector<unsigned char> recv_buf_;

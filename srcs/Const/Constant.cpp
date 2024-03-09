@@ -89,6 +89,7 @@ std::map<StatusCode, std::string> init_reason_phrases() {
 
     reason_phrases[MultipleChoices]         = "Multiple Choices";
     reason_phrases[MovedPermanently]        = "Moved Permanently";
+    reason_phrases[Found]                   = "Found";
     reason_phrases[SeeOther]                = "See Other";
 
     reason_phrases[BadRequest]              = "Bad Request";
@@ -639,8 +640,9 @@ MimeTypeMap init_mime_types() {
     mime_types["htm"]   = "text/htm";
     mime_types["css"]   = "text/css";
     mime_types["txt"]   = "text/plain";
-    mime_types["py"]    = "text/x-python";
-    // mime_types["sh"]    = "text/x-shell";
+    mime_types["py"]    = "text/x-python";  // view python file
+    // mime_types["sh"]    = "text/x-shell";   // tmp
+    // mime_types["pl"]    = "text/x-perl";    // tmp
 
     mime_types["gif"]   = "image/gif";
     mime_types["jpeg"]  = "image/jpeg";

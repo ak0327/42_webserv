@@ -290,6 +290,9 @@ std::string CgiHandler::content_type() {
 }
 
 
+std::string CgiHandler::location() { return this->location_; }
+
+
 Result<StatusCode, ProcResult> parse_status_line(const std::string &field_value) {
     int code;
     std::string reason_prase;
@@ -308,9 +311,15 @@ Result<StatusCode, ProcResult> parse_status_line(const std::string &field_value)
 }
 
 
+/*
+ Location = URI-reference
+ https://datatracker.ietf.org/doc/html/rfc7231#section-7.1.2
+ */
 StatusCode CgiHandler::parse_document_response() {
     StatusCode cgi_status = StatusOk;
+    int content_count = 0;
     int status_count = 0;
+    int location_count = 0;
     while (true) {
         Result<std::string, ProcResult> line_result = pop_line_from_buf();
         if (line_result.is_err()) {
@@ -327,13 +336,30 @@ StatusCode CgiHandler::parse_document_response() {
         if (split.is_err()) {
             return InternalServerError;
         }
+        if (field_value.empty()) {
+            return InternalServerError;
+        }
         field_name = StringHandler::to_lower(field_name);
         if (field_name == std::string(CONTENT_TYPE)) {
+            ++content_count;
+            if (1 < content_count) {
+                return InternalServerError;
+            }
             if (this->media_type_.is_ok()) {
                 return InternalServerError;
             }
             this->media_type_ = MediaType(field_value);
             if (this->media_type_.is_err()) {
+                return InternalServerError;
+            }
+        } else if (field_name == std::string(LOCATION)) {
+            ++location_count;
+            if (1 < location_count) {
+                return InternalServerError;
+            }
+            if (HttpMessageParser::is_uri_ref(field_value)) {
+                this->location_ = field_value;
+            } else {
                 return InternalServerError;
             }
         } else if (field_name == "status") {
@@ -349,6 +375,10 @@ StatusCode CgiHandler::parse_document_response() {
         }
     }
     if (this->media_type_.is_err()) {
+        return InternalServerError;
+    }
+    if (HttpMessageParser::is_redirection_status(this->cgi_status_)
+        && location_count != 1) {
         return InternalServerError;
     }
     return cgi_status;
