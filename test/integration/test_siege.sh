@@ -23,6 +23,8 @@ test_cnt=0
 ng_cnt=0
 ng_cases=()
 
+skip_cnt=0
+
 defunct_generated=$FALSE
 process_abort=$FALSE
 
@@ -36,6 +38,12 @@ siege_test() {
 
     ((test_cnt++))
     echo -e "\nTEST No.${test_cnt} (L${call_line})"
+
+#    echo "siege: $(which siege)"
+    if [ -z "$(which siege)" ]; then
+      ((skip_cnt++))
+      return
+    fi
 
     defunct_before=0
     defunct_after=0
@@ -56,6 +64,7 @@ siege_test() {
 #    echo "fd_before     :$fd_before"
 
     siege --benchmark --concurrent="$concurrent" --time="$time" "$path" > /dev/null 2>&1
+#    siege --benchmark --concurrent="$concurrent" --time="$time" "$path"
 
     sleep 3
 
@@ -120,7 +129,6 @@ echo "================================================================"
 
 
 siege_test 8 5s "http://localhost:4343/"
-siege_test 8 5s "http://localhost:4343/"
 siege_test 8 5s "http://localhost:4343/nothing.html"
 siege_test 8 3s "http://localhost:4343/cgi-bin/hello.py"
 siege_test 8 3s "http://localhost:4343/cgi-bin/wrong_path.py"
@@ -153,9 +161,7 @@ echo "================================================================"
 echo " *** SIEGE RESULT ***"
 exit_status=$FAILURE
 
-exit_status=$FAILURE
-
-if [ $ng_cnt -eq 0 ]; then
+if [ $ng_cnt -eq 0 ] && [ $skip_cnt -eq 0 ]; then
     echo -e " ${GREEN}All tests passed successfully${RESET}"
     exit_status=$SUCCESS
 fi
@@ -169,6 +175,8 @@ if [ $ng_cnt -gt 0 ]; then
         echo -e "${RED}${case}${RESET}"
     done
 fi
+
+echo "  Skip Tests     : $skip_cnt"
 
 
 echo -e "================================================================\n"
