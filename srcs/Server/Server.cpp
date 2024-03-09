@@ -220,14 +220,6 @@ void Server::close_client_fd(int fd) {
     if (this->fds_) {
         this->fds_->clear_fd(fd);
     }
-    std::deque<ClientFd>::iterator itr;
-    for (itr = this->client_fds_.begin(); itr != this->client_fds_.end(); ++itr) {
-        if (*itr != fd) {
-            continue;
-        }
-        this->client_fds_.erase(itr);
-        break;
-    }
     int close_ret = close(fd);
     if (close_ret == CLOSE_ERROR) {
         std::cout << CYAN << "close error" << RESET << std::endl;  // todo: log
@@ -307,15 +299,23 @@ void Server::update_fd_type_read_to_write(const EventPhase &event_state, int fd)
     }
 }
 
-
+// fds client, cgi
+// client_events
+// active_client_time_manager
+// idling_clientntime_manager
+// cgi_events
+// cgi_time_manager
+// cgi_fd, process
 void Server::delete_event(std::map<Fd, Event *>::iterator event) {
     Event *client_event = event->second;
     int client_fd = client_event->client_fd();
     DEBUG_SERVER_PRINT("[delete event] fd: %d (L:%d)", client_fd, __LINE__);
 
+    clear_cgi_fds_from_event_manager(*client_event);
+    delete client_event;  // cgi kill
+
     this->fds_->clear_fd(client_fd);
-    delete client_event;
-    this->client_events_.erase(event);
+    this->client_events_.erase(client_fd);
 
     std::set<FdTimeoutLimitPair>::iterator itr;
     itr = find_fd_in_timeout_pair(client_fd, this->idling_client_time_manager_);

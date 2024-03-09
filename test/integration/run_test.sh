@@ -85,8 +85,8 @@ else
 fi
 echo "$siege_test"
 
-
 total_res=$((get_res + post_res + delete_res + cgi_res + err_res + siege_res))
+#total_res=$((siege_res))
 if [ $total_res -ne 0 ]; then
     exit 1
 fi

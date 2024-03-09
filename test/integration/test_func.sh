@@ -17,8 +17,10 @@ start_up() {
 
     ./webserv $CONF_PATH 2>/dev/null &
 
+    sleep 1
+
     fd_before=$(lsof -p $(pgrep webserv) | wc -l)
-#    echo "fd_before: $fd_before"
+    echo "fd_before: $fd_before"
 
     sleep 1
 }
@@ -34,7 +36,7 @@ tear_down() {
     fi
 
     fd_after=$(lsof -p $(pgrep webserv) | wc -l)
-#    echo "fd_after: $fd_after"
+    echo "fd_after: $fd_after"
 
     process_count=$(ps aux | grep '[w]ebserv' | wc -l)
     if [ $process_count -eq 0 ]; then

@@ -63,15 +63,13 @@ bool Server::is_cgi_fd(int fd) {
 
 ServerResult Server::create_event(int socket_fd) {
     struct sockaddr_storage client_addr = {};
-    ServerResult accept_result = accept_connect_fd(socket_fd, &client_addr);
+    SocketResult accept_result = Socket::accept(socket_fd, &client_addr);
     if (accept_result.is_err()) {
         const std::string error_msg = accept_result.err_value();
         return ServerResult::err(error_msg);
     }
-    if (accept_result.ok_value() == ERR) {  // exceed max connection
-        return ServerResult::ok(OK);
-    }
     int connect_fd = accept_result.ok_value();
+
     Result<int, std::string> non_block = Socket::set_fd_to_nonblock(connect_fd);
     if (non_block.is_err()) {
         if (close(connect_fd) == CLOSE_ERROR) {
@@ -92,11 +90,11 @@ ServerResult Server::create_event(int socket_fd) {
         }
         return ServerResult::err(error_msg);
     }
-    this->client_fds_.push_back(connect_fd);
 
     // std::cout << CYAN << " accept fd: " << connect_fd << RESET << std::endl;
-    if (this->client_events_.find(connect_fd) != this->client_events_.end()) {
-        return ServerResult::err("error: read_fd duplicated");  // ?
+    std::map<ClientFd, Event *>::iterator itr = this->client_events_.find(connect_fd);
+    if (itr != this->client_events_.end()) {
+        delete_event(itr);
     }
 
     try {
@@ -138,39 +136,6 @@ ServerResult Server::create_event(int socket_fd) {
         std::string err_info = CREATE_ERROR_INFO_STR("Failed to allocate memory: " + std::string(e.what()));
         return ServerResult::err(err_info);
     }
-}
-
-
-ServerResult Server::accept_connect_fd(int socket_fd,
-                                       struct sockaddr_storage *client_addr) {
-    const int MAX_SESSION = SOMAXCONN;
-    (void)MAX_SESSION;
-
-    // if (MAX_SESSION <= this->client_fds_.size()) {
-    //     std::cerr << "[Server Error] exceed max connection" << std::endl;
-    //     return ServerResult::ok(ERR);  // todo: continue, ok?
-    // }
-
-    SocketResult accept_result = Socket::accept(socket_fd, client_addr);
-    if (accept_result.is_err()) {
-        const std::string error_msg = accept_result.err_value();
-        return ServerResult::err(error_msg);
-    }
-    int connect_fd = accept_result.ok_value();
-    // DEBUG_SERVER_PRINT("  accepted connect read_fd: %d", connect_fd);
-
-    // ServerResult fd_register_result = this->fds_->register_read_fd(connect_fd);
-    // if (fd_register_result.is_err()) {
-    //     std::string err_info = CREATE_ERROR_INFO_STR(fd_register_result.err_value());
-    //     std::cerr << "[Server Error]" << err_info << std::endl;
-    //     errno = 0;
-    //     if (close(connect_fd) == CLOSE_ERROR) {
-    //         err_info = CREATE_ERROR_INFO_ERRNO(errno);
-    //         std::cerr << "[Server Error] close: "<< err_info << std::endl;
-    //     }
-    // }
-    // this->client_fds_.push_back(connect_fd);
-    return ServerResult::ok(connect_fd);
 }
 
 

@@ -39,7 +39,6 @@ class Server {
 	IOMultiplexer *fds_;
 
     std::deque<SocketFd> socket_fds_;
-    std::deque<ClientFd> client_fds_;
 
     std::map<ClientFd, Event *> client_events_;
     std::map<CgiFd, Event *> cgi_events_;  // Event*: client_event

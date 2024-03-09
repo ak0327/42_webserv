@@ -54,9 +54,13 @@ siege_test() {
 
     pkill webserv
 
+    sleep 1
+
     defunct_before=$(ps aux | grep defunct | grep -v grep | wc -l)
 
     ./webserv $CONF_PATH 2>/dev/null &
+
+    sleep 1
 
     fd_before=$(lsof -p $(pgrep webserv) | wc -l)
 
@@ -66,7 +70,7 @@ siege_test() {
     siege --benchmark --concurrent="$concurrent" --time="$time" "$path" > /dev/null 2>&1
 #    siege --benchmark --concurrent="$concurrent" --time="$time" "$path"
 
-    sleep 3
+    sleep 5
 
     defunct_after=$(ps aux | grep defunct | grep -v grep | wc -l)
     defunct_count=$((defunct_after - defunct_before))
@@ -134,6 +138,7 @@ siege_test 8 3s "http://localhost:4343/cgi-bin/hello.py"
 siege_test 8 3s "http://localhost:4343/cgi-bin/wrong_path.py"
 
 
+siege_test 128 30s "http://localhost:4343/"
 siege_test 128 30s "http://localhost:4343/cgi-bin/hello.py"
 siege_test 128 30s "http://localhost:4343/cgi-bin/nothing.html"
 siege_test 128 30s "http://localhost:4343/cgi-bin/infinite_loop.py"
@@ -144,6 +149,7 @@ siege_test 128 30s "http://localhost:4343/cgi-bin/sleep?60"
 siege_test 128 30s "http://localhost:4343/cgi-bin/wrong_path.py"
 
 
+siege_test 255 60s "http://localhost:4343/"
 siege_test 255 60s "http://localhost:4343/cgi-bin/hello.py"
 siege_test 255 60s "http://localhost:4343/cgi-bin/nothing.html"
 siege_test 255 60s "http://localhost:4343/cgi-bin/infinite_loop.py"

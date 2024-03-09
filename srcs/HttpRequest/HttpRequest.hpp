@@ -98,7 +98,7 @@ class HttpRequest {
     StatusCode status_code_;
 
 	RequestLine request_line_;
-	std::map<std::string, FieldValueBase *> request_header_fields_;
+	std::map<std::string, FieldValueBase *> request_header_fields_;  // memory allocate
     std::vector<unsigned char> buf_;
     std::vector<unsigned char> request_body_;
 
