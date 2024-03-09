@@ -119,7 +119,7 @@
                 <button onclick="copyCommand('server_name_static')">copy</button>
                 <input type="text"
                        id="server_name_static"
-                       value="curl -i -H &quot;Host: webserv&quot; localhost:4242">
+                       value="curl -i -H &quot;Host: static_server&quot; localhost:4242">
             </div>
 
             <li> default server-1: localhost:4040 and nothing_server_name -> old_server or new_server✨
@@ -175,7 +175,7 @@
                 <button onclick="copyCommand('content_length_large')">copy</button>
                 <input type="text"
                        id="content_length_large"
-                       value="curl -i -H &quot;Content-Length: 2147483647&quot; localhost:4343/cgi-bin/post_simple.py">
+                       value="curl -i -H &quot;Content-Length: 2147483647&quot; --data &quot;less than INT_MAX&quot; localhost:4343/cgi-bin/post_simple.py">
             </div>
 
         </ul>

@@ -662,6 +662,7 @@ Result<std::size_t, int> Config::get_max_body_size(const ServerConfig &server_co
         return Result<std::size_t, int>::err(ERR);
     }
     LocationConfig location = location_result.ok_value();
+    // DEBUG_PRINT(RED, "max_body_size: %zu", location.max_body_size_bytes);
     return Result<std::size_t, int>::ok(location.max_body_size_bytes);
 }
 

@@ -55,10 +55,15 @@ expect_eq_get "$(echo -en "GET / HTTP/1.1 HTTP/1.1\r\nHost: host\r\n\r\n" | nc l
 
 
 # 411 Length Required
+#  no content-length but body exist -> 411
 expect_eq_get "$(echo -en "GET / HTTP/1.1\r\nHost: localhost\r\n\r\nlength required" | nc localhost 4242)"                    "411 Length Required"     ""
+expect_eq_get "$(echo -en "GET / HTTP/1.1\r\nHost: localhost\r\n\r\n"                | nc localhost 4242)"                    "200 OK"                  "html/index.html"
+
+expect_eq_get "$(echo -en "POST /post_only/ HTTP/1.1\r\nHost: localhost\r\n\r\nlength required" | nc localhost 4242)"         "411 Length Required"     ""
 
 
 # 413 payload too large
+#  large body -> close connection
 expect_eq_get "$(curl -isH "Content-Length: 1100000"  "localhost:4242/")"                                                     "413 Payload Too Large"    ""
 large=`python3 -c "print('a'*110000)"`
 expect_eq_get "$(curl -is -H "Content-Length: 1100" --data "$large" "Content-Length: 1100000"  "localhost:4242/")"            "413 Payload Too Large"    ""
