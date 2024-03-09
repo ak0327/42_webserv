@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <cerrno>
 #include <cstdlib>
+#include <cstring>
 #include <ctime>
 #include <fstream>
 #include <limits>
@@ -175,6 +176,11 @@ char **CgiHandler::create_envp(const CgiParams &params) {
     env_strings.push_back(make_key_value_pair("QUERY_STRING", params.query_string));
     env_strings.push_back(make_key_value_pair("PATH_INFO", params.path_info));
     env_strings.push_back(make_key_value_pair("SCRIPT_NAME", params.script_path));
+
+    char *path_env = std::getenv("PATH");
+    if (path_env != NULL) {
+        env_strings.push_back((make_key_value_pair("PATH", path_env)));
+    }
 
     char **envp = NULL;
     try {
