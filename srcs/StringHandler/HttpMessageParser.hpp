@@ -60,6 +60,7 @@ bool is_opaque_tag(const std::string &str);
 bool is_entity_tag(const std::string &str);
 bool is_absolute_uri(const std::string &str);
 bool is_partial_uri(const std::string &str);
+bool is_uri_ref(const std::string &str);
 bool is_irregular(const std::string &str);
 bool is_regular(const std::string &str);
 bool is_base_64_value_non_empty(const std::string &str);
@@ -226,6 +227,10 @@ void skip_ls32(const std::string &str,
 void skip_absolute_uri(const std::string &str,
 					   std::size_t start_pos,
 					   std::size_t *end_pos);
+
+void skip_uri_ref(const std::string &str,
+                  std::size_t start_pos,
+                  std::size_t *end_pos);
 
 void skip_partial_uri(const std::string &str,
 					  std::size_t start_pos,

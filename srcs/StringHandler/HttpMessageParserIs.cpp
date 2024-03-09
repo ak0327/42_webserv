@@ -837,6 +837,16 @@ bool is_partial_uri(const std::string &str) {
 	return str[end] == '\0';
 }
 
+// URI-reference
+// relative-ref  = relative-part [ "?" query ] [ "#" fragment ]
+bool is_uri_ref(const std::string &str) {
+    std::size_t end;
+
+    skip_uri_ref(str, 0, &end);
+    return str[end] == '\0';
+}
+
+
 bool is_ipv6address(const std::string &str) {
 	std::size_t end;
 
