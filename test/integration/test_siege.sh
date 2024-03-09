@@ -50,6 +50,8 @@ siege_test() {
 
     ./webserv $CONF_PATH 2>/dev/null &
 
+    sleep 1
+
     fd_before=$(lsof -p $(pgrep webserv) | wc -l)
 
 #    echo "defunct_before:$defunct_before"
@@ -57,7 +59,7 @@ siege_test() {
 
     siege --benchmark --concurrent="$concurrent" --time="$time" "$path" > /dev/null 2>&1
 
-    sleep 3
+    sleep 5
 
     defunct_after=$(ps aux | grep defunct | grep -v grep | wc -l)
     defunct_count=$((defunct_after - defunct_before))
