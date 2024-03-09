@@ -85,10 +85,10 @@ StatusCode HttpResponse::get_cookie_user_page() {
                                  "<html lang=\"ja\">\n"
                                  "<head>\n"
                                  "    <meta charset=\"UTF-8\">\n"
-                                 "    <title>Login page</title>\n"
+                                 "    <title>User page</title>\n"
                                  "</head>\n"
                                  "<body>\n"
-                                 "<h1>🍪 Login Page 🍪</h1>\n";
+                                 "<h1>🍪 User Page 🍪</h1>\n";
 
         const std::string welcome = "<h2>Welcome, " + get_user_name_from_cookie() + "</h2>";
         const std::string expire = "<h3>expire at: " + get_expire_from_cookie() + "</h3>";
