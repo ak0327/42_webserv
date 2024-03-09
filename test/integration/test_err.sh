@@ -64,8 +64,13 @@ large=`python3 -c "print('a'*110000)"`
 expect_eq_get "$(curl -is -H "Content-Length: 1100" --data "$large" "Content-Length: 1100000"  "localhost:4242/")"            "413 Payload Too Large"    ""
 
 expect_eq_get "$(curl -is -H "Content-Length: 21"  "localhost:4242/dir_a/")"                                                  "413 Payload Too Large"    ""
-expect_eq_get "$(curl -i -X GET -H "Content-Length: 1" --data "ignored"  "localhost:4242/cgi-bin/post_simple.py")"            "413 Payload Too Large"    ""
-expect_eq_get "$(curl -is -H "Content-Length: 21"  -X GET --data "$(python3 -c "print('a'*21)")"  "localhost:4242/dir_a/")"   "413 Payload Too Large"    ""
+expect_eq_get "$(curl -is -X POST -H "Content-Length: 21"  "localhost:4242/post_only/")"                                      "413 Payload Too Large"    ""
+expect_eq_get "$(curl -is -X POST -H "Content-Length: 21"  "localhost:4242/delete_only/")"                                    "413 Payload Too Large"    ""
+
+expect_eq_get "$(curl -i -X GET  -H "Content-Length: 1" --data "ignored"  "localhost:4242/cgi-bin/post_simple.py")"           "413 Payload Too Large"    ""
+expect_eq_get "$(curl -i -X POST -H "Content-Length: 1" --data "ignored"  "localhost:4343/cgi-bin/post_simple.py")"           "413 Payload Too Large"    ""
+
+expect_eq_get "$(curl -is -X GET -H "Content-Length: 21"  --data "$(python3 -c "print('a'*21)")"  "localhost:4242/dir_a/")"   "413 Payload Too Large"    ""
 expect_eq_get "$(curl -is -X GET --data "$(python3 -c "print('a'*100)")"  "localhost:4242/dir_a/")"                           "413 Payload Too Large"    ""
 
 

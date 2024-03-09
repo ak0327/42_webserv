@@ -55,13 +55,14 @@ void HttpResponse::create_response_message() {
 
 bool HttpResponse::is_status_error() const {
     if (HttpMessageParser::is_status_client_error(this->status_code())) {
-        DEBUG_PRINT(MAGENTA, "is_status_error: %d: client error");
+        DEBUG_PRINT(MAGENTA, "is_status_error: %d: client error", this->status_code());
         return true;
     }
     if (HttpMessageParser::is_status_server_error(this->status_code())) {
-        DEBUG_PRINT(MAGENTA, "is_status_error: %d: server error");
+        DEBUG_PRINT(MAGENTA, "is_status_error: %d: server error", this->status_code());
         return true;
     }
+    DEBUG_PRINT(MAGENTA, "is_status_error: %d: not error -> continue", this->status_code());
     return false;
 }
 
