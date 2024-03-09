@@ -17,6 +17,9 @@ start_up() {
 
     ./webserv $CONF_PATH 2>/dev/null &
 
+    fd_before=$(lsof -p $(pgrep webserv) | wc -l)
+#    echo "fd_before: $fd_before"
+
     sleep 1
 }
 
@@ -30,6 +33,8 @@ tear_down() {
       defunct_generated=$TRUE
     fi
 
+    fd_after=$(lsof -p $(pgrep webserv) | wc -l)
+#    echo "fd_after: $fd_after"
 
     process_count=$(ps aux | grep '[w]ebserv' | wc -l)
     if [ $process_count -eq 0 ]; then
@@ -48,13 +53,6 @@ expect_eq_get() {
 
     local call_line=${BASH_LINENO[0]}
 
-    filesize=$(cat "$expected_file" | wc -c)
-    if [ "$filesize" -ge $(( 1024 * 80 )) ]; then
-        is_big_file=1
-    else
-        is_big_file=0
-    fi
-
     echo "----------------------------------------------------------------"
     ((test_cnt++))
     echo "TEST No.${test_cnt} (L${call_line})"
@@ -65,6 +63,19 @@ expect_eq_get() {
         skip_cases+=("No.${test_cnt} (L${call_line})")
         return
     fi
+
+
+    if [ -n "$expected_file" ] || [ ! -f "$expected_file" ]; then
+        is_big_file=0
+    else
+        filesize=$(cat "$expected_file" | wc -c)
+        if [ "$filesize" -ge $(( 1024 * 80 )) ]; then
+            is_big_file=1
+        else
+            is_big_file=0
+        fi
+    fi
+
 
     local actual_start_line
     actual_start_line=$(echo "$response" | head -n 1 | tr -d '\r')
