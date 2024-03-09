@@ -108,9 +108,9 @@ class CgiHandler {
     Result<std::string, ProcResult> pop_line_from_buf();
 
     static Result<std::vector<std::string>, ProcResult> get_interpreter(const std::string &file_path);
+    static void close_socket_pairs(int fds[2]);
 
     void strcpy(char *dst, const char *src);
-
 
     CgiHandler(const CgiHandler &other);
     CgiHandler &operator=(const CgiHandler &other);

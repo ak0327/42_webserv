@@ -508,6 +508,8 @@ int CgiHandler::exec_script_in_child(int from_parant[2],
                                      const std::string &file_path) {
     DEBUG_PRINT(CYAN, "    cgi(child) 1");
     if (handle_child_fd(from_parant, to_parent) == Failure) {
+        close_socket_pairs(from_parant);
+        close_socket_pairs(to_parent);
         DEBUG_PRINT(CYAN, "    cgi(child) 2 error");
         return EXIT_FAILURE;
     }
@@ -517,11 +519,15 @@ int CgiHandler::exec_script_in_child(int from_parant[2],
     char **argv = create_argv(file_path);
     if (!argv) {
         DEBUG_PRINT(CYAN, "    cgi(child) 3");
+        close_socket_pairs(from_parant);
+        close_socket_pairs(to_parent);
         return EXIT_FAILURE;
     }
     char **envp = create_envp(this->params_);
     if (!envp) {
         delete_char_double_ptr(argv);
+        close_socket_pairs(from_parant);
+        close_socket_pairs(to_parent);
         DEBUG_PRINT(CYAN, "    cgi(child) 4");
         return EXIT_FAILURE;
     }
@@ -538,6 +544,8 @@ int CgiHandler::exec_script_in_child(int from_parant[2],
     DEBUG_PRINT(CYAN, "    cgi(child) 7 error");
     delete_char_double_ptr(envp);
     delete_char_double_ptr(argv);
+    close_socket_pairs(from_parant);
+    close_socket_pairs(to_parent);
     return EXIT_FAILURE;
 }
 
@@ -605,7 +613,7 @@ ProcResult CgiHandler::create_socket_pair(int to_child[2], int from_child[2]) {
 }
 
 
-void close_socket_pairs(int fds[2]) {
+void CgiHandler::close_socket_pairs(int fds[2]) {
     if (fds[READ] != INIT_FD) {
         close(fds[READ]);
         fds[READ] = INIT_FD;
