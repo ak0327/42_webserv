@@ -290,6 +290,24 @@ std::string CgiHandler::content_type() {
 }
 
 
+Result<StatusCode, ProcResult> parse_status_line(const std::string &field_value) {
+    int code;
+    std::string reason_prase;
+    ProcResult parse_result = HttpMessageParser::split_status_code_and_reason_phrase(field_value,
+                                                                                     &code,
+                                                                                     &reason_prase);
+    if (parse_result == Failure) {
+        return Result<StatusCode, ProcResult>::err(Failure);
+    }
+
+    Result<StatusCode, ProcResult> convert_result = HttpMessageParser::convert_to_enum(code);
+    if (convert_result.is_err()) {
+        return Result<StatusCode, ProcResult>::err(Failure);
+    }
+    return Result<StatusCode, ProcResult>::ok(convert_result.ok_value());
+}
+
+
 StatusCode CgiHandler::parse_document_response() {
     StatusCode cgi_status = StatusOk;
     int status_count = 0;
@@ -323,16 +341,11 @@ StatusCode CgiHandler::parse_document_response() {
             if (1 < status_count) {
                 return InternalServerError;
             }
-            bool succeed;
-            int code = HttpMessageParser::to_integer_num(field_value, &succeed);
-            if (!succeed) {
+            Result<StatusCode, ProcResult> status_result = parse_status_line(field_value);
+            if (status_result.is_err()) {
                 return InternalServerError;
             }
-            Result<StatusCode, ProcResult> convert_result = HttpMessageParser::convert_to_enum(code);
-            if (convert_result.is_err()) {
-                return InternalServerError;
-            }
-            cgi_status = convert_result.ok_value();
+            cgi_status = status_result.ok_value();
         }
     }
     if (this->media_type_.is_err()) {

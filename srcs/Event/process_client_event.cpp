@@ -233,7 +233,7 @@ ProcResult Event::create_http_response() {
                 DEBUG_SERVER_PRINT(" [CreatingResponse] CreatingCGIBody (L:%d)", __LINE__);
                 this->response_->interpret_cgi_output();
                 this->set_event_phase(kCreatingResponseBody);
-                continue;
+                continue;  // -> kCreatingResponseBody
             }
 
             default:
@@ -455,9 +455,6 @@ ProcResult HttpResponse::exec_cgi_process() {
  https://tex2e.github.io/rfc-translater/html/rfc3875.html#6-3-1--Content-Type
 
  Status         = "Status:" status-code SP reason-phrase NL
- status-code    = "200" | "302" | "400" | "501" | extension-code
- extension-code = 3digit
- reason-phrase  = *TEXT
  https://tex2e.github.io/rfc-translater/html/rfc3875.html#6-3-3--Status
 
  other-field     = protocol-field | extension-field
@@ -476,8 +473,9 @@ ProcResult HttpResponse::exec_cgi_process() {
  The newline (NL) sequence is LF; servers should also accept CR LF as a newline.
                                           ^^^^^^
  */
+// todo: where?? status <- .cgi_status
 void HttpResponse::interpret_cgi_output() {
-    if (this->status_code() != StatusOk) {  // todo: cgi_status ??
+    if (is_status_server_error(this->status_code())) {  // server error
         return;
     }
 

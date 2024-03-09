@@ -488,4 +488,8 @@ Result<StatusCode, ProcResult> convert_to_enum(int code);
 std::string convert_to_str(const Method &method);
 std::string escape_html(const std::string &html);
 
+ProcResult split_status_code_and_reason_phrase(const std::string &field_value,
+                                               int *status_code,
+                                               std::string *reason_phrase);
+
 }  // namespace HttpMessageParser

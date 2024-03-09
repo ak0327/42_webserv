@@ -424,3 +424,125 @@ TEST(TestHttpMessageParser, ParseParameters) {
 	EXPECT_EQ(expected, actual);
 	EXPECT_EQ(12, end);
 }
+
+
+TEST(TestHttpMessageParser, SplitStatusCodeAndReasonPhrase) {
+    std::string field_value = "200 OK";
+    int expected_code, actual_code;
+    std::string expected_phrase, actual_phrase;
+    ProcResult expected_result, actual_result;
+
+    expected_result = Success;
+    expected_code = 200;
+    expected_phrase = "OK";
+    actual_result = HttpMessageParser::split_status_code_and_reason_phrase(field_value,
+                                                                           &actual_code,
+                                                                           &actual_phrase);
+    EXPECT_EQ(expected_result, actual_result);
+    EXPECT_EQ(expected_code, actual_code);
+    EXPECT_EQ(expected_phrase, actual_phrase);
+
+    // -------------------------------------------------------------------------
+
+    field_value = "404 Not Found";
+
+    expected_result = Success;
+    expected_code = 404;
+    expected_phrase = "Not Found";
+    actual_result = HttpMessageParser::split_status_code_and_reason_phrase(field_value,
+                                                                           &actual_code,
+                                                                           &actual_phrase);
+    EXPECT_EQ(expected_result, actual_result);
+    EXPECT_EQ(expected_code, actual_code);
+    EXPECT_EQ(expected_phrase, actual_phrase);
+
+    // -------------------------------------------------------------------------
+
+    field_value = "000 status nothing.. but split ok";
+
+    expected_result = Success;
+    expected_code = 0;
+    expected_phrase = "status nothing.. but split ok";
+    actual_result = HttpMessageParser::split_status_code_and_reason_phrase(field_value,
+                                                                           &actual_code,
+                                                                           &actual_phrase);
+    EXPECT_EQ(expected_result, actual_result);
+    EXPECT_EQ(expected_code, actual_code);
+    EXPECT_EQ(expected_phrase, actual_phrase);
+
+    // -------------------------------------------------------------------------
+
+    field_value = "999 Not Found";
+
+    expected_result = Success;
+    expected_code = 999;
+    expected_phrase = "Not Found";
+    actual_result = HttpMessageParser::split_status_code_and_reason_phrase(field_value,
+                                                                           &actual_code,
+                                                                           &actual_phrase);
+    EXPECT_EQ(expected_result, actual_result);
+    EXPECT_EQ(expected_code, actual_code);
+    EXPECT_EQ(expected_phrase, actual_phrase);
+
+
+    ////////////////////////////////////////////////////////////////////////////
+
+    field_value = "200";
+
+    expected_result = Failure;
+    actual_result = HttpMessageParser::split_status_code_and_reason_phrase(field_value,
+                                                                           &actual_code,
+                                                                           &actual_phrase);
+    EXPECT_EQ(expected_result, actual_result);
+
+    // -------------------------------------------------------------------------
+
+    field_value = "1";
+
+    expected_result = Failure;
+    actual_result = HttpMessageParser::split_status_code_and_reason_phrase(field_value,
+                                                                           &actual_code,
+                                                                           &actual_phrase);
+    EXPECT_EQ(expected_result, actual_result);
+
+    // -------------------------------------------------------------------------
+
+    field_value = "1000 ng";
+
+    expected_result = Failure;
+    actual_result = HttpMessageParser::split_status_code_and_reason_phrase(field_value,
+                                                                           &actual_code,
+                                                                           &actual_phrase);
+    EXPECT_EQ(expected_result, actual_result);
+
+    // -------------------------------------------------------------------------
+
+    field_value = "200";
+
+    expected_result = Failure;
+    actual_result = HttpMessageParser::split_status_code_and_reason_phrase(field_value,
+                                                                           &actual_code,
+                                                                           &actual_phrase);
+    EXPECT_EQ(expected_result, actual_result);
+
+    // -------------------------------------------------------------------------
+
+    field_value = "200 ";
+
+    expected_result = Failure;
+    actual_result = HttpMessageParser::split_status_code_and_reason_phrase(field_value,
+                                                                           &actual_code,
+                                                                           &actual_phrase);
+    EXPECT_EQ(expected_result, actual_result);
+
+    // -------------------------------------------------------------------------
+
+    field_value = "";
+
+    expected_result = Failure;
+    actual_result = HttpMessageParser::split_status_code_and_reason_phrase(field_value,
+                                                                           &actual_code,
+                                                                           &actual_phrase);
+    EXPECT_EQ(expected_result, actual_result);
+
+}

@@ -3,7 +3,7 @@
 
 def header():
     print('Content-Type: text/html')
-    print('Status: 400')
+    print('Status: 400 Bad Request')
     print()
 
 
