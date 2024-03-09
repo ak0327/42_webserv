@@ -546,6 +546,7 @@ ProcResult CgiHandler::handle_parent_fd(int to_child[2], int from_child[2]) {
     errno = 0;
     if (close(to_child[READ]) == CLOSE_ERROR) {
         close(to_child[WRITE]);
+        to_child[WRITE] = INIT_FD;
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
         std::cerr << error_msg << std::endl;  // todo: logging
         return Failure;
@@ -553,6 +554,7 @@ ProcResult CgiHandler::handle_parent_fd(int to_child[2], int from_child[2]) {
     errno = 0;
     if (close(from_child[WRITE]) == CLOSE_ERROR) {
         close(from_child[READ]);
+        from_child[WRITE] = INIT_FD;
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
         std::cerr << error_msg << std::endl;  // todo: logging
         return Failure;
@@ -603,11 +605,30 @@ ProcResult CgiHandler::create_socket_pair(int to_child[2], int from_child[2]) {
 }
 
 
+void close_socket_pairs(int fds[2]) {
+    if (fds[READ] != INIT_FD) {
+        close(fds[READ]);
+        fds[READ] = INIT_FD;
+    }
+    if (fds[WRITE] != INIT_FD) {
+        close(fds[WRITE]);
+        fds[WRITE] = INIT_FD;
+    }
+}
+
+
 ProcResult CgiHandler::exec_script(const std::string &file_path) {
     int to_child[2], from_child[2];
 
+    to_child[READ] = INIT_FD;
+    to_child[WRITE] = INIT_FD;
+    from_child[READ] = INIT_FD;
+    from_child[WRITE] = INIT_FD;
+
     DEBUG_PRINT(CYAN, "   exec_script 1");
     if (create_socket_pair(to_child, from_child) == Failure) {
+        close_socket_pairs(to_child);
+        close_socket_pairs(from_child);
         return Failure;
     }
     DEBUG_PRINT(CYAN, "   exec_script 2");
@@ -617,6 +638,8 @@ ProcResult CgiHandler::exec_script(const std::string &file_path) {
     if (pid == FORK_ERROR) {
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
         std::cerr << error_msg << std::endl;  // todo: tmp
+        close_socket_pairs(to_child);
+        close_socket_pairs(from_child);
         return Failure;  // todo: tmp
     }
 
@@ -626,8 +649,9 @@ ProcResult CgiHandler::exec_script(const std::string &file_path) {
         std::exit(exec_script_in_child(to_child, from_child, file_path));
     } else {
         DEBUG_PRINT(CYAN, "   exec_script 4 parent(pid: %d)", pid);
-        ProcResult setting_result = handle_parent_fd(to_child, from_child);
-        if (setting_result == Failure) {
+        if (handle_parent_fd(to_child, from_child) == Failure) {
+            close_socket_pairs(to_child);
+            close_socket_pairs(from_child);
             return Failure;
         }
         set_cgi_pid(pid);
