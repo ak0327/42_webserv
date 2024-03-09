@@ -104,11 +104,6 @@ void HttpResponse::process_method_not_allowed() {
 
 ProcResult HttpResponse::exec_method() {
     DEBUG_PRINT(YELLOW, " exec_method 1 status(%d)", this->status_code());
-    if (is_status_error()) {
-        DEBUG_PRINT(YELLOW, " exec_method 2 -> error_page");
-        return Success;
-    }
-
     StatusCode status;
     switch (this->request_.method()) {
         case kGET:

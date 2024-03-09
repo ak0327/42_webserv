@@ -401,7 +401,7 @@ Result<ProcResult, StatusCode> HttpRequest::parse_body() {
     }
 
     std::size_t content_length = result.ok_value();
-    DEBUG_SERVER_PRINT("      ParseBody content-length: %zu", content_length);
+    DEBUG_SERVER_PRINT("      ParseBody content-length: %zu, max_body_size: %zu", content_length, this->request_max_body_size_);
 
     if (this->request_max_body_size_ < content_length) {
         DEBUG_SERVER_PRINT("      ParseBody max_body_size: %zu < content-length: %zu", this->request_max_body_size_, content_length);

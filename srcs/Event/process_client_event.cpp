@@ -325,6 +325,11 @@ EventResult Event::get_host_config() {
 
 
 ProcResult Event::execute_each_method() {
+    if (this->response_->is_status_error()) {
+        DEBUG_PRINT(YELLOW, " exec_method 2 -> error_page");
+        return Success;
+    }
+
     if (this->response_->is_exec_cgi()) {
         return exec_cgi();
     } else {
