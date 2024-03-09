@@ -269,7 +269,7 @@ echo "  Failed Tests   : $ng_cnt"
 if [ $ng_cnt -gt 0 ]; then
     for case in "${ng_cases[@]}"; do
         echo -n "     "
-        echo -e "${RED}$case${RESET}"
+        echo -e "${RED}${case}${RESET}"
     done
 fi
 
@@ -278,7 +278,7 @@ echo "  Skipped Tests  : $skip_cnt"
 if [ $skip_cnt -gt 0 ]; then
     for case in "${skip_cases[@]}"; do
         echo -n "     "
-        echo -e "${YELLOW}$case${RESET}"
+        echo -e "${YELLOW}${case}${RESET}"
     done
 fi
 
