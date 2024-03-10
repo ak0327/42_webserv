@@ -86,7 +86,6 @@ StatusCode HttpResponse::is_resource_available(const Method &method) const {
     LimitExceptDirective limit_except = limit_except_result.ok_value();
     if (limit_except.limited) {
         if (is_method_limited(method, limit_except.excluded_methods)) {
-            // todo: allow, deny -> StatusOk
             // std::cout << CYAN << " method not allowed" << RESET << std::endl;
             return MethodNotAllowed;
         }
@@ -232,7 +231,6 @@ void HttpResponse::kill_cgi_process() {
 }
 
 
-// todo: unused??
 void HttpResponse::clear_cgi() {
     this->cgi_handler_.clear_cgi_process();
 }

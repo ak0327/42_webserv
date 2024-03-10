@@ -587,13 +587,12 @@ Result<ProcResult, StatusCode> HttpRequest::parse_and_validate_field_lines(std::
 
 			Result<int, int>parse_result = (this->*field_value_parser_[field_name])(field_name, field_value);
 			if (parse_result.is_err()) {
-				return Result<ProcResult, StatusCode>::err(BadRequest);  // todo: parse error -> status
+				return Result<ProcResult, StatusCode>::err(BadRequest);
 			}
 			continue;
 		}
 	}
 
-	// todo: validate field_names, such as 'must' header,...
 	if (!is_valid_field_name_registered(std::string(HOST))) {
 		// std::cout << MAGENTA << "!is valid field name registered" << RESET << std::endl;
 		return Result<ProcResult, StatusCode>::err(BadRequest);

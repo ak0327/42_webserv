@@ -103,20 +103,6 @@ ProcResult Event::set_to_max_connection_event() {
     return Success;
 }
 
-// void Event::kill_cgi_process() {
-//     if (this->response_) {
-//         this->response_->kill_cgi_process();
-//     }
-// }
-
-
-// // todo: unused??
-// void Event::clear_cgi() {
-//     if (this->response_) {
-//         this->response_->clear_cgi();
-//     }
-// }
-
 
 time_t Event::cgi_timeout_limit() const {
     return this->response_ ? this->response_->cgi_timeout_limit() : 0;
