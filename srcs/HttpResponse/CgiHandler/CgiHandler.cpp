@@ -27,7 +27,6 @@
 #include "Socket.hpp"
 #include "StringHandler.hpp"
 
-extern char **environ;
 
 CgiHandler::CgiHandler()
     : cgi_read_fd_(INIT_FD),
@@ -158,8 +157,8 @@ char **CgiHandler::create_argv(const std::string &file_path) {
 }
 
 
-std::string CgiHandler::make_key_value_pair(const std::string &key,
-                                            const std::string &value) {
+std::string CgiHandler::make_env_elem(const std::string &key,
+                                      const std::string &value) {
     return key + "=" + value;
 }
 
@@ -169,17 +168,17 @@ char **CgiHandler::create_envp(const CgiParams &params) {
     content_length << params.content_length;
 
     std::vector<std::string> env_strings;
-    env_strings.push_back(make_key_value_pair("CONTENT_LENGTH", content_length.str()));
+    env_strings.push_back(make_env_elem("CONTENT_LENGTH", content_length.str()));
     if (!params.content_type.empty()) {
-        env_strings.push_back(make_key_value_pair("CONTENT_TYPE", params.content_type));
+        env_strings.push_back(make_env_elem("CONTENT_TYPE", params.content_type));
     }
-    env_strings.push_back(make_key_value_pair("QUERY_STRING", params.query_string));
-    env_strings.push_back(make_key_value_pair("PATH_INFO", params.path_info));
-    env_strings.push_back(make_key_value_pair("SCRIPT_NAME", params.script_path));
+    env_strings.push_back(make_env_elem("QUERY_STRING", params.query_string));
+    env_strings.push_back(make_env_elem("PATH_INFO", params.path_info));
+    env_strings.push_back(make_env_elem("SCRIPT_NAME", params.script_path));
 
     char *path_env = std::getenv("PATH");
     if (path_env != NULL) {
-        env_strings.push_back((make_key_value_pair("PATH", path_env)));
+        env_strings.push_back((make_env_elem("PATH", path_env)));
     }
 
     char **envp = NULL;
@@ -320,10 +319,9 @@ Result<StatusCode, ProcResult> parse_status_line(const std::string &field_value)
  https://datatracker.ietf.org/doc/html/rfc7231#section-7.1.2
  */
 StatusCode CgiHandler::parse_document_response() {
-    StatusCode cgi_status = StatusOk;
-    int content_count = 0;
-    int status_count = 0;
-    int location_count = 0;
+    StatusCode tmp_status = StatusInit;
+    std::string tmp_location;
+    MediaType tmp_content_type;
     while (true) {
         Result<std::string, ProcResult> line_result = pop_line_from_buf();
         if (line_result.is_err()) {
@@ -345,47 +343,45 @@ StatusCode CgiHandler::parse_document_response() {
         }
         field_name = StringHandler::to_lower(field_name);
         if (field_name == std::string(CONTENT_TYPE)) {
-            ++content_count;
-            if (1 < content_count) {
+            if (tmp_content_type.is_ok()) {  // init: is_err() -> is_ok(): duplicated
                 return InternalServerError;
             }
-            if (this->media_type_.is_ok()) {
-                return InternalServerError;
-            }
-            this->media_type_ = MediaType(field_value);
-            if (this->media_type_.is_err()) {
+            tmp_content_type = MediaType(field_value);
+            if (tmp_content_type.is_err()) {  // parse error
                 return InternalServerError;
             }
         } else if (field_name == std::string(LOCATION)) {
-            ++location_count;
-            if (1 < location_count) {
+            if (!tmp_location.empty()) {  // duplicated
                 return InternalServerError;
             }
             if (HttpMessageParser::is_uri_ref(field_value)) {
-                this->location_ = field_value;
+                tmp_location = field_value;
             } else {
                 return InternalServerError;
             }
         } else if (field_name == "status") {
-            ++status_count;
-            if (1 < status_count) {
+            if (tmp_status != StatusInit) {  // duplicated
                 return InternalServerError;
             }
             Result<StatusCode, ProcResult> status_result = parse_status_line(field_value);
             if (status_result.is_err()) {
                 return InternalServerError;
             }
-            cgi_status = status_result.ok_value();
+            tmp_status = status_result.ok_value();
         }
     }
-    if (this->media_type_.is_err()) {
-        return InternalServerError;
+
+    if (HttpMessageParser::is_redirection_status(tmp_status) && !tmp_location.empty()) {
+        this->location_ = tmp_location;
+        this->cgi_status_ = tmp_status;
+        return this->cgi_status_;
     }
-    if (HttpMessageParser::is_redirection_status(this->cgi_status_)
-        && location_count != 1) {
-        return InternalServerError;
+    if (this->media_type_.is_ok()) {
+        this->media_type_ = tmp_content_type;
+        this->cgi_status_ = tmp_status;
+        return this->cgi_status_;
     }
-    return cgi_status;
+    return InternalServerError;
 }
 
 

@@ -93,8 +93,8 @@ class CgiHandler {
     ProcResult handle_parent_fd(int to_child[2], int from_child[2]);
     ProcResult handle_child_fd(int from_parant[2], int to_parent[2]);
 
-    std::string make_key_value_pair(const std::string &key,
-                                    const std::string &value);
+    std::string make_env_elem(const std::string &key,
+                              const std::string &value);
     char **create_envp(const CgiParams &params);
     char **create_argv(const std::string &file_path);
     void delete_char_double_ptr(char **ptr);

@@ -3,7 +3,6 @@
 
 def header():
     print('Status: 302 Found')
-    print('Content-Type: text/html')
     print('Location: /')
     print()
 
