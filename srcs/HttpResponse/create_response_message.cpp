@@ -116,22 +116,15 @@ void HttpResponse::add_server_header() {
 }
 
 
-bool HttpResponse::is_request_too_large() const {
-    return this->status_code() == PayloadTooLarge
-            || this->status_code() == RequestHeaderFieldsTooLarge
-            || this->request_.request_line_status() == StatusInit;  // too long error
-}
-
-
 bool HttpResponse::is_keepalive() const {
+    if (is_status_error()) {
+        return false;
+    }
     if (this->request_.is_client_connection_close()) {
         return false;
     }
     const int KEEPALIVE_TIMEOUT_INFINITY = 0;
     if (this->keepalive_timeout_sec_ == KEEPALIVE_TIMEOUT_INFINITY) {
-        return false;
-    }
-    if (is_request_too_large()) {
         return false;
     }
     return true;
@@ -141,10 +134,11 @@ bool HttpResponse::is_keepalive() const {
 void HttpResponse::add_keepalive_header() {
     if (is_keepalive()) {
         this->headers_["Connection"] = "keep-alive";
-        std::ostringstream field_value;
-        field_value << "time=" << this->keepalive_timeout_sec_;
-        field_value << ", max=" << MAX_CONNECTION;
-        this->headers_["Keep-Alive"] = field_value.str();
+
+        std::ostringstream keepalive_value;
+        keepalive_value << "time=" << this->keepalive_timeout_sec_;
+        keepalive_value << ", max=" << MAX_CONNECTION;
+        this->headers_["Keep-Alive"] = keepalive_value.str();
     } else {
         this->headers_["Connection"] = "close";
     }

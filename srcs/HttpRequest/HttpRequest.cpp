@@ -419,9 +419,9 @@ Result<ProcResult, StatusCode> HttpRequest::parse_body() {
     DEBUG_SERVER_PRINT("      ParseBody move buf -> request_body: size: %zu", this->request_body_.size());
 
     if (this->content_length_ < this->request_body_.size()) {
-        DEBUG_SERVER_PRINT("      ParseBody  content_length < body.size() -> LengthRequired");
+        DEBUG_SERVER_PRINT("      ParseBody  content_length make< body.size() -> LengthRequired");
         this->request_body_.clear();
-        return Result<ProcResult, StatusCode>::err(PayloadTooLarge);
+        return Result<ProcResult, StatusCode>::err(BadRequest);
     }
     if (this->request_body_.size() < this->content_length_) {
         DEBUG_SERVER_PRINT("      ParseBody  body.size() < content-length -> recv continue");

@@ -68,8 +68,8 @@ Result<ServerConfig, std::string> Config::get_server_config(const AddressPortPai
     const std::string &request_port = request_header.second;
     Result<ServerConfig, int> result;
 
-    std::cout << BG_RED << " server_listen : " << server_listen << RESET << std::endl;
-    std::cout << BG_RED << " request_header: " << request_header << RESET << std::endl;
+    // std::cout << BG_RED << " server_listen : " << server_listen << RESET << std::endl;
+    // std::cout << BG_RED << " request_header: " << request_header << RESET << std::endl;
     if (is_connect_to_difference_port(server_port, request_port)) {
         return Result<ServerConfig, std::string>::err("error: request_header ip not found");
     }
@@ -88,11 +88,11 @@ Result<ServerConfig, std::string> Config::get_server_config(const AddressPortPai
         server_info = ServerInfo("", request_ip, server_port);
     } else {
         const std::string &request_server_name = request_host;
-        DEBUG_PRINT(CYAN, " server_name: %s", request_server_name.c_str());
+        // DEBUG_PRINT(CYAN, " server_name: %s", request_server_name.c_str());
         server_info = ServerInfo(request_server_name, server_ip, server_port);
     }
 
-    std::cout << BG_RED << " server_info: " << server_info << RESET << std::endl;
+    // std::cout << BG_RED << " server_info: " << server_info << RESET << std::endl;
     result = get_server_config(server_info);
     if (result.is_err()) {
         return Result<ServerConfig, std::string>::err("error");

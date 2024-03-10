@@ -114,7 +114,6 @@ class HttpResponse {
     bool is_method_available() const;
     bool is_autoindex() const;
     bool is_redirect_target() const;
-    bool is_request_too_large() const;
     bool is_support_content_type() const;
     static bool is_support_content_type(const std::string &path);
     static bool is_supported_by_media_type(const std::string &type);
