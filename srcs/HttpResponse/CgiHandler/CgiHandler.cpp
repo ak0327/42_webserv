@@ -523,7 +523,7 @@ int CgiHandler::exec_script_in_child(int from_parant[2],
 
     char **argv = create_argv(file_path);
     if (!argv) {
-        DEBUG_PRINT(CYAN, "    cgi(child) 3");
+        DEBUG_PRINT(CYAN, "    cgi(child) 3 argv error");
         close_socket_pairs(from_parant);
         close_socket_pairs(to_parent);
         return EXIT_FAILURE;
@@ -533,18 +533,18 @@ int CgiHandler::exec_script_in_child(int from_parant[2],
         delete_char_double_ptr(argv);
         close_socket_pairs(from_parant);
         close_socket_pairs(to_parent);
-        DEBUG_PRINT(CYAN, "    cgi(child) 4");
+        DEBUG_PRINT(CYAN, "    cgi(child) 4 envp error");
         return EXIT_FAILURE;
     }
 
-    // DEBUG_PRINT(CYAN, "    cgi(child) 5, argv[0]:%s", argv[0]);
+    DEBUG_PRINT(CYAN, "    cgi(child) 5, argv[0]:%s", argv[0]);
     errno = 0;
     if (execve(argv[0],
                static_cast<char *const *>(argv),
                static_cast<char *const *>(envp)) == EXECVE_ERROR) {
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
         std::cerr << error_msg << std::endl;  // todo: tmp -> log?
-        DEBUG_PRINT(CYAN, "    cgi(child) 6 error");
+        DEBUG_PRINT(CYAN, "    cgi(child) 6 execve error");
     }
     DEBUG_PRINT(CYAN, "    cgi(child) 7 error");
     delete_char_double_ptr(envp);
