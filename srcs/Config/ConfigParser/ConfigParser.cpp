@@ -515,11 +515,10 @@ Result<int, std::string> ConfigParser::parse_return_directive(TokenItr *current,
     std::vector<std::string>::const_iterator param = return_params.begin();
     bool succeed;
     int return_code = HttpMessageParser::to_integer_num(*param, &succeed);
-    if (!succeed) {
+    if (!succeed || !is_valid_return_code(return_code)) {
         const std::string error_msg = create_invalid_value_err_msg(*param, RETURN_DIRECTIVE);
         return Result<int, std::string>::err(error_msg);
     }
-    // todo: is_valid_return_code
     Result<StatusCode, ProcResult> convert_result = HttpMessageParser::convert_to_enum(return_code);
     if (convert_result.is_err()) {
         const std::string error_msg = create_invalid_value_err_msg(*param, RETURN_DIRECTIVE);
@@ -697,11 +696,10 @@ Result<int, std::string> ConfigParser::parse_error_page_directive(TokenItr *curr
     for (param = error_page_params.begin(); param != error_page_params.end(); ++param) {
         bool succeed;
         int error_code = HttpMessageParser::to_integer_num(*param, &succeed);
-        if (!succeed) {
+        if (!succeed || !is_valid_error_code(error_code)) {
             const std::string error_msg = create_invalid_value_err_msg(*param, RETURN_DIRECTIVE);
             return Result<int, std::string>::err(error_msg);
         }
-        // todo: iis_valid_error_code
         Result<StatusCode, ProcResult> convert_result = HttpMessageParser::convert_to_enum(error_code);
         if (convert_result.is_err()) {
             const std::string error_msg = create_invalid_value_err_msg(*param, RETURN_DIRECTIVE);
