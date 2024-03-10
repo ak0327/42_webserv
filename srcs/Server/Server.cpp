@@ -252,7 +252,7 @@ ServerResult Server::run() {
 	while (true) {
         management_timeout_events();
         set_io_timeout();
-        sleep(1);
+        // sleep(1);
         ServerResult fd_ready_result = this->fds_->get_io_ready_fd();
 		if (fd_ready_result.is_err()) {
             const std::string error_msg = fd_ready_result.err_value();
@@ -272,7 +272,7 @@ ServerResult Server::run() {
         ServerResult event_result = process_event(ready_fd);
 		if (event_result.is_err()) {
             const std::string error_msg = event_result.err_value();
-            DEBUG_SERVER_PRINT("error: %s", error_msg.c_str());
+            DEBUG_PRINT(BG_RED, "[Error]: %s", error_msg.c_str());
             // return ServerResult::err(error_msg);
 		}
     }

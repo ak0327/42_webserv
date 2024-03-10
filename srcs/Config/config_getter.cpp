@@ -46,55 +46,55 @@ Result<ServerConfig, std::string> Config::get_server_config(const AddressPortPai
     Result<ServerConfig, int> result;
 
     if (socket_address == "0.0.0.0") { socket_address = "*"; }  // todo
-    // std::cout << CYAN << "actual  addr: " << socket_address << ", port: " << socket_port << RESET << std::endl;
-    // std::cout << CYAN << "request addr: " << request.first << ", port: " << request.second << RESET << std::endl;
-    // DEBUG_PRINT(CYAN, "get_server_config");
+    std::cout << CYAN << "actual  addr: " << socket_address << ", port: " << socket_port << RESET << std::endl;
+    std::cout << CYAN << "request addr: " << request.first << ", port: " << request.second << RESET << std::endl;
+    DEBUG_PRINT(CYAN, "get_server_config");
 
     if (!request_port.empty() && request_port != socket_port) {
         return Result<ServerConfig, std::string>::err("error: request ip not found");
     }
-    // DEBUG_PRINT(CYAN, " 1");
+    DEBUG_PRINT(CYAN, " 1");
 
     if (HttpMessageParser::is_ipv4address(request.first)) {
-        // DEBUG_PRINT(CYAN, " 2");
+        DEBUG_PRINT(CYAN, " 2");
         std::string request_address = request.first;
         // ipv4
         if (socket_address == request_address) {
             result = get_default_server(actual);
             if (result.is_err()) {
-                // DEBUG_PRINT(CYAN, " 3 err");
+                DEBUG_PRINT(CYAN, " 3 err");
                 return Result<ServerConfig, std::string>::err("error");
             }
-            // DEBUG_PRINT(CYAN, " 4 ok");
+            DEBUG_PRINT(CYAN, " 4 ok");
             return Result<ServerConfig, std::string>::ok(result.ok_value());
         } else if (socket_address == "*") {  // todo
-            // DEBUG_PRINT(CYAN, " 5");
+            DEBUG_PRINT(CYAN, " 5");
             AddressPortPair pair(request_address, socket_port);
-            result = get_default_server(actual);
+            result = get_default_server(pair);
             if (result.is_err()) {
-                // DEBUG_PRINT(CYAN, " 6 err");
+                DEBUG_PRINT(CYAN, " 6 err");
                 return Result<ServerConfig, std::string>::err("error");
             }
-            // DEBUG_PRINT(CYAN, " 7 ok");
+            DEBUG_PRINT(CYAN, " 7 ok");
             return Result<ServerConfig, std::string>::ok(result.ok_value());
         } else {
-            // DEBUG_PRINT(CYAN, " 8 err");
+            DEBUG_PRINT(CYAN, " 8 err");
             return Result<ServerConfig, std::string>::err("error: address is not mach with conf and request");
         }
     } else if (HttpMessageParser::is_ipv6address(request.first)) {
         // ivp6
-        // DEBUG_PRINT(CYAN, " 9 err");
+        DEBUG_PRINT(CYAN, " 9 err");
         return Result<ServerConfig, std::string>::err("error");  // todo: ipv6
     } else {
         std::string request_server_name = request.first;
-        // DEBUG_PRINT(CYAN, " server_name: %s", request_server_name.c_str());
+        DEBUG_PRINT(CYAN, " server_name: %s", request_server_name.c_str());
         ServerInfo server_info(request_server_name, socket_address, socket_port);
         result = get_server_config(server_info);
         if (result.is_err()) {
-            // DEBUG_PRINT(CYAN, " 10 err");
+            DEBUG_PRINT(CYAN, " 10 err");
             return Result<ServerConfig, std::string>::err("error");
         }
-        // DEBUG_PRINT(CYAN, " 11 ok");
+        DEBUG_PRINT(CYAN, " 11 ok");
         return Result<ServerConfig, std::string>::ok(result.ok_value());
     }
 }

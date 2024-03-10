@@ -168,16 +168,13 @@ ProcResult HttpResponse::send_request_body_to_cgi() {
 }
 
 
-ssize_t HttpResponse::recv_to_buf(int fd) {
+Result<ProcResult, ErrMsg> HttpResponse::recv_to_buf(int fd) {
     return Socket::recv_to_buf(fd, &this->body_buf_);
 }
 
 
 ProcResult HttpResponse::recv_to_cgi_buf() {
     ProcResult result = this->cgi_handler_.recv_cgi_output();
-    if (result == Continue) {
-        return Continue;
-    }
     if (result == Failure) {
         StatusCode error_code = BadGateway;
         this->set_status_code(error_code);
@@ -186,7 +183,7 @@ ProcResult HttpResponse::recv_to_cgi_buf() {
         StatusCode error_code = GatewayTimeout;
         this->set_status_code(error_code);
     }
-    return result;
+    return result;  // Success/Continue/Timeout/Failure
 }
 
 

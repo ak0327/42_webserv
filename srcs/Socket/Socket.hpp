@@ -25,8 +25,9 @@ class Socket {
 	static SocketResult set_fd_to_nonblock(int fd);
     static SocketResult accept(int socket_fd, struct sockaddr_storage *client_addr);
 
-    static ssize_t recv(int fd, void *buf, std::size_t bufsize);
-    static ssize_t recv_to_buf(int fd, std::vector<unsigned char> *buf);
+    static Result<std::size_t, ErrMsg> recv(int fd, void *buf, std::size_t bufsize);
+    static Result<ProcResult, ErrMsg> recv_to_buf(int fd, std::vector<unsigned char> *buf);
+
     static Result<std::size_t, ErrMsg> send(int fd, void *buf, std::size_t bufsize);
     static Result<ProcResult, ErrMsg> send_buf(int fd, std::vector<unsigned char> *buf);
 

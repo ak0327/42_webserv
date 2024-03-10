@@ -202,7 +202,7 @@ ServerResult Server::handle_client_event(int client_fd) {
 
     // DEBUG_SERVER_PRINT("process_event -> process_client_event");
     EventResult event_result = client_event->process_client_event();
-    if (event_result.is_err()) {  // fatal error
+    if (event_result.is_err()) {
         delete_event(event);
         const std::string error_msg = event_result.err_value();
         return ServerResult::err(error_msg);

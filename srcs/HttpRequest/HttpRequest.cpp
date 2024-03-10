@@ -176,14 +176,17 @@ bool HttpRequest::is_telnet_closed() {
 }
 
 
-ssize_t HttpRequest::recv_to_buf(int fd) {
-    ssize_t recv_size = Socket::recv_to_buf(fd, &this->buf_);
+Result<ProcResult, ErrMsg> HttpRequest::recv_to_buf(int fd) {
+    Result<ProcResult, ErrMsg> recv_result = Socket::recv_to_buf(fd, &this->buf_);
+    if (recv_result.is_err()) {
+        return Result<ProcResult, ErrMsg>::err(recv_result.err_value());
+    }
 
     if (is_telnet_closed()) {
-        DEBUG_PRINT(RED, "^C detected");
-        return RECV_EOF;
+        DEBUG_PRINT(YELLOW, "Connection closed by ^C");
+        return Result<ProcResult, ErrMsg>::ok(ConnectionClosed);
     }
-    return recv_size;
+    return recv_result;
 }
 
 

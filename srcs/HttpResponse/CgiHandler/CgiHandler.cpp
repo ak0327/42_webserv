@@ -55,26 +55,29 @@ void CgiHandler::clear_cgi_process() {
 
 void CgiHandler::kill_cgi_process() {
     if (pid() == INIT_PID) {
-        DEBUG_PRINT(GRAY, "kill pid nothing at %zu -> return", std::time(NULL));
+        DEBUG_PRINT(GRAY, "[kill_cgi_process] kill pid nothing at %zu -> return", std::time(NULL));
         return;
     }
 
-    DEBUG_PRINT(RED, "kill pid: %d at %zu", pid(), std::time(NULL));
+    DEBUG_PRINT(WHITE, "[kill_cgi_process] kill pid: %d at %zu", pid(), std::time(NULL));
     int status = -1;
     if (!is_processing(&status)) {
-        DEBUG_PRINT(RED, "child status: %d", status);
+        DEBUG_PRINT(WHITE, "[kill_cgi_process] child status: %d", status);
         return;
     }
-    if (this->pid() == -1) { return; }
+    if (this->pid() == INIT_PID) { return; }
     errno = 0;
     if (kill(this->pid(), SIGKILL) == KILL_ERROR) {
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
-        DEBUG_PRINT(RED, "kill: %s", error_msg.c_str());
+        DEBUG_PRINT(WHITE, "[kill_cgi_process] kill: %s", error_msg.c_str());
     }
     if (is_processing(&status, FLAG_NONE)) {
-        DEBUG_PRINT(RED, "kill failure ??");
+        // for debug
+        DEBUG_PRINT(WHITE, "[kill_cgi_process] kill failure ??");
+    } else {
+        // for debug
+        DEBUG_PRINT(WHITE, "[kill_cgi_process] kill success");
     }
-    DEBUG_PRINT(RED, "kill -> child still running");
 }
 
 
@@ -253,26 +256,28 @@ Result<ProcResult, std::string> CgiHandler::send_request_body_to_cgi() {
 
 
 ProcResult CgiHandler::recv_cgi_output() {
-    DEBUG_PRINT(YELLOW, "     recv_to_cgi_buf at %zu", std::time(NULL));
-    ssize_t recv_size = Socket::recv_to_buf(this->read_fd(), &this->recv_buf_);
-    DEBUG_PRINT(YELLOW, "      recv_size: %zd", recv_size);
-    // DEBUG_PRINT(YELLOW, "      recv_buf :[%s]", std::string(this->recv_buf_.begin(), this->recv_buf_.end()).c_str());
-    DEBUG_PRINT(BG_GRAY, "      buf_size: %zd", this->recv_buf_.size());
+    DEBUG_PRINT(YELLOW, "[recv_cgi_output] recv_to_cgi_buf at %zu", std::time(NULL));
+    Result<ProcResult, ErrMsg> result = Socket::recv_to_buf(this->read_fd(), &this->recv_buf_);
+    if (result.is_err()) {
+        DEBUG_PRINT(BG_YELLOW, "[Error] recv CGI: %s", result.err_value().c_str());
+        this->kill_cgi_process();
+        return Failure;
+    }
 
+    DEBUG_PRINT(YELLOW, "[recv_cgi_output] recv_size: %zd, buf_size: %zu", result.ok_value(), this->recv_buf_.size());
     int process_exit_status;
     if (is_processing(&process_exit_status)) {
-        DEBUG_PRINT(YELLOW, "      recv continue");
+        DEBUG_PRINT(YELLOW, " -> recv continue");
         return Continue;
     }
-    // CgiHandler::close_read_fd();  // close fd in ClientSession
-    DEBUG_PRINT(YELLOW, "      process_exit_status: %d", process_exit_status);
+    DEBUG_PRINT(YELLOW, "[recv_cgi_output] process_exit_status: %d", process_exit_status);
     if (process_exit_status == EXIT_SUCCESS) {
-        DEBUG_PRINT(YELLOW, "      recv success");
+        DEBUG_PRINT(YELLOW, " -> recv success");
         return Success;
     }
 
     clear_recv_buf();
-    DEBUG_PRINT(YELLOW, "      recv failure or timeout");
+    DEBUG_PRINT(YELLOW, " -> recv failure or timeout, clear buf");
     return process_exit_status == PROCESS_TIMEOUT ? Timeout : Failure;
 }
 

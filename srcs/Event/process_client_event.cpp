@@ -30,13 +30,13 @@ EventResult Event::process_client_event() {
         case kReceivingRequest: {
             DEBUG_SERVER_PRINT("[process_client_event] Phase: 1 ReceivingRequest (L:%d)", __LINE__);
             DEBUG_SERVER_PRINT(" this->request:%p (L:%d)", this->request_, __LINE__);
-            ssize_t recv_size = this->request_->recv_to_buf(this->client_fd_);
-            if (recv_size == RECV_EOF) {  // 0  -> fd closed
+            Result<ProcResult, ErrMsg> recv_result = this->request_->recv_to_buf(this->client_fd_);
+            if (recv_result.is_err()) {
+                return EventResult::err(recv_result.err_value());
+            }
+            if (recv_result.ok_value() == ConnectionClosed) {  // EOF  -> fd closed
                 DEBUG_SERVER_PRINT(" recv EOF -> connection close (L:%d)", __LINE__);
                 return EventResult::ok(ConnectionClosed);
-            } else if (recv_size == RECV_CONTINUE) {    // -1 -> continue until timeout
-                DEBUG_SERVER_PRINT(" recv -1 -> continue (L:%d)", __LINE__);
-                return EventResult::ok(Continue);
             }
             this->set_event_phase(kParsingRequest);
         }

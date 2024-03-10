@@ -161,29 +161,34 @@ Result<int, std::string> Socket::set_fd_to_nonblock(int fd) {
 int Socket::get_socket_fd() const { return this->socket_fd_; }
 
 
-ssize_t Socket::recv(int fd, void *buf, std::size_t bufsize) {
+Result<std::size_t, ErrMsg> Socket::recv(int fd, void *buf, std::size_t bufsize) {
     errno = 0;
     ssize_t recv_size = ::recv(fd, buf, bufsize, FLAG_NONE);
-    int tmp_errno = errno;
     if (recv_size == RECV_ERROR) {
-        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(tmp_errno);
-        DEBUG_PRINT(RED, "recv: recv_size: %zd, error: %s", recv_size, error_msg.c_str());
+        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+        return Result<std::size_t, ErrMsg>::err(error_msg);
     }
-    return recv_size;
+    return Result<std::size_t, ErrMsg>::ok(static_cast<std::size_t>(recv_size));
 }
 
 
-ssize_t Socket::recv_to_buf(int fd, std::vector<unsigned char> *buf) {
-    if (!buf) { return 0; }
+Result<ProcResult, ErrMsg> Socket::recv_to_buf(int fd, std::vector<unsigned char> *buf) {
+    if (!buf) {
+        const std::string error_msg = CREATE_ERROR_INFO_STR("fatal error: null assigned to buf");
+        return Result<ProcResult, ErrMsg>::err(error_msg);
+    }
     // std::size_t bufsize = BUFSIZ;
     // std::size_t bufsize = 85;
     std::vector<unsigned char> recv_buf(BUFSIZ);
 
     DEBUG_SERVER_PRINT("recv start");
-    ssize_t recv_size = Socket::recv(fd, &recv_buf[0], BUFSIZ);
+    Result<std::size_t, ErrMsg> recv_result = Socket::recv(fd, &recv_buf[0], BUFSIZ);
+    if (recv_result.is_err()) {
+        return Result<ProcResult, ErrMsg>::err(recv_result.err_value());
+    }
 
+    std::size_t recv_size = recv_result.ok_value();
     DEBUG_PRINT(RED, " recv_size: %zd", recv_size);
-
     if (0 < recv_size) {
         std::string debug_recv_msg(recv_buf.begin(), recv_buf.begin() + recv_size);
         DEBUG_SERVER_PRINT(" recv_msg[%s]", debug_recv_msg.c_str());
@@ -191,7 +196,7 @@ ssize_t Socket::recv_to_buf(int fd, std::vector<unsigned char> *buf) {
         buf->insert(buf->end(), recv_buf.begin(), recv_buf.begin() + recv_size);
     }
     DEBUG_SERVER_PRINT("recv end, bufsize:%zu", buf->size());
-    return recv_size;
+    return Result<ProcResult, ErrMsg>::ok(0 < recv_size ? Success : ConnectionClosed);
 }
 
 

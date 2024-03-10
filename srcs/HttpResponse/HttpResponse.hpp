@@ -54,8 +54,9 @@ class HttpResponse {
                              const std::string &path_info);
     std::pair<ScriptPath, PathInfo> get_script_path_and_path_info();
     void create_response_message();
-    ssize_t recv_to_buf(int fd);
-    Result<ProcResult, std::string> send_http_response(int client_fd);
+
+    Result<ProcResult, ErrMsg> recv_to_buf(int fd);
+    Result<ProcResult, ErrMsg> send_http_response(int client_fd);
 
     void clear_cgi();
     int cgi_read_fd() const;
