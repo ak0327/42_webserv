@@ -102,7 +102,7 @@ ServerResult Server::create_event(int socket_fd) {
         AddressPortPair client_listen = Server::get_client_listen(client_addr);
 
         std::ostringstream oss; oss << client_listen;
-        DEBUG_PRINT(GRAY_BACK, "connect_client: %s", oss.str().c_str());
+        DEBUG_PRINT(BG_GRAY, "connect_client: %s", oss.str().c_str());
 
         Event *new_session = new Event(socket_fd,
                                        connect_fd,
@@ -116,7 +116,7 @@ ServerResult Server::create_event(int socket_fd) {
         }
 
         if (MAX_CONNECTION <= this->client_events_.size()) {
-            DEBUG_PRINT(GRAY_BACK, "exceed max_connaction: events: %zu", this->client_events_.size());
+            DEBUG_PRINT(BG_GRAY, "exceed max_connaction: events: %zu", this->client_events_.size());
             if (new_session->set_to_max_connection_event() == Failure) {
                 delete new_session;  // client fd closed
                 DEBUG_PRINT(RED, "error: create response failure");
@@ -258,7 +258,7 @@ ServerResult Server::handle_client_event(int client_fd) {
             std::ostringstream oss; oss << client_event;
             DEBUG_SERVER_PRINT("client event completed: %s", oss.str().c_str());
             if (client_event->is_keepalive()) {
-                DEBUG_PRINT(GRAY_BACK, " -> keep-alive %zu sec", this->config_.keepalive_timeout());
+                DEBUG_PRINT(BG_GRAY, " -> keep-alive %zu sec", this->config_.keepalive_timeout());
                 idling_event(client_event);
             } else {
                 DEBUG_SERVER_PRINT(" -> close connection");

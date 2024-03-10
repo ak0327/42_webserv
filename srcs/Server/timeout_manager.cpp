@@ -65,7 +65,7 @@ void Server::management_cgi_executing_timeout(time_t current_time) {
     std::set<FdTimeoutLimitPair>::const_iterator cgi = this->cgi_time_manager_.begin();
     while (cgi != this->cgi_time_manager_.end()) {
         time_t timeout_limit = cgi->first;
-        DEBUG_PRINT(GRAY_BACK, " [management_cgi_timeout] cgi_fd: %d, time limit: %zu, current: %zu -> remain %zu sec",
+        DEBUG_PRINT(BG_GRAY, " [management_cgi_timeout] cgi_fd: %d, time limit: %zu, current: %zu -> remain %zu sec",
                     cgi->second, timeout_limit, current_time, (timeout_limit <= current_time ? 0 : timeout_limit - current_time));
         if (current_time < timeout_limit) {
             break;  // sorted
@@ -104,7 +104,7 @@ void Server::management_active_client_timeout(time_t current_time) {
     std::set<FdTimeoutLimitPair>::iterator itr = this->active_client_time_manager_.begin();
     while (itr != this->active_client_time_manager_.end()) {
         time_t timeout_limit = itr->first;
-        DEBUG_PRINT(GRAY_BACK, " [management] active_client: fd: %d, time limit: %zu, current: %zu -> remain %zu sed",
+        DEBUG_PRINT(BG_GRAY, " [management] active_client: fd: %d, time limit: %zu, current: %zu -> remain %zu sed",
                            itr->second, timeout_limit, current_time, (timeout_limit <= current_time ? 0 : timeout_limit - current_time));
         if (current_time < timeout_limit) {
             break;  // sorted
@@ -140,7 +140,7 @@ void Server::management_idling_client_timeout(time_t current_time) {
     std::set<FdTimeoutLimitPair>::iterator client = this->idling_client_time_manager_.begin();
     while (client != this->idling_client_time_manager_.end()) {
         time_t timeout_limit = client->first;
-        DEBUG_PRINT(GRAY_BACK, " idling_client: fd: %d, time limit: %zu, current: %zu -> remain %zu sec",
+        DEBUG_PRINT(BG_GRAY, " idling_client: fd: %d, time limit: %zu, current: %zu -> remain %zu sec",
                     client->second, timeout_limit, current_time, (timeout_limit <= current_time ? 0 : timeout_limit - current_time));
         if (current_time < timeout_limit) {
             break;  // sorted

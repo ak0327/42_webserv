@@ -261,7 +261,7 @@ ProcResult CgiHandler::recv_cgi_output() {
     ssize_t recv_size = Socket::recv_to_buf(this->read_fd(), &this->recv_buf_);
     DEBUG_PRINT(YELLOW, "      recv_size: %zd", recv_size);
     // DEBUG_PRINT(YELLOW, "      recv_buf :[%s]", std::string(this->recv_buf_.begin(), this->recv_buf_.end()).c_str());
-    DEBUG_PRINT(GRAY_BACK, "      buf_size: %zd", this->recv_buf_.size());
+    DEBUG_PRINT(BG_GRAY, "      buf_size: %zd", this->recv_buf_.size());
 
     int process_exit_status;
     if (is_processing(&process_exit_status)) {

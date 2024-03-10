@@ -179,12 +179,12 @@ ServerResult Server::create_sockets(const Config &config) {
     // }
     const std::map<AddressPortPair, const ServerConfig *> &default_servers = config.get_default_servers();
 
-    DEBUG_PRINT(GRAY_BACK, "create sockets:");
+    DEBUG_PRINT(BG_GRAY, "create sockets:");
     std::map<AddressPortPair, const ServerConfig *>::const_iterator servers;
     for (servers = default_servers.begin(); servers != default_servers.end(); ++servers) {
         AddressPortPair server = servers->first;
         try {
-            DEBUG_PRINT(GRAY_BACK, " ip: %s, port: %s", server.first.c_str(), server.second.c_str());
+            DEBUG_PRINT(BG_GRAY, " ip: %s, port: %s", server.first.c_str(), server.second.c_str());
             Result<Socket *, std::string> socket_result = create_socket(server.first, server.second);
             if (socket_result.is_err()) {
                 const std::string error_msg = socket_result.err_value();
