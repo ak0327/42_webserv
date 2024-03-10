@@ -697,12 +697,12 @@ Result<int, std::string> ConfigParser::parse_error_page_directive(TokenItr *curr
         bool succeed;
         int error_code = HttpMessageParser::to_integer_num(*param, &succeed);
         if (!succeed || !is_valid_error_code(error_code)) {
-            const std::string error_msg = create_invalid_value_err_msg(*param, RETURN_DIRECTIVE);
+            const std::string error_msg = create_invalid_value_err_msg(*param, ERROR_PAGE_DIRECTIVE);
             return Result<int, std::string>::err(error_msg);
         }
         Result<StatusCode, ProcResult> convert_result = HttpMessageParser::convert_to_enum(error_code);
         if (convert_result.is_err()) {
-            const std::string error_msg = create_invalid_value_err_msg(*param, RETURN_DIRECTIVE);
+            const std::string error_msg = create_invalid_value_err_msg(*param, ERROR_PAGE_DIRECTIVE);
             return Result<int, std::string>::err(error_msg);
         }
         StatusCode code = convert_result.ok_value();
