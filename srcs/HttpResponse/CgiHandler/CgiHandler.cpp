@@ -322,6 +322,7 @@ StatusCode CgiHandler::parse_document_response() {
     StatusCode tmp_status = StatusInit;
     std::string tmp_location;
     MediaType tmp_content_type;
+    int content_type_cnt = 0;
     while (true) {
         Result<std::string, ProcResult> line_result = pop_line_from_buf();
         if (line_result.is_err()) {
@@ -343,7 +344,7 @@ StatusCode CgiHandler::parse_document_response() {
         }
         field_name = StringHandler::to_lower(field_name);
         if (field_name == std::string(CONTENT_TYPE)) {
-            if (tmp_content_type.is_ok()) {  // init: is_err() -> is_ok(): duplicated
+            if (1 < ++content_type_cnt) {  // duplicated
                 return InternalServerError;
             }
             tmp_content_type = MediaType(field_value);
@@ -376,9 +377,13 @@ StatusCode CgiHandler::parse_document_response() {
         this->cgi_status_ = tmp_status;
         return this->cgi_status_;
     }
-    if (this->media_type_.is_ok()) {
+    if (tmp_content_type.is_ok()) {
         this->media_type_ = tmp_content_type;
-        this->cgi_status_ = tmp_status;
+        this->cgi_status_ = (tmp_status == StatusInit) ? StatusOk : tmp_status;
+        return this->cgi_status_;
+    }
+    if (content_type_cnt == 0) {
+        this->cgi_status_ = (tmp_status == StatusInit) ? StatusOk : tmp_status;
         return this->cgi_status_;
     }
     return InternalServerError;
