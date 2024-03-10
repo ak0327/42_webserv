@@ -247,12 +247,8 @@ Result<std::vector<std::string>, ProcResult> CgiHandler::get_interpreter(const s
 }
 
 
-ProcResult CgiHandler::send_request_body_to_cgi() {
-    Result<ProcResult, std::string> result = Socket::send_buf(this->write_fd(), &this->params_.content);
-    if (result.is_err()) {
-        return Failure;
-    }
-    return result.ok_value();  // success or continue
+Result<ProcResult, std::string> CgiHandler::send_request_body_to_cgi() {
+    return Socket::send_buf(this->write_fd(), &this->params_.content);
 }
 
 

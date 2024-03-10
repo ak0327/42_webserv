@@ -59,7 +59,6 @@ EventResult Event::process_client_event() {
         case kCreatingCGIBody: {
             if (create_response_obj() == FatalError) {
                 const std::string error_msg = CREATE_ERROR_INFO_STR("error: fail to allocate memory for HttpResponse");
-                DEBUG_SERVER_PRINT(" -> fatal error (L:%d)", __LINE__);
                 return EventResult::err(error_msg);
             }
 
@@ -76,12 +75,12 @@ EventResult Event::process_client_event() {
 
         case kSendingResponse: {
             DEBUG_SERVER_PRINT("[process_client_event] Phase: 4 SendingResponse (L:%d)", __LINE__);
-            ProcResult send_result = this->response_->send_http_response(this->client_fd_);
-            if (send_result == FatalError) {
-                DEBUG_SERVER_PRINT(" send error -> close (L:%d)", __LINE__);
-                return EventResult::ok(ConnectionClosed);
+            Result<ProcResult, std::string> send_result = this->response_->send_http_response(this->client_fd());
+            if (send_result.is_err()) {  // FatalError: null
+                const std::string error_msg = send_result.err_value();
+                return EventResult::err(error_msg);
             }
-            if (send_result == Continue) {
+            if (send_result.ok_value() == Continue) {
                 DEBUG_SERVER_PRINT(" send -1 or size < buf.size() -> continue (L:%d)", __LINE__);
                 return EventResult::ok(Continue);
             }
@@ -268,7 +267,7 @@ Result<AddressPortPair, std::string> Event::get_address_port_pair() const {
 
 
 Result<ServerConfig, std::string> Event::get_server_config() const {
-    // DEBUG_PRINT(YELLOW, "get_server_config (L:%d)", __LINE__);
+    DEBUG_PRINT(YELLOW, "get_server_config (L:%d)", __LINE__);
     // DEBUG_PRINT(YELLOW, " address: %s, port:%s", address_port_pair.first.c_str(), address_port_pair.second.c_str());
 
     Result<HostPortPair, StatusCode> get_request_host = this->request_->server_info();
@@ -282,40 +281,47 @@ Result<ServerConfig, std::string> Event::get_server_config() const {
     Result<ServerConfig, std::string> config_result;
     config_result = config_.get_server_config(this->server_listen_, host_port_pair);
     if (config_result.is_err()) {
-        // DEBUG_PRINT(YELLOW, "get_server_config err (L:%d)", __LINE__);
+        DEBUG_PRINT(YELLOW, "get_server_config err (L:%d)", __LINE__);
         const std::string error_msg = config_result.err_value();
         return Result<ServerConfig, std::string>::err(error_msg);
     }
-    // DEBUG_PRINT(YELLOW, "get_server_config ok (L:%d)", __LINE__);
+    DEBUG_PRINT(YELLOW, "get_server_config ok (L:%d)", __LINE__);
     ServerConfig server_config = config_result.ok_value();
     return Result<ServerConfig, std::string>::ok(server_config);
 }
 
 
 EventResult Event::get_host_config() {
+    DEBUG_PRINT(RED, "get_host_config 1");
     Result<AddressPortPair, std::string> address_result = get_address_port_pair();
     if (address_result.is_err()) {
+        DEBUG_PRINT(RED, "get_host_config 2");
         const std::string error_msg = address_result.err_value();
         return EventResult::err(error_msg);
     }
     this->server_listen_ = address_result.ok_value();
+    DEBUG_PRINT(RED, "get_host_config 3");
 
     Result<ServerConfig, std::string> config_result = Event::get_server_config();
     if (config_result.is_err()) {
         const std::string error_msg = config_result.err_value();
+        DEBUG_PRINT(RED, "get_host_config 4");
         return EventResult::err(error_msg);
     }
     this->server_config_ = config_result.ok_value();
 
     const std::string request_target = this->request_->target();
+    DEBUG_PRINT(RED, "get_host_config 5");
 
     Result<std::size_t, int> body_size_result;
     body_size_result = Config::get_max_body_size(server_config_, request_target);
     if (body_size_result.is_err()) {
+        DEBUG_PRINT(RED, "get_host_config 6");
         const std::string error_msg = CREATE_ERROR_INFO_STR("error: fail to get client_max_body_size");
         return EventResult::err(error_msg);
     }
     std::size_t max_body_size = body_size_result.ok_value();
+    DEBUG_PRINT(RED, "get_host_config 7");
     this->request_->set_max_body_size(max_body_size);
     return EventResult::ok(Success);
 }

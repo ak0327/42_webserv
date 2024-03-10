@@ -151,18 +151,20 @@ std::string HttpResponse::get_rooted_path() const {
 
 
 ProcResult HttpResponse::send_request_body_to_cgi() {
-    ProcResult result = this->cgi_handler_.send_request_body_to_cgi();
-    if (result == Continue) {
-        return Continue;
-    }
-
-    // Success or Failure
-    this->cgi_handler_.close_write_fd();
-    if (result == Failure) {  // broken pipe, etc
+    Result<ProcResult, std::string> result = this->cgi_handler_.send_request_body_to_cgi();
+    if (result.is_err()) {
+        DEBUG_PRINT(BG_YELLOW, "[Error] send to CGI: %s", result.err_value().c_str());
+        this->cgi_handler_.close_write_fd();
         StatusCode error_code = InternalServerError;
         this->set_status_code(error_code);
+        return Failure;
     }
-    return result;
+
+    if (result.ok_value() == Continue) {
+        return Continue;
+    }
+    this->cgi_handler_.close_write_fd();
+    return Success;
 }
 
 

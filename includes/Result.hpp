@@ -2,6 +2,8 @@
 
 #include <stdexcept>
 
+typedef std::string ErrMsg;
+
 template <typename OkType, typename ErrType>
 class Result {
  public:

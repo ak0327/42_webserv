@@ -53,7 +53,7 @@ class CgiHandler {
     void set_cgi_params(const CgiParams &params);
     ProcResult create_socket_pair(int to_child[2], int from_child[2]);
     ProcResult exec_script(const std::string &file_path);
-    ProcResult send_request_body_to_cgi();
+    Result<ProcResult, std::string> send_request_body_to_cgi();
     ProcResult recv_cgi_output();
     StatusCode parse_document_response();
 
