@@ -25,88 +25,95 @@ std::map<AddressPortPair, const ServerConfig *> Config::get_default_servers() co
 
 
 Result<ServerConfig, int> Config::get_server_config(const ServerInfo &server_info) const {
+    DEBUG_PRINT(CYAN, "get_server_config");
+
     std::map<ServerInfo, const ServerConfig *>::const_iterator server_config;
     server_config = this->server_configs_.find(server_info);
 
     if (server_config != this->server_configs_.end()) {
+        DEBUG_PRINT(CYAN, " ok");
         return Result<ServerConfig, int>::ok(*server_config->second);
     } else {
         AddressPortPair pair(server_info.address, server_info.port);
+        DEBUG_PRINT(CYAN, " default");
         return get_default_server(pair);
     }
 }
 
 
-// todo: address == "*"
-Result<ServerConfig, std::string> Config::get_server_config(const AddressPortPair &actual,
-                                                            const HostPortPair &request) const {
-    std::string socket_address = actual.first;
-    std::string socket_port = actual.second;
-    std::string request_port = request.second;
+bool is_connect_to_difference_port(const std::string &server_port,
+                                   const std::string &request_port) {
+    if (request_port.empty()) {
+        return false;
+    }
+    return server_port != request_port;
+}
+
+
+// server conf  : ip:port      ip may *
+// host header  : uri-host[:port]
+// uri-host = IP-literal / IPv4address / reg-name
+// -> get host conf
+
+// conf    {*,         8080, name}   {*,         8080, hoge}   {127.0.0.1, 8181, huga}
+// request {127.0.0.1, 8080, name}
+// request {localhost, 8080, name}
+// request                           {127.0.0.1, 8080, hoge}
+// request                                                     {127.0.0.1, 8181, huga}
+Result<ServerConfig, std::string> Config::get_server_config(const AddressPortPair &server_listen,
+                                                            const HostPortPair &request_header) const {
+    const std::string &server_ip = server_listen.first;
+    const std::string &server_port = server_listen.second;
+    const std::string &request_host = request_header.first;  // uri-host address or server_name
+    const std::string &request_port = request_header.second;
     Result<ServerConfig, int> result;
 
-    if (socket_address == "0.0.0.0") { socket_address = "*"; }  // todo
-    std::cout << CYAN << "actual  addr: " << socket_address << ", port: " << socket_port << RESET << std::endl;
-    std::cout << CYAN << "request addr: " << request.first << ", port: " << request.second << RESET << std::endl;
-    DEBUG_PRINT(CYAN, "get_server_config");
-
-    if (!request_port.empty() && request_port != socket_port) {
-        return Result<ServerConfig, std::string>::err("error: request ip not found");
+    // std::cout << BG_RED << " server_listen : " << server_listen << RESET << std::endl;
+    // std::cout << BG_RED << " request_header: " << request_header << RESET << std::endl;
+    if (is_connect_to_difference_port(server_port, request_port)) {
+        return Result<ServerConfig, std::string>::err("error: request_header ip not found");
     }
-    DEBUG_PRINT(CYAN, " 1");
+    if (HttpMessageParser::is_ipv6address(request_host)) {
+        // ivp6: feature
+        return Result<ServerConfig, std::string>::err("error; IPv6 is feature work");
+    }
 
-    if (HttpMessageParser::is_ipv4address(request.first)) {
-        DEBUG_PRINT(CYAN, " 2");
-        std::string request_address = request.first;
-        // ipv4
-        if (socket_address == request_address) {
-            result = get_default_server(actual);
-            if (result.is_err()) {
-                DEBUG_PRINT(CYAN, " 3 err");
-                return Result<ServerConfig, std::string>::err("error");
-            }
-            DEBUG_PRINT(CYAN, " 4 ok");
-            return Result<ServerConfig, std::string>::ok(result.ok_value());
-        } else if (socket_address == "*") {  // todo
-            DEBUG_PRINT(CYAN, " 5");
-            AddressPortPair pair(request_address, socket_port);
-            result = get_default_server(pair);
-            if (result.is_err()) {
-                DEBUG_PRINT(CYAN, " 6 err");
-                return Result<ServerConfig, std::string>::err("error");
-            }
-            DEBUG_PRINT(CYAN, " 7 ok");
-            return Result<ServerConfig, std::string>::ok(result.ok_value());
-        } else {
-            DEBUG_PRINT(CYAN, " 8 err");
-            return Result<ServerConfig, std::string>::err("error: address is not mach with conf and request");
-        }
-    } else if (HttpMessageParser::is_ipv6address(request.first)) {
-        // ivp6
-        DEBUG_PRINT(CYAN, " 9 err");
-        return Result<ServerConfig, std::string>::err("error");  // todo: ipv6
+    ServerInfo server_info;
+    if (HttpMessageParser::is_ipv4address(request_host)) {
+        const std::string &request_ip = request_host;
+        server_info = ServerInfo("", request_ip, server_port);
     } else {
-        std::string request_server_name = request.first;
+        const std::string &request_server_name = request_host;
         DEBUG_PRINT(CYAN, " server_name: %s", request_server_name.c_str());
-        ServerInfo server_info(request_server_name, socket_address, socket_port);
-        result = get_server_config(server_info);
-        if (result.is_err()) {
-            DEBUG_PRINT(CYAN, " 10 err");
-            return Result<ServerConfig, std::string>::err("error");
-        }
-        DEBUG_PRINT(CYAN, " 11 ok");
-        return Result<ServerConfig, std::string>::ok(result.ok_value());
+        server_info = ServerInfo(request_server_name, server_ip, server_port);
     }
+
+    // std::cout << BG_RED << " server_info: " << server_info << RESET << std::endl;
+    result = get_server_config(server_info);
+    if (result.is_err()) {
+        return Result<ServerConfig, std::string>::err("error");
+    }
+    return Result<ServerConfig, std::string>::ok(result.ok_value());
 }
 
 
 Result<ServerConfig, int> Config::get_default_server(const AddressPortPair &pair) const {
+    // std::cout << CYAN << "get_default_server 1: " << pair << RESET << std::endl;
     std::map<AddressPortPair, const ServerConfig *> ::const_iterator default_server;
     default_server = this->default_servers_.find(pair);
 
     if (default_server != this->default_servers_.end()) {
+        // std::cout << CYAN << " ok" << pair << RESET << std::endl;
+        return Result<ServerConfig, int>::ok(*default_server->second);
+    }
+    AddressPortPair wild_pair("*", pair.second);
+    // std::cout << CYAN << "get_default_server 2: " << wild_pair << RESET << std::endl;
+    default_server = this->default_servers_.find(wild_pair);
+    if (default_server != this->default_servers_.end()) {
+        // std::cout << CYAN << " ok" << pair << RESET << std::endl;
         return Result<ServerConfig, int>::ok(*default_server->second);
     } else {
+        // std::cout << CYAN << " ng" << pair << RESET << std::endl;
         return Result<ServerConfig, int>::err(ERR);
     }
 }

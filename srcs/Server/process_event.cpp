@@ -21,6 +21,7 @@
 #include "IOMultiplexer.hpp"
 #include "Result.hpp"
 #include "Server.hpp"
+#include "StringHandler.hpp"
 
 
 ServerResult Server::process_event(int ready_fd) {
@@ -99,6 +100,7 @@ ServerResult Server::create_event(int socket_fd) {
 
     try {
         // std::cout << CYAN << " new_session created" << RESET << std::endl;
+        AddressPortPair server_listen = this->sockets_[socket_fd]->get_server_listen();
         AddressPortPair client_listen = Server::get_client_listen(client_addr);
 
         std::ostringstream oss; oss << client_listen;
@@ -106,8 +108,9 @@ ServerResult Server::create_event(int socket_fd) {
 
         Event *new_session = new Event(socket_fd,
                                        connect_fd,
-                                       client_listen,
                                        this->config_,
+                                       server_listen,
+                                       client_listen,
                                        &this->sessions_,
                                        this->echo_mode_on_);
         if (new_session->init_request_obj() == Failure) {

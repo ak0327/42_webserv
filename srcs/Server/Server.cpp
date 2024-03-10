@@ -134,38 +134,18 @@ Result<Socket *, std::string> Server::create_socket(const std::string &address,
     Socket *socket = NULL;
     try {
         socket = new Socket(address, port);
-
-        SocketResult init_result = socket->init();
-        if (init_result.is_err()) {
-            throw std::runtime_error(init_result.err_value());
-        }
-
-        SocketResult bind_result = socket->bind();
-        if (bind_result.is_err()) {
-            throw std::runtime_error(bind_result.err_value());
-        }
-
-        SocketResult listen_result = socket->listen();
-        if (listen_result.is_err()) {
-            throw std::runtime_error(listen_result.err_value());
-        }
-
-        SocketResult set_fd_result = socket->set_fd_to_nonblock();
-        if (set_fd_result.is_err()) {
-            throw std::runtime_error(set_fd_result.err_value());
-        }
-
-        return Result<Socket *, std::string>::ok(socket);
     }
     catch (std::bad_alloc const &e) {
         std::string err_info = CREATE_ERROR_INFO_STR("Failed to allocate memory");
         return Result<Socket *, std::string>::err(err_info);
     }
-    catch (std::runtime_error const &e) {
+
+    SocketResult result = socket->create_socket();
+    if (result.is_err()) {
         delete socket;
-        const std::string error_msg = CREATE_ERROR_INFO_STR(e.what());
-        return Result<Socket *, std::string>::err(error_msg);
+        return Result<Socket *, std::string>::err(result.err_value());
     }
+    return Result<Socket *, std::string>::ok(socket);
 }
 
 

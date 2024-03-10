@@ -1,3 +1,4 @@
+#include <arpa/inet.h>
 #include <fcntl.h>
 #include <netdb.h>
 #include <sys/socket.h>
@@ -7,11 +8,13 @@
 #include <cstring>
 #include <iostream>
 #include <string>
+#include <utility>
 #include "Color.hpp"
 #include "Constant.hpp"
 #include "Debug.hpp"
 #include "Error.hpp"
 #include "Socket.hpp"
+#include "StringHandler.hpp"
 
 
 Socket::Socket(const std::string &ip_addr, const std::string &port)
@@ -53,6 +56,30 @@ Result<int, std::string> Socket::init_addr_info() {
 	}
 	this->addr_info_ = ret_addr_info;
 	return Result<int, std::string>::ok(OK);
+}
+
+
+Result<int, std::string> Socket::create_socket() {
+    SocketResult init_result = Socket::init();
+    if (init_result.is_err()) {
+        return Result<int, std::string>::err(init_result.err_value());
+    }
+
+    SocketResult bind_result = Socket::bind();
+    if (bind_result.is_err()) {
+        return Result<int, std::string>::err(bind_result.err_value());
+    }
+
+    SocketResult listen_result = Socket::listen();
+    if (listen_result.is_err()) {
+        return Result<int, std::string>::err(listen_result.err_value());
+    }
+
+    SocketResult set_fd_result = Socket::set_fd_to_nonblock();
+    if (set_fd_result.is_err()) {
+        return Result<int, std::string>::err(set_fd_result.err_value());
+    }
+    return Result<int, std::string>::ok(OK);
 }
 
 
@@ -140,6 +167,11 @@ SocketResult Socket::set_fd_to_keepalive(int fd) {
         return Result<int, std::string>::err("setsocketopt: " + err_info);
     }
     return Result<int, std::string>::ok(OK);
+}
+
+
+AddressPortPair Socket::get_server_listen() {
+    return std::make_pair(this->server_ip_, this->server_port_);
 }
 
 

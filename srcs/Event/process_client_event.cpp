@@ -29,7 +29,6 @@ EventResult Event::process_client_event() {
 
         case kReceivingRequest: {
             DEBUG_SERVER_PRINT("[process_client_event] Phase: 1 ReceivingRequest (L:%d)", __LINE__);
-            DEBUG_SERVER_PRINT(" this->request:%p (L:%d)", this->request_, __LINE__);
             Result<ProcResult, ErrMsg> recv_result = this->request_->recv_to_buf(this->client_fd_);
             if (recv_result.is_err()) {
                 return EventResult::err(recv_result.err_value());
@@ -109,7 +108,7 @@ ProcResult Event::parse_http_request() {
     }
 
     if (this->request_->parse_phase() == ParsingRequestLine
-        || this->request_->parse_phase() == ParsingRequestHeaders) {
+    || this->request_->parse_phase() == ParsingRequestHeaders) {
         // DEBUG_SERVER_PRINT("               ParsingRequest 1 (L:%d)", __LINE__);
         Result<ProcResult, StatusCode> parse_result = this->request_->parse_start_line_and_headers();
         if (parse_result.is_err()) {
@@ -248,35 +247,17 @@ ProcResult Event::create_http_response() {
 // -----------------------------------------------------------------------------
 
 
-Result<AddressPortPair, std::string> Event::get_address_port_pair() const {
-    struct sockaddr_in addr = {};
-    socklen_t addr_len = sizeof(addr);
-
-    errno = 0;
-    if (getsockname(this->socket_fd_, (struct sockaddr *)&addr, &addr_len) == -1) {
-        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
-        return Result<AddressPortPair, std::string>::err(error_msg);
-    }
-
-    char ip[INET_ADDRSTRLEN];
-    inet_ntop(AF_INET, &addr.sin_addr, ip, sizeof(ip));
-    int port = ntohs(addr.sin_port);
-    AddressPortPair pair = std::make_pair(std::string(ip), StringHandler::to_string(port));
-    return Result<AddressPortPair, std::string>::ok(pair);
-}
-
-
 Result<ServerConfig, std::string> Event::get_server_config() const {
     DEBUG_PRINT(YELLOW, "get_server_config (L:%d)", __LINE__);
-    // DEBUG_PRINT(YELLOW, " address: %s, port:%s", address_port_pair.first.c_str(), address_port_pair.second.c_str());
+    DEBUG_PRINT(YELLOW, " server_listen: host: %s, port:%s", server_listen_.first.c_str(), server_listen_.second.c_str());
 
-    Result<HostPortPair, StatusCode> get_request_host = this->request_->server_info();
-    if (get_request_host.is_err()) {
+    Result<HostPortPair, StatusCode> request_host_header = this->request_->server_info();
+    if (request_host_header.is_err()) {
         const std::string error_msg = CREATE_ERROR_INFO_STR("Fail to get host from Host header");
         return Result<ServerConfig, std::string>::err(error_msg);
     }
-    HostPortPair host_port_pair = get_request_host.ok_value();
-    DEBUG_PRINT(YELLOW, " host: %s, port:%s", host_port_pair.first.c_str(), host_port_pair.second.c_str());
+    HostPortPair host_port_pair = request_host_header.ok_value();
+    DEBUG_PRINT(YELLOW, " request_header: host: %s, port:%s", host_port_pair.first.c_str(), host_port_pair.second.c_str());
 
     Result<ServerConfig, std::string> config_result;
     config_result = config_.get_server_config(this->server_listen_, host_port_pair);
@@ -292,20 +273,10 @@ Result<ServerConfig, std::string> Event::get_server_config() const {
 
 
 EventResult Event::get_host_config() {
-    DEBUG_PRINT(RED, "get_host_config 1");
-    Result<AddressPortPair, std::string> address_result = get_address_port_pair();
-    if (address_result.is_err()) {
-        DEBUG_PRINT(RED, "get_host_config 2");
-        const std::string error_msg = address_result.err_value();
-        return EventResult::err(error_msg);
-    }
-    this->server_listen_ = address_result.ok_value();
-    DEBUG_PRINT(RED, "get_host_config 3");
-
     Result<ServerConfig, std::string> config_result = Event::get_server_config();
     if (config_result.is_err()) {
         const std::string error_msg = config_result.err_value();
-        DEBUG_PRINT(RED, "get_host_config 4");
+        DEBUG_PRINT(RED, "get_host_config 4 err");
         return EventResult::err(error_msg);
     }
     this->server_config_ = config_result.ok_value();
@@ -316,12 +287,12 @@ EventResult Event::get_host_config() {
     Result<std::size_t, int> body_size_result;
     body_size_result = Config::get_max_body_size(server_config_, request_target);
     if (body_size_result.is_err()) {
-        DEBUG_PRINT(RED, "get_host_config 6");
+        DEBUG_PRINT(RED, "get_host_config 6 err");
         const std::string error_msg = CREATE_ERROR_INFO_STR("error: fail to get client_max_body_size");
         return EventResult::err(error_msg);
     }
     std::size_t max_body_size = body_size_result.ok_value();
-    DEBUG_PRINT(RED, "get_host_config 7");
+    DEBUG_PRINT(RED, "get_host_config 7 ok");
     this->request_->set_max_body_size(max_body_size);
     return EventResult::ok(Success);
 }

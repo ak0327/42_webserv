@@ -16,11 +16,16 @@ class Socket {
 
 	int	get_socket_fd() const;
 
-	SocketResult init();
+    SocketResult create_socket();
+
+    SocketResult init();
 	SocketResult bind();
 	SocketResult listen();
     SocketResult connect();
     SocketResult set_fd_to_nonblock();
+
+    AddressPortPair get_server_listen();
+
     static SocketResult set_fd_to_keepalive(int fd);
 	static SocketResult set_fd_to_nonblock(int fd);
     static SocketResult accept(int socket_fd, struct sockaddr_storage *client_addr);
