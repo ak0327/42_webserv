@@ -252,7 +252,7 @@ ServerResult Server::run() {
 	while (true) {
         management_timeout_events();
         set_io_timeout();
-
+        sleep(1);
         ServerResult fd_ready_result = this->fds_->get_io_ready_fd();
 		if (fd_ready_result.is_err()) {
             const std::string error_msg = fd_ready_result.err_value();

@@ -195,33 +195,37 @@ ssize_t Socket::recv_to_buf(int fd, std::vector<unsigned char> *buf) {
 }
 
 
-ssize_t Socket::send(int fd, void *buf, std::size_t bufsize) {
+Result<std::size_t, std::string> Socket::send(int fd, void *buf, std::size_t bufsize) {
     errno = 0;
     ssize_t send_size = ::send(fd, buf, bufsize, FLAG_NONE);
     int tmp_errno = errno;
-    if (send_size == SEND_CONTINUE) {
+    if (send_size == SEND_ERROR) {
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(tmp_errno);
         DEBUG_SERVER_PRINT("%s", error_msg.c_str());
         // return Result<std::size_t, std::string>::err(error_info);
-        return SEND_CONTINUE;
+        return Result<std::size_t, std::string>::err(error_msg);
     }
-    return send_size;
+    return Result<std::size_t, std::string>::ok(static_cast<std::size_t>(send_size));
 }
 
 
-ProcResult Socket::send_buf(int fd, std::vector<unsigned char> *buf) {
+Result<ProcResult, std::string> Socket::send_buf(int fd, std::vector<unsigned char> *buf) {
     DEBUG_SERVER_PRINT("send start");
-    if (!buf) { return FatalError; }
-
-    ssize_t send_size = Socket::send(fd, buf->data(), buf->size());
-    DEBUG_SERVER_PRINT(" send size: %zd", send_size);
-    if (send_size == SEND_ERROR) {
-        return Failure;
+    if (!buf) {
+        const std::string error_msg = CREATE_ERROR_INFO_STR("fatal error: null assigned to buf");
+        return Result<ProcResult, std::string>::err(error_msg);
     }
+
+    Result<std::size_t, std::string> send_result = Socket::send(fd, buf->data(), buf->size());
+    if (send_result.is_err()) {
+        return Result<ProcResult, std::string>::err(send_result.err_value());
+    }
+    std::size_t send_size = send_result.ok_value();
+    DEBUG_SERVER_PRINT(" send size: %zd", send_size);
     if (0 < send_size) {
         DEBUG_SERVER_PRINT(" erase buf");
         buf->erase(buf->begin(), buf->begin() + send_size);
     }
     DEBUG_SERVER_PRINT("send end size: %zd", send_size);
-    return buf->empty() ? Success : Continue;
+    return Result<ProcResult, std::string>::ok(buf->empty() ? Success : Continue);
 }

@@ -132,7 +132,7 @@ ProcResult HttpResponse::exec_method() {
 }
 
 
-ProcResult HttpResponse::send_http_response(int client_fd) {
+Result<ProcResult, std::string> HttpResponse::send_http_response(int client_fd) {
     return Socket::send_buf(client_fd, &this->response_msg_);
 }
 
@@ -155,10 +155,10 @@ ProcResult HttpResponse::send_request_body_to_cgi() {
     if (result == Continue) {
         return Continue;
     }
+
+    // Success or Failure
     this->cgi_handler_.close_write_fd();
-    // shutdown(this->cgi_write_fd(), SHUT_WR);
-    DEBUG_PRINT(YELLOW, "shutdown cgi write_fd");
-    if (result == Failure) {
+    if (result == Failure) {  // broken pipe, etc
         StatusCode error_code = InternalServerError;
         this->set_status_code(error_code);
     }
