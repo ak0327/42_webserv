@@ -82,7 +82,6 @@
         <ul>
             <li><a href="./../../../../../../././">link to "./../../../../../../././"</a>
             <li><a href="/%E3%83%86%E3%82%B9%E3%83%88.html">percent encoded URL to テスト.html</a>
-            <li><a href="/dynamic/now">now time</a>
         </ul>
     <br>
 
@@ -154,20 +153,20 @@
                            value="curl -i -X GET --data &quot;request body ignored&quot; localhost:4343/cgi-bin/post_simple.py">
                 </div>
 
-            <li> Content-Length too large (client_max_body_size < Content-Length)
-                <div class="container">
-                    <button onclick="copyCommand('content_length_large')">copy</button>
-                    <input type="text"
-                           id="content_length_large"
-                           value="curl -i -H &quot;Content-Length: 2147483647&quot; --data &quot;less than INT_MAX&quot; localhost:4343/cgi-bin/post_simple.py">
-                </div>
-
             <li> Content larger than Content-Length ( Content-Length < recv body size )
                 <div class="container">
                     <button onclick="copyCommand('large_content')">copy</button>
                     <input type="text"
                            id="large_content"
                            value="curl -i -X GET -H &quot;Content-Length: 1&quot; --data &quot;larger than 1&quot; localhost:4343/cgi-bin/post_simple.py">
+                </div>
+
+            <li> Content-Length too large (client_max_body_size < Content-Length)
+                <div class="container">
+                    <button onclick="copyCommand('content_length_large')">copy</button>
+                    <input type="text"
+                           id="content_length_large"
+                           value="curl -i -H &quot;Content-Length: 2147483647&quot; --data &quot;less than INT_MAX&quot; localhost:4343/cgi-bin/post_simple.py">
                 </div>
 
             <li> Content less than Content-Length -> connection closed by host

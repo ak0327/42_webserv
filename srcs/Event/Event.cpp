@@ -1,3 +1,4 @@
+#include <arpa/inet.h>
 #include <errno.h>
 #include <stdint.h>
 #include <sys/socket.h>
@@ -16,20 +17,21 @@
 
 Event::Event(int socket_fd,
              int client_fd,
-             const AddressPortPair &client_listen,
              const Config &config,
+             const AddressPortPair &server_listen,
+             const AddressPortPair &client_listen,
              std::map<std::string, Session> *sessions,
              bool echo_mode_on = false)
     : socket_fd_(socket_fd),
       client_fd_(client_fd),
       config_(config),
-      server_info_(),
       server_config_(),
+      server_listen_(server_listen),
+      client_listen_(client_listen),
       event_state_(kEventInit),
       request_(NULL),
       response_(NULL),
       request_max_body_size_(ConfigInitValue::kDefaultBodySize),
-      client_listen_(client_listen),
       sessions_(sessions),
       echo_mode_on_(echo_mode_on) {}
 
@@ -100,20 +102,6 @@ ProcResult Event::set_to_max_connection_event() {
     this->set_event_phase(kSendingResponse);
     return Success;
 }
-
-// void Event::kill_cgi_process() {
-//     if (this->response_) {
-//         this->response_->kill_cgi_process();
-//     }
-// }
-
-
-// // todo: unused??
-// void Event::clear_cgi() {
-//     if (this->response_) {
-//         this->response_->clear_cgi();
-//     }
-// }
 
 
 time_t Event::cgi_timeout_limit() const {

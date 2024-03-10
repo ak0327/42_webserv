@@ -76,6 +76,12 @@ void Config::set_server_configs() {
 }
 
 
+std::ostream &operator<<(std::ostream &out, const ServerInfo &server_info) {
+    out << "name:" << server_info.server_name << ", " << server_info.address << ":" << server_info.port;
+    return out;
+}
+
+
 std::ostream &operator<<(std::ostream &out, const AddressPortPair &pair) {
     out << pair.first << ":" << pair.second;
     return out;

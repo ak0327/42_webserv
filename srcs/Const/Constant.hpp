@@ -115,7 +115,7 @@ enum StatusCode {
     GatewayTimeout          = 504,
     HTTPVersionNotSupported = 505,
 
-    StatusInit
+    StatusInit = 1000
 };
 
 extern const std::map<StatusCode, std::string> STATUS_REASON_PHRASES;

@@ -1,3 +1,4 @@
+#include <arpa/inet.h>
 #include <fcntl.h>
 #include <netdb.h>
 #include <sys/socket.h>
@@ -7,11 +8,13 @@
 #include <cstring>
 #include <iostream>
 #include <string>
+#include <utility>
 #include "Color.hpp"
 #include "Constant.hpp"
 #include "Debug.hpp"
 #include "Error.hpp"
 #include "Socket.hpp"
+#include "StringHandler.hpp"
 
 
 Socket::Socket(const std::string &ip_addr, const std::string &port)
@@ -53,6 +56,30 @@ Result<int, std::string> Socket::init_addr_info() {
 	}
 	this->addr_info_ = ret_addr_info;
 	return Result<int, std::string>::ok(OK);
+}
+
+
+Result<int, std::string> Socket::create_socket() {
+    SocketResult init_result = Socket::init();
+    if (init_result.is_err()) {
+        return Result<int, std::string>::err(init_result.err_value());
+    }
+
+    SocketResult bind_result = Socket::bind();
+    if (bind_result.is_err()) {
+        return Result<int, std::string>::err(bind_result.err_value());
+    }
+
+    SocketResult listen_result = Socket::listen();
+    if (listen_result.is_err()) {
+        return Result<int, std::string>::err(listen_result.err_value());
+    }
+
+    SocketResult set_fd_result = Socket::set_fd_to_nonblock();
+    if (set_fd_result.is_err()) {
+        return Result<int, std::string>::err(set_fd_result.err_value());
+    }
+    return Result<int, std::string>::ok(OK);
 }
 
 
@@ -143,6 +170,11 @@ SocketResult Socket::set_fd_to_keepalive(int fd) {
 }
 
 
+AddressPortPair Socket::get_server_listen() {
+    return std::make_pair(this->server_ip_, this->server_port_);
+}
+
+
 SocketResult Socket::set_fd_to_nonblock() {
     return set_fd_to_nonblock(this->socket_fd_);
 }
@@ -161,29 +193,34 @@ Result<int, std::string> Socket::set_fd_to_nonblock(int fd) {
 int Socket::get_socket_fd() const { return this->socket_fd_; }
 
 
-ssize_t Socket::recv(int fd, void *buf, std::size_t bufsize) {
+Result<std::size_t, ErrMsg> Socket::recv(int fd, void *buf, std::size_t bufsize) {
     errno = 0;
     ssize_t recv_size = ::recv(fd, buf, bufsize, FLAG_NONE);
-    int tmp_errno = errno;
     if (recv_size == RECV_ERROR) {
-        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(tmp_errno);
-        DEBUG_PRINT(RED, "recv: recv_size: %zd, error: %s", recv_size, error_msg.c_str());
+        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+        return Result<std::size_t, ErrMsg>::err(error_msg);
     }
-    return recv_size;
+    return Result<std::size_t, ErrMsg>::ok(static_cast<std::size_t>(recv_size));
 }
 
 
-ssize_t Socket::recv_to_buf(int fd, std::vector<unsigned char> *buf) {
-    if (!buf) { return 0; }
+Result<ProcResult, ErrMsg> Socket::recv_to_buf(int fd, std::vector<unsigned char> *buf) {
+    if (!buf) {
+        const std::string error_msg = CREATE_ERROR_INFO_STR("fatal error: null assigned to buf");
+        return Result<ProcResult, ErrMsg>::err(error_msg);
+    }
     // std::size_t bufsize = BUFSIZ;
     // std::size_t bufsize = 85;
     std::vector<unsigned char> recv_buf(BUFSIZ);
 
     DEBUG_SERVER_PRINT("recv start");
-    ssize_t recv_size = Socket::recv(fd, &recv_buf[0], BUFSIZ);
+    Result<std::size_t, ErrMsg> recv_result = Socket::recv(fd, &recv_buf[0], BUFSIZ);
+    if (recv_result.is_err()) {
+        return Result<ProcResult, ErrMsg>::err(recv_result.err_value());
+    }
 
+    std::size_t recv_size = recv_result.ok_value();
     DEBUG_PRINT(RED, " recv_size: %zd", recv_size);
-
     if (0 < recv_size) {
         std::string debug_recv_msg(recv_buf.begin(), recv_buf.begin() + recv_size);
         DEBUG_SERVER_PRINT(" recv_msg[%s]", debug_recv_msg.c_str());
@@ -191,37 +228,38 @@ ssize_t Socket::recv_to_buf(int fd, std::vector<unsigned char> *buf) {
         buf->insert(buf->end(), recv_buf.begin(), recv_buf.begin() + recv_size);
     }
     DEBUG_SERVER_PRINT("recv end, bufsize:%zu", buf->size());
-    return recv_size;
+    return Result<ProcResult, ErrMsg>::ok(0 < recv_size ? Success : ConnectionClosed);
 }
 
 
-ssize_t Socket::send(int fd, void *buf, std::size_t bufsize) {
+Result<std::size_t, ErrMsg> Socket::send(int fd, void *buf, std::size_t bufsize) {
     errno = 0;
     ssize_t send_size = ::send(fd, buf, bufsize, FLAG_NONE);
-    int tmp_errno = errno;
-    if (send_size == SEND_CONTINUE) {
-        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(tmp_errno);
-        DEBUG_SERVER_PRINT("%s", error_msg.c_str());
-        // return Result<std::size_t, std::string>::err(error_info);
-        return SEND_CONTINUE;
+    if (send_size == SEND_ERROR) {
+        const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
+        return Result<std::size_t, ErrMsg>::err(error_msg);
     }
-    return send_size;
+    return Result<std::size_t, ErrMsg>::ok(static_cast<std::size_t>(send_size));
 }
 
 
-ProcResult Socket::send_buf(int fd, std::vector<unsigned char> *buf) {
+Result<ProcResult, ErrMsg> Socket::send_buf(int fd, std::vector<unsigned char> *buf) {
     DEBUG_SERVER_PRINT("send start");
-    if (!buf) { return FatalError; }
-
-    ssize_t send_size = Socket::send(fd, buf->data(), buf->size());
-    DEBUG_SERVER_PRINT(" send size: %zd", send_size);
-    if (send_size == SEND_CONTINUE) {
-        return Continue;
+    if (!buf) {
+        const std::string error_msg = CREATE_ERROR_INFO_STR("fatal error: null assigned to buf");
+        return Result<ProcResult, ErrMsg>::err(error_msg);
     }
+
+    Result<std::size_t, ErrMsg> send_result = Socket::send(fd, buf->data(), buf->size());
+    if (send_result.is_err()) {
+        return Result<ProcResult, ErrMsg>::err(send_result.err_value());
+    }
+    std::size_t send_size = send_result.ok_value();
+    DEBUG_SERVER_PRINT(" send size: %zd", send_size);
     if (0 < send_size) {
         DEBUG_SERVER_PRINT(" erase buf");
         buf->erase(buf->begin(), buf->begin() + send_size);
     }
     DEBUG_SERVER_PRINT("send end size: %zd", send_size);
-    return buf->empty() ? Success : Continue;
+    return Result<ProcResult, ErrMsg>::ok(buf->empty() ? Success : Continue);
 }

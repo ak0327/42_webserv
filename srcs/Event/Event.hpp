@@ -43,13 +43,15 @@ class Event {
  public:
     Event(int socket_fd,
           int client_fd,
-          const AddressPortPair &client_listen,
           const Config &config,
+          const AddressPortPair &server_listen,
+          const AddressPortPair &client_listen,
           std::map<std::string, Session> *sessions,
           bool echo_mode_on);
 
     ~Event();
 
+    ProcResult init_event();
     ProcResult init_request_obj();
     ProcResult set_to_max_connection_event();
 
@@ -94,19 +96,17 @@ class Event {
     int client_fd_;
 
     const Config &config_;
-    ServerInfo server_info_;
-    ServerConfig server_config_;
 
+    ServerConfig server_config_;     // get_host_config()
     AddressPortPair server_listen_;
+    AddressPortPair client_listen_;
 
     EventPhase event_state_;
 
-    HttpRequest *request_;  // todo: ptr; tmp & delete for next session
-    HttpResponse *response_;  // todo: ptr; tmp & delete for next session
+    HttpRequest *request_;    // ptr; delete for next session
+    HttpResponse *response_;  // ptr; delete for next session
 
     std::size_t request_max_body_size_;
-
-    AddressPortPair client_listen_;
 
     std::map<std::string, Session> *sessions_;
 
@@ -121,7 +121,6 @@ class Event {
     ProcResult create_http_response();
 
     ProcResult execute_each_method();
-    Result<AddressPortPair, std::string> get_address_port_pair() const;
     Result<ServerConfig, std::string> get_server_config() const;
     EventResult get_host_config();
     EventResult recv_cgi_result();

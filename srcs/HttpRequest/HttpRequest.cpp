@@ -176,14 +176,17 @@ bool HttpRequest::is_telnet_closed() {
 }
 
 
-ssize_t HttpRequest::recv_to_buf(int fd) {
-    ssize_t recv_size = Socket::recv_to_buf(fd, &this->buf_);
+Result<ProcResult, ErrMsg> HttpRequest::recv_to_buf(int fd) {
+    Result<ProcResult, ErrMsg> recv_result = Socket::recv_to_buf(fd, &this->buf_);
+    if (recv_result.is_err()) {
+        return Result<ProcResult, ErrMsg>::err(recv_result.err_value());
+    }
 
     if (is_telnet_closed()) {
-        DEBUG_PRINT(RED, "^C detected");
-        return RECV_EOF;
+        DEBUG_PRINT(YELLOW, "Connection closed by ^C");
+        return Result<ProcResult, ErrMsg>::ok(ConnectionClosed);
     }
-    return recv_size;
+    return recv_result;
 }
 
 
@@ -416,9 +419,9 @@ Result<ProcResult, StatusCode> HttpRequest::parse_body() {
     DEBUG_SERVER_PRINT("      ParseBody move buf -> request_body: size: %zu", this->request_body_.size());
 
     if (this->content_length_ < this->request_body_.size()) {
-        DEBUG_SERVER_PRINT("      ParseBody  content_length < body.size() -> LengthRequired");
+        DEBUG_SERVER_PRINT("      ParseBody  content_length make< body.size() -> LengthRequired");
         this->request_body_.clear();
-        return Result<ProcResult, StatusCode>::err(PayloadTooLarge);
+        return Result<ProcResult, StatusCode>::err(BadRequest);
     }
     if (this->request_body_.size() < this->content_length_) {
         DEBUG_SERVER_PRINT("      ParseBody  body.size() < content-length -> recv continue");
@@ -584,13 +587,12 @@ Result<ProcResult, StatusCode> HttpRequest::parse_and_validate_field_lines(std::
 
 			Result<int, int>parse_result = (this->*field_value_parser_[field_name])(field_name, field_value);
 			if (parse_result.is_err()) {
-				return Result<ProcResult, StatusCode>::err(BadRequest);  // todo: parse error -> status
+				return Result<ProcResult, StatusCode>::err(BadRequest);
 			}
 			continue;
 		}
 	}
 
-	// todo: validate field_names, such as 'must' header,...
 	if (!is_valid_field_name_registered(std::string(HOST))) {
 		// std::cout << MAGENTA << "!is valid field name registered" << RESET << std::endl;
 		return Result<ProcResult, StatusCode>::err(BadRequest);

@@ -63,20 +63,20 @@ expect_eq_get "$(echo -en "POST /post_only/ HTTP/1.1\r\nHost: localhost\r\n\r\nl
 
 
 # 413 payload too large
-#  large body -> close connection
 expect_eq_get "$(curl -isH "Content-Length: 1100000"  "localhost:4242/")"                                                     "413 Payload Too Large"    ""
 large=`python3 -c "print('a'*110000)"`
-expect_eq_get "$(curl -is -H "Content-Length: 1100" --data "$large" "Content-Length: 1100000"  "localhost:4242/")"            "413 Payload Too Large"    ""
 
 expect_eq_get "$(curl -is -H "Content-Length: 21"  "localhost:4242/dir_a/")"                                                  "413 Payload Too Large"    ""
 expect_eq_get "$(curl -is -X POST -H "Content-Length: 21"  "localhost:4242/post_only/")"                                      "413 Payload Too Large"    ""
 expect_eq_get "$(curl -is -X POST -H "Content-Length: 21"  "localhost:4242/delete_only/")"                                    "413 Payload Too Large"    ""
 
-expect_eq_get "$(curl -i -X GET  -H "Content-Length: 1" --data "ignored"  "localhost:4242/cgi-bin/post_simple.py")"           "413 Payload Too Large"    ""
-expect_eq_get "$(curl -i -X POST -H "Content-Length: 1" --data "ignored"  "localhost:4343/cgi-bin/post_simple.py")"           "413 Payload Too Large"    ""
-
 expect_eq_get "$(curl -is -X GET -H "Content-Length: 21"  --data "$(python3 -c "print('a'*21)")"  "localhost:4242/dir_a/")"   "413 Payload Too Large"    ""
 expect_eq_get "$(curl -is -X GET --data "$(python3 -c "print('a'*100)")"  "localhost:4242/dir_a/")"                           "413 Payload Too Large"    ""
+
+
+expect_eq_get "$(curl -i -X GET  -H "Content-Length: 1" --data "ignored"  "localhost:4242/cgi-bin/post_simple.py")"           "400 Bad Request"          ""
+expect_eq_get "$(curl -i -X POST -H "Content-Length: 1" --data "ignored"  "localhost:4343/cgi-bin/post_simple.py")"           "400 Bad Request"          ""
+expect_eq_get "$(curl -is -H "Content-Length: 1100" --data "$large" "Content-Length: 1100000"  "localhost:4242/")"            "400 Bad Request"          ""
 
 
 # 414 URI Too Long

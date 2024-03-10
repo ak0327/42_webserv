@@ -48,7 +48,7 @@ class HttpRequest {
     Result<HostPortPair, StatusCode> server_info() const;
     bool is_buf_empty() const;
 
-    ssize_t recv_to_buf(int fd);
+    Result<ProcResult, ErrMsg> recv_to_buf(int fd);
     bool is_telnet_closed();
 
     static bool is_crlf_in_buf(const unsigned char buf[], std::size_t size);

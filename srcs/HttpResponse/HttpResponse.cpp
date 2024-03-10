@@ -86,7 +86,6 @@ StatusCode HttpResponse::is_resource_available(const Method &method) const {
     LimitExceptDirective limit_except = limit_except_result.ok_value();
     if (limit_except.limited) {
         if (is_method_limited(method, limit_except.excluded_methods)) {
-            // todo: allow, deny -> StatusOk
             // std::cout << CYAN << " method not allowed" << RESET << std::endl;
             return MethodNotAllowed;
         }
@@ -132,7 +131,7 @@ ProcResult HttpResponse::exec_method() {
 }
 
 
-ProcResult HttpResponse::send_http_response(int client_fd) {
+Result<ProcResult, std::string> HttpResponse::send_http_response(int client_fd) {
     return Socket::send_buf(client_fd, &this->response_msg_);
 }
 
@@ -151,31 +150,30 @@ std::string HttpResponse::get_rooted_path() const {
 
 
 ProcResult HttpResponse::send_request_body_to_cgi() {
-    ProcResult result = this->cgi_handler_.send_request_body_to_cgi();
-    if (result == Continue) {
+    Result<ProcResult, std::string> result = this->cgi_handler_.send_request_body_to_cgi();
+    if (result.is_err()) {
+        DEBUG_PRINT(BG_YELLOW, "[Error] send to CGI: %s", result.err_value().c_str());
+        this->cgi_handler_.close_write_fd();
+        StatusCode error_code = InternalServerError;
+        this->set_status_code(error_code);
+        return Failure;
+    }
+
+    if (result.ok_value() == Continue) {
         return Continue;
     }
     this->cgi_handler_.close_write_fd();
-    // shutdown(this->cgi_write_fd(), SHUT_WR);
-    DEBUG_PRINT(YELLOW, "shutdown cgi write_fd");
-    if (result == Failure) {
-        StatusCode error_code = InternalServerError;
-        this->set_status_code(error_code);
-    }
-    return result;
+    return Success;
 }
 
 
-ssize_t HttpResponse::recv_to_buf(int fd) {
+Result<ProcResult, ErrMsg> HttpResponse::recv_to_buf(int fd) {
     return Socket::recv_to_buf(fd, &this->body_buf_);
 }
 
 
 ProcResult HttpResponse::recv_to_cgi_buf() {
     ProcResult result = this->cgi_handler_.recv_cgi_output();
-    if (result == Continue) {
-        return Continue;
-    }
     if (result == Failure) {
         StatusCode error_code = BadGateway;
         this->set_status_code(error_code);
@@ -184,7 +182,7 @@ ProcResult HttpResponse::recv_to_cgi_buf() {
         StatusCode error_code = GatewayTimeout;
         this->set_status_code(error_code);
     }
-    return result;
+    return result;  // Success/Continue/Timeout/Failure
 }
 
 
@@ -233,7 +231,6 @@ void HttpResponse::kill_cgi_process() {
 }
 
 
-// todo: unused??
 void HttpResponse::clear_cgi() {
     this->cgi_handler_.clear_cgi_process();
 }

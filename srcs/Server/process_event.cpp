@@ -21,6 +21,7 @@
 #include "IOMultiplexer.hpp"
 #include "Result.hpp"
 #include "Server.hpp"
+#include "StringHandler.hpp"
 
 
 ServerResult Server::process_event(int ready_fd) {
@@ -99,15 +100,17 @@ ServerResult Server::create_event(int socket_fd) {
 
     try {
         // std::cout << CYAN << " new_session created" << RESET << std::endl;
+        AddressPortPair server_listen = this->sockets_[socket_fd]->get_server_listen();
         AddressPortPair client_listen = Server::get_client_listen(client_addr);
 
         std::ostringstream oss; oss << client_listen;
-        DEBUG_PRINT(GRAY_BACK, "connect_client: %s", oss.str().c_str());
+        DEBUG_PRINT(BG_GRAY, "connect_client: %s", oss.str().c_str());
 
         Event *new_session = new Event(socket_fd,
                                        connect_fd,
-                                       client_listen,
                                        this->config_,
+                                       server_listen,
+                                       client_listen,
                                        &this->sessions_,
                                        this->echo_mode_on_);
         if (new_session->init_request_obj() == Failure) {
@@ -116,7 +119,7 @@ ServerResult Server::create_event(int socket_fd) {
         }
 
         if (MAX_CONNECTION <= this->client_events_.size()) {
-            DEBUG_PRINT(GRAY_BACK, "exceed max_connaction: events: %zu", this->client_events_.size());
+            DEBUG_PRINT(BG_GRAY, "exceed max_connaction: events: %zu", this->client_events_.size());
             if (new_session->set_to_max_connection_event() == Failure) {
                 delete new_session;  // client fd closed
                 DEBUG_PRINT(RED, "error: create response failure");
@@ -202,7 +205,7 @@ ServerResult Server::handle_client_event(int client_fd) {
 
     // DEBUG_SERVER_PRINT("process_event -> process_client_event");
     EventResult event_result = client_event->process_client_event();
-    if (event_result.is_err()) {  // fatal error
+    if (event_result.is_err()) {
         delete_event(event);
         const std::string error_msg = event_result.err_value();
         return ServerResult::err(error_msg);
@@ -258,7 +261,7 @@ ServerResult Server::handle_client_event(int client_fd) {
             std::ostringstream oss; oss << client_event;
             DEBUG_SERVER_PRINT("client event completed: %s", oss.str().c_str());
             if (client_event->is_keepalive()) {
-                DEBUG_PRINT(GRAY_BACK, " -> keep-alive %zu sec", this->config_.keepalive_timeout());
+                DEBUG_PRINT(BG_GRAY, " -> keep-alive %zu sec", this->config_.keepalive_timeout());
                 idling_event(client_event);
             } else {
                 DEBUG_SERVER_PRINT(" -> close connection");

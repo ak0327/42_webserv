@@ -143,11 +143,11 @@ StatusCode get_directory_listing_html(const std::string &directory_path_with_tra
 
     const std::string TITLE = "<html>" + std::string(CRLF)
                               + " <head><title>Index of "
-                              + directory_path_with_trailing_slash  // todo: path
+                              + directory_path_with_trailing_slash
                               + " </title></head>" + std::string(CRLF);
     const std::string HEADER = "  <body>" + std::string(CRLF)
                                + "   <h1>Index of "
-                               + directory_path_with_trailing_slash  // todo: path
+                               + directory_path_with_trailing_slash
                                + "</h1>" + std::string(CRLF);
     const std::string TAIL =   "  </body>" + std::string(CRLF)
                                + "</html>" + std::string(CRLF);
@@ -188,7 +188,7 @@ StatusCode get_directory_listing_html(const std::string &directory_path_with_tra
         std::string file_path = directory_path_with_trailing_slash + itr->name;
         std::ostringstream directory_oss;
         directory_oss << ROW_START;
-        directory_oss << COL_NAME_START << "<a href=\"" << itr->name << "\">" << itr->name << "</a>" << COL_END;  // todo: link
+        directory_oss << COL_NAME_START << "<a href=\"" << itr->name << "\">" << itr->name << "</a>" << COL_END;
         directory_oss << COL_TIME_START << itr->last_modified_time << COL_END;
         directory_oss << COL_SIZE_START << "-" << COL_END;
         directory_oss << ROW_END;
@@ -201,7 +201,7 @@ StatusCode get_directory_listing_html(const std::string &directory_path_with_tra
         std::string file_path = directory_path_with_trailing_slash + itr->name;
         std::ostringstream file_oss;
         file_oss << ROW_START;
-        file_oss << COL_NAME_START << "<a href=\"" << itr->name << "\">" << itr->name << "</a>" << COL_END;  // todo: link
+        file_oss << COL_NAME_START << "<a href=\"" << itr->name << "\">" << itr->name << "</a>" << COL_END;
         file_oss << COL_TIME_START << itr->last_modified_time << COL_END;
         file_oss << COL_SIZE_START << itr->size << COL_END;
         file_oss << ROW_END;

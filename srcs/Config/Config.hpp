@@ -173,3 +173,4 @@ class Config {
 std::ostream &operator<<(std::ostream &out,
                          const std::map<AddressPortPair, const ServerConfig *> &default_servers);
 std::ostream &operator<<(std::ostream &out, const AddressPortPair &pair);
+std::ostream &operator<<(std::ostream &out, const ServerInfo &server_info);

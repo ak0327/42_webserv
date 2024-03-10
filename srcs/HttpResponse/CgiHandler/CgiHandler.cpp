@@ -27,7 +27,6 @@
 #include "Socket.hpp"
 #include "StringHandler.hpp"
 
-extern char **environ;
 
 CgiHandler::CgiHandler()
     : cgi_read_fd_(INIT_FD),
@@ -56,26 +55,29 @@ void CgiHandler::clear_cgi_process() {
 
 void CgiHandler::kill_cgi_process() {
     if (pid() == INIT_PID) {
-        DEBUG_PRINT(GRAY, "kill pid nothing at %zu -> return", std::time(NULL));
+        DEBUG_PRINT(GRAY, "[kill_cgi_process] kill pid nothing at %zu -> return", std::time(NULL));
         return;
     }
 
-    DEBUG_PRINT(RED, "kill pid: %d at %zu", pid(), std::time(NULL));
+    DEBUG_PRINT(WHITE, "[kill_cgi_process] kill pid: %d at %zu", pid(), std::time(NULL));
     int status = -1;
     if (!is_processing(&status)) {
-        DEBUG_PRINT(RED, "child status: %d", status);
+        DEBUG_PRINT(WHITE, "[kill_cgi_process] child status: %d", status);
         return;
     }
-    if (this->pid() == -1) { return; }
+    if (this->pid() == INIT_PID) { return; }
     errno = 0;
     if (kill(this->pid(), SIGKILL) == KILL_ERROR) {
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
-        DEBUG_PRINT(RED, "kill: %s", error_msg.c_str());
+        DEBUG_PRINT(WHITE, "[kill_cgi_process] kill: %s", error_msg.c_str());
     }
     if (is_processing(&status, FLAG_NONE)) {
-        DEBUG_PRINT(RED, "kill failure ??");
+        // for debug
+        DEBUG_PRINT(WHITE, "[kill_cgi_process] kill failure ??");
+    } else {
+        // for debug
+        DEBUG_PRINT(WHITE, "[kill_cgi_process] kill success");
     }
-    DEBUG_PRINT(RED, "kill -> child still running");
 }
 
 
@@ -158,8 +160,8 @@ char **CgiHandler::create_argv(const std::string &file_path) {
 }
 
 
-std::string CgiHandler::make_key_value_pair(const std::string &key,
-                                            const std::string &value) {
+std::string CgiHandler::make_env_elem(const std::string &key,
+                                      const std::string &value) {
     return key + "=" + value;
 }
 
@@ -169,17 +171,17 @@ char **CgiHandler::create_envp(const CgiParams &params) {
     content_length << params.content_length;
 
     std::vector<std::string> env_strings;
-    env_strings.push_back(make_key_value_pair("CONTENT_LENGTH", content_length.str()));
+    env_strings.push_back(make_env_elem("CONTENT_LENGTH", content_length.str()));
     if (!params.content_type.empty()) {
-        env_strings.push_back(make_key_value_pair("CONTENT_TYPE", params.content_type));
+        env_strings.push_back(make_env_elem("CONTENT_TYPE", params.content_type));
     }
-    env_strings.push_back(make_key_value_pair("QUERY_STRING", params.query_string));
-    env_strings.push_back(make_key_value_pair("PATH_INFO", params.path_info));
-    env_strings.push_back(make_key_value_pair("SCRIPT_NAME", params.script_path));
+    env_strings.push_back(make_env_elem("QUERY_STRING", params.query_string));
+    env_strings.push_back(make_env_elem("PATH_INFO", params.path_info));
+    env_strings.push_back(make_env_elem("SCRIPT_NAME", params.script_path));
 
     char *path_env = std::getenv("PATH");
     if (path_env != NULL) {
-        env_strings.push_back((make_key_value_pair("PATH", path_env)));
+        env_strings.push_back((make_env_elem("PATH", path_env)));
     }
 
     char **envp = NULL;
@@ -248,32 +250,34 @@ Result<std::vector<std::string>, ProcResult> CgiHandler::get_interpreter(const s
 }
 
 
-ProcResult CgiHandler::send_request_body_to_cgi() {
+Result<ProcResult, std::string> CgiHandler::send_request_body_to_cgi() {
     return Socket::send_buf(this->write_fd(), &this->params_.content);
 }
 
 
 ProcResult CgiHandler::recv_cgi_output() {
-    DEBUG_PRINT(YELLOW, "     recv_to_cgi_buf at %zu", std::time(NULL));
-    ssize_t recv_size = Socket::recv_to_buf(this->read_fd(), &this->recv_buf_);
-    DEBUG_PRINT(YELLOW, "      recv_size: %zd", recv_size);
-    // DEBUG_PRINT(YELLOW, "      recv_buf :[%s]", std::string(this->recv_buf_.begin(), this->recv_buf_.end()).c_str());
-    DEBUG_PRINT(GRAY_BACK, "      buf_size: %zd", this->recv_buf_.size());
+    DEBUG_PRINT(YELLOW, "[recv_cgi_output] recv_to_cgi_buf at %zu", std::time(NULL));
+    Result<ProcResult, ErrMsg> result = Socket::recv_to_buf(this->read_fd(), &this->recv_buf_);
+    if (result.is_err()) {
+        DEBUG_PRINT(BG_YELLOW, "[Error] recv CGI: %s", result.err_value().c_str());
+        this->kill_cgi_process();
+        return Failure;
+    }
 
+    DEBUG_PRINT(YELLOW, "[recv_cgi_output] recv_size: %zd, buf_size: %zu", result.ok_value(), this->recv_buf_.size());
     int process_exit_status;
     if (is_processing(&process_exit_status)) {
-        DEBUG_PRINT(YELLOW, "      recv continue");
+        DEBUG_PRINT(YELLOW, " -> recv continue");
         return Continue;
     }
-    // CgiHandler::close_read_fd();  // close fd in ClientSession
-    DEBUG_PRINT(YELLOW, "      process_exit_status: %d", process_exit_status);
+    DEBUG_PRINT(YELLOW, "[recv_cgi_output] process_exit_status: %d", process_exit_status);
     if (process_exit_status == EXIT_SUCCESS) {
-        DEBUG_PRINT(YELLOW, "      recv success");
+        DEBUG_PRINT(YELLOW, " -> recv success");
         return Success;
     }
 
     clear_recv_buf();
-    DEBUG_PRINT(YELLOW, "      recv failure or timeout");
+    DEBUG_PRINT(YELLOW, " -> recv failure or timeout, clear buf");
     return process_exit_status == PROCESS_TIMEOUT ? Timeout : Failure;
 }
 
@@ -320,10 +324,10 @@ Result<StatusCode, ProcResult> parse_status_line(const std::string &field_value)
  https://datatracker.ietf.org/doc/html/rfc7231#section-7.1.2
  */
 StatusCode CgiHandler::parse_document_response() {
-    StatusCode cgi_status = StatusOk;
-    int content_count = 0;
-    int status_count = 0;
-    int location_count = 0;
+    StatusCode tmp_status = StatusInit;
+    std::string tmp_location;
+    MediaType tmp_content_type;
+    int content_type_cnt = 0;
     while (true) {
         Result<std::string, ProcResult> line_result = pop_line_from_buf();
         if (line_result.is_err()) {
@@ -345,47 +349,49 @@ StatusCode CgiHandler::parse_document_response() {
         }
         field_name = StringHandler::to_lower(field_name);
         if (field_name == std::string(CONTENT_TYPE)) {
-            ++content_count;
-            if (1 < content_count) {
+            if (1 < ++content_type_cnt) {  // duplicated
                 return InternalServerError;
             }
-            if (this->media_type_.is_ok()) {
-                return InternalServerError;
-            }
-            this->media_type_ = MediaType(field_value);
-            if (this->media_type_.is_err()) {
+            tmp_content_type = MediaType(field_value);
+            if (tmp_content_type.is_err()) {  // parse error
                 return InternalServerError;
             }
         } else if (field_name == std::string(LOCATION)) {
-            ++location_count;
-            if (1 < location_count) {
+            if (!tmp_location.empty()) {  // duplicated
                 return InternalServerError;
             }
             if (HttpMessageParser::is_uri_ref(field_value)) {
-                this->location_ = field_value;
+                tmp_location = field_value;
             } else {
                 return InternalServerError;
             }
         } else if (field_name == "status") {
-            ++status_count;
-            if (1 < status_count) {
+            if (tmp_status != StatusInit) {  // duplicated
                 return InternalServerError;
             }
             Result<StatusCode, ProcResult> status_result = parse_status_line(field_value);
             if (status_result.is_err()) {
                 return InternalServerError;
             }
-            cgi_status = status_result.ok_value();
+            tmp_status = status_result.ok_value();
         }
     }
-    if (this->media_type_.is_err()) {
-        return InternalServerError;
+
+    if (HttpMessageParser::is_redirection_status(tmp_status) && !tmp_location.empty()) {
+        this->location_ = tmp_location;
+        this->cgi_status_ = tmp_status;
+        return this->cgi_status_;
     }
-    if (HttpMessageParser::is_redirection_status(this->cgi_status_)
-        && location_count != 1) {
-        return InternalServerError;
+    if (tmp_content_type.is_ok()) {
+        this->media_type_ = tmp_content_type;
+        this->cgi_status_ = (tmp_status == StatusInit) ? StatusOk : tmp_status;
+        return this->cgi_status_;
     }
-    return cgi_status;
+    if (content_type_cnt == 0) {
+        this->cgi_status_ = (tmp_status == StatusInit) ? StatusOk : tmp_status;
+        return this->cgi_status_;
+    }
+    return InternalServerError;
 }
 
 
@@ -522,7 +528,7 @@ int CgiHandler::exec_script_in_child(int from_parant[2],
 
     char **argv = create_argv(file_path);
     if (!argv) {
-        DEBUG_PRINT(CYAN, "    cgi(child) 3");
+        DEBUG_PRINT(CYAN, "    cgi(child) 3 argv error");
         close_socket_pairs(from_parant);
         close_socket_pairs(to_parent);
         return EXIT_FAILURE;
@@ -532,18 +538,18 @@ int CgiHandler::exec_script_in_child(int from_parant[2],
         delete_char_double_ptr(argv);
         close_socket_pairs(from_parant);
         close_socket_pairs(to_parent);
-        DEBUG_PRINT(CYAN, "    cgi(child) 4");
+        DEBUG_PRINT(CYAN, "    cgi(child) 4 envp error");
         return EXIT_FAILURE;
     }
 
-    // DEBUG_PRINT(CYAN, "    cgi(child) 5, argv[0]:%s", argv[0]);
+    DEBUG_PRINT(CYAN, "    cgi(child) 5, argv[0]:%s", argv[0]);
     errno = 0;
     if (execve(argv[0],
                static_cast<char *const *>(argv),
                static_cast<char *const *>(envp)) == EXECVE_ERROR) {
         const std::string error_msg = CREATE_ERROR_INFO_ERRNO(errno);
         std::cerr << error_msg << std::endl;  // todo: tmp -> log?
-        DEBUG_PRINT(CYAN, "    cgi(child) 6 error");
+        DEBUG_PRINT(CYAN, "    cgi(child) 6 execve error");
     }
     DEBUG_PRINT(CYAN, "    cgi(child) 7 error");
     delete_char_double_ptr(envp);
