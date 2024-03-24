@@ -43,9 +43,12 @@ make
     - `root`
     - `autoindex`
     - `index`
-    - `webserv_cgi`
-    - `webserv_cgi_pass`
-    - `webserv_cgi_param`
+    - `limit_except`
+      - `deny`
+      - `allow`
+    - `cgi_mode`
+    - `cgi_extension`
+    - `cgi_timeout`
     - `recv_timeout`
     - `send_timeout`
     - `keepalive_timeout`
